@@ -14,7 +14,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const [description, setDescription] = useState(editData?.description || "");
 	const [employerCategory, setEmployerCategory] = useState("");
 	const [questions, setQuestions] = useState(
-		editData?.questions || [{ question: "", type: "mcq", options: ["", "", "", ""], correctAnswer: null, marks: 1, imageUrl: "" }]
+		editData?.questions || [{ question: "", type: "mcq", options: ["", "", "", ""], optionImages: ["", "", "", ""], correctAnswer: null, marks: 1, imageUrl: "" }]
 	);
 	const [isMinimized, setIsMinimized] = useState(false);
 	const [isMaximized, setIsMaximized] = useState(false);
@@ -80,9 +80,11 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			updated[index].type = value;
 			if (value === "subjective" || value === "upload" || value === "image") {
 				updated[index].options = [];
+				updated[index].optionImages = [];
 				updated[index].correctAnswer = null;
-			} else {
+			} else if (value === "mcq" || value === "visual-mcq") {
 				updated[index].options = ["", "", "", ""];
+				updated[index].optionImages = value === "visual-mcq" ? ["", "", "", ""] : [];
 				updated[index].correctAnswer = null;
 			}
 		}
@@ -113,7 +115,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				return;
 			}
 			
-			if (lastQuestion.type === "mcq" && (lastQuestion.correctAnswer === null || lastQuestion.correctAnswer === undefined)) {
+			if (lastQuestion.type === "mcq" || lastQuestion.type === "visual-mcq" && (lastQuestion.correctAnswer === null || lastQuestion.correctAnswer === undefined)) {
 				showWarning("Please select answer before you create question");
 				return;
 			}
@@ -121,7 +123,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		
 		setQuestions([
 			...questions,
-			{ question: "", type: "mcq", options: ["", "", "", ""], correctAnswer: null, marks: 1, imageUrl: "" },
+			{ question: "", type: "mcq", options: ["", "", "", ""], optionImages: ["", "", "", ""], correctAnswer: null, marks: 1, imageUrl: "" },
 		]);
 	};
 
@@ -142,6 +144,36 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const handleMaximize = () => {
 		if (isMinimized) setIsMinimized(false);
 		setIsMaximized(!isMaximized);
+	};
+
+	const handleOptionImageUpload = async (qIndex, optIndex, file) => {
+		if (!file) return;
+		
+		const formData = new FormData();
+		formData.append('image', file);
+		
+		try {
+			const token = localStorage.getItem('employerToken');
+			const response = await fetch('http://localhost:5000/api/employer/assessments/upload-option-image', {
+				method: 'POST',
+				headers: {
+					'Authorization': `Bearer ${token}`
+				},
+				body: formData
+			});
+			
+			const data = await response.json();
+			if (data.success) {
+				const updated = [...questions];
+				updated[qIndex].optionImages[optIndex] = data.imageUrl;
+				setQuestions(updated);
+				showSuccess('Option image uploaded successfully');
+			} else {
+				showError(data.message || 'Failed to upload option image');
+			}
+		} catch (error) {
+			showError('Failed to upload option image');
+		}
 	};
 
 	const handleImageUpload = async (qIndex, file) => {
@@ -213,7 +245,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					return;
 				}
 				
-				if (question.type === "mcq") {
+				if (question.type === "mcq" || question.type === "visual-mcq") {
 					for (let j = 0; j < question.options.length; j++) {
 						if (!question.options[j].trim()) {
 							showWarning(`Please fill Option ${String.fromCharCode(65 + j)} for Question ${i + 1}`);
@@ -474,7 +506,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					}}>
 						<i className="fa fa-info-circle" style={{color: '#2196f3', fontSize: 14}}></i>
 						<small style={{color: '#1565c0', fontSize: 12, margin: 0}}>
-							Supports MCQ, Subjective (text), and Upload Image questions
+							Supports MCQ, Visual MCQs (with images), Subjective (text), and Upload Image questions
 						</small>
 					</div>
 
@@ -496,6 +528,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 										style={{ width: "120px", fontSize: "12px" }}
 									>
 										<option value="mcq">MCQ</option>
+										<option value="visual-mcq">Visual MCQs</option>
 										<option value="subjective">Subjective</option>
 										<option value="image">Upload Image</option>
 									</select>
@@ -519,40 +552,74 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								placeholder="Enter your question here..."
 								style={{ marginBottom: '1rem' }}
 							/>
-							{q.type === "mcq" ? (
+							{q.type === "mcq" || q.type === "visual-mcq" ? (
 								<>
 									<div className="row mb-3">
 										{q.options.map((opt, optIndex) => (
 										<div
 											key={optIndex}
-											className="col-6 mb-3 d-flex align-items-center"
+											className="col-6 mb-3"
 										>
-											<input
-												type="radio"
-												name={`correct-${qIndex}`}
-												checked={q.correctAnswer === optIndex}
-												onChange={() =>
-													handleCorrectAnswerChange(qIndex, optIndex)
-												}
-												style={{ 
-													width: "18px", 
-													height: "18px", 
-													marginRight: "8px",
-													flexShrink: 0,
-													appearance: "auto"
-												}}
-											/>
-											<input
-												type="text"
-												className="form-control"
-												placeholder={`Option ${String.fromCharCode(
-													65 + optIndex
-												)}`}
-												value={opt}
-												onChange={(e) =>
-													handleOptionChange(qIndex, optIndex, e.target.value)
-												}
-											/>
+											<div className="d-flex align-items-center mb-2">
+												<input
+													type="radio"
+													name={`correct-${qIndex}`}
+													checked={q.correctAnswer === optIndex}
+													onChange={() =>
+														handleCorrectAnswerChange(qIndex, optIndex)
+													}
+													style={{ 
+														width: "18px", 
+														height: "18px", 
+														marginRight: "8px",
+														flexShrink: 0,
+														appearance: "auto"
+													}}
+												/>
+												<input
+													type="text"
+													className="form-control"
+													placeholder={`Option ${String.fromCharCode(
+														65 + optIndex
+													)}`}
+													value={opt}
+													onChange={(e) =>
+														handleOptionChange(qIndex, optIndex, e.target.value)
+													}
+												/>
+											</div>
+											{q.type === "visual-mcq" && (
+												<div className="mt-2">
+													<input
+														type="file"
+														className="form-control form-control-sm"
+														accept="image/*"
+														onChange={(e) => handleOptionImageUpload(qIndex, optIndex, e.target.files[0])}
+														style={{ fontSize: "12px" }}
+													/>
+													{q.optionImages && q.optionImages[optIndex] && (
+														<div className="mt-1">
+															<img 
+																src={q.optionImages[optIndex]} 
+																alt={`Option ${String.fromCharCode(65 + optIndex)}`} 
+																style={{maxWidth: '80px', maxHeight: '60px', borderRadius: '4px'}} 
+															/>
+															<button
+																type="button"
+																className="btn btn-sm ms-1"
+																style={{backgroundColor: '#ff6600', color: 'white', border: 'none', fontSize: '10px', padding: '2px 6px'}}
+																onClick={() => {
+																	const updated = [...questions];
+																	updated[qIndex].optionImages[optIndex] = "";
+																	setQuestions(updated);
+																}}
+															>
+																Remove
+															</button>
+														</div>
+													)}
+												</div>
+											)}
 										</div>
 										))}
 									</div>

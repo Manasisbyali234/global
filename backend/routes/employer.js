@@ -192,6 +192,7 @@ router.get('/interview-responses/:applicationId', employerController.getIntervie
 // Assessment Routes
 const assessmentController = require('../controllers/assessmentController');
 router.post('/assessments/upload-question-image', uploadQuestionImage.single('image'), assessmentController.uploadQuestionImage);
+router.post('/assessments/upload-option-image', uploadQuestionImage.single('image'), assessmentController.uploadOptionImage);
 router.post('/assessments', assessmentController.createAssessment);
 router.get('/assessments', assessmentController.getAssessments);
 router.get('/assessments/:id', assessmentController.getAssessmentDetails);

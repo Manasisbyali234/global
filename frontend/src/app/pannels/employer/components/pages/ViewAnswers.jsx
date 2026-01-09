@@ -219,7 +219,7 @@ export default function ViewAnswers() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {allAnswers.map((answer, index) => {
               const question = assessment.questions[answer.questionIndex];
-              const isCorrect = question.type === 'mcq' && parseInt(answer.selectedAnswer) === parseInt(question.correctAnswer);
+              const isCorrect = (question.type === 'mcq' || question.type === 'visual-mcq') && parseInt(answer.selectedAnswer) === parseInt(question.correctAnswer);
               return (
                 <div 
                   key={index}
@@ -242,7 +242,7 @@ export default function ViewAnswers() {
                       Question {answer.questionIndex + 1}
                     </span>
                     <span style={{ 
-                      background: question.type === 'mcq' ? '#3b82f6' : 
+                      background: question.type === 'mcq' || question.type === 'visual-mcq' ? '#3b82f6' : 
                                  question.type === 'subjective' ? '#10b981' : 
                                  question.type === 'image' ? '#8b5cf6' : '#f59e0b', 
                       color: 'white', 
@@ -253,10 +253,11 @@ export default function ViewAnswers() {
                       textTransform: 'uppercase'
                     }}>
                       {question.type === 'mcq' ? 'MCQ' : 
+                       question.type === 'visual-mcq' ? 'Visual MCQ' :
                        question.type === 'subjective' ? 'Subjective' : 
                        question.type === 'image' ? 'Image Upload' : 'File Upload'}
                     </span>
-                    {question.type === 'mcq' && (
+                    {(question.type === 'mcq' || question.type === 'visual-mcq') && (
                       <span style={{ 
                         background: isCorrect ? '#dcfce7' : '#fecaca', 
                         color: isCorrect ? '#166534' : '#991b1b', 
@@ -293,7 +294,7 @@ export default function ViewAnswers() {
                     </div>
                   )}
                   
-                  {question.type === 'mcq' ? (
+                  {(question.type === 'mcq' || question.type === 'visual-mcq') ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       {question.options.map((option, idx) => {
                         const isSelected = parseInt(answer.selectedAnswer) === idx;
@@ -307,14 +308,33 @@ export default function ViewAnswers() {
                               borderRadius: '8px',
                               borderLeft: isSelected ? '4px solid ' + (isCorrectOption ? '#10b981' : '#ef4444') : (isCorrectOption ? '4px solid #f59e0b' : 'none'),
                               display: 'flex',
-                              alignItems: 'center',
+                              alignItems: 'flex-start',
                               gap: '0.75rem'
                             }}
                           >
-                            <span style={{ fontWeight: '600', color: '#374151' }}>{String.fromCharCode(65 + idx)}.</span>
-                            <span style={{ color: '#374151', flex: 1 }}>{option}</span>
-                            {isSelected && <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>Selected</span>}
-                            {isCorrectOption && !isSelected && <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#f59e0b' }}>Correct Answer</span>}
+                            <span style={{ fontWeight: '600', color: '#374151', marginTop: '2px' }}>{String.fromCharCode(65 + idx)}.</span>
+                            <div style={{ flex: 1 }}>
+                              <span style={{ color: '#374151' }}>{option}</span>
+                              {question.type === 'visual-mcq' && question.optionImages && question.optionImages[idx] && (
+                                <div style={{ marginTop: '8px' }}>
+                                  <img 
+                                    src={question.optionImages[idx]} 
+                                    alt={`Option ${String.fromCharCode(65 + idx)}`} 
+                                    style={{
+                                      maxWidth: '200px', 
+                                      maxHeight: '150px', 
+                                      borderRadius: '4px', 
+                                      border: '1px solid #e5e7eb',
+                                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                    }} 
+                                  />
+                                </div>
+                              )}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                              {isSelected && <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>Selected</span>}
+                              {isCorrectOption && !isSelected && <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#f59e0b' }}>Correct Answer</span>}
+                            </div>
                           </div>
                         );
                       })}
@@ -448,44 +468,118 @@ export default function ViewAnswers() {
                             question.type === 'upload' ? '#f59e0b' : '#10b981'
                           }`
                         }}>
-                          <div style={{ 
-                            color: '#6b7280', 
-                            fontSize: '0.875rem', 
-                            fontWeight: '600',
-                            marginBottom: '0.75rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em'
-                          }}>
-                            Expected: {question.type === 'image' ? 'Image Upload' : question.type === 'upload' ? 'File Upload' : 'Text Answer'}
-                          </div>
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.75rem',
-                            padding: '1rem',
-                            background: '#fef2f2',
-                            borderRadius: '6px',
-                            border: '1px solid #fecaca'
-                          }}>
-                            <i className="fa fa-exclamation-circle" style={{ color: '#ef4444', fontSize: '1.25rem' }}></i>
+                          {answer.textAnswer && answer.textAnswer.trim() ? (
                             <div>
-                              <p style={{ 
-                                color: '#dc2626', 
+                              <div style={{ 
+                                color: '#6b7280', 
                                 fontSize: '0.875rem', 
                                 fontWeight: '600',
-                                margin: '0 0 0.25rem 0'
+                                marginBottom: '0.75rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
                               }}>
-                                No {question.type === 'image' ? 'image' : question.type === 'upload' ? 'file' : 'answer'} submitted
-                              </p>
+                                Candidate's Answer:
+                              </div>
                               <p style={{ 
-                                color: '#7f1d1d', 
-                                fontSize: '0.75rem',
-                                margin: 0
+                                color: '#374151', 
+                                fontSize: '1rem', 
+                                lineHeight: '1.75',
+                                margin: 0,
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
                               }}>
-                                The candidate submitted this question but did not provide any {question.type === 'image' ? 'image' : question.type === 'upload' ? 'file' : 'text answer'}.
+                                {answer.textAnswer}
                               </p>
                             </div>
-                          </div>
+                          ) : answer.uploadedFile ? (
+                            <div style={{ color: '#374151' }}>
+                              <div style={{ 
+                                color: '#6b7280', 
+                                fontSize: '0.875rem', 
+                                fontWeight: '600',
+                                marginBottom: '0.75rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
+                              }}>
+                                Uploaded {question.type === 'image' ? 'Image' : 'File'}:
+                              </div>
+                              
+                              {question.type === 'image' ? (
+                                <div style={{ marginTop: '1rem' }}>
+                                  <img 
+                                    src={answer.uploadedFile.data || (answer.uploadedFile.path?.startsWith('http') ? answer.uploadedFile.path : `http://localhost:5000${answer.uploadedFile.path}`)} 
+                                    alt="Candidate's upload" 
+                                    style={{
+                                      maxWidth: '100%',
+                                      maxHeight: '500px',
+                                      borderRadius: '8px',
+                                      border: '1px solid #e5e7eb',
+                                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <div style={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  gap: '1rem',
+                                  background: 'white',
+                                  padding: '1rem',
+                                  borderRadius: '8px',
+                                  border: '1px solid #e5e7eb'
+                                }}>
+                                  <i className="fa fa-file-text" style={{ fontSize: '2rem', color: '#f59e0b' }}></i>
+                                  <div>
+                                    <div style={{ fontWeight: '600', color: '#374151' }}>{answer.uploadedFile.originalName || 'Uploaded file'}</div>
+                                    <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                                      {answer.uploadedFile.size ? `${(answer.uploadedFile.size / 1024).toFixed(1)} KB` : 'Unknown size'}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div>
+                              <div style={{ 
+                                color: '#6b7280', 
+                                fontSize: '0.875rem', 
+                                fontWeight: '600',
+                                marginBottom: '0.75rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
+                              }}>
+                                Expected: {question.type === 'image' ? 'Image Upload' : question.type === 'upload' ? 'File Upload' : 'Text Answer'}
+                              </div>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.75rem',
+                                padding: '1rem',
+                                background: '#fef2f2',
+                                borderRadius: '6px',
+                                border: '1px solid #fecaca'
+                              }}>
+                                <i className="fa fa-exclamation-circle" style={{ color: '#ef4444', fontSize: '1.25rem' }}></i>
+                                <div>
+                                  <p style={{ 
+                                    color: '#dc2626', 
+                                    fontSize: '0.875rem', 
+                                    fontWeight: '600',
+                                    margin: '0 0 0.25rem 0'
+                                  }}>
+                                    No {question.type === 'image' ? 'image' : question.type === 'upload' ? 'file' : 'answer'} submitted
+                                  </p>
+                                  <p style={{ 
+                                    color: '#7f1d1d', 
+                                    fontSize: '0.75rem',
+                                    margin: 0
+                                  }}>
+                                    The candidate submitted this question but did not provide any {question.type === 'image' ? 'image' : question.type === 'upload' ? 'file' : 'text answer'}.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

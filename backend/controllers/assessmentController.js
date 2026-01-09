@@ -31,7 +31,7 @@ exports.createAssessment = async (req, res) => {
       
       // Only validate options and correctAnswer for MCQ questions
       const questionType = question.type || 'mcq';
-      if (questionType === 'mcq') {
+      if (questionType === 'mcq' || questionType === 'visual-mcq') {
         if (!question.options || question.options.length < 2) {
           return res.status(400).json({ 
             success: false, 
@@ -89,6 +89,7 @@ exports.createAssessment = async (req, res) => {
         question: q.question.trim(),
         type: q.type || 'mcq',
         options: (q.type === 'subjective' || q.type === 'upload' || q.type === 'image') ? [] : q.options.map(opt => opt.trim()),
+        optionImages: (q.type === 'visual-mcq' && q.optionImages) ? q.optionImages : [],
         correctAnswer: (q.type === 'subjective' || q.type === 'upload' || q.type === 'image') ? null : q.correctAnswer,
         marks: q.marks || 1,
         explanation: q.explanation ? q.explanation.trim() : '',
@@ -161,7 +162,7 @@ exports.updateAssessment = async (req, res) => {
       }
       
       const questionType = question.type || 'mcq';
-      if (questionType === 'mcq') {
+      if (questionType === 'mcq' || questionType === 'visual-mcq') {
         if (!question.options || question.options.length < 2) {
           return res.status(400).json({ 
             success: false, 
@@ -207,6 +208,7 @@ exports.updateAssessment = async (req, res) => {
         question: q.question.trim(),
         type: q.type || 'mcq',
         options: (q.type === 'subjective' || q.type === 'upload' || q.type === 'image') ? [] : q.options.map(opt => opt.trim()),
+        optionImages: (q.type === 'visual-mcq' && q.optionImages) ? q.optionImages : [],
         correctAnswer: (q.type === 'subjective' || q.type === 'upload' || q.type === 'image') ? null : q.correctAnswer,
         marks: q.marks || 1,
         explanation: q.explanation ? q.explanation.trim() : '',
@@ -455,7 +457,7 @@ exports.submitAnswer = async (req, res) => {
     const question = assessment.questions[questionIndex];
     
     // Validate answer based on question type
-    if (question.type === 'mcq') {
+    if (question.type === 'mcq' || question.type === 'visual-mcq') {
       if (selectedAnswer === null || selectedAnswer === undefined) {
         return res.status(400).json({ success: false, message: 'Please select an answer' });
       }
@@ -469,7 +471,7 @@ exports.submitAnswer = async (req, res) => {
     const existingAnswerIndex = attempt.answers.findIndex(a => a.questionIndex === questionIndex);
     const answerData = {
       questionIndex,
-      selectedAnswer: question.type === 'mcq' ? parseInt(selectedAnswer) : null,
+      selectedAnswer: question.type === 'mcq' || question.type === 'visual-mcq' ? parseInt(selectedAnswer) : null,
       textAnswer: (question.type === 'subjective' || question.type === 'image' || question.type === 'upload') && textAnswer ? textAnswer : null,
       timeSpent: timeSpent || 0,
       answeredAt: new Date()
@@ -715,7 +717,7 @@ exports.submitAssessment = async (req, res) => {
       totalAnswered++;
       
       // Handle different question types
-      if (question.type === 'mcq') {
+      if (question.type === 'mcq' || question.type === 'visual-mcq') {
         // Ensure both values are integers for accurate comparison
         const selectedAnswer = parseInt(answer.selectedAnswer);
         const correctAnswer = parseInt(question.correctAnswer);
@@ -1067,6 +1069,24 @@ exports.getAssessmentResultByApplication = async (req, res) => {
 
 // Upload Question Image
 exports.uploadQuestionImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No image uploaded' });
+    }
+    
+    const fs = require('fs');
+    const imageBuffer = fs.readFileSync(req.file.path);
+    const base64Image = `data:${req.file.mimetype};base64,${imageBuffer.toString('base64')}`;
+    fs.unlinkSync(req.file.path);
+    const imageUrl = base64Image;
+    res.json({ success: true, imageUrl });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Upload MCQ Option Image
+exports.uploadOptionImage = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No image uploaded' });

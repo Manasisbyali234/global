@@ -1,0 +1,182 @@
+/* GLOBAL Z-INDEX HIERARCHY FIX */
+
+/* Define z-index hierarchy to prevent stacking issues */
+:root {
+  --z-index-base: 1;
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+  --z-index-toast: 1080;
+  --z-index-modal-max: 2147483647;
+}
+
+/* Sidebar z-index fixes */
+#sidebar-admin-wraper,
+.sidebar,
+.admin-sidebar,
+.emp-sidebar,
+.can-sidebar {
+  z-index: var(--z-index-fixed) !important;
+}
+
+/* Mobile sidebar should be higher but still below modals */
+@media (max-width: 991px) {
+  #sidebar-admin-wraper,
+  .sidebar,
+  .admin-sidebar,
+  .emp-sidebar,
+  .can-sidebar {
+    z-index: var(--z-index-modal-backdrop) !important;
+  }
+}
+
+/* Header z-index fixes */
+header,
+.header,
+.site-header,
+.navbar,
+.twm-header-style-1,
+.header-fixed,
+.main-header,
+#header-admin,
+.emp-header,
+.can-header,
+.admin-header {
+  z-index: var(--z-index-fixed) !important;
+}
+
+/* Mobile menu toggle */
+.mobile-menu-toggle {
+  z-index: calc(var(--z-index-modal-backdrop) + 1) !important;
+}
+
+/* All modal overlays should use maximum z-index */
+.modal-overlay,
+.popup-overlay,
+.captured-image-modal-overlay,
+.image-modal-overlay,
+.confirmation-modal-overlay,
+.dialog-overlay {
+  z-index: var(--z-index-modal-max) !important;
+  position: fixed !important;
+}
+
+/* Bootstrap modal fixes */
+.modal {
+  z-index: var(--z-index-modal-max) !important;
+}
+
+.modal-backdrop {
+  z-index: calc(var(--z-index-modal-max) - 1) !important;
+}
+
+/* Dropdown menus */
+.dropdown-menu,
+.select-dropdown,
+.autocomplete-dropdown {
+  z-index: var(--z-index-dropdown) !important;
+}
+
+/* Tooltips and popovers */
+.tooltip,
+.popover {
+  z-index: var(--z-index-tooltip) !important;
+}
+
+/* Toast notifications */
+.toast,
+.notification,
+.alert-popup {
+  z-index: var(--z-index-toast) !important;
+}
+
+/* Ensure body doesn't scroll when modal is open */
+body.modal-open,
+body:has(.modal-overlay),
+body:has(.popup-overlay),
+body:has(.captured-image-modal-overlay) {
+  overflow: hidden !important;
+}
+
+/* Fix for any elements that might interfere */
+.page-content,
+.main-content,
+.dashboard-content,
+.twm-right-section-panel {
+  z-index: var(--z-index-base) !important;
+  position: relative !important;
+}
+
+/* Specific fix for assessment results page */
+.emp-dashboard {
+  z-index: var(--z-index-base) !important;
+  position: relative !important;
+}
+
+/* Ensure all interactive elements work properly */
+button,
+a,
+input,
+select,
+textarea {
+  position: relative !important;
+}
+
+/* Fix for any sticky elements */
+.sticky,
+.sticky-top,
+.position-sticky {
+  z-index: var(--z-index-sticky) !important;
+}
+
+/* Fix for any fixed elements */
+.fixed,
+.fixed-top,
+.fixed-bottom,
+.position-fixed {
+  z-index: var(--z-index-fixed) !important;
+}
+
+/* Override any conflicting z-index values */
+.captured-image-modal-overlay {
+  z-index: var(--z-index-modal-max) !important;
+}
+
+.captured-image-modal-content {
+  z-index: var(--z-index-modal-max) !important;
+  position: relative !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  /* On mobile, ensure modals are always on top */
+  .modal-overlay,
+  .popup-overlay,
+  .captured-image-modal-overlay {
+    z-index: var(--z-index-modal-max) !important;
+  }
+  
+  /* Mobile sidebar overlay */
+  .sidebar-overlay {
+    z-index: calc(var(--z-index-modal-backdrop) - 1) !important;
+  }
+}
+
+/* Debug helper - uncomment to see z-index values */
+/*
+[style*="z-index"]::before {
+  content: "z-index: " attr(style);
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  font-size: 10px;
+  padding: 2px;
+  z-index: 999999;
+}
+*/

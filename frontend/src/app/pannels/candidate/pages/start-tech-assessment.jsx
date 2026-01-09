@@ -985,7 +985,7 @@ const StartAssessment = () => {
 												? "#ecf6fd"
 												: "#fff",
 										display: "flex",
-										alignItems: "center",
+										alignItems: "flex-start",
 									}}
 								>
 									<input
@@ -995,9 +995,25 @@ const StartAssessment = () => {
 										checked={answers[currentQuestionIndex] === idx}
 										onChange={() => handleOptionChange(idx)}
 										disabled={isSubmitted}
-										style={{ marginRight: "10px" }}
+										style={{ marginRight: "10px", marginTop: "2px" }}
 									/>
-									{option}
+									<div style={{ flex: 1 }}>
+										<div>{String.fromCharCode(65 + idx)}. {option}</div>
+										{question.type === 'visual-mcq' && question.optionImages && question.optionImages[idx] && (
+											<div style={{ marginTop: "8px" }}>
+												<img 
+													src={question.optionImages[idx]} 
+													alt={`Option ${String.fromCharCode(65 + idx)}`} 
+													style={{
+														maxWidth: "200px", 
+														maxHeight: "150px", 
+														borderRadius: "4px", 
+														border: "1px solid #ddd"
+													}} 
+												/>
+											</div>
+										)}
+									</div>
 								</label>
 							))
 						) : (
