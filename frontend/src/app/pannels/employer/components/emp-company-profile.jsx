@@ -1751,7 +1751,13 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-12">
                                 <div className="form-group">
-                                    <label className="mb-3"><FileText size={16} className="me-2" /> Authorization Letters (if registering on behalf of someone else)</label>
+                                    <label className="mb-3">
+                                        <FileText size={16} className="me-2" /> 
+                                        {formData.employerCategory === 'consultancy' 
+                                            ? 'List of hiring company names' 
+                                            : 'Authorization Letters (if registering on behalf of someone else)'
+                                        }
+                                    </label>
                                     
                                     <div className="row">
                                     {/* Dynamic Authorization Letter Sections */}
@@ -1759,7 +1765,13 @@ function EmpCompanyProfilePage() {
                                         <div key={section.id} className="col-md-6 mb-3">
                                             <div className="form-group">
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <label><Upload size={16} className="me-2" /> Authorization Letter #{index + 1}</label>
+                                                    <label>
+                                                        <Upload size={16} className="me-2" /> 
+                                                        {formData.employerCategory === 'consultancy' 
+                                                            ? `Hiring Company #${index + 1}` 
+                                                            : `Authorization Letter #${index + 1}`
+                                                        }
+                                                    </label>
                                                     {authSections.length > 1 && (
                                                         <button 
                                                             type="button" 
@@ -1773,13 +1785,13 @@ function EmpCompanyProfilePage() {
                                                 
                                                 {formData.employerCategory === 'consultancy' && (
                                                     <div className="mb-2">
-                                                        <label><Building size={14} className="me-1" /> Authorization Company Name</label>
+                                                        <label><Building size={14} className="me-1" /> Hiring Company Name</label>
                                                         <input
                                                             className="form-control"
                                                             type="text"
                                                             value={section.companyName}
                                                             onChange={(e) => handleAuthSectionCompanyNameChange(section.id, e.target.value)}
-                                                            placeholder="Enter authorization company name"
+                                                            placeholder="Enter hiring company name"
                                                         />
                                                     </div>
                                                 )}
@@ -1804,7 +1816,11 @@ function EmpCompanyProfilePage() {
                                                 style={{backgroundColor: '#ffb366', color: 'white', border: 'none'}}
                                                 onClick={addNewAuthSection}
                                             >
-                                                <i className="fas fa-plus me-1"></i> Add New Authorization Letter
+                                                <i className="fas fa-plus me-1"></i> 
+                                                {formData.employerCategory === 'consultancy' 
+                                                    ? 'Add New Hiring Company' 
+                                                    : 'Add New Authorization Letter'
+                                                }
                                             </button>
                                         </div>
                                     )}
@@ -1814,7 +1830,10 @@ function EmpCompanyProfilePage() {
                                         <div className="uploaded-documents mt-4">
                                             <h6 className="text-success">
                                                 <i className="fas fa-check-circle me-2"></i>
-                                                Uploaded Authorization Letters
+                                                {formData.employerCategory === 'consultancy' 
+                                                    ? 'Uploaded Hiring Company Documents' 
+                                                    : 'Uploaded Authorization Letters'
+                                                }
                                             </h6>
                                             <div className="row">
                                                 {formData.authorizationLetters.map((doc, index) => (

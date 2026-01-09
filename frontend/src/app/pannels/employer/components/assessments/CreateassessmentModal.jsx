@@ -9,8 +9,10 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const [title, setTitle] = useState(editData?.title || "");
 	const [type, setType] = useState(editData?.type || "Aptitude Test");
 	const [designation, setDesignation] = useState(editData?.designation || "");
+	const [companyName, setCompanyName] = useState(editData?.companyName || "");
 	const [timeLimit, setTimeLimit] = useState(editData?.timer || 30);
 	const [description, setDescription] = useState(editData?.description || "");
+	const [employerCategory, setEmployerCategory] = useState("");
 	const [questions, setQuestions] = useState(
 		editData?.questions || [{ question: "", type: "mcq", options: ["", "", "", ""], correctAnswer: null, marks: 1, imageUrl: "" }]
 	);
@@ -47,6 +49,26 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 
 	useEffect(() => {
 		disableBodyScroll();
+		
+		// Fetch employer profile to get category
+		const fetchEmployerCategory = async () => {
+			try {
+				const token = localStorage.getItem('employerToken');
+				if (token) {
+					const response = await fetch('http://localhost:5000/api/employer/profile', {
+						headers: { 'Authorization': `Bearer ${token}` }
+					});
+					const data = await response.json();
+					if (data.success && data.profile) {
+						setEmployerCategory(data.profile.employerCategory || '');
+					}
+				}
+			} catch (error) {
+				console.error('Error fetching employer category:', error);
+			}
+		};
+		
+		fetchEmployerCategory();
 		return () => enableBodyScroll();
 	}, []);
 
@@ -156,6 +178,11 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			return;
 		}
 		
+		if (employerCategory === 'consultancy' && !companyName.trim()) {
+			showWarning("Please enter the company name");
+			return;
+		}
+		
 		if (!title.trim()) {
 			showWarning("Please select an assessment title");
 			return;
@@ -208,11 +235,12 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		}
 		
 		onCreate({
-			id: editData?._id,
-			title,
-			type: title, // Use title as type since Type field is hidden
-			designation,
-			timer: timeLimit,
+				id: editData?._id,
+				title,
+				type: title, // Use title as type since Type field is hidden
+				designation,
+				companyName,
+				timer: timeLimit,
 			description,
 			questions,
 			status: isDraft ? 'draft' : 'published'
@@ -224,7 +252,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center"
 			style={{ 
 				background: isMinimized ? "transparent" : "rgba(0,0,0,0.5)", 
-				zIndex: 1050,
+				zIndex: 999999,
 				alignItems: isMinimized ? "flex-end" : "center",
 				padding: isMinimized ? "0 0 20px 0" : "0"
 			}}
@@ -243,7 +271,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					position: isMaximized ? "fixed" : "relative",
 					top: isMaximized ? "0" : "auto",
 					left: isMaximized ? "0" : "auto",
-					zIndex: isMaximized ? "9999" : "1050",
+					zIndex: "1000000",
 					borderRadius: isMaximized ? "0" : "12px",
 					boxShadow: isMinimized ? "0 -2px 10px rgba(0,0,0,0.2)" : "0 4px 20px rgba(0,0,0,0.15)",
 				}}
@@ -360,6 +388,22 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							<option value="Telecaller" />
 						</datalist>
 					</div>
+
+					{employerCategory === 'consultancy' && (
+						<div className="mb-3">
+							<label className="form-label small text-muted mb-2">
+								Company Name
+							</label>
+							<input
+								type="text"
+								className="form-control"
+								placeholder="Enter hiring company name"
+								value={companyName}
+								onChange={(e) => setCompanyName(e.target.value)}
+								required
+							/>
+						</div>
+					)}
 
 					<div className="mb-3">
 						<label className="form-label small text-muted mb-2">
