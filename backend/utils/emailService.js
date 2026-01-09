@@ -392,25 +392,34 @@ const sendOTPEmail = async (email, otp, name) => {
 
 const sendPlacementCandidateWelcomeEmail = async (email, name, password, placementOfficerName, collegeName, credits = 3) => {
   const transporter = createTransport();
-  const createPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=candidate`;
+  const resetPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=candidate`;
   const loginUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/`;
   
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Your TaleGlobal Account Is Ready – Create Password & Start Applying</h2>
+        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Your TaleGlobal Account Is Ready – Login & Start Applying</h2>
         
         <p>Dear Candidate,</p>
         
         <p>Your details have been successfully updated on the TaleGlobal platform by your placement officer.</p>
         
-        <p>To proceed, please create your password and log in to your account to complete your profile. After logging in, you can update your personal, educational, and skill-related information.</p>
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #2c3e50; text-align: center;">🔐 Your Login Credentials:</h3>
+          <p style="margin: 5px 0; text-align: center;"><strong>Email:</strong> ${email}</p>
+          <p style="margin: 5px 0; text-align: center;"><strong>Password:</strong> ${password}</p>
+          <p style="font-size: 14px; color: #666; margin-top: 15px; text-align: center;">You can change your password after logging in for security.</p>
+        </div>
+        
+        <p>To proceed, please log in to your account to complete your profile. After logging in, you can update your personal, educational, and skill-related information.</p>
+        
+        <p>You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
         
         <p>Take the next step and explore opportunities through completely online interviews.</p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔐 Create Password</a>
-          <a href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔗 Login Here</a>
+          <a href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Login Now</a>
+          <a href="${resetPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Reset Password</a>
         </div>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
@@ -426,7 +435,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Your TaleGlobal Account Is Ready – Reset Password & Start Applying',
+    subject: 'Your TaleGlobal Account Is Ready – Login & Start Applying',
     html: template
   };
 
@@ -998,27 +1007,33 @@ const sendPlacementAccessEnabledEmail = async (email, name, collegeName) => {
 
 const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
   const transporter = createTransport();
-  const createPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=candidate`;
+  const resetPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=candidate`;
   const loginUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/`;
   
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Your TaleGlobal Account Is Ready – Reset Password & Start Applying</h2>
+        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Your TaleGlobal Account Is Ready – Login & Start Applying</h2>
         
         <p>Dear Candidate,</p>
         
         <p>Your details have been successfully updated on the TaleGlobal platform by your placement officer.</p>
         
-        <p>To proceed, please reset your password and log in to your account to complete your profile. After logging in, you can update your personal, educational, and skill-related information.</p>
+        <p>To proceed, please log in to your account using the credentials provided by your placement officer. After logging in, you can update your personal, educational, and skill-related information.</p>
         
         <p>You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
         
         <p>Take the next step and explore opportunities through completely online interviews.</p>
         
+        <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
+          <p style="color: #1565c0; margin: 0; font-size: 14px;">
+            <strong>📝 Note:</strong> Use the login credentials provided by your placement officer. If you don't have them or want to set a new password, use the "Reset Password" option below.
+          </p>
+        </div>
+        
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔐 Create Password</a>
-          <a href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔗 Login Here</a>
+          <a href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Login Here</a>
+          <a href="${resetPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Reset Password</a>
         </div>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
@@ -1034,7 +1049,7 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Your TaleGlobal Account Is Ready – Reset Password & Start Applying',
+    subject: 'Your TaleGlobal Account Is Ready – Login & Start Applying',
     html: template
   };
 

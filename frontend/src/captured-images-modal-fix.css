@@ -1,0 +1,192 @@
+/* Captured Images Modal Z-Index Fix */
+
+/* Ensure the captured images modal overlay is always on top */
+.captured-images-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 2147483647 !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
+}
+
+/* Modal content styling */
+.captured-images-modal-content {
+  background: white !important;
+  border-radius: 12px !important;
+  padding: 2rem !important;
+  max-width: 900px !important;
+  width: 100% !important;
+  max-height: 90vh !important;
+  overflow: auto !important;
+  position: relative !important;
+  z-index: 2147483647 !important;
+}
+
+/* Ensure modal header is properly styled */
+.captured-images-modal-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.captured-images-modal-header h3 {
+  margin: 0 !important;
+  color: #111827 !important;
+}
+
+.captured-images-modal-close {
+  background: transparent !important;
+  border: none !important;
+  font-size: 1.5rem !important;
+  cursor: pointer !important;
+  color: #6b7280 !important;
+  padding: 0 !important;
+  width: 30px !important;
+  height: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  transition: all 0.2s ease !important;
+}
+
+.captured-images-modal-close:hover {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+}
+
+/* Images grid styling */
+.captured-images-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+  gap: 1rem !important;
+}
+
+.captured-image-item {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+.captured-image-container {
+  position: relative !important;
+  height: 200px !important;
+}
+
+.captured-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.captured-image-error {
+  display: none !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  text-align: center !important;
+  padding: 1rem !important;
+}
+
+.captured-image-label {
+  padding: 0.5rem !important;
+  background: #f9fafb !important;
+  text-align: center !important;
+}
+
+.captured-image-label small {
+  color: #6b7280 !important;
+}
+
+/* No captures message */
+.no-captures-message {
+  text-align: center !important;
+  color: #6b7280 !important;
+  padding: 2rem !important;
+}
+
+/* Prevent body scroll when modal is open */
+body:has(.captured-images-modal-overlay) {
+  overflow: hidden !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .captured-images-modal-content {
+    margin: 1rem !important;
+    padding: 1.5rem !important;
+    max-height: 85vh !important;
+  }
+  
+  .captured-images-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+    gap: 0.75rem !important;
+  }
+  
+  .captured-image-container {
+    height: 150px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .captured-images-modal-content {
+    margin: 0.5rem !important;
+    padding: 1rem !important;
+  }
+  
+  .captured-images-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+  
+  .captured-image-container {
+    height: 180px !important;
+  }
+}
+
+/* Ensure modal is always above everything */
+.captured-images-modal-overlay * {
+  z-index: inherit !important;
+}
+
+/* Hide sidebar and header when modal is open to ensure they don't appear at all */
+body:has(.captured-images-modal-overlay) #sidebar-admin-wraper,
+body:has(.captured-images-modal-overlay) #header-admin-wrap,
+body:has(.captured-images-modal-overlay) .header-admin-fixed,
+body:has(.captured-images-modal-overlay) .mobile-menu-toggle,
+body:has(.captured-images-modal-overlay) .site-header,
+body.modal-open-fix #sidebar-admin-wraper,
+body.modal-open-fix #header-admin-wrap,
+body.modal-open-fix .header-admin-fixed,
+body.modal-open-fix .mobile-menu-toggle,
+body.modal-open-fix .site-header {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  z-index: -1 !important;
+}
+
+/* Also hide page internal header if it's bothering */
+body.modal-open-fix .wt-admin-right-page-header {
+  display: none !important;
+}
+
+/* Override any conflicting styles */
+.captured-images-modal-overlay,
+.captured-images-modal-overlay .captured-images-modal-content {
+  z-index: 2147483647 !important;
+}

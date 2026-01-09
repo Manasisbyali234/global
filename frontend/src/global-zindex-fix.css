@@ -58,6 +58,7 @@ header,
 .modal-overlay,
 .popup-overlay,
 .captured-image-modal-overlay,
+.captured-images-modal-overlay,
 .image-modal-overlay,
 .confirmation-modal-overlay,
 .dialog-overlay {
@@ -98,7 +99,8 @@ header,
 body.modal-open,
 body:has(.modal-overlay),
 body:has(.popup-overlay),
-body:has(.captured-image-modal-overlay) {
+body:has(.captured-image-modal-overlay),
+body:has(.captured-images-modal-overlay) {
   overflow: hidden !important;
 }
 
@@ -147,6 +149,16 @@ textarea {
 }
 
 .captured-image-modal-content {
+  z-index: var(--z-index-modal-max) !important;
+  position: relative !important;
+}
+
+/* Captured Images Modal Specific Fix */
+.captured-images-modal-overlay {
+  z-index: var(--z-index-modal-max) !important;
+}
+
+.captured-images-modal-content {
   z-index: var(--z-index-modal-max) !important;
   position: relative !important;
 }

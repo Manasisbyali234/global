@@ -916,6 +916,17 @@ exports.createPassword = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Candidate not found' });
     }
 
+    // For placement candidates, allow password reset instead of creation
+    if (candidate.registrationMethod === 'placement') {
+      // Update password for placement candidates (they already have one from Excel)
+      candidate.password = password;
+      candidate.registrationMethod = 'signup'; // Change to signup so password gets hashed
+      candidate.status = 'active';
+      await candidate.save();
+      
+      return res.json({ success: true, message: 'Password updated successfully. You can now log in with your new password.' });
+    }
+
     if (candidate.password) {
       return res.status(400).json({ success: false, message: 'Password already set' });
     }

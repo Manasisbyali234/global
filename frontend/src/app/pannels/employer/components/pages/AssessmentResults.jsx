@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ResponsiveTable from '../../../../../components/ResponsiveTable';
 import '../emp-dashboard.css';
+import '../../../../../captured-images-modal-fix.css';
 
 export default function AssessmentResults() {
   const { assessmentId } = useParams();
@@ -13,6 +14,20 @@ export default function AssessmentResults() {
   const [isMobile, setIsMobile] = useState(false);
   const [showCapturesModal, setShowCapturesModal] = useState(false);
   const [selectedCaptures, setSelectedCaptures] = useState([]);
+
+  useEffect(() => {
+    if (showCapturesModal) {
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open-fix');
+    } else {
+      document.body.style.overflow = 'unset';
+      document.body.classList.remove('modal-open-fix');
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.body.classList.remove('modal-open-fix');
+    };
+  }, [showCapturesModal]);
 
   useEffect(() => {
     fetchResults();
@@ -397,67 +412,43 @@ export default function AssessmentResults() {
 
       {/* Captures Modal */}
       {showCapturesModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: '12px',
-            padding: '2rem',
-            maxWidth: '900px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflow: 'auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3 style={{ margin: 0, color: '#111827' }}>Captured Images ({selectedCaptures.length})</h3>
+        <div className="captured-images-modal-overlay">
+          <div className="captured-images-modal-content">
+            <div className="captured-images-modal-header">
+              <h3>Captured Images ({selectedCaptures.length})</h3>
               <button
+                className="captured-images-modal-close"
                 onClick={() => setShowCapturesModal(false)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  color: '#6b7280'
-                }}
               >
                 ×
               </button>
             </div>
             {selectedCaptures.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>No captures available</p>
+              <p className="no-captures-message">No captures available</p>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+              <div className="captured-images-grid">
                 {selectedCaptures.map((capture, index) => {
                   const imagePath = typeof capture === 'string' ? capture : (capture?.path || capture?.url || capture?.data || '');
                   
                   if (!imagePath) {
                     return (
-                      <div key={index} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-                        <div style={{ 
-                          height: '200px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          background: '#f9fafb',
-                          color: '#6b7280'
-                        }}>
-                          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📷</div>
-                          <div>No image available</div>
+                      <div key={index} className="captured-image-item">
+                        <div className="captured-image-container">
+                          <div style={{ 
+                            height: '200px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: '#f9fafb',
+                            color: '#6b7280'
+                          }}>
+                            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📷</div>
+                            <div>No image available</div>
+                          </div>
                         </div>
-                        <div style={{ padding: '0.5rem', background: '#f9fafb', textAlign: 'center' }}>
-                          <small style={{ color: '#6b7280' }}>Capture {index + 1}</small>
+                        <div className="captured-image-label">
+                          <small>Capture {index + 1}</small>
                         </div>
                       </div>
                     );
@@ -477,39 +468,25 @@ export default function AssessmentResults() {
                   }
                   
                   return (
-                    <div key={index} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-                      <div style={{ position: 'relative', height: '200px' }}>
+                    <div key={index} className="captured-image-item">
+                      <div className="captured-image-container">
                         <img 
                           src={imageUrl}
                           alt={`Capture ${index + 1}`}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          className="captured-image"
                           onError={(e) => {
                             e.target.style.display = 'none';
                             e.target.nextSibling.style.display = 'flex';
                           }}
                         />
-                        <div style={{ 
-                          display: 'none',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          background: '#fef2f2',
-                          color: '#dc2626',
-                          textAlign: 'center',
-                          padding: '1rem'
-                        }}>
+                        <div className="captured-image-error">
                           <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📷</div>
                           <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>Image Not Available</div>
                           <div style={{ fontSize: '0.75rem', color: '#7f1d1d' }}>Failed to load image</div>
                         </div>
                       </div>
-                      <div style={{ padding: '0.5rem', background: '#f9fafb', textAlign: 'center' }}>
-                        <small style={{ color: '#6b7280' }}>Capture {index + 1}</small>
+                      <div className="captured-image-label">
+                        <small>Capture {index + 1}</small>
                       </div>
                     </div>
                   );
