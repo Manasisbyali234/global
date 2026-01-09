@@ -998,7 +998,7 @@ const sendPlacementAccessEnabledEmail = async (email, name, collegeName) => {
 
 const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
   const transporter = createTransport();
-  const resetPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/reset-password`;
+  const createPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=candidate`;
   const loginUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/`;
   
   const template = `
@@ -1012,24 +1012,19 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
         
         <p>To proceed, please reset your password and log in to your account to complete your profile. After logging in, you can update your personal, educational, and skill-related information.</p>
         
-        <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #28a745;">
-          <h3 style="margin-top: 0; color: #155724;">🎯 Credits Assigned:</h3>
-          <p style="margin-bottom: 0; color: #155724;">As a final-year student, you have been provided with <strong>${credits} free job application credits</strong>, valid for 1 year from the date of assignment.</p>
-        </div>
-        
         <p>You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
         
         <p>Take the next step and explore opportunities through completely online interviews.</p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔐 Reset Password</a>
+          <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔐 Create Password</a>
           <a href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔗 Login Here</a>
         </div>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Best wishes for your career journey,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="http://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
           <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #fd7e14; text-decoration: none;">support@taleglobal.net</a></p>
         </div>
       </div>
