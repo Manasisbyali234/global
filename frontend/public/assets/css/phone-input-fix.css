@@ -1,0 +1,32 @@
+/* Phone Input Alignment Fix */
+.input-group {
+  display: flex;
+  align-items: stretch;
+}
+
+.input-group .form-select,
+.input-group .form-control {
+  height: 57px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ced4da;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.input-group .form-select {
+  border-radius: 0.375rem 0 0 0.375rem;
+  border-right: none;
+}
+
+.input-group .form-control[type="tel"] {
+  border-radius: 0 0.375rem 0.375rem 0;
+  border-left: none;
+}
+
+@media (max-width: 768px) {
+  .input-group .form-select,
+  .input-group .form-control {
+    height: 57px;
+    font-size: 16px;
+  }
+}

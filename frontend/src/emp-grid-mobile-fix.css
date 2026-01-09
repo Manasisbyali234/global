@@ -1,0 +1,41 @@
+/* Employer Grid Mobile Height Fix */
+@media (max-width: 991px) {
+  .wt-bnr-inr {
+    min-height: 80px !important;
+    height: 10vh !important;
+    padding: 2px 0 !important;
+    position: relative !important;
+  }
+  
+  .wt-bnr-inr-entry {
+    padding: 5px 0 !important;
+  }
+  
+  .banner-title-name .wt-title {
+    font-size: 18px !important;
+    margin: 0 0 2px 0 !important;
+  }
+  
+  .overlay-wraper .overlay-main,
+  .overlay-main {
+    height: 10vh !important;
+    min-height: 80px !important;
+    max-height: 120px !important;
+    position: absolute !important;
+  }
+  
+  /* Fix header overlap */
+  .page-content {
+    margin-top: 90px !important;
+    padding-top: 0 !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+  
+  .emp-grid-page {
+    margin-top: 0 !important;
+    padding-top: 10px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}

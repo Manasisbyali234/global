@@ -1,0 +1,59 @@
+/* Fix for SearchableSelect overflow when multiple locations are selected */
+
+/* Desktop - allow expansion */
+@media (min-width: 769px) {
+  .form-select {
+    min-height: 38px !important;
+    height: auto !important;
+  }
+}
+
+/* Mobile - use scrollable container */
+@media (max-width: 768px) {
+  .form-select {
+    min-height: 38px !important;
+    max-height: 100px !important;
+    overflow-y: auto !important;
+  }
+  
+  .form-select .d-flex.flex-wrap {
+    max-height: 80px !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Mobile badge styling */
+  .form-select .d-flex.flex-wrap span {
+    padding: 2px 6px !important;
+    font-size: 0.7em !important;
+    height: 22px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-direction: row !important;
+  }
+  
+  .form-select .d-flex.flex-wrap span .btn-close {
+    width: 12px !important;
+    height: 12px !important;
+    font-size: 0.6em !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    align-self: center !important;
+  }
+  
+  /* Scrollbar styling for mobile */
+  .form-select .d-flex.flex-wrap::-webkit-scrollbar {
+    width: 3px;
+  }
+  
+  .form-select .d-flex.flex-wrap::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+  }
+  
+  .form-select .d-flex.flex-wrap::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+  }
+}

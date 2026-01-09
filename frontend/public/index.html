@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <!-- META -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="keywords" content="" />
+  <meta name="author" content="" />
+  <meta name="robots" content="" />
+  <meta name="description" content="TALE Global is a  recruitment platform built to deliver transparent, secure, and ethical hiring at scale. The platform leverages advanced AI-driven verification to authenticate organizations before they engage with candidates, significantly reducing recruitment fraud and strengthening trust across the hiring ecosystem. TALE Global enables end-to-end recruitment management, including structured job postings, candidate assessments, interview scheduling with secure online capabilities, and thorough document verification, all governed by predefined timelines to ensure accountability and timely outcomes. By standardizing and digitizing each stage of the hiring process, TALE Global helps organizations maintain compliance, improve hiring efficiency, and uphold ethical practices, while empowering job seekers with access to verified employers and genuine career opportunities." />
+
+  <!-- FAVICONS ICON -->
+  <link rel="icon" href="%PUBLIC_URL%/assets/images/favicon.icon.png" type="image/x-icon" />
+  <link rel="shortcut icon" type="image/x-icon" href="%PUBLIC_URL%/assets/images/favicon.png" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+
+  <!-- GOOGLE FONTS -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+  <title>TaleGlobal</title>
+
+  <!-- MOBILE SPECIFIC - COMPREHENSIVE RESPONSIVE SETUP -->
+  <!-- Viewport: iOS Safari optimized settings -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+  
+  <!-- Format Detection: Prevent auto-detection that might interfere -->
+  <meta name="format-detection" content="telephone=no, email=no, address=no">
+  
+  <!-- iOS/Apple Settings - Enhanced for iOS compatibility -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="TaleGlobal">
+  <meta name="apple-touch-fullscreen" content="yes">
+  
+  <!-- Android/Google Settings -->
+  <meta name="theme-color" content="#fd7e14">
+  
+  <!-- Color Scheme: Force light mode to prevent dark auto-styling -->
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light">
+  <style>
+    :root { color-scheme: light only !important; }
+    html { color-scheme: light only !important; -webkit-text-size-adjust: 100%; }
+    body { color-scheme: light only !important; background-color: #ffffff !important; color: #000000 !important; -webkit-touch-callout: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+    * { -webkit-overflow-scrolling: touch; touch-action: manipulation; }
+  </style>
+  
+  <!-- Disable pinch-zoom on content scales (accessibility friendly) -->
+  <meta name="minimum-scale" content="1.0">
+
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/bootstrap.min.css"><!-- BOOTSTRAP STYLE SHEET -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/font-awesome.min.css">
+  <!-- FONTAWESOME STYLE SHEET -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- FONT AWESOME 6 CDN -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/feather.css"><!-- FEATHER ICON SHEET -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/owl.carousel.min.css">
+  <!-- OWL CAROUSEL STYLE SHEET -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/magnific-popup.min.css">
+  <!-- MAGNIFIC POPUP STYLE SHEET -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/lc_lightbox.css"><!-- Lc light box popup -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/bootstrap-select.min.css">
+  <!-- BOOTSTRAP SLECT BOX STYLE SHEET  -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/dataTables.bootstrap5.min.css">
+  <!-- DATA table STYLE SHEET  -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/select.bootstrap5.min.css">
+  <!-- DASHBOARD select bootstrap  STYLE SHEET  -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/dropzone.css"><!-- DROPZONE STYLE SHEET -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/scrollbar.css">
+  <!-- CUSTOM SCROLL BAR STYLE SHEET -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/datepicker.css"><!-- DATEPICKER STYLE SHEET -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/flaticon.css"> <!-- Flaticon -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/swiper-bundle.min.css"><!-- Swiper Slider -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/style.css"><!-- MAIN STYLE SHEET -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/home-job-cards.css"><!-- HOME JOB CARDS STYLE -->
+
+  <!-- THEME COLOR CHANGE STYLE SHEET -->
+  <link id="skin_style" rel="stylesheet" class="skin" type="text/css"
+    href="%PUBLIC_URL%/assets/css/skins-type/skin-10-orange.css">
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/bootstrap-slider.min.css">
+
+  <!-- CONSOLIDATED MASTER STYLES - HIGHEST PRIORITY (must load AFTER all other CSS) -->
+  <!-- This file overrides ALL button styling globally across the entire application -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/consolidated-master-styles.css">
+
+  <!-- MOBILE HAMBURGER MENU STYLES - Professional hamburger menu for mobile devices -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/mobile-hamburger-menu.css">
+
+  <!-- COMPLETE MOBILE RESPONSIVE STYLES - Load after all other CSS -->
+  <!-- Comprehensive mobile responsiveness for all devices (320px to 1199px) -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/mobile-responsive-complete.css">
+
+  <!-- REMOVE BUTTON HOVER EFFECTS - No color changes on button hover -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/remove-button-hover-effects.css">
+
+  <!-- REMOVE CAROUSEL HOVER EFFECTS - No hover effects on carousels -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/css/remove-carousel-hover-effects.css">
+
+  <!-- IMAGE MODAL HEADER FIX - Critical fix for popup modal headers -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/image-modal-header-fix.css">
+
+  <!-- POPUP HEADER Z-INDEX FIX - Force header behind popup notifications -->
+  <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/popup-header-fix.css">
+
+  <!-- Tailwind CSS removed - install locally for production -->
+  <script>
+    // Configure Tailwind: disable preflight to prevent base resets clashing with existing CSS
+    // Note: Install Tailwind CSS locally for production use
+    
+    // Force light mode immediately - iOS Safari compatible
+    (function() {
+      // Override matchMedia to always return false for dark mode
+      if (window.matchMedia) {
+        const originalMatchMedia = window.matchMedia;
+        window.matchMedia = function(query) {
+          if (query.includes('prefers-color-scheme: dark')) {
+            return {
+              matches: false,
+              media: query,
+              onchange: null,
+              addListener: function() {},
+              removeListener: function() {},
+              addEventListener: function() {},
+              removeEventListener: function() {},
+              dispatchEvent: function() { return true; }
+            };
+          }
+          return originalMatchMedia.call(this, query);
+        };
+      }
+      
+      // Force light color scheme - with null check
+      if (document.documentElement) {
+        document.documentElement.style.setProperty('color-scheme', 'light only', 'important');
+      }
+      
+      // Wait for body to be available
+      if (document.body) {
+        document.body.style.setProperty('background-color', '#ffffff', 'important');
+        document.body.style.setProperty('color', '#000000', 'important');
+      } else {
+        document.addEventListener('DOMContentLoaded', function() {
+          if (document.body) {
+            document.body.style.setProperty('background-color', '#ffffff', 'important');
+            document.body.style.setProperty('color', '#000000', 'important');
+          }
+        });
+      }
+      
+      // Add class to enable transitions after forcing light mode
+      setTimeout(() => {
+        if (document.documentElement) {
+          document.documentElement.classList.add('light-mode-forced');
+        }
+      }, 100);
+      
+      // iOS Safari specific fixes
+      document.addEventListener('DOMContentLoaded', function() {
+        // Prevent iOS Safari zoom on input focus
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+          input.addEventListener('focus', function() {
+            if (window.innerWidth < 768) {
+              document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+            }
+          });
+          input.addEventListener('blur', function() {
+            document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no');
+          });
+        });
+      });
+    })();
+  </script>
+</head>
+
+<!-- data-anm=".anm" is used by Homepage4 -->
+
+<body data-anm=".anm" style="scroll-behavior: smooth;">
+
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+
+  <script src="%PUBLIC_URL%/assets/js/jquery-3.6.0.min.js"></script><!-- JQUERY.MIN JS -->
+  <script src="%PUBLIC_URL%/assets/js/popper.min.js"></script><!-- POPPER.MIN JS -->
+  <script src="%PUBLIC_URL%/assets/js/bootstrap.min.js"></script><!-- BOOTSTRAP.MIN JS -->
+  <script src="%PUBLIC_URL%/assets/js/magnific-popup.min.js"></script><!-- MAGNIFIC-POPUP JS -->
+  <script src="%PUBLIC_URL%/assets/js/waypoints.min.js"></script><!-- WAYPOINTS JS -->
+  <script src="%PUBLIC_URL%/assets/js/waypoints-sticky.min.js"></script><!-- STICKY HEADER -->
+  <script src="%PUBLIC_URL%/assets/js/isotope.pkgd.min.js"></script><!-- MASONRY  -->
+  <script src="%PUBLIC_URL%/assets/js/imagesloaded.pkgd.min.js"></script><!-- MASONRY  -->
+  <script src="%PUBLIC_URL%/assets/js/owl.carousel.min.js"></script><!-- OWL  SLIDER  -->
+  <script src="%PUBLIC_URL%/assets/js/jquery.owl-filter.js"></script>
+  <script src="%PUBLIC_URL%/assets/js/theia-sticky-sidebar.js"></script><!-- STICKY SIDEBAR  -->
+  <script src="%PUBLIC_URL%/assets/js/lc_lightbox.lite.js"></script><!-- IMAGE POPUP -->
+  <script src="%PUBLIC_URL%/assets/js/bootstrap-select.min.js"></script><!-- Form js -->
+  <script src="%PUBLIC_URL%/assets/js/jquery.scrollbar.js"></script><!-- scroller -->
+  <script src="%PUBLIC_URL%/assets/js/bootstrap-datepicker.js"></script><!-- scroller -->
+  <script src="%PUBLIC_URL%/assets/js/jquery.dataTables.min.js"></script><!-- Datatable -->
+  <script src="%PUBLIC_URL%/assets/js/dataTables.bootstrap5.min.js"></script><!-- Datatable -->
+  <script src="%PUBLIC_URL%/assets/js/bootstrap-slider.min.js"></script><!-- Price range slider -->
+  <script src="%PUBLIC_URL%/assets/js/swiper-bundle.min.js"></script><!-- Swiper JS -->
+  <script src="%PUBLIC_URL%/assets/js/custom.js"></script><!-- CUSTOM FUCTIONS  -->
+  <script src="%PUBLIC_URL%/assets/js/modal-fix.js"></script><!-- MODAL FIX  -->
+
+</body>
+
+</html>

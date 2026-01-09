@@ -1,0 +1,76 @@
+/* Admin Search Bar Styles - Enhanced */
+.employer-search .search-input-wrapper,
+.candidates-search .search-input-wrapper,
+.placement-search .search-input-wrapper {
+    max-width: 450px;
+    position: relative;
+}
+
+.employer-search .search-input,
+.candidates-search .search-input,
+.placement-search .search-input {
+    border: 2px solid #FDC360;
+    border-radius: 8px;
+    padding: 12px 40px 12px 40px;
+    font-size: 14px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(253, 195, 96, 0.2);
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.employer-search .search-input:focus,
+.candidates-search .search-input:focus,
+.placement-search .search-input:focus {
+    border-color: #ff6b35;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+    outline: none;
+}
+
+.employer-search .search-input::placeholder,
+.candidates-search .search-input::placeholder,
+.placement-search .search-input::placeholder {
+    color: #999;
+    font-weight: 400;
+}
+
+/* Responsive adjustments for admin panels */
+@media (max-width: 768px) {
+    .panel-heading .d-flex,
+    .panel-heading div[style*="display: flex"] {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+    
+    .employer-search .search-input-wrapper,
+    .candidates-search .search-input-wrapper,
+    .placement-search .search-input-wrapper {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+/* Table responsive improvements */
+.table-container {
+    overflow-x: auto;
+}
+
+.emp-table th,
+.candidates-table th {
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+.emp-table td,
+.candidates-table td {
+    font-size: 0.85rem;
+}
+
+/* Search result highlighting */
+.search-highlight {
+    background-color: #fff3cd;
+    padding: 1px 3px;
+    border-radius: 2px;
+}

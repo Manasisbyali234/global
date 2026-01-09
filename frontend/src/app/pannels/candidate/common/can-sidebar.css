@@ -1,0 +1,263 @@
+/* Hide scrollbar for candidate sidebar */
+#sidebar-admin-wraper,
+#sidebar-admin-wraper .admin-nav,
+#sidebar-admin-wraper .admin-nav.scrollbar-macosx {
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+#sidebar-admin-wraper::-webkit-scrollbar,
+#sidebar-admin-wraper .admin-nav::-webkit-scrollbar,
+#sidebar-admin-wraper .admin-nav.scrollbar-macosx::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+}
+
+/* Candidate Layout Fix - Ensure proper z-index stacking */
+.page-wraper {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+@media (min-width: 992px) {
+  #content {
+    margin-left: 280px !important;
+    width: calc(100% - 280px) !important;
+    min-height: 100vh !important;
+    transition: margin-left 0.3s ease, width 0.3s ease !important;
+    background: #f8fafc !important;
+    padding-top: 90px !important;
+  }
+
+  #content.sidebar-hidden {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  
+  #sidebar-admin-wraper {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 280px !important;
+    height: 100vh !important;
+    transform: translateX(0) !important;
+    display: block !important;
+    z-index: 1000 !important;
+    background: #ffffff !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    margin-left: 0 !important;
+    visibility: visible !important;
+    transition: opacity 0.2s ease !important;
+  }
+  
+  #sidebar-admin-wraper.active {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+  }
+
+  #sidebar-admin-wraper.collapsed {
+    transform: translateX(-280px) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    display: none !important;
+  }
+
+  #header-admin {
+    width: calc(100% - 280px) !important;
+    top: 0;
+    right: 0;
+    position: fixed;
+    background: #ffffff !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    z-index: 1001 !important;
+    transition: width 0.3s ease !important;
+  }
+
+  #header-admin.active {
+    width: 100% !important;
+  }
+}
+
+/* Mobile menu toggle button */
+.mobile-menu-toggle {
+  position: fixed !important;
+  top: 15px !important;
+  left: 15px !important;
+  z-index: 10001 !important;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 15px !important;
+  border-radius: 8px !important;
+  font-size: 18px !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.mobile-menu-toggle:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+}
+
+/* Adjust button position when sidebar is active */
+@media (max-width: 991px) {
+  .mobile-menu-toggle.sidebar-open {
+    left: 295px !important;
+  }
+}
+
+/* Sidebar overlay improvements */
+.sidebar-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  z-index: 9998 !important;
+  backdrop-filter: blur(1px) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.3s ease, visibility 0.3s ease !important;
+  pointer-events: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.sidebar-overlay.active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Prevent overlay from appearing when not needed */
+@media (min-width: 992px) {
+  .sidebar-overlay {
+    display: none !important;
+  }
+}
+
+/* Sidebar positioning for mobile */
+@media (max-width: 991px) {
+  #sidebar-admin-wraper {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 280px !important;
+    height: 100vh !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease !important;
+    z-index: 10000 !important;
+    background: #ffffff !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.25) !important;
+    margin-left: 0 !important;
+    display: block !important;
+  }
+
+  #sidebar-admin-wraper.active {
+    transform: translateX(0) !important;
+  }
+
+  #sidebar-admin-wraper.collapsed {
+    transform: translateX(-100%) !important;
+  }
+
+  #sidebar-admin-wraper.active ~ .mobile-menu-toggle,
+  body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
+    display: none !important;
+  }
+
+  .mobile-menu-toggle {
+    display: block !important;
+  }
+
+  #content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    transition: none !important;
+    background: #f8fafc !important;
+    padding-top: 90px !important;
+  }
+
+  #header-admin {
+    width: 100% !important;
+    left: 0;
+    right: 0;
+  }
+}
+
+/* Prevent body scroll when sidebar is open on mobile */
+body.sidebar-open {
+  overflow: hidden !important;
+}
+
+/* Ensure proper content display */
+.content-admin-main {
+  width: 100% !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  background: #f8fafc !important;
+}
+
+/* Dashboard content padding */
+.twm-right-section-panel {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #f8fafc !important;
+  min-height: 100vh !important;
+}
+
+/* Header positioning */
+.wt-admin-right-page-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* Prevent horizontal scroll */
+html, body {
+  overflow-x: hidden !important;
+}
+
+/* Fix for very small screens */
+@media (max-width: 480px) {
+  .mobile-menu-toggle {
+    top: 10px !important;
+    left: 10px !important;
+    padding: 10px 12px !important;
+    font-size: 16px !important;
+  }
+
+  #sidebar-admin-wraper {
+    width: 260px !important;
+  }
+}
+
+/* Smooth transitions */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure sidebar content is scrollable */
+#sidebar-admin-wraper .admin-nav {
+  height: calc(100vh - 80px) !important;
+  overflow-y: auto !important;
+  padding-bottom: 20px !important;
+}
+
+/* Logo section in sidebar */
+#sidebar-admin-wraper .page-logo {
+  padding: 20px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  background: #ffffff !important;
+}

@@ -1,0 +1,85 @@
+/* Assessment Dashboard Button Fix */
+.emp-assessment-page .btn {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-width: fit-content !important;
+  padding: 0.5rem 1rem !important;
+}
+
+/* Assessment Card Action Buttons */
+.emp-assessment-page .card .btn-sm {
+  padding: 0.375rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  border-radius: 0.375rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+}
+
+.emp-assessment-page .card .btn-outline-secondary:hover {
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
+  color: #fff !important;
+}
+
+.emp-assessment-page .card .d-flex.gap-2 {
+  flex-wrap: wrap !important;
+}
+
+.emp-assessment-page .btn-dark {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+@media (max-width: 768px) {
+  .emp-assessment-page .btn {
+    font-size: 0.875rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  .emp-assessment-page .card .btn-sm {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  .emp-assessment-page .card .d-flex.gap-2 {
+    gap: 0.5rem !important;
+  }
+
+  .emp-assessment-page .d-flex.justify-content-between {
+    flex-direction: column-reverse !important;
+    gap: 1rem !important;
+    align-items: stretch !important;
+  }
+
+  .emp-assessment-page .btn-dark {
+    width: 100% !important;
+    justify-content: center !important;
+    order: -1 !important;
+  }
+
+  /* Improve mobile responsiveness */
+  .emp-assessment-page .wt-admin-right-page-header {
+    padding: 1.5rem !important;
+  }
+
+  .emp-assessment-page .row {
+    margin: 0 !important;
+  }
+
+  .emp-assessment-page .col-md-6,
+  .emp-assessment-page .col-lg-4 {
+    margin-bottom: 1rem !important;
+  }
+
+  /* Make assessment cards more mobile-friendly */
+  .emp-assessment-page .panel {
+    border-radius: 8px !important;
+  }
+
+  .emp-assessment-page .panel .text-center {
+    padding: 2rem 1rem !important;
+  }
+}

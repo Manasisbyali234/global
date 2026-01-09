@@ -1,0 +1,103 @@
+.image-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.2s;
+}
+
+.image-preview-overlay.minimized {
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 20px;
+}
+
+.image-preview-container {
+    background: white;
+    border-radius: 8px;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.image-preview-container.maximized {
+    max-width: 98%;
+    max-height: 98%;
+    width: 98%;
+    height: 98%;
+}
+
+.image-preview-container.minimized {
+    max-width: 300px;
+    max-height: 50px;
+    width: 300px;
+}
+
+.image-preview-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 8px 8px 0 0;
+}
+
+.control-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.control-btn:hover {
+    background: #d0d0d0;
+}
+
+.minimize-btn:hover {
+    background: #ffc107;
+}
+
+.maximize-btn:hover {
+    background: #4caf50;
+}
+
+.close-btn:hover {
+    background: #f44336;
+    color: white;
+}
+
+.image-preview-content {
+    padding: 20px;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.image-preview-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

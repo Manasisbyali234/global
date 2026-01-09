@@ -1,0 +1,8 @@
+/* TAB ICON FIX - Remove orange color from tab icons */
+.nav-tabs .nav-link {
+  color: #6c757d;
+}
+
+.nav-tabs .nav-link.active {
+  color: #495057;
+}

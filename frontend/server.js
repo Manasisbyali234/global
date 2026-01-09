@@ -1,0 +1,1 @@
+require('./tale-backend/server.js');

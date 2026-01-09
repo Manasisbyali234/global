@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Capture Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff6b35;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #e55a2b;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #preview {
+            display: none;
+            margin: 20px 0;
+        }
+        video, canvas {
+            max-width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        .captures {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .capture-item {
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .capture-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .capture-item p {
+            margin: 0;
+            padding: 5px;
+            background: #f9f9f9;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Webcam Capture Test</h1>
+        
+        <div id="status" class="status info">
+            Ready to test webcam capture functionality
+        </div>
+
+        <div>
+            <button onclick="startTest()">Start Test</button>
+            <button onclick="captureNow()" id="captureBtn" disabled>Capture Now</button>
+            <button onclick="stopTest()" id="stopBtn" disabled>Stop Test</button>
+        </div>
+
+        <div id="preview">
+            <h3>Live Preview (Hidden in actual assessment)</h3>
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+        </div>
+
+        <div id="capturesContainer">
+            <h3>Captured Images (<span id="captureCount">0</span>/5)</h3>
+            <div class="captures" id="captures"></div>
+        </div>
+
+        <div id="logs" style="margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 5px; max-height: 300px; overflow-y: auto;">
+            <h4>Test Logs:</h4>
+            <div id="logContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let stream = null;
+        let captureCount = 0;
+        let captureInterval = null;
+
+        function log(message, type = 'info') {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'success' ? 'green' : type === 'error' ? 'red' : 'blue';
+            logContent.innerHTML += `<div style="color: ${color}; margin: 5px 0;">[${timestamp}] ${message}</div>`;
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        function updateStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        async function startTest() {
+            try {
+                log('🚀 Starting webcam test...', 'info');
+                updateStatus('Requesting webcam access...', 'info');
+
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                
+                document.getElementById('preview').style.display = 'block';
+                document.getElementById('captureBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = false;
+
+                log('✅ Webcam access granted', 'success');
+                updateStatus('Webcam active - Ready to capture', 'success');
+
+                // Start automatic captures (simulating assessment)
+                startAutomaticCaptures();
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                updateStatus('Failed to access webcam', 'error');
+                console.error('Webcam error:', error);
+            }
+        }
+
+        function startAutomaticCaptures() {
+            log('⏰ Starting automatic captures (every 5 seconds)', 'info');
+            let count = 0;
+            captureInterval = setInterval(() => {
+                if (count < 5) {
+                    captureNow();
+                    count++;
+                } else {
+                    clearInterval(captureInterval);
+                    log('✅ All 5 captures completed', 'success');
+                    updateStatus('Test completed - 5 captures taken', 'success');
+                }
+            }, 5000);
+        }
+
+        function captureNow() {
+            if (!stream || captureCount >= 5) return;
+
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+
+            canvas.toBlob((blob) => {
+                captureCount++;
+                document.getElementById('captureCount').textContent = captureCount;
+
+                // Display captured image
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(blob);
+                
+                const captureItem = document.createElement('div');
+                captureItem.className = 'capture-item';
+                captureItem.innerHTML = `
+                    <img src="${img.src}" alt="Capture ${captureCount}">
+                    <p>Capture ${captureCount}</p>
+                `;
+                
+                document.getElementById('captures').appendChild(captureItem);
+
+                log(`📸 Capture ${captureCount}/5 taken (${(blob.size / 1024).toFixed(2)} KB)`, 'success');
+
+                // Simulate upload
+                simulateUpload(blob, captureCount);
+
+            }, 'image/jpeg', 0.8);
+        }
+
+        function simulateUpload(blob, index) {
+            log(`📤 Simulating upload for capture ${index}...`, 'info');
+            
+            // In real implementation, this would be:
+            // const formData = new FormData();
+            // formData.append('capture', blob, `capture_${Date.now()}.jpg`);
+            // formData.append('attemptId', attemptId);
+            // formData.append('captureIndex', index - 1);
+            // await axios.post('/api/candidate/assessments/capture', formData, {...});
+
+            setTimeout(() => {
+                log(`✅ Capture ${index} uploaded successfully`, 'success');
+            }, 500);
+        }
+
+        function stopTest() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            if (captureInterval) {
+                clearInterval(captureInterval);
+            }
+            
+            document.getElementById('preview').style.display = 'none';
+            document.getElementById('captureBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = true;
+
+            log('🛑 Test stopped', 'info');
+            updateStatus('Test stopped', 'info');
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', stopTest);
+    </script>
+</body>
+</html>

@@ -1,0 +1,2935 @@
+/**
+ * ============================================================================
+ * CONSOLIDATED MASTER STYLES - All-in-One CSS File
+ * ============================================================================
+ * 
+ * This file consolidates all CSS styling for the Jobzz application to prevent
+ * cascade and specificity conflicts. Originally split into 11+ separate files:
+ * - global-styles.css
+ * - notification-animations.css
+ * - mobile-responsive.css
+ * - employer-mobile-responsive.css
+ * - index16-mobile-fix.css
+ * - logo-fix.css
+ * - mobile-card-scrolling.css
+ * - force-light-mode.css
+ * - dark-screen-fix.css
+ * - fix-dark-mode.css (if needed)
+ * - orange-preserve.css
+ * - ux-improvements.css
+ * 
+ * Organization:
+ * 1. Color Scheme & Light Mode Force
+ * 2. Base/Global Styles
+ * 3. Modal & Backdrop Styles
+ * 4. Form Controls & Inputs
+ * 5. Button Styles
+ * 6. Animations & Transitions
+ * 7. Card & Container Styles
+ * 8. Navigation & Logo Styles
+ * 9. Mobile Responsive (General)
+ * 10. Mobile Responsive (Employer Dashboard)
+ * 11. Mobile Responsive (Index16)
+ * 12. Scrolling & Overflow Handling
+ * ============================================================================
+ */
+
+/* Import DM Serif Display Font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+@import url('./rich-text-editor-fix.css');
+
+/* ============================================================================
+ * SECTION 1: COLOR SCHEME & LIGHT MODE FORCE
+ * ============================================================================ */
+
+:root {
+  color-scheme: light only !important;
+  /* Font Family */
+  --font-family: "DM Serif Display", serif;
+  /* Primary Colors */
+  --color-primary-orange: #fd7e14;
+  --color-primary-orange-dark: #e8690a;
+  --color-primary-orange-darker: #d1570a;
+  --color-primary-orange-light: #FF6A00;
+  --color-blue-primary: #2563eb;
+  --color-blue-dark: #1e40af;
+  --color-bg-white: #ffffff;
+  --color-text-dark: #000000;
+  --color-text-gray: #000000;
+  --color-border-light: #d1d5db;
+  --color-bg-light: #f9fafb;
+  --color-bg-lighter: #f8fafc;
+}
+
+html {
+  color-scheme: light only !important;
+}
+
+body {
+  color-scheme: light only !important;
+}
+
+
+
+*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *) {
+  color-scheme: light only !important;
+}
+
+/* ============================================================================
+ * SECTION 2: BASE/GLOBAL STYLES
+ * ============================================================================ */
+
+html,
+body,
+#root,
+main {
+font-family: 'Poppins', sans-serif !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
+  /* Hide scrollbar for home page */
+  overflow-x: hidden;
+}
+
+/* Hide scrollbar for webkit browsers (Chrome, Safari, Edge) */
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+html {
+  scrollbar-width: none;
+}
+
+/* Hide scrollbar for body */
+body {
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Fix body modifications by Bootstrap modals */
+body.modal-open {
+  overflow: hidden !important;
+  padding-right: 0 !important;
+}
+
+body.modal-open .modal {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+body.modal-open .terms-modal-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+body {
+  background: #ffffff !important;
+}
+
+/* Prevent any pseudo-elements from creating dark overlays */
+.page-wraper,
+.twm-right-section-panel,
+#content {
+  position: relative !important;
+}
+
+.page-wraper::before,
+.page-wraper::after,
+.twm-right-section-panel::before,
+.twm-right-section-panel::after,
+#content::before,
+#content::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* ============================================================================
+ * SECTION 3: MODAL & BACKDROP STYLES
+ * ============================================================================ */
+
+.modal-backdrop,
+.offcanvas-backdrop,
+.modal-backdrop.fade,
+.modal-backdrop.show,
+.offcanvas-backdrop.fade,
+.offcanvas-backdrop.show {
+  --bs-backdrop-bg: transparent !important;
+  --bs-backdrop-opacity: 0 !important;
+  background-color: transparent !important;
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  background: none !important;
+  z-index: -1 !important;
+}
+
+/* Fix modal positioning without backdrop */
+.modal {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+.modal.fade {
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+.modal.show {
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Ensure modal content is properly positioned */
+.modal-dialog {
+  position: relative !important;
+  z-index: 1051 !important;
+}
+
+.modal-content {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 12px !important;
+}
+
+/* Sidebar overlay - lighter and non-intrusive */
+.sidebar-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+  z-index: 999 !important;
+  backdrop-filter: blur(1px) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.2s ease, visibility 0.2s ease !important;
+  pointer-events: none !important;
+}
+
+.sidebar-overlay.active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Fade animations */
+.fade {
+  opacity: 1 !important;
+}
+
+.fade:not(.show) {
+  opacity: 0 !important;
+}
+
+/* ============================================================================
+ * SECTION 4: FORM CONTROLS & INPUTS
+ * ============================================================================ */
+
+input,
+select,
+textarea,
+.form-control,
+.wt-search-bar-select,
+.form-select,
+.ant-input,
+.ant-select-selector,
+.ant-picker,
+.ant-picker-input > input,
+.ant-input-affix-wrapper,
+.ant-input-number,
+.ant-input-number-input,
+.ant-select-dropdown,
+.ant-select-selection-search-input {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+button,
+.btn,
+.site-button,
+.ant-btn {
+  background-color: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+form,
+.ant-form,
+fieldset,
+legend,
+label,
+.ant-select-dropdown {
+  background-color: transparent !important;
+  color: #111827 !important;
+  border-radius: 12px !important;
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder,
+.form-control::placeholder,
+.ant-input::placeholder,
+.ant-select-selection-placeholder,
+.ant-input-number-input::placeholder {
+  color: #6b7280 !important;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+  opacity: 0.5;
+}
+
+/* Autofill styling */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill,
+.form-control:-webkit-autofill,
+.ant-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+/* Focus states */
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+.form-control:focus,
+.form-control:focus-visible,
+.wt-search-bar-select:focus,
+.form-select:focus,
+.ant-input:focus,
+.ant-input-focused,
+.ant-select-selector:focus,
+.ant-select-focused .ant-select-selector,
+.ant-picker:focus,
+.ant-picker-focused,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused,
+.ant-input-number:focus,
+.ant-input-number-focused {
+  outline: none !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
+  background-color: #ffffff !important;
+}
+
+/* Hover states */
+input:hover,
+select:hover,
+textarea:hover,
+.form-control:hover,
+.wt-search-bar-select:hover,
+.form-select:hover,
+.ant-input:hover,
+.ant-select-selector:hover,
+.ant-picker:hover,
+.ant-input-affix-wrapper:hover,
+.ant-input-number:hover {
+  border-color: #2563eb !important;
+  background-color: #f8fafc !important;
+}
+
+/* Input focus background */
+input:focus,
+select:focus,
+textarea:focus {
+  background-color: #f9fafb;
+}
+
+/* ============================================================================
+ * SECTION 5: BUTTON STYLES
+ * ============================================================================ */
+
+/* Generic button styling */
+button,
+.btn,
+.site-button,
+.ant-btn {
+  font-weight: 600 !important;
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.2px !important;
+  text-transform: none !important;
+  transition: all 0.3s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 14px !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+
+
+button:focus,
+button:focus-visible,
+.btn:focus,
+.btn:focus-visible,
+.site-button:focus,
+.site-button:focus-visible,
+.ant-btn:focus,
+.ant-btn:focus-visible {
+  outline: none !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.25) !important;
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+}
+
+/* Hover states - DISABLED */
+button:hover,
+.btn:hover,
+.site-button:hover,
+.ant-btn:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Active states */
+button:active,
+.btn:active,
+.site-button:active,
+.ant-btn:active {
+  background-color: rgba(255, 122, 0, 0.12) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: inset 0 2px 4px rgba(255, 122, 0, 0.2) !important;
+}
+
+/* Bootstrap Button Variants - All Orange Theme */
+/* Primary Button */
+.btn-primary,
+button.btn-primary {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+}
+
+.btn-primary:hover,
+button.btn-primary:hover {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2) !important;
+}
+
+.btn-primary:focus,
+button.btn-primary:focus,
+.btn-primary:focus-visible,
+button.btn-primary:focus-visible {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.25) !important;
+}
+
+.btn-primary:active,
+button.btn-primary:active {
+  background-color: rgba(255, 122, 0, 0.12) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+}
+
+.btn-primary:disabled,
+button.btn-primary:disabled {
+  background-color: rgba(255, 122, 0, 0.05) !important;
+  color: rgba(255, 122, 0, 0.5) !important;
+  border: 1px solid rgba(255, 122, 0, 0.3) !important;
+}
+
+/* Secondary Button - Orange Variant */
+.btn-secondary,
+button.btn-secondary {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+}
+
+.btn-secondary:hover,
+button.btn-secondary:hover {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2) !important;
+}
+
+/* Success Button - Orange Variant */
+.btn-success,
+button.btn-success {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+}
+
+.btn-success:hover,
+button.btn-success:hover {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2) !important;
+}
+
+/* Danger Button - Orange Variant */
+.btn-danger,
+button.btn-danger {
+  background-color: #fd7e14 !important;
+  color: #ffffff !important;
+  border: 1px solid #fd7e14 !important;
+}
+
+.btn-danger:hover,
+button.btn-danger:hover {
+  background-color: #fd7e14 !important;
+  color: #ffffff !important;
+  border: 1px solid #fd7e14 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Warning Button - Orange Variant */
+.btn-warning,
+button.btn-warning {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+}
+
+.btn-warning:hover,
+button.btn-warning:hover {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2) !important;
+}
+
+/* Info Button - Orange Variant */
+.btn-info,
+button.btn-info {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+}
+
+.btn-info:hover,
+button.btn-info:hover {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2) !important;
+}
+
+/* Light Button - Light Orange Background */
+.btn-light,
+button.btn-light {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+}
+
+.btn-light:hover,
+button.btn-light:hover {
+  background-color: rgba(255, 122, 0, 0.12) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2) !important;
+}
+
+/* Dark Button - Orange Variant */
+.btn-dark,
+button.btn-dark {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+}
+
+.btn-dark:hover,
+button.btn-dark:hover {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2) !important;
+}
+
+/* Link Button */
+.btn-link {
+  color: #FF7A00 !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  text-decoration: none !important;
+  border: none !important;
+}
+
+.btn-link:hover {
+  color: #FF7A00 !important;
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  border-color: transparent !important;
+  text-decoration: underline !important;
+  border: none !important;
+}
+
+/* Small buttons */
+.btn-sm {
+  font-size: 12px !important;
+  padding: 6px 12px !important;
+}
+
+/* Large buttons */
+.btn-lg {
+  font-size: 18px !important;
+  padding: 12px 24px !important;
+}
+
+/* Apply button styling (orange theme) */
+.btn-apply,
+button.btn-apply,
+.site-button.btn-apply {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  padding: 10px 22px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.3px !important;
+}
+
+.btn-apply:hover,
+button.btn-apply:hover,
+.site-button.btn-apply:hover {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border-color: #FF7A00 !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2) !important;
+}
+
+/* Apply Now button styling */
+.apply-now-button,
+.apply-now-btn {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  border: 1px solid #FF7A00 !important;
+  color: #FF7A00 !important;
+  transition: all 0.3s ease;
+  padding: 10px 18px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.apply-now-button:hover,
+.apply-now-btn:hover {
+  background-color: #FFF3E5 !important;
+  border: 1px solid #FF7A00 !important;
+  color: #FF7A00 !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2);
+}
+
+/* Browse/View All type buttons */
+.twm-nav-sign-up,
+.twm-nav-post-a-job,
+.browse-btn,
+.view-all-btn,
+.show-more-btn,
+.twm-jobs-browse,
+.category-btn,
+.job-browse-btn {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  text-decoration: none !important;
+  transition: all 0.3s ease;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.2px !important;
+  padding: 6px 12px !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+/* View all button alignment */
+.view-all-btn,
+.twm-jobs-browse {
+  float: right !important;
+  margin-left: auto !important;
+}
+
+/* Keep mobile buttons normal size */
+@media (max-width: 767px) {
+  .twm-nav-sign-up,
+  .twm-nav-post-a-job,
+  .browse-btn,
+  .view-all-btn,
+  .show-more-btn,
+  .twm-jobs-browse,
+  .category-btn,
+  .job-browse-btn {
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+    max-width: none !important;
+  }
+}
+
+/* Override header-specific button styles */
+.header-style-3 .header-nav-btn-section .twm-nav-btn-left .twm-nav-sign-up,
+.header-full-width .header-nav-btn-section .twm-nav-btn-left .twm-nav-sign-up,
+.header-style-light .header-nav-btn-section .twm-nav-btn-left .twm-nav-sign-up,
+.header-style-3 .header-nav-btn-section .twm-nav-btn-right .twm-nav-post-a-job,
+.header-full-width .header-nav-btn-section .twm-nav-btn-right .twm-nav-post-a-job,
+.header-style-light .header-nav-btn-section .twm-nav-btn-right .twm-nav-post-a-job {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.3px !important;
+}
+
+.twm-nav-sign-up:hover,
+.twm-nav-post-a-job:hover,
+.browse-btn:hover,
+.view-all-btn:hover,
+.show-more-btn:hover,
+.twm-jobs-browse:hover,
+.category-btn:hover,
+.job-browse-btn:hover,
+.header-style-3 .header-nav-btn-section .twm-nav-btn-left .twm-nav-sign-up:hover,
+.header-full-width .header-nav-btn-section .twm-nav-btn-left .twm-nav-sign-up:hover,
+.header-style-light .header-nav-btn-section .twm-nav-btn-left .twm-nav-sign-up:hover,
+.header-style-3 .header-nav-btn-section .twm-nav-btn-right .twm-nav-post-a-job:hover,
+.header-full-width .header-nav-btn-section .twm-nav-btn-right .twm-nav-post-a-job:hover,
+.header-style-light .header-nav-btn-section .twm-nav-btn-right .twm-nav-post-a-job:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Enhanced button hover effects */
+.site-button,
+button.site-button {
+  transition: all 0.3s ease;
+}
+
+.site-button:hover,
+button.site-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(253, 126, 20, 0.3);
+}
+
+/* Circle/line button navigation effects */
+.circle-line-btn {
+  transition: all 0.3s ease;
+}
+
+.circle-line-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Text/Link buttons */
+.site-text-primary,
+.site-text-warning {
+  color: #2563eb !important;
+}
+
+.twm-jobs-browse.site-text-primary,
+.twm-jobs-browse.site-text-warning {
+  color: #2563eb !important;
+  font-weight: 600 !important;
+}
+
+.twm-jobs-browse.site-text-primary:hover,
+.twm-jobs-browse.site-text-warning:hover {
+  color: #1e40af !important;
+}
+
+/* Button Focus States for Keyboard Navigation */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #FF6A00;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove default outline for mouse users */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Icon Colors - Removed global orange override to allow default colors */
+
+/* ============================================================================
+ * SECTION 6: ANIMATIONS & TRANSITIONS
+ * ============================================================================ */
+
+/* Notification Bell Animations */
+@keyframes bell-wiggle {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(10deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(6deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(2deg); }
+  60% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes badge-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+@keyframes credit-update {
+  0% { 
+    background-color: #fff3cd;
+    transform: scale(1);
+  }
+  50% { 
+    background-color: #d4edda;
+    transform: scale(1.05);
+  }
+  100% { 
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeUpAnim {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notifItemUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Animation Classes */
+.bell-wiggle {
+  animation: bell-wiggle 0.7s ease-in-out;
+}
+
+.badge-pop {
+  animation: badge-pop 0.7s ease-in-out;
+}
+
+.credit-updated {
+  animation: credit-update 1.5s ease-in-out;
+}
+
+.credit-pulse {
+  animation: badge-pop 0.5s ease-in-out;
+}
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeUpAnim 0.6s ease forwards;
+}
+
+/* Scroll-based animations */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease-out;
+}
+
+.animate-on-scroll.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.animate-on-scroll:nth-child(1) { animation-delay: 0.1s; }
+.animate-on-scroll:nth-child(2) { animation-delay: 0.2s; }
+.animate-on-scroll:nth-child(3) { animation-delay: 0.3s; }
+.animate-on-scroll:nth-child(4) { animation-delay: 0.4s; }
+
+/* Processing status animations */
+.processing-status {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.processing-status.processed {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.processing-status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+/* Notification list animations */
+.notification-list .notification-item {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: notifItemUp 0.45s ease forwards;
+}
+
+/* Progress bar animations */
+.progress-animated { 
+  transition: width 0.6s ease; 
+}
+
+/* ============================================================================
+ * SECTION 7: CARD & CONTAINER STYLES
+ * ============================================================================ */
+
+/* Hover effects for cards - DISABLED TO PREVENT SHAKING */
+.hover-card {
+  transition: none !important;
+  cursor: pointer;
+  will-change: auto;
+}
+
+.hover-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.hover-card:hover * {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* General Card Improvements */
+.card,
+.admin-card,
+.management-card {
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #ffffff !important;
+}
+
+/* Lengthy Cards with Horizontal Scroll */
+.lengthy-card {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #ff9c00 #f1f1f1;
+}
+
+.lengthy-card::-webkit-scrollbar {
+  height: 6px;
+}
+
+.lengthy-card::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.lengthy-card::-webkit-scrollbar-thumb {
+  background: #ff9c00;
+  border-radius: 3px;
+}
+
+/* SubAdmin/Support Ticket Cards */
+.subadmin-card,
+.support-ticket-card {
+  min-width: 320px;
+  padding: 1rem;
+  margin: 0.5rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Job card container */
+.twm-jobs-grid-style1 {
+  position: relative !important;
+}
+
+/* Utility spacing helpers */
+.section-spacing {
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
+
+.section-spacing-sm {
+  padding-top: 2rem !important;
+  padding-bottom: 2rem !important;
+}
+
+.placement-action-btn {
+  margin-right: 10px;
+  margin-bottom: 5px;
+}
+
+.placement-process-info {
+  background-color: #e7f3ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+/* Container Utilities */
+.container-fluid {
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+}
+
+/* ============================================================================
+ * SECTION 8: NAVIGATION & LOGO STYLES
+ * ============================================================================ */
+
+/* Remove white background behind logo */
+.logo-header .logo-header-inner {
+  background: transparent !important;
+}
+
+.logo-header .logo-header-inner img {
+  background: transparent !important;
+}
+
+.logo-header img {
+  background: transparent !important;
+}
+
+/* Logo images */
+img[src*="logo-skin-8.png"] {
+  background: transparent !important;
+}
+
+.site-header img[src*="logo"] {
+  background: transparent !important;
+}
+
+/* Increase logo size on mobile screens */
+@media (max-width: 767px) {
+  .logo-header-inner.logo-header-one,
+  .logo-header-inner.logo-header-one img {
+    max-height: 40px !important;
+    height: 40px !important;
+    max-width: 120px !important;
+    width: auto !important;
+  }
+
+  /* Top Recruiters section mobile margins */
+  .recruiters-header-section {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    justify-content: center !important;
+  }
+
+  .recruiters-header-section .text-left {
+    text-align: center !important;
+  }
+
+  .wt-separator-two-part-right .site-button {
+    margin-right: 20px !important;
+  }
+}
+
+/* Navbar and header z-index */
+.navbar,
+.header,
+.main-bar {
+  z-index: 1030 !important;
+}
+
+/* Remove extra shadow from header */
+.site-header,
+.site-header .sticky-header,
+.site-header .main-bar-wraper,
+.site-header .main-bar {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+.site-header::before,
+.site-header::after,
+.sticky-header::before,
+.sticky-header::after,
+.main-bar-wraper::before,
+.main-bar-wraper::after,
+.main-bar::before,
+.main-bar::after {
+  display: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+/* Remove hover effects from Top Recruiters section */
+.recruiters-header-section,
+.recruiters-header-section *,
+.recruiters-header-section h2,
+.recruiters-header-section .wt-title,
+.recruiters-header-section .wt-small-separator,
+.recruiters-header-section div {
+  transition: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.recruiters-header-section:hover,
+.recruiters-header-section *:hover,
+.recruiters-header-section h2:hover,
+.recruiters-header-section .wt-title:hover,
+.recruiters-header-section .wt-small-separator:hover,
+.recruiters-header-section div:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Specifically target the title and separator */
+.wt-title,
+.wt-small-separator {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.wt-title:hover,
+.wt-small-separator:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  transform: none !important;
+}
+
+/* Remove hover effect from recruiter cards */
+.twm-column-5 ul li .twm-recruiters5-box .twm-rec-jobs,
+.twm-recruiters5-box .twm-rec-jobs {
+  color: #d45850 !important;
+  background-color: #f9f5f4 !important;
+  transition: none !important;
+}
+
+.twm-column-5 ul li .twm-recruiters5-box:hover .twm-rec-jobs,
+.twm-recruiters5-box:hover .twm-rec-jobs {
+  color: #d45850 !important;
+  background-color: #f9f5f4 !important;
+  transform: none !important;
+}
+
+.twm-recruiters5-box:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Employer sidebar */
+#sidebar-admin-wraper {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 280px !important;
+  height: 100vh !important;
+  transform: translateX(0) !important;
+  display: block !important;
+  z-index: 1000 !important;
+  background: #ffffff !important;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+#sidebar-admin-wraper.active {
+  left: 0 !important;
+}
+
+/* Mobile menu toggle */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 10000;
+  background: #f97316;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 18px;
+}
+
+/* Ensure sidebar is above overlay */
+.mobile-menu-toggle {
+  z-index: 1001 !important;
+}
+
+/* ============================================================================
+ * SECTION 9: MOBILE RESPONSIVE - GENERAL
+ * ============================================================================ */
+
+/* Hero section mobile */
+@media (max-width: 767px) {
+  .hero-body {
+    padding: 20px 10px !important;
+    color: #333 !important;
+  }
+
+  .hero-body h1,
+  .hero-body h2,
+  .hero-body p,
+  .hero-body .lead {
+    color: #333 !important;
+  }
+
+  .hero-body .text-white {
+    color: #333 !important;
+  }
+}
+
+/* Banner Section Mobile Responsive */
+.twm-home1-banner-section {
+  padding: 40px 0 !important;
+}
+
+.twm-home1-banner-section .row {
+  margin: 0 !important;
+}
+
+.twm-bnr-left-section {
+  padding: 20px 15px !important;
+}
+
+.twm-bnr-title-large {
+  font-size: 28px !important;
+  line-height: 1.3 !important;
+  margin-bottom: 15px !important;
+}
+
+.twm-bnr-title-small {
+  font-size: 16px !important;
+  margin-bottom: 10px !important;
+}
+
+.twm-bnr-discription {
+  font-size: 14px !important;
+  margin-bottom: 20px !important;
+}
+
+/* Search Bar Mobile Responsive */
+.twm-bnr-search-bar .row {
+  margin: 0 !important;
+}
+
+.twm-bnr-search-bar .form-group {
+  margin-bottom: 15px !important;
+  padding: 0 5px !important;
+}
+
+.twm-bnr-search-bar .form-control,
+.twm-bnr-search-bar .wt-search-bar-select {
+  height: 45px !important;
+  font-size: 14px !important;
+}
+
+.twm-bnr-search-bar .site-button {
+  width: 100% !important;
+  height: 45px !important;
+  font-size: 14px !important;
+}
+
+/* Popular Search Links */
+.twm-bnr-popular-search {
+  margin-top: 20px !important;
+  text-align: center !important;
+}
+
+.twm-bnr-popular-search .twm-title {
+  display: block !important;
+  margin-bottom: 10px !important;
+  font-size: 14px !important;
+}
+
+.twm-bnr-popular-search a {
+  font-size: 13px !important;
+  margin: 0 5px !important;
+}
+
+/* Right Section Banner */
+.twm-bnr-right-section {
+  margin-top: 30px !important;
+  padding: 20px 15px !important;
+}
+
+.twm-bnr-right-content {
+  text-align: center !important;
+}
+
+.twm-bnr-blocks {
+  position: relative !important;
+  margin: 10px auto !important;
+  max-width: 200px !important;
+}
+
+/* How It Works for candidates Section */
+.twm-how-it-work-area {
+  padding: 60px 0 !important;
+}
+
+.twm-w-process-steps,
+.twm-w-process-steps3 {
+  margin-bottom: 30px !important;
+  text-align: center !important;
+}
+
+.twm-w-pro-top {
+  padding: 20px !important;
+}
+
+.twm-w-pro-top h4 {
+  font-size: 18px !important;
+  line-height: 1.3 !important;
+}
+
+.twm-large-number {
+  font-size: 60px !important;
+}
+
+/* Job Categories Section */
+.twm-job-categories-area,
+.twm-job-categories-hpage-6-area {
+  padding: 60px 0 !important;
+}
+
+.job-categories-block,
+.job-cat-block-hpage-6 {
+  padding: 20px !important;
+  margin-bottom: 20px !important;
+  text-align: center !important;
+}
+
+.job-categories-block .twm-media,
+.job-cat-block-hpage-6 .twm-media {
+  margin-bottom: 15px !important;
+}
+
+.job-categories-block .twm-content a,
+.job-cat-block-hpage-6 .twm-content a {
+  font-size: 16px !important;
+}
+
+.twm-jobs-available {
+  font-size: 12px !important;
+}
+
+/* Explore Section */
+.twm-explore-area {
+  padding: 60px 0 !important;
+}
+
+.twm-explore-content-outer {
+  padding: 30px 15px !important;
+}
+
+.twm-explore-content .twm-title-large h2 {
+  font-size: 24px !important;
+  line-height: 1.3 !important;
+  margin-bottom: 15px !important;
+}
+
+.twm-explore-content p {
+  font-size: 14px !important;
+  margin-bottom: 20px !important;
+}
+
+/* Top Recruiters Section Mobile */
+.top-recruiters-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 15px !important;
+}
+
+.top-recruiter-card {
+  height: 120px !important;
+  padding: 15px !important;
+}
+
+.top-recruiter-logo {
+  max-height: 40px !important;
+  margin-bottom: 8px !important;
+}
+
+.top-recruiter-name {
+  font-size: 14px !important;
+}
+
+.top-recruiter-jobs {
+  font-size: 11px !important;
+}
+
+/* Recruiters Section */
+.twm-recruiters5-wrap {
+  padding: 0 10px !important;
+}
+
+.twm-recruiters5-box {
+  margin-bottom: 15px !important;
+  padding: 15px !important;
+}
+
+/* Counter Section */
+.twm-company-approch-outer {
+  padding: 40px 0 !important;
+}
+
+.counter-outer-two {
+  margin-bottom: 30px !important;
+  text-align: center !important;
+}
+
+.tw-count-number {
+  font-size: 36px !important;
+}
+
+.icon-content-info {
+  font-size: 14px !important;
+}
+
+/* Testimonial Section */
+.twm-testimonial-1-area {
+  padding: 60px 0 !important;
+}
+
+.twm-testimonial-1 {
+  padding: 20px !important;
+}
+
+.twm-testi-content {
+  padding: 15px !important;
+}
+
+.twm-testi-info {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.twm-testi-name {
+  font-size: 16px !important;
+}
+
+.twm-testi-position {
+  font-size: 13px !important;
+}
+
+/* Blog Section */
+.twm-blog-post-1-outer {
+  margin-bottom: 30px !important;
+}
+
+.wt-post-title h4 {
+  font-size: 16px !important;
+  line-height: 1.4 !important;
+}
+
+.wt-post-text p {
+  font-size: 14px !important;
+}
+
+/* Jobs List Mobile */
+.twm-jobs-list-style1 {
+  padding: 15px !important;
+  margin-bottom: 15px !important;
+}
+
+.twm-jobs-list-style1 .twm-media {
+  margin-bottom: 10px !important;
+}
+
+.twm-jobs-list-style1 .twm-media img {
+  width: 50px !important;
+  height: 50px !important;
+}
+
+.twm-job-title h4 {
+  font-size: 16px !important;
+  line-height: 1.3 !important;
+}
+
+.twm-job-address {
+  font-size: 13px !important;
+}
+
+.twm-jobs-amount {
+  font-size: 14px !important;
+}
+
+.twm-jobs-browse {
+  font-size: 13px !important;
+}
+
+/* Section Headings Mobile */
+.section-head h2,
+.wt-title {
+  font-size: 24px !important;
+  line-height: 1.3 !important;
+  text-align: center !important;
+}
+
+.wt-small-separator {
+  text-align: center !important;
+}
+
+/* Tablet Responsive (768px - 991px) */
+@media (min-width: 768px) {
+  .twm-bnr-search-bar .form-group {
+    font-size: 32px !important;
+  }
+}
+
+
+  .twm-bnr-search-bar .form-group {
+    padding: 0 8px !important;
+  }
+
+  .top-recruiters-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+  }
+
+  .twm-w-pro-top h4 {
+    font-size: 20px !important;
+  }
+
+  .section-head h2 {
+    font-size: 28px !important;
+  }
+
+
+/* Mobile Responsive (max-width: 767px) */
+@media (max-width: 767px) {
+  /* Banner adjustments */
+  .twm-home1-banner-section {
+    padding: 30px 0 !important;
+  }
+
+  .twm-bnr-left-section {
+    text-align: center !important;
+  }
+
+  .twm-bnr-title-large {
+    font-size: 26px !important;
+  }
+
+  /* Search form stacked */
+  .twm-bnr-search-bar .form-group {
+    width: 100% !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Right section hidden on mobile */
+  .twm-bnr-right-section {
+    display: none !important;
+  }
+
+  /* Section padding reduced */
+  .section-full {
+    padding: 40px 0 !important;
+  }
+
+  /* Grid layouts to single column */
+  .twm-how-it-work-section .row > div {
+    margin-bottom: 25px !important;
+  }
+
+  /* Jobs list mobile layout */
+  .twm-jobs-list-style1 {
+    display: block !important;
+  }
+
+  .twm-jobs-list-style1 .twm-mid-content {
+    margin: 10px 0 !important;
+  }
+
+  .twm-jobs-list-style1 .twm-right-content {
+    text-align: left !important;
+    margin-top: 10px !important;
+  }
+
+  /* How It Works for candidates section mobile */
+  .twm-how-it-work-area {
+    padding: 40px 15px !important;
+    margin: 0 !important;
+  }
+
+  .twm-w-process-steps,
+  .twm-w-process-steps3 {
+    padding: 0 10px !important;
+  }
+
+  /* Top Recruiters section mobile */
+  .twm-recruiters-area,
+  .twm-recruiters5-area {
+    padding: 40px 15px !important;
+    margin: 0 !important;
+  }
+
+  .top-recruiters-grid {
+    padding: 0 10px !important;
+  }
+
+  .twm-recruiters5-wrap {
+    padding: 0 10px !important;
+  }
+
+  /* Job Categories mobile */
+  .twm-jobs-grid-style1 {
+    margin-bottom: 20px !important;
+  }
+
+  .twm-jobs-grid-style1 .twm-media img {
+    width: 50px !important;
+    height: 50px !important;
+  }
+}
+
+/* Small Mobile (max-width: 575px) */
+@media (max-width: 575px) {
+  .container {
+    padding: 0 10px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .twm-bnr-title-large {
+    font-size: 22px !important;
+  }
+
+  .twm-bnr-title-small {
+    font-size: 14px !important;
+  }
+
+  .section-head h2 {
+    font-size: 20px !important;
+  }
+
+  .section-full {
+    padding: 30px 0 !important;
+  }
+
+  .top-recruiters-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .top-recruiter-card {
+    height: 100px !important;
+    padding: 12px !important;
+  }
+
+  .twm-w-pro-top h4 {
+    font-size: 16px !important;
+  }
+
+  .twm-large-number {
+    font-size: 48px !important;
+  }
+
+  .tw-count-number {
+    font-size: 28px !important;
+  }
+
+  /* Blog cards full width */
+  .twm-blog-post-1-outer {
+    margin-bottom: 20px !important;
+  }
+}
+
+/* ============================================================================
+ * SECTION 10: MOBILE RESPONSIVE - EMPLOYER DASHBOARD
+ * ============================================================================ */
+
+/* Base Mobile Styles */
+@media (max-width: 991px) {
+  /* Sidebar adjustments */
+  #sidebar-admin-wraper {
+    position: fixed !important;
+    left: -280px !important;
+    top: 0 !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    transition: left 0.3s ease !important;
+    width: 280px !important;
+  }
+
+  /* Main content adjustments */
+  .wt-admin-dashboard-2 {
+    margin-left: 0 !important;
+  }
+
+  /* Mobile menu toggle */
+  .mobile-menu-toggle {
+    display: block !important;
+  }
+}
+
+/* Tablet Responsive (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  /* Dashboard Cards */
+  .emp-dashboard .col-xl-4 {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .emp-dashboard .col-xl-8 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Company Profile Form */
+  .emp-company-profile .col-xl-4,
+  .emp-company-profile .col-lg-4 {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+  }
+
+  /* Job Cards */
+  .manage-jobs-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 15px !important;
+  }
+
+  .manage-jobs-card .btn-group {
+    align-self: flex-end !important;
+  }
+}
+
+/* Mobile Responsive (max-width: 767px) */
+@media (max-width: 767px) {
+  /* DASHBOARD PAGE */
+  .emp-dashboard {
+    padding: 0 !important;
+  }
+
+  .emp-dashboard .wt-admin-right-page-header {
+    padding: 1rem !important;
+    margin: 0 !important;
+  }
+
+  .emp-dashboard .wt-admin-right-page-header h2 {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .emp-dashboard .wt-admin-right-page-header p {
+    font-size: 0.875rem !important;
+  }
+
+  /* Dashboard Stats Cards */
+  .emp-dashboard .col-xl-4 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .emp-dashboard .dashboard-card-2 {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .emp-dashboard .counter {
+    font-size: 1.75rem !important;
+  }
+
+  .emp-dashboard h5 {
+    font-size: 1rem !important;
+  }
+
+  /* Profile Completion Section */
+  .emp-dashboard .col-xl-8 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  .emp-dashboard .progress-ring {
+    width: 6rem !important;
+    height: 6rem !important;
+  }
+
+  .emp-dashboard .progress-ring svg {
+    width: 6rem !important;
+    height: 6rem !important;
+  }
+
+  /* Notifications Section */
+  .emp-dashboard .col-xl-4:last-child {
+    margin-top: 1rem !important;
+  }
+
+  /* COMPANY PROFILE PAGE */
+  .emp-company-profile {
+    padding: 0.5rem !important;
+  }
+
+  .emp-company-profile .wt-admin-right-page-header {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .emp-company-profile .wt-admin-right-page-header h2 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Form Panels */
+  .emp-company-profile .panel {
+    margin-bottom: 1rem !important;
+    border-radius: 8px !important;
+  }
+
+  .emp-company-profile .panel-heading {
+    padding: 1rem !important;
+  }
+
+  .emp-company-profile .panel-tittle {
+    font-size: 1rem !important;
+  }
+
+  .emp-company-profile .panel-body {
+    padding: 1rem !important;
+  }
+
+  /* Form Columns */
+  .emp-company-profile .col-xl-4,
+  .emp-company-profile .col-lg-4,
+  .emp-company-profile .col-lg-6,
+  .emp-company-profile .col-md-6 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Form Controls */
+  .emp-company-profile .form-control {
+    padding: 0.75rem !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+
+  .emp-company-profile .input-group-text {
+    padding: 0.75rem 0.5rem !important;
+  }
+
+  /* Buttons */
+  .emp-company-profile .site-button {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    font-size: 1rem !important;
+    margin-top: 1rem !important;
+  }
+
+  /* File Upload Areas */
+  .emp-company-profile input[type="file"] {
+    padding: 0.5rem !important;
+    font-size: 14px !important;
+  }
+
+  /* Document Cards */
+  .emp-company-profile .document-card {
+    margin-bottom: 1rem !important;
+  }
+
+  /* Gallery Preview */
+  .emp-company-profile .gallery-item {
+    width: 120px !important;
+    height: 120px !important;
+  }
+
+  /* Authorization Letters */
+  /* .emp-company-profile .col-md-6:has(input[type="file") {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  } */
+  /* JOB OPENINGS PAGE */
+  .wt-admin-right-page-header {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .wt-admin-right-page-header h2 {
+    font-size: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Job Filters */
+  .panel .d-flex.justify-content-between {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .panel .position-relative {
+    max-width: 100% !important;
+  }
+
+  .panel .btn-group {
+    width: 100% !important;
+  }
+
+  .panel .btn-group .btn {
+    flex: 1 !important;
+  }
+
+  /* Job Cards */
+  .manage-jobs-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  .manage-jobs-card h5 {
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .manage-jobs-card .d-flex.flex-wrap {
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+  }
+
+  .manage-jobs-card .btn-group {
+    align-self: stretch !important;
+    justify-content: space-between !important;
+  }
+
+  .manage-jobs-card .btn-group .btn {
+    flex: 1 !important;
+    margin: 0 2px !important;
+  }
+
+  .manage-jobs-card .badge {
+    align-self: flex-start !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Job List Columns */
+  .col-lg-6 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* APPLICANTS PAGE */
+  .panel-body .d-flex.justify-content-between {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .panel-body .input-group {
+    max-width: 100% !important;
+  }
+
+  .panel-body .d-flex.gap-2 {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  .panel-body .form-select {
+    width: 100% !important;
+  }
+
+  .panel-body .d-flex.justify-content-between.align-items-center {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+
+  .panel-body .d-flex.align-items-center.gap-3:first-child {
+    width: 100% !important;
+  }
+
+  .panel-body .d-flex.align-items-center.gap-3:last-child {
+    width: 100% !important;
+    justify-content: flex-end !important;
+  }
+
+  /* Candidate Profile Picture */
+  .twm-media-pic {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .twm-media-pic img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  /* Applicant Info */
+  .panel-body h5 {
+    font-size: 1rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .panel-body small {
+    font-size: 0.75rem !important;
+  }
+
+  /* View Details Button */
+  .btn-outline-primary {
+    width: 100% !important;
+    padding: 0.5rem !important;
+  }
+
+  /* COMMON MOBILE STYLES */
+
+  /* Panel Adjustments */
+  .panel {
+    margin: 0 0.5rem 1rem 0.5rem !important;
+    border-radius: 8px !important;
+  }
+
+  .panel-heading {
+    padding: 1rem !important;
+  }
+
+  .panel-body {
+    padding: 1rem !important;
+  }
+
+  /* Button Adjustments */
+  .site-button {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 6px !important;
+  }
+
+  .btn-sm {
+    padding: 0.375rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Form Adjustments */
+  .form-control {
+    padding: 0.75rem !important;
+    font-size: 16px !important;
+    border-radius: 6px !important;
+  }
+
+  .form-select {
+    padding: 0.75rem !important;
+    font-size: 16px !important;
+    border-radius: 6px !important;
+  }
+
+  /* Badge Adjustments */
+  .badge {
+    padding: 0.375rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Ensure employer sidebar is visible on desktop */
+@media (min-width: 992px) {
+  #sidebar-admin-wraper {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 280px !important;
+    height: 100vh !important;
+    transform: translateX(0) !important;
+    display: block !important;
+    z-index: 1000 !important;
+    background: #ffffff !important;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+/* ============================================================================
+ * SECTION 11: MOBILE RESPONSIVE - INDEX16 SPECIFIC
+ * ============================================================================ */
+
+@media (max-width: 767px) {
+  .twm-how-it-work-area {
+    padding: 40px 0 !important;
+  }
+
+  .twm-w-process-steps3 {
+    text-align: center !important;
+    margin-bottom: 30px !important;
+  }
+
+  .twm-w-process-steps3 h4 {
+    font-size: 18px !important;
+  }
+
+  /* Job Categories mobile */
+  .twm-job-categories-hpage-6-area {
+    padding: 40px 0 !important;
+  }
+
+  .job-cat-block-hpage-6 {
+    text-align: center !important;
+    padding: 20px !important;
+  }
+}
+
+/* ============================================================================
+ * SECTION 12: SCROLLING & OVERFLOW HANDLING
+ * ============================================================================ */
+
+/* Mobile Card Scrolling & Padding Fixes */
+
+/* Container Padding */
+@media (max-width: 768px) {
+  .admin-container,
+  .dashboard-container {
+    padding: 0.75rem !important;
+  }
+
+  /* Card Grid for Mobile */
+  .cards-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 1rem 0.75rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cards-grid::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .cards-grid::-webkit-scrollbar-thumb {
+    background: #ff9c00;
+    border-radius: 3px;
+  }
+
+  /* Individual Cards */
+  .card-item {
+    flex: 0 0 280px;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* SubAdmin Management Mobile */
+  .subadmin-management {
+    padding: 0.75rem;
+  }
+
+  .subadmin-list {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .subadmin-card {
+    flex: 0 0 300px;
+    padding: 1rem;
+  }
+
+  /* Support Tickets Mobile */
+  .support-tickets {
+    padding: 0.75rem;
+  }
+
+  .tickets-list {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .support-ticket-card {
+    flex: 0 0 320px;
+    padding: 1rem;
+  }
+
+  /* Table Scrolling */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -0.75rem;
+    padding: 0 0.75rem;
+    scrollbar-width: thin;
+    scrollbar-color: #ff9c00 #f1f1f1;
+  }
+
+  .table-container::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .table-container::-webkit-scrollbar-thumb {
+    background: #ff9c00;
+    border-radius: 4px;
+  }
+
+  .table-container table {
+    min-width: 800px;
+  }
+
+  /* Form Elements Mobile */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  /* Button Groups */
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .btn-group .btn {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Extra Small Mobile */
+  .admin-container,
+  .dashboard-container {
+    padding: 0.5rem !important;
+  }
+
+  .card-item {
+    flex: 0 0 260px;
+    padding: 0.75rem;
+  }
+
+  .subadmin-card,
+  .support-ticket-card {
+    flex: 0 0 280px;
+    padding: 0.75rem;
+  }
+
+  /* Compact Headers */
+  .card-header {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  /* Smaller Text */
+  .card-text {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.75rem;
+  }
+
+  .action-buttons .btn {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Scroll Indicators */
+.scroll-indicator {
+  position: relative;
+}
+
+.scroll-indicator::after {
+  content: '→';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(to right, transparent, white);
+  padding-left: 2rem;
+  color: #ff9c00;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+@media (min-width: 769px) {
+  .scroll-indicator::after {
+    display: none;
+  }
+}
+
+/* Touch-friendly Improvements */
+.touch-friendly {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.75rem;
+}
+
+/* Loading States */
+.card-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.card-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ff9c00;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+}
+
+/* ============================================================================
+ * ORANGE COLOR PRESERVATION
+ * ============================================================================ */
+
+/* Force orange elements to stay orange */
+[style*="#FF6A00"],
+[style*="#fd7e14"],
+[style*="#e8690a"],
+[style*="orange"],
+.site-text-primary,
+.text-orange,
+.bg-orange,
+.border-orange {
+  color: #FF6A00 !important;
+}
+
+/* Orange backgrounds stay orange */
+[style*="background: #FF6A00"],
+[style*="background-color: #FF6A00"],
+[style*="backgroundColor: #FF6A00"] {
+  background-color: #FF6A00 !important;
+}
+
+/* Orange borders stay orange */
+[style*="border: 4px solid #FF6A00"],
+[style*="borderLeft: 4px solid #FF6A00"] {
+  border-color: #FF6A00 !important;
+}
+
+/* ============================================================================
+ * ACCESSIBILITY & UX IMPROVEMENTS
+ * ============================================================================ */
+
+/* Prevent any pseudo-elements from creating overlays */
+*::before,
+*::after {
+  background: none !important;
+}
+
+/* Touch-friendly button sizes (min 44x44px on mobile) */
+@media (max-width: 768px) {
+  button,
+  .btn,
+  .site-button,
+  a[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .modal {
+    -webkit-backdrop-filter: blur(2px) !important;
+  }
+}
+
+/* ============================================================================
+ * PASSWORD EYE ICON STYLING
+ * ============================================================================ */
+
+/* Password eye icon button - Orange only, no hover effects */
+.password-eye-icon {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  cursor: pointer !important;
+  color: #fd7e14 !important;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transition: none !important;
+  z-index: 10 !important;
+}
+
+.password-eye-icon:hover {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background-color: transparent !important;
+  color: #fd7e14 !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+.password-eye-icon:focus {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background-color: transparent !important;
+  color: #fd7e14 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.password-eye-icon:active {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background-color: transparent !important;
+  color: #fd7e14 !important;
+  box-shadow: none !important;
+}
+
+.password-eye-icon i {
+  color: #fd7e14 !important;
+  font-size: 16px;
+  transition: none !important;
+  line-height: 1 !important;
+}
+
+.password-eye-icon:hover i {
+  color: #fd7e14 !important;
+  transform: none !important;
+  line-height: 1 !important;
+}
+
+/* Ensure modal buttons don't override password eye icon styles */
+.modal .password-eye-icon {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #fd7e14 !important;
+  background: transparent !important;
+}
+
+.modal .password-eye-icon:hover {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #fd7e14 !important;
+  background: transparent !important;
+}
+
+/* ============================================================================
+ * CRITICAL BUTTON OVERRIDE - Highest Priority Override Rules
+ * ============================================================================
+ * These rules must execute FIRST to ensure they override all previous styles
+ * from HTML-loaded CSS files (style.css, skin-*.css, bootstrap.css, etc.)
+ * ============================================================================ */
+
+/* CRITICAL: Force override of ALL button-like elements with intense specificity */
+html body .site-button,
+html body button,
+html body button.site-button,
+html body input[type="button"],
+html body input[type="submit"],
+html body [role="button"] {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.3px !important;
+}
+
+html body .site-button:hover,
+html body button:hover,
+html body button.site-button:hover,
+html body input[type="button"]:hover,
+html body input[type="submit"]:hover {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2) !important;
+}
+
+/* ============================================================================
+ * TRANSPARENT CONTAINER OVERRIDE - HIGHEST PRIORITY
+ * ============================================================================ */
+
+/* Force transparent backgrounds ONLY on container elements, not their children */
+.transparent-container {
+  background: transparent !important;
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+}
+
+/* Specific override for react-bootstrap Container components - only the container itself */
+div[class*="container"].transparent-container {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Ensure card backgrounds remain white - override any inherited transparency */
+.transparent-container .category-card,
+.transparent-container .new-job-card,
+.transparent-container .twm-recruiters5-box,
+.transparent-container .twm-w-process-steps3,
+.transparent-container [class*="card"],
+.transparent-container [class*="box"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+/* ===================================
+   CONTACT US PAGE STYLES (Appended)
+   =================================== */
+
+/* Page Background */
+.twm-contact-one {
+    background-color: transparent !important;
+    min-height: auto !important;
+}
+
+.twm-contact-one .section-content {
+    background-color: transparent !important;
+    padding: 2rem 0 !important;
+}
+
+/* Reduced Banner Height specifically for Contact Page */
+.contact-page-active .wt-bnr-inr {
+    height: 220px !important;
+    min-height: 220px !important;
+}
+
+.contact-page-active .wt-bnr-inr-entry {
+    padding-bottom: 10px !important;
+    vertical-align: middle !important;
+    height: 220px !important;
+}
+
+@media (max-width: 767px) {
+    .contact-page-active .wt-bnr-inr {
+        height: 120px !important;
+        min-height: 120px !important;
+    }
+
+    .contact-page-active .wt-bnr-inr-entry {
+        height: 120px !important;
+    }
+}
+
+.contact-one-inner {
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+}
+
+/* Container */
+.twm-contact-one .container {
+    background-color: transparent !important;
+}
+
+/* Contact Form Section */
+.contact-form-outer {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Section Heading */
+.contact-form-outer .section-head h2.wt-title {
+    color: #0a1f44 !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 1rem !important;
+}
+
+.contact-form-outer .section-head p {
+    color: #6c757d !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 2rem !important;
+}
+
+/* Form Styling */
+.cons-contact-form {
+    background-color: transparent !important;
+}
+
+.cons-contact-form .form-control {
+    background-color: transparent !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    padding: 0.75rem !important;
+    font-size: 1rem !important;
+    color: #111827 !important;
+}
+
+.cons-contact-form .form-control:focus {
+    border-color: #FF6A00 !important;
+    box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.2) !important;
+    background-color: transparent !important;
+}
+
+.cons-contact-form .form-control::placeholder {
+    color: #6b7280 !important;
+    font-size: 0.95rem !important;
+}
+
+/* Contact Info Section */
+.contact-info-wrap {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.contact-info {
+    background-color: transparent !important;
+}
+
+.contact-info-section {
+    background-color: transparent !important;
+}
+
+.c-info-column {
+    background-color: transparent !important;
+    padding: 1.5rem 0 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.c-info-column:last-child {
+    border-bottom: none !important;
+}
+
+.c-info-column h3.twm-title {
+    color: #0a1f44 !important;
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.c-info-column p {
+    color: #6c757d !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 0 !important;
+}
+
+.c-info-column p a {
+    color: #FF6A00 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+}
+
+.c-info-column p a:hover {
+    color: #e8690a !important;
+    text-decoration: underline !important;
+}
+
+/* Contact Icons */
+.c-info-icon {
+    width: 50px !important;
+    height: 50px !important;
+    background-color: #FF6A00 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 1rem !important;
+}
+
+.c-info-icon i {
+    color: #ffffff !important;
+    font-size: 1.25rem !important;
+}
+
+/* Success Message */
+.text-success {
+    color: #28a745 !important;
+}
+
+/* Override text-success for badges and table elements */
+.badge.text-success,
+.interview-round-item .text-success,
+.table .text-success,
+.interview-progress-wrapper .text-success,
+span.text-success.badge,
+td .text-success,
+tr .text-success,
+tbody .text-success {
+    font-size: 8px !important;
+    padding: 1px 3px !important;
+    border-radius: 4px !important;
+    min-width: 35px !important;
+    line-height: 1.1 !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    display: inline-block !important;
+}
+
+/* Map Section */
+.gmap-outline {
+    background-color: #ffffff !important;
+    padding: 2rem 0 !important;
+}
+
+.google-map {
+    background-color: #ffffff !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Button Styling */
+.cons-contact-form .site-button {
+    background-color: #FF6A00 !important;
+    color: #ffffff !important;
+    border: 1px solid #FF6A00 !important;
+    padding: 0.75rem 2rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+.cons-contact-form .site-button:hover {
+    background-color: #e8690a !important;
+    border-color: #e8690a !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(255, 106, 0, 0.3) !important;
+}
+
+.cons-contact-form .site-button:disabled {
+    background-color: #d1d5db !important;
+    color: #6b7280 !important;
+    border-color: #d1d5db !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Alert Messages */
+.alert {
+    border-radius: 8px !important;
+    font-size: 0.95rem !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.alert-danger {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+    border: 1px solid #fecaca !important;
+}
+
+/* Input Group for Phone */
+.input-group {
+    background-color: transparent !important;
+}
+
+.input-group .form-control {
+    border-left: none !important;
+}
+
+/* Invalid Feedback */
+.invalid-feedback {
+    color: #dc2626 !important;
+    font-size: 0.875rem !important;
+    margin-top: 0.25rem !important;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .contact-form-outer,
+    .contact-info-wrap {
+        margin-bottom: 0 !important;
+    }
+    
+    .contact-form-outer .section-head h2.wt-title {
+        font-size: 1.75rem !important;
+        text-align: center !important;
+    }
+    
+    .contact-form-outer .section-head p {
+        text-align: center !important;
+    }
+    
+    /* Reduce spacing between header and content on mobile */
+    .twm-contact-one .section-content {
+        padding: 0.5rem 0 !important;
+    }
+
+    .contact-page-active .section-full {
+        padding: 10px 0 !important;
+    }
+
+    .contact-one-inner {
+        padding-top: 25px !important;
+        padding-bottom: 25px !important;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+
+    .contact-form-outer .section-head p {
+        margin-bottom: 1rem !important;
+    }
+
+    .c-info-column {
+        padding: 0.75rem 0 !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .twm-contact-one .section-content {
+        padding: 0.25rem 0 !important;
+    }
+
+    .contact-page-active .section-full {
+        padding: 5px 0 !important;
+    }
+
+    .contact-one-inner {
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .contact-form-outer .section-head p {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .c-info-column {
+        padding: 0.5rem 0 !important;
+    }
+    
+    .contact-one-inner .row {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .contact-form-outer,
+    .contact-info-wrap {
+        padding: 0 !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .contact-form-outer .section-head h2.wt-title {
+        font-size: 1.5rem !important;
+    }
+    
+    .contact-form-outer .section-head p {
+        font-size: 0.95rem !important;
+    }
+    
+    .c-info-column h3.twm-title {
+        font-size: 1.125rem !important;
+    }
+    
+    .c-info-column p {
+        font-size: 0.95rem !important;
+    }
+    
+    .cons-contact-form .site-button {
+        width: 100% !important;
+        padding: 1rem !important;
+    }
+}
+
+@media (max-width: 575px) {
+    .contact-form-outer,
+    .contact-info-wrap {
+        padding: 0 !important;
+    }
+    
+    .contact-form-outer .section-head h2.wt-title {
+        font-size: 1.25rem !important;
+    }
+    
+    .c-info-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .c-info-icon i {
+        font-size: 1rem !important;
+    }
+}
+
+/* ============================================================================
+ * END OF CONSOLIDATED MASTER STYLES
+ * ============================================================================
+ */

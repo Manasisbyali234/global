@@ -1,0 +1,14 @@
+/* Employer Detail Page Tab Text Size Fix */
+.nav-tabs .nav-link {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .nav-tabs .nav-link {
+    font-size: 13px !important;
+    padding: 6px 12px !important;
+  }
+}

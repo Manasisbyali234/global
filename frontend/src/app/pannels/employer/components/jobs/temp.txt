@@ -1,0 +1,2348 @@
+
+import React, { useState, useEffect, useCallback } from "react";
+import { NavLink, useParams } from "react-router-dom";
+import { employer, empRoute, publicUser } from "../../../../../globals/route-names";
+import { holidaysApi } from "../../../../../utils/holidaysApi";
+import HolidayIndicator from "../../../../../components/HolidayIndicator";
+import { api } from "../../../../../utils/api";
+import InterviewDateTester from "../../../../../components/InterviewDateTester";
+import { ErrorDisplay, GlobalErrorDisplay } from "../../../../../components/ErrorDisplay";
+import { validateField, validateForm, displayError, safeApiCall, getErrorMessage } from "../../../../../utils/errorHandler";
+import showToast from "../../../../../utils/toastNotification";
+import "../../../../../components/ErrorDisplay.css";
+
+export default function EmpPostJob({ onNext }) {
+	const { id } = useParams();
+	const isEditMode = Boolean(id);
+	const [formData, setFormData] = useState({
+		jobTitle: "",
+		jobLocation: "",
+		jobType: "",
+		netSalary: "",
+		ctc: "",
+		vacancies: "",
+		applicationLimit: "",
+		jobDescription: "",
+		education: "", // dropdown
+		backlogsAllowed: false,
+		requiredSkills: [],
+		skillInput: "",
+		experienceLevel: "freshers", // 'freshers' | 'minimum'
+		minExperience: "",
+		maxExperience: "",
+		interviewRoundsCount: "",
+		interviewRoundTypes: {
+			technical: false,
+			managerial: false,
+			nonTechnical: false,
+			final: false,
+			hr: false,
+			assessment: false,
+		},
+		interviewRoundOrder: [],
+		interviewRoundDetails: {
+			technical: { description: '', fromDate: '', toDate: '', time: '' },
+			nonTechnical: { description: '', fromDate: '', toDate: '', time: '' },
+			managerial: { description: '', fromDate: '', toDate: '', time: '' },
+			final: { description: '', fromDate: '', toDate: '', time: '' },
+			hr: { description: '', fromDate: '', toDate: '', time: '' },
+			assessment: { description: '', fromDate: '', toDate: '', time: '' }
+		},
+		offerLetterDate: "",
+		joiningDate: "",
+		lastDateOfApplication: "",
+		transportation: {
+			oneWay: false,
+			twoWay: false,
+			noCab: false,
+		},
+		interviewMode: {
+			faceToFace: false,
+			phone: false,
+			videoCall: false,
+			documentVerification: false,
+		},
+		// Consultant-specific fields
+		companyLogo: "",
+		companyName: "",
+		companyDescription: "",
+		category: ""
+	});
+
+	const [employerType, setEmployerType] = useState('company');
+	const [logoFile, setLogoFile] = useState(null);
+	const [isMobile, setIsMobile] = useState(false);
+	const [availableAssessments, setAvailableAssessments] = useState([]);
+	const [selectedAssessment, setSelectedAssessment] = useState('');
+	const [errors, setErrors] = useState({});
+	const [globalErrors, setGlobalErrors] = useState([]);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [validationRules] = useState({
+		jobTitle: { required: true, minLength: 3 },
+		category: { required: true },
+		jobType: { required: true },
+		jobLocation: { required: true, minLength: 2 },
+		vacancies: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
+		applicationLimit: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
+		education: { required: true },
+		interviewRoundsCount: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
+		offerLetterDate: { required: true },
+		lastDateOfApplication: { required: true }
+	});
+
+	/* Helpers */
+	const update = (patch) => {
+		setFormData((s) => ({ ...s, ...patch }));
+		// Clear global errors when user makes changes
+		if (globalErrors.length > 0) {
+			setGlobalErrors([]);
+		}
+		// Clear field-specific errors
+		Object.keys(patch).forEach(field => {
+			if (errors[field]) {
+				setErrors(prev => {
+					const newErrors = { ...prev };
+					delete newErrors[field];
+					return newErrors;
+				});
+			}
+		});
+	};
+
+	// Auto-save CTC to localStorage with debouncing
+	const autoSaveCTC = useCallback((ctcValue) => {
+		if (ctcValue && String(ctcValue).trim()) {
+			localStorage.setItem('draft_ctc', ctcValue);
+			
+		}
+	}, []);
+
+	// Debounced auto-save
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			if (formData.ctc) {
+				autoSaveCTC(formData.ctc);
+			}
+		}, 500); // Save after 500ms of no typing
+
+		return () => clearTimeout(timer);
+	}, [formData.ctc, autoSaveCTC]);
+
+	useEffect(() => {
+		if (isEditMode) {
+			fetchJobData();
+		} else {
+			// Load saved CTC from localStorage for new jobs
+			const savedCTC = localStorage.getItem('draft_ctc');
+			if (savedCTC) {
+				update({ ctc: savedCTC });
+			}
+		}
+		fetchEmployerType();
+		fetchAssessments();
+		
+		// Mobile detection
+		const checkMobile = () => {
+			setIsMobile(window.innerWidth <= 767);
+		};
+		
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+		
+		return () => window.removeEventListener('resize', checkMobile);
+	}, [id, isEditMode]);
+
+	const fetchAssessments = async () => {
+		try {
+			const token = localStorage.getItem('employerToken');
+			const data = await safeApiCall('http://localhost:5000/api/employer/assessments', {
+				headers: { 'Authorization': `Bearer ${token}` }
+			});
+			if (data.success) {
+				setAvailableAssessments(data.assessments || []);
+			}
+		} catch (error) {
+			if (error.name === 'AuthError') {
+				showToast('Session expired. Please login again.', 'warning');
+				localStorage.removeItem('employerToken');
+				window.location.href = '/login';
+				return;
+			}
+			console.error('Failed to fetch assessments:', error);
+		}
+	};
+
+	const fetchJobData = async () => {
+		try {
+			const token = localStorage.getItem('employerToken');
+			const data = await safeApiCall(`http://localhost:5000/api/employer/jobs/${id}`, {
+				headers: { 'Authorization': `Bearer ${token}` }
+			});
+			if (data.success) {
+				const job = data.job;
+
+				// Populate form with job data
+				update({
+					jobTitle: job.title || '',
+					jobLocation: job.location || '',
+					jobType: job.jobType || '',
+					netSalary: job.netSalary || '',
+					ctc: job.ctc ? (typeof job.ctc === 'object' ? `${job.ctc.min}-${job.ctc.max}` : job.ctc) : '',
+					vacancies: job.vacancies || '',
+					applicationLimit: job.applicationLimit || '',
+					jobDescription: job.description || '',
+					education: job.education || '',
+					backlogsAllowed: job.backlogsAllowed || false,
+					requiredSkills: job.requiredSkills || [],
+					experienceLevel: job.experienceLevel || 'freshers',
+					minExperience: job.minExperience || '',
+					maxExperience: job.maxExperience || '',
+					interviewRoundsCount: job.interviewRoundsCount || '',
+					interviewRoundTypes: job.interviewRoundTypes || {
+						technical: false,
+						managerial: false,
+						nonTechnical: false,
+						final: false,
+						hr: false,
+					},
+					interviewRoundDetails: (() => {
+						const details = job.interviewRoundDetails || {};
+						// Convert date objects to YYYY-MM-DD format for input fields
+						Object.keys(details).forEach(key => {
+							if (details[key]) {
+								if (details[key].fromDate) {
+									details[key].fromDate = new Date(details[key].fromDate).toISOString().split('T')[0];
+								}
+								if (details[key].toDate) {
+									details[key].toDate = new Date(details[key].toDate).toISOString().split('T')[0];
+								}
+							}
+						});
+						return details;
+					})(),
+					interviewRoundOrder: job.interviewRoundOrder || [],
+					offerLetterDate: job.offerLetterDate ? job.offerLetterDate.split('T')[0] : '',
+					joiningDate: job.lastDateOfApplication ? job.lastDateOfApplication.split('T')[0] : '',
+					lastDateOfApplication: job.lastDateOfApplication ? job.lastDateOfApplication.split('T')[0] : '',
+					transportation: job.transportation || {
+						oneWay: false,
+						twoWay: false,
+						noCab: false,
+					},
+					interviewMode: job.interviewMode || {
+						faceToFace: false,
+						phone: false,
+						videoCall: false,
+						documentVerification: false,
+					},
+					companyLogo: job.companyLogo || '',
+					companyName: job.companyName || '',
+					companyDescription: job.companyDescription || '',
+					category: job.category || ''
+				});
+
+				// Set selected assessment
+				if (job.assessmentId) {
+					setSelectedAssessment(job.assessmentId._id || job.assessmentId);
+				}
+				
+				// Load assessment dates into interview round details if they exist
+				if (job.assessmentStartDate || job.assessmentEndDate) {
+					const assessmentRoundKey = job.interviewRoundOrder?.find(key => job.interviewRoundTypes?.[key] === 'assessment');
+					if (assessmentRoundKey) {
+						setFormData(prev => ({
+							...prev,
+							interviewRoundDetails: {
+								...prev.interviewRoundDetails,
+								[assessmentRoundKey]: {
+									...prev.interviewRoundDetails[assessmentRoundKey],
+									fromDate: job.assessmentStartDate ? new Date(job.assessmentStartDate).toISOString().split('T')[0] : '',
+									toDate: job.assessmentEndDate ? new Date(job.assessmentEndDate).toISOString().split('T')[0] : ''
+								}
+							}
+						}));
+					}
+				}
+			}
+		} catch (error) {
+			if (error.name === 'AuthError') {
+				showToast('Session expired. Please login again.', 'warning');
+				localStorage.removeItem('employerToken');
+				window.location.href = '/login';
+				return;
+			}
+			displayError(error, { useToast: true });
+		}
+	};
+
+	const fetchEmployerType = async () => {
+		try {
+			const token = localStorage.getItem('employerToken');
+			const data = await safeApiCall('http://localhost:5000/api/employer/profile', {
+				headers: { 'Authorization': `Bearer ${token}` }
+			});
+			
+			if (data.success && data.profile?.employerId) {
+				const empType = data.profile.employerId.employerType || 'company';
+				const empCategory = data.profile.employerCategory;
+				
+				
+				// Check both employerType and employerCategory
+				const finalType = (empType === 'consultant' || empCategory === 'consultancy') ? 'consultant' : 'company';
+				
+				setEmployerType(finalType);
+				// For consultants, check if they have default company info in profile
+				if (empType === 'consultant' && data.profile.consultantCompanyName) {
+					update({
+						companyLogo: data.profile.consultantCompanyLogo || '',
+						companyName: data.profile.consultantCompanyName || '',
+						companyDescription: data.profile.consultantCompanyDescription || ''
+					});
+				}
+			}
+		} catch (error) {
+			if (error.name === 'AuthError') {
+				showToast('Session expired. Please login again.', 'warning');
+				localStorage.removeItem('employerToken');
+				window.location.href = '/login';
+				return;
+			}
+			console.error('Failed to fetch employer type:', error);
+		}
+	};
+
+
+
+	/* Skills logic */
+	const addSkill = () => {
+		const v = formData.skillInput.trim();
+		if (!v) return;
+		if (formData.requiredSkills.includes(v)) {
+			update({ skillInput: "" });
+			return;
+		}
+		update({
+			requiredSkills: [...formData.requiredSkills, v],
+			skillInput: "",
+		});
+	};
+	const removeSkill = (skill) =>
+		update({
+			requiredSkills: formData.requiredSkills.filter((s) => s !== skill),
+		});
+
+	/* Toggle nested checkbox groups */
+	const toggleNested = (group, key) => {
+		if (group === 'interviewRoundTypes') {
+			setFormData((s) => {
+				const isCurrentlyChecked = s[group][key];
+				let newOrder = [...s.interviewRoundOrder];
+				
+				if (isCurrentlyChecked) {
+					// Remove from order if unchecking
+					newOrder = newOrder.filter(item => item !== key);
+				} else {
+					// Add to order if checking
+					newOrder.push(key);
+				}
+				
+				return {
+					...s,
+					[group]: { ...s[group], [key]: !s[group][key] },
+					interviewRoundOrder: newOrder
+				};
+			});
+		} else {
+			setFormData((s) => ({
+				...s,
+				[group]: { ...s[group], [key]: !s[group][key] },
+			}));
+		}
+	};
+
+	/* Update interview round details */
+	const updateRoundDetails = async (roundType, field, value) => {
+		// Validate date range
+		if (field === 'toDate' && value) {
+			const fromDate = formData.interviewRoundDetails[roundType]?.fromDate;
+			if (fromDate && new Date(value) < new Date(fromDate)) {
+				showToast('To Date cannot be earlier than From Date', 'error');
+				return;
+			}
+		}
+		if (field === 'fromDate' && value) {
+			const toDate = formData.interviewRoundDetails[roundType]?.toDate;
+			if (toDate && new Date(value) > new Date(toDate)) {
+				showToast('From Date cannot be later than To Date', 'error');
+				return;
+			}
+		}
+
+		// Ensure the roundType exists in interviewRoundDetails
+		setFormData(s => {
+			const updatedDetails = {
+				...s.interviewRoundDetails,
+				[roundType]: {
+					...s.interviewRoundDetails[roundType],
+					[field]: value
+				}
+			};
+			
+			// Log the update for debugging
+			console.log(`Updated ${roundType} ${field}:`, value);
+			console.log('Updated interview round details:', updatedDetails);
+			
+			return {
+				...s,
+				interviewRoundDetails: updatedDetails
+			};
+		});
+
+		// Check for holidays when date is selected
+		if ((field === 'fromDate' || field === 'toDate') && value) {
+			const holidayCheck = await holidaysApi.checkHoliday(value);
+			if (holidayCheck.success && holidayCheck.isHoliday) {
+				showToast(`Note: ${value} is a public holiday (${holidayCheck.holidayInfo.name}). Consider selecting a different date.`, 'warning', 6000);
+			}
+		}
+	};
+
+	const handleLogoUpload = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			setLogoFile(file);
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				update({ companyLogo: e.target.result });
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	const validateJobForm = () => {
+		const newErrors = {};
+		const errorMessages = [];
+
+		// Basic validation using validation rules
+		const basicErrors = validateForm(formData, validationRules);
+		Object.assign(newErrors, basicErrors);
+
+		// Custom validations
+		if (formData.experienceLevel === 'minimum') {
+			if (!formData.minExperience || parseInt(formData.minExperience) < 0) {
+				newErrors.minExperience = ['Please enter valid minimum experience'];
+			}
+			if (formData.maxExperience && parseInt(formData.maxExperience) < parseInt(formData.minExperience)) {
+				newErrors.maxExperience = ['Maximum experience cannot be less than minimum experience'];
+			}
+		}
+
+		// Validate Interview Round Details
+		const selectedRounds = formData.interviewRoundOrder
+			.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment');
+
+		for (const uniqueKey of selectedRounds) {
+			const roundType = formData.interviewRoundTypes[uniqueKey];
+			const details = formData.interviewRoundDetails[uniqueKey];
+			const roundNames = {
+				technical: 'Technical Round',
+				nonTechnical: 'Non-Technical Round',
+				managerial: 'Managerial Round',
+				final: 'Final Round',
+				hr: 'HR Round'
+			};
+
+			const roundName = roundNames[roundType] || roundType;
+
+			if (!details?.description?.trim()) {
+				errorMessages.push(`Please enter description for ${roundName}`);
+			}
+			if (!details?.fromDate) {
+				errorMessages.push(`Please select From Date for ${roundName}`);
+			}
+			if (!details?.toDate) {
+				errorMessages.push(`Please select To Date for ${roundName}`);
+			}
+			if (!details?.time) {
+				errorMessages.push(`Please select Time for ${roundName}`);
+			}
+			if (details?.fromDate && details?.toDate && new Date(details.fromDate) > new Date(details.toDate)) {
+				errorMessages.push(`From Date cannot be after To Date for ${roundName}`);
+			}
+		}
+
+		// Validate Assessment if selected
+		const assessmentKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
+		if (assessmentKey) {
+			if (!selectedAssessment) {
+				errorMessages.push('Please select an Assessment');
+			}
+			const assessmentDetails = formData.interviewRoundDetails[assessmentKey];
+			if (!assessmentDetails?.fromDate) {
+				errorMessages.push('Please select From Date for Assessment');
+			}
+			if (!assessmentDetails?.toDate) {
+				errorMessages.push('Please select To Date for Assessment');
+			}
+			if (assessmentDetails?.fromDate && assessmentDetails?.toDate && new Date(assessmentDetails.fromDate) > new Date(assessmentDetails.toDate)) {
+				errorMessages.push('Assessment From Date cannot be after To Date');
+			}
+		}
+
+		// Skip consultant field validation - these are optional
+
+		setErrors(newErrors);
+		setGlobalErrors(errorMessages);
+
+		return Object.keys(newErrors).length === 0 && errorMessages.length === 0;
+	};
+
+	const submitNext = async () => {
+		if (isSubmitting) return;
+		
+		try {
+			const token = localStorage.getItem('employerToken');
+			if (!token) {
+				showToast('Please login first', 'warning');
+				return;
+			}
+
+			// Validate form
+			if (!validateJobForm()) {
+				// Display all validation errors
+				const allErrors = [...Object.entries(errors).map(([field, msgs]) => `${field}: ${msgs.join(', ')}`), ...globalErrors];
+				if (allErrors.length > 0) {
+					showToast(`Validation Errors:\n${allErrors.join('\n')}`, 'error', 8000);
+				}
+				// Scroll to first error
+				const firstErrorField = document.querySelector('.is-invalid');
+				if (firstErrorField) {
+					firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					firstErrorField.focus();
+				}
+				return;
+			}
+
+			setIsSubmitting(true);
+
+			// Debug logging
+			
+			
+
+			// Extract assessment dates from interview round details
+			const assessmentRoundKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
+			const assessmentDetails = assessmentRoundKey ? formData.interviewRoundDetails[assessmentRoundKey] : null;
+			
+			const jobData = {
+				title: formData.jobTitle,
+				location: formData.jobLocation,
+				jobType: formData.jobType ? formData.jobType.toLowerCase().replace(/\s+/g, '-') : '',
+				ctc: formData.ctc,
+				netSalary: formData.netSalary,
+				vacancies: parseInt(formData.vacancies) || 0,
+				applicationLimit: parseInt(formData.applicationLimit) || 0,
+				description: formData.jobDescription || 'Job description to be updated',
+				requiredSkills: formData.requiredSkills,
+				experienceLevel: formData.experienceLevel,
+				minExperience: formData.minExperience ? parseInt(formData.minExperience) : 0,
+				maxExperience: formData.maxExperience ? parseInt(formData.maxExperience) : 0,
+				education: formData.education,
+				backlogsAllowed: formData.backlogsAllowed,
+				interviewRoundsCount: parseInt(formData.interviewRoundsCount) || 0,
+				interviewRoundTypes: formData.interviewRoundTypes,
+				interviewRoundDetails: formData.interviewRoundDetails,
+				interviewRoundOrder: formData.interviewRoundOrder || [],
+				assignedAssessment: selectedAssessment || null,
+				assessmentStartDate: assessmentDetails?.fromDate || null,
+				assessmentEndDate: assessmentDetails?.toDate || null,
+				offerLetterDate: formData.offerLetterDate || null,
+				lastDateOfApplication: formData.lastDateOfApplication || null,
+				transportation: formData.transportation,
+				category: formData.category,
+				companyLogo: formData.companyLogo,
+				companyName: formData.companyName,
+				companyDescription: formData.companyDescription
+			};
+
+			// Add consultant-specific fields if employer is consultant
+			if (employerType === 'consultant') {
+				console.log('Adding consultant fields:', {
+					companyLogo: formData.companyLogo,
+					companyName: formData.companyName,
+					companyDescription: formData.companyDescription
+				});
+				jobData.companyLogo = formData.companyLogo;
+				jobData.companyName = formData.companyName;
+				jobData.companyDescription = formData.companyDescription;
+			}
+
+			
+
+			const url = isEditMode 
+				? `http://localhost:5000/api/employer/jobs/${id}`
+				: 'http://localhost:5000/api/employer/jobs';
+			
+			const method = isEditMode ? 'PUT' : 'POST';
+
+			const data = await safeApiCall(url, {
+				method: method,
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				},
+				body: JSON.stringify(jobData)
+			});
+
+			if (data.success) {
+				// Clear saved CTC from localStorage after successful submission
+				localStorage.removeItem('draft_ctc');
+				showToast(isEditMode ? 'Job updated successfully!' : 'Job posted successfully!', 'success');
+				setTimeout(() => {
+					window.location.href = '/employer/manage-jobs';
+				}, 1500);
+			} else {
+				showToast(data.message || `Failed to ${isEditMode ? 'update' : 'post'} job`, 'error');
+			}
+		} catch (error) {
+			if (error.name === 'AuthError') {
+				showToast('Session expired. Please login again.', 'warning');
+				localStorage.removeItem('employerToken');
+				window.location.href = '/login';
+				return;
+			}
+			
+			const errorMessage = getErrorMessage(error, 'profile');
+			showToast(errorMessage, 'error');
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	/* Inline style objects */
+	const page = {
+		padding: isMobile ? "15px 10px" : "30px 20px",
+		maxWidth: 1200,
+		margin: "0 auto",
+		fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif",
+		background: "#f8f9fa",
+		minHeight: "100vh",
+	};
+	const card = {
+		background: "#fff",
+		padding: isMobile ? "16px" : "32px",
+		borderRadius: isMobile ? 8 : 12,
+		boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+		marginBottom: isMobile ? 16 : 24,
+	};
+	const heading = {
+		margin: 0,
+		marginBottom: 8,
+		fontSize: 24,
+		color: "#1d1d1d",
+		fontWeight: 600,
+	};
+	const sub = { 
+		color: "#6b7280", 
+		marginBottom: 24, 
+		fontSize: 14,
+		lineHeight: 1.5,
+	};
+
+	const grid = {
+		display: "grid",
+		gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+		gap: isMobile ? 16 : 24,
+		alignItems: "start",
+	};
+	const fullRow = { gridColumn: "1 / -1" };
+	const label = {
+		display: "block",
+		fontSize: 14,
+		color: "#374151",
+		marginBottom: 8,
+		fontWeight: 500,
+	};
+	const input = {
+		width: "100%",
+		padding: isMobile ? "10px 12px" : "12px 14px",
+		borderRadius: isMobile ? 6 : 8,
+		border: "1px solid #d1d5db",
+		background: "#fff",
+		outline: "none",
+		fontSize: isMobile ? 16 : 14, // Prevents zoom on iOS
+		boxSizing: "border-box",
+		transition: "all 0.2s ease",
+	};
+	const inputFocus = {
+		borderColor: "#ff6b35",
+		boxShadow: "0 0 0 3px rgba(255,107,53,0.1)",
+	};
+	const smallInput = { ...input, width: 180 };
+	const plusBtn = {
+		marginLeft: 10,
+		width: 42,
+		height: 42,
+		borderRadius: 8,
+		border: "none",
+		background: "#ff6b35",
+		color: "#fff",
+		cursor: "pointer",
+		fontSize: 20,
+		lineHeight: 1,
+		transition: "all 0.2s ease",
+		fontWeight: 600,
+	};
+	const chip = {
+		padding: "8px 14px",
+		background: "#e7f3ff",
+		borderRadius: 20,
+		display: "inline-flex",
+		gap: 8,
+		alignItems: "center",
+		fontSize: 13,
+		fontWeight: 500,
+		color: "#0066cc",
+		border: "1px solid #b3d9ff",
+	};
+	const chipX = {
+		marginLeft: 6,
+		cursor: "pointer",
+		color: "#ef4444",
+		fontWeight: 700,
+		fontSize: 16,
+	};
+	const sectionHeader = {
+		margin: "40px 0 24px 0",
+		fontSize: 20,
+		color: "#1f2937",
+		fontWeight: 700,
+		paddingBottom: 16,
+		display: "flex",
+		alignItems: "center",
+		gap: 12,
+		letterSpacing: "-0.025em",
+	};
+
+	return (
+		<div style={page}>
+			{/* Back to Jobs Button */}
+			<div style={{marginBottom: 16, display: 'flex', justifyContent: 'flex-end'}}>
+				<NavLink to={empRoute(employer.MANAGE_JOBS)} style={{textDecoration: 'none'}}>
+					<button
+						style={{
+							background: "#374151",
+							color: "#ffffff",
+							border: "2px solid #9ca3af",
+							padding: "10px 20px",
+							borderRadius: 8,
+							cursor: "pointer",
+							fontSize: 14,
+							fontWeight: 600,
+							transition: "all 0.2s ease",
+							boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+							display: 'flex',
+							alignItems: 'center',
+							gap: 8,
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#4b5563';
+							e.currentTarget.style.borderColor = '#6b7280';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#374151';
+							e.currentTarget.style.borderColor = '#9ca3af';
+						}}
+					>
+						<i className="fa fa-arrow-left"></i>
+						Back to Jobs
+					</button>
+				</NavLink>
+			</div>
+
+			{/* Header */}
+			<div style={{marginBottom: 24}}>
+				<h1 style={heading}>
+					{isEditMode ? (
+						<><i className="fa fa-edit" style={{color: '#ff6b35', marginRight: 12}}></i>Edit Job Posting</>
+					) : (
+						<><i className="fa fa-plus-circle" style={{color: '#ff6b35', marginRight: 12}}></i>Post a New Job</>
+					)}
+				</h1>
+				<p style={sub}>
+					{isEditMode 
+						? 'Update your job posting details below. All fields marked with * are required.'
+						: 'Fill in the details below to create a new job posting. All fields marked with * are required.'}
+				</p>
+			</div>
+
+			{/* Card */}
+			<div style={card}>
+				<div style={grid}>
+					{/* Consultant Fields */}
+					{employerType === 'consultant' && (
+						<>
+							<div style={fullRow}>
+								<div style={{
+									background: 'linear-gradient(135deg, #ee9f27 0%, #ffffff 100%)',
+									padding: '16px 20px',
+									borderRadius: 10,
+									color: '#333',
+									marginBottom: 8,
+								}}>
+									<h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 10 }}>
+										<i className="fa fa-briefcase"></i>
+										Company Information (Consultant Mode)
+									</h4>
+									<p style={{margin: '6px 0 0 0', fontSize: 13, opacity: 0.9}}>
+										As a consultant, please provide details about the hiring company
+									</p>
+								</div>
+							</div>
+							<div>
+								<label style={label}>
+									<i className="fa fa-image" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+									Company Logo
+								</label>
+								<input
+									style={{...input, padding: '10px'}}
+									type="file"
+									accept="image/*"
+									onChange={handleLogoUpload}
+								/>
+								{formData.companyLogo && (
+									<div style={{marginTop: 12}}>
+										<img 
+											src={formData.companyLogo} 
+											alt="Company Logo" 
+											style={{
+												width: '80px', 
+												height: '80px', 
+												borderRadius: 8,
+												objectFit: 'cover',
+												border: '2px solid #e5e7eb',
+												boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+											}} 
+										/>
+									</div>
+								)}
+							</div>
+							<div>
+								<label style={{...label, color: '#dc2626'}}>
+									<i className="fa fa-building" style={{marginRight: '8px'}}></i>
+									Company Name *
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+								</label>
+								<input
+									style={{
+										...input, 
+										borderColor: formData.companyName ? '#10b981' : '#dc2626',
+										borderWidth: 2,
+									}}
+									placeholder="e.g., Tech Solutions Inc."
+									value={formData.companyName}
+									onChange={(e) => update({ companyName: e.target.value })}
+									required
+								/>
+								{!formData.companyName && (
+									<p style={{color: '#dc2626', fontSize: 12, margin: '6px 0 0 0', display: 'flex', alignItems: 'center', gap: 4}}>
+										<i className="fa fa-exclamation-circle"></i>
+										Please enter company name
+									</p>
+								)}
+							</div>
+							<div style={fullRow}>
+								<label style={{...label, color: '#dc2626'}}>
+									<i className="fa fa-info-circle" style={{marginRight: '8px'}}></i>
+									Company Description *
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+								</label>
+								<textarea
+									style={{
+										...input, 
+										minHeight: '100px',
+										borderColor: formData.companyDescription ? '#10b981' : '#dc2626',
+										borderWidth: 2,
+									}}
+									placeholder="Brief description about the company, its culture, and what makes it unique..."
+									value={formData.companyDescription}
+									onChange={(e) => update({ companyDescription: e.target.value })}
+									required
+								/>
+								{!formData.companyDescription && (
+									<p style={{color: '#dc2626', fontSize: 12, margin: '6px 0 0 0', display: 'flex', alignItems: 'center', gap: 4}}>
+										<i className="fa fa-exclamation-circle"></i>
+										Please enter company description
+									</p>
+								)}
+							</div>
+						</>
+					)}
+
+					{/* Basic Job Information Section */}
+					<div style={fullRow}>
+						<h3 style={sectionHeader}>
+							<i className="fa fa-info-circle" style={{color: '#ff6b35'}}></i>
+							Basic Job Information
+						</h3>
+					</div>
+
+					{/* Row 1 */}
+					<div>
+						<label style={label}>
+							<i className="fa fa-briefcase" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Job Title / Designation *
+						</label>
+						<input
+							style={{
+								...input,
+								borderColor: errors.jobTitle ? '#dc2626' : '#d1d5db'
+							}}
+							className={errors.jobTitle ? 'is-invalid' : ''}
+							placeholder="e.g., Senior Software Engineer"
+							value={formData.jobTitle}
+							onChange={(e) => update({ jobTitle: e.target.value })}
+						/>
+						<ErrorDisplay errors={errors} fieldName="jobTitle" />
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-tags" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Job Category *
+						</label>
+						<select
+							style={{ 
+								...input, 
+								cursor: 'pointer',
+								borderColor: errors.category ? '#dc2626' : '#d1d5db'
+							}}
+							className={errors.category ? 'is-invalid' : ''}
+							value={formData.category}
+							onChange={(e) => update({ category: e.target.value })}
+						>
+							<option value="" disabled>Select Category</option>
+							<option value="IT">IT</option>
+							<option value="Sales">Sales</option>
+							<option value="Marketing">Marketing</option>
+							<option value="Sales & Marketing">Sales & Marketing</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Operations">Operations</option>
+							<option value="Design">Design</option>
+							<option value="Content">Content</option>
+							<option value="Healthcare">Healthcare</option>
+							<option value="Education">Education</option>
+							<option value="Other">Other</option>
+						</select>
+						<ErrorDisplay errors={errors} fieldName="category" />
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-clock" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Job Type *
+						</label>
+						<select
+							style={{ 
+								...input, 
+								cursor: 'pointer',
+								borderColor: errors.jobType ? '#dc2626' : '#d1d5db'
+							}}
+							className={errors.jobType ? 'is-invalid' : ''}
+							value={formData.jobType}
+							onChange={(e) => update({ jobType: e.target.value })}
+						>
+							<option value="" disabled>Select Job Type</option>
+							<option>Full-Time</option>
+							<option>Internship (Paid)</option>
+							<option>Internship (Unpaid)</option>
+							<option>Work From Home</option>
+							<option>Contract</option>
+						</select>
+						<ErrorDisplay errors={errors} fieldName="jobType" />
+					</div>
+
+					{/* Row 2 */}
+					<div>
+						<label style={label}>
+							<i className="fa fa-map-marker-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Job Location *
+						</label>
+						<input
+							style={{
+								...input,
+								borderColor: errors.jobLocation ? '#dc2626' : '#d1d5db'
+							}}
+							className={errors.jobLocation ? 'is-invalid' : ''}
+							placeholder="e.g., Bangalore, Mumbai, Remote"
+							value={formData.jobLocation}
+							onChange={(e) => update({ jobLocation: e.target.value })}
+						/>
+						<ErrorDisplay errors={errors} fieldName="jobLocation" />
+					</div>
+
+					{/* Compensation Section */}
+					<div style={fullRow}>
+						<h3 style={sectionHeader}>
+							<i className="fa fa-money-bill-wave" style={{color: '#ff6b35'}}></i>
+							Compensation & Openings
+						</h3>
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-rupee-sign" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							CTC (Annual)
+							<span style={{
+								fontSize: 11, 
+								color: '#10b981', 
+								fontWeight: 500,
+								marginLeft: 8,
+								background: '#d1fae5',
+								padding: '2px 8px',
+								borderRadius: 4,
+							}}>
+								✓ Auto-saved
+							</span>
+						</label>
+						<input
+							style={input}
+							placeholder="e.g., 8 L.P.A or 6-8 L.P.A"
+							value={formData.ctc}
+							onChange={(e) => update({ ctc: e.target.value })}
+						/>
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
+							Enter annual CTC in lakhs (e.g., 8 or 6-8)
+						</small>
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-money-bill-wave" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Net Salary (Monthly)
+						</label>
+						<input
+							style={input}
+							placeholder="e.g., 50000 or 40000-50000"
+							value={formData.netSalary}
+							onChange={(e) => update({ netSalary: e.target.value })}
+						/>
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
+							Enter monthly take-home salary in rupees
+						</small>
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-users" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Number of Vacancies *
+						</label>
+						<input
+							style={{
+								...input,
+								borderColor: errors.vacancies ? '#dc2626' : '#d1d5db'
+							}}
+							className={errors.vacancies ? 'is-invalid' : ''}
+							type="number"
+							min="1"
+							placeholder="e.g., 5"
+							value={formData.vacancies}
+							onChange={(e) => update({ vacancies: e.target.value })}
+						/>
+						<ErrorDisplay errors={errors} fieldName="vacancies" />
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-file-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Application Limit *
+						</label>
+						<input
+							style={{
+								...input,
+								borderColor: errors.applicationLimit ? '#dc2626' : '#d1d5db'
+							}}
+							className={errors.applicationLimit ? 'is-invalid' : ''}
+							type="number"
+							min="1"
+							placeholder="e.g., 100"
+							value={formData.applicationLimit}
+							onChange={(e) => update({ applicationLimit: e.target.value })}
+						/>
+						<ErrorDisplay errors={errors} fieldName="applicationLimit" />
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
+							Maximum number of applications to accept
+						</small>
+					</div>
+
+					{/* Requirements Section */}
+					<div style={fullRow}>
+						<h3 style={sectionHeader}>
+							<i className="fa fa-clipboard-check" style={{color: '#ff6b35'}}></i>
+							Requirements & Qualifications
+						</h3>
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-graduation-cap" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Required Educational Background *
+						</label>
+						<select
+							style={{ ...input, cursor: 'pointer' }}
+							value={formData.education}
+							onChange={(e) => update({ education: e.target.value })}
+						>
+							<option value="" disabled>Select Education Level</option>
+							<option value="Any">Any</option>
+							<option value="B.Tech">B.Tech</option>
+							<option value="M.Tech">M.Tech</option>
+							<option value="B.Sc">B.Sc</option>
+							<option value="M.Sc">M.Sc</option>
+							<option value="MBA">MBA</option>
+							<option value="BBA">BBA</option>
+							<option value="B.Com">B.Com</option>
+							<option value="M.Com">M.Com</option>
+						</select>
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-question-circle" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Are Backlogs Allowed?
+						</label>
+						<select
+							style={{ ...input, cursor: 'pointer' }}
+							value={formData.backlogsAllowed ? "Yes" : "No"}
+							onChange={(e) =>
+								update({ backlogsAllowed: e.target.value === "Yes" })
+							}
+						>
+							<option value="No">No</option>
+							<option value="Yes">Yes</option>
+						</select>
+					</div>
+
+					{/* Skills (full width) */}
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-cogs" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Required Skills
+							<span style={{fontSize: 12, color: '#6b7280', fontWeight: 'normal', marginLeft: 8}}>
+								({formData.requiredSkills.length} skills added)
+							</span>
+						</label>
+						<div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+							<input
+								style={{ ...input, marginBottom: 0, flex: 1 }}
+								placeholder="Type a skill and press Enter or click + (e.g., React, Java, Python)"
+								value={formData.skillInput}
+								onChange={(e) => update({ skillInput: e.target.value })}
+								onKeyDown={(e) => {
+									if (e.key === "Enter") {
+										e.preventDefault();
+										addSkill();
+									}
+								}}
+							/>
+							<button
+								type="button"
+								onClick={addSkill}
+								style={plusBtn}
+								aria-label="Add skill"
+								title="Add skill"
+								onMouseEnter={(e) => e.currentTarget.style.background = '#e55a2b'}
+								onMouseLeave={(e) => e.currentTarget.style.background = '#ff6b35'}
+							>
+								+
+							</button>
+						</div>
+
+						{/* chips */}
+						{formData.requiredSkills.length > 0 && (
+							<div
+								style={{
+									marginTop: 14,
+									display: "flex",
+									gap: 10,
+									flexWrap: "wrap",
+									padding: 12,
+									background: '#f9fafb',
+									borderRadius: 8,
+									border: '1px solid #e5e7eb',
+								}}
+							>
+								{formData.requiredSkills.map((s, i) => (
+									<div key={i} style={chip}>
+										<span>{s}</span>
+										<span 
+											style={chipX} 
+											onClick={() => removeSkill(s)}
+											title="Remove skill"
+										>
+											×
+										</span>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
+
+					{/* Experience Level */}
+					<div style={{
+						padding: 20,
+						background: '#fff',
+						border: '2px solid #e5e7eb',
+						borderRadius: 12,
+						boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+					}}>
+						<label style={{
+							...label,
+							fontSize: 16,
+							fontWeight: 600,
+							marginBottom: 16,
+							color: '#1f2937'
+						}}>
+							<i className="fa fa-chart-line" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Experience Level
+						</label>
+						<div style={{
+							display: 'grid',
+							gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+							gap: 16,
+							marginBottom: 16
+						}}>
+							<div 
+								style={{
+									padding: 16,
+									border: formData.experienceLevel === "freshers" ? '3px solid #ff6b35' : '2px solid #d1d5db',
+									borderRadius: 12,
+									background: formData.experienceLevel === "freshers" ? '#fff5f2' : '#ffffff',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+									boxShadow: formData.experienceLevel === "freshers" ? '0 4px 12px rgba(255,107,53,0.2)' : '0 2px 4px rgba(0,0,0,0.1)',
+									textAlign: 'center'
+								}}
+								onClick={() => update({ experienceLevel: "freshers", minExperience: "", maxExperience: "" })}
+							>
+
+								<h4 style={{
+									margin: 0,
+									fontSize: 16,
+									fontWeight: 600,
+									color: formData.experienceLevel === "freshers" ? '#1f2937' : '#6b7280'
+								}}>Fresher</h4>
+							</div>
+
+							<div 
+								style={{
+									padding: 16,
+									border: formData.experienceLevel === "minimum" ? '3px solid #ff6b35' : '2px solid #d1d5db',
+									borderRadius: 12,
+									background: formData.experienceLevel === "minimum" ? '#fff5f2' : '#ffffff',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+									boxShadow: formData.experienceLevel === "minimum" ? '0 4px 12px rgba(255,107,53,0.2)' : '0 2px 4px rgba(0,0,0,0.1)',
+									textAlign: 'center'
+								}}
+								onClick={() => update({ experienceLevel: "minimum" })}
+							>
+
+								<h4 style={{
+									margin: 0,
+									fontSize: 16,
+									fontWeight: 600,
+									color: formData.experienceLevel === "minimum" ? '#1f2937' : '#6b7280'
+								}}>Experienced</h4>
+							</div>
+
+							<div 
+								style={{
+									padding: 16,
+									border: formData.experienceLevel === "both" ? '3px solid #ff6b35' : '2px solid #d1d5db',
+									borderRadius: 12,
+									background: formData.experienceLevel === "both" ? '#fff5f2' : '#ffffff',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+									boxShadow: formData.experienceLevel === "both" ? '0 4px 12px rgba(255,107,53,0.2)' : '0 2px 4px rgba(0,0,0,0.1)',
+									textAlign: 'center'
+								}}
+								onClick={() => update({ experienceLevel: "both", minExperience: "", maxExperience: "" })}
+							>
+
+								<h4 style={{
+									margin: 0,
+									fontSize: 16,
+									fontWeight: 600,
+									color: formData.experienceLevel === "both" ? '#1f2937' : '#6b7280'
+								}}>Both</h4>
+							</div>
+						</div>
+
+						{formData.experienceLevel === "minimum" && (
+							<div style={{
+								padding: 16,
+								background: '#f0f9ff',
+								border: '1px solid #0ea5e9',
+								borderRadius: 8,
+								display: 'grid',
+								gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+								gap: 16
+							}}>
+								<div>
+									<label style={{
+										display: 'block',
+										fontSize: 14,
+										color: '#0f172a',
+										fontWeight: 600,
+										marginBottom: 8
+									}}>Minimum Years</label>
+									<input
+										style={{
+											...input,
+											width: '100%',
+											marginBottom: 0,
+											border: '2px solid #0ea5e9',
+											fontWeight: 600,
+											fontSize: 16
+										}}
+										type="number"
+										min="0"
+										placeholder="e.g., 2"
+										value={formData.minExperience}
+										onChange={(e) => update({ minExperience: e.target.value })}
+									/>
+								</div>
+								<div>
+									<label style={{
+										display: 'block',
+										fontSize: 14,
+										color: '#0f172a',
+										fontWeight: 600,
+										marginBottom: 8
+									}}>Maximum Years</label>
+									<input
+										style={{
+											...input,
+											width: '100%',
+											marginBottom: 0,
+											border: '2px solid #0ea5e9',
+											fontWeight: 600,
+											fontSize: 16
+										}}
+										type="number"
+										min="0"
+										placeholder="e.g., 5"
+										value={formData.maxExperience}
+										onChange={(e) => update({ maxExperience: e.target.value })}
+									/>
+								</div>
+							</div>
+						)}
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-comments" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Number of Interview Rounds *
+						</label>
+						<input
+							style={input}
+							type="number"
+							min="1"
+							placeholder="e.g., 3"
+							value={formData.interviewRoundsCount}
+							onChange={(e) => update({ interviewRoundsCount: e.target.value })}
+						/>
+					</div>
+
+					{/* Interview Process Section */}
+					<div style={fullRow}>
+						<h3 style={sectionHeader}>
+							<i className="fa fa-clipboard-list" style={{color: '#ff6b35'}}></i>
+							Interview Process
+						</h3>
+					</div>
+
+					{/* Interview Round Types - full row */}
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-list-check" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Select Interview Round Type
+							<span style={{fontSize: 12, color: '#6b7280', fontWeight: 'normal', marginLeft: 8}}>
+								(You can select the same type multiple times)
+							</span>
+						</label>
+						<select
+							style={{ ...input, cursor: 'pointer' }}
+							value=""
+							onChange={(e) => {
+								const roundType = e.target.value;
+								if (roundType) {
+									// Generate unique key for multiple instances
+									const uniqueKey = `${roundType}_${Date.now()}`;
+									
+									// Add to interview round order
+									setFormData(s => ({
+										...s,
+										interviewRoundOrder: [...s.interviewRoundOrder, uniqueKey],
+										interviewRoundTypes: {
+											...s.interviewRoundTypes,
+											[uniqueKey]: roundType
+										},
+										interviewRoundDetails: {
+											...s.interviewRoundDetails,
+											[uniqueKey]: { description: '', fromDate: '', toDate: '', time: '' }
+										}
+									}));
+								}
+							}}
+						>
+							<option value="">-- Select Round Type --</option>
+							<option value="technical">Technical</option>
+							<option value="nonTechnical">Non-Technical</option>
+							<option value="managerial">Managerial Round</option>
+							<option value="final">Final Round</option>
+							<option value="hr">HR Round</option>
+							<option value="assessment">Assessment</option>
+						</select>
+						<div style={{marginTop: 12}}>
+							<label style={{...label, marginBottom: 8}}>Selected Rounds (in order):</label>
+							{formData.interviewRoundOrder.map((uniqueKey, index) => {
+								const roundType = formData.interviewRoundTypes[uniqueKey];
+								const roundNames = {
+									technical: 'Technical',
+									nonTechnical: 'Non-Technical',
+									managerial: 'Managerial Round',
+									final: 'Final Round',
+									hr: 'HR Round',
+									assessment: 'Assessment'
+								};
+								return (
+									<div key={uniqueKey} style={{
+										display: 'inline-flex',
+										alignItems: 'center',
+										gap: 8,
+										padding: '10px 16px',
+										background: '#fff5f2',
+										borderRadius: 25,
+										border: '2px solid #ff6b35',
+										marginRight: 10,
+										marginBottom: 10,
+										color: '#ff6b35',
+										boxShadow: '0 2px 8px rgba(255,107,53,0.15)'
+									}}>
+										<span style={{
+											fontSize: 12,
+											fontWeight: 700,
+											color: '#fff',
+											background: '#ff6b35',
+											borderRadius: '50%',
+											width: '22px',
+											height: '22px',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center'
+										}}>
+											{index + 1}
+										</span>
+										<span style={{fontSize: 14, fontWeight: 600, color: '#ff6b35'}}>Stage {index + 1}: {roundNames[roundType]}</span>
+										<span 
+											style={{cursor: 'pointer', color: '#ef4444', fontWeight: 700, fontSize: 18, marginLeft: 4}}
+											onClick={() => {
+												setFormData(s => ({
+													...s,
+													interviewRoundOrder: s.interviewRoundOrder.filter(key => key !== uniqueKey),
+													interviewRoundTypes: Object.fromEntries(
+														Object.entries(s.interviewRoundTypes).filter(([key]) => key !== uniqueKey)
+													),
+													interviewRoundDetails: Object.fromEntries(
+														Object.entries(s.interviewRoundDetails).filter(([key]) => key !== uniqueKey)
+													)
+												}));
+											}}
+											title="Remove this stage"
+										>
+											×
+										</span>
+									</div>
+								);
+							})}
+							{formData.interviewRoundOrder.length === 0 && (
+								<div style={{
+									padding: '12px 16px',
+									background: '#f3f4f6',
+									borderRadius: 8,
+									color: '#6b7280',
+									fontSize: 14,
+									textAlign: 'center',
+									border: '1px dashed #d1d5db'
+								}}>
+									<i className="fa fa-info-circle" style={{marginRight: 8}}></i>
+									No interview rounds selected yet. Select from the dropdown above to add stages.
+								</div>
+							)}
+						</div>
+					</div>
+
+					{/* Assessment Selection and Scheduling - Show for each Assessment instance */}
+					{formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'assessment') && (
+						<>
+							<div style={fullRow}>
+								<label style={label}>
+									<i className="fa fa-clipboard-check" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+									Select Assessment (Global)
+									<span style={{fontSize: 12, color: '#6b7280', fontWeight: 'normal', marginLeft: 8}}>
+										(This will be used for all assessment rounds)
+									</span>
+								</label>
+								<select
+									style={{ ...input, cursor: 'pointer' }}
+									value={selectedAssessment}
+									onChange={(e) => setSelectedAssessment(e.target.value)}
+								>
+									<option value="">-- Select Assessment --</option>
+									{availableAssessments.map((assessment) => (
+										<option key={assessment._id} value={assessment._id}>
+											{assessment.title}
+										</option>
+									))}
+								</select>
+							</div>
+
+							{/* Individual Assessment Scheduling for each Assessment instance */}
+							{formData.interviewRoundOrder
+								.filter(key => formData.interviewRoundTypes[key] === 'assessment')
+								.map((assessmentKey, assessmentIndex) => {
+									const stageNumber = formData.interviewRoundOrder.indexOf(assessmentKey) + 1;
+									return (
+										<div key={assessmentKey} style={fullRow}>
+											<h4 style={{ 
+												margin: "16px 0 12px 0", 
+												fontSize: 16, 
+												color: "#ff6b35",
+												fontWeight: 600,
+												display: 'flex',
+												alignItems: 'center',
+												gap: 8
+											}}>
+												<span style={{
+													fontSize: 12,
+													fontWeight: 700,
+													color: '#fff',
+													background: '#ff6b35',
+													borderRadius: '50%',
+													width: '24px',
+													height: '24px',
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center'
+												}}>
+													{stageNumber}
+												</span>
+												Stage {stageNumber}: Assessment Schedule {assessmentIndex + 1}
+												<div style={{display: 'flex', alignItems: 'center', gap: 8, marginLeft: 12}}>
+													<button
+														style={{
+															background: '#10b981',
+															color: '#fff',
+															border: 'none',
+															padding: '6px 12px',
+															borderRadius: 6,
+															cursor: 'pointer',
+															fontSize: 12,
+															fontWeight: 600,
+															display: 'flex',
+															alignItems: 'center',
+															gap: 4
+														}}
+														title="Schedule Assessment"
+														onClick={() => {
+															const assessmentDetails = formData.interviewRoundDetails[assessmentKey];
+															
+															if (!selectedAssessment) {
+																alert('Please select an assessment first');
+																return;
+															}
+															
+															if (!assessmentDetails?.fromDate || !assessmentDetails?.toDate) {
+																alert(`Please set both From Date and To Date for Assessment ${assessmentIndex + 1}`);
+																return;
+															}
+															
+															if (new Date(assessmentDetails.fromDate) > new Date(assessmentDetails.toDate)) {
+																alert(`Assessment ${assessmentIndex + 1} From Date cannot be after To Date`);
+																return;
+															}
+															
+															alert(`Assessment ${assessmentIndex + 1} scheduled successfully!\n\nAssessment: ${availableAssessments.find(a => a._id === selectedAssessment)?.title}\nFrom: ${new Date(assessmentDetails.fromDate).toLocaleDateString()}\nTo: ${new Date(assessmentDetails.toDate).toLocaleDateString()}`);
+														}}
+													>
+														<i className="fa fa-calendar-plus"></i>
+														Schedule
+													</button>
+													<i 
+														className="fa fa-edit"
+														style={{cursor: 'pointer', color: '#3b82f6', fontSize: 16}}
+														title="Edit assessment schedule"
+														onClick={() => {
+															const assessmentSection = document.querySelector(`[data-assessment-key="${assessmentKey}"]`);
+															if (assessmentSection) {
+																assessmentSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+																assessmentSection.style.border = '3px solid #3b82f6';
+																setTimeout(() => {
+																	assessmentSection.style.border = '1px solid #0ea5e9';
+																}, 2000);
+															}
+														}}
+													/>
+												</div>
+											</h4>
+											<div 
+												data-assessment-key={assessmentKey}
+												style={{ 
+													display: 'grid', 
+													gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+													gap: isMobile ? 8 : 12,
+													padding: 12,
+													border: '1px solid #0ea5e9',
+													borderRadius: 8,
+													background: '#f0f9ff',
+													transition: 'border 0.3s ease'
+												}}>
+												<div>
+													<label style={{...label, marginBottom: 4}}>
+														<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
+														From Date
+													</label>
+													<input
+														style={{...input, fontSize: 13}}
+														type="date"
+														min={new Date().toISOString().split('T')[0]}
+														value={formData.interviewRoundDetails[assessmentKey]?.fromDate || ''}
+														onChange={(e) => updateRoundDetails(assessmentKey, 'fromDate', e.target.value)}
+													/>
+													<HolidayIndicator date={formData.interviewRoundDetails[assessmentKey]?.fromDate} />
+												</div>
+												<div>
+													<label style={{...label, marginBottom: 4}}>
+														<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
+														To Date
+													</label>
+													<input
+														style={{...input, fontSize: 13}}
+														type="date"
+														min={formData.interviewRoundDetails[assessmentKey]?.fromDate || new Date().toISOString().split('T')[0]}
+														value={formData.interviewRoundDetails[assessmentKey]?.toDate || ''}
+														onChange={(e) => updateRoundDetails(assessmentKey, 'toDate', e.target.value)}
+													/>
+													<HolidayIndicator date={formData.interviewRoundDetails[assessmentKey]?.toDate} />
+												</div>
+											</div>
+										</div>
+									);
+								})}
+						</>
+					)}
+
+					<div style={fullRow}>
+						<div
+							style={{
+								display: "none",
+								gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
+								gap: isMobile ? 8 : 12,
+								padding: 16,
+								borderRadius: 8,
+							}}
+						>
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 10,
+								cursor: 'pointer',
+								padding: 8,
+								borderRadius: 6,
+								transition: 'background 0.2s',
+							}}
+							onMouseEnter={(e) => e.currentTarget.style.background = '#fff'}
+							onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+							>
+								<span style={{
+									fontSize: 12, 
+									color: '#fff', 
+									minWidth: '20px',
+									height: '20px',
+									background: formData.interviewRoundTypes.technical ? '#10b981' : '#d1d5db',
+									borderRadius: '50%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontWeight: 600,
+								}}>
+									{formData.interviewRoundTypes.technical ? (formData.interviewRoundOrder || []).indexOf('technical') + 1 : ''}
+								</span>
+								<input
+									type="checkbox"
+									checked={formData.interviewRoundTypes.technical}
+									onChange={() =>
+										toggleNested("interviewRoundTypes", "technical")
+									}
+									style={{cursor: 'pointer'}}
+								/>
+								<span style={{fontSize: 14, fontWeight: 500}}>Technical</span>
+							</label>
+
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 10,
+								cursor: 'pointer',
+								padding: 8,
+								borderRadius: 6,
+								transition: 'background 0.2s',
+							}}
+							onMouseEnter={(e) => e.currentTarget.style.background = '#fff'}
+							onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+							>
+								<span style={{
+									fontSize: 12, 
+									color: '#fff', 
+									minWidth: '20px',
+									height: '20px',
+									background: formData.interviewRoundTypes.nonTechnical ? '#10b981' : '#d1d5db',
+									borderRadius: '50%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontWeight: 600,
+								}}>
+									{formData.interviewRoundTypes.nonTechnical ? (formData.interviewRoundOrder || []).indexOf('nonTechnical') + 1 : ''}
+								</span>
+								<input
+									type="checkbox"
+									checked={formData.interviewRoundTypes.nonTechnical}
+									onChange={() =>
+										toggleNested("interviewRoundTypes", "nonTechnical")
+									}
+									style={{cursor: 'pointer'}}
+								/>
+								<span style={{fontSize: 14, fontWeight: 500}}>Non-Technical</span>
+							</label>
+
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 10,
+								cursor: 'pointer',
+								padding: 8,
+								borderRadius: 6,
+								transition: 'background 0.2s',
+							}}
+							onMouseEnter={(e) => e.currentTarget.style.background = '#fff'}
+							onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+							>
+								<span style={{
+									fontSize: 12, 
+									color: '#fff', 
+									minWidth: '20px',
+									height: '20px',
+									background: formData.interviewRoundTypes.managerial ? '#10b981' : '#d1d5db',
+									borderRadius: '50%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontWeight: 600,
+								}}>
+									{formData.interviewRoundTypes.managerial ? (formData.interviewRoundOrder || []).indexOf('managerial') + 1 : ''}
+								</span>
+								<input
+									type="checkbox"
+									checked={formData.interviewRoundTypes.managerial}
+									onChange={() =>
+										toggleNested("interviewRoundTypes", "managerial")
+									}
+									style={{cursor: 'pointer'}}
+								/>
+								<span style={{fontSize: 14, fontWeight: 500}}>Managerial Round</span>
+							</label>
+
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 10,
+								cursor: 'pointer',
+								padding: 8,
+								borderRadius: 6,
+								transition: 'background 0.2s',
+							}}
+							onMouseEnter={(e) => e.currentTarget.style.background = '#fff'}
+							onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+							>
+								<span style={{
+									fontSize: 12, 
+									color: '#fff', 
+									minWidth: '20px',
+									height: '20px',
+									background: formData.interviewRoundTypes.final ? '#10b981' : '#d1d5db',
+									borderRadius: '50%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontWeight: 600,
+								}}>
+									{formData.interviewRoundTypes.final ? (formData.interviewRoundOrder || []).indexOf('final') + 1 : ''}
+								</span>
+								<input
+									type="checkbox"
+									checked={formData.interviewRoundTypes.final}
+									onChange={() => toggleNested("interviewRoundTypes", "final")}
+									style={{cursor: 'pointer'}}
+								/>
+								<span style={{fontSize: 14, fontWeight: 500}}>Final Round</span>
+							</label>
+
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 10,
+								cursor: 'pointer',
+								padding: 8,
+								borderRadius: 6,
+								transition: 'background 0.2s',
+							}}
+							onMouseEnter={(e) => e.currentTarget.style.background = '#fff'}
+							onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+							>
+								<span style={{
+									fontSize: 12, 
+									color: '#fff', 
+									minWidth: '20px',
+									height: '20px',
+									background: formData.interviewRoundTypes.hr ? '#10b981' : '#d1d5db',
+									borderRadius: '50%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontWeight: 600,
+								}}>
+									{formData.interviewRoundTypes.hr ? (formData.interviewRoundOrder || []).indexOf('hr') + 1 : ''}
+								</span>
+								<input
+									type="checkbox"
+									checked={formData.interviewRoundTypes.hr}
+									onChange={() => toggleNested("interviewRoundTypes", "hr")}
+									style={{cursor: 'pointer'}}
+								/>
+								<span style={{fontSize: 14, fontWeight: 500}}>HR Round</span>
+							</label>
+
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 10,
+								cursor: 'pointer',
+								padding: 8,
+								borderRadius: 6,
+								transition: 'background 0.2s',
+							}}
+							onMouseEnter={(e) => e.currentTarget.style.background = '#fff'}
+							onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+							>
+								<span style={{
+									fontSize: 12, 
+									color: '#fff', 
+									minWidth: '20px',
+									height: '20px',
+									background: formData.interviewRoundTypes.assessment ? '#10b981' : '#d1d5db',
+									borderRadius: '50%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontWeight: 600,
+								}}>
+									{formData.interviewRoundTypes.assessment ? (formData.interviewRoundOrder || []).indexOf('assessment') + 1 : ''}
+								</span>
+								<input
+									type="checkbox"
+									checked={formData.interviewRoundTypes.assessment}
+									onChange={() => toggleNested("interviewRoundTypes", "assessment")}
+									style={{cursor: 'pointer'}}
+								/>
+								<span style={{fontSize: 14, fontWeight: 500}}>Assessment</span>
+							</label>
+						</div>
+					</div>
+
+					{/* Interview Round Details - Only show for non-assessment rounds */}
+					{formData.interviewRoundOrder.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment').length > 0 && (
+						<>
+						<div style={fullRow}>
+							<h4 style={{ margin: "16px 0 12px 0", fontSize: 15, color: "#0f172a" }}>
+								Interview Round Details
+							</h4>
+							{formData.interviewRoundOrder
+								.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment')
+								.map((uniqueKey, index) => {
+									const roundType = formData.interviewRoundTypes[uniqueKey];
+									const roundNames = {
+										technical: 'Technical Round',
+										nonTechnical: 'Non-Technical Round',
+										managerial: 'Managerial Round',
+										final: 'Final Round',
+										hr: 'HR Round',
+										assessment: 'Assessment'
+									};
+									const stageNumber = formData.interviewRoundOrder.indexOf(uniqueKey) + 1;
+									return (
+										<div key={uniqueKey} data-stage-key={uniqueKey} style={{ 
+											marginBottom: 16, 
+											padding: 16, 
+											border: '1px solid #e5e7eb', 
+											borderRadius: 12,
+											background: '#fff',
+											boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+											transition: 'border 0.3s ease'
+										}}>
+											<h5 style={{ 
+												margin: '0 0 12px 0', 
+												fontSize: 16, 
+												color: '#1f2937',
+												fontWeight: 600,
+												display: 'flex',
+												alignItems: 'center',
+												gap: 8,
+												justifyContent: 'space-between'
+											}}>
+												<span style={{
+													fontSize: 12,
+													fontWeight: 700,
+													color: '#fff',
+													background: '#ff6b35',
+													borderRadius: '50%',
+													width: '24px',
+													height: '24px',
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center'
+												}}>
+													{stageNumber}
+												</span>
+												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+													Stage {stageNumber}: {roundNames[roundType]}
+												</div>
+												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+													<button
+														style={{
+															background: '#10b981',
+															color: '#fff',
+															border: 'none',
+															padding: '6px 12px',
+															borderRadius: 6,
+															cursor: 'pointer',
+															fontSize: 12,
+															fontWeight: 600,
+															display: 'flex',
+															alignItems: 'center',
+															gap: 4
+														}}
+														title={`Schedule ${roundNames[roundType]}`}
+														onClick={() => {
+															const roundDetails = formData.interviewRoundDetails[uniqueKey];
+															
+															if (!roundDetails?.description?.trim()) {
+																alert(`Please enter description for ${roundNames[roundType]}`);
+																return;
+															}
+															
+															if (!roundDetails?.fromDate || !roundDetails?.toDate) {
+																alert(`Please set both From Date and To Date for ${roundNames[roundType]}`);
+																return;
+															}
+															
+															if (!roundDetails?.time) {
+																alert(`Please set time for ${roundNames[roundType]}`);
+																return;
+															}
+															
+															alert(`${roundNames[roundType]} scheduled successfully!\n\nFrom: ${new Date(roundDetails.fromDate).toLocaleDateString()}\nTo: ${new Date(roundDetails.toDate).toLocaleDateString()}\nTime: ${roundDetails.time}\nDescription: ${roundDetails.description}`);
+														}}
+													>
+														<i className="fa fa-calendar-plus"></i>
+														Schedule
+													</button>
+													<i 
+														className="fa fa-edit"
+														style={{cursor: 'pointer', color: '#3b82f6', fontSize: 16}}
+														title={`Edit ${roundNames[roundType]} details`}
+														onClick={() => {
+															const stageSection = document.querySelector(`[data-stage-key="${uniqueKey}"]`);
+															if (stageSection) {
+																stageSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+																stageSection.style.border = '3px solid #3b82f6';
+																setTimeout(() => {
+																	stageSection.style.border = '1px solid #e5e7eb';
+																}, 2000);
+															}
+														}}
+													/>
+												</div>
+											</h5>
+											<div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr 1fr', gap: isMobile ? 8 : 12, alignItems: 'start' }}>
+												<div>
+													<label style={{...label, marginBottom: 4}}>Description</label>
+													<textarea
+														style={{...input, minHeight: '60px', fontSize: 13}}
+														placeholder={`Describe the ${roundNames[roundType] ? roundNames[roundType].toLowerCase() : 'round'}...`}
+																						value={formData.interviewRoundDetails[uniqueKey]?.description || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'description', e.target.value)}
+													/>
+												</div>
+												<div>
+													<label style={{...label, marginBottom: 4}}>
+														<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
+														From Date
+													</label>
+													<input
+														style={{
+															...input, 
+															fontSize: 13,
+															borderColor: formData.interviewRoundDetails[uniqueKey]?.fromDate ? '#10b981' : '#d1d5db',
+															background: formData.interviewRoundDetails[uniqueKey]?.fromDate ? '#f0fdf4' : '#fff'
+														}}
+														type="date"
+														min={new Date().toISOString().split('T')[0]}
+														value={formData.interviewRoundDetails[uniqueKey]?.fromDate || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
+													/>
+													{formData.interviewRoundDetails[uniqueKey]?.fromDate && (
+														<div style={{fontSize: 11, color: '#10b981', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4}}>
+															<i className="fa fa-check-circle"></i>
+															Date saved
+														</div>
+													)}
+													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.fromDate} />
+												</div>
+												<div>
+													<label style={{...label, marginBottom: 4}}>
+														<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
+														To Date
+													</label>
+													<input
+														style={{
+															...input, 
+															fontSize: 13,
+															borderColor: formData.interviewRoundDetails[uniqueKey]?.toDate ? '#10b981' : '#d1d5db',
+															background: formData.interviewRoundDetails[uniqueKey]?.toDate ? '#f0fdf4' : '#fff'
+														}}
+														type="date"
+														min={formData.interviewRoundDetails[uniqueKey]?.fromDate || new Date().toISOString().split('T')[0]}
+														value={formData.interviewRoundDetails[uniqueKey]?.toDate || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'toDate', e.target.value)}
+													/>
+													{formData.interviewRoundDetails[uniqueKey]?.toDate && (
+														<div style={{fontSize: 11, color: '#10b981', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4}}>
+															<i className="fa fa-check-circle"></i>
+															Date saved
+														</div>
+													)}
+													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.toDate} />
+												</div>
+												<div>
+													<label style={{...label, marginBottom: 4}}>Time</label>
+													<input
+														style={{...input, fontSize: 13}}
+														type="time"
+														value={formData.interviewRoundDetails[uniqueKey]?.time || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'time', e.target.value)}
+													/>
+												</div>
+											</div>
+										</div>
+									);
+								})
+							}
+						</div>
+						</>
+					)}
+
+					{/* Interview Schedule Summary */}
+					{formData.interviewRoundOrder.length > 0 && (
+						<div style={fullRow}>
+							<div style={{
+								padding: 16,
+								background: '#f8fafc',
+								border: '2px solid #e2e8f0',
+								borderRadius: 12,
+								marginBottom: 16
+							}}>
+								<h4 style={{
+									margin: '0 0 12px 0',
+									fontSize: 16,
+									color: '#1e293b',
+									fontWeight: 600,
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8
+								}}>
+									<i className="fa fa-calendar-check" style={{color: '#3b82f6'}}></i>
+									Interview Schedule Summary
+								</h4>
+								<div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 12}}>
+									{formData.interviewRoundOrder.map((uniqueKey, index) => {
+										const roundType = formData.interviewRoundTypes[uniqueKey];
+										const details = formData.interviewRoundDetails[uniqueKey];
+										const roundNames = {
+											technical: 'Technical',
+											nonTechnical: 'Non-Technical',
+											managerial: 'Managerial',
+											final: 'Final',
+											hr: 'HR',
+											assessment: 'Assessment'
+										};
+										
+										return (
+											<div key={uniqueKey} style={{
+												padding: 12,
+												background: '#fff',
+												border: '1px solid #e2e8f0',
+												borderRadius: 8,
+												boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+											}}>
+												<div style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: 8,
+													marginBottom: 8
+												}}>
+													<span style={{
+														fontSize: 12,
+														fontWeight: 700,
+														color: '#fff',
+														background: '#3b82f6',
+														borderRadius: '50%',
+														width: '20px',
+														height: '20px',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center'
+													}}>
+														{index + 1}
+													</span>
+													<span style={{fontSize: 14, fontWeight: 600, color: '#1e293b'}}>
+														{roundNames[roundType]} Round
+													</span>
+												</div>
+												{details?.fromDate && details?.toDate ? (
+													<div style={{fontSize: 13, color: '#10b981', fontWeight: 500}}>
+														<i className="fa fa-calendar" style={{marginRight: 6}}></i>
+														{new Date(details.fromDate).toLocaleDateString()} - {new Date(details.toDate).toLocaleDateString()}
+														{details.time && (
+															<span style={{marginLeft: 8}}>
+																<i className="fa fa-clock" style={{marginRight: 4}}></i>
+																{details.time}
+															</span>
+														)}
+													</div>
+												) : (
+													<div style={{fontSize: 13, color: '#ef4444', fontStyle: 'italic'}}>
+														<i className="fa fa-exclamation-triangle" style={{marginRight: 6}}></i>
+														Dates not set
+													</div>
+												)}
+											</div>
+										);
+									})}
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* Additional Details Section */
+					<div style={fullRow}>
+						<h3 style={sectionHeader}>
+							<i className="fa fa-file-alt" style={{color: '#ff6b35'}}></i>
+							Additional Details
+						</h3>
+					</div>
+
+					{/* Dates */}
+					<div>
+						<label style={label}>
+							<i className="fa fa-calendar-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Offer Letter Release Date *
+						</label>
+						<input
+							style={input}
+							type="date"
+							min={new Date().toISOString().split('T')[0]}
+							value={formData.offerLetterDate}
+							onChange={(e) => update({ offerLetterDate: e.target.value })}
+						/>
+						<HolidayIndicator date={formData.offerLetterDate} />
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-calendar-times" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Last Date of Application *
+						</label>
+						<input
+							style={input}
+							type="date"
+							min={new Date().toISOString().split('T')[0]}
+							value={formData.lastDateOfApplication}
+							onChange={(e) => update({ lastDateOfApplication: e.target.value })}
+						/>
+						<HolidayIndicator date={formData.lastDateOfApplication} />
+					</div>
+
+					{/* Transportation */}
+					<div>
+						<label style={label}>
+							<i className="fa fa-car" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Transportation Options
+						</label>
+						<div style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: 10,
+							padding: 12,
+						}}>
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 8,
+								cursor: 'pointer',
+								fontSize: 14,
+							}}>
+								<input
+									type="checkbox"
+									checked={formData.transportation.oneWay}
+									onChange={() => toggleNested("transportation", "oneWay")}
+									style={{cursor: 'pointer'}}
+								/>
+								One-way Cab
+							</label>
+
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 8,
+								cursor: 'pointer',
+								fontSize: 14,
+							}}>
+								<input
+									type="checkbox"
+									checked={formData.transportation.twoWay}
+									onChange={() => toggleNested("transportation", "twoWay")}
+									style={{cursor: 'pointer'}}
+								/>
+								Two-way Cab
+							</label>
+
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 8,
+								cursor: 'pointer',
+								fontSize: 14,
+							}}>
+								<input
+									type="checkbox"
+									checked={formData.transportation.noCab}
+									onChange={() => toggleNested("transportation", "noCab")}
+									style={{cursor: 'pointer'}}
+								/>
+								No Cab Facility
+							</label>
+						</div>
+					</div>
+					
+					{/* Job Description */}
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-align-left" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Job Description *
+						</label>
+						<textarea 
+							style={{
+								...input, 
+								minHeight: '140px',
+								lineHeight: 1.6,
+								fontFamily: 'inherit',
+							}} 
+							value={formData.jobDescription || 'We are looking for a talented professional to join our dynamic team. The ideal candidate will be responsible for key tasks and contribute to our company\'s growth and success.'}
+							onChange={(e) => update({ jobDescription: e.target.value })}
+							placeholder="Provide a detailed description of the job role, responsibilities, and expectations..."
+						/>
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 6, display: 'block'}}>
+							Include key responsibilities, day-to-day tasks, and what makes this role unique
+						</small>
+					</div>
+				</div>
+			</div>
+
+				{/* Interview Date Tester - Show for testing */}
+				{isEditMode && (
+					<InterviewDateTester jobId={id} />
+				)}
+
+				{/* Action Buttons */}
+				<div style={{ 
+					display: "flex", 
+					flexDirection: isMobile ? "column" : "row",
+					justifyContent: "flex-end", 
+					marginTop: isMobile ? 24 : 32,
+					paddingTop: isMobile ? 16 : 24,
+					borderTop: '2px solid #f3f4f6',
+					gap: 16,
+				}}>
+					<button
+						onClick={submitNext}
+						style={{
+							background: "transparent",
+							color: "#ff6b35",
+							border: "2px solid #ff6b35",
+							padding: "12px 32px",
+							borderRadius: 8,
+							cursor: "pointer",
+							fontSize: 15,
+							fontWeight: 600,
+							transition: "all 0.2s ease",
+							boxShadow: "0 4px 12px rgba(255,107,53,0.1)",
+							display: 'flex',
+							alignItems: 'center',
+							gap: 8,
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#ff6b35';
+							e.currentTarget.style.color = '#fff';
+							e.currentTarget.style.transform = 'translateY(-2px)';
+							e.currentTarget.style.boxShadow = '0 6px 16px rgba(255,107,53,0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = 'transparent';
+							e.currentTarget.style.color = '#ff6b35';
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(255,107,53,0.1)';
+						}}
+					>
+						{isEditMode ? (
+							<>
+								<i className="fa fa-save"></i>
+								Update Job
+							</>
+						) : (
+							<>
+								<i className="fa fa-paper-plane"></i>
+								Submit Job
+							</>
+						)}
+					</button>
+				</div>
+			</div>
+		</div>
+		</div>
+	);
+}
+

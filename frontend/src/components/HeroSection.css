@@ -1,0 +1,124 @@
+/* HeroSection responsive styles */
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-section__container {
+  padding-top: clamp(3rem, 8vw, 6rem);
+  padding-bottom: clamp(3rem, 8vw, 6rem);
+}
+
+.hero-section__title {
+  color: #333333;
+  font-weight: 700;
+  line-height: 1.2;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
+}
+
+.hero-section__paragraph {
+  color: #6c757d;
+  font-size: clamp(1rem, 4vw, 1.05rem);
+}
+
+.hero-section__image-wrapper {
+  margin-top: 2rem;
+}
+
+.hero-section__image {
+  width: 100%;
+  height: auto;
+  max-height: clamp(220px, 50vw, 400px);
+  object-fit: contain;
+}
+
+.hero-section__search-card {
+  margin-top: clamp(2rem, 6vw, 3rem);
+}
+
+.hero-section__categories {
+  margin-top: clamp(1.5rem, 5vw, 2.5rem);
+}
+
+.hero-section__categories-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.hero-section__category-card {
+  min-width: auto !important;
+}
+
+@media (max-width: 992px) {
+  .hero-section__image-wrapper {
+    margin-top: 2.5rem;
+  }
+
+  .hero-section__image {
+    max-height: 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: auto;
+  }
+
+  .hero-section__image-wrapper {
+    margin-top: 2.5rem;
+  }
+
+  .hero-section__image {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-section__container {
+    padding-top: clamp(2rem, 10vw, 3rem);
+    padding-bottom: clamp(2rem, 10vw, 3rem);
+  }
+
+  .hero-section__image-wrapper {
+    margin-top: 2rem;
+  }
+
+  .hero-section__image {
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 400px) {
+  .hero-section__image {
+    max-height: 220px;
+  }
+}
+
+/* Fix search icon overlap on mobile */
+.hero-section .form-select {
+  padding-right: 2.5rem !important;
+  background-position: right 0.75rem center !important;
+}
+
+@media (max-width: 768px) {
+  .hero-section .form-select {
+    padding-right: 2.25rem !important;
+    padding-left: 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .hero-section .form-label {
+    font-size: 0.85rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-section .form-select {
+    padding-right: 2rem !important;
+    padding-left: 0.65rem !important;
+    font-size: 0.875rem !important;
+  }
+}

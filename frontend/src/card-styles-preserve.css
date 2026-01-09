@@ -1,0 +1,679 @@
+/**
+ * ============================================================================
+ * CARD STYLES PRESERVATION - Post-Hosting Protection
+ * ============================================================================
+ * This file ensures that all card styles remain intact after hosting
+ * by using high specificity selectors and !important declarations
+ * ============================================================================
+ */
+
+/* ============================================================================
+ * HOME JOB CARD STYLES PRESERVATION
+ * ============================================================================ */
+
+/* Home Jobs Grid - Force Layout */
+.home-jobs-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 20px !important;
+}
+
+/* Home Job Card - Core Structure */
+.home-job-card {
+    position: relative !important;
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    padding: 24px !important;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
+    transition: all 0.3s ease !important;
+    border: 1px solid rgba(148, 163, 184, 0.2) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+}
+
+.home-job-card::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12) !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+    pointer-events: none !important;
+}
+
+.home-job-card:hover {
+    transform: translateY(-6px) !important;
+}
+
+.home-job-card:hover::after {
+    opacity: 1 !important;
+}
+
+/* Card Top Row */
+.home-job-card .card-top-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    margin-bottom: 16px !important;
+}
+
+.home-job-card .logo-title-section {
+    display: flex !important;
+    gap: 12px !important;
+    flex: 1 !important;
+}
+
+.home-job-card .card-logo {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 8px !important;
+    object-fit: cover !important;
+    border: 1px solid #e5e7eb !important;
+    flex-shrink: 0 !important;
+}
+
+.home-job-card .card-logo-placeholder {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 8px !important;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    font-size: 16px !important;
+    border: 1px solid #e5e7eb !important;
+    flex-shrink: 0 !important;
+}
+
+.home-job-card .title-location {
+    flex: 1 !important;
+}
+
+.home-job-card .card-job-title {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    margin: 0 0 4px 0 !important;
+    line-height: 1.3 !important;
+}
+
+.home-job-card .card-location {
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.home-job-card .card-location i {
+    color: #1967d2 !important;
+    font-size: 14px !important;
+}
+
+.home-job-card .card-job-badge {
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: white !important;
+    text-transform: capitalize !important;
+    flex-shrink: 0 !important;
+    background-color: #16a34a !important;
+    white-space: nowrap !important;
+}
+
+.home-job-card .card-job-badge.full-time {
+    background-color: #16a34a !important;
+}
+
+.home-job-card .card-job-badge.internship,
+.home-job-card .card-job-badge.internship-paid {
+    background-color: #22c55e !important;
+}
+
+.home-job-card .card-job-badge.part-time {
+    background-color: #3b82f6 !important;
+}
+
+.home-job-card .card-job-badge.contract {
+    background-color: #8b5cf6 !important;
+}
+
+/* Card Middle Row */
+.home-job-card .card-middle-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 16px !important;
+    padding: 12px 0 !important;
+    border-top: 1px solid #f3f4f6 !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+}
+
+.home-job-card .card-ctc {
+    font-size: 15px !important;
+    color: #1967d2 !important;
+    font-weight: 700 !important;
+}
+
+.home-job-card .card-ctc-value {
+    display: inline-block !important;
+}
+
+.home-job-card .card-vacancies {
+    font-size: 14px !important;
+    color: #111827 !important;
+    font-weight: 600 !important;
+}
+
+/* Card Bottom Row */
+.home-job-card .card-bottom-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+}
+
+.home-job-card .card-posted-by {
+    flex: 1 !important;
+}
+
+.home-job-card .card-company-name {
+    font-size: 15px !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
+    margin-bottom: 4px !important;
+}
+
+.home-job-card .card-posted-text {
+    font-size: 13px !important;
+    color: #6b7280 !important;
+}
+
+.home-job-card .card-apply-btn {
+    background-color: #fd7e14 !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    flex-shrink: 0 !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+.home-job-card .card-apply-btn:hover {
+    background-color: #e8690b !important;
+    color: white !important;
+    text-decoration: none !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ============================================================================
+ * REGULAR JOB CARD STYLES PRESERVATION
+ * ============================================================================ */
+
+.job-card {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    padding: 20px !important;
+    transition: all 0.3s ease !important;
+    border: 1px solid #e5e7eb !important;
+    margin-bottom: 20px !important;
+}
+
+.job-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-2px) !important;
+}
+
+.job-card .job-header {
+    margin-bottom: 15px !important;
+}
+
+.job-card .job-header h3 {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    margin-bottom: 8px !important;
+}
+
+.job-card .job-details {
+    margin-bottom: 15px !important;
+}
+
+.job-card .job-meta {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    margin-top: 10px !important;
+}
+
+.job-card .job-meta span {
+    font-size: 14px !important;
+    color: #6b7280 !important;
+}
+
+.job-card .job-actions {
+    display: flex !important;
+    gap: 10px !important;
+    justify-content: flex-end !important;
+}
+
+.job-card .btn-view {
+    background-color: transparent !important;
+    color: #6b7280 !important;
+    border: 1px solid #d1d5db !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.job-card .btn-view:hover {
+    background-color: #f9fafb !important;
+    color: #374151 !important;
+    border-color: #9ca3af !important;
+}
+
+.job-card .btn-apply {
+    background-color: #fd7e14 !important;
+    color: white !important;
+    border: 1px solid #fd7e14 !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.job-card .btn-apply:hover {
+    background-color: #e8690b !important;
+    color: white !important;
+    border-color: #e8690b !important;
+}
+
+/* ============================================================================
+ * NEW JOB CARD STYLES PRESERVATION
+ * ============================================================================ */
+
+.new-job-card {
+    background: white !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    padding: 20px !important;
+    transition: all 0.3s ease !important;
+    border: 1px solid #e5e7eb !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.new-job-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-2px) !important;
+    z-index: 2 !important;
+}
+
+/* Header Section */
+.new-job-card .job-card-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    margin-bottom: 16px !important;
+}
+
+.new-job-card .job-card-left {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    flex: 1 !important;
+}
+
+.new-job-card .company-logo {
+    width: 75px !important;
+    height: 48px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #f3f4f6 !important;
+}
+
+.new-job-card .company-logo img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.new-job-card .logo-placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    background: #6366f1 !important;
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: bold !important;
+    font-size: 18px !important;
+}
+
+.new-job-card .job-info {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.new-job-card .job-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    margin: 0 0 4px 0 !important;
+    line-height: 1.3 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+
+.new-job-card .job-location {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    color: #6b7280 !important;
+    font-size: 14px !important;
+}
+
+.new-job-card .job-location i {
+    font-size: 12px !important;
+}
+
+/* Job Type Badge */
+.new-job-card .job-type-badge {
+    flex-shrink: 0 !important;
+}
+
+.new-job-card .job-type-pill {
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    text-transform: lowercase !important;
+    white-space: nowrap !important;
+}
+
+.new-job-card .job-type-pill.full-time {
+    background: #28a745 !important;
+    color: white !important;
+    border-radius: 4px !important;
+}
+
+.new-job-card .job-type-pill.part-time {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+}
+
+.new-job-card .job-type-pill.contract {
+    background: #e0e7ff !important;
+    color: #3730a3 !important;
+}
+
+.new-job-card .job-type-pill.internship {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+}
+
+.new-job-card .job-type-pill.wfh {
+    background: #fef2f2 !important;
+    color: #991b1b !important;
+}
+
+/* Middle Section */
+.new-job-card .job-card-middle {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 16px !important;
+    gap: 12px !important;
+}
+
+.new-job-card .ctc-info {
+    flex: 1 !important;
+}
+
+.new-job-card .ctc-text {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #1967d2 !important;
+}
+
+.new-job-card .vacancy-info {
+    flex-shrink: 0 !important;
+}
+
+.new-job-card .vacancy-text {
+    font-size: 14px !important;
+    color: #374151 !important;
+    font-weight: 500 !important;
+}
+
+/* Footer Section */
+.new-job-card .job-card-footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    gap: 12px !important;
+}
+
+.new-job-card .company-info {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.new-job-card .posted-by-label {
+    font-size: 12px !important;
+    color: #6b7280 !important;
+    margin-bottom: 2px !important;
+}
+
+.new-job-card .company-name {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    margin-bottom: 2px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 1 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+
+.new-job-card .poster-type {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+}
+
+/* ============================================================================
+ * RESPONSIVE DESIGN PRESERVATION
+ * ============================================================================ */
+
+@media (max-width: 1199px) {
+    .home-jobs-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (max-width: 991px) {
+    .home-jobs-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .home-jobs-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    
+    .home-job-card .card-middle-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+    
+    .home-job-card .card-bottom-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+
+    .new-job-card {
+        padding: 16px !important;
+    }
+    
+    .new-job-card .company-logo {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .new-job-card .job-title {
+        font-size: 15px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .new-job-card {
+        padding: 14px !important;
+    }
+    
+    .new-job-card .company-logo {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .new-job-card .job-title {
+        font-size: 14px !important;
+    }
+
+    .new-job-card .job-location {
+        font-size: 13px !important;
+    }
+
+    .new-job-card .ctc-text, 
+    .new-job-card .vacancy-text {
+        font-size: 13px !important;
+    }
+}
+
+/* ============================================================================
+ * FORCE OVERRIDE ANY EXTERNAL CSS INTERFERENCE
+ * ============================================================================ */
+
+/* Ensure cards maintain their styling regardless of external CSS */
+[class*="job-card"],
+[class*="home-job-card"],
+[class*="new-job-card"] {
+    box-sizing: border-box !important;
+}
+
+/* Prevent any global resets from affecting card styles */
+.home-job-card *,
+.job-card *,
+.new-job-card * {
+    box-sizing: border-box !important;
+}
+
+/* Force card container backgrounds */
+.home-job-card,
+.job-card,
+.new-job-card {
+    background-color: #ffffff !important;
+}
+
+/* Ensure text colors remain consistent */
+.home-job-card .card-job-title,
+.job-card .job-header h3,
+.new-job-card .job-title {
+    color: #111827 !important;
+}
+
+.home-job-card .card-location,
+.home-job-card .card-posted-text,
+.job-card .job-meta span,
+.new-job-card .job-location,
+.new-job-card .posted-by-label {
+    color: #6b7280 !important;
+}
+
+/* Ensure CTC/salary text remains blue */
+.home-job-card .card-ctc,
+.new-job-card .ctc-text {
+    color: #1967d2 !important;
+}
+
+/* Ensure apply buttons remain orange */
+.home-job-card .card-apply-btn,
+.job-card .btn-apply {
+    background-color: #fd7e14 !important;
+    color: #ffffff !important;
+}
+
+.home-job-card .card-apply-btn:hover,
+.job-card .btn-apply:hover {
+    background-color: #e8690b !important;
+    color: #ffffff !important;
+}
+
+/* ============================================================================
+ * HOSTING ENVIRONMENT SPECIFIC OVERRIDES
+ * ============================================================================ */
+
+/* Override any CDN or hosting provider CSS that might interfere */
+html body .home-job-card,
+html body .job-card,
+html body .new-job-card {
+    background: #ffffff !important;
+    border-radius: inherit !important;
+    box-shadow: inherit !important;
+}
+
+/* Ensure grid layouts work in all hosting environments */
+html body .home-jobs-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 1199px) {
+    html body .home-jobs-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (max-width: 991px) {
+    html body .home-jobs-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 767px) {
+    html body .home-jobs-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ============================================================================
+ * END OF CARD STYLES PRESERVATION
+ * ============================================================================ */

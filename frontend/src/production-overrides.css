@@ -1,0 +1,366 @@
+/**
+ * ============================================================================
+ * PRODUCTION ENVIRONMENT OVERRIDES
+ * ============================================================================
+ * This file contains CSS overrides specifically for production/hosting environments
+ * to ensure consistent styling across different hosting platforms
+ * ============================================================================
+ */
+
+/* ============================================================================
+ * MODAL POPUPS - TABS AND BUTTONS ALIGNMENT
+ * ============================================================================ */
+
+/* Remove gray background from modal tabs at all breakpoints */
+.modal .nav-tabs,
+.modal-body .twm-tabs-style-2 .nav-tabs,
+.twm-tabs-style-2 .nav-tabs {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 0 20px 0 !important;
+  flex-wrap: nowrap !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  gap: 8px !important;
+}
+
+/* Ensure tab items stay in single row with proper sizing */
+.modal .nav-tabs .nav-item,
+.twm-tabs-style-2 .nav-tabs .nav-item {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+}
+
+.modal .nav-tabs .nav-link,
+.twm-tabs-style-2 .nav-tabs .nav-link {
+  white-space: normal !important;
+  word-break: break-word !important;
+  padding: 0.5rem !important;
+  font-size: 0.95rem !important;
+  border: none !important;
+}
+
+/* Active tab styling */
+.modal .nav-tabs .nav-link.active,
+.twm-tabs-style-2 .nav-tabs .nav-link.active {
+  color: #ffffff !important;
+  background-color: #fd7e14 !important;
+  border: none !important;
+}
+
+.modal .nav-tabs .nav-link:not(.active),
+.twm-tabs-style-2 .nav-tabs .nav-link:not(.active) {
+  color: #666666 !important;
+}
+
+/* Icon spacing */
+.modal .nav-tabs .nav-link i,
+.twm-tabs-style-2 .nav-tabs .nav-link i {
+  margin-right: 4px !important;
+}
+
+/* Close button size reduction */
+.modal-header .btn-close {
+  width: 1rem !important;
+  height: 1rem !important;
+  padding: 0.2rem !important;
+}
+
+/* Mobile optimization */
+@media (max-width: 767px) {
+  .modal .nav-tabs .nav-link,
+  .twm-tabs-style-2 .nav-tabs .nav-link {
+    padding: 0.4rem 0.3rem !important;
+    font-size: 0.85rem !important;
+  }
+  
+  .modal .nav-tabs .nav-link i,
+  .twm-tabs-style-2 .nav-tabs .nav-link i {
+    margin-right: 3px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .modal .nav-tabs,
+  .twm-tabs-style-2 .nav-tabs {
+    gap: 4px !important;
+  }
+  
+  .modal .nav-tabs .nav-link,
+  .twm-tabs-style-2 .nav-tabs .nav-link {
+    padding: 0.3rem 0.25rem !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .modal .nav-tabs .nav-link i,
+  .twm-tabs-style-2 .nav-tabs .nav-link i {
+    margin-right: 2px !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* ============================================================================
+ * HOSTING PLATFORM COMPATIBILITY
+ * ============================================================================ */
+
+/* Override any hosting provider's default styles */
+* {
+    box-sizing: border-box !important;
+}
+
+/* Ensure consistent font rendering across hosting platforms */
+body, html {
+    font-family: 'Poppins', sans-serif !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* ============================================================================
+ * CDN AND EXTERNAL CSS PROTECTION
+ * ============================================================================ */
+
+/* Protect against Bootstrap CDN overrides */
+.home-job-card,
+.job-card,
+.new-job-card {
+    background-color: #ffffff !important;
+    border: 1px solid rgba(148, 163, 184, 0.2) !important;
+    border-radius: 16px !important;
+}
+
+/* Protect against FontAwesome or other icon library interference */
+.home-job-card .card-location i,
+.job-card i,
+.new-job-card i {
+    display: inline-block !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+}
+
+/* ============================================================================
+ * BROWSER COMPATIBILITY FIXES
+ * ============================================================================ */
+
+/* Ensure grid support across all browsers */
+.home-jobs-grid {
+    display: -ms-grid !important;
+    display: grid !important;
+    -ms-grid-columns: 1fr 20px 1fr 20px 1fr 20px 1fr !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 20px !important;
+    grid-gap: 20px !important; /* Fallback for older browsers */
+}
+
+/* Flexbox fallback for older browsers */
+.home-job-card,
+.job-card,
+.new-job-card {
+    display: -webkit-box !important;
+    display: -ms-flexbox !important;
+    display: flex !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-box-direction: normal !important;
+    -ms-flex-direction: column !important;
+    flex-direction: column !important;
+}
+
+.home-job-card .card-top-row,
+.home-job-card .card-middle-row,
+.home-job-card .card-bottom-row,
+.new-job-card .job-card-header,
+.new-job-card .job-card-middle,
+.new-job-card .job-card-footer {
+    display: -webkit-box !important;
+    display: -ms-flexbox !important;
+    display: flex !important;
+}
+
+/* ============================================================================
+ * PERFORMANCE OPTIMIZATIONS FOR PRODUCTION
+ * ============================================================================ */
+
+/* Optimize card rendering performance */
+.home-job-card,
+.job-card,
+.new-job-card {
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+}
+
+/* Optimize hover animations */
+.home-job-card:hover,
+.job-card:hover,
+.new-job-card:hover {
+    will-change: transform, box-shadow !important;
+}
+
+/* ============================================================================
+ * MOBILE DEVICE SPECIFIC FIXES
+ * ============================================================================ */
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    .home-job-card,
+    .job-card,
+    .new-job-card {
+        -webkit-transform: translate3d(0, 0, 0) !important;
+        transform: translate3d(0, 0, 0) !important;
+    }
+}
+
+/* Android Chrome specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .home-job-card .card-apply-btn,
+    .job-card .btn-apply {
+        -webkit-appearance: none !important;
+        appearance: none !important;
+    }
+}
+
+/* ============================================================================
+ * HIGH CONTRAST AND ACCESSIBILITY OVERRIDES
+ * ============================================================================ */
+
+/* Ensure sufficient contrast in high contrast mode */
+@media (prefers-contrast: high) {
+    .home-job-card,
+    .job-card,
+    .new-job-card {
+        border: 2px solid #000000 !important;
+    }
+    
+    .home-job-card .card-job-title,
+    .job-card .job-header h3,
+    .new-job-card .job-title {
+        color: #000000 !important;
+    }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .home-job-card,
+    .job-card,
+    .new-job-card {
+        transition: none !important;
+    }
+    
+    .home-job-card:hover,
+    .job-card:hover,
+    .new-job-card:hover {
+        transform: none !important;
+    }
+}
+
+/* ============================================================================
+ * PRINT STYLES
+ * ============================================================================ */
+
+@media print {
+    .home-job-card,
+    .job-card,
+    .new-job-card {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        box-shadow: none !important;
+        border: 1px solid #000000 !important;
+    }
+    
+    .home-job-card .card-apply-btn,
+    .job-card .btn-apply {
+        display: none !important;
+    }
+}
+
+/* ============================================================================
+ * HOSTING PROVIDER SPECIFIC OVERRIDES
+ * ============================================================================ */
+
+/* Netlify specific overrides */
+.netlify-build .home-job-card,
+.netlify-build .job-card,
+.netlify-build .new-job-card {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Vercel specific overrides */
+.vercel-build .home-job-card,
+.vercel-build .job-card,
+.vercel-build .new-job-card {
+    isolation: isolate !important;
+}
+
+/* GitHub Pages specific overrides */
+.github-pages .home-job-card,
+.github-pages .job-card,
+.github-pages .new-job-card {
+    contain: layout style paint !important;
+}
+
+/* ============================================================================
+ * CRITICAL CSS LOADING PROTECTION
+ * ============================================================================ */
+
+/* Ensure cards are visible even if CSS hasn't fully loaded */
+.home-job-card,
+.job-card,
+.new-job-card {
+    min-height: 200px !important;
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    padding: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+/* Fallback styles for slow connections */
+@media (max-width: 767px) {
+    .home-jobs-grid {
+        display: block !important;
+    }
+    
+    .home-job-card,
+    .job-card,
+    .new-job-card {
+        width: 100% !important;
+        margin-bottom: 16px !important;
+    }
+}
+
+/* ============================================================================
+ * FORCE OVERRIDE ANY EXTERNAL INTERFERENCE
+ * ============================================================================ */
+
+/* Maximum specificity override for card styles */
+html body div.home-jobs-grid div.home-job-card,
+html body div.job-card,
+html body div.new-job-card {
+    background-color: #ffffff !important;
+    border-radius: 20px !important;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
+    padding: 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Ensure apply buttons maintain orange color */
+html body div.home-job-card a.card-apply-btn,
+html body div.job-card button.btn-apply {
+    background-color: #fd7e14 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+html body div.home-job-card a.card-apply-btn:hover,
+html body div.job-card button.btn-apply:hover {
+    background-color: #e8690b !important;
+    color: #ffffff !important;
+}
+
+/* ============================================================================
+ * END OF PRODUCTION ENVIRONMENT OVERRIDES
+ * ============================================================================ */

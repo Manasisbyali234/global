@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>iOS Safari Backend Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>iOS Safari Backend Connection Test</h1>
+    
+    <div id="device-info" class="test-result info">
+        <strong>Device Info:</strong><br>
+        User Agent: <span id="user-agent"></span><br>
+        Platform: <span id="platform"></span><br>
+        Is iOS: <span id="is-ios"></span><br>
+        Is Safari: <span id="is-safari"></span>
+    </div>
+    
+    <button onclick="testBackendConnection()">Test Backend Connection</button>
+    <button onclick="testHealthEndpoint()">Test Health Endpoint</button>
+    <button onclick="testCORS()">Test CORS</button>
+    
+    <div id="test-results"></div>
+
+    <script>
+        // Detect device and browser
+        const userAgent = navigator.userAgent;
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+        const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
+        
+        document.getElementById('user-agent').textContent = userAgent;
+        document.getElementById('platform').textContent = navigator.platform;
+        document.getElementById('is-ios').textContent = isIOS ? 'Yes' : 'No';
+        document.getElementById('is-safari').textContent = isSafari ? 'Yes' : 'No';
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            document.getElementById('test-results').appendChild(div);
+        }
+        
+        async function testBackendConnection() {
+            addResult('Testing backend connection...', 'info');
+            
+            // Test multiple possible backend URLs
+            const testUrls = [
+                'http://localhost:5000/health',
+                'http://localhost:5000/',
+                window.location.origin + '/health',
+                window.location.origin + '/'
+            ];
+            
+            for (const url of testUrls) {
+                try {
+                    addResult(`Trying: ${url}`, 'info');
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        },
+                        cache: 'no-cache'
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        addResult(`✅ Backend found at ${url}: ${JSON.stringify(data)}`, 'success');
+                        return;
+                    } else {
+                        addResult(`❌ ${url} responded with status: ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    addResult(`❌ ${url} failed: ${error.message}`, 'error');
+                }
+            }
+            
+            addResult('❌ Backend server not found. Please start the backend server on port 5000', 'error');
+        }
+        
+        async function testHealthEndpoint() {
+            addResult('Testing /api/health endpoint...', 'info');
+            
+            const testUrls = [
+                'http://localhost:5000/api/health',
+                window.location.origin + '/api/health'
+            ];
+            
+            for (const url of testUrls) {
+                try {
+                    addResult(`Trying: ${url}`, 'info');
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        },
+                        cache: 'no-cache'
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        addResult(`✅ API health check successful at ${url}: ${JSON.stringify(data)}`, 'success');
+                        return;
+                    } else {
+                        addResult(`❌ ${url} failed with status: ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    addResult(`❌ ${url} error: ${error.message}`, 'error');
+                }
+            }
+            
+            addResult('❌ API health endpoint not found. Start backend: npm start in backend folder', 'error');
+        }
+        
+        async function testCORS() {
+            addResult('Testing CORS preflight...', 'info');
+            
+            try {
+                const response = await fetch(window.location.origin + '/api/health', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'Content-Type, Authorization'
+                    }
+                });
+                
+                addResult(`✅ CORS preflight response: ${response.status}`, 'success');
+                
+                // Check CORS headers
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
+                };
+                
+                addResult(`CORS Headers: ${JSON.stringify(corsHeaders)}`, 'info');
+                
+            } catch (error) {
+                addResult(`❌ CORS test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testBackendConnection();
+                setTimeout(() => testHealthEndpoint(), 1000);
+                setTimeout(() => testCORS(), 2000);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

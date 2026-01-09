@@ -1,0 +1,150 @@
+/* CRITICAL FIX: Image Modal Header Override */
+
+/* Force display for image modal headers */
+.image-modal .image-modal-header,
+.image-modal-content .image-modal-header,
+.image-modal-header {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 9999 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  padding: 1rem !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-top-left-radius: 15px !important;
+  border-top-right-radius: 15px !important;
+  margin: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 60px !important;
+  box-sizing: border-box !important;
+}
+
+/* Force display for modal title */
+.image-modal-title,
+.image-modal-header .image-modal-title,
+.image-modal-content .image-modal-title {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #333333 !important;
+  font-size: 1.25rem !important;
+  font-weight: 500 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.5 !important;
+  text-align: left !important;
+  background: transparent !important;
+}
+
+/* Force display for modal control buttons */
+.modal-control-btn,
+.modal-close-btn,
+.image-modal-header .modal-control-btn,
+.image-modal-header .modal-close-btn {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: #f8f9fa !important;
+  border: 1px solid #dee2e6 !important;
+  color: #333333 !important;
+  padding: 0.375rem 0.75rem !important;
+  border-radius: 0.25rem !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  margin: 0 !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+}
+
+.modal-control-btn:hover,
+.modal-close-btn:hover {
+  background: #e9ecef !important;
+  border-color: #adb5bd !important;
+  color: #000000 !important;
+}
+
+/* Override any global hiding styles */
+.image-modal *,
+.image-modal-content *,
+.image-modal-header *,
+.image-modal-title,
+.modal-control-btn,
+.modal-close-btn {
+  display: initial !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+/* Ensure modal content is visible */
+.image-modal-content {
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: white !important;
+  border-radius: 15px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+  overflow: hidden !important;
+  position: relative !important;
+  z-index: 9998 !important;
+}
+
+/* Ensure modal overlay is visible */
+.image-modal {
+  display: flex !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  z-index: 9997 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Force icon visibility */
+.image-modal-header i,
+.image-modal-title i,
+.modal-control-btn i,
+.modal-close-btn i {
+  display: inline !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: inherit !important;
+  font-size: inherit !important;
+}
+
+/* Override any global * selectors that might hide elements */
+.image-modal *, 
+.image-modal *::before, 
+.image-modal *::after,
+.image-modal-content *,
+.image-modal-content *::before,
+.image-modal-content *::after {
+  color-scheme: light !important;
+  box-sizing: border-box !important;
+  max-width: none !important;
+  word-wrap: normal !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  -webkit-user-select: auto !important;
+  user-select: auto !important;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+  animation-duration: initial !important;
+  animation-iteration-count: initial !important;
+  transition-duration: initial !important;
+  scroll-behavior: initial !important;
+}

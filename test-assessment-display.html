@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Display Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .round-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            background: #f9f9f9;
+        }
+        .round-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .description {
+            background: #e3f2fd;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 12px;
+            color: #666;
+        }
+        .remarks {
+            background: #fff3e0;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 12px;
+            color: #e65100;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-available { background: #cce5ff; color: #004085; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h2>Assessment Interview Round Display Test</h2>
+        <p>This test shows how the assessment round should display description and remarks:</p>
+        
+        <div class="round-item">
+            <div class="round-name">Assessment</div>
+            <span class="status-badge status-completed">Completed</span>
+            
+            <div class="description">
+                <i class="fa fa-info-circle"></i>
+                <strong>Description:</strong> Complete the technical assessment within the given timeframe. This includes coding questions, multiple choice questions, and problem-solving scenarios.
+            </div>
+            
+            <div class="remarks">
+                <i class="fa fa-comment"></i>
+                <strong>Employer Remarks:</strong> Good performance on technical questions. Needs improvement in problem-solving approach.
+            </div>
+            
+            <div style="font-size: 10px; color: #666; margin-top: 8px;">
+                <strong>Period:</strong> 15 Jan 2024 - 20 Jan 2024
+            </div>
+        </div>
+        
+        <div class="round-item">
+            <div class="round-name">Technical Round</div>
+            <span class="status-badge status-pending">Scheduled</span>
+            
+            <div class="description">
+                <i class="fa fa-info-circle"></i>
+                <strong>Description:</strong> Technical interview focusing on programming concepts and system design.
+            </div>
+            
+            <div class="remarks">
+                <i class="fa fa-comment"></i>
+                <strong>Employer Remarks:</strong> Please prepare for data structures and algorithms questions.
+            </div>
+            
+            <div style="font-size: 10px; color: #666; margin-top: 8px;">
+                <strong>Period:</strong> 25 Jan 2024 - 30 Jan 2024
+            </div>
+        </div>
+        
+        <h3>Changes Made:</h3>
+        <ul>
+            <li>✅ Added assessment description display in the main table view</li>
+            <li>✅ Added assessment employer remarks display in the main table view</li>
+            <li>✅ Enhanced round details lookup to check multiple possible keys for assessment</li>
+            <li>✅ Added fallback to use assessmentInstructions from job if no specific round details</li>
+            <li>✅ Added debug logging to help troubleshoot missing data</li>
+            <li>✅ Updated backend to include assessmentInstructions in the query</li>
+        </ul>
+        
+        <h3>How to Test:</h3>
+        <ol>
+            <li>Go to <code>http://localhost:3000/candidate/status</code></li>
+            <li>Look for applications with Assessment rounds</li>
+            <li>Check if description and remarks are now visible in the Interview Progress column</li>
+            <li>Open browser console to see debug logs for round details</li>
+        </ol>
+        
+        <h3>Expected Behavior:</h3>
+        <ul>
+            <li>Assessment rounds should show description (if available) as a small blue box with info icon</li>
+            <li>Assessment rounds should show employer remarks (if available) as a small orange box with comment icon</li>
+            <li>Text is truncated with "..." if too long, but full text shows on hover</li>
+            <li>Non-assessment rounds also show their respective descriptions and remarks</li>
+        </ul>
+    </div>
+</body>
+</html>

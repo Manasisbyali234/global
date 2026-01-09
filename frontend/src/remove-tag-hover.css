@@ -1,0 +1,46 @@
+/* Keep text black in all states for tags */
+.tw-sidebar-tags-wrap .tagcloud a {
+    background-color: #f7f7f7 !important;
+    color: #000 !important;
+    transition: none !important;
+}
+
+.tw-sidebar-tags-wrap .tagcloud a:hover {
+    background-color: #f7f7f7 !important;
+    color: #000 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border-color: inherit !important;
+    opacity: 1 !important;
+}
+
+.tw-sidebar-tags-wrap .tagcloud a:active {
+    background-color: #f7f7f7 !important;
+    color: #000 !important;
+}
+
+.tw-sidebar-tags-wrap .tagcloud a:focus {
+    background-color: #f7f7f7 !important;
+    color: #000 !important;
+}
+
+.tw-sidebar-tags-wrap .tagcloud a.tag-link {
+    background-color: #f7f7f7 !important;
+    color: #000 !important;
+    transition: none !important;
+}
+
+.tw-sidebar-tags-wrap .tagcloud a.tag-link:hover {
+    background-color: #f7f7f7 !important;
+    color: #000 !important;
+}
+
+.tw-sidebar-tags-wrap .tagcloud a.tag-link:active {
+    background-color: #f7f7f7 !important;
+    color: #000 !important;
+}
+
+.tw-sidebar-tags-wrap .tagcloud a.tag-link:focus {
+    background-color: #f7f7f7 !important;
+    color: #000 !important;
+}

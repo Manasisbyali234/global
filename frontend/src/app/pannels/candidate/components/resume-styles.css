@@ -1,0 +1,1208 @@
+/* Form elements z-index fixes to prevent overflow on header */
+.form-select,
+.form-control,
+select,
+input {
+    position: relative;
+    z-index: 1;
+}
+
+/* Dropdown and select elements should not overflow header */
+.form-select:focus,
+select:focus {
+    z-index: 2;
+}
+
+/* Education section specific z-index fixes */
+.education-section-body .form-select,
+.education-section-body select,
+.education-section-body .form-control {
+    position: relative;
+    z-index: 1;
+}
+
+/* Panel content should have lower z-index than header */
+.panel-body {
+    position: relative;
+    z-index: 1;
+}
+
+/* Panel heading should have higher z-index */
+.panel-heading {
+    position: relative;
+    z-index: 10;
+}
+
+/* Resume Page Custom Styles */
+
+/* Resume page background to match dashboard */
+.twm-right-section-panel.site-bg-gray {
+  background: #f8fafc !important;
+  min-height: 100vh !important;
+}
+
+/* Main header styling */
+.panel-heading h3.panel-tittle {
+    color: #232323;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.panel-heading h3.panel-tittle i {
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+/* Panel heading icons */
+.panel-heading .panel-tittle {
+    color: #232323;
+}
+
+.panel-heading .panel-tittle i {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+/* Modal titles */
+.modal-title {
+    color: #232323;
+}
+
+/* Section headings */
+h5 {
+    color: #232323;
+}
+
+/* Loading spinner */
+.fa-spinner {
+    color: #FF6A00;
+}
+
+/* Form label icons */
+.form-label i, label i {
+    color: #FF6A00;
+    margin-right: 4px;
+}
+
+/* Skill tags with no color */
+.skill-tag {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 4px;
+    background: none !important;
+    color: #333 !important;
+    border: 1px solid #ddd !important;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 13px;
+    transition: none !important;
+}
+
+.skill-tag:hover {
+    background: none !important;
+    color: #333 !important;
+    border-color: #999 !important;
+    transform: none !important;
+}
+
+.skill-tag i {
+    font-size: 11px;
+}
+
+.skill-tag button {
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+.skill-tag button:hover {
+    opacity: 1;
+    color: #dc3545 !important;
+}
+
+/* Button icons */
+.btn i {
+    margin-right: 6px;
+}
+
+.twm-right-section-panel .btn:not(.btn-link) {
+    background-color: #FF6A0014 !important;
+}
+
+.twm-right-section-panel .btn:not(.btn-link):hover,
+.twm-right-section-panel .btn:not(.btn-link):focus {
+    background-color: #FF6A0014 !important;
+}
+
+/* File upload section styling */
+.dashboard-cover-pic {
+    border: 2px dashed #ebeaf1;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    background-color: #fafafa;
+}
+
+.dashboard-cover-pic:hover {
+    border-color: #686183;
+    background-color: #f8f8f8;
+}
+
+/* Education section styling */
+.border.rounded {
+    border-color: #ebeaf1 !important;
+    background-color: #fafafa;
+}
+
+/* Icon colors for different sections - All Orange */
+.fa-newspaper-o { color: #FF6A00; }
+.fa-user-circle { color: #FF6A00; }
+.fa-cogs { color: #FF6A00; }
+.fa-id-card { color: #FF6A00; }
+.fa-paperclip { color: #FF6A00; }
+.fa-graduation-cap { color: #FF6A00; }
+.fa-file-text-o { color: #FF6A00; }
+.fa-calendar { color: #FF6A00; }
+.fa-venus-mars { color: #FF6A00; }
+.fa-male { color: #FF6A00; }
+.fa-female { color: #FF6A00; }
+.fa-home { color: #FF6A00; }
+.fa-map-marker { color: #FF6A00; }
+.fa-envelope { color: #FF6A00; }
+.fa-file-text { color: #FF6A00; }
+.fa-upload { color: #FF6A00; }
+.fa-plus { color: #FF6A00; }
+.fa-save { color: #FF6A00; }
+.fa-tag { color: #FF6A00; }
+.fa-spinner { color: #FF6A00; }
+
+/* Status icons */
+.text-success i { color: #FF6A00; }
+.text-info i { color: #FF6A00; }
+.text-muted i { color: #FF6A00; }
+
+/* Modal fixes to prevent blinking and display issues */
+.modal {
+    transition: opacity 0.15s linear !important;
+    z-index: 1055 !important;
+}
+
+.modal.fade {
+    opacity: 0;
+    transition: opacity 0.15s linear;
+}
+
+.modal.show {
+    opacity: 1;
+}
+
+.modal-backdrop {
+    transition: opacity 0.15s linear !important;
+    z-index: 1050 !important;
+}
+
+/* Prevent multiple backdrop issues */
+.modal-backdrop.fade {
+    opacity: 0;
+}
+
+.modal-backdrop.show {
+    opacity: 0.5;
+}
+
+/* Ensure modal content is properly positioned */
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 500px;
+}
+
+.modal-dialog.modal-lg {
+    max-width: 800px;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid #e9ecef;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Edit button styling improvements - Black edit icons */
+.panel-heading-with-btn button,
+.panel-heading-with-btn a {
+    transition: none !important;
+}
+
+.panel-heading-with-btn button:hover,
+.panel-heading-with-btn a:hover {
+    color: #333 !important;
+    transition: none !important;
+}
+
+/* Edit icons - Black color without orange background */
+.panel-heading .btn-link.site-text-primary,
+.panel-heading .btn-link.site-text-primary i,
+.panel-heading .btn-link .fa-edit,
+.panel-heading .btn-link .fa-times {
+    color: #000 !important;
+    background: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    font-size: 18px !important;
+}
+
+.panel-heading .btn-link.site-text-primary:hover,
+.panel-heading .btn-link.site-text-primary:hover i,
+.panel-heading .btn-link .fa-edit:hover,
+.panel-heading .btn-link .fa-times:hover {
+    color: #333 !important;
+    background: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Edit button focus states */
+.btn-link:focus {
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+}
+
+/* Enhanced prevention of blinking on Add Employment button */
+.panel-heading-with-btn .btn-link {
+    will-change: auto !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    -webkit-transform: none !important;
+    transform: none !important;
+    pointer-events: auto;
+    transition: none !important;
+    animation: none !important;
+}
+
+.panel-heading-with-btn .btn-link:active,
+.panel-heading-with-btn .btn-link:focus,
+.panel-heading-with-btn .btn-link:hover {
+    transform: none !important;
+    -webkit-transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Form improvements in modals */
+.modal .form-control {
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 14px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.modal .form-control:focus {
+    border-color: #fd7e14;
+    box-shadow: 0 0 0 0.2rem rgba(253, 126, 20, 0.25);
+}
+
+.modal .alert {
+    border-radius: 8px;
+    border: none;
+    padding: 1rem;
+}
+
+.modal .alert-info {
+    background-color: #e7f3ff;
+    color: #0c5460;
+}
+
+/* Button improvements in modals */
+.modal .btn {
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: none !important;
+}
+
+.modal .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    transition: none !important;
+}
+
+.modal .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    transition: none !important;
+}
+
+/* Profile Summary Buttons - Both Secondary Style */
+.btn-primary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: white !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover {
+    background-color: #5a6268 !important;
+    border-color: #545b62 !important;
+    color: white !important;
+}
+
+.btn-primary:focus {
+    background-color: #5a6268 !important;
+    border-color: #545b62 !important;
+    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25) !important;
+}
+
+.btn-primary:active {
+    background-color: #545b62 !important;
+    border-color: #4e555b !important;
+}
+
+/* Profile Summary button alignment and sizing */
+.edit-form .d-flex {
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+
+.edit-form .d-flex > div {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+/* Ensure both buttons have same size */
+.btn-secondary.btn-sm,
+.btn-primary.btn-sm {
+    padding: 0.375rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+    border-radius: 0.25rem !important;
+    min-width: 70px !important;
+}
+
+/* Override any orange styling with higher specificity */
+.edit-form .btn.btn-primary.btn-sm,
+.panel-body .btn.btn-primary.btn-sm,
+.twm-panel-inner .btn.btn-primary.btn-sm {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: white !important;
+}
+
+.edit-form .btn.btn-primary.btn-sm:hover,
+.panel-body .btn.btn-primary.btn-sm:hover,
+.twm-panel-inner .btn.btn-primary.btn-sm:hover {
+    background-color: #5a6268 !important;
+    border-color: #545b62 !important;
+    color: white !important;
+}
+
+/* Character counter styling */
+.form-text {
+    font-size: 12px;
+    margin-top: 0.5rem;
+}
+
+/* Additional modal fixes for z-index and display issues */
+body.modal-open {
+    overflow: hidden;
+    padding-right: 0 !important;
+}
+
+/* Ensure modals appear above all other content */
+.modal {
+    z-index: 1055 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Fix for modal not showing properly */
+.modal.show {
+    display: block !important;
+}
+
+.modal.fade.show {
+    opacity: 1 !important;
+}
+
+/* Fix cursor blinking and textarea stability */
+.modal textarea {
+    caret-color: #000 !important;
+    animation: none !important;
+    transition: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.modal textarea:focus {
+    border-color: #fd7e14 !important;
+    box-shadow: 0 0 0 0.2rem rgba(253, 126, 20, 0.25) !important;
+    outline: none !important;
+    animation: none !important;
+}
+
+/* Stop excessive animations in modal - keep necessary ones */
+.modal .modal-header,
+.modal .modal-body,
+.modal .modal-footer {
+    animation: none !important;
+}
+
+/* Prevent modal content from shifting */
+.modal-content {
+    transform: none !important;
+    transition: none !important;
+}
+
+.modal-dialog {
+    transform: none !important;
+    transition: none !important;
+}
+
+/* Ensure modal content is clickable */
+.modal-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Fix button focus states */
+.btn:focus,
+.btn.focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(253, 126, 20, 0.25);
+}
+
+/* Improve edit button visibility */
+.panel-heading .btn-link {
+    text-decoration: none !important;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: none !important;
+}
+
+.panel-heading .btn-link:hover {
+    background-color: transparent !important;
+    transition: none !important;
+}
+
+/* Loading state improvements */
+.fa-spinner {
+    animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error state styling */
+.alert-danger {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Success feedback */
+.is-valid {
+    border-color: #28a745;
+}
+
+.is-invalid {
+    border-color: #dc3545;
+}
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+/* Panel stability - prevent blinking and flickering */
+.panel {
+    transition: none !important;
+    animation: none !important;
+}
+
+.panel-heading {
+    transition: none !important;
+    animation: none !important;
+    will-change: auto;
+}
+
+.panel-body {
+    transition: none !important;
+    animation: none !important;
+    will-change: auto;
+}
+
+.panel-heading-with-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Responsive modal improvements */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+    
+    .modal-dialog.modal-lg {
+        max-width: calc(100% - 1rem);
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 1rem;
+    }
+}
+
+/* Panel/Card styling for better visibility */
+.panel {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    background: white;
+    transition: none !important;
+}
+
+.panel:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    transform: none !important;
+    background: white !important;
+    animation: none !important;
+}
+
+.panel-heading {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-bottom: 1px solid #e0e0e0;
+    border-radius: 8px 8px 0 0;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-heading.panel-heading-with-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-body {
+    padding: 20px;
+    min-height: 60px;
+}
+
+.twm-right-section-panel {
+    padding: 20px;
+    min-height: 100vh;
+}
+
+/* Education cards styling */
+.card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    margin-bottom: 15px;
+}
+
+.card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 15px;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+
+
+/* Responsive adjustments */
+/* Mobile Responsiveness for All Screen Sizes */
+
+/* Extra Large Mobile (576px and up) */
+@media (max-width: 576px) {
+    /* Main container adjustments */
+    .twm-right-section-panel {
+        padding: 8px !important;
+        min-height: auto !important;
+    }
+
+    /* Panel heading - Force horizontal alignment with higher specificity */
+    .twm-right-section-panel .panel-heading.wt-panel-heading.d-flex,
+    .twm-right-section-panel .panel-heading.d-flex,
+    .panel-heading.wt-panel-heading.d-flex,
+    .panel-heading.d-flex {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        gap: 20px !important;
+    }
+
+    /* Header adjustments */
+    .panel-heading .panel-tittle {
+        font-size: 16px !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        flex: 1 !important;
+        white-space: nowrap !important;
+    }
+
+    .panel-heading .panel-tittle i {
+        font-size: 16px !important;
+        margin-right: 6px !important;
+    }
+
+    /* Edit button in header */
+    .panel-heading .btn {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+        min-height: auto !important;
+        width: auto !important;
+        margin: 0 !important;
+    }
+
+    .panel-heading p {
+        font-size: 13px !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Panel body spacing */
+    .panel-body {
+        padding: 12px !important;
+    }
+
+    /* Form elements */
+    .form-group {
+        margin-bottom: 15px !important;
+    }
+
+    .form-control {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+        padding: 10px 12px !important;
+        height: auto !important;
+        border-radius: 6px !important;
+    }
+
+    .form-select {
+        font-size: 16px !important;
+        padding: 10px 12px !important;
+        height: auto !important;
+        border-radius: 6px !important;
+    }
+
+    /* Labels */
+    .form-label, label {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        margin-bottom: 6px !important;
+        display: block !important;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 10px 16px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        min-height: 44px !important; /* Touch target size */
+        width: 100% !important; /* Full width on mobile */
+        margin-bottom: 8px !important;
+    }
+
+    .btn-sm {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        min-height: 36px !important;
+        width: auto !important;
+        margin-bottom: 4px !important;
+    }
+
+    /* Button groups */
+    .d-flex.gap-2 {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    .d-flex.gap-2 .btn {
+        width: 100% !important;
+    }
+
+    /* Tables */
+    .table-responsive {
+        border-radius: 6px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .table {
+        font-size: 13px !important;
+        min-width: 600px !important; /* Ensure horizontal scroll */
+    }
+
+    .table th, .table td {
+        padding: 8px 6px !important;
+        white-space: nowrap !important;
+    }
+
+    /* Cards and panels */
+    .panel, .card {
+        margin-bottom: 16px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    }
+
+    /* Skill tags */
+    .skill-tag {
+        display: inline-block !important;
+        padding: 4px 8px !important;
+        margin: 2px !important;
+        font-size: 12px !important;
+        border-radius: 4px !important;
+    }
+
+    /* Skills badges - Mobile responsive with higher specificity */
+    .d-flex.flex-wrap.gap-2.mt-2 .skill-badge,
+    .badge.bg-light.skill-badge,
+    span.badge.bg-light.skill-badge {
+        width: auto !important;
+        max-width: 45% !important;
+        display: inline-flex !important;
+        margin-right: 4px !important;
+        margin-bottom: 4px !important;
+        font-size: 10px !important;
+        padding: 3px 6px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        border-radius: 12px !important;
+    }
+
+    .d-flex.flex-wrap.gap-2.mt-2 .skill-badge .skill-text,
+    .badge.bg-light.skill-badge .skill-text,
+    span.badge.bg-light.skill-badge .skill-text {
+        max-width: 120px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+
+    .d-flex.flex-wrap.gap-2.mt-2 .skill-badge .btn-sm,
+    .badge.bg-light.skill-badge .btn-sm,
+    span.badge.bg-light.skill-badge .btn-sm {
+        width: 16px !important;
+        height: 16px !important;
+        font-size: 8px !important;
+        margin-left: 4px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        padding: 0 !important;
+        min-width: 16px !important;
+        min-height: 16px !important;
+        background: none !important;
+        border: none !important;
+    }
+
+    /* Work location badges - Mobile responsive */
+    .d-flex.flex-wrap.gap-2 span.d-inline-flex.align-items-center {
+        max-width: 45% !important;
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+        margin-right: 4px !important;
+        margin-bottom: 4px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        border-radius: 12px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+    }
+
+    /* SearchableSelect tags - Mobile responsive */
+    .form-select .d-flex.flex-wrap span,
+    .d-flex.flex-wrap span[style*="border"],
+    .d-flex.gap-1 span {
+        max-width: 45% !important;
+        font-size: 9px !important;
+        padding: 2px 4px !important;
+        height: 18px !important;
+        margin-right: 2px !important;
+        margin-bottom: 2px !important;
+        border-radius: 8px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        min-width: 30px !important;
+    }
+
+    /* SearchableSelect close buttons */
+    .form-select .d-flex.flex-wrap span button,
+    .d-flex.flex-wrap span[style*="border"] button,
+    .d-flex.gap-1 span button {
+        width: 12px !important;
+        height: 12px !important;
+        font-size: 8px !important;
+        margin-left: 2px !important;
+        padding: 0 !important;
+        border: none !important;
+        background: none !important;
+        color: #dc3545 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    .form-select .d-flex.flex-wrap span button:hover,
+    .d-flex.flex-wrap span[style*="border"] button:hover,
+    .d-flex.gap-1 span button:hover {
+        color: #c82333 !important;
+    }
+
+    /* File upload areas */
+    .file-upload-area {
+        padding: 20px !important;
+        border-radius: 6px !important;
+        text-align: center !important;
+    }
+
+    .file-upload-area i {
+        font-size: 24px !important;
+        margin-bottom: 8px !important;
+    }
+
+    /* Progress bars */
+    .progress {
+        height: 8px !important;
+        border-radius: 4px !important;
+    }
+
+    /* Alerts and messages */
+    .alert {
+        padding: 12px !important;
+        font-size: 14px !important;
+        border-radius: 6px !important;
+    }
+
+    /* Loading states */
+    .text-center p {
+        font-size: 14px !important;
+    }
+
+    /* Modal adjustments */
+    .modal-dialog {
+        margin: 10px !important;
+        max-width: calc(100vw - 20px) !important;
+    }
+
+    .modal-content {
+        border-radius: 8px !important;
+    }
+
+    /* Modal form labels - Fix icon overlapping on mobile */
+    .modal .form-label,
+    .modal label {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        margin-bottom: 8px !important;
+        font-size: 14px !important;
+        line-height: 1.2 !important;
+    }
+
+    .modal .form-label i,
+    .modal label i {
+        flex-shrink: 0 !important;
+        font-size: 12px !important;
+        width: 14px !important;
+        text-align: center !important;
+    }
+
+    /* Grid system adjustments */
+    .row {
+        margin-left: -4px !important;
+        margin-right: -4px !important;
+    }
+
+    .col-12, .col-md-6, .col-lg-4, .col-xl-3 {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+
+    /* Specific section adjustments */
+    .education-section .row > div {
+        margin-bottom: 12px !important;
+    }
+
+    .employment-section .timeline {
+        padding-left: 20px !important;
+    }
+
+    .employment-section .timeline-item {
+        padding-left: 0 !important;
+        border-left: 3px solid #dee2e6 !important;
+        margin-bottom: 16px !important;
+        padding-bottom: 12px !important;
+    }
+
+    /* Employment card content spacing */
+    .employment-card > div[style*="border-bottom"] {
+        padding-right: 120px !important;
+        text-indent: 0 !important;
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+        position: relative !important;
+    }
+
+    .employment-card > div[style*="border-bottom"] * {
+        text-indent: 0 !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    /* Fix text alignment in employment cards */
+    .employment-card h5,
+    .employment-card h4,
+    .employment-card p,
+    .employment-card .text-muted {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+        text-indent: 0 !important;
+        display: block !important;
+        line-height: 1.4 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+        text-align: left !important;
+        hanging-punctuation: none !important;
+        text-align-last: left !important;
+    }
+
+    /* Project cards */
+    .project-card {
+        margin-bottom: 12px !important;
+        padding: 12px !important;
+    }
+
+    /* Accomplishments */
+    .accomplishment-item {
+        padding: 12px !important;
+        margin-bottom: 8px !important;
+        border-radius: 6px !important;
+    }
+}
+
+/* Large Mobile (768px and up) */
+@media (max-width: 768px) {
+    /* Panel heading - Force horizontal alignment */
+    .twm-right-section-panel .panel-heading.wt-panel-heading.d-flex,
+    .twm-right-section-panel .panel-heading.d-flex,
+    .panel-heading.wt-panel-heading.d-flex,
+    .panel-heading.d-flex {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .panel-heading .panel-tittle {
+        font-size: 20px;
+    }
+
+    .panel-heading .panel-tittle i {
+        font-size: 20px;
+    }
+
+    .twm-right-section-panel {
+        padding: 12px;
+    }
+
+    .panel-body {
+        padding: 16px;
+    }
+
+    /* Button adjustments for mobile */
+    .btn {
+        padding: 10px 16px !important;
+        font-size: 14px !important;
+        min-width: 80px !important;
+        height: auto !important;
+        border-radius: 6px !important;
+    }
+
+    .btn-sm {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        min-width: 60px !important;
+    }
+
+    /* Form elements for tablets */
+    .form-control, .form-select {
+        font-size: 15px !important;
+        padding: 12px 14px !important;
+    }
+
+    /* Two column layout adjustments */
+    .row .col-md-6 {
+        margin-bottom: 16px !important;
+    }
+
+    /* Table responsiveness */
+    .table-responsive {
+        border-radius: 8px !important;
+    }
+
+    .table th, .table td {
+        padding: 10px 8px !important;
+    }
+}
+
+/* Medium Mobile (992px and up) - Small tablets */
+@media (max-width: 992px) {
+    /* Three column layout adjustments */
+    .row .col-lg-4 {
+        margin-bottom: 16px !important;
+    }
+
+    /* Form layouts */
+    .form-row {
+        margin-bottom: 12px !important;
+    }
+
+    /* Button groups */
+    .btn-group {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+    }
+
+    .btn-group .btn {
+        border-radius: 6px !important;
+        margin-bottom: 4px !important;
+    }
+}
+
+/* Radio button styling for employment form */
+.twm-form-radio-inline .form-check-input[type="radio"] {
+    appearance: auto !important;
+    -webkit-appearance: radio !important;
+    -moz-appearance: radio !important;
+    width: 16px !important;
+    height: 16px !important;
+    margin-right: 8px !important;
+    margin-top: 2px !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.twm-form-radio-inline .form-check-label {
+    cursor: pointer !important;
+    display: inline-block !important;
+    margin-left: 4px !important;
+    font-weight: 500 !important;
+    color: #333 !important;
+}
+
+.twm-form-radio-inline .col-md-6 {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 8px !important;
+}
+
+/* General mobile improvements for all screen sizes */
+@media (max-width: 1200px) {
+    /* Ensure touch targets are adequate */
+    button, .btn, input, select, textarea, [role="button"] {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+
+    /* Improve readability */
+    body {
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Better spacing for mobile */
+    .container, .container-fluid {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    /* Loading states */
+    .fa-spinner {
+        animation: fa-spin 1s infinite linear;
+    }
+
+    /* Error states */
+    .alert-danger {
+        background-color: #f8d7da !important;
+        border-color: #f5c6cb !important;
+        color: #721c24 !important;
+    }
+
+    /* Success states */
+    .alert-success {
+        background-color: #d4edda !important;
+        border-color: #c3e6cb !important;
+        color: #155724 !important;
+    }
+}

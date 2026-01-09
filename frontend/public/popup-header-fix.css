@@ -1,0 +1,46 @@
+/* POPUP HEADER Z-INDEX FIX - Force header behind popup notifications */
+
+/* Force all header elements to have lower z-index when popup is active */
+.popup-overlay ~ * header,
+.popup-overlay ~ * .header,
+.popup-overlay ~ * .site-header,
+.popup-overlay ~ * .navbar,
+.popup-overlay ~ * .twm-header-style-1,
+.popup-overlay ~ * .header-fixed,
+.popup-overlay ~ * .main-header,
+header,
+.header,
+.site-header,
+.navbar,
+.twm-header-style-1,
+.header-fixed,
+.main-header {
+  z-index: 1000 !important;
+}
+
+/* Ensure popup notifications are always on top */
+.popup-overlay {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+}
+
+.popup-box {
+  z-index: 2147483647 !important;
+  position: relative !important;
+}
+
+/* Force any element that might interfere to stay behind */
+.twm-right-section-panel,
+.dashboard-content,
+.page-content,
+.main-content {
+  z-index: 999 !important;
+  position: relative !important;
+}
+
+/* Specific fix for employer dashboard header */
+.employer-dashboard header,
+.employer-dashboard .header,
+.employer-dashboard .site-header {
+  z-index: 1000 !important;
+}

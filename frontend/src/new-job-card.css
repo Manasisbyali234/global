@@ -1,0 +1,263 @@
+/* New Job Card Styles */
+.new-job-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.new-job-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  z-index: 2;
+}
+
+/* Header Section */
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.job-card-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.company-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+}
+
+.company-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #6366f1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.job-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.job-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.job-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.job-location i {
+  font-size: 12px;
+}
+
+/* Job Type Badge */
+.job-type-badge {
+  flex-shrink: 0;
+}
+
+.job-type-pill {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+.job-type-pill.full-time {
+  background: #28a745;
+  color: white;
+  border-radius: 4px;
+}
+
+.job-type-pill.part-time {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.job-type-pill.contract {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.job-type-pill.internship {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.job-type-pill.wfh {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+/* Middle Section */
+.job-card-middle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.ctc-info {
+  flex: 1;
+}
+
+.ctc-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1967d2;
+}
+
+.vacancy-info {
+  flex-shrink: 0;
+}
+
+.vacancy-text {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+/* Footer Section */
+.job-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.company-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.posted-by-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+
+.company-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.poster-type {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+
+
+/* Responsive Design - Maintain Desktop Layout */
+@media (max-width: 768px) {
+  .new-job-card {
+    padding: 16px;
+  }
+  
+  .company-logo {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .job-title {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .new-job-card {
+    padding: 14px;
+  }
+  
+  .company-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .job-title {
+    font-size: 14px;
+  }
+
+  .job-location {
+    font-size: 13px;
+  }
+
+  .ctc-text, .vacancy-text {
+    font-size: 13px;
+  }
+}
+
+/* Skeleton Loading Styles */
+.job-card-skeleton .skeleton-line {
+  background: #f0f0f0;
+  border-radius: 4px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite alternate;
+}
+
+.job-card-skeleton .skeleton-logo {
+  background: #f0f0f0;
+  border-radius: 8px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}

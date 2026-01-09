@@ -1,0 +1,13 @@
+.modal-content * {
+    margin: initial !important;
+    padding: initial !important;
+}
+
+.modal-body {
+    padding: 20px 30px !important;
+}
+
+.modal-header,
+.modal-footer {
+    padding: 15px 30px !important;
+}

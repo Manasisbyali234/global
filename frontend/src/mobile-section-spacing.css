@@ -1,0 +1,47 @@
+/* Mobile Section Spacing Fixes */
+@media (max-width: 767px) {
+    /* Reduce section padding on mobile */
+    .section-full {
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+    }
+    
+    /* Reduce container padding */
+    .container {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
+    
+    /* Reduce section head margin */
+    .section-head {
+        margin-bottom: 15px !important;
+    }
+    
+    /* Reduce category cards container spacing */
+    .category-cards-container {
+        margin-top: 10px !important;
+        gap: 10px !important;
+    }
+    
+    .category-cards-second-row {
+        margin-top: 10px !important;
+        padding-left: 10px !important;
+    }
+    
+    /* Reduce hero body margin */
+    .mt-2 {
+        margin-top: 0 !important;
+    }
+    
+    /* Reduce job categories area padding */
+    .twm-job-categories-hpage-6-area {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
+    
+    /* Reduce any extra spacing between sections */
+    .animate-on-scroll {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+}

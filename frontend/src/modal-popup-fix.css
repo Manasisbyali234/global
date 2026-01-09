@@ -1,0 +1,29 @@
+/* Original Modal Popup Styles - Before Fixes */
+
+.twm-sign-up .modal-dialog {
+    width: 100%;
+    margin: 1.75rem auto;
+}
+
+.twm-sign-up .modal-content {
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.twm-sign-up .modal-body {
+    padding: 1rem;
+}
+
+.twm-sign-up .modal-header {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+@media (max-width: 576px) {
+    .twm-sign-up .modal-dialog {
+        width: 95%;
+        margin: 0.5rem auto;
+    }
+}

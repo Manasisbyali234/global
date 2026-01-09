@@ -1,0 +1,152 @@
+/* Signup Modal Mobile Fix - Resolves White Screen Issue */
+
+/* Ensure modal displays properly on all devices */
+.modal.twm-sign-up {
+  display: none;
+}
+
+.modal.twm-sign-up.show {
+  display: block !important;
+  overflow-y: auto;
+}
+
+/* Fix z-index stacking */
+.modal-backdrop {
+  z-index: 1040 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.modal.twm-sign-up {
+  z-index: 1050 !important;
+}
+
+/* Ensure modal content is visible */
+.modal.twm-sign-up .modal-dialog {
+  position: relative;
+  z-index: 1051 !important;
+  margin: 1.75rem auto;
+}
+
+.modal.twm-sign-up .modal-content {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Mobile specific fixes */
+@media (max-width: 767px) {
+  .modal.twm-sign-up {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .modal.twm-sign-up .modal-dialog {
+    margin: 0.5rem !important;
+    max-width: calc(100% - 1rem) !important;
+    width: calc(100% - 1rem) !important;
+  }
+
+  .modal.twm-sign-up .modal-dialog-centered {
+    min-height: calc(100vh - 1rem) !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .modal.twm-sign-up .modal-content {
+    width: 100% !important;
+    max-height: calc(100vh - 1rem) !important;
+    overflow-y: auto !important;
+  }
+
+  .modal.twm-sign-up .modal-header {
+    padding: 1rem !important;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .modal.twm-sign-up .modal-body {
+    padding: 1rem !important;
+    overflow-y: auto !important;
+    max-height: calc(100vh - 200px) !important;
+  }
+
+  .modal.twm-sign-up .modal-title {
+    font-size: 1.25rem !important;
+  }
+
+  /* Fix form elements */
+  .modal.twm-sign-up .form-control {
+    font-size: 14px !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  .modal.twm-sign-up .btn {
+    font-size: 14px !important;
+    padding: 0.5rem 1rem !important;
+  }
+
+  /* Fix button width on mobile */
+  .modal.twm-sign-up .col-md-12 button[type="submit"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  /* Fix tabs */
+  .modal.twm-sign-up .nav-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal.twm-sign-up .nav-tabs .nav-link {
+    white-space: normal !important;
+    word-break: break-word !important;
+    font-size: 0.875rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .modal.twm-sign-up .modal-dialog {
+    margin: 0.25rem !important;
+    max-width: calc(100% - 0.5rem) !important;
+    width: calc(100% - 0.5rem) !important;
+  }
+
+  .modal.twm-sign-up .modal-header {
+    padding: 0.75rem !important;
+  }
+
+  .modal.twm-sign-up .modal-body {
+    padding: 0.75rem !important;
+  }
+
+  .modal.twm-sign-up .modal-title {
+    font-size: 1.1rem !important;
+  }
+
+  .modal.twm-sign-up .nav-tabs .nav-link {
+    font-size: 0.8rem !important;
+    padding: 0.4rem 0.5rem !important;
+  }
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+}
+
+/* Fix for iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  .modal.twm-sign-up {
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal.twm-sign-up .modal-body {
+    -webkit-overflow-scrolling: touch !important;
+  }
+}

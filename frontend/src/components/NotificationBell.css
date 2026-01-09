@@ -1,0 +1,85 @@
+/* Notification Bell Animations */
+@keyframes bell-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
+@keyframes badge-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes dropdown-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdown-fade-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.bell-wiggle {
+  animation: bell-wiggle 0.7s ease-in-out;
+}
+
+.badge-pop {
+  animation: badge-pop 0.5s ease-in-out;
+}
+
+.notification-dropdown {
+  animation: dropdown-fade-in 0.3s ease-out;
+}
+
+.notification-dropdown.closing {
+  animation: dropdown-fade-out 0.2s ease-in;
+}
+
+/* Close button hover effect */
+.notification-close-btn:hover {
+  background-color: #f5f5f5 !important;
+  color: #333 !important;
+}
+
+/* Mark all as read button hover effect */
+.mark-all-read-btn:hover {
+  text-decoration: underline;
+}
+
+/* Notification item hover effect */
+.notification-item:hover {
+  background-color: #f8f9fa !important;
+}
+
+/* Scrollbar styling for notification dropdown */
+.notification-dropdown-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Support API</title>
+</head>
+<body>
+    <h1>Test Support API</h1>
+    <button onclick="testSupportAPI()">Test Support Submission</button>
+    <div id="result"></div>
+
+    <script>
+        async function testSupportAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('name', 'Test User');
+                formData.append('email', 'test@example.com');
+                formData.append('phone', '1234567890');
+                formData.append('userType', 'employer');
+                formData.append('userId', '');
+                formData.append('subject', 'Test Subject');
+                formData.append('category', 'general');
+                formData.append('priority', 'medium');
+                formData.append('message', 'Test message from HTML');
+
+                const response = await fetch('http://localhost:5000/api/public/support', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div style="color: green;">SUCCESS: ${JSON.stringify(data, null, 2)}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div style="color: red;">ERROR: ${JSON.stringify(data, null, 2)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">NETWORK ERROR: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

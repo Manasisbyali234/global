@@ -1,0 +1,20 @@
+/* Remove arrows from all buttons */
+.site-button::after {
+    display: none !important;
+}
+
+.site-button.white::after {
+    display: none !important;
+}
+
+.site-button.secondry::after {
+    display: none !important;
+}
+
+.site-button.outline-white::after {
+    display: none !important;
+}
+
+.site-button.disabled::after {
+    display: none !important;
+}

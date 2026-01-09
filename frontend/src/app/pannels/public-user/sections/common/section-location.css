@@ -1,0 +1,18 @@
+.twm-s-map-iframe,
+.twm-s-map-iframe iframe {
+  filter: none !important;
+  -webkit-filter: none !important;
+  -moz-filter: none !important;
+  -ms-filter: none !important;
+  -o-filter: none !important;
+}
+
+.twm-s-map-iframe {
+  position: relative;
+  z-index: 1;
+}
+
+.twm-s-map-iframe iframe {
+  position: relative;
+  z-index: 1;
+}

@@ -1,0 +1,79 @@
+/* ============================================================================
+ * REMOVE ALL CARD HOVER EFFECTS ON RESUME PAGE
+ * ============================================================================ */
+
+/* Remove hover effects from all resume page cards/panels */
+.panel:hover,
+.panel-default:hover,
+.card:hover,
+.twm-panel:hover,
+.resume-panel:hover,
+.profile-panel:hover {
+  transform: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  background-color: white !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Remove hover effects from panel content */
+.panel:hover .panel-heading,
+.panel:hover .panel-body,
+.panel:hover .panel-footer,
+.card:hover .card-header,
+.card:hover .card-body,
+.card:hover .card-footer {
+  background-color: inherit !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Remove hover effects from resume section cards */
+.twm-right-section-panel .panel:hover,
+.twm-right-section-panel .card:hover {
+  transform: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  background: white !important;
+  transition: none !important;
+}
+
+/* Remove hover effects from all elements inside panels */
+.panel:hover *,
+.card:hover * {
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Specifically target resume page panels */
+.site-bg-gray .panel:hover,
+.site-bg-gray .card:hover {
+  transform: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  background: white !important;
+  transition: none !important;
+}
+
+/* Remove any scale or transform effects */
+.panel,
+.card,
+.panel-default {
+  transition: none !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* Ensure no hover animations on any resume elements */
+.twm-right-section-panel *:hover {
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Remove hover effects from specific resume sections */
+.panel.mb-4:hover,
+.panel.panel-default.mb-4:hover {
+  transform: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  background: white !important;
+}

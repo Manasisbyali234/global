@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Upload/Delete Test</title>
+    <style>
+        body { font-family: 'Poppins', sans-serif;
+; margin: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .test-section { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        button { margin: 5px; padding: 10px 15px; }
+        .btn-primary { background: #007bff; color: white; border: none; }
+        .btn-danger { background: #dc3545; color: white; border: none; }
+        .disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Resume Upload/Delete Functionality Test</h1>
+        
+        <div class="test-section">
+            <h2>Test Scenarios</h2>
+            <ol>
+                <li><strong>Initial State:</strong> No resume uploaded - should show file input and upload button</li>
+                <li><strong>File Selection:</strong> Select a file - should show selected file name and enable upload button</li>
+                <li><strong>Upload Success:</strong> Upload file - should show success message and current resume</li>
+                <li><strong>Delete Functionality:</strong> Delete button should appear when resume exists</li>
+                <li><strong>Upload Prevention:</strong> File input should be disabled when resume exists</li>
+                <li><strong>Delete Success:</strong> After deletion, should return to initial state</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>API Endpoints Added</h2>
+            <ul>
+                <li><code>DELETE /api/candidate/delete-resume</code> - Delete current resume</li>
+                <li>Updated frontend component with delete functionality</li>
+                <li>Added confirmation dialog for delete action</li>
+                <li>Disabled file input when resume exists (forces delete-first workflow)</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>Key Features Implemented</h2>
+            <ul class="success">
+                <li>✅ Delete resume functionality with confirmation</li>
+                <li>✅ Prevent new upload when resume exists</li>
+                <li>✅ Clear visual feedback for current resume status</li>
+                <li>✅ Proper error handling and user notifications</li>
+                <li>✅ Profile completion recalculation after delete</li>
+                <li>✅ Automatic UI state management</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>User Workflow</h2>
+            <ol>
+                <li>User visits resume page - sees upload interface</li>
+                <li>User selects and uploads resume - sees success message</li>
+                <li>User sees current resume with delete button</li>
+                <li>File input is disabled with message "Delete to upload new"</li>
+                <li>User clicks delete - sees confirmation dialog</li>
+                <li>After confirmation - resume is deleted and UI resets</li>
+                <li>User can now upload a new resume</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>Technical Implementation</h2>
+            <ul>
+                <li><strong>Frontend:</strong> Added delete button, confirmation dialog, and state management</li>
+                <li><strong>Backend:</strong> Added deleteResume controller and route</li>
+                <li><strong>API:</strong> Added deleteResume function to api.js</li>
+                <li><strong>Database:</strong> Uses $unset to remove resume fields from profile</li>
+                <li><strong>Validation:</strong> Prevents file selection when resume exists</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

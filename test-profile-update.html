@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Profile Update</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>Test Placement Profile Update</h1>
+    
+    <div class="form-group">
+        <label for="token">Placement Token:</label>
+        <input type="text" id="token" placeholder="Enter your placement token here">
+        <small>You can get this from localStorage.getItem('placementToken') in browser console</small>
+    </div>
+    
+    <div class="form-group">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" value="Test">
+    </div>
+    
+    <div class="form-group">
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" value="User">
+    </div>
+    
+    <div class="form-group">
+        <label for="phone">Phone:</label>
+        <input type="text" id="phone" value="1234567890">
+    </div>
+    
+    <div class="form-group">
+        <label for="collegeName">College Name:</label>
+        <input type="text" id="collegeName" value="Test College">
+    </div>
+    
+    <button onclick="testProfileUpdate()">Update Profile</button>
+    <button onclick="testGetProfile()">Get Profile</button>
+    
+    <div id="result"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+        
+        async function testGetProfile() {
+            const token = document.getElementById('token').value;
+            if (!token) {
+                showResult('Please enter a token first', 'error');
+                return;
+            }
+            
+            try {
+                showResult('Getting profile...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/placement/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const result = await response.json();
+                console.log('Get profile response:', result);
+                
+                if (response.ok && result.success) {
+                    showResult(`Profile fetched successfully: ${JSON.stringify(result.placement, null, 2)}`, 'success');
+                    
+                    // Pre-fill form with current data
+                    if (result.placement) {
+                        document.getElementById('firstName').value = result.placement.firstName || '';
+                        document.getElementById('lastName').value = result.placement.lastName || '';
+                        document.getElementById('phone').value = result.placement.phone || '';
+                        document.getElementById('collegeName').value = result.placement.collegeName || '';
+                    }
+                } else {
+                    showResult(`Get profile failed: ${result.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Get profile error:', error);
+                showResult(`Get profile error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testProfileUpdate() {
+            const token = document.getElementById('token').value;
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const phone = document.getElementById('phone').value;
+            const collegeName = document.getElementById('collegeName').value;
+            
+            if (!token) {
+                showResult('Please enter a token first', 'error');
+                return;
+            }
+            
+            if (!firstName || !lastName || !phone || !collegeName) {
+                showResult('Please fill in all fields', 'error');
+                return;
+            }
+            
+            const updateData = {
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                phone: phone.trim(),
+                collegeName: collegeName.trim()
+            };
+            
+            try {
+                showResult('Updating profile...', 'info');
+                console.log('Sending update data:', updateData);
+                
+                const response = await fetch(`${API_BASE_URL}/placement/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                
+                const result = await response.json();
+                console.log('Update response:', result);
+                
+                if (response.ok && result.success) {
+                    showResult(`Profile updated successfully! New data: ${JSON.stringify(result.placement, null, 2)}`, 'success');
+                } else {
+                    showResult(`Update failed: ${result.message || 'Unknown error'}. Full response: ${JSON.stringify(result, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                console.error('Update error:', error);
+                showResult(`Update error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-fill token from localStorage if available
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('placementToken');
+            if (token) {
+                document.getElementById('token').value = token;
+                showResult('Token auto-filled from localStorage', 'info');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+.modal-content {
+    min-height: fit-content !important;
+    height: auto !important;
+    padding: 20px !important;
+}
+
+.modal-body {
+    padding: 15px 20px !important;
+    background-color: inherit !important;
+}
+
+.modal-header,
+.modal-footer {
+    background-color: inherit !important;
+    padding: 15px 20px !important;
+}

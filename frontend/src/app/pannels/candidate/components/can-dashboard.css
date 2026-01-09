@@ -1,0 +1,392 @@
+/* Candidate Dashboard scoped styles */
+.can-dashboard {
+  /* page background */
+  background: #f7f7f7; /* light gray */
+}
+
+
+/* Header improvements */
+.can-dashboard .wt-admin-right-page-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 24px 28px !important;
+}
+
+/* Card base */
+.can-dashboard .dashboard-card-2 {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.can-dashboard .dashboard-card-2:hover {
+  transform: none;
+  transition: none;
+}
+
+/* Card titles */
+.can-dashboard h5 {
+  color: #111827 !important;
+  font-weight: 700 !important;
+  margin: 4px 0 0 0 !important;
+}
+
+/* Counter typography */
+.can-dashboard .counter {
+  font-size: 28px !important;
+}
+
+/* Section containers */
+.can-dashboard .panel,
+.can-dashboard .wt-panel-body {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  border: 1px solid #eef2f7 !important;
+  box-shadow: none !important;
+}
+
+/* CTA buttons */
+.can-dashboard .btn-primary,
+.can-dashboard button[style*="background: #f97316"],
+.can-dashboard .site-button {
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 8px 20px rgba(249, 115, 22, 0.35) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.can-dashboard .btn-primary:hover,
+.can-dashboard button[style*="background: #f97316"]:hover,
+.can-dashboard .site-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(249, 115, 22, 0.45) !important;
+}
+
+/* Soft badges */
+.can-dashboard .badge-soft {
+  background: #fff7ed !important; /* orange-50 */
+  color: #9a3412 !important;     /* orange-800 */
+  border: 1px dashed #fed7aa !important; /* orange-200 */
+  padding: 6px 10px;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Table styling (if present) */
+.can-dashboard table {
+  border-collapse: separate !important;
+  border-spacing: 0 10px !important;
+}
+.can-dashboard table thead th {
+  color: #6b7280 !important;
+  font-weight: 600 !important;
+  border: none !important;
+}
+.can-dashboard table tbody tr {
+  background: #ffffff !important;
+  box-shadow: none;
+}
+.can-dashboard table tbody tr td {
+  border-top: none !important;
+  padding: 14px 16px !important;
+}
+
+/* Recent activity list */
+.can-dashboard .activity-item {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  padding: 10px 0;
+}
+.can-dashboard .activity-item + .activity-item {
+  border-top: 1px dashed #e5e7eb;
+}
+
+/* Progress ring container tweak */
+.can-dashboard .progress-ring {
+  filter: drop-shadow(0 4px 10px rgba(249, 115, 22, 0.25));
+}
+
+
+
+/* Small text styling */
+.can-dashboard .text-muted {
+  color: #6b7280 !important;
+  font-size: 0.8rem !important;
+}
+
+/* Refresh button styling */
+.can-dashboard .btn-outline-primary {
+  border-color: #f97316 !important;
+  color: #f97316 !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.can-dashboard .btn-outline-primary:hover {
+  background-color: #f97316 !important;
+  border-color: #f97316 !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+/* Credit display styling */
+.can-dashboard .credit-display {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+/* Dashboard overview header */
+.can-dashboard .dashboard-overview-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Remove background panel for stats cards */
+.can-dashboard .col-xl-4 .panel,
+.can-dashboard .col-lg-4 .panel {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
+/* Loading state */
+.can-dashboard .counter.loading {
+  opacity: 0.6;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Notification panel visibility fix */
+.can-dashboard .panel.panel-default {
+  position: relative !important;
+  z-index: 10 !important;
+  background: white !important;
+}
+
+.can-dashboard .panel-body {
+  background: white !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.can-dashboard .notification-list {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.can-dashboard .notification-item {
+  position: relative !important;
+  z-index: 1 !important;
+  background: white !important;
+}
+
+/* Icon row universal alignment */
+.can-dashboard .icon-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1rem !important;
+}
+
+.can-dashboard .icon-row > *:first-child {
+  flex-shrink: 0 !important;
+}
+
+.can-dashboard .dashboard-card-2 > div {
+  text-align: center !important;
+}
+
+.can-dashboard .dashboard-card-2 h5 {
+  text-align: center !important;
+}
+
+.can-dashboard .dashboard-card-2 .counter {
+  text-align: center !important;
+}
+
+/* Welcome card improvements */
+.can-dashboard .welcome-card-container {
+  width: 100%;
+}
+
+.can-dashboard .welcome-card-container > div {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.can-dashboard .welcome-card-container h2 {
+  line-height: 1.3;
+}
+
+.can-dashboard .welcome-card-container p {
+  line-height: 1.4;
+}
+
+/* Responsive paddings */
+@media (max-width: 992px) {
+  .can-dashboard .wt-admin-right-page-header { 
+    padding: 20px !important; 
+  }
+  
+  .can-dashboard .dashboard-card-2 {
+    padding: 1.25rem !important;
+  }
+  
+  .can-dashboard > div:first-child {
+    padding: 1.5rem 1.5rem 0 1.5rem !important;
+  }
+  
+  .can-dashboard > div:last-child {
+    padding: 0 1.5rem 1.5rem 1.5rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .can-dashboard { 
+    padding-bottom: 20px; 
+  }
+  
+  .can-dashboard > div:first-child {
+    padding: 1rem 1rem 0 1rem !important;
+  }
+  
+  .can-dashboard > div:last-child {
+    padding: 0 1rem 1rem 1rem !important;
+  }
+  
+  .can-dashboard .welcome-card-container {
+    padding: 1rem 1rem 0 1rem !important;
+  }
+  
+  .can-dashboard .welcome-card-container > div {
+    padding: 1.25rem !important;
+  }
+  
+  .can-dashboard .welcome-card-container h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  .can-dashboard .welcome-card-container p {
+    font-size: 0.85rem !important;
+  }
+  
+  .can-dashboard .icon-row {
+    gap: 0.75rem !important;
+  }
+  
+  .can-dashboard .dashboard-card-2 {
+    padding: 1rem !important;
+    min-height: 100px !important;
+  }
+  
+  .can-dashboard .counter {
+    font-size: 24px !important;
+  }
+  
+  .can-dashboard h5 {
+    font-size: 0.875rem !important;
+  }
+  
+  .can-dashboard .row {
+    margin-left: -0.5rem !important;
+    margin-right: -0.5rem !important;
+  }
+  
+  .can-dashboard .row > [class*="col-"] {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .can-dashboard > div:first-child {
+    padding: 0.75rem 0.75rem 0 0.75rem !important;
+  }
+  
+  .can-dashboard > div:last-child {
+    padding: 0 0.75rem 0.75rem 0.75rem !important;
+  }
+  
+  .can-dashboard .welcome-card-container {
+    padding: 0.75rem 0.75rem 0 0.75rem !important;
+  }
+  
+  .can-dashboard .welcome-card-container > div {
+    padding: 1rem !important;
+  }
+  
+  .can-dashboard .welcome-card-container div[style*="display: flex"] {
+    flex-direction: row !important;
+    gap: 0.75rem !important;
+  }
+  
+  .can-dashboard .welcome-card-container h2 {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+  }
+  
+  .can-dashboard .welcome-card-container p {
+    font-size: 0.75rem !important;
+  }
+  
+  .can-dashboard .wt-card-icon-2 {
+    margin-bottom: 0 !important;
+    font-size: 1.5rem !important;
+  }
+  
+  .can-dashboard .dashboard-card-2 {
+    padding: 0.875rem !important;
+    min-height: auto !important;
+  }
+  
+  .can-dashboard .counter {
+    font-size: 22px !important;
+  }
+  
+  .can-dashboard h5 {
+    font-size: 0.8rem !important;
+  }
+  
+  .can-dashboard .row {
+    margin-left: -0.375rem !important;
+    margin-right: -0.375rem !important;
+  }
+  
+  .can-dashboard .row > [class*="col-"] {
+    padding-left: 0.375rem !important;
+    padding-right: 0.375rem !important;
+  }
+  
+  .can-dashboard .col-xl-8,
+  .can-dashboard .col-lg-8 {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+  
+  .can-dashboard .col-xl-4,
+  .can-dashboard .col-lg-4 {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+  
+  .can-dashboard .col-12 {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+}

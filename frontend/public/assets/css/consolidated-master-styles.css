@@ -1,0 +1,258 @@
+/**
+ * ============================================================================
+ * CONSOLIDATED MASTER STYLES - All-in-One CSS File
+ * ============================================================================
+ * 
+ * This file consolidates all CSS styling for the Jobzz application to prevent
+ * cascade and specificity conflicts. Originally split into 11+ separate files:
+ * - global-styles.css
+ * - notification-animations.css
+ * - mobile-responsive.css
+ * - employer-mobile-responsive.css
+ * - index16-mobile-fix.css
+ * - logo-fix.css
+ * - mobile-card-scrolling.css
+ * - force-light-mode.css
+ * - dark-screen-fix.css
+ * - fix-dark-mode.css (if needed)
+ * - orange-preserve.css
+ * - ux-improvements.css
+ * 
+ * Organization:
+ * 1. Color Scheme & Light Mode Force
+ * 2. Base/Global Styles
+ * 3. Modal & Backdrop Styles
+ * 4. Form Controls & Inputs
+ * 5. Button Styles
+ * 6. Animations & Transitions
+ * 7. Card & Container Styles
+ * 8. Navigation & Logo Styles
+ * 9. Mobile Responsive (General)
+ * 10. Mobile Responsive (Employer Dashboard)
+ * 11. Mobile Responsive (Index16)
+ * 12. Scrolling & Overflow Handling
+ * ============================================================================
+ */
+
+/* Import DM Serif Display Font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+
+/* ============================================================================
+ * SECTION 1: COLOR SCHEME & LIGHT MODE FORCE
+ * ============================================================================ */
+
+:root {
+  color-scheme: light only !important;
+  /* Font Family */
+  --font-family: "Poppins", sans-serif;
+
+  /* Primary Colors */
+  --color-primary-orange: #fd7e14;
+  --color-primary-orange-dark: #e8690a;
+  --color-primary-orange-darker: #d1570a;
+  --color-primary-orange-light: #FF6A00;
+  --color-blue-primary: #2563eb;
+  --color-blue-dark: #1e40af;
+  --color-bg-white: #ffffff;
+  --color-text-dark: #000000;
+  --color-text-gray: #000000;
+  --color-border-light: #d1d5db;
+  --color-bg-light: #f9fafb;
+  --color-bg-lighter: #f8fafc;
+}
+
+html {
+  color-scheme: light only !important;
+}
+
+body {
+  color-scheme: light only !important;
+}
+
+/* Override dark mode media queries */
+@media (prefers-color-scheme: dark) {
+  :root,
+  html,
+  body,
+  #root {
+    background-color: #ffffff !important;
+    color-scheme: light only !important;
+  }
+
+  .container,
+  .container-fluid,
+  .panel,
+  .card,
+  .modal-content,
+  .dropdown-menu {
+    background-color: #ffffff !important;
+  }
+
+  input,
+  select,
+  textarea,
+  .form-control,
+  .form-select {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+    border: 1px solid #ced4da !important;
+  }
+
+  .text-dark {
+    color: #212529 !important;
+  }
+
+  .text-muted {
+    color: #6c757d !important;
+  }
+
+  .text-primary {
+    color: #0d6efd !important;
+  }
+
+  .site-text-primary {
+    color: #FF6A00 !important;
+  }
+
+  .btn-primary {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+    border-color: #0d6efd !important;
+  }
+
+  .site-button,
+  button.site-button {
+    background-color: #fd7e14 !important;
+    color: #ffffff !important;
+    border-color: #fd7e14 !important;
+  }
+
+  .nav-pills {
+    background-color: #f8f9fa !important;
+  }
+
+  .nav-pills .nav-link.active {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+  }
+
+  .nav-pills .nav-link {
+    color: #6c757d !important;
+  }
+
+  .alert-danger {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+    border-color: #f5c6cb !important;
+  }
+}
+
+* {
+  color-scheme: light only !important;
+}
+
+/* Minimal CSS - only essential fixes */
+html, body, #root {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Fix modal backdrop */
+.modal-backdrop {
+  display: none !important;
+}
+
+.modal {
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+
+
+/* ============================================================================
+ * CHECKBOX SIZE CONSISTENCY - Mobile/Desktop Uniformity
+ * ============================================================================ */
+
+/* Force consistent checkbox size across all devices */
+input[type="checkbox"],
+.form-check-input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  transform: scale(1) !important;
+  -webkit-transform: scale(1) !important;
+  -moz-transform: scale(1) !important;
+  -ms-transform: scale(1) !important;
+  zoom: 1 !important;
+  font-size: 16px !important;
+  -webkit-appearance: checkbox !important;
+  -moz-appearance: checkbox !important;
+  appearance: checkbox !important;
+}
+
+/* Ensure checkbox size remains consistent on mobile */
+@media (max-width: 768px) {
+  input[type="checkbox"],
+  .form-check-input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+    transform: scale(1) !important;
+    -webkit-transform: scale(1) !important;
+    zoom: 1 !important;
+  }
+}
+
+/* Prevent any browser zoom or scaling from affecting checkbox size */
+@media screen and (max-width: 767px) {
+  input[type="checkbox"],
+  .form-check-input[type="checkbox"] {
+    -webkit-text-size-adjust: none !important;
+    -webkit-transform: scale(1) !important;
+    transform: scale(1) !important;
+    zoom: 1 !important;
+  }
+}
+
+/* ============================================================================
+ * JOB CARD BORDER RADIUS STANDARDIZATION - HIGHEST PRIORITY
+ * ============================================================================ */
+
+/* Force all job cards to have curved edges - maximum specificity override */
+html body div.home-job-card,
+html body div.job-card,
+html body div.new-job-card,
+html body .home-job-card,
+html body .job-card,
+html body .new-job-card,
+.home-job-card,
+.job-card,
+.new-job-card,
+.compact-job-card,
+.twm-jobs-grid-style1,
+.twm-jobs-list-style1,
+.twm-employer-grid-style1,
+.nk-card,
+[class*="job-card"],
+[class*="home-job-card"],
+[class*="new-job-card"] {
+    border-radius: 20px !important;
+    border-radius: 20px !important
+}
+
+/* Specific override for new-job-card to ensure it works */
+.new-job-card {
+    border-radius: 20px !important;
+    border-radius: 20px !important 
+}
+
+/* Ensure job card pseudo-elements also have curved edges */
+.home-job-card::after,
+.new-job-card::after {
+    border-radius: 20px !important;
+}

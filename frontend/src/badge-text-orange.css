@@ -1,0 +1,64 @@
+/* Badge Text Orange Override - Comprehensive */
+
+/* Generic badge text override */
+div[style*="background: #fff5f2"] span,
+div[style*="background: #e7f3ff"] span,
+div[style*="border: 2px solid #ff6b35"] span,
+div[style*="border: 1px solid #b3d9ff"] span {
+  color: #ff6b35 !important;
+}
+
+/* Specific override for interview round badges */
+div[style*="display: inline-flex"][style*="borderRadius: 20"] span:not([style*="cursor: pointer"]) {
+  color: #ff6b35 !important;
+}
+
+/* Status badge comprehensive override */
+.status-badge,
+.status-badge *,
+.badge-approved,
+.badge-approved *,
+.badge-rejected,
+.badge-rejected *,
+.badge-pending,
+.badge-pending *,
+.badge-uploaded,
+.badge-uploaded *,
+.badge-not-uploaded,
+.badge-not-uploaded * {
+  color: #FF7A00 !important;
+}
+
+/* Icon color override within badges */
+.status-badge i,
+.badge-approved i,
+.badge-rejected i,
+.badge-pending i,
+.badge-uploaded i,
+.badge-not-uploaded i {
+  color: #FF7A00 !important;
+}
+
+/* Table status badges */
+.documents-table .status-badge,
+.documents-table .status-badge *,
+.documents-table .badge-approved,
+.documents-table .badge-approved *,
+.documents-table .badge-rejected,
+.documents-table .badge-rejected *,
+.documents-table .badge-pending,
+.documents-table .badge-pending * {
+  color: #FF7A00 !important;
+}
+
+/* Authorization letter badges */
+.letter-header .status-badge,
+.letter-header .status-badge *,
+.letter-header .badge-approved,
+.letter-header .badge-approved *,
+.letter-header .badge-rejected,
+.letter-header .badge-rejected *,
+.letter-header .badge-pending,
+.letter-header .badge-pending * {
+  color: #FF7A00 !important;
+}

@@ -1,0 +1,33 @@
+/* Job Detail Spacing Improvements */
+
+/* Add spacing after breadcrumb */
+.wt-breadcrumb {
+    margin-bottom: 30px;
+}
+
+/* Add spacing after colons in job details */
+.job-details-grid .detail-item h5::after {
+    content: " ";
+    margin-left: 4px;
+}
+
+/* Specific spacing for job detail labels */
+.detail-item h5 {
+    margin-right: 8px;
+}
+
+/* Ensure proper spacing between label and value */
+.detail-item span,
+.detail-item a {
+    margin-left: 4px;
+}
+
+/* Alternative approach - add spacing directly to the text content */
+.job-details-grid .detail-item {
+    line-height: 1.6;
+}
+
+.job-details-grid .detail-item h5 {
+    display: inline-block;
+    margin-right: 8px;
+}

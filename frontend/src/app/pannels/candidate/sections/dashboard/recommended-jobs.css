@@ -1,0 +1,146 @@
+.job-recommendations-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.job-recommendation-card {
+    transition: all 0.2s ease;
+    display: block;
+}
+
+.job-recommendation-card:hover {
+    background-color: #f8fafc !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.job-recommendation-card .badge {
+    border-radius: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.recommended-jobs-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.skill-match-indicator {
+    position: relative;
+    overflow: hidden;
+}
+
+.skill-match-indicator::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    border-radius: inherit;
+    transition: width 0.3s ease;
+}
+
+.skill-match-percentage {
+    position: relative;
+    z-index: 1;
+    color: white;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 992px) {
+    .job-recommendations-list {
+        max-height: 450px;
+    }
+    
+    .job-recommendation-card {
+        padding: 1rem 1.25rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .job-recommendation-card {
+        padding: 0.85rem 1rem !important;
+    }
+    
+    .job-recommendations-list {
+        max-height: 400px;
+    }
+    
+    .job-recommendation-card h6 {
+        font-size: 0.9rem !important;
+    }
+    
+    .job-recommendation-card .d-flex.justify-content-between {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .job-recommendation-card .badge {
+        font-size: 0.65rem !important;
+        padding: 0.2rem 0.4rem !important;
+    }
+    
+    .job-recommendation-card .d-flex.flex-wrap.gap-2 {
+        gap: 0.5rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .recommended-jobs-header-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding: 15px !important;
+    }
+
+    .recommended-jobs-header-wrapper .panel-tittle {
+        font-size: 16px !important;
+        margin-bottom: 0 !important;
+        line-height: 1.4 !important;
+    }
+
+    .recommended-jobs-header-wrapper p.text-muted {
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .job-recommendation-card {
+        padding: 0.75rem 0.85rem !important;
+    }
+    
+    .job-recommendations-list {
+        max-height: 350px;
+    }
+    
+    .job-recommendation-card h6 {
+        font-size: 0.85rem !important;
+        word-break: break-word !important;
+    }
+    
+    .job-recommendation-card p {
+        font-size: 0.8rem !important;
+    }
+    
+    .job-recommendation-card .d-flex.justify-content-between {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.4rem !important;
+    }
+    
+    .job-recommendation-card .d-flex.align-items-center {
+        font-size: 0.75rem !important;
+    }
+    
+    .job-recommendation-card .badge {
+        font-size: 0.6rem !important;
+        padding: 0.15rem 0.35rem !important;
+    }
+    
+    .job-recommendation-card .d-flex.flex-wrap.gap-2 {
+        gap: 0.35rem !important;
+    }
+}

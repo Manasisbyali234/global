@@ -1,0 +1,19 @@
+/* Delete button icon visibility fix */
+.uploaded-documents .btn-outline-danger i,
+.uploaded-documents .btn-danger i,
+.document-card .btn-outline-danger i,
+.document-card .btn-danger i,
+.gallery-preview .btn-danger i,
+button.btn-outline-danger i,
+button.btn-danger i,
+.fas.fa-trash,
+.fa-trash {
+    color: #ffffff !important;
+    background: none !important;
+    background-color: transparent !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: inline-block !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+}

@@ -1,0 +1,399 @@
+/* Student Directory Styles */
+
+/* Directory Content */
+.directory-content {
+    padding: 2rem;
+    flex: 1;
+    overflow-y: auto;
+    max-width: 100%;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0;
+}
+
+.student-count-badge {
+    background: rgba(255, 140, 0, 0.1);
+    color: #FF8C00;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* Table Container */
+.table-container {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+/* Student Table */
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.student-table thead tr {
+    background: #F9FAFB;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.student-table th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.actions-header {
+    text-align: center;
+}
+
+/* Student Rows */
+.student-row {
+    border-bottom: 1px solid #F3F4F6;
+    transition: all 0.2s ease;
+}
+
+.student-row:hover {
+    background: #F9FAFB;
+}
+
+.student-table td {
+    padding: 1.25rem 1.5rem;
+    vertical-align: middle;
+}
+
+/* Student Cell */
+.student-cell {
+    min-width: 200px;
+    max-width: 250px;
+}
+
+.student-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.student-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #FF8C00;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.student-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.student-name {
+    font-weight: 600;
+    color: #1F2937;
+    font-size: 0.95rem;
+}
+
+.student-email {
+    color: #6B7280;
+    font-size: 0.875rem;
+}
+
+/* College Cell */
+.college-cell {
+    color: #6B7280;
+    font-size: 0.875rem;
+    min-width: 150px;
+    max-width: 180px;
+}
+.course-cell {
+    color: #6B7280;
+    font-size: 0.875rem;
+    min-width: 150px;
+    max-width: 200px;
+}
+
+/* Phone Cell */
+.phone-cell {
+    color: #6B7280;
+    font-size: 0.875rem;
+    min-width: 100px;
+    max-width: 120px;
+}
+
+/* Credits Cell */
+.credits-cell {
+    text-align: left;
+}
+
+.credits-badge {
+    background: #DBEAFE;
+    color: #1E40AF;
+    padding: 0.375rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Status Cell */
+.status-cell {
+    text-align: left;
+}
+
+.status-badge {
+    background: #D1FAE5;
+    color: #059669;
+    padding: 0.375rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+/* Actions Cell */
+.actions-cell {
+    text-align: center;
+}
+
+.view-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #D1D5DB;
+    background: #ffffff;
+    color: #6B7280;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.view-btn:hover {
+    border-color: #FF8C00;
+    color: #FF8C00;
+}
+
+/* Loading and Empty States */
+.loading-state, .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.loading-state .spinner, .empty-state i {
+    font-size: 3rem;
+    color: #9CA3AF;
+    margin-bottom: 1rem;
+}
+
+.loading-state p, .empty-state p {
+    color: #6B7280;
+    margin: 0.5rem 0 0 0;
+    font-size: 0.875rem;
+}
+
+.empty-state h4 {
+    color: #374151;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.125rem;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #E5E7EB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #9CA3AF;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    color: #6B7280;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+/* Student Detail Card */
+.student-detail-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.student-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #FF8C00;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 2rem;
+}
+
+.student-info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-item label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-item span {
+    font-size: 1rem;
+    color: #1F2937;
+    font-weight: 500;
+}
+
+.info-item .credits-badge {
+    background: #DBEAFE;
+    color: #1E40AF;
+    padding: 0.375rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-block;
+    width: fit-content;
+}
+
+.info-item .status-badge {
+    background: #D1FAE5;
+    color: #059669;
+    padding: 0.375rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    width: fit-content;
+}
+@media (max-width: 1024px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .student-table {
+        font-size: 0.875rem;
+    }
+    
+    .student-table th,
+    .student-table td {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .directory-content {
+        padding: 1rem;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .student-table {
+        min-width: 700px;
+    }
+    
+    .student-cell {
+        min-width: 200px;
+    }
+    
+    .course-cell {
+        min-width: 150px;
+    }
+}

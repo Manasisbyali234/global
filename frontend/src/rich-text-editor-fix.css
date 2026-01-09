@@ -1,0 +1,22 @@
+/* Remove orange styling from rich text editor elements */
+.ql-toolbar button,
+.ql-toolbar .ql-picker,
+.ql-toolbar .ql-picker-label,
+.ql-toolbar .ql-picker-options,
+.ql-editor,
+.quill .ql-toolbar button,
+.quill .ql-toolbar .ql-picker,
+[class*="ql-"] button,
+[class*="ql-"] .ql-picker,
+.rich-text-editor button,
+.rich-text-editor .ql-toolbar button {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.ql-toolbar button:hover,
+.ql-toolbar .ql-picker:hover {
+    background-color: #e9ecef !important;
+    color: #495057 !important;
+}

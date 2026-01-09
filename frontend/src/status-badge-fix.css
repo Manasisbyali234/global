@@ -1,0 +1,26 @@
+/* Status Badge Color Fix - Maximum Specificity */
+.status-badge.status-pending {
+  background: rgba(255, 193, 7, 0.1) !important;
+  color: #ffc107 !important;
+  border-color: #ffc107 !important;
+  -webkit-text-fill-color: #ffc107 !important;
+}
+
+.status-badge.status-approved {
+  background: rgba(40, 167, 69, 0.1) !important;
+  color: #28a745 !important;
+  border-color: #28a745 !important;
+  -webkit-text-fill-color: #28a745 !important;
+}
+
+.status-badge.status-rejected {
+  background: rgba(220, 53, 69, 0.1) !important;
+  color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  -webkit-text-fill-color: #dc3545 !important;
+}
+
+/* Override generic orange background */
+.status-badge:not(.status-incomplete) {
+  background: inherit !important;
+}

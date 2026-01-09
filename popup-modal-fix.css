@@ -1,0 +1,152 @@
+/* Popup Modal Header Fix - Exclude modals from global styles */
+
+/* Override global color scheme for modals only */
+.modal,
+.modal *,
+.image-modal-content,
+.image-modal-content *,
+.modal-content,
+.modal-content *,
+.modal-dialog,
+.modal-dialog *,
+.modal-header,
+.modal-header *,
+.modal-body,
+.modal-body *,
+.modal-footer,
+.modal-footer * {
+  color-scheme: auto !important;
+}
+
+/* Prevent global word-wrap from affecting modals */
+.modal p,
+.modal span,
+.modal div,
+.image-modal-content p,
+.image-modal-content span,
+.image-modal-content div,
+.modal-content p,
+.modal-content span,
+.modal-content div {
+  word-wrap: normal !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+
+/* Prevent global user-select from affecting modals */
+.modal p,
+.modal span,
+.modal div,
+.image-modal-content p,
+.image-modal-content span,
+.image-modal-content div,
+.modal-content p,
+.modal-content span,
+.modal-content div {
+  -webkit-user-select: auto !important;
+  user-select: auto !important;
+}
+
+/* Prevent global tap highlight from affecting modals */
+.modal *,
+.image-modal-content *,
+.modal-content * {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+}
+
+/* Prevent global reduced motion from affecting modals */
+.modal,
+.modal *,
+.modal::before,
+.modal::after,
+.modal *::before,
+.modal *::after,
+.image-modal-content,
+.image-modal-content *,
+.image-modal-content::before,
+.image-modal-content::after,
+.image-modal-content *::before,
+.image-modal-content *::after {
+  animation-duration: initial !important;
+  animation-iteration-count: initial !important;
+  transition-duration: initial !important;
+  scroll-behavior: initial !important;
+}
+
+/* Ensure modal headers display properly */
+.modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 1rem !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  border-top-left-radius: calc(0.3rem - 1px) !important;
+  border-top-right-radius: calc(0.3rem - 1px) !important;
+}
+
+.modal-title {
+  margin-bottom: 0 !important;
+  line-height: 1.5 !important;
+  font-size: 1.25rem !important;
+  font-weight: 500 !important;
+}
+
+/* Ensure close button works properly */
+.btn-close {
+  box-sizing: content-box !important;
+  width: 1em !important;
+  height: 1em !important;
+  padding: 0.25em 0.25em !important;
+  color: #000 !important;
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='m.235.867 4.596 4.596L9.427.867l.708.708L5.539 6.171l4.596 4.596-.708.708L4.831 6.879.235 11.475l-.708-.708L4.123 6.171-.473 1.575.235.867z'/%3e%3c/svg%3e") center/1em auto no-repeat !important;
+  border: 0 !important;
+  border-radius: 0.25rem !important;
+  opacity: 0.5 !important;
+}
+
+.btn-close:hover {
+  color: #000 !important;
+  text-decoration: none !important;
+  opacity: 0.75 !important;
+}
+
+/* Image modal specific fixes */
+.image-modal-content {
+  background: white !important;
+  border-radius: 15px !important;
+  padding: 20px !important;
+  max-width: 90% !important;
+  max-height: 90vh !important;
+  position: relative !important;
+  animation: zoomIn 0.3s ease !important;
+  overflow: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transition: all 0.3s ease !important;
+}
+
+.image-modal-content.maximized {
+  max-width: 98% !important;
+  max-height: 98vh !important;
+  width: 98% !important;
+  height: 98vh !important;
+}
+
+@media (max-width: 576px) {
+  .image-modal-content {
+    max-width: 95% !important;
+    padding: 15px !important;
+  }
+}
+
+/* Zoom in animation for image modals */
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

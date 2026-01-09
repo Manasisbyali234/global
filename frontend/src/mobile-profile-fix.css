@@ -1,0 +1,98 @@
+/* Mobile Profile Page Fix - Prevents White Screen After Save */
+
+@media (max-width: 991px) {
+    /* Ensure main content area is always visible */
+    #content {
+        position: relative;
+        z-index: 1;
+        background: #f8f9fa;
+        min-height: 100vh;
+        width: 100%;
+    }
+    
+    /* Ensure profile panel is visible */
+    .twm-right-section-panel {
+        position: relative;
+        z-index: 1;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        min-height: 100vh;
+        width: 100%;
+    }
+    
+    /* Prevent sidebar from covering content */
+    body.sidebar-open #content {
+        pointer-events: none;
+    }
+    
+    body:not(.sidebar-open) #content {
+        pointer-events: auto;
+    }
+    
+    /* Ensure forms are visible */
+    .panel.panel-default {
+        position: relative;
+        z-index: 2;
+        background: white;
+    }
+    
+    /* Ensure buttons are clickable */
+    .btn, .site-button {
+        position: relative;
+        z-index: 3;
+        touch-action: manipulation;
+    }
+}
+
+@media (max-width: 767px) {
+    /* Additional mobile fixes */
+    .content-admin-main {
+        width: 100%;
+        padding: 0;
+        background: #f8f9fa;
+    }
+    
+    /* Ensure profile header is visible */
+    .twm-right-section-panel > div:first-child {
+        position: relative;
+        z-index: 2;
+    }
+    
+    /* Fix for success notification visibility */
+    .popup-notification,
+    .toast-notification {
+        z-index: 10000 !important;
+        position: fixed !important;
+    }
+    
+    /* Prevent body scroll lock issues */
+    body:not(.sidebar-open) {
+        overflow-y: auto !important;
+        position: relative !important;
+    }
+    
+    /* Ensure save button is always visible and clickable */
+    .text-center.mt-4 {
+        position: relative;
+        z-index: 3;
+        padding: 20px 0;
+        background: white;
+    }
+}
+
+/* Fix for white screen after form submission */
+@media (max-width: 991px) {
+    /* Ensure content doesn't disappear after save */
+    .page-wraper {
+        position: relative;
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+    
+    /* Force content visibility */
+    .wt-admin-dashboard-2,
+    #content {
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: block !important;
+    }
+}

@@ -1,0 +1,256 @@
+/* .assessment-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px; 
+}
+
+.assessment-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.assessment-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.assessment-title {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+}
+
+.time-info {
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.time-icon {
+  font-size: 1.5rem;
+  margin-right: 10px;
+}
+
+.assessment-details {
+  background: #eef5ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.assessment-details h4 {
+  margin-bottom: 10px;
+}
+
+.start-btn {
+  background: #111;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.start-btn:hover {
+  background: #333;
+}
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  width: 90%;
+  max-width: 600px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.tags {
+  margin: 10px 0;
+}
+
+.tags span {
+  background: #eee;
+  padding: 5px 10px;
+  border-radius: 20px;
+  margin-right: 5px;
+  font-size: 0.85rem;
+}
+
+.instructions-box {
+  background: #eef5ff;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.important-box {
+  background: #fff8e6;
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 4px solid orange;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.cancel-btn {
+  background: #ccc;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: #bbb;
+}
+
+@media (max-width: 600px) {
+  .assessment-card {
+    padding: 15px;
+  }
+
+  .start-btn {
+    width: 100%;
+  }
+
+  .modal {
+    padding: 15px;
+  }
+} */
+
+
+.popup-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+
+.popup-container {
+	background: white;
+	border-radius: 10px;
+	padding: 20px;
+	width: 90%;
+	max-width: 600px;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.popup-title {
+	font-size: 1.5rem;
+	margin-bottom: 15px;
+	text-align: center;
+}
+
+.section-card {
+	background: #f8f9fa;
+	padding: 15px;
+	border-radius: 8px;
+	margin-bottom: 15px;
+}
+
+.section-title {
+	margin-bottom: 8px;
+	font-weight: 600;
+}
+
+ul {
+	padding-left: 20px;
+	margin: 0;
+}
+
+.time-info {
+	display: flex;
+	align-items: center;
+}
+
+.time-icon {
+	font-size: 1.5rem;
+	margin-right: 10px;
+}
+
+.important-box {
+	background: #fff8e6;
+	padding: 10px;
+	border-radius: 8px;
+	border-left: 4px solid orange;
+	margin-top: 10px;
+}
+
+.action-row {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 15px;
+}
+
+.cancel-btn {
+	background: #ccc;
+	border: none;
+	padding: 8px 14px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.cancel-btn:hover {
+	background: #bbb;
+}
+
+.start-btn {
+	background: #111;
+	color: white;
+	padding: 8px 14px;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.start-btn:hover {
+	background: #333;
+}

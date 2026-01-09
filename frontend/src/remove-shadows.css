@@ -1,0 +1,74 @@
+/* Remove white shadows from How It Works for Candidates and other sections */
+
+/* Remove shadows from How It Works for Candidates process steps */
+.bg-sky-light-shadow,
+.bg-pink-light-shadow,
+.bg-green-light-shadow,
+.bg-yellow-light-shadow,
+.bg-clr-light-shadow {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from Top Recruiters cards */
+.twm-recruiters5-box {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from job cards */
+.twm-jobs-grid-style1,
+.twm-jobs-list-style1 {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from employer cards */
+.twm-employer-list-style1,
+.twm-employer-grid-style1 {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from blog post cards */
+.twm-blog-post-1-outer {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from testimonial cards */
+.twm-testimonial-2-content .twm-testi-content {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from contact info cards */
+.twm-contact-one .contact-info-wrap .contact-info {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from pricing table cards */
+.pricing-table-1 {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from search bar */
+.twm-bnr-search-bar {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from advertisement sections */
+.twm-advertisment {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from explore content sections */
+.twm-explore-content-outer-3 .twm-explore-content-3 {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from media elements in process steps */
+.twm-w-process-steps .twm-w-pro-top .twm-media,
+.twm-w-process-steps-2 .twm-w-pro-top .twm-media {
+  box-shadow: none !important;
+}
+
+/* Remove shadows from job category blocks */
+.job-categories-block,
+.job-categories-block-2 {
+  box-shadow: none !important;
+}

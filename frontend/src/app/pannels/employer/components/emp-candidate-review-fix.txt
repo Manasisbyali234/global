@@ -1,0 +1,58 @@
+ISSUE: The saveReview function is sending interviewProcesses in a way that causes Mongoose casting errors.
+
+SOLUTION: Replace the saveReview function (lines 253-297) with this fixed version:
+
+const saveReview = async () => {
+	try {
+		const token = localStorage.getItem('employerToken');
+		
+		// Clean and format interview processes for storage
+		const cleanedProcesses = interviewProcesses.map(p => ({
+			id: String(p.id),
+			name: String(p.name),
+			type: String(p.type),
+			status: String(p.status),
+			isCompleted: Boolean(p.isCompleted),
+			result: p.result || null
+		}));
+		
+		const response = await fetch(`http://localhost:5000/api/employer/applications/${applicationId}/review`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`
+			},
+			body: JSON.stringify({
+				interviewRounds,
+				remarks,
+				isSelected,
+				interviewProcesses: cleanedProcesses,
+				processRemarks: processRemarks
+			})
+		});
+		
+		if (response.ok) {
+			const result = await response.json();
+			
+			// Send notification to candidate
+			await sendNotificationToCandidate('interview_scheduled', 'Interview Scheduled', 
+				`Your interview has been scheduled. Please check your dashboard for details.`);
+			
+			showSuccess('Interview review saved successfully! Candidate will see the updated status.');
+			
+		} else {
+			const errorData = await response.json();
+			showError(errorData.message || errorData.error || 'Failed to save review');
+		}
+	} catch (error) {
+		console.error('Error saving review:', error);
+		showError('Network error while saving review. Please try again.');
+	}
+};
+
+KEY CHANGES:
+1. Created cleanedProcesses array with properly formatted fields
+2. Explicitly convert each field to the correct type (String, Boolean, null)
+3. Send cleanedProcesses instead of raw interviewProcesses
+4. Send processRemarks directly (it's already an object)
+5. Removed duplicate processRemarksData transformation

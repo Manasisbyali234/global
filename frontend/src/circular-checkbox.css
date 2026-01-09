@@ -1,0 +1,63 @@
+/* Circular Checkbox Styling for Skills & Technologies Filter */
+.twm-sidebar-ele-filter .form-check-input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px;
+    min-height: 18px;
+    border: 2px solid #ddd !important;
+    border-radius: 50%;
+    background-color: transparent;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 8px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.twm-sidebar-ele-filter .form-check-input[type="checkbox"]:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.twm-sidebar-ele-filter .form-check-input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.twm-sidebar-ele-filter .form-check-input[type="checkbox"]:hover {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.twm-sidebar-ele-filter .form-check-input[type="checkbox"]:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.twm-sidebar-ele-filter .form-check {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.twm-sidebar-ele-filter .form-check-label {
+    cursor: pointer;
+    user-select: none;
+    margin-left: 4px;
+}

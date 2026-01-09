@@ -1,0 +1,177 @@
+/* ===================================
+   CONTACT US PAGE BANNER OVERRIDE
+   =================================== */
+
+/* IMPORTANT: Override global mobile CSS with higher specificity */
+html body .wt-bnr-inr {
+    height: 300px !important;
+}
+
+/* Desktop: Move heading down by adding top margin to banner */
+@media screen and (min-width: 992px) {
+    html body .wt-bnr-inr {
+        height: 300px !important;
+        min-height: 300px !important;
+        margin-top: 100px !important;
+    }
+    
+    html body .wt-bnr-inr .overlay-main {
+        height: 300px !important;
+        min-height: 300px !important;
+    }
+    
+    html body .wt-bnr-inr .wt-bnr-inr-entry {
+        padding-top: 80px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+    }
+}
+
+/* Tablet */
+@media (max-width: 991px) {
+    html body .wt-bnr-inr {
+        height: 120px !important;
+        min-height: 120px !important;
+        margin-top: 90px !important;
+    }
+    
+    html body .wt-bnr-inr .overlay-main {
+        height: 120px !important;
+        min-height: 120px !important;
+    }
+    
+    html body .wt-bnr-inr .wt-bnr-inr-entry {
+        height: 120px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        padding: 0 !important;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    html body .wt-bnr-inr {
+        height: 100px !important;
+        min-height: 100px !important;
+        margin-top: 80px !important;
+    }
+    
+    html body .wt-bnr-inr .overlay-main {
+        height: 100px !important;
+        min-height: 100px !important;
+    }
+    
+    html body .wt-bnr-inr .wt-bnr-inr-entry {
+        height: 100px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        padding: 0 !important;
+    }
+}
+
+/* Page Background */
+.twm-contact-one {
+    background-color: transparent !important;
+    min-height: auto !important;
+}
+
+.twm-contact-one .section-content {
+    background-color: transparent !important;
+    padding: 0.5rem 0 !important;
+    margin-left: 3rem !important;
+}
+
+.contact-one-inner {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+    padding-top: 10px !important;
+    padding-bottom: 40px !important;
+}
+
+/* Contact Form Section */
+.contact-form-outer {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.contact-form-outer .section-head h2.wt-title {
+    color: #0a1f44 !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 1rem !important;
+}
+
+.contact-form-outer .section-head p {
+    color: #6c757d !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 2rem !important;
+}
+
+.cons-contact-form .form-control {
+    background-color: transparent !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    padding: 0.75rem !important;
+    font-size: 1rem !important;
+    color: #111827 !important;
+}
+
+.cons-contact-form .form-control:focus {
+    border-color: #FF6A00 !important;
+    box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.2) !important;
+    background-color: transparent !important;
+}
+
+.cons-contact-form .site-button {
+    background-color: #FF6A00 !important;
+    color: #ffffff !important;
+    border: 1px solid #FF6A00 !important;
+    padding: 0.75rem 2rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+.cons-contact-form .site-button:hover {
+    background-color: #e8690a !important;
+    border-color: #e8690a !important;
+    color: #ffffff !important;
+}
+
+@media (max-width: 991px) {
+    .twm-contact-one .section-content {
+        margin-left: 1rem !important;
+    }
+    
+    .contact-one-inner {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .twm-contact-one .section-content {
+        margin-left: 0.5rem !important;
+    }
+    
+    .contact-one-inner {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    .cons-contact-form .site-button {
+        width: 100% !important;
+        padding: 1rem !important;
+    }
+}

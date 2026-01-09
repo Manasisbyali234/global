@@ -1,0 +1,50 @@
+/* Hero Section Location Input Height Fix */
+
+/* Target the Location input field in the hero section banner */
+.twm-home1-banner-section .twm-bnr-search-bar .form-group .twm-inputicon-box .form-control {
+  height: 40px !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+}
+
+/* Adjust the icon positioning for the smaller input */
+.twm-home1-banner-section .twm-bnr-search-bar .form-group .twm-inputicon-box .twm-input-icon {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  right: 12px !important;
+  font-size: 14px !important;
+}
+
+/* Ensure consistent height with other form elements in the search bar */
+.twm-home1-banner-section .twm-bnr-search-bar .form-group .wt-search-bar-select,
+.twm-home1-banner-section .twm-bnr-search-bar .form-group .site-button {
+  height: 40px !important;
+  line-height: 1.2 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .twm-home1-banner-section .twm-bnr-search-bar .form-group .twm-inputicon-box .form-control {
+    height: 38px !important;
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+  }
+  
+  .twm-home1-banner-section .twm-bnr-search-bar .form-group .wt-search-bar-select,
+  .twm-home1-banner-section .twm-bnr-search-bar .form-group .site-button {
+    height: 38px !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .twm-home1-banner-section .twm-bnr-search-bar .form-group .twm-inputicon-box .form-control {
+    height: 36px !important;
+    padding: 5px 8px !important;
+    font-size: 12px !important;
+  }
+  
+  .twm-home1-banner-section .twm-bnr-search-bar .form-group .wt-search-bar-select,
+  .twm-home1-banner-section .twm-bnr-search-bar .form-group .site-button {
+    height: 36px !important;
+  }
+}

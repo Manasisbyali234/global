@@ -1,0 +1,556 @@
+/* Candidate Review Page - Enhanced Mobile Responsiveness */
+
+/* Main container */
+.emp-candidate-review-page {
+  background: #f8f9fa !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+}
+
+/* Header section improvements */
+.emp-candidate-review-page .bg-white {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+}
+
+/* Status badge positioning */
+.emp-candidate-review-page .badge {
+  font-size: 0.85rem !important;
+  padding: 0.5rem 1rem !important;
+}
+
+/* Card styling improvements */
+.emp-candidate-review-page .card {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+  border: none !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.emp-candidate-review-page .card-header {
+  background: #f8f9fa !important;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 1rem 1.25rem !important;
+  border-bottom: 1px solid #e9ecef !important;
+}
+
+/* Icon consistency across all devices */
+.emp-candidate-review-page .d-flex.align-items-center svg {
+  flex-shrink: 0 !important;
+}
+
+/* Profile image display fix */
+.emp-candidate-review-page .rounded-circle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+.emp-candidate-review-page .rounded-circle img {
+  display: block !important;
+  width: 200px !important;
+  height: 200px !important;
+  object-fit: cover !important;
+  max-width: none !important;
+}
+
+.emp-candidate-review-page .card-header .d-flex.align-items-center svg {
+  width: 22px !important;
+  height: 22px !important;
+  margin-right: 0.5rem !important;
+}
+
+.emp-candidate-review-page .info-item .d-flex.align-items-center svg {
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 0.5rem !important;
+}
+
+.emp-candidate-review-page button svg {
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 991px) {
+  /* Stack columns vertically on tablets and below */
+  .emp-candidate-review-page .col-lg-8,
+  .emp-candidate-review-page .col-lg-4 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Adjust header layout for mobile */
+  .emp-candidate-review-page .d-flex.justify-content-between {
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+  }
+
+  .emp-candidate-review-page .d-flex.justify-content-between .d-flex.align-items-center {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .emp-candidate-review-page .d-flex.justify-content-between .d-flex.gap-2 {
+    flex-shrink: 0 !important;
+  }
+}
+
+@media (max-width: 991px) {
+  /* Assigned Interview Processes Header - Tablet Screens */
+  .emp-candidate-review-page .card-header .d-flex.align-items-center.justify-content-between {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+
+  .emp-candidate-review-page .card-header .d-flex.align-items-center.justify-content-between > div:last-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Ensure icon-text combinations stay in row layout with wrapping */
+  .emp-candidate-review-page .d-flex.align-items-center {
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Prevent icons from centering */
+  .emp-candidate-review-page .d-flex.align-items-center svg {
+    flex-shrink: 0 !important;
+  }
+
+  /* Force left alignment for info items */
+  .emp-candidate-review-page .info-item {
+    text-align: left !important;
+  }
+
+  .emp-candidate-review-page .info-item .d-flex {
+    justify-content: flex-start !important;
+  }
+
+  /* Prevent text overflow */
+  .emp-candidate-review-page .text-muted,
+  .emp-candidate-review-page p,
+  .emp-candidate-review-page strong {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  /* Remove container padding */
+  .emp-candidate-review-page .container-fluid {
+    padding: 0 !important;
+  }
+
+  /* Header adjustments - exception for header layout */
+  .emp-candidate-review-page .bg-white {
+    margin: 1rem !important;
+    padding: 1.25rem !important;
+    border-radius: 12px !important;
+  }
+
+  .emp-candidate-review-page .row.mb-4 .d-flex.align-items-center.gap-3 {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Back button positioning */
+  .emp-candidate-review-page .btn-outline-primary {
+    flex-shrink: 0 !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Title and subtitle adjustments */
+  .emp-candidate-review-page h2 {
+    font-size: 1.25rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .emp-candidate-review-page .text-muted.fs-6 {
+    font-size: 0.75rem !important;
+  }
+
+  /* Status badge */
+  .emp-candidate-review-page .badge {
+    font-size: 0.7rem !important;
+    padding: 0.35rem 0.75rem !important;
+  }
+
+  /* Main content adjustments */
+  .emp-candidate-review-page .row.g-4 {
+    margin: 0 !important;
+    gap: 0 !important;
+  }
+
+  .emp-candidate-review-page .row.mb-4 {
+    margin-bottom: 0.25rem !important;
+  }
+
+  /* Card spacing */
+  .emp-candidate-review-page .card {
+    margin: 0 1rem 0.75rem 1rem !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+  }
+
+  .emp-candidate-review-page .card-body {
+    padding: 1rem !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Profile image adjustments */
+  .emp-candidate-review-page .rounded-circle {
+    width: 150px !important;
+    height: 150px !important;
+  }
+
+  .emp-candidate-review-page .rounded-circle img {
+    width: 150px !important;
+    height: 150px !important;
+    object-fit: cover !important;
+    max-width: none !important;
+  }
+
+  /* Skills badges */
+  .emp-candidate-review-page .badge {
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  /* CRITICAL FIX: Work Location and Skills badges - Force horizontal text */
+  .emp-candidate-review-page .card-body .badge.px-3.py-2.rounded-pill,
+  .emp-candidate-review-page .card-body .badge[style*="backgroundColor: #ff6600"],
+  .emp-candidate-review-page .card-body .badge[style*="background-color: #ff6600"] {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 0.8rem !important;
+    padding: 0.5rem 0.75rem !important;
+    margin: 0.25rem 0.25rem 0.25rem 0 !important;
+    border-radius: 1rem !important;
+    max-width: calc(100vw - 4rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Badge container - ensure horizontal flow */
+  .emp-candidate-review-page .card-body .d-flex.flex-wrap.gap-2 {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Form elements */
+  .emp-candidate-review-page .form-control,
+  .emp-candidate-review-page .form-select {
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  .emp-candidate-review-page .form-label {
+    font-size: 0.85rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Action buttons */
+  .emp-candidate-review-page [style*="display: flex"][style*="flexDirection: column"] {
+    gap: 0.5rem !important;
+  }
+
+  .emp-candidate-review-page [style*="backgroundColor: #ff6600"] {
+    font-size: 0.85rem !important;
+    padding: 0.75rem 1rem !important;
+    height: 44px !important;
+    border-radius: 25px !important;
+  }
+
+  /* Interview rounds grid */
+  .emp-candidate-review-page .row.g-3 .col-md-6,
+  .emp-candidate-review-page .row.g-3 .col-md-4 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Assessment details */
+  .emp-candidate-review-page .border.rounded-3 {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Download button */
+  .emp-candidate-review-page .btn-lg {
+    font-size: 0.9rem !important;
+    padding: 0.75rem 1.5rem !important;
+    height: 44px !important;
+  }
+
+  /* Education buttons - force horizontal */
+  .emp-candidate-review-page .card-body .d-flex.gap-2 {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .emp-candidate-review-page .card-body .d-flex.gap-2 .btn {
+    flex: 1 !important;
+    white-space: nowrap !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* Header badges - keep horizontal */
+  .emp-candidate-review-page .d-flex.justify-content-between .d-flex.gap-2 {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+  }
+}
+
+@media (max-width: 575px) {
+  /* Extra small screens */
+  .emp-candidate-review-page .bg-white {
+    margin: 0.5rem !important;
+    padding: 1rem !important;
+  }
+
+  .emp-candidate-review-page .card {
+    margin: 0 0.5rem 1rem 0.5rem !important;
+  }
+
+  .emp-candidate-review-page .card-header {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .emp-candidate-review-page .card-body {
+    padding: 0.75rem !important;
+  }
+
+  /* Profile image smaller on very small screens */
+  .emp-candidate-review-page .rounded-circle {
+    width: 120px !important;
+    height: 120px !important;
+  }
+
+  .emp-candidate-review-page .rounded-circle img {
+    width: 120px !important;
+    height: 120px !important;
+    object-fit: cover !important;
+    max-width: none !important;
+  }
+
+  /* Compact action buttons */
+  .emp-candidate-review-page [style*="backgroundColor: #ff6600"] {
+    font-size: 0.8rem !important;
+    padding: 0.5rem 0.75rem !important;
+    height: 40px !important;
+  }
+}
+
+/* Action buttons consistent width */
+.emp-candidate-review-page .action-btn-consistent {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  display: flex !important;
+  height: 48px !important;
+  min-height: 48px !important;
+}
+
+.emp-candidate-review-page .action-btn-consistent.btn-shortlisted {
+  background-color: #28a745 !important;
+  color: white !important;
+}
+
+.emp-candidate-review-page .action-btn-consistent.btn-rejected {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.emp-candidate-review-page .action-btn-consistent.btn-not-attended {
+  background-color: #ffc107 !important;
+  color: white !important;
+}
+
+/* Improve overall spacing and readability */
+.emp-candidate-review-page .mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.emp-candidate-review-page .p-4 {
+  padding: 1.25rem !important;
+}
+
+@media (max-width: 767px) {
+  .emp-candidate-review-page .p-4 {
+    padding: 1rem !important;
+  }
+}
+
+/* Fix any Bootstrap grid issues */
+.emp-candidate-review-page .row {
+  --bs-gutter-x: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .emp-candidate-review-page .row {
+    --bs-gutter-x: 1rem;
+  }
+}
+
+/* Interview Process Cards */
+.emp-candidate-review-page .border.rounded-3 {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: visible !important;
+  width: 100% !important;
+}
+
+/* Checkbox alignment in interview cards */
+.emp-candidate-review-page .form-check {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.emp-candidate-review-page .form-check-input {
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  width: 22px !important;
+  height: 22px !important;
+}
+
+/* Improve label and textarea appearance on all devices */
+.emp-candidate-review-page .form-label {
+  display: block !important;
+  margin-bottom: 8px !important;
+  font-weight: 500 !important;
+}
+
+.emp-candidate-review-page .form-control {
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+  font-size: 0.9rem !important;
+  line-height: 1.5 !important;
+}
+
+/* Improve textarea specifically */
+.emp-candidate-review-page textarea.form-control {
+  resize: vertical !important;
+  min-height: 80px !important;
+}
+
+/* Mobile: Stack interview process cards in single column */
+@media (max-width: 767px) {
+  .emp-candidate-review-page .card-body > div[style*="display: grid"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .emp-candidate-review-page .border.rounded-3 {
+    padding: 16px !important;
+  }
+
+  /* Improved textarea on mobile */
+  .emp-candidate-review-page textarea {
+    font-size: 16px !important;
+    min-height: 80px !important;
+  }
+
+  /* Process card badges wrap properly */
+  .emp-candidate-review-page .badge {
+    font-size: 0.75rem !important;
+    padding: 4px 8px !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .emp-candidate-review-page .border.rounded-3 {
+    padding: 12px !important;
+  }
+
+  /* Assessment result badge */
+  .emp-candidate-review-page .badge {
+    font-size: 0.75rem !important;
+    padding: 4px 8px !important;
+  }
+
+  /* FINAL COMPREHENSIVE FIX: All badges horizontal on extra small screens */
+  .emp-candidate-review-page .badge,
+  .emp-candidate-review-page .badge.px-3,
+  .emp-candidate-review-page .badge.py-2,
+  .emp-candidate-review-page .badge.rounded-pill,
+  .emp-candidate-review-page .badge.px-3.py-2.rounded-pill {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    hyphens: none !important;
+    line-height: 1.2 !important;
+    max-width: calc(100vw - 3rem) !important;
+  }
+
+  /* Force all badge containers to be horizontal */
+  .emp-candidate-review-page .d-flex.flex-wrap.gap-2,
+  .emp-candidate-review-page .card-body .d-flex.flex-wrap.gap-2,
+  .emp-candidate-review-page .mb-3 .d-flex.flex-wrap.gap-2 {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Prevent any child elements from forcing vertical layout */
+  .emp-candidate-review-page .badge * {
+    display: inline !important;
+    white-space: nowrap !important;
+  }
+
+  /* Assigned Interview Processes Header - Extra Small Screens */
+  .emp-candidate-review-page .card-header .d-flex.align-items-center.justify-content-between {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .emp-candidate-review-page .card-header .d-flex.align-items-center.justify-content-between h5 {
+    width: 100% !important;
+    font-size: 1rem !important;
+  }
+
+  .emp-candidate-review-page .card-header .d-flex.align-items-center.justify-content-between > div:last-child {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .emp-candidate-review-page .card-header .d-flex.align-items-center.justify-content-between button {
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-content: center !important;
+    font-size: 0.8rem !important;
+    padding: 8px 12px !important;
+  }
+}

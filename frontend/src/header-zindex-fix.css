@@ -1,0 +1,16 @@
+/* Fix header z-index to be below popup notifications */
+header,
+.site-header,
+.navbar,
+.twm-header-style-1,
+.header-fixed,
+.main-header,
+.navbar-scrolled,
+.navbar-transparent {
+    z-index: 1000 !important;
+}
+
+/* Ensure popup notifications are always on top */
+.popup-overlay {
+    z-index: 2147483647 !important;
+}

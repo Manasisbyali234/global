@@ -1,0 +1,11 @@
+ID,Candidate Name,College Name,Email,Phone,Course,Password,Credits Assigned
+1,John Doe,ABC Engineering College,john.doe@email.com,9876543210,Computer Science Engineering,password123,50
+2,Jane Smith,ABC Engineering College,jane.smith@email.com,9876543211,Information Technology,password456,50
+3,Mike Johnson,ABC Engineering College,mike.johnson@email.com,9876543212,Electronics & Communication,password789,50
+4,Sarah Wilson,ABC Engineering College,sarah.wilson@email.com,9876543213,Mechanical Engineering,password101,50
+5,David Brown,ABC Engineering College,david.brown@email.com,9876543214,Civil Engineering,password202,50
+6,Emily Davis,ABC Engineering College,emily.davis@email.com,9876543215,Electrical Engineering,password303,50
+7,Robert Miller,ABC Engineering College,robert.miller@email.com,9876543216,Chemical Engineering,password404,50
+8,Lisa Anderson,ABC Engineering College,lisa.anderson@email.com,9876543217,Biotechnology,password505,50
+9,James Wilson,ABC Engineering College,james.wilson@email.com,9876543218,Aerospace Engineering,password606,50
+10,Maria Garcia,ABC Engineering College,maria.garcia@email.com,9876543219,Environmental Engineering,password707,50

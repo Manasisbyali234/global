@@ -1,0 +1,4 @@
+/* Minimal overflow fix - only for specific content areas */
+.dashboard-content {
+    overflow-y: auto;
+}

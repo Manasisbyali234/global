@@ -1,0 +1,310 @@
+/* Admin Dashboard Professional Styles */
+
+/* Main container */
+.admin-dashboard-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Header styling */
+.admin-dashboard-header {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffffff 100%);
+    border-radius: 12px;
+    border: 1px solid #ffe0b3;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 25px;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+}
+
+.admin-dashboard-header:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.admin-dashboard-header h2 {
+    color: #232323;
+    font-weight: 700;
+    font-size: 28px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.admin-dashboard-header .dashboard-subtitle {
+    color: #666;
+    font-size: 16px;
+    margin-top: 8px;
+    font-weight: 400;
+}
+
+/* Stats cards */
+.dashboard-stats-card {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    height: 100%;
+}
+
+.dashboard-stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+/* Card gradients */
+.gradi-1 {
+    background: linear-gradient(135deg, #fd7e14 0%, #ffa040 100%);
+    color: white;
+}
+
+.gradi-2 {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+    color: white;
+}
+
+.gradi-3 {
+    background: linear-gradient(135deg, #45b7d1 0%, #96c93d 100%);
+    color: white;
+}
+
+.gradi-4 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+/* Card content */
+.wt-card-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 12px 15px;
+    position: relative;
+}
+
+.wt-card-icon {
+    font-size: 48px;
+    margin-bottom: 5px;
+    opacity: 0.9;
+}
+
+.wt-card-icon i {
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.dashboard-stats-card:hover .wt-card-icon i {
+    transform: scale(1.1);
+}
+
+.wt-card-right {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.wt-card-bottom {
+    text-align: center;
+}
+
+.wt-card-bottom h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    opacity: 0.95;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+/* Chart section */
+.chart-section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 30px;
+    transition: all 0.3s ease;
+}
+
+.chart-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.chart-header {
+    border-bottom: 2px solid #ff6b35;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.chart-header h3 {
+    color: #232323;
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Loading states */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .admin-dashboard-container {
+        padding: 10px;
+    }
+    
+    .admin-dashboard-header {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .admin-dashboard-header h2 {
+        font-size: 20px;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .admin-dashboard-header .dashboard-subtitle {
+        font-size: 14px;
+        text-align: center;
+    }
+    
+    .wt-card-wrap {
+        padding: 20px 10px;
+    }
+    
+    .wt-card-icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+    }
+    
+    .wt-card-right {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+    
+    .wt-card-bottom h4 {
+        font-size: 12px;
+    }
+    
+    .chart-section {
+        padding: 15px;
+        margin: 0 -5px;
+    }
+    
+    .chart-header h3 {
+        font-size: 18px;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    /* Chart panels mobile optimization */
+    .panel {
+        margin-bottom: 15px !important;
+    }
+    
+    .panel-heading {
+        padding: 15px !important;
+    }
+    
+    .panel-tittle {
+        font-size: 14px !important;
+        text-align: center;
+    }
+    
+    .panel-body {
+        padding: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-dashboard-container {
+        padding: 5px;
+    }
+    
+    .admin-dashboard-header h2 {
+        font-size: 18px;
+    }
+    
+    .wt-card-right {
+        font-size: 20px;
+    }
+    
+    .chart-section {
+        padding: 10px;
+    }
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dashboard-stats-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.dashboard-stats-card:nth-child(1) { animation-delay: 0.1s; }
+.dashboard-stats-card:nth-child(2) { animation-delay: 0.2s; }
+.dashboard-stats-card:nth-child(3) { animation-delay: 0.3s; }
+.dashboard-stats-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Quick actions section */
+.quick-actions {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 25px;
+    margin-top: 30px;
+}
+
+.quick-actions h3 {
+    color: #232323;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    color: white;
+}

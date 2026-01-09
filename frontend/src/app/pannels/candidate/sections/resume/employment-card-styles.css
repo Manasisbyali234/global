@@ -1,0 +1,112 @@
+/* Employment Card Styles */
+.employment-card {
+    transition: all 0.3s ease !important;
+}
+
+.employment-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
+    transform: translateY(-2px);
+}
+
+/* Responsive adjustments for employment cards */
+@media (max-width: 768px) {
+    .employment-card {
+        padding: 16px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .employment-card h4 {
+        font-size: 16px !important;
+    }
+    
+    .employment-card p {
+        font-size: 14px !important;
+    }
+    
+    /* Grid adjustments for mobile */
+    .employment-card > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    
+    /* Detail boxes */
+    .employment-card > div > div[style*="background: #f8f9fa"] {
+        padding: 10px !important;
+    }
+    
+    .employment-card > div > div[style*="background: #f8f9fa"] strong {
+        font-size: 12px !important;
+    }
+    
+    .employment-card > div > div[style*="background: #f8f9fa"] p {
+        font-size: 13px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .employment-card {
+        padding: 12px !important;
+        border-radius: 8px !important;
+    }
+    
+    .employment-card h4 {
+        font-size: 15px !important;
+    }
+    
+    .employment-card > div[style*="border-bottom"] {
+        padding-bottom: 8px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    /* Detail boxes for small screens */
+    .employment-card > div > div[style*="background: #f8f9fa"] {
+        padding: 8px !important;
+        border-radius: 6px !important;
+    }
+    
+    .employment-card > div > div[style*="background: #f8f9fa"] i {
+        font-size: 12px !important;
+    }
+    
+    .employment-card > div > div[style*="background: #f8f9fa"] strong {
+        font-size: 11px !important;
+    }
+    
+    .employment-card > div > div[style*="background: #f8f9fa"] p {
+        font-size: 12px !important;
+    }
+}
+
+/* Icon colors consistency */
+.employment-card .fa {
+    color: #FF6A00 !important;
+}
+
+/* Ensure proper spacing in grid */
+.employment-card > div[style*="display: grid"] {
+    margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .employment-card > div[style*="display: grid"] {
+        margin-bottom: 12px;
+    }
+}
+
+/* Job description section styling */
+.employment-card > div:last-child[style*="background: #f8f9fa"] {
+    margin-top: 0;
+}
+
+/* Ensure consistent border radius */
+.employment-card,
+.employment-card > div[style*="border-radius"] {
+    border-radius: 12px !important;
+}
+
+@media (max-width: 576px) {
+    .employment-card,
+    .employment-card > div[style*="border-radius"] {
+        border-radius: 8px !important;
+    }
+}

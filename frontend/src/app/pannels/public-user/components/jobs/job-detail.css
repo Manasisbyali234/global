@@ -1,0 +1,836 @@
+/* Professional Job Detail Page Styling */
+
+/* Scroll Progress Indicator */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff9c00, #ff8c00);
+    z-index: 9999;
+    transition: width 0.1s ease;
+    box-shadow: 0 2px 8px rgba(255, 156, 0, 0.3);
+}
+
+/* Fade-in animation for page load */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Main container animations */
+.section-full {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.cabdidate-de-info {
+    animation: scaleIn 0.6s ease-out 0.2s both;
+}
+
+.rightSidebar {
+    animation: slideInLeft 0.6s ease-out 0.4s both;
+}
+
+/* Enhanced job header styling */
+.twm-job-self-wrap {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 156, 0, 0.1);
+}
+
+/* Remove background from job details grid */
+.job-details-grid {
+    background: transparent !important;
+    border-radius: 0 !important;
+}
+
+.twm-job-self-wrap:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.twm-media-bg {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.twm-media-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.twm-jobs-category {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 2;
+}
+
+.twm-bg-green {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    animation: fadeInUp 0.6s ease-out 0.8s both;
+}
+
+/* Company logo styling */
+.twm-mid-content {
+    padding: 24px;
+    position: relative;
+}
+
+.twm-media {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+}
+
+.twm-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Job title and details */
+.twm-job-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    animation: fadeInUp 0.6s ease-out 0.6s both;
+}
+
+.twm-job-post-duration {
+    font-size: 14px;
+    color: #7f8c8d;
+    font-weight: 400;
+    margin-left: 8px;
+}
+
+.twm-job-company {
+    font-size: 18px;
+    color: #ff9c00;
+    margin-bottom: 12px;
+    animation: fadeInUp 0.6s ease-out 0.7s both;
+}
+
+.twm-job-address {
+    font-size: 16px;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    animation: fadeInUp 0.6s ease-out 0.8s both;
+}
+
+.twm-job-address i {
+    color: #ff9c00;
+    font-size: 18px;
+}
+
+/* Apply button styling */
+.twm-job-self-bottom {
+    animation: fadeInUp 0.6s ease-out 0.9s both;
+}
+
+.site-button {
+    background: #FF7A0014 !important;
+    border: none;
+    color: black !important;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(255, 122, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.site-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.site-button:hover::before {
+    left: 100%;
+}
+
+.site-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 122, 0, 0.4);
+    background: #FF7A00 !important;
+    color: white !important;
+}
+
+.site-button.disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.65;
+    transform: none;
+    box-shadow: none;
+}
+
+.site-button.disabled:hover {
+    background: #6c757d;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Section titles */
+.twm-s-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 32px 0 16px 0;
+    padding-bottom: 8px;
+    display: inline-block;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Content sections - animations disabled to prevent scroll jitter */
+
+/* Job details grid */
+.row .col-md-6 {
+    animation: slideInLeft 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.row .col-md-6:nth-child(1) { animation-delay: 0.6s; }
+.row .col-md-6:nth-child(2) { animation-delay: 0.7s; }
+
+.row .col-md-6 h5 {
+    color: #ff9c00;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.row .col-md-6 p {
+    color: #6c757d;
+    margin-bottom: 16px;
+    font-size: 15px;
+}
+
+/* Skills and responsibilities lists */
+.description-list-2 {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+}
+
+.description-list-2 li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 8px;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background 0.3s ease;
+}
+
+.description-list-2 li:hover {
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.description-list-2 li i {
+    color: #28a745;
+    font-size: 18px;
+    margin-top: 3px;
+    flex-shrink: 0;
+    order: -1;
+}
+
+/* Consultant info styling */
+.consultant-info {
+    background: linear-gradient(135deg, #ff9c00, #ff8c00);
+    border: 1px solid #ff7a00;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    animation: scaleIn 0.6s ease-out 0.5s both;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.consultant-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.consultant-info h5 {
+    color: white;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.consultant-info p {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.consultant-info a {
+    color: white;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.consultant-info a:hover {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: underline;
+}
+
+/* Primary text colors */
+.site-text-primary,
+.twm-job-websites.site-text-primary,
+.twm-jobs-browse.site-text-primary,
+a.site-text-primary {
+    color: #ff9c00 !important;
+    transition: color 0.3s ease;
+}
+
+.site-text-primary:hover,
+.twm-job-websites.site-text-primary:hover,
+.twm-jobs-browse.site-text-primary:hover,
+a.site-text-primary:hover {
+    color: #ff8c00 !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .twm-job-title {
+        font-size: 24px;
+    }
+    
+    .twm-s-title {
+        font-size: 20px;
+    }
+    
+    .site-button {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+    
+    .twm-media {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .twm-mid-content {
+        padding: 16px;
+    }
+}
+
+/* Loading animation */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #ff9c00;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Job details grid styling */
+.job-details-grid {
+    animation: scaleIn 0.6s ease-out 0.4s both;
+    transition: none;
+}
+
+.job-details-grid:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.detail-item {
+    margin-bottom: 20px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.detail-item:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.detail-item h5 {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+}
+
+.detail-item h5 i {
+    color: #ff9c00;
+    font-size: 18px;
+}
+
+.detail-item p {
+    margin: 0;
+    font-size: 16px;
+    color: #000;
+    font-weight: 700;
+    text-transform: capitalize;
+    margin-top: 2px;
+}
+
+/* Badge styling */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.badge-danger {
+    background: #ffffff;
+    color: #000000 !important;
+    font-weight: 900 !important;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Salary info styling */
+.salary-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #ffe0b3, #ffcc80);
+    border: 2px solid #ff9c00;
+    border-radius: 12px;
+    animation: fadeInUp 0.6s ease-out 0.9s both;
+    box-shadow: 0 4px 12px rgba(255, 156, 0, 0.2);
+}
+
+.salary-info i {
+    color: #ff9c00;
+    font-size: 20px;
+}
+
+.salary-amount {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ff9c00;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.salary-period {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6c757d;
+    text-transform: lowercase;
+}
+
+/* Skills container styling */
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 16px 0;
+    animation: fadeInUp 0.6s ease-out 0.3s both;
+}
+
+.skill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    color: #1976d2;
+    border: 1px solid #90caf9;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    animation: scaleIn 0.4s ease-out;
+    animation-fill-mode: both;
+}
+
+.skill-tag:nth-child(1) { animation-delay: 0.1s; }
+.skill-tag:nth-child(2) { animation-delay: 0.2s; }
+.skill-tag:nth-child(3) { animation-delay: 0.3s; }
+.skill-tag:nth-child(4) { animation-delay: 0.4s; }
+.skill-tag:nth-child(5) { animation-delay: 0.5s; }
+.skill-tag:nth-child(n+6) { animation-delay: 0.6s; }
+
+.skill-tag:hover {
+    transform: translateY(-2px) scale(1.05);
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    color: white;
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+}
+
+.skill-tag i {
+    font-size: 12px;
+}
+
+/* Floating action buttons */
+.floating-apply-btn {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    background: linear-gradient(135deg, #ffb366, #ff9c00) !important;
+    color: white;
+    padding: 16px 24px;
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(255, 156, 0, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    animation: slideInRight 0.6s ease-out 1s both;
+}
+
+.floating-apply-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 40px rgba(255, 156, 0, 0.5);
+    background: linear-gradient(135deg, #ff9c00, #ff8c00) !important;
+}
+
+.floating-apply-btn i {
+    font-size: 20px;
+    color: black !important;
+}
+
+.floating-apply-btn {
+    color: black !important;
+}
+
+.back-to-top {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #ffb366, #ff9c00);
+    color: black;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255, 156, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 999;
+    animation: slideInRight 0.6s ease-out 1.2s both;
+}
+
+.back-to-top:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #ff9c00, #ff8c00);
+    box-shadow: 0 6px 20px rgba(255, 156, 0, 0.4);
+}
+
+.back-to-top i {
+    font-size: 20px;
+    color: black !important;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Mobile responsive floating buttons */
+@media (max-width: 768px) {
+    .floating-apply-btn {
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    
+    .floating-apply-btn span {
+        display: none;
+    }
+    
+    .back-to-top {
+        bottom: 80px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+    }
+}
+
+/* Micro-interactions and enhancements */
+.section-content {
+    position: relative;
+}
+
+.section-content::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #ff9c00, #ff8c00);
+    border-radius: 2px;
+    animation: slideInDown 0.8s ease-out 0.5s both;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Enhanced text readability */
+.cabdidate-de-info p {
+    line-height: 1.7;
+    color: #4a5568;
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+/* Focus states for accessibility */
+.site-button:focus,
+.floating-apply-btn:focus,
+.back-to-top:focus {
+    outline: 3px solid rgba(255, 156, 0, 0.5);
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    .floating-apply-btn,
+    .back-to-top,
+    .scroll-progress {
+        display: none;
+    }
+    
+    .twm-job-self-wrap {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
+
+/* Consultant info box styling */
+.consultant-info-box {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Sidebar Fix - Remove white background from job information sidebar */
+.twm-job-hilites,
+.twm-job-hilites li,
+.twm-s-info2-wrap,
+.twm-s-info2 {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.twm-job-hilites li .twm-title {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.twm-job-hilites li {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.side-bar .twm-s-info2-wrap {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.side-bar .twm-s-info2 {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.twm-job-hilites li span.twm-title {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.twm-job-hilites2 li,
+.twm-job-hilites li {
+  margin-bottom: 6px !important;
+  padding-bottom: 3px !important;
+}
+
+.twm-s-info-inner {
+  margin-bottom: 6px !important;
+  padding-bottom: 3px !important;
+}
+
+/* Performance Optimizations */
+.scroll-progress {
+  will-change: width;
+  transform: translateZ(0);
+}
+
+img {
+  content-visibility: auto;
+  contain-intrinsic-size: 200px 150px;
+}
+
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+img[loading="lazy"].loaded {
+  opacity: 1;
+}
+
+.floating-apply-btn {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.back-to-top {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.loading-container {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.twm-job-title,
+.twm-s-title {
+  text-rendering: optimizeLegibility;
+}
+
+.skills-container {
+  contain: layout;
+}
+
+.skill-tag {
+  contain: layout style;
+}
+
+.section-full {
+  contain: layout;
+}
+
+.rightSidebar {
+  contain: layout style;
+}
+
+.consultant-info,
+.job-details-grid {
+  contain: layout style paint;
+}

@@ -1,0 +1,313 @@
+/* Batch Upload Page Layout */
+.upload-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: start;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Configuration Form Card */
+.config-form-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 2.5rem;
+}
+
+.form-header h3 {
+    text-align: left;
+    margin-bottom: 0.5rem;
+}
+
+.form-subtitle {
+    text-align: left;
+    color: #6b7280;
+    margin-bottom: 2rem;
+}
+
+/* File Upload Field */
+.upload-field {
+    margin-bottom: 2rem;
+}
+
+.field-label {
+    display: block;
+    text-align: left;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+/* Required field asterisk styling */
+label:after {
+    content: '';
+}
+
+label:has(+ input[required]):after,
+label:has(+ .file-upload-area):after {
+    content: ' *';
+    color: #ef4444;
+    font-weight: bold;
+}
+
+/* Alternative approach for labels with asterisks */
+.upload-field label:after,
+.field-group label:after {
+    content: ' *';
+    color: #ef4444;
+    font-weight: bold;
+}
+
+.file-upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    background: #f9fafb;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.upload-icon {
+    font-size: 2rem;
+    color: #ff8c00;
+    margin-right: 0.75rem;
+}
+
+.upload-text {
+    color: #6b7280;
+}
+
+/* Form Fields */
+.form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.field-group {
+    width: 100%;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.helper-text {
+    text-align: left;
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-style: italic;
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+}
+
+/* Sample Download Button */
+.sample-download {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.sample-btn {
+    background: #ff8c00;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sample-btn:hover {
+    background: #e67e00;
+}
+
+/* Action Buttons */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-cancel, .btn-upload {
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #6b7280;
+}
+
+.btn-upload {
+    background: #6b7280;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* History Panel */
+.history-panel {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.history-header h4 {
+    text-align: left;
+    margin: 0;
+}
+
+.view-all-link {
+    text-align: right;
+    color: #ff8c00;
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+/* History Items */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.history-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.history-content {
+    flex: 1;
+    text-align: left;
+}
+
+.history-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.history-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.detail-line {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.history-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.status-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.details-link {
+    color: #ff8c00;
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+
+/* Status Colors */
+.status-success { background: #10b981; color: white; }
+.status-info { background: #3b82f6; color: white; }
+.status-danger { background: #ef4444; color: white; }
+.status-warning { background: #f59e0b; color: white; }
+
+/* No History State */
+.no-history {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+}
+
+.no-history i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .upload-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .config-form-card {
+        padding: 1.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .form-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .file-upload-area {
+        padding: 1.5rem 1rem;
+    }
+
+    .upload-text {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .form-subtitle {
+        font-size: 0.875rem;
+    }
+}

@@ -1,0 +1,101 @@
+/* Mobile Responsive Styles for Login Page */
+
+@media (max-width: 767px) {
+    /* Layout adjustments */
+    .col-md-6 {
+        width: 100% !important;
+    }
+    
+    .col-md-6:first-child {
+        display: none !important; /* Hide image column on mobile */
+    }
+    
+    .col-md-6:last-child {
+        border-left: none !important;
+        border-top: 4px solid #FF6A00 !important;
+    }
+    
+    .col-md-6 .p-5 {
+        padding: 1.5rem !important;
+        min-height: auto !important;
+    }
+    
+    .col-lg-11, .col-xl-10 {
+        max-width: 100% !important;
+        padding: 0 15px !important;
+    }
+
+    /* Tab styles for #myTab2 */
+    #myTab2.nav-tabs {
+        flex-wrap: nowrap !important;
+        gap: 3px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        margin-bottom: 20px !important;
+        padding: 0 !important;
+    }
+
+    #myTab2 .nav-item {
+        flex: 1 1 auto !important;
+        min-width: 0 !important; /* Allow shrinking */
+        width: 33.33% !important; /* Ensure equal distribution */
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    #myTab2 .nav-link {
+        padding: 8px 4px !important;
+        font-size: 12px !important;
+        white-space: normal !important; /* Allow wrapping if needed */
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        line-height: 1.1 !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    #myTab2 .nav-link i {
+        font-size: 11px !important;
+        margin-right: 3px !important;
+    }
+    
+    /* Adjust text size for different headers */
+    h3.fw-bold {
+        font-size: 1.5rem !important;
+    }
+    
+    .form-control {
+        font-size: 16px !important; /* Prevent zoom on iOS */
+    }
+    
+    .btn {
+        font-size: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .col-md-6 .p-5 {
+        padding: 1rem !important; /* Reduce padding further */
+    }
+    
+    #myTab2.nav-tabs {
+        gap: 2px !important;
+    }
+
+    #myTab2 .nav-link {
+        padding: 6px 2px !important;
+        font-size: 11px !important;
+    }
+
+    #myTab2 .nav-link i {
+        display: none !important; /* Hide icons on very small screens to ensure text fits */
+    }
+    
+    h3.fw-bold {
+        font-size: 1.3rem !important;
+    }
+}

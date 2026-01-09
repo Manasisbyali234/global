@@ -1,0 +1,6 @@
+@media (max-width: 767px) {
+  .emp-posted-jobs-page .manage-jobs-card > div:last-child {
+    flex-direction: column-reverse !important;
+    align-items: flex-end !important;
+  }
+}

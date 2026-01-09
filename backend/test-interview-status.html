@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Process Status Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ff6600;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #ff6600;
+            outline: none;
+        }
+        button {
+            background-color: #ff6600;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #e55a00;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #ff6600;
+        }
+        .process-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-completed { background-color: #d4edda; color: #155724; }
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-in-progress { background-color: #cce5ff; color: #004085; }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Interview Process Status & Remarks Test</h1>
+            <p>Test page to verify that interview process status and remarks are stored in the backend</p>
+        </div>
+
+        <div class="form-group">
+            <label for="applicationId">Application ID:</label>
+            <input type="text" id="applicationId" placeholder="Enter application ID to test">
+        </div>
+
+        <div class="form-group">
+            <label for="employerToken">Employer Token:</label>
+            <input type="text" id="employerToken" placeholder="Enter employer JWT token">
+        </div>
+
+        <button onclick="fetchInterviewStatus()">Fetch Interview Status</button>
+        <button onclick="testSampleData()">Test with Sample Data</button>
+
+        <div id="results" class="results" style="display: none;">
+            <h3>Interview Process Status Results:</h3>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchInterviewStatus() {
+            const applicationId = document.getElementById('applicationId').value.trim();
+            const token = document.getElementById('employerToken').value.trim();
+            
+            if (!applicationId || !token) {
+                showError('Please enter both Application ID and Employer Token');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/employer/applications/${applicationId}/interview-status`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.data);
+                } else {
+                    showError(data.message || 'Failed to fetch interview status');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('resultsContent');
+            
+            let html = '';
+            
+            // Display overall remarks
+            if (data.employerRemarks) {
+                html += `
+                    <div class="process-item">
+                        <h4>Overall Employer Remarks:</h4>
+                        <p>${data.employerRemarks}</p>
+                        <small>Reviewed at: ${data.reviewedAt ? new Date(data.reviewedAt).toLocaleString() : 'Not reviewed'}</small>
+                    </div>
+                `;
+            }
+            
+            // Display interview processes
+            if (data.interviewProcesses && data.interviewProcesses.length > 0) {
+                html += '<h4>Interview Processes:</h4>';
+                data.interviewProcesses.forEach(process => {
+                    const statusClass = process.isCompleted ? 'status-completed' : 
+                                       process.status === 'in_progress' ? 'status-in-progress' : 'status-pending';
+                    
+                    html += `
+                        <div class="process-item">
+                            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 10px;">
+                                <h5 style="margin: 0;">${process.name}</h5>
+                                <span class="status-badge ${statusClass}">${process.status}</span>
+                            </div>
+                            <p><strong>Type:</strong> ${process.type}</p>
+                            <p><strong>Completed:</strong> ${process.isCompleted ? 'Yes' : 'No'}</p>
+                            ${process.result ? `<p><strong>Result:</strong> ${process.result}</p>` : ''}
+                            ${data.processRemarks[process.id] ? `<p><strong>Remarks:</strong> ${data.processRemarks[process.id]}</p>` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<p>No interview processes found for this application.</p>';
+            }
+            
+            // Display process remarks
+            if (data.processRemarks && Object.keys(data.processRemarks).length > 0) {
+                html += '<h4>Process-specific Remarks:</h4>';
+                for (const [processId, remark] of Object.entries(data.processRemarks)) {
+                    if (remark) {
+                        html += `
+                            <div class="process-item">
+                                <p><strong>Process ID:</strong> ${processId}</p>
+                                <p><strong>Remark:</strong> ${remark}</p>
+                            </div>
+                        `;
+                    }
+                }
+            }
+            
+            if (!html) {
+                html = '<p>No interview data found for this application.</p>';
+            }
+            
+            contentDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        function showError(message) {
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('resultsContent');
+            
+            contentDiv.innerHTML = `<div class="error">${message}</div>`;
+            resultsDiv.style.display = 'block';
+        }
+
+        function testSampleData() {
+            // Display sample data structure
+            const sampleData = {
+                interviewProcesses: [
+                    {
+                        id: "technical-1",
+                        name: "Technical Round",
+                        type: "technical",
+                        status: "completed",
+                        isCompleted: true,
+                        result: "pass"
+                    },
+                    {
+                        id: "hr-1",
+                        name: "HR Round",
+                        type: "hr",
+                        status: "in_progress",
+                        isCompleted: false,
+                        result: null
+                    }
+                ],
+                processRemarks: {
+                    "technical-1": "Candidate showed excellent problem-solving skills and good understanding of algorithms.",
+                    "hr-1": "Scheduled for next week. Candidate seems enthusiastic about the role."
+                },
+                employerRemarks: "Overall good candidate with strong technical background. Proceeding to final round.",
+                reviewedAt: new Date().toISOString()
+            };
+            
+            displayResults(sampleData);
+        }
+
+        // Auto-fill with sample data for testing
+        window.onload = function() {
+            // You can uncomment these lines and add real values for testing
+            // document.getElementById('applicationId').value = 'YOUR_APPLICATION_ID_HERE';
+            // document.getElementById('employerToken').value = 'YOUR_EMPLOYER_TOKEN_HERE';
+        };
+    </script>
+</body>
+</html>

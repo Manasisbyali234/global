@@ -1,0 +1,129 @@
+.twm-model-popup .modal-dialog {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+  margin: 0 auto !important;
+  max-width: 500px !important;
+}
+
+.twm-model-popup .modal-body {
+  text-align: center !important;
+}
+
+.twm-model-popup .modal-footer {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  gap: 1rem !important;
+  border-top: none !important;
+}
+
+.twm-model-popup .modal-footer button {
+  margin: 0 !important;
+}
+
+@media (max-width: 576px) {
+  .twm-model-popup .modal-dialog {
+    margin: 1rem !important;
+    align-items: flex-end !important;
+    padding-bottom: 15vh !important;
+    max-width: calc(100% - 2rem) !important;
+  }
+}
+
+/* Close button styling */
+.twm-model-popup .modal-header .btn-close {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 6px !important;
+  opacity: 1 !important;
+  margin-top: -5px !important;
+  margin-right: -5px !important;
+}
+
+/* Fix for logout modal buttons - both same style */
+.twm-model-popup .modal-footer .site-button {
+  position: relative !important;
+  overflow: hidden !important;
+  pointer-events: auto !important;
+  padding: 12px 26px !important;
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  background: rgba(255, 122, 0, 0.08) !important;
+  border: 1px solid rgba(255, 122, 0, 0.3) !important;
+  color: rgba(255, 122, 0, 0.7) !important;
+}
+
+.twm-model-popup .modal-footer .site-button::before,
+.twm-model-popup .modal-footer .site-button::after {
+  display: none !important;
+}
+
+.twm-model-popup .modal-footer .site-button:hover {
+  background: rgba(255, 122, 0, 0.12) !important;
+  border: 1px solid rgba(255, 122, 0, 0.4) !important;
+  color: rgba(255, 122, 0, 0.8) !important;
+}
+/* Force close button size on all devices */
+body .modal-header .btn-close,
+html body .modal-header .btn-close,
+.modal .modal-header .btn-close {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 6px !important;
+  opacity: 0.7 !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  box-sizing: border-box !important;
+}
+/* Move close button up on desktop */
+@media (min-width: 992px) {
+  body .modal-header .btn-close,
+  html body .modal-header .btn-close,
+  .modal .modal-header .btn-close {
+    margin-top: -15px !important;
+  }
+}
+/* Force close button position on desktop */
+@media (min-width: 992px) {
+  body .modal-header .btn-close,
+  html body .modal-header .btn-close,
+  .modal .modal-header .btn-close {
+    position: absolute !important;
+    top: 10px !important;
+    right: 15px !important;
+    margin: 0 !important;
+  }
+}
+/* Maintain close button size while positioning */
+@media (min-width: 992px) {
+  body .modal-header .btn-close,
+  html body .modal-header .btn-close,
+  .modal .modal-header .btn-close {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    position: absolute !important;
+    top: 10px !important;
+    right: 15px !important;
+  }
+}
+/* Ensure close button is clickable */
+@media (min-width: 992px) {
+  body .modal-header .btn-close,
+  html body .modal-header .btn-close,
+  .modal .modal-header .btn-close {
+    z-index: 9999 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+  }
+}
+/* Remove white background from modal body */
+.twm-model-popup .modal-body {
+  background: transparent !important;
+  background-color: transparent !important;
+}

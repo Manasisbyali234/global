@@ -1,0 +1,87 @@
+/* Compact Job Card Styles */
+.compact-job-card {
+    border: 1px solid #e9ecef;
+    border-radius: 20px;
+    padding: 10px;
+    background: #fff3e0;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.compact-job-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.job-category-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #007bff;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.twm-job-title h5 {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.twm-job-address {
+    color: #666;
+    margin: 3px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+.twm-job-address i {
+    font-size: 12px;
+    color: #007bff;
+}
+
+.twm-job-types {
+    background: #f8f9fa;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    color: #666;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.twm-job-types-text {
+    text-transform: capitalize;
+}
+
+.view-details-btn {
+    background: #ff9800;
+    color: #fff !important;
+    padding: 8px 16px;
+    border: 1px solid #ff9800;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.view-details-btn:hover {
+    background: #f57c00;
+    color: #fff !important;
+    text-decoration: none;
+}
+
+.twm-jobs-amount {
+    font-weight: 600;
+    color: #28a745;
+    margin-bottom: 5px;
+    font-size: 12px;
+}

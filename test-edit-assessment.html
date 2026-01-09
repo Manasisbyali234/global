@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Edit Feature Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .card .btn-sm {
+            padding: 0.375rem 0.75rem !important;
+            font-size: 0.875rem !important;
+            border-radius: 0.375rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.25rem !important;
+        }
+        
+        .card .btn-outline-secondary {
+            border-color: #6c757d !important;
+            color: #6c757d !important;
+        }
+        
+        .card .btn-outline-secondary:hover {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: #fff !important;
+        }
+        
+        .demo-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="mb-4">Assessment Edit Feature Demo</h1>
+        <p class="text-muted mb-4">This demonstrates the new edit functionality added to the assessment cards.</p>
+        
+        <!-- Sample Assessment Card -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <!-- Serial Number and Created Date -->
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted fw-bold">#1</small>
+                            <small class="text-muted">
+                                <i class="fa fa-calendar me-1"></i>
+                                Dec 15, 2024
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">JavaScript Fundamentals</h5>
+                            <span class="badge bg-primary">Technical</span>
+                        </div>
+                        
+                        <p class="card-text text-muted small">Basic JavaScript concepts and syntax assessment</p>
+                        
+                        <div class="d-flex gap-3 mb-3">
+                            <small class="text-muted">
+                                <i class="fa fa-clock me-1"></i>30 min
+                            </small>
+                            <small class="text-muted">
+                                <i class="fa fa-question-circle me-1"></i>10 questions
+                            </small>
+                        </div>
+                        
+                        <!-- Action Buttons with Edit Button -->
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fa fa-chart-bar"></i> Results
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" title="Edit Assessment">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <h3>Features Added:</h3>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <i class="fa fa-check text-success me-2"></i>
+                    <strong>Edit Icon:</strong> Added edit button with pencil icon to each assessment card
+                </li>
+                <li class="list-group-item">
+                    <i class="fa fa-check text-success me-2"></i>
+                    <strong>Modal Integration:</strong> Edit button opens the same modal used for creating assessments
+                </li>
+                <li class="list-group-item">
+                    <i class="fa fa-check text-success me-2"></i>
+                    <strong>Pre-filled Data:</strong> Modal is pre-populated with existing assessment data
+                </li>
+                <li class="list-group-item">
+                    <i class="fa fa-check text-success me-2"></i>
+                    <strong>Backend Support:</strong> Enhanced API endpoint to handle assessment updates
+                </li>
+                <li class="list-group-item">
+                    <i class="fa fa-check text-success me-2"></i>
+                    <strong>Validation:</strong> Same validation rules apply for both create and edit operations
+                </li>
+                <li class="list-group-item">
+                    <i class="fa fa-check text-success me-2"></i>
+                    <strong>Responsive Design:</strong> Edit button works well on both desktop and mobile
+                </li>
+            </ul>
+        </div>
+        
+        <div class="mt-4">
+            <h3>How it Works:</h3>
+            <ol class="list-group list-group-numbered">
+                <li class="list-group-item">User clicks the edit icon (pencil) on any assessment card</li>
+                <li class="list-group-item">The CreateAssessmentModal opens with existing data pre-filled</li>
+                <li class="list-group-item">User can modify any field including title, type, questions, options, etc.</li>
+                <li class="list-group-item">On save, the system sends a PUT request to update the assessment</li>
+                <li class="list-group-item">The assessment list is updated with the new data</li>
+                <li class="list-group-item">Success message is shown to confirm the update</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

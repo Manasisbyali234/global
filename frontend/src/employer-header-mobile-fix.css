@@ -1,0 +1,6 @@
+@media (max-width: 991px) {
+  .nav-btn-wrap,
+  .nav-btn-admin {
+    display: none !important;
+  }
+}

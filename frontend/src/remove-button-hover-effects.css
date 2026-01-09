@@ -1,0 +1,188 @@
+/* ============================================================================
+ * REMOVE ALL BUTTON HOVER COLOR CHANGES
+ * ============================================================================ */
+
+/* Override all button hover effects - remove color changes */
+button:hover,
+.btn:hover,
+.site-button:hover,
+.ant-btn:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Primary Button Hover - No color change */
+.btn-primary:hover,
+button.btn-primary:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+}
+
+/* Secondary Button Hover - No color change */
+.btn-secondary:hover,
+button.btn-secondary:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+}
+
+/* Success Button Hover - No color change */
+.btn-success:hover,
+button.btn-success:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+}
+
+/* Warning Button Hover - No color change */
+.btn-warning:hover,
+button.btn-warning:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+}
+
+/* Info Button Hover - No color change */
+.btn-info:hover,
+button.btn-info:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+}
+
+/* Light Button Hover - No color change */
+.btn-light:hover,
+button.btn-light:hover {
+  background-color: #FFF3E5 !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+}
+
+/* Dark Button Hover - No color change */
+.btn-dark:hover,
+button.btn-dark:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+}
+
+/* Navigation Buttons - Remove hover color changes */
+.twm-nav-sign-up:hover,
+.twm-nav-post-a-job:hover,
+.browse-btn:hover,
+.view-all-btn:hover,
+.show-more-btn:hover,
+.twm-jobs-browse:hover,
+.category-btn:hover,
+.job-browse-btn:hover,
+.header-style-3 .header-nav-btn-section .twm-nav-btn-left .twm-nav-sign-up:hover,
+.header-full-width .header-nav-btn-section .twm-nav-btn-left .twm-nav-sign-up:hover,
+.header-style-light .header-nav-btn-section .twm-nav-btn-left .twm-nav-sign-up:hover,
+.header-style-3 .header-nav-btn-section .twm-nav-btn-right .twm-nav-post-a-job:hover,
+.header-full-width .header-nav-btn-section .twm-nav-btn-right .twm-nav-post-a-job:hover,
+.header-style-light .header-nav-btn-section .twm-nav-btn-right .twm-nav-post-a-job:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Site Button Hover - No transform or shadow changes */
+.site-button:hover,
+button.site-button:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Explore content site-button hover */
+.twm-explore-content .twm-read-more .site-button:hover,
+.twm-explore-content-2 .twm-explore-top-section .twm-read-more .site-button:hover,
+.twm-explore-content-outer-3 .twm-explore-content-3 .twm-upload-file .site-button:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+}
+
+/* Browse all cards site-button hover */
+.twm-explore-content .twm-upload-file .site-button:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+}
+
+/* Profile card site-button hover */
+.twm-profile-card .site-button-link:hover,
+.profile-card .site-button:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  box-shadow: none !important;
+}
+
+/* Link style buttons hover */
+a[class*="btn"]:hover,
+a[class*="button"]:hover,
+a.site-button:hover {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  color: #FF7A00 !important;
+  border: 1px solid #FF7A00 !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+/* Circle line button hover - No scale */
+.circle-line-btn:hover {
+  transform: none !important;
+}
+
+/* ============================================================================
+ * ENSURE EYE AND EDIT ICONS ARE ALWAYS ORANGE
+ * ============================================================================ */
+
+.fa-eye,
+.fa-eye-slash,
+.fa-edit,
+.fa-pencil,
+.fa-pen,
+[class*="eye"],
+[class*="edit"],
+[class*="pencil"] {
+  color: #FF7A00 !important;
+  fill: #FF7A00 !important;
+  stroke: #FF7A00 !important;
+}
+
+button .fa-eye,
+button .fa-eye-slash,
+button .fa-edit,
+button .fa-pencil,
+.btn .fa-eye,
+.btn .fa-eye-slash,
+.btn .fa-edit,
+.btn .fa-pencil,
+.site-button .fa-eye,
+.site-button .fa-eye-slash,
+.site-button .fa-edit,
+.site-button .fa-pencil {
+  color: #FF7A00 !important;
+  fill: #FF7A00 !important;
+  stroke: #FF7A00 !important;
+}

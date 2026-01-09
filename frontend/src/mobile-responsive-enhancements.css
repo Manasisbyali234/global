@@ -1,0 +1,785 @@
+/* ============================================================================
+ * ENHANCED MOBILE RESPONSIVE STYLES
+ * ============================================================================
+ * Comprehensive fixes for mobile responsiveness across all pages
+ * - Popups/Modals
+ * - Layout & Positioning  
+ * - Visual/Interaction Issues
+ * - Dashboard pages
+ * ============================================================================ */
+
+/* ============================================================================
+ * SECTION 1: MODAL & POPUP RESPONSIVE FIXES
+ * ============================================================================ */
+
+@media (max-width: 991px) {
+  /* Modal sizing and positioning */
+  .modal-dialog {
+    margin: 15px auto !important;
+    max-width: calc(100% - 30px) !important;
+    width: 100% !important;
+  }
+
+  .modal-content {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  /* Modal header fixes */
+  .modal-header {
+    padding: 20px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    background: #ffffff !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1001 !important;
+  }
+
+  .modal-header .btn-close {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 6px !important;
+    opacity: 0.7 !important;
+  }
+
+  .modal-header .btn-close:hover {
+    opacity: 1 !important;
+  }
+
+  .modal-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+  }
+
+  /* Modal body */
+  .modal-body {
+    padding: 20px !important;
+    max-height: calc(100vh - 200px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Modal footer */
+  .modal-footer {
+    padding: 15px 20px !important;
+    border-top: 1px solid #e5e7eb !important;
+    background: #f9fafb !important;
+    gap: 10px !important;
+  }
+
+  .modal-footer .btn {
+    padding: 10px 20px !important;
+    font-size: 14px !important;
+    min-width: 100px !important;
+    flex: 1 !important;
+  }
+
+  /* Sign in/up popup responsive */
+  #sign_up_popup,
+  #sign_up_popup2,
+  #logout-dash-profile {
+    z-index: 10050 !important;
+  }
+
+  /* Logout popup visibility fix */
+  #logout-dash-profile .modal-dialog {
+    margin-top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+
+  /* Tab navigation in modals */
+  .modal .nav-tabs {
+    border-bottom: 2px solid #e5e7eb !important;
+    padding: 0 20px !important;
+    margin: -20px -20px 20px -20px !important;
+    background: #f9fafb !important;
+  }
+
+  .modal .nav-tabs .nav-link {
+    padding: 15px 20px !important;
+    border: none !important;
+    color: #6b7280 !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    border-bottom: 3px solid transparent !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .modal .nav-tabs .nav-link:hover {
+    color: #fd7e14 !important;
+  }
+
+  .modal .nav-tabs .nav-link.active {
+    color: #fd7e14 !important;
+    border-bottom-color: #fd7e14 !important;
+    background: transparent !important;
+  }
+
+  /* Form inputs in modals */
+  .modal .form-control,
+  .modal .form-select {
+    padding: 12px 15px !important;
+    font-size: 14px !important;
+    height: 45px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+  }
+
+  .modal .form-control:focus,
+  .modal .form-select:focus {
+    border-color: #fd7e14 !important;
+    box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.1) !important;
+  }
+
+  /* Buttons in modals */
+  .modal .btn-primary {
+    background: #fd7e14 !important;
+    border-color: #fd7e14 !important;
+    padding: 10px 24px !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+  }
+
+  .modal .btn-primary:hover {
+    background: #e86c0f !important;
+    border-color: #e86c0f !important;
+  }
+
+  .modal .btn-outline-primary {
+    color: #fd7e14 !important;
+    border-color: #fd7e14 !important;
+    padding: 10px 24px !important;
+    border-radius: 6px !important;
+  }
+
+  .modal .btn-outline-primary:hover {
+    background: #fd7e14 !important;
+    color: white !important;
+  }
+
+  /* Send invite popup */
+  .send-invite-modal .modal-dialog {
+    max-width: 500px !important;
+  }
+
+  /* Assessment creation modal */
+  .create-assessment-modal .modal-dialog {
+    max-width: 600px !important;
+  }
+
+  .create-assessment-modal .btn-create-assessment {
+    display: block !important;
+    width: 100% !important;
+    padding: 14px 20px !important;
+    margin-bottom: 10px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Modal sizing on small screens */
+  .modal-dialog {
+    margin: 10px auto !important;
+    max-width: calc(100% - 20px) !important;
+  }
+
+  .modal-header {
+    padding: 15px !important;
+  }
+
+  .modal-body {
+    padding: 15px !important;
+    max-height: calc(100vh - 180px) !important;
+  }
+
+  .modal-footer:not(.interview-modal-footer) {
+    padding: 12px 15px !important;
+    flex-direction: column !important;
+  }
+
+  .modal-footer:not(.interview-modal-footer) .btn {
+    width: 100% !important;
+    padding: 12px 15px !important;
+    font-size: 14px !important;
+  }
+
+  .interview-modal-footer {
+    flex-direction: row !important;
+    padding: 12px 15px !important;
+  }
+
+  .interview-modal-footer .btn,
+  .interview-modal-footer button {
+    width: auto !important;
+    flex: 0 1 auto !important;
+    min-width: 100px !important;
+  }
+
+  .modal-title {
+    font-size: 16px !important;
+  }
+
+  /* Tabs on small screens */
+  .modal .nav-tabs {
+    padding: 0 15px !important;
+    margin: -15px -15px 15px -15px !important;
+  }
+
+  .modal .nav-tabs .nav-link {
+    padding: 12px 15px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* ============================================================================
+ * SECTION 2: ASSESSMENT & DASHBOARD LAYOUT FIXES
+ * ============================================================================ */
+
+@media (max-width: 991px) {
+  /* Assessment page fixes */
+  .create-assessment-section {
+    padding: 20px !important;
+  }
+
+  .create-assessment-section h2 {
+    font-size: 18px !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Back button visibility */
+  .back-btn,
+  .btn-back {
+    display: inline-block !important;
+    padding: 10px 16px !important;
+    margin-bottom: 15px !important;
+    background: #f0f0f0 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    color: #333 !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .back-btn:hover,
+  .btn-back:hover {
+    background: #e5e7eb !important;
+    text-decoration: none !important;
+  }
+
+  /* Basic information section */
+  .basic-info-section,
+  .assessment-basic-info {
+    background: #ffffff !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    margin-bottom: 20px !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  .basic-info-section h3 {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    margin-bottom: 15px !important;
+    color: #000000 !important;
+  }
+
+  /* Form grid on mobile */
+  .form-row,
+  .row {
+    margin-left: -10px !important;
+    margin-right: -10px !important;
+  }
+
+  .form-row > [class*="col-"],
+  .row > [class*="col-"] {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    margin-bottom: 15px !important;
+  }
+
+  @media (max-width: 767px) {
+    .form-row > [class*="col-"],
+    .row > [class*="col-"] {
+      flex: 0 0 100% !important;
+      max-width: 100% !important;
+    }
+  }
+
+  /* Sections alignment */
+  .assessment-sections {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+
+  .assessment-section {
+    flex: 1 !important;
+    background: #ffffff !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  /* Mark input field fix */
+  .mark-field {
+    padding: 10px 12px !important;
+    font-size: 14px !important;
+    height: 45px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+  }
+
+  .mark-field:focus {
+    border-color: #fd7e14 !important;
+    box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.1) !important;
+  }
+
+  /* Remove button from mark fields */
+  .mark-field-wrapper {
+    position: relative !important;
+  }
+
+  .mark-field-remove {
+    position: absolute !important;
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: none !important;
+    border: none !important;
+    color: #999 !important;
+    cursor: pointer !important;
+    font-size: 18px !important;
+    padding: 0 !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .mark-field-remove:hover {
+    color: #d32f2f !important;
+  }
+
+  /* Create assessment button visibility */
+  .btn-create-assessment {
+    display: block !important;
+    width: 100% !important;
+    padding: 14px 20px !important;
+    margin-top: 20px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    background: #fd7e14 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .btn-create-assessment:hover {
+    background: #e86c0f !important;
+  }
+
+  .btn-create-assessment:disabled {
+    background: #ccc !important;
+    cursor: not-allowed !important;
+  }
+
+  /* View button fixes */
+  .btn-view,
+  .view-btn {
+    display: inline-block !important;
+    padding: 10px 16px !important;
+    background: #f0f0f0 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    color: #333 !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .btn-view:hover,
+  .view-btn:hover {
+    background: #e5e7eb !important;
+  }
+
+  /* Logo visibility in cards */
+  .company-logo,
+  .logo-thumb {
+    width: 50px !important;
+    height: 50px !important;
+    object-fit: cover !important;
+    border-radius: 4px !important;
+  }
+
+  @media (max-width: 767px) {
+    .company-logo,
+    .logo-thumb {
+      width: 40px !important;
+      height: 40px !important;
+    }
+  }
+
+  /* Download button functionality */
+  .btn-download {
+    display: block !important;
+    width: 100% !important;
+    padding: 12px 20px !important;
+    margin-bottom: 10px !important;
+    background: #fd7e14 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    z-index: 100 !important;
+    position: relative !important;
+  }
+
+  .btn-download:hover {
+    background: #e86c0f !important;
+    text-decoration: none !important;
+  }
+
+  .btn-download:active {
+    transform: scale(0.98) !important;
+  }
+
+  /* Button group fixes */
+  .btn-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .btn-group .btn {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Mobile specific assessment fixes */
+  .create-assessment-section {
+    padding: 15px !important;
+  }
+
+  .basic-info-section,
+  .assessment-basic-info,
+  .assessment-section {
+    padding: 15px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .basic-info-section h3 {
+    font-size: 15px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .form-row > [class*="col-"],
+  .row > [class*="col-"] {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    margin-bottom: 12px !important;
+  }
+}
+
+/* ============================================================================
+ * SECTION 3: GENERAL LAYOUT & POSITIONING FIXES
+ * ============================================================================ */
+
+@media (max-width: 991px) {
+  /* Prevent compressed sections */
+  .section-full {
+    padding: 30px 15px !important;
+  }
+
+  /* Ensure proper spacing */
+  .container-fluid {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  /* Card and component spacing */
+  .card {
+    margin-bottom: 20px !important;
+    border-radius: 8px !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .card-body {
+    padding: 20px !important;
+  }
+
+  /* Panel spacing */
+  .panel {
+    margin-bottom: 20px !important;
+  }
+
+  .panel-body {
+    padding: 20px !important;
+  }
+
+  /* Responsive buttons */
+  .btn {
+    padding: 12px 20px !important;
+    font-size: 14px !important;
+    border-radius: 6px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+  }
+
+  .btn-sm {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+
+  .btn-lg {
+    padding: 14px 28px !important;
+    font-size: 16px !important;
+  }
+
+  /* Grid alignment */
+  .grid-container {
+    display: grid !important;
+    gap: 20px !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  }
+
+  @media (max-width: 767px) {
+    .grid-container {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  /* Flexbox alignment fixes */
+  .flex-container {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+  }
+
+  .flex-container > * {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+
+  @media (min-width: 768px) {
+    .flex-container > * {
+      flex: 1 1 auto !important;
+    }
+  }
+
+  /* Horizontal scroll prevention */
+  body,
+  html {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
+  /* Table responsiveness */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .table {
+    margin-bottom: 0 !important;
+  }
+
+  .table td,
+  .table th {
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+
+  @media (max-width: 767px) {
+    .table td,
+    .table th {
+      padding: 10px 8px !important;
+      font-size: 12px !important;
+    }
+  }
+}
+
+/* ============================================================================
+ * SECTION 4: VISUAL & INTERACTION IMPROVEMENTS
+ * ============================================================================ */
+
+@media (max-width: 991px) {
+  /* Hover effects - mobile friendly */
+  @media (hover: hover) {
+    .hover-effect {
+      transition: all 0.3s ease !important;
+    }
+
+    .hover-effect:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+    }
+  }
+
+  @media (hover: none) {
+    .hover-effect {
+      transition: none !important;
+    }
+
+    .hover-effect:active {
+      transform: scale(0.98) !important;
+    }
+  }
+
+  /* Touch-friendly interaction */
+  button,
+  a.btn,
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 12px 16px !important;
+  }
+
+  /* Remove tap highlight on touch devices */
+  -webkit-tap-highlight-color: transparent !important;
+
+  /* Smooth scrolling */
+  * {
+    scroll-behavior: smooth !important;
+  }
+
+  /* Scroll position fixes */
+  .scrollbar-macosx {
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Prevent content shift during scroll */
+  html {
+    scrollbar-gutter: stable !important;
+  }
+
+  /* Better text selection on mobile */
+  p, span, div {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+  }
+
+  /* Link styling for touch */
+  a {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+}
+
+/* ============================================================================
+ * SECTION 5: AUTHENTICATED USER DASHBOARD FIXES
+ * ============================================================================ */
+
+@media (max-width: 991px) {
+  /* Header for authenticated users */
+  #header-admin-wrap {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1001 !important;
+  }
+
+  #header-admin {
+    width: 100% !important;
+    padding: 12px 15px !important;
+  }
+
+  .header-admin-fixed {
+    position: fixed !important;
+    width: 100% !important;
+  }
+
+  /* Dashboard user section */
+  .dashboard-user-section {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .listing-user img {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+  }
+
+  @media (max-width: 767px) {
+    .listing-user img {
+      width: 36px !important;
+      height: 36px !important;
+    }
+  }
+
+  /* Notification bell */
+  .dashboard-noti-dropdown {
+    position: relative !important;
+  }
+
+  /* Logout button and options */
+  .logout-btn,
+  .profile-menu {
+    display: block !important;
+    width: 100% !important;
+    padding: 10px 15px !important;
+    text-align: left !important;
+    background: none !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .logout-btn:hover,
+  .profile-menu:hover {
+    background: #f9fafb !important;
+    border-color: #fd7e14 !important;
+  }
+}
+
+/* ============================================================================
+ * SECTION 6: CONTENT AREAS - PREVENT COMPRESSION
+ * ============================================================================ */
+
+@media (max-width: 991px) {
+  /* Main content area */
+  #content,
+  .content-admin-main {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 20px !important;
+  }
+
+  /* Sections with proper padding */
+  .twm-right-section-panel {
+    padding: 20px 15px !important;
+  }
+
+  .wt-admin-right-page-header {
+    padding: 20px 15px !important;
+    margin: 0 !important;
+  }
+
+  /* Page wrapper */
+  .page-wraper {
+    width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Section padding consistency */
+  .wt-admin-page-section {
+    padding: 20px 15px !important;
+    margin-bottom: 20px !important;
+  }
+}

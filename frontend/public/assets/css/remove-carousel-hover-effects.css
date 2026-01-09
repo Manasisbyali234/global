@@ -1,0 +1,126 @@
+/* ============================================================================
+ * REMOVE ALL CAROUSEL HOVER EFFECTS
+ * ============================================================================ */
+
+/* Remove ALL hover effects from job categories carousel */
+.job-categories-carousel .category-card:hover,
+.job-categories-carousel .item:hover,
+.owl-carousel .item:hover,
+.owl-item:hover,
+.twm-job-categories-section .item:hover,
+.job-categories-style1 .item:hover {
+    box-shadow: none !important;
+    transform: none !important;
+    transition: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+    scale: 1 !important;
+    -webkit-scale: 1 !important;
+}
+
+/* Remove hover effects from mobile categories grid */
+.mobile-categories-grid .category-card:hover,
+.mobile-categories div:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+    transform: none !important;
+    transition: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+}
+
+/* Remove hover effects from banner carousel items */
+.twm-h1-bnr-carousal .item:hover,
+.twm-bnr-right-carousel .item:hover,
+.twm-h1-bnr-carousal:hover,
+.twm-bnr-right-carousel:hover {
+    transform: none !important;
+    transition: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+}
+
+/* Remove hover effects from owl carousel */
+.owl-carousel .owl-item:hover,
+.owl-carousel:hover,
+.owl-stage:hover,
+.owl-stage-outer:hover {
+    transform: none !important;
+    transition: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+}
+
+/* Remove hover effects from category cards */
+.category-card:hover,
+.twm-job-categories-section .category-card:hover,
+.job-categories-style1 .category-card:hover {
+    box-shadow: none !important;
+    transform: none !important;
+    transition: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+}
+
+/* Disable all transitions on carousel elements */
+.owl-carousel *,
+.job-categories-carousel *,
+.mobile-categories *,
+.twm-h1-bnr-carousal *,
+.twm-job-categories-section * {
+    transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -ms-transition: none !important;
+    -o-transition: none !important;
+}
+
+/* Remove any scale or transform effects on child elements */
+.owl-carousel .owl-item:hover *,
+.job-categories-carousel .item:hover *,
+.category-card:hover *,
+.mobile-categories div:hover * {
+    transform: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+    scale: 1 !important;
+    -webkit-scale: 1 !important;
+}
+
+/* Additional specific overrides for any remaining hover effects */
+.twm-job-categories-area .item:hover,
+.twm-job-categories-area .category-card:hover,
+.job-categories-carousel .owl-item:hover,
+.job-categories-carousel .owl-stage:hover {
+    transform: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+}
+
+/* Force no hover effects on any element within carousel containers */
+.owl-carousel *:hover,
+.job-categories-carousel *:hover,
+.twm-job-categories-section *:hover {
+    transform: none !important;
+    transition: none !important;
+    box-shadow: inherit !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+}

@@ -1,0 +1,626 @@
+/* Modern Employer Sidebar Styles */
+#sidebar-admin-wraper {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    background-color: #1e3c72 !important;
+    background-image: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.15) !important;
+    border-right: none !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100vh !important;
+    width: 280px !important;
+    z-index: 1000 !important;
+    transition: transform 0.3s ease !important;
+    overflow-y: auto !important;
+    transform: translateX(0) !important;
+}
+
+/* Override any existing background styles */
+nav#sidebar-admin-wraper,
+nav#sidebar-admin-wraper.active,
+#sidebar-admin-wraper.active {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    background-color: #1e3c72 !important;
+    background-image: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+}
+
+#sidebar-admin-wraper .page-logo {
+    padding: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05);
+}
+
+#sidebar-admin-wraper .page-logo img {
+    max-height: 45px;
+    filter: brightness(0) invert(1);
+}
+
+#sidebar-admin-wraper .admin-nav {
+    padding: 1.5rem 0;
+}
+
+#sidebar-admin-wraper .admin-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#sidebar-admin-wraper .admin-nav ul li {
+    margin: 0.4rem 1rem;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.85rem 1.2rem !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    text-decoration: none !important;
+    border-radius: 10px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: #fff;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a:hover::before {
+    transform: scaleY(1);
+}
+
+#sidebar-admin-wraper .admin-nav ul li a:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    transform: translateX(5px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a:hover i {
+    color: #ffffff !important;
+    transform: scale(1.1);
+}
+
+#sidebar-admin-wraper .admin-nav ul li.active a,
+#sidebar-admin-wraper .admin-nav ul li a.active {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    font-weight: 600 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li.active a::before,
+#sidebar-admin-wraper .admin-nav ul li a.active::before {
+    transform: scaleY(1);
+}
+
+#sidebar-admin-wraper .admin-nav ul li.active a i,
+#sidebar-admin-wraper .admin-nav ul li a.active i {
+    color: #ffffff !important;
+    transform: scale(1.15);
+}
+
+#sidebar-admin-wraper .admin-nav ul li a i {
+    width: 24px !important;
+    min-width: 24px !important;
+    text-align: center !important;
+    margin-right: 0.85rem !important;
+    font-size: 1.1rem !important;
+    flex-shrink: 0 !important;
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.3s ease !important;
+}
+
+#sidebar-admin-wraper .admin-nav-text {
+    flex: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-weight: 500 !important;
+}
+
+/* Logout button special styling */
+#sidebar-admin-wraper .admin-nav ul li:last-child {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#sidebar-admin-wraper .admin-nav ul li:last-child a {
+    background: rgba(220, 53, 69, 0.15) !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li:last-child a:hover {
+    background: rgba(220, 53, 69, 0.3) !important;
+}
+
+/* Hide scrollbar */
+#sidebar-admin-wraper,
+#sidebar-admin-wraper .admin-nav,
+#sidebar-admin-wraper .admin-nav.scrollbar-macosx {
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+#sidebar-admin-wraper::-webkit-scrollbar,
+#sidebar-admin-wraper .admin-nav::-webkit-scrollbar,
+#sidebar-admin-wraper .admin-nav.scrollbar-macosx::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+}
+
+/* Ensure sidebar is always visible on desktop */
+@media (min-width: 992px) {
+    #sidebar-admin-wraper {
+        transform: translateX(0) !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+        background-color: #1e3c72 !important;
+        background-image: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    }
+    
+    /* Force sidebar to be visible even when not active */
+    #sidebar-admin-wraper:not(.active) {
+        transform: translateX(0) !important;
+        display: block !important;
+    }
+    
+    .content-admin-main {
+        margin-left: 280px !important;
+        min-height: 100vh !important;
+        transition: margin-left 0.3s ease !important;
+    }
+    
+    /* When sidebar is collapsed on desktop */
+    #content.active .content-admin-main {
+        margin-left: 0 !important;
+    }
+    
+    /* Content area positioning - Desktop (merged from layout fix) */
+    #content {
+        margin-left: 280px !important;
+        width: calc(100% - 280px) !important;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease, width 0.3s ease;
+        background: #f7f7f7;
+        padding-top: 90px;
+    }
+
+    #content.sidebar-hidden {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+    
+    #sidebar-admin-wraper {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 280px !important;
+        height: 100vh !important;
+        transform: translateX(0) !important;
+        display: block !important;
+        z-index: 1000 !important;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        margin-left: 0 !important;
+        visibility: visible !important;
+        transition: opacity 0.2s ease !important;
+    }
+    
+    #sidebar-admin-wraper.active {
+        transform: translateX(0) !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        margin-left: 0 !important;
+        visibility: visible !important;
+    }
+
+    #sidebar-admin-wraper.collapsed {
+        transform: translateX(0) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        margin-left: 0 !important;
+        visibility: hidden !important;
+        display: none !important;
+    }
+
+    #header-admin {
+        width: calc(100% - 280px) !important;
+        top: 0;
+        right: 0;
+        position: fixed;
+        background: #ffffff;
+        border-bottom: 1px solid #e5e7eb;
+        z-index: 1001;
+        transition: width 0.3s ease;
+    }
+
+    #header-admin.active {
+        width: 100% !important;
+    }
+}
+
+/* Mobile/Tablet Responsive */
+@media (max-width: 991px) {
+    #sidebar-admin-wraper {
+        transform: translateX(-100%) !important;
+        z-index: 10000 !important;
+        box-shadow: 2px 0 20px rgba(0,0,0,0.3) !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 280px !important;
+        height: 100vh !important;
+        transition: transform 0.3s ease !important;
+        background: #ffffff !important;
+        margin-left: 0 !important;
+    }
+    
+    #sidebar-admin-wraper.active {
+        transform: translateX(0) !important;
+        margin-left: 0 !important;
+    }
+    
+    #sidebar-admin-wraper.active ~ .mobile-menu-toggle,
+    body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
+        display: none !important;
+    }
+}
+
+    #sidebar-admin-wraper.collapsed {
+        transform: translateX(-100%) !important;
+        margin-left: 0 !important;
+    }
+    
+    .content-admin-main {
+        margin-left: 0 !important;
+        padding-top: 0;
+    }
+    
+    #content {
+        margin-left: 0 !important;
+        min-height: 100vh;
+        background: #f7f7f7;
+        padding-top: 90px;
+    }
+
+    #header-admin {
+        width: 100% !important;
+        left: 0;
+        right: 0;
+    }
+    
+    .mobile-menu-toggle {
+        display: block !important;
+    }
+    
+    /* Overlay for mobile menu */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 9998;
+        display: none;
+        backdrop-filter: blur(2px);
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+}
+
+/* Animation for sidebar items */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+#sidebar-admin-wraper .admin-nav ul li {
+    animation: slideInLeft 0.3s ease forwards;
+}
+
+#sidebar-admin-wraper .admin-nav ul li:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+#sidebar-admin-wraper .admin-nav ul li:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+#sidebar-admin-wraper .admin-nav ul li:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+#sidebar-admin-wraper .admin-nav ul li:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+#sidebar-admin-wraper .admin-nav ul li:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 10000;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    color: white !important;
+    border: none;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle i {
+    color: white !important;
+    font-size: 18px !important;
+}
+
+body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
+    display: none !important;
+}
+
+.mobile-menu-toggle:hover {
+    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.mobile-menu-toggle:active {
+    transform: translateY(0);
+}
+
+
+/* Mobile sidebar improvements */
+@media (max-width: 767px) {
+    #sidebar-admin-wraper {
+        width: 260px !important;
+        left: -260px !important;
+    }
+    
+    #sidebar-admin-wraper .page-logo {
+        padding: 1rem;
+    }
+    
+    #sidebar-admin-wraper .page-logo img {
+        max-height: 35px;
+    }
+    
+    #sidebar-admin-wraper .admin-nav ul li {
+        margin: 0.3rem 0.8rem;
+    }
+    
+    #sidebar-admin-wraper .admin-nav ul li a {
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    #sidebar-admin-wraper .admin-nav ul li a i {
+        width: 20px;
+        min-width: 20px;
+        font-size: 1rem;
+        margin-right: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #sidebar-admin-wraper {
+        width: 240px !important;
+        left: -240px !important;
+    }
+    
+    .mobile-menu-toggle {
+        padding: 10px 12px;
+        font-size: 16px;
+        top: 10px;
+        left: 10px;
+    }
+    
+    #sidebar-admin-wraper .admin-nav ul li a {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    #sidebar-admin-wraper .admin-nav ul li a i {
+        width: 18px;
+        min-width: 18px;
+        font-size: 0.9rem;
+        margin-right: 0.6rem;
+    }
+}
+
+/* Employer Layout Fix - Page wrapper and main layout */
+.page-wraper {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Main content container */
+.content-admin-main {
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
+  background: #f7f7f7;
+}
+
+/* Dashboard panel fixes */
+.twm-right-section-panel {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #f7f7f7 !important;
+  min-height: 100vh !important;
+}
+
+/* Header section fixes */
+.wt-admin-right-page-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* Mobile menu toggle positioning */
+.mobile-menu-toggle {
+  position: fixed !important;
+  top: 15px !important;
+  left: 15px !important;
+  z-index: 10001 !important;
+}
+
+@media (max-width: 767px) {
+  .wt-admin-right-page-header {
+    padding: 15px !important;
+  }
+  
+  .mobile-menu-toggle {
+    top: 10px !important;
+    left: 10px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .wt-admin-right-page-header {
+    padding: 12px !important;
+  }
+}
+
+/* Sidebar overlay improvements */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  display: none;
+  backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* Smooth transitions */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure proper scrolling */
+html, body {
+  overflow-x: hidden;
+}
+
+/* Prevent horizontal scroll on dashboard */
+.emp-dashboard {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Fix Bootstrap row margins */
+.emp-dashboard .row {
+  --bs-gutter-x: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .emp-dashboard .row {
+    --bs-gutter-x: 1rem;
+  }
+}
+
+/* Fix for profile completion section */
+.emp-dashboard .col-xl-8 > div,
+.emp-dashboard .col-xl-4 > div {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile specific fixes */
+@media (max-width: 767px) {
+  .emp-dashboard .col-xl-4,
+  .emp-dashboard .col-lg-4,
+  .emp-dashboard .col-xl-8,
+  .emp-dashboard .col-lg-8 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* Dashboard header improvements */
+.emp-dashboard .wt-admin-right-page-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Ensure proper spacing on all devices */
+.emp-dashboard .container-fluid {
+  padding: 0 !important;
+}
+
+/* Fix for very small screens */
+@media (max-width: 480px) {
+  .emp-dashboard .wt-admin-right-page-header h2 {
+    font-size: 1.25rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  .emp-dashboard .wt-admin-right-page-header p {
+    font-size: 0.875rem !important;
+  }
+}
+
+/* Skills badges styling - Light orange with black text */
+.badge.bg-secondary {
+  background-color: #FF9C0020 !important;
+  color: #000 !important;
+  border: 1px solid #FF9C0040 !important;
+}
+
+.emp-candidate-review .badge.bg-secondary {
+  background-color: #FF9C0020 !important;
+  color: #000 !important;
+  border: 1px solid #FF9C0040 !important;
+}

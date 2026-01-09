@@ -1,0 +1,11 @@
+/* Override button width with higher specificity */
+html body .emp-table tbody td:last-child button {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: none !important;
+}
+
+/* Fix gap between Update Credits title and close button */
+.panel-heading .panel-tittle {
+    margin-right: 20px !important;
+}

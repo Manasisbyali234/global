@@ -1,0 +1,73 @@
+/* Global Overflow Fix - Prevent elements from overflowing layouts */
+
+*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *) {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}
+
+.container,
+.container-fluid,
+.row,
+[class*="col-"] {
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.modal-content,
+.modal-body,
+.modal-header {
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.form-control,
+input,
+select,
+textarea,
+button {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.nav-tabs {
+  overflow-x: auto !important;
+  flex-wrap: nowrap !important;
+}
+
+.tab-content,
+.tab-pane {
+  overflow-x: hidden !important;
+}
+
+/* Specific fix for signin/signup modals */
+.modal.twm-sign-up .modal-dialog {
+  max-width: 500px !important;
+  width: 90% !important;
+  margin: 1.75rem auto !important;
+}
+
+.modal.twm-sign-up .modal-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.modal.twm-sign-up .modal-body {
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  padding: 1rem !important;
+}
+
+@media (max-width: 768px) {
+  .modal.twm-sign-up .modal-dialog {
+    width: 95% !important;
+    margin: 0.5rem auto !important;
+  }
+  
+  .modal.twm-sign-up .modal-content {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}

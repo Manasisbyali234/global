@@ -1,0 +1,9 @@
+/* ============================================================================
+ * GLOBAL ICON COLOR RESET - REMOVED ORANGE OVERRIDE
+ * ============================================================================
+ * 
+ * This file previously forced ALL icons to be orange (#fd7e14).
+ * The global orange styling has been removed to allow icons to use
+ * their default colors or component-specific styling.
+ * 
+ * ============================================================================ */

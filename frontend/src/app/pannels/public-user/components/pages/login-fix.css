@@ -1,0 +1,122 @@
+/* Fix for duplicate eye icons in password fields */
+
+/* Hide browser's native password reveal button */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none !important;
+}
+
+input[type="password"]::-webkit-contacts-auto-fill-button,
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    visibility: hidden !important;
+    display: none !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+}
+
+/* Remove any duplicate eye icon pseudo-elements */
+.form-control[type="password"]::after,
+.form-control[type="password"]::before {
+    display: none !important;
+}
+
+/* Hide all eye icons that might be added by libraries */
+.mb-3 .fa-eye,
+.mb-3 .fa-eye-slash,
+.mb-3 i[class*="eye"],
+.form-control ~ .fa-eye,
+.form-control ~ .fa-eye-slash,
+.form-control ~ i[class*="eye"],
+input[type="password"] ~ .fa-eye,
+input[type="password"] ~ .fa-eye-slash,
+input[type="password"] ~ i[class*="eye"] {
+    display: none !important;
+}
+
+/* Hide password toggle buttons */
+.password-toggle,
+.password-toggle-icon,
+.toggle-password,
+.show-password,
+.hide-password {
+    display: none !important;
+}
+
+/* Ensure only one eye icon appears if using a toggle library */
+.password-toggle-icon ~ .password-toggle-icon {
+    display: none !important;
+}
+
+/* Base styles for login tabs (extracted from inline styles) */
+#myTab2.nav-tabs {
+    border-radius: 12px;
+    padding: 0;
+    margin-bottom: 24px;
+    gap: 5px;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    border: none;
+    width: 100%;
+}
+
+#myTab2 .nav-item {
+    flex: 1 1 auto;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    border-radius: 0 !important;
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    transition: none !important;
+}
+
+#myTab2 .nav-item:hover {
+    background: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+    color: inherit !important;
+}
+
+#myTab2 .nav-link {
+    border-radius: 10px;
+    font-weight: 500;
+    padding: 8px 10px;
+    font-size: 13px;
+    background-color: rgba(255, 122, 0, 0.08);
+    border: 1px solid #FF7A00;
+    color: #FF7A00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    width: 100%;
+}
+
+#myTab2 .nav-link i {
+    font-size: 12px;
+    color: #FF6A00;
+}
+
+/* Active tab highlighting */
+#myTab2 .nav-link.active {
+    background-color: #FF7A00 !important;
+    color: #ffffff !important;
+    border: 1px solid #FF7A00 !important;
+}
+
+#myTab2 .nav-link.active i {
+    color: #ffffff !important;
+}
+
+#myTab2 .nav-link:not(.active) {
+    background-color: rgba(255, 122, 0, 0.08) !important;
+    border: 1px solid #FF7A00 !important;
+    color: #FF7A00 !important;
+}

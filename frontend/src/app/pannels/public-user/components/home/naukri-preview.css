@@ -1,0 +1,365 @@
+/* Naukri-style: More exact layout, spacing, and cards (scoped) */
+.naukri-preview-page { --nk-radius: 20px; --nk-gap: 16px; --nk-muted: #667085; }
+
+/* HERO */
+.nk-hero { background: var(--nk-hero-bg, #f2f5ff); padding: 40px 0 32px; }
+.nk-hero-title { font-size: 40px; line-height: 1.15; font-weight: 800; margin: 0; }
+.nk-hero-sub { margin-top: 6px; color: var(--nk-muted); font-size: 14px; }
+.nk-hero-illustration img { max-width: 100%; height: auto; display: block; }
+
+/* SEARCH BAR */
+.nk-search { margin-top: 18px; }
+.nk-search-row { display: flex; gap: 8px; align-items: stretch; }
+.nk-search-col { display: flex; align-items: center; background: #fff; padding: 8px 12px; border-radius: 8px; border: 1px solid #e5e7eb; flex: 1 1 auto; }
+.nk-search-col i { color: #98a2b3; margin-right: 8px; font-size: 16px; }
+.nk-search-col input { border: none; outline: none; width: 100%; font-size: 14px; }
+.nk-search-btn { background: var(--site-primary, #2a41e8); color: #fff; border: none; padding: 0 18px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+
+/* TRENDING */
+.nk-trending { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.nk-trending > span { color: var(--nk-muted); font-size: 13px; margin-right: 6px; }
+.nk-trending a { color: var(--site-primary, #2a41e8); font-size: 13px; }
+
+/* SECTION HEADS */
+.naukri-section-head { margin-bottom: 14px; }
+.naukri-title { font-size: 22px; font-weight: 800; margin: 0; }
+.naukri-sub { font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: var(--nk-muted); margin-top: 4px; }
+
+/* CHIPS */
+.nk-chip { display: inline-block; border: 1px solid #e5e7eb; padding: 6px 12px; border-radius: 20px; font-size: 13px; color: #111827; background: #fff; }
+.nk-chip:hover { border-color: var(--site-primary, #2a41e8); color: var(--site-primary, #2a41e8); }
+
+/* CARDS */
+.nk-card { background: #fff; border: 1px solid #e5e7eb; border-radius: var(--nk-radius); padding: 14px; box-shadow: 0 1px 2px rgba(16,24,40,.06); }
+
+/* COMPANY CARD */
+.nk-company-avatar { width: 56px; height: 56px; border-radius: 50%; background: #f3f5f9; display: flex; align-items: center; justify-content: center; flex: 0 0 56px; overflow: hidden; }
+.nk-company-avatar img { max-width: 80%; max-height: 80%; object-fit: contain; }
+.nk-company-avatar span { font-weight: 700; color: var(--site-primary, #2a41e8); }
+.nk-title-sm { font-size: 15px; font-weight: 700; color: #111827; }
+.nk-link { color: var(--site-primary, #2a41e8); font-weight: 600; font-size: 13px; }
+
+/* JOB CARD */
+.nk-job-card { display: flex; flex-direction: column; gap: 12px; }
+.nk-job-top { display: flex; gap: 12px; }
+.nk-job-avatar { width: 48px; height: 48px; border-radius: 10px; background: #f3f5f9; display: flex; align-items: center; justify-content: center; color: var(--site-primary, #2a41e8); }
+.nk-job-title { display: inline-block; font-weight: 700; color: #111827; font-size: 15px; }
+.nk-job-sub { color: var(--nk-muted); font-size: 12px; margin-top: 3px; }
+.nk-job-bottom { margin-top: 6px; display: flex; align-items: center; justify-content: space-between; }
+.nk-job-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.nk-tag { background: #f8fafc; border: 1px solid #e5e7eb; padding: 4px 8px; border-radius: 6px; font-size: 12px; color: #111827; }
+.nk-cta { color: var(--site-primary, #2a41e8); font-weight: 700; font-size: 13px; }
+
+/* CTAs */
+.nk-ctas { background: #fff; padding: 32px 0 44px; }
+.nk-cta { background: #fff; border: 1px solid #e5e7eb; border-radius: var(--nk-radius); padding: 18px; }
+.nk-cta-title { font-weight: 800; font-size: 18px; margin-bottom: 6px; }
+.nk-cta-sub { color: var(--nk-muted); font-size: 13px; margin-bottom: 10px; }
+.nk-cta-btn { display: inline-block; background: var(--site-primary, #2a41e8); color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; }
+
+/* Responsive tweaks */
+@media (max-width: 991px) {
+  .nk-hero { padding: 24px 0; }
+  .nk-hero-title { font-size: 28px; }
+  .nk-search-row { flex-direction: column; gap: 8px; }
+  .nk-search-btn { height: 44px; }
+}
+
+/* Index16 Job Categories Orange Theme - Consolidated Styles */
+/* Job categories section background */
+.twm-job-categories-hpage-6-area {
+  background-color: transparent !important;
+  padding: 40px 0 !important;
+}
+
+/* Grid alignment - Center the category cards */
+.twm-job-cat-hpage-6-wrap .job-cat-block-hpage-6-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.twm-job-cat-hpage-6-wrap .job-cat-block-hpage-6-section .row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 1.5rem;
+  width: 100%;
+  align-items: stretch;
+}
+
+/* Adjust column width to fit all 5 cards in one line - equal width */
+.twm-job-cat-hpage-6-wrap .job-cat-block-hpage-6-section .row > [class*="col"] {
+  flex: 1 1 calc(20% - 0.3rem);
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Keep job category cards white with consistent height */
+.job-cat-block-hpage-6 {
+  background-color: #fff !important;
+  border: none !important;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1) !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 120px !important;
+  padding: 10px !important;
+}
+
+/* SVG Icon styling - orange with proper alignment */
+.job-cat-block-hpage-6 .twm-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px !important;
+  margin-bottom: 5px !important;
+  position: relative;
+}
+
+.job-cat-block-hpage-6 .twm-media .category-svg {
+  width: 35px !important;
+  height: 35px !important;
+  display: block;
+  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.08));
+  position: relative;
+  z-index: 2;
+}
+
+/* Override blue ::after pseudo-element background - remove it completely */
+.job-cat-block-hpage-6 .twm-media::after {
+  display: none !important;
+}
+
+/* Content area styling - ensure consistent layout */
+.job-cat-block-hpage-6 .twm-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+  padding: 5px 0 !important;
+}
+
+/* Job count styling - orange theme */
+.job-cat-block-hpage-6 .twm-content .twm-jobs-available {
+  background-color: transparent !important;
+  color: #fd7e14 !important;
+  margin: 5px 0 !important;
+  padding: 2px 6px !important;
+  font-size: 11px !important;
+}
+
+.job-cat-block-hpage-6 .twm-content .twm-jobs-available span {
+  color: #fd7e14 !important;
+  font-weight: 600;
+}
+
+/* Category name styling */
+.job-cat-block-hpage-6 .twm-content > a {
+  color: #17171d !important;
+  font-weight: 600;
+  font-size: 14px !important;
+  margin-bottom: 3px !important;
+}
+
+/* Arrow button styling */
+.job-cat-block-hpage-6 .circle-line-wrap {
+  margin-top: auto;
+  padding-top: 5px !important;
+}
+
+.job-cat-block-hpage-6 .circle-line-wrap .circle-line-btn {
+  border: 2px solid #fd7e14 !important;
+  background-color: transparent !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.job-cat-block-hpage-6 .circle-line-wrap .circle-line-btn .fa-arrow-right {
+  color: #fd7e14 !important;
+}
+
+.fa-arrow-right:before {
+  color: #fd7e14 !important;
+}
+
+/* Hover effects - Subtle lift without color change */
+.job-cat-block-hpage-6:hover {
+  background-color: #fff !important;
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.job-cat-block-hpage-6:hover .twm-media .category-svg {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.job-cat-block-hpage-6:hover .twm-content > a {
+  color: #17171d !important;
+}
+
+.job-cat-block-hpage-6:hover .twm-content .twm-jobs-available {
+  background-color: transparent !important;
+  color: #fd7e14 !important;
+}
+
+.job-cat-block-hpage-6:hover .twm-content .twm-jobs-available span {
+  color: #fd7e14 !important;
+}
+
+.job-cat-block-hpage-6:hover .circle-line-wrap .circle-line-btn {
+  background-color: transparent !important;
+  border: 2px solid #fd7e14 !important;
+}
+
+.job-cat-block-hpage-6:hover .circle-line-wrap .circle-line-btn .fa-arrow-right {
+  color: #fd7e14 !important;
+}
+
+/* Additional category styling */
+.job-categories-home-8 .twm-media {
+  background-color: rgba(253, 126, 20, 0.1) !important;
+}
+
+.twm-companies-wrap-h-page-7 .twm-companies-h-page-7 {
+  background-color: #fff !important;
+}
+
+/* Index16 Navbar Transparency on Hero Section */
+/* Make navbar transparent initially (before scroll) */
+.h-page-16-hdr .main-bar {
+  background-color: transparent !important;
+}
+
+/* Make navbar white and styled when fixed (after scroll) */
+.h-page-16-hdr .is-fixed .main-bar.color-fill {
+  background-color: #fff !important;
+  border-radius: 10px;
+  box-shadow: 0px 0px 25px rgba(56, 152, 226, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Ensure logo visibility on transparent background */
+.h-page-16-hdr .logo-header {
+  z-index: 10;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .h-page-16-hdr .main-bar {
+    background-color: transparent !important;
+  }
+  
+  .h-page-16-hdr .is-fixed .main-bar.color-fill {
+    background-color: #fff !important;
+  }
+
+  /* Category cards responsive - wrap on tablet and mobile */
+  .twm-job-categories-hpage-6-area {
+    padding: 20px 0 !important;
+  }
+
+  .section-head {
+    margin-bottom: 20px !important;
+  }
+
+  .section-head h2 {
+    font-size: 1.5rem !important;
+    margin-bottom: 15px !important;
+  }
+
+  /* Force wrapping for category cards on tablet */
+  [style*="display: flex"][style*="gap: 16px"] {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+
+  .category-card {
+    flex: 0 1 calc(50% - 6px) !important;
+    min-width: 150px !important;
+  }
+
+  .job-categories-btn {
+    margin-top: 15px !important;
+  }
+
+  .job-categories-btn .site-button {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .section-head h2 {
+    font-size: 1.2rem !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* Stack category cards vertically on small mobile */
+  [style*="display: flex"][style*="gap: 16px"] {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  .category-card {
+    flex: 0 1 calc(100% - 5px) !important;
+    min-width: 100% !important;
+  }
+
+  .category-text-title {
+    font-size: 0.9rem !important;
+  }
+
+  .category-text-sub {
+    font-size: 0.8rem !important;
+  }
+
+  .plus-badge {
+    font-size: 1.2rem !important;
+  }
+
+  .job-categories-btn .site-button {
+    padding: 0.5rem 1rem !important;
+    font-size: 13px !important;
+  }
+}
+
+/* Home Page Spacing and Color Scheme Fix */
+.section-full {
+  padding: 40px 0 !important;
+}
+
+.twm-home-8-banner-section {
+  padding: 60px 0 40px 0 !important;
+}
+
+.twm-job-categories-hpage-6-area {
+  padding: 40px 0 !important;
+}
+
+.twm-how-it-work-area {
+  padding: 40px 0 !important;
+}
+
+.twm-testimonials-h-page-8 {
+  padding: 40px 0 !important;
+}
+
+.twm-recruiters-area {
+  padding: 40px 0 !important;
+}
+
+.twm-blog-post-h-page-8 {
+  padding: 40px 0 !important;
+}
+
+.container {
+  margin-bottom: 0 !important;
+}
+
+.row {
+  margin-bottom: 0 !important;
+}

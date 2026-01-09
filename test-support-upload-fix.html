@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Support Upload Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .error { color: red; margin-top: 5px; }
+        .success { color: green; margin-top: 5px; }
+        .file-info { background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Support Upload Fix</h1>
+        <p>This test verifies that the support ticket system can now handle files up to 10MB each (30MB total).</p>
+        
+        <form id="supportForm">
+            <div class="form-group">
+                <label for="name">Name *</label>
+                <input type="text" id="name" name="name" value="Test User" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" value="test@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="subject">Subject *</label>
+                <input type="text" id="subject" name="subject" value="Test Large File Upload" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Message *</label>
+                <textarea id="message" name="message" rows="4" required>Testing the upload of large files (up to 10MB) to verify the fix for the 9MB file upload issue.</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="attachments">Attachments (up to 3 files, 10MB each, 30MB total)</label>
+                <input type="file" id="attachments" name="attachments" multiple 
+                       accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.gif,.webp">
+                <div id="fileInfo" class="file-info" style="display: none;"></div>
+            </div>
+            
+            <button type="submit">Submit Support Ticket</button>
+        </form>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('supportForm');
+        const fileInput = document.getElementById('attachments');
+        const fileInfo = document.getElementById('fileInfo');
+        const result = document.getElementById('result');
+
+        fileInput.addEventListener('change', function() {
+            const files = Array.from(this.files);
+            if (files.length === 0) {
+                fileInfo.style.display = 'none';
+                return;
+            }
+
+            let html = '<h4>Selected Files:</h4>';
+            let totalSize = 0;
+            
+            files.forEach((file, index) => {
+                const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                totalSize += file.size;
+                html += `<div>${index + 1}. ${file.name} (${sizeMB} MB)</div>`;
+            });
+            
+            const totalSizeMB = (totalSize / 1024 / 1024).toFixed(2);
+            html += `<div><strong>Total Size: ${totalSizeMB} MB</strong></div>`;
+            
+            // Check limits
+            const maxFileSize = 10 * 1024 * 1024; // 10MB
+            const maxTotalSize = 30 * 1024 * 1024; // 30MB
+            
+            const oversizedFiles = files.filter(f => f.size > maxFileSize);
+            if (oversizedFiles.length > 0) {
+                html += '<div style="color: red;">⚠️ Some files exceed 10MB limit!</div>';
+            }
+            
+            if (totalSize > maxTotalSize) {
+                html += '<div style="color: red;">⚠️ Total size exceeds 30MB limit!</div>';
+            }
+            
+            if (files.length > 3) {
+                html += '<div style="color: red;">⚠️ Maximum 3 files allowed!</div>';
+            }
+            
+            if (oversizedFiles.length === 0 && totalSize <= maxTotalSize && files.length <= 3) {
+                html += '<div style="color: green;">✅ All files are within limits!</div>';
+            }
+            
+            fileInfo.innerHTML = html;
+            fileInfo.style.display = 'block';
+        });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('subject', document.getElementById('subject').value);
+            formData.append('message', document.getElementById('message').value);
+            formData.append('userType', 'candidate');
+            formData.append('category', 'technical');
+            formData.append('priority', 'medium');
+            
+            const files = fileInput.files;
+            for (let i = 0; i < files.length; i++) {
+                formData.append('attachments', files[i]);
+            }
+            
+            try {
+                result.innerHTML = '<div style="color: blue;">Submitting...</div>';
+                
+                const response = await fetch('http://localhost:5000/api/public/support', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `<div class="success">✅ Success! Ticket ID: ${data.ticketId}</div>`;
+                    form.reset();
+                    fileInfo.style.display = 'none';
+                } else {
+                    result.innerHTML = `<div class="error">❌ Error: ${data.message}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Network Error: ${error.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>

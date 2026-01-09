@@ -1,0 +1,414 @@
+/* ===================================
+   EMPLOYER HOW IT WORKS SECTION REDESIGN
+   =================================== */
+
+/* Section Container */
+.twm-how-it-work-area {
+    background-color: #ffffff !important;
+    padding: 4rem 0 !important;
+    transition: all 0.3s ease;
+}
+
+/* Section Title */
+.twm-how-it-work-area .section-head {
+    margin-bottom: 3rem;
+}
+
+.twm-how-it-work-area .wt-title {
+    color: 000000!important;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+.twm-how-it-work-area .wt-small-separator {
+    color: #ff6a00 !important;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Cards Container */
+.twm-how-it-work-section3 {
+    margin-top: 2rem;
+}
+
+/* Individual Card */
+.twm-w-process-steps3 {
+    background-color: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    padding: 1rem 1.25rem !important;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    min-height: auto;
+    height: auto;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Hover Effect */
+.twm-w-process-steps3:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-5px);
+}
+
+/* Media (Icon Container) */
+.twm-w-process-steps3 .twm-media {
+    flex-shrink: 0;
+    margin-right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+}
+
+/* Icon Box */
+.twm-w-process-steps3 .twm-media > div {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #FF6A00 0%, #FF8A00 100%) !important;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 8px rgba(255, 106, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.twm-w-process-steps3:hover .twm-media > div {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(255, 106, 0, 0.3);
+}
+
+/* Icon SVG */
+.twm-w-process-steps3 svg {
+    width: 40px;
+    height: 40px;
+    color: #ffffff;
+}
+
+/* Content Container */
+.twm-w-process-steps3 > div:last-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Title */
+.twm-w-process-steps3 .twm-title {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #0a1f44 !important;
+    margin-bottom: 0.4rem !important;
+    line-height: 1.25;
+}
+
+/* Description */
+.twm-w-process-steps3 p {
+    font-size: 0.85rem !important;
+    color: #6c757d !important;
+    line-height: 1.35 !important;
+    margin-bottom: 0 !important;
+    font-weight: 400;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Large screens (xl and above) */
+@media (min-width: 1200px) {
+    .twm-how-it-work-area .col-xl-4 {
+        flex: 0 0 calc(33.333% - 1rem);
+        max-width: none;
+    }
+}
+
+/* Medium screens (lg) */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .twm-how-it-work-area .col-lg-4 {
+        flex: 0 0 calc(33.333% - 1rem);
+    }
+
+    .twm-w-process-steps3 {
+        flex-direction: row;
+    }
+
+    .twm-w-process-steps3 .twm-media {
+        margin-right: 1rem;
+    }
+
+    .twm-w-process-steps3 .twm-title {
+        font-size: 1.05rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .twm-w-process-steps3 p {
+        font-size: 0.8rem;
+    }
+}
+
+/* Tablet screens (md) */
+@media (max-width: 991px) {
+    .twm-how-it-work-area {
+        padding: 3rem 0 !important;
+    }
+
+    .twm-how-it-work-area .col-md-4,
+    .twm-how-it-work-area .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .twm-w-process-steps3 {
+        flex-direction: row !important;
+        align-items: flex-start !important;
+        margin-bottom: 1rem;
+        padding: 1rem !important;
+    }
+
+    .twm-w-process-steps3 .twm-media {
+        margin-right: 1rem !important;
+        margin-bottom: 0 !important;
+        min-width: 80px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .twm-w-process-steps3 .twm-media > div {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    .twm-w-process-steps3 .twm-media img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        border-radius: 12px !important;
+    }
+
+    .twm-w-process-steps3 svg {
+        width: 35px;
+        height: 35px;
+    }
+
+    .twm-w-process-steps3 > div:last-child {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .twm-w-process-steps3 .twm-title {
+        font-size: 1rem !important;
+        margin-bottom: 0.4rem !important;
+    }
+
+    .twm-w-process-steps3 p {
+        font-size: 0.85rem !important;
+        line-height: 1.4 !important;
+    }
+}
+
+/* Small screens (sm) */
+@media (max-width: 767px) {
+    .twm-how-it-work-area {
+        padding: 2.5rem 0 !important;
+    }
+
+    .twm-how-it-work-area .section-head {
+        margin-bottom: 2rem;
+    }
+
+    .twm-how-it-work-area .wt-title {
+        font-size: 1.75rem;
+    }
+
+    .twm-how-it-work-area .col-sm-12,
+    .twm-how-it-work-area .col-xs-12 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .twm-w-process-steps3 {
+        flex-direction: row !important;
+        align-items: flex-start !important;
+        padding: 1rem !important;
+        margin-bottom: 1rem;
+    }
+
+    .twm-w-process-steps3 .twm-media {
+        margin-right: 1rem !important;
+        margin-bottom: 0 !important;
+        min-width: 70px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .twm-w-process-steps3 .twm-media > div {
+        width: 70px !important;
+        height: 70px !important;
+        min-width: 70px !important;
+        overflow: hidden !important;
+        border-radius: 12px !important;
+    }
+
+    .twm-w-process-steps3 .twm-media img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
+    }
+
+    .twm-w-process-steps3 svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .twm-w-process-steps3 > div:last-child {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        min-width: 0 !important;
+    }
+
+    .twm-w-process-steps3 .twm-title {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.3rem !important;
+    }
+
+    .twm-w-process-steps3 p {
+        font-size: 0.8rem !important;
+        line-height: 1.35 !important;
+    }
+}
+
+/* Extra small screens (xs) */
+@media (max-width: 575px) {
+    .twm-how-it-work-area {
+        padding: 2rem 0 !important;
+    }
+
+    .twm-how-it-work-area .wt-title {
+        font-size: 1.5rem;
+    }
+
+    .twm-how-it-work-area .col-xs-12 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .twm-w-process-steps3 {
+        flex-direction: row !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+        padding: 0.9rem !important;
+        margin-bottom: 0.8rem;
+    }
+
+    .twm-w-process-steps3 .twm-media {
+        margin-right: 0.9rem !important;
+        margin-bottom: 0 !important;
+        width: auto !important;
+        justify-content: flex-start !important;
+        min-width: 65px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .twm-w-process-steps3 .twm-media > div {
+        width: 65px !important;
+        height: 65px !important;
+        min-width: 65px !important;
+        overflow: hidden !important;
+        border-radius: 12px !important;
+    }
+
+    .twm-w-process-steps3 .twm-media img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
+    }
+
+    .twm-w-process-steps3 svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .twm-w-process-steps3 > div:last-child {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        min-width: 0 !important;
+    }
+
+    .twm-w-process-steps3 .twm-title {
+        font-size: 0.9rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    .twm-w-process-steps3 p {
+        font-size: 0.75rem !important;
+        line-height: 1.3 !important;
+    }
+}
+
+/* ===== ANIMATION ===== */
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.twm-w-process-steps3 {
+    animation: slideInUp 0.6s ease-out forwards;
+}
+
+.twm-how-it-work-section3 .col:nth-child(1) .twm-w-process-steps3 {
+    animation-delay: 0.1s;
+}
+
+.twm-how-it-work-section3 .col:nth-child(2) .twm-w-process-steps3 {
+    animation-delay: 0.2s;
+}
+
+.twm-how-it-work-section3 .col:nth-child(3) .twm-w-process-steps3 {
+    animation-delay: 0.3s;
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+.twm-w-process-steps3:focus-within {
+    outline: 2px solid #ff6a00;
+    outline-offset: 2px;
+}
+
+.twm-w-process-steps3:focus-visible {
+    outline: 2px solid #ff6a00;
+    outline-offset: 2px;
+}
+
+/* ===== BROWSER COMPATIBILITY ===== */
+
+@supports (backdrop-filter: blur(10px)) {
+    .twm-w-process-steps3 {
+        backdrop-filter: blur(0px);
+    }
+}
+
+/* Dark mode support (for future use) */
+@media (prefers-color-scheme: dark) {
+    .twm-how-it-work-area {
+        background-color: #ffffff !important;
+    }
+    
+    .twm-how-it-work-area .wt-title {
+        color: #0a1f44 !important;
+    }
+}

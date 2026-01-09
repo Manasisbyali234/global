@@ -1,0 +1,83 @@
+/* Container Fixes - Clean and Consolidated */
+
+.container {
+    margin-bottom: 0 !important;
+    width: 100%;
+}
+
+/* Safe Area Support for Notched Devices */
+@supports (padding: max(0px)) {
+    .container, .container-fluid {
+        padding-left: max(10px, env(safe-area-inset-left));
+        padding-right: max(10px, env(safe-area-inset-right));
+    }
+}
+
+/* Desktop and Large Tablets */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .container {
+        max-width: 960px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+/* Tablets */
+@media (min-width: 768px) and (max-width: 991px) {
+    .container {
+        max-width: 720px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .container, .container-fluid {
+        overflow-x: hidden;
+    }
+}
+
+/* Mobile Landscape and Small Tablets */
+@media (min-width: 576px) and (max-width: 767px) {
+    .container {
+        max-width: 540px;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+/* Mobile Portrait */
+@media (max-width: 575px) {
+    .container {
+        max-width: 100%;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+    .container, .container-fluid {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+}
+
+/* Very Small Mobile Devices */
+@media (max-width: 360px) {
+    .container, .container-fluid {
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+    }
+}
+
+/* Ensure visibility across all browsers */
+.container, .container-fluid {
+    background-color: transparent !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}

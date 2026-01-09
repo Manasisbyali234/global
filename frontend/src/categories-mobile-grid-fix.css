@@ -1,0 +1,46 @@
+/* Mobile categories grid - override all conflicts */
+.mobile-categories {
+    display: block !important;
+    width: 100% !important;
+}
+
+.mobile-categories > div {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-categories > div > div {
+    background: #fff !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    height: auto !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+    border: 1px solid #f0f0f0 !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+}
+
+@media (max-width: 576px) {
+    .mobile-categories > div {
+        gap: 10px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .mobile-categories > div {
+        gap: 8px !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .mobile-categories > div {
+        gap: 6px !important;
+    }
+}

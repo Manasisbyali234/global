@@ -1,0 +1,555 @@
+/* Modern Admin Sidebar Styles */
+#sidebar-admin-wraper {
+    background: #ffffff !important;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
+    border-right: 1px solid #e9ecef !important;
+}
+
+/* Override any existing background styles */
+nav#sidebar-admin-wraper {
+    background: #ffffff !important;
+    background-image: none !important;
+}
+
+#sidebar-admin-wraper .page-logo {
+    padding: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+#sidebar-admin-wraper .admin-nav {
+    padding: 1rem 0;
+}
+
+#sidebar-admin-wraper .admin-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#sidebar-admin-wraper .admin-nav ul li {
+    margin: 0.25rem 1rem;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.75rem 1rem !important;
+    color: #333 !important;
+    text-decoration: none !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a:hover {
+    background: rgba(255, 107, 53, 0.2) !important;
+    color: #000 !important;
+    transform: translateX(4px) !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a:hover i {
+    color: #ff6b35 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a:hover .admin-nav-text:contains("Placement Officers") {
+    color: #000 !important;
+}
+
+/* Remove general active styling for parent menus */
+
+#sidebar-admin-wraper .admin-nav ul li.active a:contains("Placement Officers"),
+#sidebar-admin-wraper .admin-nav ul li a.active:contains("Placement Officers") {
+    color: #000 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a i {
+    width: 20px !important;
+    text-align: center !important;
+    margin-right: 0.75rem !important;
+    font-size: 1rem !important;
+    flex-shrink: 0 !important;
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    color: #ff6b35 !important;
+}
+
+#sidebar-admin-wraper .admin-nav-text {
+    flex: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a .arrow {
+    margin-left: auto !important;
+    font-size: 0.8rem !important;
+    color: #666 !important;
+    transition: transform 0.3s ease !important;
+    flex-shrink: 0 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a:hover .arrow {
+    color: #ff6b35 !important;
+}
+
+/* Sub-menu styles */
+#sidebar-admin-wraper .admin-nav ul li .sub-menu {
+    background: transparent;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0;
+    display: none;
+    transition: all 0.3s ease;
+    margin-left: 1rem;
+}
+
+#sidebar-admin-wraper .admin-nav ul li .sub-menu.open {
+    display: block;
+}
+
+#sidebar-admin-wraper .admin-nav ul li .sub-menu li {
+    margin: 0.125rem 0;
+}
+
+#sidebar-admin-wraper .admin-nav ul li .sub-menu li a {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.85rem !important;
+    color: #666 !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li .sub-menu li a:hover {
+    background: rgba(255, 107, 53, 0.1) !important;
+    color: #333 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li .sub-menu li.active a,
+#sidebar-admin-wraper .admin-nav ul li .sub-menu li a.active {
+    background: rgba(255, 107, 53, 0.2) !important;
+    color: #ff6b35 !important;
+    font-weight: 600 !important;
+}
+
+/* Prevent parent menu from getting active styling when submenu is active */
+#sidebar-admin-wraper .admin-nav ul li > a {
+    background: transparent !important;
+    color: #333 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li > a:hover {
+    background: rgba(255, 107, 53, 0.1) !important;
+    color: #333 !important;
+}
+
+/* Only direct menu items (not parent of submenus) should get active styling */
+#sidebar-admin-wraper .admin-nav ul li:not(:has(.sub-menu)).active a,
+#sidebar-admin-wraper .admin-nav ul li:not(:has(.sub-menu)) a.active {
+    background: rgba(255, 107, 53, 0.3) !important;
+    color: #000 !important;
+    box-shadow: 0 2px 10px rgba(255, 107, 53, 0.2) !important;
+}
+
+/* Remove specific placement officer styling to prevent conflicts */
+
+/* Icon styling */
+#sidebar-admin-wraper .admin-nav ul li a i:not(.arrow) {
+    color: #ff6b35 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li a:hover i:not(.arrow) {
+    color: #ff6b35 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li.active a i:not(.arrow) {
+    color: #ff6b35 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li .sub-menu li a i {
+    color: #666 !important;
+}
+
+#sidebar-admin-wraper .admin-nav ul li .sub-menu li.active a i,
+#sidebar-admin-wraper .admin-nav ul li .sub-menu li a.active i {
+    color: #ff6b35 !important;
+}
+
+/* Hide scrollbar */
+#sidebar-admin-wraper,
+#sidebar-admin-wraper .admin-nav,
+#sidebar-admin-wraper .admin-nav.scrollbar-macosx {
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+#sidebar-admin-wraper::-webkit-scrollbar,
+#sidebar-admin-wraper .admin-nav::-webkit-scrollbar,
+#sidebar-admin-wraper .admin-nav.scrollbar-macosx::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+}
+
+/* Layout responsiveness */
+.page-wraper {
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+@media (min-width: 992px) {
+    #content {
+        margin-left: 280px !important;
+        width: calc(100% - 280px) !important;
+        min-height: 100vh !important;
+        transition: margin-left 0.3s ease, width 0.3s ease !important;
+        background: #f8fafc !important;
+        padding-top: 90px !important;
+        overflow-x: hidden !important;
+        position: relative !important;
+    }
+    
+    .content-admin-main {
+        width: 100% !important;
+        height: 100% !important;
+        position: relative !important;
+    }
+
+    #content.sidebar-hidden {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+    
+    #sidebar-admin-wraper {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 280px !important;
+        height: 100vh !important;
+        transform: translateX(0) !important;
+        display: block !important;
+        z-index: 1000 !important;
+        background: #ffffff !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        margin-left: 0 !important;
+        visibility: visible !important;
+        transition: opacity 0.2s ease !important;
+    }
+    
+    #sidebar-admin-wraper.active {
+        transform: translateX(0) !important;
+        opacity: 1 !important;
+    }
+
+    #sidebar-admin-wraper.collapsed {
+        transform: translateX(-280px) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+        display: none !important;
+    }
+
+    #header-admin {
+        width: calc(100% - 280px) !important;
+        top: 0;
+        right: 0;
+        position: fixed;
+        background: #ffffff !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        z-index: 1001 !important;
+        transition: width 0.3s ease !important;
+    }
+
+    #header-admin.active {
+        width: 100% !important;
+    }
+}
+
+.mobile-menu-toggle {
+    position: fixed !important;
+    top: 15px !important;
+    left: 15px !important;
+    z-index: 10001 !important;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 12px 15px !important;
+    border-radius: 8px !important;
+    font-size: 18px !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: none !important;
+}
+
+.mobile-menu-toggle:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+}
+
+.sidebar-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    z-index: 9998 !important;
+    backdrop-filter: blur(1px) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+    pointer-events: none !important;
+}
+
+.sidebar-overlay.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+@media (max-width: 991px) {
+    #content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        padding-top: 70px !important;
+    }
+    
+    #sidebar-admin-wraper {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 280px !important;
+        height: 100vh !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s ease !important;
+        z-index: 10000 !important;
+        background: #ffffff !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.25) !important;
+        margin-left: 0 !important;
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+
+    #sidebar-admin-wraper:not(.active) {
+        transform: translateX(-100%) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    #sidebar-admin-wraper.active {
+        transform: translateX(0) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    #sidebar-admin-wraper.active ~ .mobile-menu-toggle,
+    body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
+        display: none !important;
+    }
+
+    #content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    .mobile-menu-toggle {
+        position: fixed !important;
+        top: 15px !important;
+        left: 15px !important;
+        z-index: 10001 !important;
+        width: 50px !important;
+        height: 50px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+        transition: all 0.3s ease !important;
+        display: block !important;
+    }
+    
+    .mobile-menu-toggle:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+    }
+  
+    .mobile-menu-toggle:active {
+        transform: translateY(0) !important;
+    }
+
+    #header-admin {
+        width: 100% !important;
+        left: 0;
+        right: 0;
+    }
+
+    /* Hide all hamburger buttons except the first one */
+    .page-wraper .mobile-menu-toggle:not(:first-of-type) {
+        display: none !important;
+    }
+  
+    /* Hamburger button styling */
+    .page-wraper > .mobile-menu-toggle:first-child {
+        display: flex !important;
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 10001;
+        width: 44px;
+        height: 44px;
+        background: #fd7e14 !important;
+        border: none !important;
+        border-radius: 8px;
+        color: white !important;
+        font-size: 18px;
+    }
+  
+    .page-wraper > .mobile-menu-toggle:first-child i,
+    .page-wraper > .mobile-menu-toggle:first-child .fa,
+    .page-wraper > .mobile-menu-toggle:first-child .fas {
+        color: white !important;
+    }
+  
+    .page-wraper > .mobile-menu-toggle:first-child:hover,
+    .page-wraper > .mobile-menu-toggle:first-child:active,
+    .page-wraper > .mobile-menu-toggle:first-child:focus {
+        color: white !important;
+    }
+  
+    .page-wraper > .mobile-menu-toggle:first-child:hover i,
+    .page-wraper > .mobile-menu-toggle:first-child:active i,
+    .page-wraper > .mobile-menu-toggle:first-child:focus i {
+        color: white !important;
+    }
+
+    /* Prevent any dark overlays from other sources */
+    .page-wraper::before,
+    .page-wraper::after {
+        display: none !important;
+    }
+
+    /* Ensure proper stacking context */
+    .page-wraper {
+        position: relative !important;
+        z-index: 1 !important;
+    }
+
+    /* Fix for any potential Bootstrap conflicts */
+    .fade {
+        opacity: 1 !important;
+    }
+
+    .fade.show {
+        opacity: 1 !important;
+    }
+
+    /* Ensure sidebar content is scrollable */
+    #sidebar-admin-wraper .admin-nav {
+        height: calc(100vh - 80px) !important;
+        overflow-y: auto !important;
+        padding-bottom: 20px !important;
+    }
+
+    /* Smooth scrolling for sidebar */
+    #sidebar-admin-wraper .admin-nav::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    #sidebar-admin-wraper .admin-nav::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    #sidebar-admin-wraper .admin-nav::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 2px;
+    }
+
+    #sidebar-admin-wraper .admin-nav::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    /* Prevent text selection on mobile menu button */
+    .mobile-menu-toggle {
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* Ensure no conflicting modal backdrops */
+    .modal-backdrop {
+        display: none !important;
+    }
+
+    /* Prevent Bootstrap modal interference */
+    body.modal-open {
+        overflow: auto !important;
+        padding-right: 0 !important;
+    }
+
+    /* Additional safety measures */
+    .modal,
+    .modal-backdrop,
+    .offcanvas-backdrop {
+        z-index: 1050 !important;
+    }
+
+    /* Ensure sidebar overlay doesn't interfere with modals */
+    .sidebar-overlay {
+        z-index: 999 !important;
+    }
+
+    /* When modal is open, hide sidebar overlay */
+    body.modal-open .sidebar-overlay {
+        display: none !important;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #sidebar-admin-wraper {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    #sidebar-admin-wraper.active {
+        transform: translateX(0);
+    }
+}
+
+/* Remove orange underlines from admin panel titles */
+.panel-heading .panel-tittle {
+  border-bottom: none !important;
+  text-decoration: none !important;
+}
+
+.panel-heading .panel-tittle::after {
+  display: none !important;
+}
+
+.wt-panel-heading .panel-tittle {
+  border-bottom: none !important;
+  text-decoration: none !important;
+}
+
+.wt-panel-heading .panel-tittle::after {
+  display: none !important;
+}
+
+.wt-panel-heading {
+  border-bottom: none !important;
+}
+
+.wt-panel-heading::after {
+  display: none !important;
+}

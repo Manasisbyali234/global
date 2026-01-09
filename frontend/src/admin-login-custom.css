@@ -1,0 +1,97 @@
+/* Custom CSS to optimize admin-login page on mobile */
+.twm-login-reg {
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+}
+
+.twm-login-reg-inner {
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+}
+
+/* Desktop positioning - move login form down */
+@media screen and (min-width: 769px) {
+    .twm-login-reg {
+        padding-top: 80px !important;
+    }
+    
+    .twm-login-reg-inner {
+        padding-top: 60px !important;
+    }
+}
+
+/* Mobile-only optimizations (screen width ≤ 768px) */
+@media screen and (max-width: 768px) {
+    /* 1. Reduce top margin and padding below header */
+    /* 2. Remove min-height: 100vh */
+    .page-wraper,
+    .page-content,
+    .twm-login-reg,
+    .twm-login-reg-inner {
+        min-height: auto !important;
+        height: auto !important;
+        margin-top: 0 !important;
+        padding-top: 5px !important;
+        padding-bottom: 10px !important;
+    }
+
+    /* 3. Decrease vertical spacing for sections */
+    .twm-login-reg-head {
+        margin-bottom: 10px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .twm-login-reg-logo {
+        margin-bottom: 5px !important;
+    }
+
+    /* 4. Ensure form appears immediately below header */
+    .twm-login-reg-title {
+        margin-top: 0 !important;
+    }
+
+    .twm-login-reg-title h4 {
+        margin-bottom: 4px !important;
+        font-size: 1.25rem !important;
+    }
+
+    .twm-login-reg-title p {
+        margin-bottom: 8px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .alert.alert-info {
+        padding: 10px !important;
+        margin-top: 5px !important;
+        margin-bottom: 15px !important;
+        font-size: 0.85rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .twm-tabs-style-2 {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .container {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    /* Remove excessive padding/margin from common classes on this page */
+    .m-b30, .m-t30, .m-b50, .m-t50 {
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .section-full {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
+}

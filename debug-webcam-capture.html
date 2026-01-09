@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Webcam Capture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        video, canvas { max-width: 100%; border: 2px solid #ddd; border-radius: 5px; }
+        .hidden { display: none; }
+        .logs {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Webcam Capture Debug Tool</h1>
+        
+        <div id="status" class="status info">Ready to test webcam capture</div>
+        
+        <div>
+            <button onclick="testWebcam()">Test Webcam Access</button>
+            <button onclick="testCapture()" id="captureBtn" disabled>Test Capture</button>
+            <button onclick="testUpload()" id="uploadBtn" disabled>Test Upload</button>
+            <button onclick="stopWebcam()" id="stopBtn" disabled>Stop Webcam</button>
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <h3>Live Video (Hidden in actual assessment)</h3>
+            <video id="video" autoplay playsinline muted width="320" height="240"></video>
+            <canvas id="canvas" class="hidden"></canvas>
+        </div>
+        
+        <div>
+            <h3>Captured Image</h3>
+            <img id="capturedImage" style="max-width: 320px; border: 2px solid #ddd; border-radius: 5px;" />
+        </div>
+        
+        <div>
+            <h3>Debug Logs</h3>
+            <div id="logs" class="logs"></div>
+        </div>
+    </div>
+
+    <script>
+        let stream = null;
+        let capturedBlob = null;
+
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'success' ? 'green' : type === 'error' ? 'red' : 'blue';
+            logs.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        function updateStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        async function testWebcam() {
+            try {
+                log('🚀 Testing webcam access...', 'info');
+                updateStatus('Requesting webcam access...', 'info');
+
+                // Check if getUserMedia is supported
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('getUserMedia not supported in this browser');
+                }
+
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    },
+                    audio: false
+                });
+
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+
+                video.onloadedmetadata = () => {
+                    log(`✅ Video metadata loaded: ${video.videoWidth}x${video.videoHeight}`, 'success');
+                    document.getElementById('captureBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = false;
+                };
+
+                await video.play();
+                log('✅ Webcam access granted and video playing', 'success');
+                updateStatus('Webcam active - Ready to capture', 'success');
+
+            } catch (error) {
+                log(`❌ Webcam error: ${error.name} - ${error.message}`, 'error');
+                updateStatus(`Failed: ${error.message}`, 'error');
+                
+                if (error.name === 'NotAllowedError') {
+                    log('🚫 Camera access denied by user', 'error');
+                } else if (error.name === 'NotFoundError') {
+                    log('📷 No camera device found', 'error');
+                } else if (error.name === 'NotReadableError') {
+                    log('🔒 Camera is being used by another application', 'error');
+                }
+            }
+        }
+
+        function testCapture() {
+            try {
+                const video = document.getElementById('video');
+                const canvas = document.getElementById('canvas');
+
+                if (video.videoWidth === 0 || video.videoHeight === 0) {
+                    log('⚠️ Video not ready for capture', 'error');
+                    return;
+                }
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+
+                log(`📸 Image captured: ${canvas.width}x${canvas.height}`, 'success');
+
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        capturedBlob = blob;
+                        const url = URL.createObjectURL(blob);
+                        document.getElementById('capturedImage').src = url;
+                        document.getElementById('uploadBtn').disabled = false;
+                        log(`✅ Blob created: ${(blob.size / 1024).toFixed(2)} KB`, 'success');
+                    } else {
+                        log('❌ Failed to create blob', 'error');
+                    }
+                }, 'image/jpeg', 0.8);
+
+            } catch (error) {
+                log(`❌ Capture error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testUpload() {
+            if (!capturedBlob) {
+                log('❌ No captured image to upload', 'error');
+                return;
+            }
+
+            try {
+                log('📤 Testing upload simulation...', 'info');
+                
+                const formData = new FormData();
+                formData.append('capture', capturedBlob, `test_capture_${Date.now()}.jpg`);
+                formData.append('attemptId', 'test-attempt-id');
+                formData.append('captureIndex', '0');
+
+                log('📋 FormData created:', 'info');
+                log(`  - File size: ${capturedBlob.size} bytes`, 'info');
+                log(`  - File type: ${capturedBlob.type}`, 'info');
+                log(`  - Attempt ID: test-attempt-id`, 'info');
+
+                // Simulate upload (replace with actual endpoint when testing)
+                log('🔄 Simulating upload to /api/candidate/assessments/capture', 'info');
+                
+                // In real test, you would do:
+                // const response = await fetch('/api/candidate/assessments/capture', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Authorization': 'Bearer YOUR_TOKEN_HERE'
+                //     },
+                //     body: formData
+                // });
+
+                setTimeout(() => {
+                    log('✅ Upload simulation completed', 'success');
+                    updateStatus('Upload test completed', 'success');
+                }, 1000);
+
+            } catch (error) {
+                log(`❌ Upload error: ${error.message}`, 'error');
+            }
+        }
+
+        function stopWebcam() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                document.getElementById('video').srcObject = null;
+                document.getElementById('captureBtn').disabled = true;
+                document.getElementById('uploadBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = true;
+                log('🛑 Webcam stopped', 'info');
+                updateStatus('Webcam stopped', 'info');
+            }
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', stopWebcam);
+
+        // Auto-start webcam test
+        log('🔧 Debug tool loaded. Click "Test Webcam Access" to begin.', 'info');
+    </script>
+</body>
+</html>

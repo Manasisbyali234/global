@@ -1,0 +1,41 @@
+@media (max-width: 767px) {
+    .notification-container {
+        max-height: none !important;
+    }
+    
+    .notification-item {
+        padding: 14px 12px !important;
+        cursor: pointer;
+    }
+    
+    .notification-icon {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .notification-content {
+        flex: 1 !important;
+        min-width: 0 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .notification-title {
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+        word-break: break-word !important;
+    }
+    
+    .notification-message {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+    
+    .notification-dismiss {
+        display: flex !important;
+        margin-left: 8px !important;
+    }
+}

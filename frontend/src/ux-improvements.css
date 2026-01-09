@@ -1,0 +1,391 @@
+/**
+ * UX Improvements CSS
+ * Provides enhanced user experience with better accessibility,
+ * animations, and visual feedback
+ */
+
+/* ===== Enhanced Focus States for Keyboard Navigation ===== */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #FF6A00;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Remove default outline for mouse users */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* ===== Better Button Feedback ===== */
+.circle-line-btn {
+    transition: all 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+
+
+/* ===== Improved Form Input States ===== */
+input:focus,
+select:focus,
+textarea:focus {
+    background-color: #f9fafb;
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder {
+    color: #9ca3af;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+    opacity: 0.5;
+}
+
+/* ===== Smooth Scrolling Enhancement ===== */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ===== Card Hover Animations ===== */
+.hover-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Remove recruiter card hover effects */
+.twm-column-5 ul li .twm-recruiters5-box:after {
+    display: none !important;
+}
+
+.twm-column-5 ul li .twm-recruiters5-box:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    background: #fff !important;
+}
+
+.twm-column-5 ul li .twm-recruiters5-box:hover .twm-title a,
+.twm-column-5 ul li .twm-recruiters5-box:hover .twm-job-address,
+.twm-column-5 ul li .twm-recruiters5-box:hover .twm-rec-rating-count {
+    color: inherit !important;
+}
+
+/* ===== Improved Loading Spinner ===== */
+.spinner-border {
+    width: 40px;
+    height: 40px;
+    border-width: 4px;
+    color: #FF6A00;
+    animation: spinner-animation 1s linear infinite;
+}
+
+@keyframes spinner-animation {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== Touch-friendly Interactive Elements ===== */
+@media (max-width: 768px) {
+    button,
+    a,
+    input,
+    select,
+    textarea {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .site-button,
+    .circle-line-btn {
+        min-height: 48px;
+        padding: 12px 20px;
+    }
+}
+
+/* ===== Better Link Styles ===== */
+a {
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+a:not([class]):hover {
+    opacity: 0.8;
+}
+
+/* ===== Enhanced Form Validation States ===== */
+input.is-invalid,
+select.is-invalid,
+textarea.is-invalid {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2;
+}
+
+input.is-valid,
+select.is-valid,
+textarea.is-valid {
+    border-color: #10b981 !important;
+    background-color: #f0fdf4;
+}
+
+/* ===== Smooth Transitions for State Changes ===== */
+.new-job-card {
+    transition: all 0.3s ease;
+}
+
+.job-card-header,
+.job-card-middle,
+.job-card-footer {
+    transition: all 0.2s ease;
+}
+
+/* ===== Improved Accessibility for Icons ===== */
+.feather-map-pin,
+.fa-arrow-right,
+[class^="flaticon-"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== Loading State Placeholder ===== */
+.loading-skeleton {
+    background: linear-gradient(
+        90deg,
+        #f3f4f6 25%,
+        #e5e7eb 50%,
+        #f3f4f6 75%
+    );
+    background-size: 200% 100%;
+    animation: loading-animation 1.5s infinite;
+}
+
+@keyframes loading-animation {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ===== Improved Category Cards ===== */
+.job-cat-block-hpage-6 {
+    transition: all 0.3s ease;
+}
+
+.job-cat-block-hpage-6:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ===== Better Text Selection ===== */
+::selection {
+    background-color: #FF6A00;
+    color: white;
+}
+
+::-moz-selection {
+    background-color: #FF6A00;
+    color: white;
+}
+
+/* ===== Improved Accessibility for Screen Readers ===== */
+.sr-only,
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ===== Smooth Fade Animations ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* ===== Reduced Motion Support ===== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ===== Better Error Alert Styling ===== */
+.error-alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9998;
+    animation: slideIn 0.3s ease-out;
+}
+
+.error-alert-content {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.error-alert-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #991b1b;
+    font-size: 14px;
+    flex: 1;
+}
+
+.error-alert-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: #dc2626;
+}
+
+.error-alert-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #991b1b;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.2s ease;
+}
+
+.error-alert-close:hover {
+    opacity: 0.7;
+}
+
+/* ===== Container Animations ===== */
+.animate-on-scroll {
+    opacity: 0;
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* ===== Improved Line Height for Better Readability ===== */
+.job-title,
+.wt-title,
+h2,
+h3,
+h4 {
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+}
+
+.job-info,
+.twm-content,
+p {
+    line-height: 1.6;
+    letter-spacing: 0;
+}
+
+/* ===== Better Visual Hierarchy ===== */
+strong {
+    font-weight: 600;
+}
+
+em {
+    font-style: italic;
+}
+
+code {
+    background-color: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "Courier New", monospace;
+}
+
+/* ===== Improved Mobile Responsiveness ===== */
+@media (max-width: 576px) {
+    button,
+    .site-button {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .error-alert-container {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+    }
+
+    .error-alert-content {
+        flex-direction: column;
+    }
+}
+
+/* ===== Smooth Page Transitions ===== */
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: #fafafa;
+        color: #1f2937;
+    }
+}
+
+/* Force black color for titles */
+.wt-title,
+.twm-title,
+h1, h2, h3, h4, h5, h6 {
+  color: #000000 !important;
+}
+
+/* Fix password eye icon position */
+.password-eye-icon {
+    position: absolute !important;
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10;
+}
+
+/* Prevent form-group height changes from affecting eye icon */
+.form-group.position-relative {
+    position: relative;
+}
+
+.form-group.position-relative .form-control {
+    padding-right: 40px;
+}

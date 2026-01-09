@@ -1,0 +1,47 @@
+/* Employer Support - Match Candidate Dashboard Style */
+.emp-support-page {
+  background: #f7f7f7;
+  min-height: 100vh;
+  padding: 0 !important;
+}
+
+.emp-support-page .wt-admin-right-page-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 24px 2rem !important;
+  margin: 0 0 2rem 0 !important;
+}
+
+.emp-support-page .twm-dash-b-blocks {
+  padding: 2rem !important;
+}
+
+.emp-support-page .panel {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  border: 1px solid #eef2f7 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 992px) {
+  .emp-support-page .wt-admin-right-page-header {
+    padding: 20px !important;
+    margin: 0 0 1rem 0 !important;
+  }
+  
+  .emp-support-page .twm-dash-b-blocks {
+    padding: 1rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .emp-support-page .wt-admin-right-page-header {
+    padding: 15px !important;
+    margin: 0 0 0.5rem 0 !important;
+  }
+  
+  .emp-support-page .twm-dash-b-blocks {
+    padding: 0.5rem !important;
+  }
+}

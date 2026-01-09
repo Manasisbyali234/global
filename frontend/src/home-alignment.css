@@ -1,0 +1,161 @@
+/* Home Page Alignment to Hero Text */
+
+.home-page-alignment .container,
+.home-page-alignment .container-fluid {
+    max-width: 1200px !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    float: none !important;
+}
+
+/* Specific section fixes for index16.jsx */
+.home-page-alignment .section-full {
+    width: 100% !important;
+}
+
+/* Align section headings to the middle */
+.home-page-alignment .section-head {
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+.home-page-alignment .section-head.center {
+    text-align: center !important;
+}
+
+.home-page-alignment .section-head .wt-title,
+.home-page-alignment .section-head .wt-small-separator {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+}
+
+.home-page-alignment .wt-small-separator-outer {
+    text-align: center !important;
+    justify-content: center !important;
+    display: flex !important;
+}
+
+.home-page-alignment .wt-small-separator-outer.center {
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.home-page-alignment .wt-small-separator site-text-primary {
+    margin: 0 auto !important;
+}
+
+
+.home-page-alignment .category-cards-container {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+}
+
+.home-page-alignment .category-cards-second-row {
+    padding-left: 0 !important;
+    margin-top: 20px !important;
+}
+
+/* Top Jobs section alignment */
+.home-page-alignment .twm-jobs-grid-wrap > div {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Recruiters section alignment */
+.home-page-alignment .twm-recruiters5-wrap {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* How it works section alignment */
+.home-page-alignment .twm-how-it-work-section3 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+}
+
+/* Ensure Row and Col don't add extra padding on the left of the first item */
+.home-page-alignment .row {
+    margin-left: -15px !important;
+    margin-right: -15px !important;
+}
+
+.home-page-alignment .col, 
+.home-page-alignment [class*="col-"] {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+/* Specific fix for the flex containers that have title and browse button */
+.home-page-alignment .section-header-with-btn {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important;
+    width: 100% !important;
+    min-height: 80px;
+}
+
+.home-page-alignment .header-btn-container {
+    position: absolute !important;
+    right: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    display: flex !important;
+    align-items: center !important;
+    z-index: 10;
+}
+
+/* Align the browse button area if it has a spacer - only target the header row to avoid hiding content in other flex containers */
+.home-page-alignment .wt-separator-two-part-row div[style*="flex: 1"] {
+    display: none !important;
+}
+
+.home-page-alignment .wt-separator-two-part-row .section-head,
+.home-page-alignment div[style*="display: flex"] .section-head {
+    flex: none !important;
+    width: auto !important;
+    max-width: 80% !important;
+}
+
+/* Ensure the "View All" buttons or similar that were on the right are now below or handled */
+.home-page-alignment .header-btn-container .site-button {
+    margin-top: 0 !important;
+}
+
+
+/* Mobile adjustments */
+@media (max-width: 991px) {
+    .home-page-alignment .section-header-with-btn {
+        flex-direction: column !important;
+        min-height: auto !important;
+    }
+    .home-page-alignment .header-btn-container {
+        position: static !important;
+        transform: none !important;
+        margin-top: 15px !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+    .home-page-alignment .wt-separator-two-part-row .section-head,
+    .home-page-alignment div[style*="display: flex"] .section-head {
+        max-width: 100% !important;
+    }
+}

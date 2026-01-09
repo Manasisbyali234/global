@@ -1,0 +1,858 @@
+/* Mobile Responsive Fixes - All Devices */
+
+/* ============================================
+   UNIVERSAL MOBILE FIXES
+   ============================================ */
+
+@media (max-width: 991px) {
+  /* Prevent horizontal overflow */
+  body, html {
+    overflow-x: hidden;
+  }
+
+  .container, .container-fluid {
+    overflow-x: hidden;
+  }
+
+  /* Force page content to lowest z-index */
+  .page-wraper,
+  .page-content,
+  .section-full {
+    z-index: 1 !important;
+  }
+
+  /* Header above content but below menu */
+  .site-header,
+  .sticky-header,
+  .main-bar-wraper,
+  .main-bar {
+    position: relative;
+    z-index: 100 !important;
+  }
+
+  /* Hamburger elements at highest z-index */
+  .hamburger-btn {
+    z-index: 999999 !important;
+  }
+
+  .hamburger-overlay {
+    z-index: 999998 !important;
+  }
+
+  .hamburger-menu {
+    z-index: 999999 !important;
+  }
+
+  /* Flexible margins and padding */
+  [style*="marginLeft: '20px'"],
+  [style*="marginLeft: '30px'"],
+  [style*="marginLeft: '45px'"],
+  [style*="paddingLeft: '30px'"] {
+    margin-left: 10px !important;
+    padding-left: 10px !important;
+  }
+
+  [style*="marginRight: '20px'"],
+  [style*="marginRight: '30px'"],
+  [style*="marginRight: '45px'"],
+  [style*="paddingRight: '30px'"] {
+    margin-right: 10px !important;
+    padding-right: 10px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Full width sections */
+  .section-full {
+    margin-left: -10px;
+    margin-right: -10px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /* Center Top Recruiters title on mobile */
+  div[style*="display: flex"][style*="justify-content: space-between"]:not(.category-card) {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  div[style*="display: flex"][style*="justify-content: space-between"]:not(.category-card) > div[style*="flex: 1"]:empty {
+    display: none !important;
+  }
+
+  div[style*="justify-content: flex-end"]:not(.category-card *) {
+    margin-top: 1rem;
+  }
+
+  /* Flexible grid columns */
+  .row {
+    margin-left: -5px !important;
+    margin-right: -5px !important;
+  }
+
+  .col, [class*="col-"] {
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+  }
+
+  /* Touch-friendly buttons */
+  button, .btn, .site-button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px 16px;
+  }
+
+  /* Readable text */
+  body {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Prevent text overflow */
+  p, span, div {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Image responsiveness */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Flex containers */
+  [style*="display: 'flex'"],
+  [style*="display:flex"] {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Extra padding reduction */
+  .container, .container-fluid {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /* Keep category cards horizontal */
+  .category-cards-container {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Mobile categories grid - 2 columns */
+  .mobile-categories > div[style*="display: grid"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Full width columns */
+  [class*="col-"] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Responsive typography */
+  h1 { font-size: 1.2rem; line-height: 1.3; }
+  h2 { font-size: 1.05rem; line-height: 1.3; }
+  h3 { font-size: 0.95rem; line-height: 1.3; }
+  h4 { font-size: 0.9rem; line-height: 1.3; }
+  h5 { font-size: 0.85rem; line-height: 1.3; }
+  h6 { font-size: 0.8rem; line-height: 1.3; }
+
+  /* Spacing adjustments */
+  .mb-4 { margin-bottom: 1rem !important; }
+  .mb-3 { margin-bottom: 0.75rem !important; }
+  .mb-2 { margin-bottom: 0.5rem !important; }
+  .mt-4 { margin-top: 1rem !important; }
+  .mt-3 { margin-top: 0.75rem !important; }
+  .mt-2 { margin-top: 0.5rem !important; }
+
+  .p-t20 { padding-top: 1rem !important; }
+  .p-b20 { padding-bottom: 1rem !important; }
+  .p-t50 { padding-top: 1.5rem !important; }
+  .p-b50 { padding-bottom: 1.5rem !important; }
+
+  /* Card spacing */
+  .card, [class*="card"] {
+    margin-bottom: 1rem;
+  }
+
+  /* Prevent overflow on cards */
+  .new-job-card,
+  .twm-w-process-steps3,
+  .category-card {
+    overflow: hidden;
+    word-wrap: break-word;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Minimal padding */
+  .container, .container-fluid {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  /* Mobile categories grid - 2 columns */
+  .mobile-categories > div[style*="display: grid"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  /* Reduced font sizes */
+  body { font-size: 13px; }
+  h1 { font-size: 1.1rem; }
+  h2 { font-size: 1rem; }
+  h3 { font-size: 0.9rem; }
+  h4 { font-size: 0.85rem; }
+
+  /* Minimal spacing */
+  .mb-4 { margin-bottom: 0.75rem !important; }
+  .mb-3 { margin-bottom: 0.5rem !important; }
+  .mt-4 { margin-top: 0.75rem !important; }
+  .mt-3 { margin-top: 0.5rem !important; }
+
+  /* Compact buttons */
+  button, .btn, .site-button {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 40px;
+  }
+
+  /* Compact cards */
+  .new-job-card { padding: 12px; }
+  .twm-w-process-steps3 { padding: 10px; }
+  .category-card { padding: 10px 12px; }
+}
+
+@media (max-width: 360px) {
+  /* Ultra-compact layout */
+  .container, .container-fluid {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  /* Mobile categories grid - 2 columns */
+  .mobile-categories > div[style*="display: grid"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  body { font-size: 12px; }
+  h1 { font-size: 1rem; }
+  h2 { font-size: 0.95rem; }
+  h3 { font-size: 0.85rem; }
+  h4 { font-size: 0.8rem; }
+
+  /* Minimal spacing */
+  .mb-4, .mb-3, .mb-2 { margin-bottom: 0.5rem !important; }
+  .mt-4, .mt-3, .mt-2 { margin-top: 0.5rem !important; }
+
+  /* Compact buttons */
+  button, .btn, .site-button {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-height: 36px;
+  }
+
+  /* Compact cards */
+  .new-job-card { padding: 10px; }
+  .twm-w-process-steps3 { padding: 8px; }
+  .category-card { padding: 8px 10px; }
+
+  /* Hide non-essential elements */
+  .hidden-xs { display: none !important; }
+
+  /* HOME PAGE (index16.jsx) SPECIFIC MOBILE FIXES */
+  .cta-container-box {
+    padding: 30px 20px !important;
+    border-radius: 20px !important;
+  }
+
+  .cta-heading {
+    font-size: 22px !important;
+    line-height: 1.3 !important;
+  }
+
+  .illustration-circle {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .illustration-circle svg {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .section-title-large {
+    font-size: 22px !important;
+    text-align: center !important;
+  }
+
+  .view-all-companies-btn {
+    width: 100% !important;
+    text-align: center !important;
+    margin-top: 10px !important;
+  }
+
+  .recruiter-card {
+    padding: 15px !important;
+  }
+
+  .recruiter-logo-circle {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .workflow-illustration-card {
+    padding: 10px !important;
+  }
+
+  .redesign-section {
+    padding: 30px 0 !important;
+  }
+
+  .badge-orange {
+    margin-bottom: 8px !important;
+  }
+
+  .process-card-light {
+    padding: 20px 15px !important;
+  }
+
+  /* Fix Top Jobs row alignment */
+  .twm-jobs-grid-wrap .row {
+    margin-left: -10px !important;
+    margin-right: -10px !important;
+    width: auto !important;
+  }
+
+  /* Global overflow prevention */
+  .page-wraper {
+    overflow-x: hidden !important;
+    position: relative !important;
+    width: 100% !important;
+  }
+
+  /* Fix for section headers with buttons */
+  .section-header-with-btn {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 15px !important;
+  }
+
+  .header-btn-container {
+    position: static !important;
+    transform: none !important;
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  /* Override inline styles for category cards */
+  .category-card {
+    padding: 12px 15px !important;
+    height: auto !important;
+    min-height: 70px !important;
+  }
+
+  .category-text-title {
+    font-size: 14px !important;
+  }
+
+  .category-text-sub {
+    font-size: 11px !important;
+  }
+
+  .category-cards-second-row {
+    margin-top: 10px !important;
+  }
+
+  /* Footer bottom stacking */
+  .footer-bottom-info {
+    flex-direction: column !important;
+    gap: 15px !important;
+    text-align: center !important;
+  }
+
+  .footer-bottom-info .social-icons {
+    justify-content: center !important;
+  }
+
+  .home-page-alignment {
+    overflow-x: hidden !important;
+    width: 100% !important;
+  }
+}
+
+/* ============================================
+   LANDSCAPE MODE FIXES
+   ============================================ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .section-full {
+    padding: 1rem 0;
+  }
+
+  .section-head {
+    margin-bottom: 1rem;
+  }
+
+  h2.wt-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .twm-w-process-steps3 {
+    padding: 0.75rem;
+    min-height: auto;
+  }
+
+  .new-job-card {
+    padding: 0.75rem;
+  }
+}
+
+/* ============================================
+   SAFE AREA INSETS (Notch Support)
+   ============================================ */
+
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+  }
+
+  .container, .container-fluid {
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+  }
+}
+
+/* ============================================
+   POPUP MODAL RESPONSIVE FIXES
+   ============================================ */
+
+/* Fix white screen modal issue on mobile */
+.modal {
+  z-index: 1055 !important;
+}
+
+.modal-backdrop {
+  z-index: 1050 !important;
+}
+
+.modal-dialog {
+  position: relative;
+  z-index: 1056 !important;
+}
+
+.modal-content {
+  background-color: #ffffff !important;
+  border-radius: 10px !important;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;
+}
+
+@media (max-width: 767px) {
+  /* Fix modal positioning on mobile */
+  .modal-dialog {
+    margin: 0.5rem !important;
+    max-width: calc(100% - 1rem) !important;
+  }
+
+  .modal-dialog-centered {
+    min-height: calc(100% - 1rem) !important;
+  }
+
+  /* Popup modal body padding */
+  .modal-body {
+    padding: 15px !important;
+  }
+
+  /* Form groups in popups */
+  .modal-body .form-group {
+    margin-bottom: 12px !important;
+  }
+
+  /* Country code and phone field layout on mobile */
+  .col-lg-3.col-md-3,
+  .col-lg-9.col-md-9 {
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+  }
+
+  /* Keep fields inline on mobile */
+  .modal-body .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  /* Responsive button styles in popups */
+  [style*="width: '100%'"][style*="minHeight: '48px'"],
+  [style*="width: 100%"][style*="min-height: 48px"],
+  button[type="submit"][style*="width"],
+  #candidate-submit-btn,
+  #employer-submit-btn,
+  #placement-submit-btn {
+    padding: 10px 12px !important;
+    font-size: 14px !important;
+    min-height: 44px !important;
+  }
+
+  /* Modal tab buttons */
+  .modal-body .nav-tabs .nav-link {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* Alert messages in modals */
+  .modal-body .alert {
+    margin-bottom: 10px !important;
+    padding: 10px !important;
+    font-size: 13px !important;
+  }
+
+  /* Form controls in modals */
+  .modal-body .form-control,
+  .modal-body select {
+    font-size: 14px !important;
+    padding: 8px 10px !important;
+  }
+
+  /* Modal header text sizing */
+  .modal-header h2.modal-title {
+    font-size: 1.2rem !important;
+  }
+
+  .modal-header p {
+    font-size: 12px !important;
+    margin-bottom: 5px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .col-lg-3.col-md-3.col-sm-12,
+  .col-lg-9.col-md-9.col-sm-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-bottom: 8px;
+  }
+
+  /* Extra small screens */
+  .modal-dialog {
+    margin: 10px !important;
+  }
+
+  .modal-content {
+    border-radius: 8px !important;
+  }
+
+  /* More aggressive button styling */
+  button[type="submit"][style*="width"],
+  #candidate-submit-btn,
+  #employer-submit-btn,
+  #placement-submit-btn {
+    padding: 9px 10px !important;
+    font-size: 13px !important;
+    min-height: 42px !important;
+  }
+
+  /* Sign up/login link text */
+  .modal-body .col-md-12 > div {
+    font-size: 12px !important;
+  }
+
+  /* Form input text size */
+  .modal-body input::placeholder,
+  .modal-body select option {
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Ultra small phones */
+  [style*="width: '100%'"][style*="minHeight: '48px'"],
+  button[type="submit"][style*="width"],
+  #candidate-submit-btn,
+  #employer-submit-btn,
+  #placement-submit-btn {
+    padding: 8px 8px !important;
+    font-size: 12px !important;
+    min-height: 40px !important;
+  }
+
+  .modal-header h2.modal-title {
+    font-size: 1.1rem !important;
+  }
+
+  .modal-body .nav-tabs .nav-link {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .modal-body .form-control,
+  .modal-body select {
+    font-size: 13px !important;
+    padding: 7px 8px !important;
+  }
+}
+
+/* ============================================
+   REMOVE GRAY BACKGROUNDS AND ENSURE BUTTONS ARE HORIZONTAL
+   ============================================ */
+
+/* Remove background from modal nav-tabs at ALL breakpoints */
+.modal-body .twm-tabs-style-2 .nav-tabs,
+.twm-tabs-style-2 .nav-tabs,
+.modal .nav-tabs,
+div.modal .twm-tabs-style-2 .nav-tabs {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 0 20px 0 !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+}
+
+/* Force tabs to stay in single row with proper sizing */
+.modal .nav-tabs .nav-item,
+.twm-tabs-style-2 .nav-tabs .nav-item {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+}
+
+.modal .nav-tabs .nav-link,
+.twm-tabs-style-2 .nav-tabs .nav-link {
+  white-space: normal !important;
+  word-break: break-word !important;
+  padding: 0.5rem 0.3rem !important;
+  font-size: 0.9rem !important;
+  border: none !important;
+  color: #666666 !important;
+}
+
+/* Active tab styling */
+.modal .nav-tabs .nav-link.active,
+.twm-tabs-style-2 .nav-tabs .nav-link.active {
+  color: #ffffff !important;
+  background-color: #fd7e14 !important;
+}
+
+/* Icon spacing */
+.modal .nav-tabs .nav-link i,
+.twm-tabs-style-2 .nav-tabs .nav-link i {
+  margin-right: 4px !important;
+}
+
+/* Close button size reduction */
+.modal-header .btn-close {
+  width: 1rem !important;
+  height: 1rem !important;
+  padding: 0.2rem !important;
+}
+
+/* Remove background from password visibility icons */
+.modal-body .form-group span[style*="position: absolute"],
+span[style*="background: #f8f9fa"] {
+  background: transparent !important;
+}
+
+/* Ensure buttons stay inline on mobile and desktop */
+.modal-body .col-md-12,
+.modal-body [class*="col-md-12"] {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+}
+
+button[type="submit"][style*="width"],
+#candidate-submit-btn,
+#employer-submit-btn,
+#placement-submit-btn,
+.modal-body button[type="submit"] {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+/* Override any conflicting Bootstrap styles */
+@media (max-width: 991px) {
+  .modal .nav-tabs,
+  .twm-tabs-style-2 .nav-tabs {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 0 20px 0 !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    gap: 6px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .modal .nav-tabs,
+  .twm-tabs-style-2 .nav-tabs {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 0 15px 0 !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+  }
+  
+  .modal .nav-tabs .nav-link,
+  .twm-tabs-style-2 .nav-tabs .nav-link {
+    padding: 0.4rem 0.2rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .modal .nav-tabs .nav-link i,
+  .twm-tabs-style-2 .nav-tabs .nav-link i {
+    margin-right: 3px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .modal .nav-tabs,
+  .twm-tabs-style-2 .nav-tabs {
+    gap: 2px !important;
+  }
+  
+  .modal .nav-tabs .nav-link,
+  .twm-tabs-style-2 .nav-tabs .nav-link {
+    padding: 0.3rem 0.15rem !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .modal .nav-tabs .nav-link i,
+  .twm-tabs-style-2 .nav-tabs .nav-link i {
+    margin-right: 2px !important;
+  }
+}
+
+/* ============================================
+   JOB CARD MOBILE ALIGNMENT FIXES
+   ============================================ */
+
+@media (max-width: 767px) {
+  .new-job-card {
+    text-align: left !important;
+  }
+  
+  .new-job-card .job-card-header,
+  .new-job-card .job-card-middle,
+  .new-job-card .job-card-footer {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .new-job-card .job-card-left {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    text-align: left !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .new-job-card .job-info {
+    text-align: left !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .new-job-card .job-title {
+    text-align: left !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+  }
+
+  .new-job-card .job-location {
+    justify-content: flex-start !important;
+    text-align: left !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .new-job-card .ctc-text, 
+  .new-job-card .vacancy-text {
+    text-align: left !important;
+    display: block !important;
+  }
+
+  .new-job-card .company-info {
+    text-align: left !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .new-job-card .apply-now-btn {
+    width: auto !important;
+    min-width: unset !important;
+    max-width: unset !important;
+    padding: 8px 16px !important;
+    margin-top: 0 !important;
+    align-self: flex-end !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Job Grid Page Specific Mobile Fixes */
+  .job-grid-page .new-job-card {
+    margin-bottom: 15px !important;
+    padding: 15px !important;
+    text-align: left !important;
+  }
+
+  .job-grid-page .new-job-card .job-card-header,
+  .job-grid-page .new-job-card .job-card-middle,
+  .job-grid-page .new-job-card .job-card-footer {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+
+  .job-grid-page .new-job-card .job-info {
+    text-align: left !important;
+  }
+
+  .job-grid-page .new-job-card .job-title {
+    text-align: left !important;
+    font-size: 16px !important;
+  }
+
+  .job-grid-page .new-job-card .job-location {
+    justify-content: flex-start !important;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .error-alert-container,
+  .site-button,
+  .apply-now-btn,
+  .recruiters-view-all-btn {
+    display: none;
+  }
+
+  .section-full {
+    page-break-inside: avoid;
+  }
+
+  .new-job-card,
+  .twm-w-process-steps3 {
+    page-break-inside: avoid;
+  }
+}

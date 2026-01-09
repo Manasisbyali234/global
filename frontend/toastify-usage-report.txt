@@ -1,0 +1,438 @@
+Toastify Usage Report
+Generated: 28/11/2025, 8:40:26 pm
+Total Matches: 337
+Files with Toastify: 32
+
+
+File: app\pannels\admin\components\admin-candidates.jsx
+────────────────────────────────────────────────────────────
+Line 36: showToast('Click delete again to confirm candidate deletion', 'warning', 3000);
+Line 72: showToast('Candidate deleted successfully!', 'success');
+Line 75: showToast('Failed to delete candidate', 'error');
+Line 79: showToast('Failed to delete candidate', 'error');
+
+File: app\pannels\admin\components\admin-emp-manage.jsx
+────────────────────────────────────────────────────────────
+Line 82: showToast('Employer approved successfully! Notification sent to employer.', 'success');
+Line 84: showToast('Failed to approve employer', 'error');
+Line 87: showToast('Error approving employer', 'error');
+Line 99: showToast('Employer rejected successfully! Notification sent to employer.', 'success');
+Line 101: showToast('Failed to reject employer', 'error');
+Line 104: showToast('Error rejecting employer', 'error');
+
+File: app\pannels\admin\components\admin-individual-credit.jsx
+────────────────────────────────────────────────────────────
+Line 23: showToast('Error fetching candidates', 'error');
+Line 30: showToast('Please select a candidate and enter credits', 'warning');
+Line 38: showToast('Credits updated successfully!', 'success');
+Line 43: showToast('Failed to update credits', 'error');
+Line 46: showToast('Error updating credits', 'error');
+
+File: app\pannels\admin\components\admin-jobs-skills.jsx
+────────────────────────────────────────────────────────────
+Line 31: showToast('Error fetching jobs and skills', 'error');
+
+File: app\pannels\admin\components\admin-placement-manage-tabs.jsx
+────────────────────────────────────────────────────────────
+Line 38: showToast('Error fetching placement officers', 'error');
+Line 62: showToast('Placement officer approved successfully!', 'success');
+Line 64: showToast('Failed to approve placement officer', 'error');
+Line 67: showToast('Error approving placement officer', 'error');
+Line 76: showToast('Placement officer rejected successfully!', 'success');
+Line 78: showToast('Failed to reject placement officer', 'error');
+Line 81: showToast('Error rejecting placement officer', 'error');
+
+File: app\pannels\admin\components\admin-placement-manage.jsx
+────────────────────────────────────────────────────────────
+Line 62: showToast('Placement officer approved successfully!', 'success');
+Line 64: showToast('Failed to approve placement officer', 'error');
+Line 67: showToast('Error approving placement officer', 'error');
+Line 78: showToast('Placement officer rejected successfully!', 'success');
+Line 80: showToast('Failed to reject placement officer', 'error');
+Line 83: showToast('Error rejecting placement officer', 'error');
+
+File: app\pannels\admin\components\admin-sub-admin.jsx
+────────────────────────────────────────────────────────────
+Line 189: showToast(showEditForm ? 'Sub Admin updated successfully' : 'Sub Admin created successfully', 'success');
+Line 193: showToast(data.message || `Error ${showEditForm ? 'updating' : 'creating'} sub admin`, 'error');
+Line 196: showToast(`Error ${showEditForm ? 'updating' : 'creating'} sub admin`, 'error');
+Line 270: showToast('Click delete again to confirm sub admin deletion', 'warning', 3000);
+Line 287: showToast('Sub Admin deleted successfully', 'success');
+Line 290: showToast(data.message || 'Error deleting sub admin', 'error');
+Line 293: showToast('Error deleting sub admin', 'error');
+
+File: app\pannels\admin\components\admin-support-tickets.jsx
+────────────────────────────────────────────────────────────
+Line 49: showToast('Authentication token not found. Please login again.', 'error');
+Line 78: showToast(data.message || 'Failed to fetch support tickets', 'error');
+Line 85: showToast('Session expired. Please login again.', 'error');
+Line 89: showToast(errorData.message || 'Failed to fetch support tickets', 'error');
+Line 94: showToast('Network error. Please check your connection and try again.', 'error');
+Line 129: showToast('Authentication token not found. Please login again.', 'error');
+Line 140: showToast('Session expired. Please login again.', 'error');
+Line 146: showToast(errorData.message || 'Failed to open attachment', 'error');
+Line 181: showToast('Authentication token not found. Please login again.', 'error');
+Line 201: showToast(result.message || 'Failed to update support ticket', 'error');
+Line 205: showToast('Error updating support ticket. Please try again.', 'error');
+Line 220: showToast('Authentication token not found. Please login again.', 'error');
+Line 236: showToast('Support ticket deleted successfully', 'success');
+Line 239: showToast(result.message || 'Failed to delete support ticket', 'error');
+Line 243: showToast('Error deleting support ticket. Please try again.', 'error');
+
+File: app\pannels\admin\components\placement-details.jsx
+────────────────────────────────────────────────────────────
+Line 84: showToast('Failed to download file', 'error');
+Line 87: showToast('Error downloading file', 'error');
+Line 106: showToast('Placement officer approved successfully!', 'success');
+Line 109: showToast('Failed to approve placement officer', 'error');
+Line 112: showToast('Error approving placement officer', 'error');
+Line 139: showToast(`File "${displayName}" approved and processed successfully! ${data.message}`, 'success', 5000);
+Line 151: showToast(`Failed to approve file: ${data.message}`, 'error');
+Line 154: showToast(`Error approving file: ${error.message}`, 'error');
+Line 179: showToast(`File "${displayName}" rejected successfully!`, 'success');
+Line 185: showToast(`Failed to reject file: ${data.message}`, 'error');
+Line 188: showToast(`Error rejecting file: ${error.message}`, 'error');
+Line 206: showToast('Placement officer rejected successfully!', 'success');
+Line 209: showToast('Failed to reject placement officer', 'error');
+Line 212: showToast('Error rejecting placement officer', 'error');
+Line 265: showToast('Cannot update credits for rejected files', 'warning');
+Line 281: showToast(`File credits updated successfully! ${data.message}. All candidates will see updated credits immediately.`, 'success', 5000);
+Line 291: showToast(`Failed to update credits: ${data.message}`, 'error');
+Line 294: showToast(`Error updating credits: ${error.message}`, 'error');
+Line 322: showToast(`File processed successfully! Created: ${data.stats.created}, Skipped: ${data.stats.skipped}. Candidates can now login.`, 'success', 5000);
+Line 331: showToast(`Failed to process file: ${data.message}`, 'error');
+Line 334: showToast(`Error processing file: ${error.message}`, 'error');
+Line 358: showToast(message, 'success', 5000);
+Line 371: showToast(`Failed to update bulk credits: ${data.message}`, 'error');
+Line 374: showToast(`Error updating bulk credits: ${error.message}`, 'error');
+Line 395: showToast(`Excel data stored successfully! Files: ${data.stats.totalFilesProcessed}, Records: ${data.stats.totalRecordsStored}`, 'success', 5000);
+Line 398: showToast(`Failed to store Excel data: ${data.message}`, 'error');
+Line 401: showToast(`Error storing Excel data: ${error.message}`, 'error');
+Line 422: showToast(`Failed to load stored data: ${data.message}`, 'error');
+Line 426: showToast(`Error loading stored data: ${error.message}`, 'error');
+
+File: app\pannels\candidate\components\application-status.jsx
+────────────────────────────────────────────────────────────
+Line 295: showToast(startLabel ? `Assessment opens on ${startLabel}` : 'Assessment is not yet available', 'warning');
+Line 298: showToast('Assessment window has ended', 'error');
+
+File: app\pannels\candidate\components\interview-response-modal.jsx
+────────────────────────────────────────────────────────────
+Line 19: showToast('Please provide your available date and time', 'error');
+Line 37: showToast('Response sent successfully!', 'success');
+Line 41: showToast(data.message || 'Failed to send response', 'error');
+Line 45: showToast('Error sending response. Please try again.', 'error');
+
+File: app\pannels\candidate\sections\profile\section-can-basic-info.jsx
+────────────────────────────────────────────────────────────
+Line 339: showToast('Profile updated successfully!', 'success', 4000);
+
+File: app\pannels\candidate\sections\resume\section-can-attachment.jsx
+────────────────────────────────────────────────────────────
+Line 22: showToast('Please delete your current resume before uploading a new one.', 'warning', 4000);
+Line 32: showToast('File size must be less than 15MB. Please choose a smaller file.', 'error', 4000);
+Line 41: showToast('Only PDF, DOC, and DOCX files are allowed.', 'error', 4000);
+Line 52: showToast('Please select a file first', 'warning', 4000);
+Line 59: showToast('File size must be less than 15MB. Please choose a smaller file.', 'error', 4000);
+Line 73: showToast('Resume uploaded successfully!', 'success', 4000);
+Line 81: showToast(`Failed to upload resume: ${response.message || 'Unknown error'}`, 'error', 4000);
+Line 89: showToast(errorMessage, 'error', 4000);
+Line 168: removeToast();
+Line 173: removeToast();
+Line 184: showToast('Resume deleted successfully!', 'success', 4000);
+Line 191: showToast(`Failed to delete resume: ${response.message || 'Unknown error'}`, 'error', 4000);
+Line 199: showToast(errorMessage, 'error', 4000);
+Line 207: showToast('No resume to delete', 'warning', 4000);
+Line 210: showConfirmationToast();
+
+File: app\pannels\candidate\sections\resume\section-can-education.jsx
+────────────────────────────────────────────────────────────
+Line 253: showToast('Only PDF files are allowed', 'error', 4000);
+Line 259: showToast('File size must be less than 50MB', 'error', 4000);
+Line 391: showToast('Document uploaded successfully!', 'success', 4000);
+Line 393: showToast('Failed to upload document', 'error', 4000);
+Line 396: showToast('Error uploading document', 'error', 4000);
+Line 402: showToast('Please select an education level first', 'error', 4000);
+Line 410: showToast(errorMessages.join(', '), 'error', 4000);
+Line 412: showToast('Please fill in all required fields', 'error', 4000);
+Line 447: showToast('Education entry added successfully! Please click "Save All Education Details" to save changes.', 'success', 4000);
+Line 461: showToast(errorMessages.join(', '), 'error', 4000);
+Line 463: showToast('Please fill in all required fields', 'error', 4000);
+Line 500: showToast('Education entry updated successfully! Please click "Save All Education Details" to save changes.', 'success', 4000);
+Line 506: showToast('Education entry deleted successfully! Please click "Save All Education Details" to save changes.', 'success', 4000);
+Line 511: showToast('Please add at least one education entry', 'warning', 4000);
+Line 540: showToast('All education details saved successfully!', 'success', 4000);
+Line 544: showToast(errorMessage, 'error', 4000);
+Line 548: showToast('Failed to save education details: ' + (error.message || 'Unknown error'), 'error', 4000);
+Line 682: showToast('Please select a file to upload.', 'warning', 4000);
+Line 689: showToast('Only PDF files are allowed.', 'error', 4000);
+Line 695: showToast('File size must be less than 50MB', 'error', 4000);
+Line 753: showToast('Marksheet uploaded successfully!', 'success', 4000);
+Line 757: showToast(`Failed to upload marksheet: ${errorMessage}`, 'error', 4000);
+Line 761: showToast(`Error uploading marksheet: ${error.message || 'Network error. Please check your connection and try again.'}`, 'error', 4000);
+Line 890: showToast(errorMessages || 'Please correct the highlighted fields', 'error', 4000);
+Line 902: showToast(errorMessages || 'Please correct the highlighted fields', 'error', 4000);
+Line 969: showToast('All education details saved successfully!', 'success', 4000);
+Line 972: showToast(errorMessage, 'error', 4000);
+Line 975: showToast('Failed to save education details. Please check your connection and try again.', 'error', 4000);
+
+File: app\pannels\candidate\sections\resume\section-can-employment.jsx
+────────────────────────────────────────────────────────────
+Line 148: showToast(errorMessages.join(', '), 'error', 4000);
+Line 172: showToast(`API connection failed: ${testError.message}. Please check if the backend server is running.`, 'error');
+Line 179: showToast('Please fill in all required fields (Total Experience, Designation, Organization, Start Date)', 'warning');
+Line 216: showToast('Employment added successfully!', 'success');
+Line 247: showToast(`Failed to save employment: ${errorMsg}`, 'error');
+Line 251: showToast(`Failed to save employment: ${error.message || 'Please check your connection and try again.'}`, 'error');
+
+File: app\pannels\candidate\sections\resume\section-can-keyskills.jsx
+────────────────────────────────────────────────────────────
+Line 40: showToast(`Skill "${skillToAdd}" added successfully!`, 'success', 4000);
+Line 44: showToast('Failed to add skill', 'error', 4000);
+Line 57: showToast(`Skill "${skillToRemove}" removed successfully!`, 'success', 4000);
+Line 61: showToast('Failed to remove skill', 'error', 4000);
+
+File: app\pannels\candidate\sections\resume\section-can-personal.jsx
+────────────────────────────────────────────────────────────
+Line 281: showToast(errorMessages || 'Please fill all required fields correctly', 'error', 4000);
+Line 302: showToast('Personal details updated successfully!', 'success', 4000);
+Line 305: showToast('Failed to update personal details. Please try again.', 'error', 4000);
+Line 308: showToast('Failed to update personal details: ' + error.message, 'error', 4000);
+
+File: app\pannels\candidate\sections\resume\section-can-profile-summary.jsx
+────────────────────────────────────────────────────────────
+Line 18: showToast('Profile summary cannot be empty. Please provide a brief description of your professional background.', 'warning', 4000);
+Line 23: showToast('Profile summary should be at least 50 characters long to provide meaningful information to employers.', 'warning', 4000);
+Line 28: showToast('Profile summary cannot exceed 1000 characters.', 'error', 4000);
+Line 49: showToast('Profile summary updated successfully!', 'success', 4000);
+Line 55: showToast('Validation errors: ' + errorMessages, 'error', 6000);
+Line 57: showToast('Failed to update profile summary: ' + data.message, 'error', 4000);
+Line 59: showToast('Invalid data provided. Please check your input and try again.', 'error', 4000);
+Line 61: showToast('Your session has expired. Please log in again.', 'error', 4000);
+Line 63: showToast('Server error occurred. Please try again later.', 'error', 4000);
+Line 65: showToast('Failed to update profile summary. Please try again.', 'error', 4000);
+Line 70: showToast('Network error: Unable to connect to server. Please check your internet connection.', 'error', 4000);
+Line 72: showToast('Failed to update profile summary: ' + error.message, 'error', 4000);
+
+File: app\pannels\candidate\sections\resume\section-can-resume-headline.jsx
+────────────────────────────────────────────────────────────
+Line 15: showToast('Resume headline cannot be empty', 'error', 4000);
+Line 35: showToast('Resume headline updated successfully!', 'success', 4000);
+Line 38: showToast('Failed to update resume headline: ' + (data.message || 'Unknown error'), 'error', 4000);
+Line 41: showToast('Failed to update resume headline: ' + error.message, 'error', 4000);
+
+File: app\pannels\employer\components\assessments\CreateassessmentModal.jsx
+────────────────────────────────────────────────────────────
+Line 94: showToast("Assessment must have at least one question", 'warning');
+Line 110: showToast("Please enter an assessment title", 'warning');
+Line 116: showToast("Please enter a valid time limit (at least 1 minute)", 'warning');
+Line 121: showToast("Please add at least one question", 'warning');
+Line 130: showToast(`Please enter text for Question ${i + 1}`, 'warning');
+Line 137: showToast(`Please fill Option ${String.fromCharCode(65 + j)} for Question ${i + 1}`, 'warning');
+Line 143: showToast(`Please select the correct answer for Question ${i + 1}`, 'warning');
+Line 149: showToast(`Please enter valid marks for Question ${i + 1} (at least 1)`, 'warning');
+
+File: app\pannels\employer\components\emp-candidate-review.jsx
+────────────────────────────────────────────────────────────
+Line 156: showToast('Interview review saved successfully! Candidate will see the updated status.', 'success');
+Line 160: showToast(errorData.message || errorData.error || 'Failed to save review', 'error');
+Line 165: showToast('Network error while saving review. Please try again.', 'error');
+Line 204: showToast('Candidate shortlisted successfully! Status updated for candidate.', 'success');
+Line 208: showToast(errorData.message || errorData.error || 'Failed to shortlist candidate', 'error');
+Line 213: showToast('Network error while shortlisting candidate. Please try again.', 'error');
+Line 235: showToast(statusMessages[status] || 'Status updated successfully', 'success');
+Line 239: showToast(errorData.message || errorData.error || 'Failed to update status', 'error');
+Line 243: showToast('Network error while updating status. Please try again.', 'error');
+Line 260: showToast('Offer letter shared with candidate! Status updated for candidate.', 'success');
+Line 264: showToast(errorData.message || errorData.error || 'Failed to share offer letter', 'error');
+Line 268: showToast('Network error while sharing offer letter. Please try again.', 'error');
+Line 285: showToast('Candidate rejected. Status updated for candidate.', 'success');
+Line 289: showToast(errorData.message || errorData.error || 'Failed to reject candidate', 'error');
+Line 293: showToast('Network error while rejecting candidate. Please try again.', 'error');
+
+File: app\pannels\employer\components\emp-company-profile.jsx
+────────────────────────────────────────────────────────────
+Line 107: showToast('Please login to access your profile.', 'warning');
+Line 202: showToast('Session expired. Please login again.', 'warning');
+Line 265: showToast(message, 'success', 2000);
+Line 268: showToast('Invalid pincode or city not found', 'warning');
+Line 272: showToast('Failed to fetch city from pincode', 'error');
+Line 352: showToast(`Logo upload failed: ${result.message}`, 'error');
+Line 362: showToast('Please login again to upload files.', 'warning');
+Line 379: showToast('Logo uploaded successfully!', 'success');
+Line 381: showToast(data.message || 'Logo upload failed', 'error');
+Line 385: showToast('Logo upload failed. Please try again.', 'error');
+Line 401: showToast(`Cover image upload failed: ${result.message}`, 'error');
+Line 411: showToast('Please login again to upload files.', 'warning');
+Line 428: showToast('Cover image uploaded successfully!', 'success');
+Line 430: showToast(data.message || 'Cover image upload failed', 'error');
+Line 434: showToast('Cover upload failed. Please try again.', 'error');
+Line 446: showToast('Document is too large. Max size is 5MB.', 'error');
+Line 450: showToast('Invalid document type. Allowed: JPEG, PNG, PDF.', 'error');
+Line 461: showToast('Please login again to upload files.', 'warning');
+Line 478: showToast('Document uploaded successfully!', 'success');
+Line 480: showToast(data.message || 'Document upload failed', 'error');
+Line 484: showToast('Document upload failed. Please try again.', 'error');
+Line 498: showToast('Please enter the company name before uploading the authorization letter.', 'warning');
+Line 506: showToast('Document is too large. Max size is 5MB.', 'error');
+Line 510: showToast('Invalid document type. Allowed: JPEG, PNG, PDF.', 'error');
+Line 523: showToast('Please login again to upload files.', 'warning');
+Line 543: showToast('Authorization letter uploaded successfully!', 'success');
+Line 547: showToast(data.message || 'Document upload failed', 'error');
+Line 551: showToast('Authorization letter upload failed. Please try again.', 'error');
+Line 559: showToast('Click "Delete" to confirm or wait 5 seconds to cancel', 'warning', 5000);
+Line 609: showToast('Please login again to delete files.', 'warning');
+Line 623: showToast('Authorization letter deleted successfully!', 'success');
+Line 625: showToast(data.message || 'Failed to delete document', 'error');
+Line 629: showToast('Session expired. Please login again.', 'warning');
+Line 644: showToast(`Maximum 10 images allowed. Current: ${currentCount}`, 'warning');
+Line 655: showToast(`File "${file.name}" is too large. Maximum size is 10MB. Please compress the image.`, 'error');
+Line 659: showToast(`File "${file.name}" has invalid type. Only JPG, PNG, and SVG are allowed.`, 'error');
+Line 682: showToast(`Uploading batch ${batchIndex + 1} of ${batches.length}...`, 'info', 2000);
+Line 714: showToast(data.message || `Batch ${batchIndex + 1} upload failed`, 'error');
+Line 722: showToast(`Upload timed out. Please try with smaller files or check your connection.`, 'error');
+Line 724: showToast(`Files too large. Please use smaller images (under 10MB each).`, 'error');
+Line 726: showToast(`Network error. Please check your connection and try again.`, 'error');
+Line 728: showToast(`Upload failed: ${fetchError.message}`, 'error');
+Line 737: showToast(`Successfully uploaded ${totalUploaded} images!`, 'success');
+Line 742: showToast('Upload failed. Please try again.', 'error');
+Line 762: showToast('Image deleted', 'success');
+Line 765: showToast('Delete failed', 'error');
+Line 803: showToast('Please fix the validation errors before submitting', 'warning');
+Line 892: showToast(successMessage, 'success', 4000);
+Line 896: showToast(data.message || 'Failed to update profile', 'error');
+Line 900: showToast('Session expired. Please login again.', 'warning');
+Line 907: showToast(errorMessage, 'error');
+
+File: app\pannels\employer\components\InterviewProcessManager.jsx
+────────────────────────────────────────────────────────────
+Line 124: showToast('Please provide interview date and time', 'error');
+Line 142: showToast('Interview invite sent successfully!', 'success');
+Line 148: showToast(data.message || 'Failed to send invite', 'error');
+Line 152: showToast('Error sending invite. Please try again.', 'error');
+Line 175: showToast('Interview schedule confirmed!', 'success');
+Line 180: showToast(data.message || 'Failed to confirm schedule', 'error');
+Line 184: showToast('Error confirming schedule. Please try again.', 'error');
+Line 197: showToast('Interview process saved successfully!', 'success');
+Line 201: showToast('Error saving interview process. Please try again.', 'error');
+
+File: app\pannels\employer\components\jobs\emp-post-job.jsx
+────────────────────────────────────────────────────────────
+Line 173: showToast('Session expired. Please login again.', 'warning');
+Line 278: showToast('Session expired. Please login again.', 'warning');
+Line 314: showToast('Session expired. Please login again.', 'warning');
+Line 378: showToast('To Date cannot be earlier than From Date', 'error');
+Line 385: showToast('From Date cannot be later than To Date', 'error');
+Line 414: showToast(`Note: ${value} is a public holiday (${holidayCheck.holidayInfo.name}). Consider selecting a different date.`, 'warning', 6000);
+Line 516: showToast(`Validation Errors:\n${allErrors.join('\n')}`, 'error', 8000);
+Line 536: showToast('Please login first', 'warning');
+Line 620: showToast(isEditMode ? 'Job updated successfully!' : 'Job posted successfully!', 'success');
+Line 625: showToast(data.message || `Failed to ${isEditMode ? 'update' : 'post'} job`, 'error');
+Line 629: showToast('Session expired. Please login again.', 'warning');
+Line 636: showToast(errorMessage, 'error');
+Line 1690: showToast('Please select an assessment first', 'warning');
+Line 1695: showToast(`Please set both From Date and To Date for Assessment ${assessmentIndex + 1}`, 'warning');
+Line 1700: showToast(`Assessment ${assessmentIndex + 1} From Date cannot be after To Date`, 'error');
+Line 1704: showToast(`Assessment ${assessmentIndex + 1} scheduled successfully! Assessment: ${availableAssessments.find(a => a._id === selectedAssessment)?.title} | From: ${new Date(assessmentDetails.fromDate).toLocaleDateString()} | To: ${new Date(assessmentDetails.toDate).toLocaleDateString()}`, 'success', 5000);
+Line 2079: showToast(`Please enter description for ${roundNames[roundType]}`, 'warning');
+Line 2084: showToast(`Please set both From Date and To Date for ${roundNames[roundType]}`, 'warning');
+Line 2089: showToast(`Please set time for ${roundNames[roundType]}`, 'warning');
+Line 2093: showToast(`${roundNames[roundType]} scheduled successfully! From: ${new Date(roundDetails.fromDate).toLocaleDateString()} | To: ${new Date(roundDetails.toDate).toLocaleDateString()} | Time: ${roundDetails.time}`, 'success', 5000);
+
+File: app\pannels\employer\components\jobs\emp-posted-jobs.jsx
+────────────────────────────────────────────────────────────
+Line 140: showToast('Job deleted successfully!', 'success');
+Line 143: showToast('Failed to delete job', 'error');
+Line 147: showToast('Failed to delete job', 'error');
+Line 166: showToast(`Job ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully!`, 'success');
+Line 169: showToast('Failed to update job status', 'error');
+Line 173: showToast('Failed to update job status', 'error');
+
+File: app\pannels\employer\components\pages\AssessmentDashboard.jsx
+────────────────────────────────────────────────────────────
+Line 47: showToast('Assessment updated successfully!', 'success');
+Line 57: showToast('Assessment created successfully!', 'success');
+Line 71: showToast(errorMessage, 'error');
+Line 88: showToast('Assessment deleted successfully', 'success');
+Line 91: showToast('Failed to delete assessment', 'error');
+
+File: app\pannels\placement\placement-dashboard.jsx
+────────────────────────────────────────────────────────────
+Line 106: showToast('Authentication failed. Please login again.', 'error');
+Line 149: showToast('Please upload only Excel (.xlsx, .xls) or CSV files.', 'error');
+Line 154: showToast('File size should be less than 5MB.', 'error');
+Line 160: showToast('The selected file is empty. Please choose a file with student data.', 'error');
+Line 166: showToast('The file appears to be too small to contain valid student data. Please check your file.', 'warning');
+Line 175: showToast('Placement ID not found', 'error');
+Line 192: showToast('File approved successfully!', 'success');
+Line 195: showToast('Failed to approve file', 'error');
+Line 198: showToast('Error approving file', 'error');
+Line 206: showToast('Placement ID not found', 'error');
+Line 223: showToast('File rejected successfully!', 'success');
+Line 226: showToast('Failed to reject file', 'error');
+Line 229: showToast('Error rejecting file', 'error');
+Line 264: showToast('File data not available or file not processed yet.', 'warning');
+Line 267: showToast('Unable to view file. Please try again.', 'error');
+Line 271: showToast('Error viewing file. Please try again.', 'error');
+Line 300: showToast('Authentication token missing. Please login again.', 'error');
+Line 322: showToast('Student data uploaded successfully! Waiting for admin approval.', 'success');
+Line 331: showToast(data.message, 'error', 5000); // Show for 5 seconds for duplicate emails
+Line 333: showToast(`Upload failed: ${data.message}. Please ensure your file contains actual student data, not just headers.`, 'error');
+Line 335: showToast(data.message || 'Upload failed', 'error');
+Line 342: showToast('Authentication failed. Please login again.', 'error');
+Line 347: showToast(error.message || 'Upload failed. Please try again.', 'error');
+Line 376: showToast('Please select an image file', 'error');
+Line 381: showToast('Image size should be less than 2MB', 'error');
+Line 403: showToast('Logo uploaded successfully!', 'success');
+Line 406: showToast('Failed to upload logo', 'error');
+Line 409: showToast('Error uploading logo', 'error');
+Line 420: showToast('Please select an image file', 'error');
+Line 425: showToast('Image size should be less than 2MB', 'error');
+Line 447: showToast('ID card uploaded successfully!', 'success');
+Line 450: showToast('Failed to upload ID card', 'error');
+Line 453: showToast('Error uploading ID card', 'error');
+Line 488: showToast('All fields are required', 'warning');
+Line 501: showToast('Profile updated successfully!', 'success');
+Line 508: showToast(errorMessage, 'error');
+Line 513: showToast(errorMessage, 'error');
+
+File: app\pannels\public-user\components\employers\emp-detail1.jsx
+────────────────────────────────────────────────────────────
+Line 111: showToast('Review submitted successfully! Thank you for your feedback.', 'success');
+Line 128: showToast(data.message || data.error || 'Failed to submit review', 'error');
+Line 132: showToast('Network error while submitting review. Please try again.', 'error');
+
+File: app\pannels\public-user\components\home\index16.jsx
+────────────────────────────────────────────────────────────
+Line 240: showToast('Unable to search jobs. Please refresh the page.', 'error');
+Line 252: showToast('Search term must be at least 2 characters', 'warning');
+Line 257: showToast('Search term is too long (max 100 characters)', 'warning');
+Line 279: showToast('Job type filter is invalid', 'warning');
+Line 298: showToast('Location must be at least 2 characters', 'warning');
+Line 303: showToast('Location filter is too long (max 100 characters)', 'warning');
+Line 323: showToast(`Found ${filtered.length} job(s) matching your criteria`, 'success', 2000);
+Line 335: showToast('An error occurred while searching. Please try again.', 'error');
+Line 344: showToast('Unable to load more jobs. Please refresh the page.', 'error');
+Line 352: showToast('No more jobs to load', 'info');
+Line 364: showToast(`Loaded ${loadedCount} more job(s)`, 'info', 1500);
+Line 367: showToast('An error occurred while loading more jobs.', 'error');
+Line 964: showToast('Invalid job ID. Cannot navigate to job details.', 'error');
+Line 967: showToast('Job ID is missing. Cannot navigate to job details.', 'error');
+
+File: app\pannels\public-user\components\jobs\job-detail1.jsx
+────────────────────────────────────────────────────────────
+Line 145: showToast('Please login first to apply for jobs!', 'warning');
+Line 148: showToast('You have already applied for this job!', 'info');
+Line 161: showToast('You have insufficient credits to apply for jobs. Please contact your placement coordinator to get more credits.', 'error');
+Line 177: showToast('Please upload your resume first before applying for jobs. Go to My Resume section to upload.', 'warning');
+Line 193: showToast('Application submitted successfully!', 'success');
+Line 195: showToast(data.message || 'Failed to submit application', 'error');
+Line 199: showToast('Failed to submit application', 'error');
+
+File: components\ToastContainer.jsx
+────────────────────────────────────────────────────────────
+Line 44: onClose={() => removeToast(toast.id)}
+
+File: utils\errorHandler.js
+────────────────────────────────────────────────────────────
+Line 163: showToast(errorData.message, errorData.type === 'auth' ? 'warning' : 'error', duration);

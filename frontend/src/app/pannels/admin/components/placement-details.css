@@ -1,0 +1,387 @@
+.modern-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.modern-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.info-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: transparent;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.info-card:hover {
+    background: transparent;
+}
+
+.info-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+}
+
+.badge-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.avatar-sm {
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.alert {
+    border: none;
+    font-size: 0.9rem;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+.gap-2 > * {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.btn-success {
+    background-color: transparent;
+    border-color: #dee2e6;
+    color: #6c757d;
+}
+
+.btn-success:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+    color: #495057;
+}
+
+/* Actions section specific styling - Override Bootstrap */
+.container-fluid .modern-card .btn.btn-success,
+.modern-card .btn.btn-success {
+    background-color: #ffeaa7 !important;
+    background-image: none !important;
+    border-color: #fdcb6e !important;
+    color: #2d3436 !important;
+    box-shadow: none !important;
+}
+
+.container-fluid .modern-card .btn.btn-success:hover,
+.modern-card .btn.btn-success:hover,
+.container-fluid .modern-card .btn.btn-success:focus,
+.modern-card .btn.btn-success:focus,
+.container-fluid .modern-card .btn.btn-success:active,
+.modern-card .btn.btn-success:active {
+    background-color: #fdcb6e !important;
+    background-image: none !important;
+    border-color: #e17055 !important;
+    color: #2d3436 !important;
+    box-shadow: none !important;
+}
+
+.modal {
+    z-index: 1050;
+}
+
+.modal-backdrop {
+    z-index: 1040;
+}
+
+.modal-xl {
+    max-width: 90%;
+}
+
+
+
+
+
+/* Student Records table specific styling */
+.table-responsive {
+    max-height: 600px;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-striped tbody tr:hover {
+    background-color: rgba(255, 106, 0, 0.1);
+}
+
+/* ID column badge styling */
+.badge-primary {
+    background-color: #FF6A00 !important;
+    color: white !important;
+}
+
+.timeline {
+    position: relative;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 0;
+}
+
+.timeline-dot {
+    position: relative;
+    z-index: 2;
+}
+
+.d-flex.gap-1 > * {
+    margin-right: 0.25rem;
+}
+
+.d-flex.gap-1 > *:last-child {
+    margin-right: 0;
+}
+
+@media (max-width: 1200px) {
+    .info-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .info-card {
+        margin-bottom: 1rem;
+    }
+    
+    /* Placement Officer Details - Logo and ID Card in 2 columns, text fields below */
+    .modern-card .d-flex.align-items-start.gap-4 {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .modern-card .d-flex.align-items-start.gap-4 > .text-center {
+        flex: 0 0 calc(50% - 0.25rem) !important;
+        max-width: calc(50% - 0.25rem) !important;
+    }
+    
+    .modern-card .d-flex.align-items-start.gap-4 > div[style*="flex"] {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        margin-top: 1rem !important;
+    }
+    
+    .modern-card {
+        margin-bottom: 1rem;
+    }
+    
+    .d-flex.gap-2 {
+        flex-direction: column;
+    }
+    
+    .gap-2 > * {
+        margin-right: 0;
+        width: 100%;
+    }
+    
+    /* File Upload History - Mobile optimization */
+    .timeline-item {
+        margin-bottom: 1rem !important;
+    }
+    
+    .timeline-item > div {
+        padding: 12px !important;
+    }
+    
+    .timeline-item .d-flex.align-items-start {
+        flex-direction: column !important;
+    }
+    
+    .timeline-item .d-flex.align-items-start > div[style*="width: 48px"] {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .timeline-item .ml-4 {
+        margin-left: 0 !important;
+    }
+    
+    .timeline-item .d-flex.justify-content-between {
+        flex-direction: column !important;
+    }
+    
+    .timeline-item .d-flex.flex-wrap.gap-2 {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        margin-top: 0.75rem !important;
+        gap: 0.5rem !important;
+    }
+    
+    .timeline-item .d-flex.flex-wrap.gap-2 > button {
+        flex: 1 1 calc(50% - 0.25rem) !important;
+        min-width: 0 !important;
+        font-size: 0.75rem !important;
+        padding: 8px 10px !important;
+        white-space: nowrap !important;
+    }
+    
+    .timeline-item h6 {
+        font-size: 0.95rem !important;
+    }
+    
+    .timeline-item .d-flex.flex-wrap.align-items-center.gap-3 {
+        gap: 0.5rem !important;
+    }
+    
+    .timeline-item .d-flex.flex-wrap.align-items-center.gap-2 {
+        gap: 0.25rem !important;
+    }
+    
+    .d-flex.gap-1 {
+        flex-direction: column;
+    }
+    
+    .d-flex.gap-1 > * {
+        margin-right: 0;
+        margin-bottom: 0.25rem;
+        width: 100%;
+    }
+    
+    .modal-xl {
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .info-grid {
+        gap: 12px;
+    }
+    
+    /* Smaller buttons and text on very small screens */
+    .timeline-item .btn-sm {
+        font-size: 0.7rem !important;
+        padding: 4px 8px !important;
+    }
+    
+    .timeline-item h6 {
+        font-size: 0.9rem !important;
+    }
+    
+    .timeline-item p, .timeline-item span {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* Mobile responsive table */
+@media (max-width: 768px) {
+
+    
+    .table-responsive {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+    }
+}
+
+/* Ensure table doesn't break layout */
+.modern-card .table-responsive {
+    margin: 0 -1rem;
+    padding: 0 1rem;
+}
+
+/* Force ID column visibility */
+.table th:first-child,
+.table td:first-child {
+    display: table-cell !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
