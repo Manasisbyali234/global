@@ -292,6 +292,10 @@ function SectionCandidateOverview() {
 			
 			if (statsResponse.ok) {
 				const data = await statsResponse.json();
+				console.log('Dashboard stats response:', data);
+				console.log('Candidate data:', data.candidate);
+				console.log('Registration method:', data.candidate?.registrationMethod);
+				console.log('Credits:', data.candidate?.credits);
 				
 				setStats(data.stats);
 				setCandidate(data.candidate);
@@ -305,7 +309,7 @@ function SectionCandidateOverview() {
 				}
 			}
 		} catch (error) {
-			
+			console.error('Dashboard data fetch error:', error);
 		}
 	};
 
@@ -358,7 +362,18 @@ function SectionCandidateOverview() {
 
 	// Show credits for placement and admin-created candidates
 	const hasCredits = candidate.registrationMethod === 'placement' || candidate.registrationMethod === 'admin';
-	const cards = hasCredits ? [creditsCard, ...baseCards] : baseCards;
+	// Always show credits card if candidate has credits > 0 or is a placement candidate
+	const shouldShowCredits = hasCredits || (candidate.credits !== undefined && candidate.credits >= 0);
+	
+	// Debug logging
+	console.log('Credits display debug:', {
+		registrationMethod: candidate.registrationMethod,
+		credits: candidate.credits,
+		hasCredits,
+		shouldShowCredits
+	});
+	
+	const cards = shouldShowCredits ? [creditsCard, ...baseCards] : baseCards;
 
 	return (
 		<>
@@ -367,7 +382,7 @@ function SectionCandidateOverview() {
 					<h5 className="mb-1" style={{ color: '#111827', fontWeight: '700' }}>Dashboard Overview</h5>
 					<p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>Track your job applications and profile activity</p>
 				</div>
-				{(candidate.registrationMethod === 'placement' || candidate.registrationMethod === 'admin') && (
+				{shouldShowCredits && (
 					<div className="text-end">
 						<small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Available Credits</small>
 						<span className="fw-bold" style={{ color: '#f97316', fontSize: '1.1rem' }}>{candidate.credits || 0}</span>
@@ -376,7 +391,7 @@ function SectionCandidateOverview() {
 			</div>
 			<div className="row" style={{ marginBottom: '2rem' }}>
 				{cards.map((card, index) => (
-					<div className={`col-xl-${hasCredits ? '3' : '4'} col-lg-${hasCredits ? '3' : '4'} col-md-12 mb-3`} key={index}>
+					<div className={`col-xl-${shouldShowCredits ? '3' : '4'} col-lg-${shouldShowCredits ? '3' : '4'} col-md-12 mb-3`} key={index}>
 						<div className="panel panel-default">
 							<div 
 								className="panel-body wt-panel-body dashboard-card-2" 

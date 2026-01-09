@@ -1145,6 +1145,15 @@ exports.getDashboardStats = async (req, res) => {
       .select('name email credits registrationMethod placementId course')
       .populate('placementId', 'name collegeName');
     
+    console.log('Dashboard stats - candidate data:', {
+      id: candidate._id,
+      name: candidate.name,
+      email: candidate.email,
+      credits: candidate.credits,
+      registrationMethod: candidate.registrationMethod,
+      placementId: candidate.placementId
+    });
+    
     // Get profile and calculate completion
     const profile = await CandidateProfile.findOne({ candidateId });
     let profileCompletion = 0;
@@ -1155,7 +1164,7 @@ exports.getDashboardStats = async (req, res) => {
       profileCompletionDetails = calculateProfileCompletionWithDetails(profile);
     }
     
-    res.json({
+    const responseData = {
       success: true,
       stats: { applied, inProgress, shortlisted },
       candidate: { 
@@ -1169,8 +1178,13 @@ exports.getDashboardStats = async (req, res) => {
       },
       profileCompletion,
       profileCompletionDetails
-    });
+    };
+    
+    console.log('Dashboard stats response:', responseData);
+    
+    res.json(responseData);
   } catch (error) {
+    console.error('Dashboard stats error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
