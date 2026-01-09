@@ -1562,6 +1562,26 @@ exports.getConsultantCompanies = async (req, res) => {
   }
 };
 
+exports.getApprovedAuthorizationCompanies = async (req, res) => {
+  try {
+    const profile = await EmployerProfile.findOne({ employerId: req.user._id });
+    
+    if (!profile || !profile.authorizationLetters) {
+      return res.json({ success: true, companies: [] });
+    }
+    
+    // Filter approved authorization letters and extract company names
+    const approvedCompanies = profile.authorizationLetters
+      .filter(letter => letter.status === 'approved')
+      .map(letter => letter.companyName)
+      .filter(name => name && name.trim() !== '');
+    
+    res.json({ success: true, companies: approvedCompanies });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 
 
 exports.getProfileCompletion = async (req, res) => {

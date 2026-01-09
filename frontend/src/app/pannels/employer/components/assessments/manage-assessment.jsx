@@ -31,7 +31,13 @@ function ManageAssessmentPage() {
     ]);
 
     const [applicantCount] = useState(42); // dummy count
+    const [searchFilter, setSearchFilter] = useState('');
     const { popup, confirmation, showConfirmation, hideConfirmation, hidePopup, showSuccess } = usePopupNotification();
+
+    const filteredAssessments = assessments.filter(assessment => 
+        assessment.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
+        assessment.description.toLowerCase().includes(searchFilter.toLowerCase())
+    );
 
     const handleDeleteClick = (id, title) => {
         showConfirmation(
@@ -58,19 +64,41 @@ function ManageAssessmentPage() {
 
             <div className="panel panel-default">
                 <div className="panel-heading wt-panel-heading p-a20">
-                    <h4 className="panel-tittle m-a0"><i className="fa fa-list" /> Assessment Overview</h4>
+                    <div className="d-flex justify-content-between align-items-center">
+                        <h4 className="panel-tittle m-a0"><i className="fa fa-list" /> Assessment Overview</h4>
+                        <div className="d-flex align-items-center gap-3">
+                            <select 
+                                className="form-select" 
+                                value={searchFilter} 
+                                onChange={(e) => setSearchFilter(e.target.value)}
+                                style={{ minWidth: '200px' }}
+                            >
+                                <option value="">Search Assessments...</option>
+                                <option value="JavaScript">JavaScript</option>
+                                <option value="React">React</option>
+                                <option value="Python">Python</option>
+                                <option value="Java">Java</option>
+                                <option value="Node.js">Node.js</option>
+                                <option value="Angular">Angular</option>
+                                <option value="Vue.js">Vue.js</option>
+                                <option value="PHP">PHP</option>
+                                <option value="C++">C++</option>
+                                <option value="SQL">SQL</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="panel-body wt-panel-body p-a20 m-b30">
-                    {assessments.length === 0 ? (
+                    {filteredAssessments.length === 0 ? (
                         <div className="text-center p-a20 bg-light">
                             <i className="fa fa-file-alt text-muted fa-2x m-b10" />
-                            <h5>No assessments created</h5>
-                            <p className="text-muted">Create your first assessment to get started.</p>
+                            <h5>{searchFilter ? 'No assessments found' : 'No assessments created'}</h5>
+                            <p className="text-muted">{searchFilter ? 'Try a different search term.' : 'Create your first assessment to get started.'}</p>
                         </div>
                     ) : (
                         <div className="row">
-                            {assessments.map((assessment) => (
+                            {filteredAssessments.map((assessment) => (
                                 <div className="col-md-6" key={assessment._id}>
                                     <div className="job-post-company style-1 bg-white border p-a20 m-b20 rounded shadow-sm">
                                         <div className="d-flex justify-content-between">

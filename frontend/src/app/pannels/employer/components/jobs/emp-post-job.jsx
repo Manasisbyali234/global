@@ -251,6 +251,7 @@ export default function EmpPostJob({ onNext }) {
 	const [scheduledRounds, setScheduledRounds] = useState({});
 	const [locationSearchTerm, setLocationSearchTerm] = useState('');
 	const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+	const [approvedCompanies, setApprovedCompanies] = useState([]);
 	const [validationRules] = useState({
 		jobTitle: { required: true, minLength: 3 },
 		category: { required: true },
@@ -350,6 +351,7 @@ export default function EmpPostJob({ onNext }) {
 		}
 		fetchEmployerType();
 		fetchAssessments();
+		fetchApprovedCompanies();
 		
 		// Mobile detection
 		const checkMobile = () => {
@@ -379,6 +381,26 @@ export default function EmpPostJob({ onNext }) {
 				return;
 			}
 			console.error('Failed to fetch assessments:', error);
+		}
+	};
+
+	const fetchApprovedCompanies = async () => {
+		try {
+			const token = localStorage.getItem('employerToken');
+			const data = await safeApiCall('http://localhost:5000/api/employer/approved-authorization-companies', {
+				headers: { 'Authorization': `Bearer ${token}` }
+			});
+			if (data.success) {
+				setApprovedCompanies(data.companies || []);
+			}
+		} catch (error) {
+			if (error.name === 'AuthError') {
+				showWarning('Session expired. Please login again.');
+				localStorage.removeItem('employerToken');
+				window.location.href = '/login';
+				return;
+			}
+			console.error('Failed to fetch approved companies:', error);
 		}
 	};
 
@@ -1071,10 +1093,10 @@ export default function EmpPostJob({ onNext }) {
 								}}>
 									<h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 10 }}>
 										<i className="fa fa-briefcase"></i>
-										Company Information (Consultant Mode)
+										Approved Company Information (Consultant Mode)
 									</h4>
 									<p style={{margin: '6px 0 0 0', fontSize: 13, opacity: 0.9}}>
-										As a consultant, please provide details about the hiring company
+										Select from your approved authorization companies
 									</p>
 								</div>
 							</div>
@@ -1112,21 +1134,48 @@ export default function EmpPostJob({ onNext }) {
 									Company Name *
 									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
 								</label>
-								<input
-									style={{
-										...input, 
-										borderColor: formData.companyName ? '#10b981' : '#dc2626',
-										borderWidth: 2,
-									}}
-									placeholder="e.g., Tech Solutions Inc."
-									value={formData.companyName}
-									onChange={(e) => update({ companyName: e.target.value })}
-									required
-								/>
+								{approvedCompanies.length > 0 ? (
+									<select
+										style={{
+											...input, 
+											borderColor: formData.companyName ? '#10b981' : '#dc2626',
+											borderWidth: 2,
+											cursor: 'pointer'
+										}}
+										value={formData.companyName}
+										onChange={(e) => update({ companyName: e.target.value })}
+										required
+									>
+										<option value="" disabled>Select Approved Company</option>
+										{approvedCompanies.map((company, index) => (
+											<option key={index} value={company}>
+												{company}
+											</option>
+										))}
+									</select>
+								) : (
+									<input
+										style={{
+											...input, 
+											borderColor: formData.companyName ? '#10b981' : '#dc2626',
+											borderWidth: 2,
+										}}
+										placeholder="e.g., Tech Solutions Inc."
+										value={formData.companyName}
+										onChange={(e) => update({ companyName: e.target.value })}
+										required
+									/>
+								)}
 								{!formData.companyName && (
 									<p style={{color: '#dc2626', fontSize: 12, margin: '6px 0 0 0', display: 'flex', alignItems: 'center', gap: 4}}>
 										<i className="fa fa-exclamation-circle"></i>
-										Please enter company name
+										{approvedCompanies.length > 0 ? 'Please select an approved company' : 'Please enter company name'}
+									</p>
+								)}
+								{approvedCompanies.length > 0 && (
+									<p style={{color: '#10b981', fontSize: 12, margin: '6px 0 0 0', display: 'flex', alignItems: 'center', gap: 4}}>
+										<i className="fa fa-check-circle"></i>
+										Showing {approvedCompanies.length} approved authorization companies
 									</p>
 								)}
 							</div>

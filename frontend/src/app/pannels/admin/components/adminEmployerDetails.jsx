@@ -979,26 +979,35 @@ function EmployerDetails() {
                                                         }
                                                     }}
                                                     style={{ backgroundColor: 'transparent', borderColor: '#ff6b35', color: '#ff6b35', marginRight: '5px' }}
+                                                    title="View Document"
                                                 >
                                                     <i className="fa fa-eye"></i>
                                                 </button>
-                                                {doc.status !== 'approved' && (
-                                                    <button 
-                                                        className="btn btn-outline-success btn-sm"
-                                                        onClick={() => handleApproveAuthorizationLetter(doc._id)}
-                                                        style={{ marginRight: '5px' }}
-                                                    >
-                                                        <i className="fa fa-check"></i>
-                                                    </button>
-                                                )}
-                                                {doc.status !== 'approved' && doc.status !== 'rejected' && (
-                                                    <button 
-                                                        className="btn btn-outline-danger btn-sm"
-                                                        onClick={() => handleRejectAuthorizationLetter(doc._id)}
-                                                    >
-                                                        <i className="fa fa-times"></i>
-                                                    </button>
-                                                )}
+                                                <button 
+                                                    className="btn btn-outline-success btn-sm"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        handleApproveAuthorizationLetter(doc._id);
+                                                    }}
+                                                    style={{ marginRight: '5px' }}
+                                                    title="Approve Authorization Letter"
+                                                    disabled={doc.status === 'approved'}
+                                                >
+                                                    <i className="fa fa-check"></i>
+                                                </button>
+                                                <button 
+                                                    className="btn btn-outline-danger btn-sm"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        handleRejectAuthorizationLetter(doc._id);
+                                                    }}
+                                                    title="Reject Authorization Letter"
+                                                    disabled={doc.status === 'rejected'}
+                                                >
+                                                    <i className="fa fa-times"></i>
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>

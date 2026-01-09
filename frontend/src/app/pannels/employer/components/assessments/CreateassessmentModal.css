@@ -177,6 +177,12 @@
   z-index: 1060;
 }
 
+/* Increase width of Assessment Title dropdown */
+.position-fixed .bg-white.rounded-3 .form-select {
+  min-width: 700px;
+  width: 100%;
+}
+
 /* Datalist styling */
 input[list] {
   position: relative;

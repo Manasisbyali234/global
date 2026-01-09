@@ -179,9 +179,10 @@ export default function AssessmentDashboard() {
 			{/* Search Bar */}
 			<div style={{ padding: '0 2rem 1rem 2rem' }}>
 				<div className="d-flex gap-3 align-items-center" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+					<label className="form-label mb-0 fw-semibold" style={{ minWidth: '140px' }}>Search Assessment:</label>
 					<select 
 						className="form-select" 
-						style={{ width: '200px', color: '#007bff' }}
+						style={{ width: '400px', color: '#007bff' }}
 						onChange={(e) => handleTitleSelect(e.target.value)}
 						value={searchTerm}
 					>

@@ -152,6 +152,7 @@ router.get('/recent-activity', employerController.getRecentActivity);
 
 // Consultant Routes
 router.get('/consultant/companies', employerController.getConsultantCompanies);
+router.get('/approved-authorization-companies', employerController.getApprovedAuthorizationCompanies);
 
 // GST API Routes
 router.get('/gst/:gstNumber', employerController.getGSTInfo);
