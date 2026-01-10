@@ -418,8 +418,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
         <p>Take the next step and explore opportunities through completely online interviews.</p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Login Now</a>
-          <a href="${resetPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Reset Password</a>
+          <a href="${resetPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
         </div>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
