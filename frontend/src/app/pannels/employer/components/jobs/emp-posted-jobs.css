@@ -129,30 +129,29 @@
     padding: 1rem !important;
     width: 100% !important;
     display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
     gap: 1rem !important;
-    flex-wrap: nowrap !important;
   }
   
   /* Maintain desktop card structure on mobile */
   .emp-posted-jobs-page .manage-jobs-card > .d-flex:first-child {
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 1rem !important;
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
   }
   
-  /* Keep action buttons on the right */
+  /* Keep action buttons on the right with proper alignment */
   .emp-posted-jobs-page .manage-jobs-card > .d-flex:last-child {
     flex-direction: row !important;
     align-items: center !important;
     gap: 0.5rem !important;
-    flex: 0 0 auto !important;
-    justify-content: flex-end !important;
-    flex-wrap: wrap !important;
-    row-gap: 0.35rem !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    padding-top: 0.5rem !important;
+    border-top: 1px solid #f0f0f0 !important;
   }
   
   .emp-posted-jobs-page .manage-jobs-card .badge {
@@ -172,21 +171,9 @@
     flex: 0 0 auto !important;
   }
   
-  .emp-posted-jobs-page .manage-jobs-card.d-flex.justify-content-between.align-items-center,
-  .emp-posted-jobs-page .panel-body .manage-jobs-card.d-flex.justify-content-between.align-items-center {
-    flex-direction: row !important;
-    align-items: center !important;
-  }
-  
-  .emp-posted-jobs-page .manage-jobs-card .d-flex.align-items-center,
-  .emp-posted-jobs-page .manage-jobs-card .d-flex.justify-content-between,
-  .emp-posted-jobs-page .manage-jobs-card .d-flex.gap-3 {
-    flex-direction: row !important;
-    align-items: center !important;
-  }
-  
   .emp-posted-jobs-page .manage-jobs-card .d-flex.flex-wrap {
     justify-content: flex-start !important;
+    gap: 0.5rem !important;
   }
   
   .emp-posted-jobs-page .btn {
@@ -198,8 +185,7 @@
     flex: 0 0 auto !important;
   }
 
-  /* Status filter buttons - keep horizontal */
-  /* Reduce gap between header and filter buttons */
+  /* Status filter buttons - keep horizontal with proper alignment */
   .emp-posted-jobs-page .panel-heading {
     margin-bottom: 1rem !important;
   }
@@ -212,6 +198,7 @@
     flex-direction: row !important;
     flex-wrap: wrap !important;
     gap: 0.5rem !important;
+    justify-content: center !important;
   }
 
   .emp-posted-jobs-page .panel-body .d-flex.gap-2 .btn {
@@ -288,20 +275,5 @@
   .emp-posted-jobs-page .btn {
     font-size: 0.875rem !important;
     padding: 0.625rem 0.875rem !important;
-  }
-  
-  .emp-posted-jobs-page .manage-jobs-card > .d-flex:last-child {
-    flex-direction: row !important;
-    gap: 0.5rem !important;
-    align-items: center !important;
-  }
-  
-  .emp-posted-jobs-page .manage-jobs-card .d-flex {
-    flex-direction: row !important;
-  }
-  
-  .emp-posted-jobs-page .manage-jobs-card .d-flex.align-items-center {
-    flex-direction: row !important;
-    align-items: center !important;
   }
 }

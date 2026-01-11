@@ -1,0 +1,147 @@
+/* Employer Detail Page Mobile Tabs Alignment Fix */
+
+/* Desktop view - maintain current styling */
+@media (min-width: 992px) {
+  .nav-tabs {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+  
+  .nav-tabs .nav-item {
+    margin-bottom: 0;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    color: #666;
+    text-align: center;
+    white-space: nowrap;
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: #fd7e14;
+    border-bottom-color: #fd7e14;
+    background: transparent;
+  }
+}
+
+/* Mobile view - fix alignment to match desktop */
+@media (max-width: 991px) {
+  .nav-tabs {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    margin: 20px 0 !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    background: transparent !important;
+  }
+  
+  .nav-tabs::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  .nav-tabs .nav-item {
+    flex: 0 0 auto !important;
+    margin-bottom: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    border: 1px solid transparent !important;
+    border-bottom: 2px solid transparent !important;
+    color: #666 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    min-width: auto !important;
+    display: block !important;
+  }
+  
+  .nav-tabs .nav-link:hover {
+    color: #fd7e14 !important;
+    border-color: transparent !important;
+    background: transparent !important;
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: #fd7e14 !important;
+    border-bottom-color: #fd7e14 !important;
+    background: transparent !important;
+    border-top: 1px solid transparent !important;
+    border-left: 1px solid transparent !important;
+    border-right: 1px solid transparent !important;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 767px) {
+  .nav-tabs {
+    margin: 15px 0 !important;
+    padding: 0 5px !important;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    min-width: 70px !important;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 576px) {
+  .nav-tabs {
+    margin: 10px 0 !important;
+    padding: 0 2px !important;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    min-width: 65px !important;
+  }
+}
+
+/* Tab content spacing */
+@media (max-width: 991px) {
+  .tab-content {
+    padding-top: 15px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .tab-content {
+    padding-top: 12px !important;
+  }
+}
+
+/* Ensure tabs container doesn't overflow */
+@media (max-width: 991px) {
+  .cabdidate-de-info,
+  .twm-job-self-wrap {
+    overflow-x: hidden !important;
+  }
+  
+  .cabdidate-de-info .nav-tabs,
+  .twm-job-self-wrap .nav-tabs {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}

@@ -10,6 +10,7 @@ import { createPortal } from "react-dom";
 import { loadScript } from "../../../../../globals/constants";
 import "../jobs/job-detail.css";
 import "../../../../../employer-detail-tabs.css";
+import "../../../../../emp-detail-mobile-tabs-fix.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 function EmployersDetail1Page() {

@@ -116,6 +116,15 @@
     background: transparent !important;
   }
 
+  /* Employer detail page tabs - exclude from modal styling */
+  .cabdidate-de-info .nav-tabs,
+  .twm-job-self-wrap .nav-tabs {
+    border-bottom: 1px solid #dee2e6 !important;
+    padding: 0 !important;
+    margin: 20px 0 !important;
+    background: transparent !important;
+  }
+
   /* Form inputs in modals */
   .modal .form-control,
   .modal .form-select {

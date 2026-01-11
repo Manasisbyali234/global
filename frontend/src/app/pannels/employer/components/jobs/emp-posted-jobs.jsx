@@ -5,6 +5,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { loadScript } from "../../../../../globals/constants";
 import { employer, empRoute } from "../../../../../globals/route-names";
 import './emp-posted-jobs.css';
+import './emp-posted-jobs-mobile-button-fix.css';
 
 export default function EmpPostedJobs() {
 	const navigate = useNavigate();
