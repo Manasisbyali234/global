@@ -1,0 +1,161 @@
+/* ============================================================================
+   ULTIMATE iPhone HAMBURGER MENU PRODUCTION FIX
+   ============================================================================
+   This file provides the definitive solution for hamburger menu visibility
+   issues on iPhone devices after hosting on production servers.
+   ============================================================================ */
+
+/* 1. HAMBURGER BUTTON - FORCE VISIBILITY */
+html body .hamburger-btn,
+html body button.hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 9999999 !important;
+  position: relative !important;
+  width: 40px !important;
+  height: 40px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 4px !important;
+  color: #333333 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  -webkit-appearance: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-transform: translateZ(0) !important;
+  transform: translateZ(0) !important;
+}
+
+/* 2. HAMBURGER MENU PANEL - CORE STYLES */
+html body .hamburger-menu {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: 280px !important;
+  height: 100vh !important;
+  height: -webkit-fill-available !important;
+  background: #ffffff !important;
+  z-index: 9999998 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-left: 1px solid #e0e0e0 !important;
+  -webkit-transform: translateX(100%) !important;
+  transform: translateX(100%) !important;
+  -webkit-transition: -webkit-transform 0.3s ease, opacity 0.3s ease !important;
+  transition: transform 0.3s ease, opacity 0.3s ease !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+/* 3. OPEN STATE - CRITICAL FOR VISIBILITY */
+html body .hamburger-menu.open {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  -webkit-transform: translateX(0) !important;
+  transform: translateX(0) !important;
+  display: flex !important;
+}
+
+/* 4. OVERLAY STYLES */
+html body .hamburger-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  z-index: 9999997 !important;
+  display: none !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+html body .hamburger-overlay.show {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+/* 5. INTERNAL CONTENT - ENSURE VISIBILITY */
+html body .hamburger-menu.open .hamburger-header,
+html body .hamburger-menu.open .hamburger-content,
+html body .hamburger-menu.open .auth-section {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+html body .hamburger-menu.open .hamburger-content {
+  -webkit-overflow-scrolling: touch !important;
+  overflow-y: auto !important;
+}
+
+html body .hamburger-menu.open .menu-list,
+html body .hamburger-menu.open .menu-list li,
+html body .hamburger-menu.open .menu-link {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* 6. IOS SPECIFIC TWEAKS */
+@supports (-webkit-touch-callout: none) {
+  html body.hamburger-open {
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  html body .hamburger-menu {
+    /* Prevent flickering on iOS */
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    -webkit-perspective: 1000 !important;
+    perspective: 1000 !important;
+  }
+}
+
+/* 7. PARENT CONTAINER PROTECTION */
+html body .site-header,
+html body .main-bar,
+html body .container-fluid,
+html body .extra-nav,
+html body .extra-cell {
+  overflow: visible !important;
+}
+
+/* 8. BREAKPOINT FIXES */
+@media (max-width: 1199px) {
+  html body .hamburger-btn {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  html body .hamburger-menu {
+    width: 260px !important;
+  }
+  html body .hamburger-btn {
+    width: 36px !important;
+    height: 36px !important;
+  }
+}
+
+/* 9. Z-INDEX HIERARCHY PROTECTION */
+html body header.site-header {
+  z-index: 1000 !important;
+}
+
+/* Ensure nothing covers the menu */
+.modal-backdrop {
+  z-index: 1040 !important;
+}
