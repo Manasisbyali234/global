@@ -33,6 +33,16 @@ import "./badge-text-orange.css";
 import "./header-zindex-fix.css";
 // POPUP HEADER FIX - Additional popup header z-index fixes
 import "./popup-header-fix.css";
+// iOS HAMBURGER VISIBILITY FIX - Fix hamburger menu on iPhone after hosting
+import "./ios-hamburger-visibility-fix.css";
+// CRITICAL iOS HAMBURGER FIX - Maximum specificity override for production
+import "./ios-hamburger-critical-fix.css";
+// PRODUCTION HAMBURGER FIX - Server-side rendering and hosting platform fixes
+import "./production-hamburger-fix.css";
+// ULTIMATE iOS HAMBURGER FIX - Final solution with maximum specificity
+import "./ios-hamburger-ultimate-fix.css";
+// CRITICAL OVERRIDE - Must be loaded LAST to ensure hamburger visibility
+import "./ios-hamburger-critical-override.css";
 
 
 function App() {

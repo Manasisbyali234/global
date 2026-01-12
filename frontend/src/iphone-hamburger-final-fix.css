@@ -1,0 +1,74 @@
+/* FINAL IPHONE HAMBURGER MENU FIX - CONSOLIDATED */
+
+/* Force visibility on mobile devices */
+@media (max-width: 1199px) {
+  .hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 9999 !important;
+  }
+
+  .hamburger-menu.open {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 9998 !important;
+  }
+
+  /* Force all child elements visible */
+  .hamburger-menu.open,
+  .hamburger-menu.open *,
+  .hamburger-menu.open .hamburger-header,
+  .hamburger-menu.open .hamburger-logo,
+  .hamburger-menu.open .close-btn,
+  .hamburger-menu.open .hamburger-content,
+  .hamburger-menu.open .menu-list,
+  .hamburger-menu.open .menu-list li,
+  .hamburger-menu.open .menu-link,
+  .hamburger-menu.open .auth-section,
+  .hamburger-menu.open .auth-btn {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+  }
+
+  .hamburger-menu.open .hamburger-header,
+  .hamburger-menu.open .hamburger-content,
+  .hamburger-menu.open .auth-btn {
+    display: flex !important;
+  }
+}
+
+/* iOS Safari specific */
+@supports (-webkit-touch-callout: none) {
+  .hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    -webkit-appearance: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  .hamburger-menu.open,
+  .hamburger-menu.open * {
+    visibility: visible !important;
+    opacity: 1 !important;
+    -webkit-transform: translateZ(0) !important;
+  }
+}
+
+/* Override any conflicting z-index from other files */
+html body .hamburger-btn {
+  z-index: 9999 !important;
+}
+
+html body .hamburger-menu {
+  z-index: 9998 !important;
+}
+
+html body .hamburger-overlay {
+  z-index: 9997 !important;
+}

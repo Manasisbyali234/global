@@ -1,0 +1,191 @@
+/* ============================================================================
+   PRODUCTION SERVER HAMBURGER MENU FIX
+   ============================================================================
+   This file specifically addresses hamburger menu issues that occur only
+   after hosting on production servers (Netlify, Vercel, AWS, etc.)
+   ============================================================================ */
+
+/* Production environment detection and fixes */
+body[data-environment="production"] .hamburger-btn,
+.production-build .hamburger-btn,
+.netlify-build .hamburger-btn,
+.vercel-build .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 999999 !important;
+}
+
+/* Server-side rendering compatibility */
+.ssr-rendered .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* CDN and external CSS override protection */
+html[data-loaded="true"] body .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 999999 !important;
+}
+
+/* Hosting platform specific overrides */
+.hosting-platform .hamburger-btn,
+.static-site .hamburger-btn,
+.spa-build .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Critical path CSS loading protection */
+.css-loaded .hamburger-btn,
+.fonts-loaded .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* iOS production server specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .production-build .hamburger-btn,
+  .hosting-platform .hamburger-btn {
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    will-change: transform !important;
+  }
+}
+
+/* Prevent any lazy-loaded CSS from hiding hamburger */
+.hamburger-btn[data-loaded="false"],
+.hamburger-btn[data-hydrated="false"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Force visibility during hydration process */
+.hydrating .hamburger-btn,
+.rehydrating .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Production build optimization overrides */
+.optimized-build .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  contain: none !important;
+}
+
+/* Webpack/build tool specific fixes */
+.webpack-build .hamburger-btn,
+.vite-build .hamburger-btn,
+.rollup-build .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Critical CSS inline protection */
+style[data-critical] ~ * .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure hamburger works even with aggressive CSS minification */
+.minified-css .hamburger-btn,
+.compressed-assets .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Service worker and PWA compatibility */
+.pwa-app .hamburger-btn,
+.service-worker-active .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Mobile browser specific production fixes */
+@media (max-width: 1199px) {
+  .production-build .hamburger-btn,
+  .hosting-platform .hamburger-btn,
+  .static-site .hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 999999 !important;
+  }
+}
+
+/* iPhone production server specific targeting */
+@media only screen 
+  and (min-device-width: 375px) 
+  and (max-device-width: 932px) 
+  and (-webkit-min-device-pixel-ratio: 2) {
+  
+  .production-build .hamburger-btn,
+  .hosting-platform .hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 999999 !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+  }
+}
+
+/* Prevent any production optimizations from hiding hamburger */
+.tree-shaken .hamburger-btn,
+.dead-code-eliminated .hamburger-btn,
+.code-split .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* HTTPS/SSL specific fixes */
+.secure-context .hamburger-btn,
+.https-site .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Domain-specific overrides (replace with your actual domain) */
+.production-domain .hamburger-btn,
+.custom-domain .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Final fallback with maximum specificity */
+html body div.site-header div.main-bar div.container-fluid div.extra-nav div.extra-cell button.hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 999999 !important;
+  position: relative !important;
+  width: 40px !important;
+  height: 40px !important;
+  background: #fff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  color: #333 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  font-size: 20px !important;
+}

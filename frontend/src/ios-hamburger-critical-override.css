@@ -1,0 +1,107 @@
+/* ============================================================================
+   CRITICAL iOS HAMBURGER OVERRIDE - LOAD LAST
+   ============================================================================
+   This file must be loaded AFTER all other CSS files to ensure it overrides
+   any conflicting styles that might hide the hamburger menu on iOS devices
+   ============================================================================ */
+
+/* CRITICAL: Force hamburger button visibility with maximum CSS specificity */
+html body div[class*="header"] div[class*="main-bar"] div[class*="container"] div[class*="extra-nav"] div[class*="extra-cell"] button[class*="hamburger-btn"],
+html body .site-header .main-bar .container-fluid .extra-nav .extra-cell .hamburger-btn,
+html body .hamburger-btn,
+html body button.hamburger-btn,
+html body [class*="hamburger-btn"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 2147483647 !important;
+  position: relative !important;
+  width: 40px !important;
+  height: 40px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 4px !important;
+  color: #333333 !important;
+  font-size: 18px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  -webkit-appearance: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-transform: translateZ(0) !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+}
+
+/* iOS Safari specific overrides */
+@supports (-webkit-touch-callout: none) {
+  html body .hamburger-btn,
+  html body button.hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+    touch-action: manipulation !important;
+  }
+}
+
+/* Mobile breakpoint enforcement */
+@media screen and (max-width: 1199px) {
+  html body .hamburger-btn,
+  html body button.hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
+/* iPhone specific targeting */
+@media only screen 
+  and (min-device-width: 375px) 
+  and (max-device-width: 932px) 
+  and (-webkit-min-device-pixel-ratio: 2) {
+  
+  html body .hamburger-btn,
+  html body button.hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Override any inline styles that might hide the button */
+html body .hamburger-btn[style*="display"],
+html body .hamburger-btn[style*="visibility"],
+html body .hamburger-btn[style*="opacity"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure parent containers don't interfere */
+html body .extra-nav,
+html body .header-2-nav,
+html body .extra-cell {
+  overflow: visible !important;
+}
+
+html body .extra-nav .extra-cell:last-child {
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+  html body .hamburger-btn {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 16px !important;
+  }
+}

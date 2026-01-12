@@ -1,0 +1,222 @@
+/* ============================================================================
+   CRITICAL iOS HAMBURGER MENU FIX - FINAL SOLUTION
+   ============================================================================
+   This file fixes hamburger menu visibility issues specifically on iOS devices
+   after hosting on production server
+   ============================================================================ */
+
+/* CRITICAL: Force hamburger button visibility on iOS with maximum specificity */
+html body .hamburger-btn,
+html body button.hamburger-btn,
+html body .extra-cell .hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 99999 !important;
+  width: 40px !important;
+  height: 40px !important;
+  background: #fff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  color: #333 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  font-size: 20px !important;
+  -webkit-appearance: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-transform: translateZ(0) !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+}
+
+/* iOS Safari specific fixes with maximum specificity */
+@supports (-webkit-touch-callout: none) {
+  html body .hamburger-btn,
+  html body button.hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+    will-change: transform !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+  }
+}
+
+/* Force hamburger menu visibility on all mobile breakpoints */
+@media (max-width: 1199px) {
+  html body .hamburger-btn,
+  html body button.hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Hide desktop navigation */
+  .header-nav.navbar-collapse {
+    display: none !important;
+  }
+}
+
+/* Specific iPhone device targeting */
+@media only screen 
+  and (min-device-width: 375px) 
+  and (max-device-width: 932px) 
+  and (-webkit-min-device-pixel-ratio: 2) {
+  
+  html body .hamburger-btn,
+  html body button.hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 99999 !important;
+  }
+}
+
+/* Force hamburger menu panel visibility */
+html body .hamburger-menu {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: 280px !important;
+  height: 100vh !important;
+  background: #fff !important;
+  z-index: 99998 !important;
+  transform: translateX(100%) !important;
+  transition: transform 0.3s ease !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+html body .hamburger-menu.open {
+  transform: translateX(0) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+}
+
+/* Force all menu content to be visible when open */
+html body .hamburger-menu.open,
+html body .hamburger-menu.open *,
+html body .hamburger-menu.open .hamburger-header,
+html body .hamburger-menu.open .hamburger-logo,
+html body .hamburger-menu.open .close-btn,
+html body .hamburger-menu.open .hamburger-content,
+html body .hamburger-menu.open .menu-list,
+html body .hamburger-menu.open .menu-list li,
+html body .hamburger-menu.open .menu-link,
+html body .hamburger-menu.open .auth-section,
+html body .hamburger-menu.open .auth-btn {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+}
+
+html body .hamburger-menu.open .hamburger-header,
+html body .hamburger-menu.open .hamburger-content,
+html body .hamburger-menu.open .auth-btn {
+  display: flex !important;
+}
+
+/* Overlay with maximum specificity */
+html body .hamburger-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  z-index: 99997 !important;
+  display: none !important;
+}
+
+html body .hamburger-overlay.show {
+  display: block !important;
+}
+
+/* Override any conflicting header z-index */
+html body header,
+html body .site-header,
+html body .main-bar,
+html body .sticky-header,
+html body .main-bar-wraper {
+  z-index: 1000 !important;
+}
+
+/* Ensure parent containers don't hide hamburger */
+html body .extra-nav,
+html body .header-2-nav,
+html body .extra-cell {
+  overflow: visible !important;
+  z-index: auto !important;
+}
+
+html body .extra-nav .extra-cell:last-child {
+  display: flex !important;
+  align-items: center !important;
+  z-index: 99999 !important;
+}
+
+/* iOS specific touch handling */
+@supports (-webkit-touch-callout: none) {
+  html body .hamburger-btn {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+    touch-action: manipulation !important;
+  }
+  
+  html body .hamburger-menu {
+    height: -webkit-fill-available !important;
+  }
+  
+  html body.hamburger-open {
+    position: fixed !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+}
+
+/* Prevent any CSS from other files from overriding */
+html body .hamburger-btn[style] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Force visibility even if inline styles try to hide */
+html body .hamburger-btn[style*="display: none"],
+html body .hamburger-btn[style*="visibility: hidden"],
+html body .hamburger-btn[style*="opacity: 0"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  html body .hamburger-btn {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 16px !important;
+  }
+  
+  html body .hamburger-menu {
+    width: 260px !important;
+  }
+}
+
+/* Critical override for production environment */
+html body div.extra-nav div.extra-cell button.hamburger-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 99999 !important;
+}

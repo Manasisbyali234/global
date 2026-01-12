@@ -1,0 +1,21 @@
+/* iPhone Hamburger Menu Fixes */
+
+/* Fix for iPhone hamburger menu positioning and behavior */
+@media only screen and (max-width: 768px) {
+    .tg-hamburger-button {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    .tg-mobile-menu {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Additional iPhone-specific fixes for hamburger menu */
+@media only screen and (-webkit-min-device-pixel-ratio: 2) {
+    .tg-hamburger-icon {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+}

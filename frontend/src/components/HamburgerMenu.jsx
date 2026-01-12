@@ -25,6 +25,26 @@ const HamburgerMenu = ({ isOpen, onToggle, onClose }) => {
       <button 
         className={`hamburger-btn ${isOpen ? 'active' : ''}`} 
         onClick={onToggle}
+        style={{
+          display: 'flex',
+          visibility: 'visible',
+          opacity: 1,
+          zIndex: 2147483647,
+          position: 'relative',
+          width: '40px',
+          height: '40px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e0e0e0',
+          borderRadius: '4px',
+          color: '#333333',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 0,
+          cursor: 'pointer'
+        }}
+        data-testid="hamburger-menu-button"
+        aria-label="Toggle navigation menu"
+        type="button"
       >
         {isOpen ? '✕' : '☰'}
       </button>

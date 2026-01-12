@@ -1,0 +1,140 @@
+/* ============================================================================
+   iOS HAMBURGER MENU VISIBILITY FIX - PRODUCTION SERVER
+   ============================================================================
+   This file fixes hamburger menu visibility issues on iPhone/iOS devices
+   after hosting on production server
+   ============================================================================ */
+
+/* CRITICAL: Force hamburger button visibility on all mobile devices */
+@media (max-width: 1199px) {
+  .hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 9999 !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: #fff !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    color: #333 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    font-size: 20px !important;
+    -webkit-appearance: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  /* Ensure hamburger menu panel is properly layered */
+  .hamburger-menu {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 280px !important;
+    height: 100vh !important;
+    background: #fff !important;
+    z-index: 9998 !important;
+    transform: translateX(100%) !important;
+    transition: transform 0.3s ease !important;
+  }
+
+  .hamburger-menu.open {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: flex !important;
+  }
+
+  /* Overlay behind menu */
+  .hamburger-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 9997 !important;
+    display: none !important;
+  }
+
+  .hamburger-overlay.show {
+    display: block !important;
+  }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 1199px) {
+    .hamburger-btn {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      -webkit-transform: translateZ(0) !important;
+      transform: translateZ(0) !important;
+      will-change: transform !important;
+    }
+
+    .hamburger-menu.open {
+      -webkit-transform: translateX(0) !important;
+      transform: translateX(0) !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+/* Fix header z-index conflicts */
+header,
+.site-header,
+.main-bar,
+.sticky-header,
+.main-bar-wraper {
+  z-index: 1000 !important;
+}
+
+/* Ensure hamburger elements are above header */
+.hamburger-btn,
+.hamburger-menu,
+.hamburger-overlay {
+  z-index: 9999 !important;
+}
+
+.hamburger-menu {
+  z-index: 9998 !important;
+}
+
+.hamburger-overlay {
+  z-index: 9997 !important;
+}
+
+/* Force visibility on iPhone screens */
+@media only screen 
+  and (min-device-width: 375px) 
+  and (max-device-width: 932px) 
+  and (-webkit-min-device-pixel-ratio: 2) {
+  
+  .hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Prevent any parent container from hiding hamburger */
+.extra-nav,
+.header-2-nav,
+.extra-cell {
+  overflow: visible !important;
+  z-index: auto !important;
+}
+
+/* Ensure hamburger button stays visible in header */
+.extra-nav .extra-cell:last-child {
+  display: flex !important;
+  align-items: center !important;
+  z-index: 9999 !important;
+}
