@@ -128,12 +128,19 @@ exports.getChartData = async (req, res) => {
     const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - (monthsToShow - 1), 1);
 
     const applications = await Application.aggregate([
-      { $match: { createdAt: { $gte: sixMonthsAgo } } },
+      { 
+        $match: { 
+          $or: [
+            { createdAt: { $gte: sixMonthsAgo } },
+            { appliedAt: { $gte: sixMonthsAgo } }
+          ]
+        } 
+      },
       {
         $group: {
           _id: {
-            year: { $year: '$createdAt' },
-            month: { $month: '$createdAt' }
+            year: { $year: { $ifNull: ['$appliedAt', '$createdAt'] } },
+            month: { $month: { $ifNull: ['$appliedAt', '$createdAt'] } }
           },
           count: { $sum: 1 }
         }
@@ -141,30 +148,41 @@ exports.getChartData = async (req, res) => {
     ]);
 
     const employers = await Employer.aggregate([
-      { $match: { createdAt: { $gte: sixMonthsAgo } } },
+      { 
+        $match: { 
+          $or: [
+            { createdAt: { $gte: sixMonthsAgo } },
+            { profileSubmittedAt: { $gte: sixMonthsAgo } }
+          ]
+        } 
+      },
       {
         $group: {
           _id: {
-            year: { $year: '$createdAt' },
-            month: { $month: '$createdAt' }
+            year: { $year: { $ifNull: ['$createdAt', '$profileSubmittedAt'] } },
+            month: { $month: { $ifNull: ['$createdAt', '$profileSubmittedAt'] } }
           },
           count: { $sum: 1 }
         }
       }
     ]);
 
-    // Populate data map
+    // Populate data map with robust key matching
     applications.forEach(item => {
-      const key = `${item._id.year}-${item._id.month}`;
-      if (monthlyDataMap.has(key)) {
-        monthlyDataMap.get(key).applications = item.count;
+      if (item._id && item._id.year && item._id.month) {
+        const key = `${item._id.year}-${item._id.month}`;
+        if (monthlyDataMap.has(key)) {
+          monthlyDataMap.get(key).applications = item.count || 0;
+        }
       }
     });
 
     employers.forEach(item => {
-      const key = `${item._id.year}-${item._id.month}`;
-      if (monthlyDataMap.has(key)) {
-        monthlyDataMap.get(key).employers = item.count;
+      if (item._id && item._id.year && item._id.month) {
+        const key = `${item._id.year}-${item._id.month}`;
+        if (monthlyDataMap.has(key)) {
+          monthlyDataMap.get(key).employers = item.count || 0;
+        }
       }
     });
 

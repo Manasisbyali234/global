@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Bar, Pie } from "react-chartjs-2";
+import { api } from "../../../../utils/api";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -25,41 +26,37 @@ function AdminDashboardActivityChart() {
 	const [chartData, setChartData] = useState(null);
 	const [stats, setStats] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 
 	useEffect(() => {
-		fetchChartData();
-		fetchStats();
+		fetchData();
 	}, []);
 
-	const fetchChartData = async () => {
+	const fetchData = async () => {
 		try {
-			const token = localStorage.getItem('adminToken');
-			const response = await fetch('http://localhost:5000/api/admin/dashboard/charts', {
-				headers: { 'Authorization': `Bearer ${token}` }
-			});
-			const data = await response.json();
-			if (data.success) {
-				setChartData(data.chartData);
+			setLoading(true);
+			setError(null);
+			const [chartRes, statsRes] = await Promise.all([
+				api.getAdminCharts(),
+				api.getAdminStats()
+			]);
+
+			if (chartRes.success) {
+				setChartData(chartRes.chartData);
+			} else {
+				throw new Error(chartRes.message || 'Failed to fetch chart data');
+			}
+
+			if (statsRes.success) {
+				setStats(statsRes.stats);
+			} else {
+				throw new Error(statsRes.message || 'Failed to fetch stats');
 			}
 		} catch (error) {
-			
+			console.error('Error fetching dashboard data:', error);
+			setError(error.message);
 		} finally {
 			setLoading(false);
-		}
-	};
-
-	const fetchStats = async () => {
-		try {
-			const token = localStorage.getItem('adminToken');
-			const response = await fetch('http://localhost:5000/api/admin/dashboard/stats', {
-				headers: { 'Authorization': `Bearer ${token}` }
-			});
-			const data = await response.json();
-			if (data.success) {
-				setStats(data.stats);
-			}
-		} catch (error) {
-			
 		}
 	};
 
@@ -68,14 +65,30 @@ function AdminDashboardActivityChart() {
 		return months[monthNum - 1];
 	};
 
-	if (loading || !chartData || !stats) {
+	if (loading) {
 		return <div className="text-center p-5">Loading charts...</div>;
 	}
 
+	if (error) {
+		return (
+			<div className="alert alert-danger m-a20">
+				<i className="fa fa-exclamation-triangle me-2"></i>
+				Error loading charts: {error}
+			</div>
+		);
+	}
+
+	if (!chartData || !stats) {
+		return <div className="text-center p-5">No data available for charts</div>;
+	}
+
+	// Safety check for monthlyData
+	const monthlyData = chartData.monthlyData || [];
+	
 	// Process monthly data for bar chart
-	const monthLabels = chartData.monthlyData.map(item => item.label);
-	const applicationData = chartData.monthlyData.map(item => item.applications);
-	const employerData = chartData.monthlyData.map(item => item.employers);
+	const monthLabels = monthlyData.map(item => item.label || '');
+	const applicationData = monthlyData.map(item => item.applications || 0);
+	const employerData = monthlyData.map(item => item.employers || 0);
 
 	// Bar chart data
 	const barData = {
@@ -100,10 +113,14 @@ function AdminDashboardActivityChart() {
 
 	// Pie chart data
 	const pieData = {
-		labels: ['Total Candidates', 'Total Placements', 'Total Employers'],
+		labels: ['Total Candidates', 'Total Placements', 'Approved Employers'],
 		datasets: [
 			{
-				data: [stats.completedProfileCandidates, stats.totalPlacements, stats.totalEmployers],
+				data: [
+					stats.completedProfileCandidates || 0, 
+					stats.totalPlacements || 0, 
+					stats.approvedEmployers || 0
+				],
 				backgroundColor: [
 					"#4e73df",
 					"#1cc88a",

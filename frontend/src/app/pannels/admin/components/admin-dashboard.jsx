@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import JobZImage from "../../../common/jobz-img";
 import CountUp from "react-countup";
 import AdminDashboardActivityChart from "../common/admin-graph";
+import { api } from "../../../../utils/api";
 import "./admin-dashboard-styles.css";
 
 function AdminDashboardPage() {
@@ -14,6 +15,7 @@ function AdminDashboardPage() {
         totalPlacements: 0
     });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [subAdminProfile, setSubAdminProfile] = useState(null);
     const [isSubAdmin, setIsSubAdmin] = useState(false);
 
@@ -32,13 +34,7 @@ function AdminDashboardPage() {
 
     const fetchSubAdminProfile = async () => {
         try {
-            const token = localStorage.getItem('adminToken');
-            const response = await fetch('http://localhost:5000/api/admin/sub-admin/profile', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
+            const data = await api.getSubAdminProfile();
             if (data.success) {
                 setSubAdminProfile(data.subAdmin);
             }
@@ -49,22 +45,36 @@ function AdminDashboardPage() {
 
     const fetchStats = async () => {
         try {
-            const token = localStorage.getItem('adminToken');
-            const response = await fetch('http://localhost:5000/api/admin/dashboard/stats', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
+            setLoading(true);
+            setError(null);
+            const data = await api.getAdminStats();
             if (data.success) {
                 setStats(data.stats);
+            } else {
+                setError(data.message || 'Failed to fetch dashboard statistics');
             }
         } catch (error) {
-            
+            console.error('Error fetching admin stats:', error);
+            setError('Could not connect to the server. Please check your internet connection or API settings.');
         } finally {
             setLoading(false);
         }
     };
+
+    if (error && !isSubAdmin) {
+        return (
+            <div className="admin-dashboard-container">
+                <div className="alert alert-danger m-a30">
+                    <h4 className="alert-heading"><i className="fa fa-exclamation-circle me-2"></i>Dashboard Error</h4>
+                    <p>{error}</p>
+                    <hr />
+                    <button className="btn btn-danger" onClick={fetchStats}>
+                        <i className="fa fa-refresh me-2"></i>Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <>

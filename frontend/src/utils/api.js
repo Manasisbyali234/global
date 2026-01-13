@@ -448,9 +448,21 @@ export const api = {
   },
 
   getAdminStats: () => {
-    return fetch(`${API_BASE_URL}/admin/dashboard/stats`, {
+    return safeFetch(`${API_BASE_URL}/admin/dashboard/stats`, {
       headers: getAuthHeaders('admin'),
-    }).then((res) => res.json());
+    }).then(handleApiResponse);
+  },
+
+  getAdminCharts: () => {
+    return safeFetch(`${API_BASE_URL}/admin/dashboard/charts`, {
+      headers: getAuthHeaders('admin'),
+    }).then(handleApiResponse);
+  },
+
+  getSubAdminProfile: () => {
+    return safeFetch(`${API_BASE_URL}/admin/sub-admin/profile`, {
+      headers: getAuthHeaders('admin'),
+    }).then(handleApiResponse);
   },
 
   getAdminUsers: (params = {}) => {
