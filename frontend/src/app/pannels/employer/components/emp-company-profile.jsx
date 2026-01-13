@@ -1304,7 +1304,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-12">
                                 <div className="form-group">
-                                    <label className="required-field"><FileText size={16} className="me-2" /> Why join us</label>
+                                    <label className="required-field"><FileText size={16} className="me-2" /> About Company</label>
                                     <RichTextEditor
                                         value={formData.description || 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.'}
                                         onChange={(value) => handleInputChange('description', value)}
@@ -1369,7 +1369,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-12">
                                 <div className="form-group">
-                                    <label><Briefcase size={16} className="me-2" /> About Company</label>
+                                    <label><Briefcase size={16} className="me-2" /> Why join us</label>
                                     <RichTextEditor
                                         value={formData.whyJoinUs}
                                         onChange={(value) => handleInputChange('whyJoinUs', value)}
@@ -1552,6 +1552,7 @@ function EmpCompanyProfilePage() {
                                         <option value="">Select Type</option>
                                         <option value="Private Limited">Private Limited</option>
                                         <option value="LLP">LLP</option>
+                                        <option value="Partnership">Partnership</option>
                                         <option value="Proprietorship">Proprietorship</option>
                                         <option value="Government">Government</option>
                                         <option value="NGO">NGO</option>
