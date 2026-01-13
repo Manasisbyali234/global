@@ -10,7 +10,7 @@ exports.createAssessment = async (req, res) => {
     
     // Additional server-side validation
     if (!title || title.trim().length === 0) {
-      return res.status(400).json({ success: false, message: 'Assessment title is required' });
+      return res.status(400).json({ success: false, message: 'Assessment type is required' });
     }
     
     if (!questions || questions.length === 0) {
@@ -143,7 +143,7 @@ exports.updateAssessment = async (req, res) => {
     
     // Additional server-side validation (same as create)
     if (!title || title.trim().length === 0) {
-      return res.status(400).json({ success: false, message: 'Assessment title is required' });
+      return res.status(400).json({ success: false, message: 'Assessment type is required' });
     }
     
     if (!questions || questions.length === 0) {

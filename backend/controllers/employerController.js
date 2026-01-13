@@ -1149,8 +1149,20 @@ exports.deleteJob = async (req, res) => {
 exports.getEmployerJobs = async (req, res) => {
   try {
     const jobs = await Job.find({ employerId: req.user._id })
+      .populate('employerId', 'companyName')
       .sort({ createdAt: -1 });
-    res.json({ success: true, jobs });
+    
+    // Ensure all jobs have a companyName field for search functionality
+    const jobsWithCompanyName = jobs.map(job => {
+      const jobObj = job.toObject();
+      // If job doesn't have companyName (for regular companies), use employer's companyName
+      if (!jobObj.companyName && job.employerId?.companyName) {
+        jobObj.companyName = job.employerId.companyName;
+      }
+      return jobObj;
+    });
+    
+    res.json({ success: true, jobs: jobsWithCompanyName });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

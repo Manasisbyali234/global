@@ -236,7 +236,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		}
 		
 		if (!title.trim()) {
-			showWarning("Please select an assessment title");
+			showWarning("Please select an assessment type");
 			return;
 		}
 		
@@ -497,7 +497,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 
 					<div className="mb-3">
 						<label className="form-label small text-muted mb-2">
-							Assessment Title
+							Assessment Type
 						</label>
 						<select
 							className="form-select"
@@ -505,7 +505,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							onChange={(e) => setTitle(e.target.value)}
 							required
 						>
-							<option value="">Select Assessment Title</option>
+							<option value="">Select Assessment Type</option>
 							<option value="Aptitude Test">Aptitude Test</option>
 							<option value="Coding Assessment">Coding Assessment</option>
 							<option value="Case Study Round">Case Study Round</option>
@@ -519,6 +519,8 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							<option value="Skills Assessment">Skills Assessment</option>
 						</select>
 					</div>
+
+
 
 					<div className="row mb-3">
 						<div className="col-6">
