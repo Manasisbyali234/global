@@ -14,7 +14,7 @@ function AdminPlacementOfficersAllRequest() {
     const [filteredPlacements, setFilteredPlacements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('pending');
 
     useEffect(() => {
         fetchPlacements();
@@ -91,8 +91,8 @@ function AdminPlacementOfficersAllRequest() {
             if (response.success) {
                 const updatedPlacements = placements.filter(placement => placement._id !== placementId);
                 setPlacements(updatedPlacements);
-                setFilteredPlacements(updatedPlacements);
-                showSuccess('Placement officer approved successfully!');
+                applyFilters(updatedPlacements, statusFilter);
+                showSuccess('Placement officer approved successfully! Once approved, you cannot reject or retake this action.');
             } else {
                 showError('Failed to approve placement officer');
             }
@@ -107,8 +107,8 @@ function AdminPlacementOfficersAllRequest() {
             if (response.success) {
                 const updatedPlacements = placements.filter(placement => placement._id !== placementId);
                 setPlacements(updatedPlacements);
-                setFilteredPlacements(updatedPlacements);
-                showSuccess('Placement officer rejected successfully!');
+                applyFilters(updatedPlacements, statusFilter);
+                showSuccess('Placement officer rejected successfully! Once rejected, you cannot approve or retake this action.');
             } else {
                 showError('Failed to reject placement officer');
             }
@@ -157,7 +157,6 @@ function AdminPlacementOfficersAllRequest() {
                                     background: '#fff'
                                 }}
                             >
-                                <option value="all">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
@@ -224,46 +223,50 @@ function AdminPlacementOfficersAllRequest() {
                                             </td>
                                             <td style={{textAlign: 'center'}}>
                                                 <div style={{display: 'flex', justifyContent: 'center', gap: '4px'}}>
-                                                    <button
-                                                        style={{
-                                                            all: 'unset',
-                                                            backgroundColor: 'rgba(255, 122, 0, 0.08)',
-                                                            color: '#FF7A00',
-                                                            border: '1px solid #FF7A00',
-                                                            borderRadius: '6px',
-                                                            width: '70px',
-                                                            height: '28px',
-                                                            fontSize: '0.7rem',
-                                                            fontWeight: '600',
-                                                            cursor: 'pointer',
-                                                            display: 'inline-block',
-                                                            textAlign: 'center',
-                                                            lineHeight: '26px'
-                                                        }}
-                                                        onClick={() => handleApprove(placement._id)}
-                                                    >
-                                                        Approve
-                                                    </button>
-                                                    <button
-                                                        style={{
-                                                            all: 'unset',
-                                                            backgroundColor: 'rgba(255, 122, 0, 0.08)',
-                                                            color: '#FF7A00',
-                                                            border: '1px solid #FF7A00',
-                                                            borderRadius: '6px',
-                                                            width: '70px',
-                                                            height: '28px',
-                                                            fontSize: '0.7rem',
-                                                            fontWeight: '600',
-                                                            cursor: 'pointer',
-                                                            display: 'inline-block',
-                                                            textAlign: 'center',
-                                                            lineHeight: '26px'
-                                                        }}
-                                                        onClick={() => handleReject(placement._id)}
-                                                    >
-                                                        Reject
-                                                    </button>
+                                                    {(placement.status === 'pending' || (!placement.status && !placement.isApproved)) && (
+                                                        <>
+                                                            <button
+                                                                style={{
+                                                                    all: 'unset',
+                                                                    backgroundColor: 'rgba(255, 122, 0, 0.08)',
+                                                                    color: '#FF7A00',
+                                                                    border: '1px solid #FF7A00',
+                                                                    borderRadius: '6px',
+                                                                    width: '70px',
+                                                                    height: '28px',
+                                                                    fontSize: '0.7rem',
+                                                                    fontWeight: '600',
+                                                                    cursor: 'pointer',
+                                                                    display: 'inline-block',
+                                                                    textAlign: 'center',
+                                                                    lineHeight: '26px'
+                                                                }}
+                                                                onClick={() => handleApprove(placement._id)}
+                                                            >
+                                                                Approve
+                                                            </button>
+                                                            <button
+                                                                style={{
+                                                                    all: 'unset',
+                                                                    backgroundColor: 'rgba(255, 122, 0, 0.08)',
+                                                                    color: '#FF7A00',
+                                                                    border: '1px solid #FF7A00',
+                                                                    borderRadius: '6px',
+                                                                    width: '70px',
+                                                                    height: '28px',
+                                                                    fontSize: '0.7rem',
+                                                                    fontWeight: '600',
+                                                                    cursor: 'pointer',
+                                                                    display: 'inline-block',
+                                                                    textAlign: 'center',
+                                                                    lineHeight: '26px'
+                                                                }}
+                                                                onClick={() => handleReject(placement._id)}
+                                                            >
+                                                                Reject
+                                                            </button>
+                                                        </>
+                                                    )}
                                                     <button
                                                         style={{
                                                             all: 'unset',

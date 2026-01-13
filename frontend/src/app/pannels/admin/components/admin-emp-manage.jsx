@@ -15,7 +15,7 @@ function AdminEmployersAllRequest() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [actionLoading, setActionLoading] = useState({});
-    const [statusFilter, setStatusFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('pending');
 
     useEffect(() => {
         AOS.init({
@@ -154,17 +154,12 @@ function AdminEmployersAllRequest() {
                 console.log('Employers after filter:', updatedEmployers.length);
                 
                 setEmployers(updatedEmployers);
-                setFilteredEmployers(updatedEmployers);
-                
-                // Also refresh the data to ensure consistency
-                setTimeout(() => {
-                    fetchEmployers();
-                }, 1000);
+                filterEmployersByStatus(updatedEmployers, statusFilter);
                 
                 // Dispatch event to notify other components
                 window.dispatchEvent(new CustomEvent('employerApproved', { detail: { employerId } }));
                 
-                showSuccess('Employer approved successfully! Notification sent to employer.');
+                showSuccess('Employer approved successfully! Once approved, you cannot reject or retake this action.');
             } else {
                 console.error('Approval failed:', response.message);
                 showError(response.message || 'Failed to approve employer');
@@ -182,12 +177,12 @@ function AdminEmployersAllRequest() {
         
         try {
             setActionLoading(prev => ({ ...prev, [employerId]: true }));
-            const response = await api.updateEmployerStatus(employerId, 'rejected');
+            const response = await api.updateEmployerStatus(employerId, { status: 'rejected', isApproved: false });
             if (response.success) {
                 const updatedEmployers = employers.filter(emp => emp._id !== employerId);
                 setEmployers(updatedEmployers);
-                setFilteredEmployers(updatedEmployers);
-                showSuccess('Employer rejected successfully! Notification sent to employer.');
+                filterEmployersByStatus(updatedEmployers, statusFilter);
+                showSuccess('Employer rejected successfully! Once rejected, you cannot approve or retake this action.');
             } else {
                 showError('Failed to reject employer');
             }
@@ -236,7 +231,6 @@ function AdminEmployersAllRequest() {
                                         background: '#fff'
                                     }}
                                 >
-                                    <option value="all">All Status</option>
                                     <option value="pending">Under Review</option>
                                     <option value="incomplete">Profile Incomplete</option>
                                     <option value="approved">Approved</option>
@@ -391,7 +385,7 @@ function AdminEmployersAllRequest() {
                                                 </td>
                                                 <td style={{textAlign: 'center'}}>
                                                     <div className="action-buttons">
-                                                        {employer.isProfileComplete && employer.profileSubmittedForReview ? (
+                                                        {employer.isProfileComplete && employer.profileSubmittedForReview && !employer.isApproved && employer.status !== 'rejected' ? (
                                                             <>
                                                                 <button
                                                                     type="button"

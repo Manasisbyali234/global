@@ -10,11 +10,11 @@ function AdminPlacementOfficersTabs() {
     const [placements, setPlacements] = useState([]);
     const [filteredPlacements, setFilteredPlacements] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [statusFilter, setStatusFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('pending');
 
     useEffect(() => {
         fetchPlacements();
-    }, [activeTab]);
+    }, []);
 
     const fetchPlacements = async () => {
         try {
@@ -82,8 +82,10 @@ function AdminPlacementOfficersTabs() {
         try {
             const response = await api.updatePlacementStatus(placementId, 'approved');
             if (response.success) {
-                fetchPlacements();
-                showSuccess('Placement officer approved successfully!');
+                const updatedPlacements = placements.filter(p => p._id !== placementId);
+                setPlacements(updatedPlacements);
+                applyFilters(updatedPlacements, statusFilter);
+                showSuccess('Placement officer approved successfully! Once approved, you cannot reject or retake this action.');
             } else {
                 showError('Failed to approve placement officer');
             }
@@ -96,8 +98,10 @@ function AdminPlacementOfficersTabs() {
         try {
             const response = await api.updatePlacementStatus(placementId, 'rejected');
             if (response.success) {
-                fetchPlacements();
-                showSuccess('Placement officer rejected successfully!');
+                const updatedPlacements = placements.filter(p => p._id !== placementId);
+                setPlacements(updatedPlacements);
+                applyFilters(updatedPlacements, statusFilter);
+                showSuccess('Placement officer rejected successfully! Once rejected, you cannot approve or retake this action.');
             } else {
                 showError('Failed to reject placement officer');
             }
@@ -139,7 +143,6 @@ function AdminPlacementOfficersTabs() {
                                     background: '#fff'
                                 }}
                             >
-                                <option value="all">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
@@ -189,7 +192,7 @@ function AdminPlacementOfficersTabs() {
                                             </td>
                                             <td style={{textAlign: 'center'}}>
                                                 <div className="action-buttons">
-                                                    {activeTab === 'pending' && (
+                                                    {(placement.status === 'pending' || (!placement.status && !placement.isApproved)) && (
                                                         <>
                                                             <button className="action-btn btn-approve" onClick={() => handleApprove(placement._id)}>
                                                                 <i className="fa fa-check"></i> Approve
