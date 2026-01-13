@@ -73,11 +73,9 @@ function AdminDashboardActivityChart() {
 	}
 
 	// Process monthly data for bar chart
-	const monthLabels = chartData.monthlyApplications.map(item => 
-		`${getMonthName(item._id.month)} ${item._id.year}`
-	);
-	const applicationData = chartData.monthlyApplications.map(item => item.count);
-	const employerData = chartData.monthlyEmployers.map(item => item.count);
+	const monthLabels = chartData.monthlyData.map(item => item.label);
+	const applicationData = chartData.monthlyData.map(item => item.applications);
+	const employerData = chartData.monthlyData.map(item => item.employers);
 
 	// Bar chart data
 	const barData = {

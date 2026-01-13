@@ -107,11 +107,27 @@ exports.getDashboardStats = async (req, res) => {
 // Chart Data Controller
 exports.getChartData = async (req, res) => {
   try {
-    // Get monthly application data for the last 6 months
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const monthsToShow = 6;
+    const now = new Date();
+    const chartLabels = [];
+    const monthlyDataMap = new Map();
 
-    const monthlyApplications = await Application.aggregate([
+    // Generate labels and initialize map for the last 6 months
+    for (let i = monthsToShow - 1; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const year = d.getFullYear();
+      const month = d.getMonth() + 1; // MongoDB months are 1-indexed
+      const key = `${year}-${month}`;
+      
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      chartLabels.push({ year, month, label: `${monthNames[month - 1]} ${year}` });
+      
+      monthlyDataMap.set(key, { applications: 0, employers: 0 });
+    }
+
+    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - (monthsToShow - 1), 1);
+
+    const applications = await Application.aggregate([
       { $match: { createdAt: { $gte: sixMonthsAgo } } },
       {
         $group: {
@@ -121,11 +137,10 @@ exports.getChartData = async (req, res) => {
           },
           count: { $sum: 1 }
         }
-      },
-      { $sort: { '_id.year': 1, '_id.month': 1 } }
+      }
     ]);
 
-    const monthlyEmployers = await Employer.aggregate([
+    const employers = await Employer.aggregate([
       { $match: { createdAt: { $gte: sixMonthsAgo } } },
       {
         $group: {
@@ -135,9 +150,33 @@ exports.getChartData = async (req, res) => {
           },
           count: { $sum: 1 }
         }
-      },
-      { $sort: { '_id.year': 1, '_id.month': 1 } }
+      }
     ]);
+
+    // Populate data map
+    applications.forEach(item => {
+      const key = `${item._id.year}-${item._id.month}`;
+      if (monthlyDataMap.has(key)) {
+        monthlyDataMap.get(key).applications = item.count;
+      }
+    });
+
+    employers.forEach(item => {
+      const key = `${item._id.year}-${item._id.month}`;
+      if (monthlyDataMap.has(key)) {
+        monthlyDataMap.get(key).employers = item.count;
+      }
+    });
+
+    // Convert map back to sorted array based on chartLabels
+    const formattedMonthlyData = chartLabels.map(item => {
+      const data = monthlyDataMap.get(`${item.year}-${item.month}`);
+      return {
+        label: item.label,
+        applications: data.applications,
+        employers: data.employers
+      };
+    });
 
     // Get top employers by job count
     const topEmployers = await Job.aggregate([
@@ -165,8 +204,7 @@ exports.getChartData = async (req, res) => {
     res.json({
       success: true,
       chartData: {
-        monthlyApplications,
-        monthlyEmployers,
+        monthlyData: formattedMonthlyData,
         topEmployers
       }
     });
