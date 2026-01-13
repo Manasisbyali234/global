@@ -118,11 +118,13 @@ export default function AssessmentDashboard() {
 	};
 
 	// Handle dropdown selection
-	const handleTitleSelect = (title) => {
-		setSearchTerm(title);
-		if (title) {
+	const handleTitleSelect = (searchValue) => {
+		setSearchTerm(searchValue);
+		if (searchValue) {
 			const filtered = assessments.filter(assessment => 
-				assessment.title?.toLowerCase().includes(title.toLowerCase())
+				assessment.title?.toLowerCase().includes(searchValue.toLowerCase()) ||
+				assessment.designation?.toLowerCase().includes(searchValue.toLowerCase()) ||
+				assessment.type?.toLowerCase().includes(searchValue.toLowerCase())
 			);
 			setFilteredAssessments(filtered);
 		} else {
@@ -180,9 +182,17 @@ export default function AssessmentDashboard() {
 			<div style={{ padding: '0 2rem 1rem 2rem' }}>
 				<div className="d-flex gap-3 align-items-center" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
 					<label className="form-label mb-0 fw-semibold" style={{ minWidth: '140px' }}>Search Assessment:</label>
+					<input
+						type="text"
+						className="form-control"
+						placeholder="Search by title, designation, or type..."
+						style={{ width: '300px' }}
+						value={searchTerm}
+						onChange={(e) => handleTitleSelect(e.target.value)}
+					/>
 					<select 
 						className="form-select" 
-						style={{ width: '400px', color: '#007bff' }}
+						style={{ width: '300px', color: '#007bff' }}
 						onChange={(e) => handleTitleSelect(e.target.value)}
 						value={searchTerm}
 					>
