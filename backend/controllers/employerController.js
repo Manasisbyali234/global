@@ -625,6 +625,7 @@ exports.createJob = async (req, res) => {
     
     console.log('=== FULL REQUEST BODY DEBUG ===');
     console.log('Full req.body:', JSON.stringify(req.body, null, 2));
+    console.log('Job title received:', req.body.title);
     console.log('jobData keys:', Object.keys(jobData));
     console.log('=== END FULL DEBUG ===');
     
@@ -880,6 +881,7 @@ exports.updateJob = async (req, res) => {
   try {
     console.log('Update job request body:', req.body);
     console.log('Job ID:', req.params.jobId);
+    console.log('Job title received:', req.body.title);
     
     const oldJob = await Job.findOne({ _id: req.params.jobId, employerId: req.user._id });
     if (!oldJob) {

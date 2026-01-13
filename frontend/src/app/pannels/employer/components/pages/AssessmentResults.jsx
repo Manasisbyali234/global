@@ -133,6 +133,16 @@ export default function AssessmentResults() {
                 <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827', margin: '0 0 0.5rem 0' }}>
                   {assessment?.title} - Results
                 </h2>
+                {assessment?.designation && (
+                  <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: '0.875rem' }}>
+                    <span style={{ fontWeight: '500' }}>Designation:</span> {assessment.designation}
+                  </p>
+                )}
+                {assessment?.companyName && (
+                  <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: '0.875rem' }}>
+                    <span style={{ fontWeight: '500' }}>Company:</span> {assessment.companyName}
+                  </p>
+                )}
                 <p style={{ color: '#6b7280', margin: 0, fontSize: '1rem' }}>
                   {results.length} participants completed this assessment
                 </p>

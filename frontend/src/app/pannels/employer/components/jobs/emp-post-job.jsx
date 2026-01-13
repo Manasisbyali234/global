@@ -4,6 +4,7 @@ import { NavLink, useParams } from "react-router-dom";
 import { employer, empRoute, publicUser } from "../../../../../globals/route-names";
 import { holidaysApi } from "../../../../../utils/holidaysApi";
 import HolidayIndicator from "../../../../../components/HolidayIndicator";
+
 import { api } from "../../../../../utils/api";
 import InterviewDateTester from "../../../../../components/InterviewDateTester";
 import { ErrorDisplay, GlobalErrorDisplay } from "../../../../../components/ErrorDisplay";
@@ -178,6 +179,7 @@ export default function EmpPostJob({ onNext }) {
 	const isEditMode = Boolean(id);
 	const [formData, setFormData] = useState({
 		jobTitle: "",
+		customJobTitle: "",
 		jobLocation: "",
 		jobType: "",
 		netSalary: "",
@@ -414,8 +416,22 @@ export default function EmpPostJob({ onNext }) {
 				const job = data.job;
 
 				// Populate form with job data
+				const predefinedTitles = [
+					"Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", 
+					"Full Stack Developer", "Data Scientist", "Data Analyst", "Product Manager", 
+					"Project Manager", "Business Analyst", "UI/UX Designer", "Graphic Designer", 
+					"Marketing Manager", "Sales Manager", "Sales Executive", "HR Manager", 
+					"HR Executive", "Finance Manager", "Accountant", "Content Writer", 
+					"Digital Marketing Specialist", "Customer Support Executive", "Operations Manager", 
+					"Quality Assurance Engineer", "DevOps Engineer", "System Administrator", 
+					"Network Administrator", "Telecaller"
+				];
+				
+				const isCustomTitle = !predefinedTitles.includes(job.title);
+				
 				update({
-					jobTitle: job.title || '',
+					jobTitle: isCustomTitle ? 'Others' : job.title || '',
+					customJobTitle: isCustomTitle ? job.title || '' : '',
 					jobLocation: job.location || '',
 					jobType: job.jobType || '',
 					netSalary: job.netSalary || '',
@@ -682,6 +698,13 @@ export default function EmpPostJob({ onNext }) {
 		const basicErrors = validateForm(formData, validationRules);
 		Object.assign(newErrors, basicErrors);
 
+		// Custom validation for job title when "Others" is selected
+		if (formData.jobTitle === 'Others') {
+			if (!formData.customJobTitle || formData.customJobTitle.trim().length < 3) {
+				newErrors.jobTitle = ['Please enter a custom job title (minimum 3 characters)'];
+			}
+		}
+
 		// Custom validations
 		if (formData.experienceLevel === 'minimum') {
 			if (!formData.minExperience || parseInt(formData.minExperience) < 0) {
@@ -690,6 +713,14 @@ export default function EmpPostJob({ onNext }) {
 			if (formData.maxExperience && parseInt(formData.maxExperience) < parseInt(formData.minExperience)) {
 				newErrors.maxExperience = ['Maximum experience cannot be less than minimum experience'];
 			}
+		}
+
+		// Validate Application Limit vs Vacancies
+		const vacancies = parseInt(formData.vacancies) || 0;
+		const applicationLimit = parseInt(formData.applicationLimit) || 0;
+		if (vacancies > 0 && applicationLimit > 0 && applicationLimit < vacancies) {
+			newErrors.applicationLimit = [`Application limit (${applicationLimit}) cannot be less than number of vacancies (${vacancies}). Please set application limit to at least ${vacancies}.`];
+			errorMessages.push(`Application limit must be at least equal to the number of vacancies. Current: Application Limit = ${applicationLimit}, Vacancies = ${vacancies}`);
 		}
 
 		// Validate Interview Rounds Count
@@ -826,7 +857,7 @@ export default function EmpPostJob({ onNext }) {
 			});
 
 			const jobData = {
-				title: formData.jobTitle,
+				title: formData.jobTitle === 'Others' ? formData.customJobTitle : formData.jobTitle,
 				location: formData.jobLocation,
 				jobType: formData.jobType ? formData.jobType.toLowerCase().replace(/\s+/g, '-') : '',
 				ctc: formData.ctc,
@@ -1077,6 +1108,8 @@ export default function EmpPostJob({ onNext }) {
 
 
 
+
+
 			{/* Card */}
 			<div style={card}>
 				<div style={grid}>
@@ -1222,60 +1255,85 @@ export default function EmpPostJob({ onNext }) {
 							Job Title / Designation *
 						</label>
 						<div style={{position: 'relative'}}>
-							<input
+							<select
 								style={{
 									...input,
 									borderColor: errors.jobTitle ? '#dc2626' : '#d1d5db',
-									paddingRight: '40px'
+									cursor: 'pointer'
 								}}
 								className={errors.jobTitle ? 'is-invalid' : ''}
-								placeholder="Type job title or select from dropdown"
-								value={formData.jobTitle}
-								onChange={(e) => update({ jobTitle: e.target.value })}
-								list="jobTitleOptions"
-							/>
-							<datalist id="jobTitleOptions">
-								<option value="Software Engineer" />
-								<option value="Senior Software Engineer" />
-								<option value="Frontend Developer" />
-								<option value="Backend Developer" />
-								<option value="Full Stack Developer" />
-								<option value="Data Scientist" />
-								<option value="Data Analyst" />
-								<option value="Product Manager" />
-								<option value="Project Manager" />
-								<option value="Business Analyst" />
-								<option value="UI/UX Designer" />
-								<option value="Graphic Designer" />
-								<option value="Marketing Manager" />
-								<option value="Sales Manager" />
-								<option value="Sales Executive" />
-								<option value="HR Manager" />
-								<option value="HR Executive" />
-								<option value="Finance Manager" />
-								<option value="Accountant" />
-								<option value="Content Writer" />
-								<option value="Digital Marketing Specialist" />
-								<option value="Customer Support Executive" />
-								<option value="Operations Manager" />
-								<option value="Quality Assurance Engineer" />
-								<option value="DevOps Engineer" />
-								<option value="System Administrator" />
-								<option value="Network Administrator" />
-								<option value="Telecaller" />
-							</datalist>
-							<i className="fa fa-chevron-down" style={{
-								position: 'absolute',
-								right: '12px',
-								top: '50%',
-								transform: 'translateY(-50%)',
-								color: '#9ca3af',
-								pointerEvents: 'none',
-								fontSize: '12px'
-							}}></i>
+								value={formData.jobTitle === 'Others' || ![
+									"Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", 
+									"Full Stack Developer", "Data Scientist", "Data Analyst", "Product Manager", 
+									"Project Manager", "Business Analyst", "UI/UX Designer", "Graphic Designer", 
+									"Marketing Manager", "Sales Manager", "Sales Executive", "HR Manager", 
+									"HR Executive", "Finance Manager", "Accountant", "Content Writer", 
+									"Digital Marketing Specialist", "Customer Support Executive", "Operations Manager", 
+									"Quality Assurance Engineer", "DevOps Engineer", "System Administrator", 
+									"Network Administrator", "Telecaller"
+								].includes(formData.jobTitle) ? 'Others' : formData.jobTitle}
+								onChange={(e) => {
+									if (e.target.value === 'Others') {
+										update({ jobTitle: 'Others' });
+									} else {
+										update({ jobTitle: e.target.value });
+									}
+								}}
+							>
+								<option value="" disabled>Select Job Title</option>
+								<option value="Software Engineer">Software Engineer</option>
+								<option value="Senior Software Engineer">Senior Software Engineer</option>
+								<option value="Frontend Developer">Frontend Developer</option>
+								<option value="Backend Developer">Backend Developer</option>
+								<option value="Full Stack Developer">Full Stack Developer</option>
+								<option value="Data Scientist">Data Scientist</option>
+								<option value="Data Analyst">Data Analyst</option>
+								<option value="Product Manager">Product Manager</option>
+								<option value="Project Manager">Project Manager</option>
+								<option value="Business Analyst">Business Analyst</option>
+								<option value="UI/UX Designer">UI/UX Designer</option>
+								<option value="Graphic Designer">Graphic Designer</option>
+								<option value="Marketing Manager">Marketing Manager</option>
+								<option value="Sales Manager">Sales Manager</option>
+								<option value="Sales Executive">Sales Executive</option>
+								<option value="HR Manager">HR Manager</option>
+								<option value="HR Executive">HR Executive</option>
+								<option value="Finance Manager">Finance Manager</option>
+								<option value="Accountant">Accountant</option>
+								<option value="Content Writer">Content Writer</option>
+								<option value="Digital Marketing Specialist">Digital Marketing Specialist</option>
+								<option value="Customer Support Executive">Customer Support Executive</option>
+								<option value="Operations Manager">Operations Manager</option>
+								<option value="Quality Assurance Engineer">Quality Assurance Engineer</option>
+								<option value="DevOps Engineer">DevOps Engineer</option>
+								<option value="System Administrator">System Administrator</option>
+								<option value="Network Administrator">Network Administrator</option>
+								<option value="Telecaller">Telecaller</option>
+								<option value="Others">Others</option>
+							</select>
 						</div>
+						{formData.jobTitle === 'Others' && (
+							<div style={{marginTop: 8}}>
+								<input
+									style={{
+										...input,
+										borderColor: '#ff6b35',
+										background: '#fff5f2'
+									}}
+									type="text"
+									placeholder="Please enter your custom job title"
+									value={formData.customJobTitle || ''}
+									onChange={(e) => update({ customJobTitle: e.target.value })}
+									autoFocus
+								/>
+								<small style={{color: '#ff6b35', fontSize: 12, marginTop: 4, display: 'block'}}>
+									<i className="fa fa-info-circle" style={{marginRight: 4}}></i>
+									Enter your custom job title above
+								</small>
+							</div>
+						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Type any job title or click the dropdown arrow to select from common options
+							Select from common job titles or choose "Others" to enter a custom title
 						</small>
 						{errors.jobTitle && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
@@ -1531,17 +1589,6 @@ export default function EmpPostJob({ onNext }) {
 						<label style={label}>
 							<i className="fa fa-rupee-sign" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							CTC (Annual)
-							<span style={{
-								fontSize: 11, 
-								color: '#10b981', 
-								fontWeight: 500,
-								marginLeft: 8,
-								background: '#d1fae5',
-								padding: '2px 8px',
-								borderRadius: 4,
-							}}>
-								✓ Auto-saved
-							</span>
 						</label>
 						<input
 							style={input}
@@ -1609,7 +1656,17 @@ export default function EmpPostJob({ onNext }) {
 							min="1"
 							placeholder="e.g., 5"
 							value={formData.vacancies}
-							onChange={(e) => update({ vacancies: e.target.value })}
+							onChange={(e) => {
+								const vacancies = parseInt(e.target.value) || 0;
+								const applicationLimit = parseInt(formData.applicationLimit) || 0;
+								
+								update({ vacancies: e.target.value });
+								
+								// Check if application limit is less than vacancies after updating vacancies
+								if (vacancies > 0 && applicationLimit > 0 && applicationLimit < vacancies) {
+									showWarning(`Warning: Your application limit (${applicationLimit}) is now less than the number of vacancies (${vacancies}). Please update the application limit to at least ${vacancies}.`);
+								}
+							}}
 						/>
 						{errors.vacancies && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
@@ -1634,7 +1691,18 @@ export default function EmpPostJob({ onNext }) {
 							min="1"
 							placeholder="e.g., 100"
 							value={formData.applicationLimit}
-							onChange={(e) => update({ applicationLimit: e.target.value })}
+							onChange={(e) => {
+								const applicationLimit = parseInt(e.target.value) || 0;
+								const vacancies = parseInt(formData.vacancies) || 0;
+								
+								// Check if application limit is less than vacancies
+								if (applicationLimit > 0 && vacancies > 0 && applicationLimit < vacancies) {
+									showError(`Application limit (${applicationLimit}) cannot be less than number of vacancies (${vacancies}). Please set application limit to at least ${vacancies}.`);
+									return; // Don't update the value
+								}
+								
+								update({ applicationLimit: e.target.value });
+							}}
 						/>
 						{errors.applicationLimit && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
@@ -1643,7 +1711,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Maximum number of applications to accept
+							Maximum number of applications to accept (must be at least equal to number of vacancies)
 						</small>
 					</div>
 

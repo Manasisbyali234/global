@@ -189,7 +189,7 @@ export default function AssessmentDashboard() {
 						<option value="" style={{ color: '#6c757d' }}>Select Assessment</option>
 						{assessments.map(assessment => (
 							<option key={assessment._id} value={assessment.title} style={{ color: '#28a745' }}>
-								{assessment.title}
+								{assessment.title}{assessment.companyName ? ` - ${assessment.companyName}` : ''}
 							</option>
 						))}
 					</select>

@@ -437,6 +437,17 @@ function EmpCompanyProfilePage() {
             }
         });
         
+        // For consultancy employers, validate hiring company names
+        if (formData.employerCategory === 'consultancy') {
+            const emptyCompanyNames = authSections.filter(section => !section.companyName?.trim());
+            if (emptyCompanyNames.length > 0) {
+                if (!formErrors.hiringCompanyNames) {
+                    formErrors.hiringCompanyNames = [];
+                }
+                formErrors.hiringCompanyNames.push('All hiring company names are required for consultancy employers');
+            }
+        }
+        
         setErrors(formErrors);
         
         const errorCount = Object.keys(formErrors).length;
@@ -557,7 +568,20 @@ function EmpCompanyProfilePage() {
                     delete newErrors[fieldName];
                     return newErrors;
                 });
-                showSuccess('Document uploaded successfully!');
+                
+                // Show specific document name in success message
+                const documentNames = {
+                    'panCardImage': 'PAN Card',
+                    'cinImage': 'CIN Document',
+                    'gstImage': 'GST Certificate',
+                    'certificateOfIncorporation': 'Certificate of Incorporation',
+                    'companyIdCardPicture': 'Company ID Card',
+                    'logo': 'Company Logo',
+                    'coverImage': 'Background Banner'
+                };
+                
+                const documentName = documentNames[fieldName] || 'Document';
+                showSuccess(`${documentName} uploaded successfully!`);
             } else {
                 showError(data.message || 'Document upload failed');
             }
@@ -620,7 +644,7 @@ function EmpCompanyProfilePage() {
 
         // For consultancy, require company name
         if (formData.employerCategory === 'consultancy' && !companyName.trim()) {
-            showWarning('Please enter the company name before uploading the authorization letter.');
+            showWarning('Please enter the hiring company name before uploading the authorization letter.');
             return;
         }
 
@@ -895,6 +919,21 @@ function EmpCompanyProfilePage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Check gallery minimum requirement
+        const galleryCount = formData.gallery?.length || 0;
+        if (galleryCount < 5) {
+            showWarning(`Please upload at least 5 images in the company gallery. Currently uploaded: ${galleryCount}/5`);
+            // Scroll to gallery section using a more compatible approach
+            const galleryElements = document.querySelectorAll('.panel-tittle');
+            for (let element of galleryElements) {
+                if (element.textContent.includes('Company Gallery')) {
+                    element.closest('.panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    break;
+                }
+            }
+            return;
+        }
         
         if (!validateFormData()) {
             // Scroll to first error
@@ -1786,14 +1825,20 @@ function EmpCompanyProfilePage() {
                                                 
                                                 {formData.employerCategory === 'consultancy' && (
                                                     <div className="mb-2">
-                                                        <label><Building size={14} className="me-1" /> Hiring Company Name</label>
+                                                        <label className="required-field"><Building size={14} className="me-1" /> Hiring Company Name</label>
                                                         <input
-                                                            className="form-control"
+                                                            className={`form-control ${!section.companyName?.trim() ? 'is-invalid' : ''}`}
                                                             type="text"
                                                             value={section.companyName}
                                                             onChange={(e) => handleAuthSectionCompanyNameChange(section.id, e.target.value)}
                                                             placeholder="Enter hiring company name"
+                                                            required
                                                         />
+                                                        {!section.companyName?.trim() && (
+                                                            <div className="invalid-feedback">
+                                                                Hiring company name is required
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )}
                                                 
@@ -2064,7 +2109,7 @@ function EmpCompanyProfilePage() {
                         <div className="row">
                             <div className="col-md-12">
                                 <div className="form-group">
-                                    <label><Upload size={16} className="me-2" /> Upload Gallery Images (Max 10 images)</label>
+                                    <label><Upload size={16} className="me-2" /> Upload Gallery Images (Minimum 5 required, Max 10 images)</label>
                                     <div className="upload-gallery-container" style={{border: '2px dashed #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f8f9fa'}}>
                                         <input
                                             className="form-control"
@@ -2088,8 +2133,12 @@ function EmpCompanyProfilePage() {
                                             </p>
                                             {formData.gallery?.length >= 10 && (
                                                 <p className="text-warning small">
-                                                    <i className="fas fa-exclamation-triangle me-1"></i>
                                                     Maximum 10 images reached. Delete some images to upload more.
+                                                </p>
+                                            )}
+                                            {(formData.gallery?.length || 0) < 5 && (
+                                                <p className="text-danger small">
+                                                    <strong>Minimum 5 images required.</strong> Currently uploaded: {formData.gallery?.length || 0}/5
                                                 </p>
                                             )}
                                         </div>
@@ -2102,9 +2151,19 @@ function EmpCompanyProfilePage() {
                             {formData.gallery && formData.gallery.length > 0 && (
                                 <div className="col-md-12">
                                     <div className="gallery-preview mt-3">
-                                        <h6 className="text-success mb-3">
+                                        <h6 className={`mb-3 ${(formData.gallery?.length || 0) >= 5 ? 'text-success' : 'text-danger'}`}>
                                             <i className="fas fa-images me-2"></i>
                                             Gallery Images ({formData.gallery.length}/10)
+                                            {(formData.gallery?.length || 0) < 5 && (
+                                                <span className="text-danger ms-2">
+                                                    <i className="fas fa-exclamation-circle"></i> Need {5 - (formData.gallery?.length || 0)} more
+                                                </span>
+                                            )}
+                                            {(formData.gallery?.length || 0) >= 5 && (
+                                                <span className="text-success ms-2">
+                                                    <i className="fas fa-check-circle"></i> Minimum requirement met
+                                                </span>
+                                            )}
                                         </h6>
                                         <div className="d-flex flex-wrap gap-3">
                                             {formData.gallery.map((image, index) => (
