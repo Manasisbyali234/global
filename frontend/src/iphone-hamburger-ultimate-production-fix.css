@@ -5,30 +5,38 @@
    issues on iPhone devices after hosting on production servers.
    ============================================================================ */
 
-/* 1. HAMBURGER BUTTON - FORCE VISIBILITY */
+/* 1. HAMBURGER BUTTON - HIDDEN BY DEFAULT (DESKTOP) */
 html body .hamburger-btn,
 html body button.hamburger-btn {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  z-index: 9999999 !important;
-  position: relative !important;
-  width: 40px !important;
-  height: 40px !important;
-  background-color: #ffffff !important;
-  border: 1px solid #e0e0e0 !important;
-  border-radius: 4px !important;
-  color: #333333 !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  cursor: pointer !important;
-  -webkit-appearance: none !important;
-  -webkit-tap-highlight-color: transparent !important;
-  -webkit-transform: translateZ(0) !important;
-  transform: translateZ(0) !important;
+  display: none !important;
+}
+
+/* 1a. HAMBURGER BUTTON - FORCE VISIBILITY ON MOBILE ONLY */
+@media (max-width: 767px) {
+  html body .hamburger-btn,
+  html body button.hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 9999999 !important;
+    position: relative !important;
+    width: 40px !important;
+    height: 40px !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 4px !important;
+    color: #333333 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    -webkit-appearance: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+  }
 }
 
 /* 2. HAMBURGER MENU PANEL - CORE STYLES */
@@ -134,12 +142,6 @@ html body .extra-cell {
 }
 
 /* 8. BREAKPOINT FIXES */
-@media (max-width: 1199px) {
-  html body .hamburger-btn {
-    display: flex !important;
-  }
-}
-
 @media (max-width: 480px) {
   html body .hamburger-menu {
     width: 260px !important;
