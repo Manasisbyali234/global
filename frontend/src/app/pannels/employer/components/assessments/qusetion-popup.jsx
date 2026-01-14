@@ -39,6 +39,16 @@ export default function QuestionModal({ assessment, onClose }) {
 				}}
 			>
 				<h2 style={{ marginBottom: "15px" }}>{assessment.title}</h2>
+				{assessment.designation && (
+					<p style={{ margin: "0 0 10px 0", color: "#666", fontSize: "14px" }}>
+						<strong>Designation:</strong> {assessment.designation}
+					</p>
+				)}
+				{assessment.companyName && (
+					<p style={{ margin: "0 0 15px 0", color: "#666", fontSize: "14px" }}>
+						<strong>Company:</strong> {assessment.companyName}
+					</p>
+				)}
 				{assessment.questions?.map((q, i) => (
 					<div
 						key={i}

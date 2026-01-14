@@ -625,6 +625,7 @@ exports.createJob = async (req, res) => {
     
     console.log('=== FULL REQUEST BODY DEBUG ===');
     console.log('Full req.body:', JSON.stringify(req.body, null, 2));
+    console.log('Job title received:', req.body.title);
     console.log('jobData keys:', Object.keys(jobData));
     console.log('=== END FULL DEBUG ===');
     
@@ -880,6 +881,7 @@ exports.updateJob = async (req, res) => {
   try {
     console.log('Update job request body:', req.body);
     console.log('Job ID:', req.params.jobId);
+    console.log('Job title received:', req.body.title);
     
     const oldJob = await Job.findOne({ _id: req.params.jobId, employerId: req.user._id });
     if (!oldJob) {
@@ -1147,8 +1149,20 @@ exports.deleteJob = async (req, res) => {
 exports.getEmployerJobs = async (req, res) => {
   try {
     const jobs = await Job.find({ employerId: req.user._id })
+      .populate('employerId', 'companyName')
       .sort({ createdAt: -1 });
-    res.json({ success: true, jobs });
+    
+    // Ensure all jobs have a companyName field for search functionality
+    const jobsWithCompanyName = jobs.map(job => {
+      const jobObj = job.toObject();
+      // If job doesn't have companyName (for regular companies), use employer's companyName
+      if (!jobObj.companyName && job.employerId?.companyName) {
+        jobObj.companyName = job.employerId.companyName;
+      }
+      return jobObj;
+    });
+    
+    res.json({ success: true, jobs: jobsWithCompanyName });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

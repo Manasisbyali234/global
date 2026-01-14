@@ -31,7 +31,7 @@ export default function EmpPostedJobs() {
         } else if (statusFilter === 'inactive') {
             next = jobs.filter(job => job.status !== 'active');
         }
-        // Then filter by search text (title, location, and company name for consultants)
+        // Then filter by search text (title, location, and company name)
         const query = (searchText || '').trim().toLowerCase();
         if (query) {
             next = next.filter(job => {
@@ -39,12 +39,8 @@ export default function EmpPostedJobs() {
                 const location = (job.location || '').toLowerCase();
                 const companyName = (job.companyName || '').toLowerCase();
                 
-                // For consultants, search in title, location, and company name
-                if (employerType === 'consultant') {
-                    return title.includes(query) || location.includes(query) || companyName.includes(query);
-                }
-                // For companies, search only in title and location
-                return title.includes(query) || location.includes(query);
+                // Search in title, location, and company name for all employer types
+                return title.includes(query) || location.includes(query) || companyName.includes(query);
             });
         }
         setFilteredJobs(next);
@@ -236,7 +232,7 @@ export default function EmpPostedJobs() {
 							<input
 								type="text"
 								className="form-control ps-5"
-								placeholder={employerType === 'consultant' ? "Search by title, location, or company name..." : "Search by title or location..."}
+								placeholder="Search by title, location, or company name..."
 								value={searchText}
 								onChange={(e) => setSearchText(e.target.value)}
 								style={{paddingLeft: '40px'}}

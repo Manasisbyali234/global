@@ -7,6 +7,7 @@ const AssessmentSchema = new mongoose.Schema({
   title: { type: String, required: true },
   type: { type: String, enum: ['Aptitude Test', 'Coding Assessment', 'Case Study Round', 'Group Discussion', 'Managerial Round', 'Panel Interview', 'Final HR Round', 'Leadership Interview'], default: 'Aptitude Test' },
   designation: { type: String },
+  companyName: { type: String },
   description: { type: String },
   instructions: { type: String },
   timer: { type: Number, default: 30 },

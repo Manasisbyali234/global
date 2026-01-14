@@ -31,7 +31,16 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					</div>
 				)}
 				
-				{/* Assessment Title - Third */}
+				{/* Company Name - Third (for consultancy) */}
+				{data.companyName && (
+					<div className="mb-2">
+						<h6 className="fw-bold mb-1" style={{fontSize: '14px'}}>
+							<span style={{color: '#8B7355'}}>Company:</span> <span className="text-primary">{data.companyName}</span>
+						</h6>
+					</div>
+				)}
+				
+				{/* Assessment Title - Fourth */}
 				<div className="d-flex justify-content-between align-items-start mb-2">
 					<h5 className="card-title mb-0">{data.title}</h5>
 					<div className="d-flex flex-column align-items-end gap-1">

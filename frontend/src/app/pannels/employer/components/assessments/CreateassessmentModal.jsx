@@ -13,6 +13,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const [timeLimit, setTimeLimit] = useState(editData?.timer || 30);
 	const [description, setDescription] = useState(editData?.description || "");
 	const [employerCategory, setEmployerCategory] = useState("");
+	const [approvedCompanies, setApprovedCompanies] = useState([]);
 	const [questions, setQuestions] = useState(
 		editData?.questions || [{ question: "", type: "mcq", options: ["", "", "", ""], optionImages: ["", "", "", ""], correctAnswer: null, marks: 1, imageUrl: "" }]
 	);
@@ -68,7 +69,26 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			}
 		};
 		
+		// Fetch approved companies for consultants
+		const fetchApprovedCompanies = async () => {
+			try {
+				const token = localStorage.getItem('employerToken');
+				if (token) {
+					const response = await fetch('http://localhost:5000/api/employer/approved-authorization-companies', {
+						headers: { 'Authorization': `Bearer ${token}` }
+					});
+					const data = await response.json();
+					if (data.success) {
+						setApprovedCompanies(data.companies || []);
+					}
+				}
+			} catch (error) {
+				console.error('Error fetching approved companies:', error);
+			}
+		};
+		
 		fetchEmployerCategory();
+		fetchApprovedCompanies();
 		return () => enableBodyScroll();
 	}, []);
 
@@ -115,7 +135,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				return;
 			}
 			
-			if (lastQuestion.type === "mcq" || lastQuestion.type === "visual-mcq" && (lastQuestion.correctAnswer === null || lastQuestion.correctAnswer === undefined)) {
+			if ((lastQuestion.type === "mcq" || lastQuestion.type === "visual-mcq") && (lastQuestion.correctAnswer === null || lastQuestion.correctAnswer === undefined)) {
 				showWarning("Please select answer before you create question");
 				return;
 			}
@@ -216,7 +236,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		}
 		
 		if (!title.trim()) {
-			showWarning("Please select an assessment title");
+			showWarning("Please select an assessment type");
 			return;
 		}
 		
@@ -424,22 +444,60 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					{employerCategory === 'consultancy' && (
 						<div className="mb-3">
 							<label className="form-label small text-muted mb-2">
-								Company Name
+								Company Name *
+								<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
 							</label>
-							<input
-								type="text"
-								className="form-control"
-								placeholder="Enter hiring company name"
-								value={companyName}
-								onChange={(e) => setCompanyName(e.target.value)}
-								required
-							/>
+							{approvedCompanies.length > 0 ? (
+								<select
+									className="form-select"
+									value={companyName}
+									onChange={(e) => setCompanyName(e.target.value)}
+									required
+									style={{
+										borderColor: companyName ? '#10b981' : '#dc2626',
+										borderWidth: 2,
+										cursor: 'pointer'
+									}}
+								>
+									<option value="" disabled>Select Approved Company</option>
+									{approvedCompanies.map((company, index) => (
+										<option key={index} value={company}>
+											{company}
+										</option>
+									))}
+								</select>
+							) : (
+								<input
+									type="text"
+									className="form-control"
+									placeholder="Enter hiring company name"
+									value={companyName}
+									onChange={(e) => setCompanyName(e.target.value)}
+									required
+									style={{
+										borderColor: companyName ? '#10b981' : '#dc2626',
+										borderWidth: 2,
+									}}
+								/>
+							)}
+							{!companyName && (
+								<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
+									<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
+									{approvedCompanies.length > 0 ? 'Please select an approved company' : 'Please enter company name'}
+								</small>
+							)}
+							{approvedCompanies.length > 0 && (
+								<small style={{color: '#10b981', fontSize: 12, marginTop: 6, display: 'block'}}>
+									<i className="fa fa-check-circle" style={{marginRight: 4}}></i>
+									Showing {approvedCompanies.length} approved authorization companies
+								</small>
+							)}
 						</div>
 					)}
 
 					<div className="mb-3">
 						<label className="form-label small text-muted mb-2">
-							Assessment Title
+							Assessment Type
 						</label>
 						<select
 							className="form-select"
@@ -447,7 +505,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							onChange={(e) => setTitle(e.target.value)}
 							required
 						>
-							<option value="">Select Assessment Title</option>
+							<option value="">Select Assessment Type</option>
 							<option value="Aptitude Test">Aptitude Test</option>
 							<option value="Coding Assessment">Coding Assessment</option>
 							<option value="Case Study Round">Case Study Round</option>
@@ -461,6 +519,8 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							<option value="Skills Assessment">Skills Assessment</option>
 						</select>
 					</div>
+
+
 
 					<div className="row mb-3">
 						<div className="col-6">

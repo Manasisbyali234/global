@@ -10,7 +10,7 @@ exports.createAssessment = async (req, res) => {
     
     // Additional server-side validation
     if (!title || title.trim().length === 0) {
-      return res.status(400).json({ success: false, message: 'Assessment title is required' });
+      return res.status(400).json({ success: false, message: 'Assessment type is required' });
     }
     
     if (!questions || questions.length === 0) {
@@ -81,6 +81,7 @@ exports.createAssessment = async (req, res) => {
       title: title.trim(),
       type: type || 'Aptitude Test',
       designation: designation ? designation.trim() : '',
+      companyName: req.body.companyName ? req.body.companyName.trim() : '',
       description: description ? description.trim() : '',
       instructions: instructions ? instructions.trim() : '',
       timer: timer || 30,
@@ -142,7 +143,7 @@ exports.updateAssessment = async (req, res) => {
     
     // Additional server-side validation (same as create)
     if (!title || title.trim().length === 0) {
-      return res.status(400).json({ success: false, message: 'Assessment title is required' });
+      return res.status(400).json({ success: false, message: 'Assessment type is required' });
     }
     
     if (!questions || questions.length === 0) {
@@ -200,6 +201,7 @@ exports.updateAssessment = async (req, res) => {
       title: title.trim(),
       type: type || 'Aptitude Test',
       designation: designation ? designation.trim() : '',
+      companyName: req.body.companyName ? req.body.companyName.trim() : '',
       description: description ? description.trim() : '',
       instructions: instructions ? instructions.trim() : '',
       timer: timer || 30,
