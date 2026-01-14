@@ -919,7 +919,7 @@ export default function EmpPostJob({ onNext }) {
 
 	/* Inline style objects */
 	const page = {
-		padding: isMobile ? "80px 10px 15px 10px" : "100px 20px 30px 20px",
+		padding: isMobile ? "10px 10px 15px 10px" : "10px 20px 30px 20px",
 		maxWidth: 1200,
 		margin: "0 auto",
 		fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif",
