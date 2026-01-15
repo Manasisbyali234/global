@@ -41,12 +41,12 @@
 }
 
 /* Required field asterisk styling */
-label:after {
+.upload-container label:after {
     content: '';
 }
 
-label:has(+ input[required]):after,
-label:has(+ .file-upload-area):after {
+.upload-container label:has(+ input[required]):after,
+.upload-container label:has(+ .file-upload-area):after {
     content: ' *';
     color: #ef4444;
     font-weight: bold;

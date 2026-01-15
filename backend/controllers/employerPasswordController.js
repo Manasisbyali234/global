@@ -1,4 +1,5 @@
 const Employer = require('../models/Employer');
+const { checkEmailExists } = require('../utils/authUtils');
 
 exports.createPassword = async (req, res) => {
   try {
@@ -119,11 +120,11 @@ exports.verifyOTPAndResetPassword = async (req, res) => {
 exports.checkEmail = async (req, res) => {
   try {
     const { email } = req.body;
-    const employer = await Employer.findByEmail(email.trim());
+    const existingUser = await checkEmailExists(email);
     
     res.json({ 
       success: true, 
-      exists: !!employer 
+      exists: !!existingUser 
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -9,6 +9,7 @@ const { sendApprovalEmail, sendPlacementCandidateWelcomeEmail } = require('../ut
 const XLSX = require('xlsx');
 const { base64ToBuffer } = require('../utils/base64Helper');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
+const { checkEmailExists } = require('../utils/authUtils');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -18,8 +19,8 @@ exports.registerPlacement = async (req, res) => {
   try {
     const { name, email, password, phone, collegeName, collegeAddress, collegeOfficialEmail, collegeOfficialPhone, sendWelcomeEmail: shouldSendEmail } = req.body;
 
-    const existingPlacement = await Placement.findOne({ email });
-    if (existingPlacement) {
+    const existingUser = await checkEmailExists(email);
+    if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
 
@@ -527,9 +528,9 @@ exports.processPlacementApproval = async (req, res) => {
         if (!password) password = `pwd${Math.random().toString(36).substr(2, 5)}`;
         if (!name) name = `Student ${createdCount + 1}`;
         
-        // Check if candidate already exists
-        const existingCandidate = await Candidate.findOne({ email });
-        if (existingCandidate) {
+        // Check if user already exists in any role
+        const existingUser = await checkEmailExists(email);
+        if (existingUser) {
           skippedCount++;
           continue;
         }
@@ -952,9 +953,9 @@ exports.processFileApproval = async (req, res) => {
         
 
         
-        // Check if candidate already exists
-        const existingCandidate = await Candidate.findByEmail(email.trim());
-        if (existingCandidate) {
+        // Check if user already exists in any role
+        const existingUser = await checkEmailExists(email);
+        if (existingUser) {
           skippedCount++;
           continue;
         }
@@ -1508,11 +1509,11 @@ exports.verifyOTPAndResetPassword = async (req, res) => {
 exports.checkEmail = async (req, res) => {
   try {
     const { email } = req.body;
-    const placement = await Placement.findByEmail(email.trim());
+    const existingUser = await checkEmailExists(email);
     
     res.json({ 
       success: true, 
-      exists: !!placement 
+      exists: !!existingUser 
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

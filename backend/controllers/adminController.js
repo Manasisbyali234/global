@@ -21,6 +21,7 @@ const { createNotification } = require('./notificationController');
 const mongoose = require('mongoose');
 const XLSX = require('xlsx');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
+const { checkEmailExists } = require('../utils/authUtils');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -1481,8 +1482,8 @@ exports.createCandidate = async (req, res) => {
       });
     }
     
-    const existingCandidate = await Candidate.findByEmail(email.trim());
-    if (existingCandidate) {
+    const existingUser = await checkEmailExists(email);
+    if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
     
@@ -1537,19 +1538,16 @@ exports.createSubAdmin = async (req, res) => {
   try {
     const { name, firstName, lastName, username, email, phone, employerCode, permissions, password } = req.body;
     
-    // Check if username or email already exists
-    const existingSubAdmin = await SubAdmin.findOne({ 
-      $or: [
-        { email: new RegExp(`^${email.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') }, 
-        { username: username.trim() }
-      ] 
-    });
-    
-    if (existingSubAdmin) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Username or email already exists' 
-      });
+    // Check if username already exists in SubAdmin
+    const existingSubAdminByUsername = await SubAdmin.findOne({ username: username.trim() });
+    if (existingSubAdminByUsername) {
+      return res.status(400).json({ success: false, message: 'Username already exists' });
+    }
+
+    // Check if email already exists in any role
+    const existingUser = await checkEmailExists(email);
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
     }
     
     const subAdmin = await SubAdmin.create({
@@ -1903,14 +1901,14 @@ exports.approveIndividualFile = async (req, res) => {
             continue;
           }
           
-          // Check if candidate already exists
-          const existingCandidate = await Candidate.findByEmail(email.trim());
-          if (existingCandidate) {
+          // Check if user already exists in any role
+          const existingUser = await checkEmailExists(email);
+          if (existingUser) {
             skippedCount++;
             skippedCandidates.push({
               name: name.trim(),
               email: email.trim().toLowerCase(),
-              reason: 'Already exists in database'
+              reason: 'Email already registered in another role'
             });
             continue;
           }
@@ -3303,9 +3301,9 @@ exports.approveAllStudentsInPlacement = async (req, res) => {
                   name = `Student ${index + 1}`;
                 }
                 
-                // Check if candidate already exists
-                const existingCandidate = await Candidate.findByEmail(email.trim());
-                if (existingCandidate) {
+                // Check if user already exists in any role
+                const existingUser = await checkEmailExists(email);
+                if (existingUser) {
                   continue;
                 }
                 

@@ -542,7 +542,7 @@ function SectionCandicateBasicInfo() {
                     {/* Personal Information */}
                     <div className="row mb-4">
                         <div className="col-md-4 mb-3">
-                            <label className="form-label"><i className="fa fa-user me-2" style={{color: '#ff6b35'}}></i>First Name *</label>
+                            <label className="form-label"><i className="fa fa-user me-2" style={{color: '#ff6b35'}}></i>First Name</label>
                             <input
                                 className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                                 type="text"
@@ -569,7 +569,7 @@ function SectionCandicateBasicInfo() {
                             {errors.middleName && <div className="invalid-feedback">{errors.middleName}</div>}
                         </div>
                         <div className="col-md-4 mb-3">
-                            <label className="form-label"><i className="fa fa-user me-2" style={{color: '#ff6b35'}}></i>Last Name *</label>
+                            <label className="form-label"><i className="fa fa-user me-2" style={{color: '#ff6b35'}}></i>Last Name</label>
                             <input
                                 className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
                                 type="text"
@@ -583,7 +583,7 @@ function SectionCandicateBasicInfo() {
                             {errors.lastName && <div className="invalid-feedback">{errors.lastName}</div>}
                         </div>
                         <div className="col-md-4 mb-3">
-                            <label className="form-label"><i className="fa fa-phone me-2" style={{color: '#ff6b35'}}></i>Mobile Number *</label>
+                            <label className="form-label"><i className="fa fa-phone me-2" style={{color: '#ff6b35'}}></i>Mobile Number</label>
                             <div style={{position: 'relative'}}>
                                 <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10}}>
                                     <CountryCodeSelector
@@ -613,7 +613,7 @@ function SectionCandicateBasicInfo() {
                             <small className="text-muted">Enter 10 digit mobile number</small>
                         </div>
                         <div className="col-md-4 mb-3">
-                            <label className="form-label"><i className="fa fa-envelope me-2" style={{color: '#ff6b35'}}></i>Email Address *</label>
+                            <label className="form-label"><i className="fa fa-envelope me-2" style={{color: '#ff6b35'}}></i>Email Address</label>
                             <input
                                 className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                                 type="email"
@@ -629,7 +629,7 @@ function SectionCandicateBasicInfo() {
                         <div className="col-md-4 mb-3">
                             <label className="form-label">
                                 <i className="fa fa-map-pin me-2" style={{color: '#ff6b35'}}></i>
-                                Pincode *
+                                Pincode
                                 {fetchingLocation && <i className="fa fa-spinner fa-spin ms-2" style={{color: '#ff6b35'}}></i>}
                             </label>
                             <div style={{display: 'flex', gap: '8px'}}>
@@ -666,7 +666,7 @@ function SectionCandicateBasicInfo() {
                             </small>
                         </div>
                         <div className="col-md-4 mb-3" ref={locationDropdownRef}>
-                            <label className="form-label"><i className="fa fa-map-marker me-2" style={{color: '#ff6b35'}}></i>Location *</label>
+                            <label className="form-label"><i className="fa fa-map-marker me-2" style={{color: '#ff6b35'}}></i>Location</label>
                             <div style={{position: 'relative'}}>
                                 <input
                                     className={`form-control ${errors.location ? 'is-invalid' : ''}`}

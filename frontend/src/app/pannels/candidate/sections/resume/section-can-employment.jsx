@@ -673,7 +673,7 @@ function SectionCanEmployment({ profile }) {
                             <div style={{...formStyles.container, paddingBottom: '80px'}}>
                                 {/* Total Experience */}
                                 <div style={formStyles.fieldGroup}>
-                                    <label style={formStyles.label}>Total Experience *</label>
+                                    <label style={formStyles.label}>Total Experience</label>
                                     <div style={formStyles.inputWrapper}>
                                         <i className="fa fa-clock" style={formStyles.icon}></i>
                                         <input
@@ -693,7 +693,7 @@ function SectionCanEmployment({ profile }) {
 
                                 {/* Designation */}
                                 <div style={formStyles.fieldGroup}>
-                                    <label style={formStyles.label}>Your Designation *</label>
+                                    <label style={formStyles.label}>Your Designation</label>
                                     <div style={formStyles.inputWrapper}>
                                         <i className="fa fa-address-card" style={formStyles.icon}></i>
                                         <input
@@ -709,7 +709,7 @@ function SectionCanEmployment({ profile }) {
 
                                 {/* Organization */}
                                 <div style={formStyles.fieldGroup}>
-                                    <label style={formStyles.label}>Your Organization *</label>
+                                    <label style={formStyles.label}>Your Organization</label>
                                     <div style={formStyles.inputWrapper}>
                                         <i className="fa fa-building" style={formStyles.icon}></i>
                                         <input
@@ -755,7 +755,7 @@ function SectionCanEmployment({ profile }) {
                                 {/* Date Fields */}
                                 <div style={formStyles.twoColumnGrid}>
                                     <div style={formStyles.fieldGroup}>
-                                        <label style={formStyles.label}>Started Working From *</label>
+                                        <label style={formStyles.label}>Started Working From</label>
                                         <div style={formStyles.inputWrapper}>
                                             <i className="far fa-calendar" style={formStyles.icon}></i>
                                             <input
@@ -768,7 +768,7 @@ function SectionCanEmployment({ profile }) {
                                         {errors.startDate && <div style={formStyles.error}>{errors.startDate}</div>}
                                     </div>
                                     <div style={formStyles.fieldGroup}>
-                                        <label style={formStyles.label}>Worked Till {!formData.isCurrent && '*'}</label>
+                                        <label style={formStyles.label}>Worked Till</label>
                                         <div style={formStyles.inputWrapper}>
                                             <i className="far fa-calendar" style={formStyles.icon}></i>
                                             <input
@@ -785,7 +785,7 @@ function SectionCanEmployment({ profile }) {
 
                                 {/* Work Type */}
                                 <div style={formStyles.fieldGroup}>
-                                    <label style={formStyles.label}>Work Type *</label>
+                                    <label style={formStyles.label}>Work Type</label>
                                     <div style={formStyles.inputWrapper}>
                                         <i className="fa fa-laptop" style={formStyles.icon}></i>
                                         <select
@@ -821,7 +821,7 @@ function SectionCanEmployment({ profile }) {
                                         {errors.presentCTC && <div style={formStyles.error}>{errors.presentCTC}</div>}
                                     </div>
                                     <div style={formStyles.fieldGroup}>
-                                        <label style={formStyles.label}>Expected CTC (LPA) *</label>
+                                        <label style={formStyles.label}>Expected CTC (LPA)</label>
                                         <div style={formStyles.inputWrapper}>
                                             <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
                                             <input

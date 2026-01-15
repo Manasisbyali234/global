@@ -122,7 +122,7 @@ function CanChangePasswordPage() {
                             <div className="row">
                                 <div className="col-lg-6 col-md-6">
                                     <div className="form-group">
-                                        <label>Current Password *</label>
+                                        <label>Current Password</label>
                                         <div className="ls-inputicon-box">
                                             <input 
                                                 className="form-control wt-form-control" 
@@ -143,7 +143,7 @@ function CanChangePasswordPage() {
                                 </div>
                                 <div className="col-lg-6 col-md-6">
                                     <div className="form-group">
-                                        <label>New Password *</label>
+                                        <label>New Password</label>
                                         <div className="ls-inputicon-box">
                                             <input 
                                                 className="form-control wt-form-control" 
@@ -164,7 +164,7 @@ function CanChangePasswordPage() {
                                 </div>
                                 <div className="col-lg-12 col-md-12">
                                     <div className="form-group">
-                                        <label>Confirm New Password *</label>
+                                        <label>Confirm New Password</label>
                                         <div className="ls-inputicon-box">
                                             <input 
                                                 className="form-control wt-form-control" 

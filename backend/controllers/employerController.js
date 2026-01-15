@@ -6,6 +6,7 @@ const Application = require('../models/Application');
 const Message = require('../models/Message');
 const Subscription = require('../models/Subscription');
 const { sendWelcomeEmail } = require('../utils/emailService');
+const { checkEmailExists } = require('../utils/authUtils');
 const { cacheInvalidation } = require('../utils/cacheInvalidation');
 const { validateGSTFormat, fetchGSTInfo, mapGSTToProfile } = require('../utils/gstService');
 
@@ -20,8 +21,8 @@ exports.registerEmployer = async (req, res) => {
     console.log('Request body:', JSON.stringify(req.body, null, 2));
     const { name, email, password, phone, companyName, employerCategory, employerType, sendWelcomeEmail: shouldSendEmail } = req.body;
 
-    const existingEmployer = await Employer.findByEmail(email);
-    if (existingEmployer) {
+    const existingUser = await checkEmailExists(email);
+    if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
 

@@ -56,7 +56,7 @@ function SectionCanResumeHeadline({ profile }) {
                     <div className="panel-body wt-panel-body p-a20 m-b30">
                         <div className="row">
                             <div className="col-md-12">
-                                <label><i className="fa fa-newspaper-o me-1"></i> Resume Headline *</label>
+                                <label><i className="fa fa-newspaper-o me-1"></i> Resume Headline</label>
                                 <textarea 
                                     className="form-control" 
                                     placeholder="e.g., Experienced Software Developer with 3+ years in React and Node.js" 

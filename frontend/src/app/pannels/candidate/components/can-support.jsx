@@ -365,7 +365,7 @@ function CanSupport() {
                                 <div className="row">
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
-                                            <label>Name *</label>
+                                            <label>Name</label>
                                             <input 
                                                 name="name" 
                                                 type="text" 
@@ -381,7 +381,7 @@ function CanSupport() {
                                     
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
-                                            <label>Email *</label>
+                                            <label>Email</label>
                                             <input 
                                                 name="email" 
                                                 type="email" 
@@ -397,7 +397,7 @@ function CanSupport() {
                                     
                                     <div className="col-xl-12 col-lg-12 col-md-12">
                                         <div className="form-group">
-                                            <label>Subject *</label>
+                                            <label>Subject</label>
                                             <input 
                                                 name="subject" 
                                                 type="text" 
@@ -444,7 +444,7 @@ function CanSupport() {
                                     
                                     <div className="col-xl-12 col-lg-12 col-md-12">
                                         <div className="form-group">
-                                            <label>Message *</label>
+                                            <label>Message</label>
                                             <textarea 
                                                 name="message" 
                                                 className={`form-control ${errors.message ? 'is-invalid' : ''}`}

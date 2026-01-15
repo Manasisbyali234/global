@@ -7,6 +7,7 @@ const Message = require('../models/Message');
 const InterviewProcess = require('../models/InterviewProcess');
 const { createProfileCompletionNotification } = require('./notificationController');
 const { sendWelcomeEmail, sendJobApplicationConfirmationEmail } = require('../utils/emailService');
+const { checkEmailExists } = require('../utils/authUtils');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -18,9 +19,9 @@ exports.registerCandidate = async (req, res) => {
     const { name, email, password, phone, sendWelcomeEmail: shouldSendWelcome } = req.body;
     console.log('Registration attempt:', { name, email, phone, shouldSendWelcome });
 
-    const existingCandidate = await Candidate.findByEmail(email);
-    if (existingCandidate) {
-      console.log('Email already exists:', email);
+    const existingUser = await checkEmailExists(email);
+    if (existingUser) {
+      console.log('Email already exists:', email, 'Role:', existingUser.role);
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
 
@@ -895,11 +896,11 @@ exports.getMessages = async (req, res) => {
 exports.checkEmail = async (req, res) => {
   try {
     const { email } = req.body;
-    const candidate = await Candidate.findByEmail(email.trim());
+    const existingUser = await checkEmailExists(email);
     
     res.json({ 
       success: true, 
-      exists: !!candidate 
+      exists: !!existingUser 
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
