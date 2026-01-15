@@ -43,6 +43,8 @@ header,
 .header-fixed,
 .main-header,
 #header-admin,
+#header-admin-wrap,
+.header-admin-fixed,
 .emp-header,
 .can-header,
 .admin-header {
@@ -52,6 +54,12 @@ header,
 /* Mobile menu toggle */
 .mobile-menu-toggle {
   z-index: calc(var(--z-index-modal-backdrop) + 1) !important;
+}
+
+/* Sidebar overlay should be below modals */
+.sidebar-overlay {
+  z-index: var(--z-index-modal-backdrop) !important;
+  position: fixed !important;
 }
 
 /* All modal overlays should use maximum z-index */

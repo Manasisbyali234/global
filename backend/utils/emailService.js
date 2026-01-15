@@ -33,7 +33,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           
           <p>Dear Candidate,</p>
           
-          <p><strong>Congratulations!</strong> 🎉</p>
+          <p>Congratulations! 🎉</p>
           
           <p>Your TaleGlobal account has been successfully created.</p>
           
@@ -42,7 +42,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           <p>Once your profile is updated, you can start applying for jobs through our online interview process.</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">👉 Set your password and complete your profile to begin your journey with TaleGlobal</a>
+            <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">👉 Set your password and complete your profile to begin your journey with TaleGlobal.</a>
           </div>
           
           <p>We're excited to support you as you take the next step toward your career growth.</p>
@@ -83,39 +83,29 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
       </div>
     `;
   } else if (normalizedUserType === 'employer') {
-    subject = 'Employer Registration Successful – Complete Company Details';
+    subject = 'TaleGlobal Employer Registration – Action Required';
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
           <p>Dear Employer,</p>
           
-          <p>Thank you for registering with TaleGlobal.</p>
+          <p>Thank you for registering your company on TaleGlobal.</p>
           
-          <p>To get started, please set your password using the link provided below and complete your profile.</p>
+          <p>To proceed with approval, please log in to your dashboard and complete your company profile by updating the required basic details and uploading the necessary documents.</p>
           
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Set Your Password</a>
-          </div>
+          <p>Once submitted, your profile will be reviewed by the TaleGlobal admin team.</p>
           
-          <p>To proceed further, please log in to your dashboard</p>
+          <p>⏳ Approval Timeline: Within 3 working days</p>
           
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <ul style="color: #666; line-height: 1.8; margin: 0; padding-left: 20px;">
-              <li>Update company basic details</li>
-              <li>Upload the required company documents for verification</li>
-            </ul>
-          </div>
+          <p>You will be notified via email once your account is approved.</p>
           
-          <p>Once submitted, your profile will be reviewed by the TaleGlobal Admin Team. Approval will be completed within 3 working days.</p>
-          
-          <p>You will receive a confirmation email after successful verification.</p>
-          
-          <p>For support, write to support@taleglobal.net.</p>
+          <p>Thank you for choosing TaleGlobal as your hiring partner.</p>
           
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Regards,</p>
             <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
             <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #fd7e14; text-decoration: none;">support@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -1069,10 +1059,12 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
         
         <p>If you need any assistance while using the platform, feel free to reach out to our support team.</p>
         
-        <p>Warm regards,<br>
-        Team TaleGlobal<br>
-        🌐 www.taleglobal.net<br>
-        📧 support@taleglobal.net</p>
+        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+          <p style="margin: 0;">Warm regards,</p>
+          <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #fd7e14; text-decoration: none;">support@taleglobal.net</a></p>
+        </div>
       </div>
     </div>
   `;
@@ -1087,48 +1079,38 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
   await transporter.sendMail(mailOptions);
 };
 
-const sendEmployerAccountApprovalEmail = async (email, name) => {
+const sendEmployerAccountApprovalEmail = async (email, name, companyName = null) => {
   const transporter = createTransport();
   const loginUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/`;
   
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Employer,</p>
+        <p>Dear ${companyName ? companyName : 'Employer'},</p>
         
         <p>Congratulations! 🎉</p>
         
-        <p>Your employer account has been approved by the TaleGlobal Admin Team.</p>
+        <p>Your TaleGlobal employer account has been successfully approved.</p>
         
-        <p>You can now:</p>
-        <ul style="line-height: 1.6;">
-          <li>Log in to your dashboard</li>
-          <li>Post job openings completely free of cost</li>
-          <li>Conduct interviews online</li>
-        </ul>
+        <p>You can now log in to your dashboard and post job openings completely free of cost.</p>
         
         <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #ffc107;">
           <h3 style="margin-top: 0; color: #856404;">Important Terms & Conditions:</h3>
-          <ul style="color: #856404; margin-bottom: 0;">
-            <li>No fee should be collected from candidates</li>
+          <ul style="color: #856404; margin-bottom: 0; line-height: 1.6;">
+            <li>No fees should be collected from candidates at any stage</li>
             <li>Interviews must be conducted on time</li>
-            <li>Offline interviews are strictly not permitted</li>
-            <li>Job offers must be released as per the date mentioned in the job posting</li>
+            <li>Only online interviews are permitted (no offline interviews)</li>
+            <li>Offer letters must be released as per the date mentioned while posting the job</li>
           </ul>
         </div>
         
-        <p>We look forward to supporting your hiring needs.</p>
-        
-        <p>For queries, contact support@taleglobal.net.</p>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${loginUrl}" style="background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Login to Dashboard</a>
-        </div>
+        <p>We look forward to a transparent and successful hiring experience with your organization.</p>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Best regards,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
           <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #fd7e14; text-decoration: none;">support@taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1137,7 +1119,53 @@ const sendEmployerAccountApprovalEmail = async (email, name) => {
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Your Employer Account Has Been Approved – Start Posting Jobs',
+    subject: 'Your TaleGlobal Employer Account Has Been Approved',
+    html: template
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
+  const transporter = createTransport();
+  
+  const template = `
+    <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
+      <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <p>Dear Employer,</p>
+        
+        <p>Your TaleGlobal account has been approved for hiring through consultancy services.</p>
+        
+        <p>You can now manage job postings, candidate shortlisting, and conduct online interviews via your dashboard in accordance with TaleGlobal guidelines.</p>
+        
+        <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #ffc107;">
+          <h3 style="margin-top: 0; color: #856404;">Important Terms & Conditions:</h3>
+          <ul style="color: #856404; margin-bottom: 0; line-height: 1.6;">
+            <li>No fees should be collected from candidates at any stage</li>
+            <li>Interviews must be conducted on time</li>
+            <li>Only online interviews are permitted (no offline interviews)</li>
+            <li>Offer letters must be released as per the date mentioned while posting the job</li>
+          </ul>
+        </div>
+        
+        <p>Please ensure all hiring activities remain transparent and compliant with platform policies.</p>
+        
+        <p>Thank you for partnering with TaleGlobal.</p>
+        
+        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+          <p style="margin: 0;">Sincerely,</p>
+          <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #fd7e14; text-decoration: none;">support@taleglobal.net</a></p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const mailOptions = {
+    from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: 'TaleGlobal Approval – Consultancy Hiring Access Granted',
     html: template
   };
 
@@ -1208,5 +1236,6 @@ module.exports = {
   sendPlacementOfficerApprovalEmail,
   sendCandidateDetailsUpdatedEmail,
   sendEmployerAccountApprovalEmail,
+  sendConsultantApprovalEmail,
   sendEmployerProfileSubmissionEmail
 };

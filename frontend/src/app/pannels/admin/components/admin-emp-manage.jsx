@@ -15,7 +15,7 @@ function AdminEmployersAllRequest() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [actionLoading, setActionLoading] = useState({});
-    const [statusFilter, setStatusFilter] = useState('pending');
+    const [statusFilter, setStatusFilter] = useState('incomplete');
 
     useEffect(() => {
         AOS.init({

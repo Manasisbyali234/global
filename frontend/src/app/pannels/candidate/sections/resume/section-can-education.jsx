@@ -386,8 +386,8 @@ function SectionCanEducation({ profile, onUpdate }) {
             }
         }
 
-        // Course Name is required for all education levels
-        if (selectedEducationLevel && (!formData.courseName || !formData.courseName.trim())) {
+        // Course Name is required for all education levels except 10th/SSLC
+        if (selectedEducationLevel && selectedEducationLevel !== '10th_pass' && selectedEducationLevel !== 'sslc' && (!formData.courseName || !formData.courseName.trim())) {
             newErrors.courseName = 'Course Name is required';
             isValid = false;
         }
@@ -1272,8 +1272,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                                     name="courseName"
                                                     value={formData.courseName}
                                                     onChange={handleInputChange}
-                                                    placeholder="Enter course name/stream"
-                                                    required
+                                                    placeholder="Enter course name/stream (optional for SSLC)"
                                                 />
                                                 {errors.courseName && <div className="invalid-feedback">{errors.courseName}</div>}
                                             </div>

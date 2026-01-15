@@ -362,8 +362,8 @@ function SectionCandidateOverview() {
 
 	// Show credits for placement and admin-created candidates
 	const hasCredits = candidate.registrationMethod === 'placement' || candidate.registrationMethod === 'admin';
-	// Always show credits card if candidate has credits > 0 or is a placement candidate
-	const shouldShowCredits = hasCredits || (candidate.credits !== undefined && candidate.credits >= 0);
+	// Only show credits if candidate is from placement or admin
+	const shouldShowCredits = hasCredits;
 	
 	// Debug logging
 	console.log('Credits display debug:', {

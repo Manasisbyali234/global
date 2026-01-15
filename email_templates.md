@@ -12,13 +12,18 @@ This document contains all the email templates used in the TaleGlobal platform, 
 - **Content**:
 ```html
 <p>Dear Candidate,</p>
-<p><strong>Congratulations!</strong> 🎉</p>
+<p>Congratulations! 🎉</p>
 <p>Your TaleGlobal account has been successfully created.</p>
 <p>To get started, please set your password using the link provided below and complete your profile by updating your education, skills, and other relevant details. A complete profile helps you discover job opportunities that best match your qualifications and career goals.</p>
 <p>Once your profile is updated, you can start applying for jobs through our online interview process.</p>
 <div style="text-align: center; margin: 30px 0;">
-  <a href="${createPasswordUrl}">👉 Set your password and complete your profile to begin your journey with TaleGlobal</a>
+  <a href="${createPasswordUrl}">👉 Set your password and complete your profile to begin your journey with TaleGlobal.</a>
 </div>
+<p>We're excited to support you as you take the next step toward your career growth.</p>
+<p>Warm regards,<br>
+Team TaleGlobal<br>
+🌐 <a href="https://www.taleglobal.net/">www.taleglobal.net</a><br>
+📧 support@taleglobal.net</p>
 ```
 
 ### Placement Officer Welcome Email (Pending Approval)

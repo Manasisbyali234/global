@@ -29,10 +29,8 @@ import "./mobile-responsive-enhancements.css";
 import "./mobile-responsive-fixes.css";
 // BADGE TEXT ORANGE - Make all status badge texts orange
 import "./badge-text-orange.css";
-// HEADER Z-INDEX FIX - Fix header appearing above popup notifications
-import "./header-zindex-fix.css";
-// POPUP HEADER FIX - Additional popup header z-index fixes
-import "./popup-header-fix.css";
+// GLOBAL Z-INDEX FIX - Comprehensive fix for all stacking issues
+import "./global-zindex-fix.css";
 // iOS HAMBURGER ULTIMATE PRODUCTION FIX - Final solution for iPhone visibility issues
 import "./iphone-hamburger-ultimate-production-fix.css";
 
