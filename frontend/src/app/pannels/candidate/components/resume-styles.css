@@ -84,6 +84,13 @@ h5 {
     margin-right: 4px;
 }
 
+/* Required field indicator */
+.required-field::after {
+    content: ' *';
+    color: #dc3545;
+    font-weight: bold;
+}
+
 /* Skill tags with no color */
 .skill-tag {
     display: inline-block;

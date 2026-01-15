@@ -1132,7 +1132,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                 <div className="row g-3">
                                     {/* Common Fields */}
                                     <div className="col-md-6">
-                                        <label className="form-label">School/College Name</label>
+                                        <label className="form-label required-field">School/College Name</label>
                                         <input
                                             type="text"
                                             className={`form-control ${errors.schoolCollegeName ? 'is-invalid' : ''}`}
@@ -1146,7 +1146,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     </div>
 
                                     <div className="col-md-6">
-                                        <label className="form-label">Name of Board / University</label>
+                                        <label className="form-label required-field">Name of Board / University</label>
                                         <input
                                             type="text"
                                             className={`form-control ${errors.boardUniversityName ? 'is-invalid' : ''}`}
@@ -1160,7 +1160,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     </div>
 
                                     <div className="col-md-4">
-                                        <label className="form-label">Enrollment Number</label>
+                                        <label className="form-label required-field">Enrollment Number</label>
                                         <input
                                             type="text"
                                             className={`form-control ${errors.registrationNumber ? 'is-invalid' : ''}`}
@@ -1174,7 +1174,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     </div>
 
                                     <div className="col-md-4">
-                                        <label className="form-label">State</label>
+                                        <label className="form-label required-field">State</label>
                                         <select
                                             className={`form-select ${errors.state ? 'is-invalid' : ''}`}
                                             name="state"
@@ -1193,7 +1193,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     </div>
 
                                     <div className="col-md-4">
-                                        <label className="form-label">Result</label>
+                                        <label className="form-label required-field">Result</label>
                                         <select
                                             className={`form-select ${errors.result ? 'is-invalid' : ''}`}
                                             name="result"
@@ -1246,7 +1246,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     {/* Year of Passing for basic education levels */}
                                     {(selectedEducationLevel === '10th_pass' || selectedEducationLevel === 'sslc') && (
                                         <div className="col-md-6">
-                                            <label className="form-label">Year of Passing</label>
+                                            <label className="form-label required-field">Year of Passing</label>
                                             <input
                                                 type="number"
                                                 className={`form-control ${errors.yearOfPassing ? 'is-invalid' : ''}`}
@@ -1265,7 +1265,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     {(selectedEducationLevel !== '10th_pass' && selectedEducationLevel !== 'sslc' && selectedEducationLevel) && (
                                         <>
                                             <div className="col-md-6">
-                                                <label className="form-label">Course Name / Stream</label>
+                                                <label className="form-label required-field">Course Name / Stream</label>
                                                 <input
                                                     type="text"
                                                     className={`form-control ${errors.courseName ? 'is-invalid' : ''}`}
@@ -1278,7 +1278,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                             </div>
 
                                             <div className="col-md-6">
-                                                <label className="form-label">Year of Passing</label>
+                                                <label className="form-label required-field">Year of Passing</label>
                                                 <input
                                                     type="number"
                                                     className={`form-control ${errors.yearOfPassing ? 'is-invalid' : ''}`}
@@ -1296,7 +1296,7 @@ function SectionCanEducation({ profile, onUpdate }) {
 
                                     {/* Document Upload */}
                                     <div className="col-12">
-                                        <label className="form-label">Upload Supporting Document (PDF only, max 50MB)</label>
+                                        <label className="form-label required-field">Upload Supporting Document (PDF only, max 50MB)</label>
                                         <input
                                             type="file"
                                             className={`form-control ${errors.document ? 'is-invalid' : ''}`}

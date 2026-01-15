@@ -1013,7 +1013,7 @@ function CanStatusPage() {
 																			)}
 																		</>
 																	);
-																})()}}
+																})()}
 																{(roundDetails.fromDate || roundDetails.toDate) && (
 																	<div className="mb-2">
 																		<small className="text-muted"><i className="fa fa-calendar me-1"></i>Interview Period:</small>

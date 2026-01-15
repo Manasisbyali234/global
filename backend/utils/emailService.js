@@ -642,7 +642,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
     // Add assessment if explicitly enabled
     if (jobDetails.assessmentEnabled && jobDetails.assessmentId) {
       rounds.push({
-        name: 'Technical Assessment',
+        name: 'Assessment',
         type: 'assessment',
         description: 'Complete the online technical assessment',
         dateRange: jobDetails.assessmentStartDate && jobDetails.assessmentEndDate ? 
@@ -654,7 +654,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
       });
     }
     
-    // Add interview rounds based on order - only if they are enabled
+    // Add interview rounds based on order - only if they are enabled and NOT assessment type
     if (jobDetails.interviewRoundOrder && jobDetails.interviewRoundDetails) {
       const roundNames = {
         technical: 'Technical Round',
@@ -676,6 +676,12 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
             toDate: roundDetails.toDate,
             time: roundDetails.time
           });
+        }
+        
+        // Skip assessment type rounds if assessment is already added
+        if (roundType === 'assessment' && jobDetails.assessmentEnabled && jobDetails.assessmentId) {
+          console.log(`Skipped duplicate assessment round`);
+          return;
         }
         
         // Only add rounds that have both dates scheduled
