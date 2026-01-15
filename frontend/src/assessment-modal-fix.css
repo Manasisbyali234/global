@@ -1,0 +1,17 @@
+/* Assessment Modal Z-Index Fix */
+/* Ensure modal is always above header and sidebar */
+
+#header-admin-wrap,
+#header-admin,
+#sidebar-admin-wraper {
+  z-index: 1000 !important;
+}
+
+/* Modal overlay and content must be higher */
+.position-fixed.top-0.start-0.w-100.h-100 {
+  z-index: 100000 !important;
+}
+
+.position-fixed.top-0.start-0.w-100.h-100 .bg-white.rounded-3 {
+  z-index: 100001 !important;
+}

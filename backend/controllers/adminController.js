@@ -501,7 +501,8 @@ exports.updateEmployerStatus = async (req, res) => {
       try {
         if (isApproved) {
           const { sendEmployerAccountApprovalEmail } = require('../utils/emailService');
-          await sendEmployerAccountApprovalEmail(employer.email, employer.name || employer.companyName);
+          const employerName = employer.name || employer.firstName || employer.companyName || 'Employer';
+          await sendEmployerAccountApprovalEmail(employer.email, employerName, employer.companyName);
         }
         
         const notificationData = {
@@ -1005,11 +1006,18 @@ exports.getCandidateDetails = async (req, res) => {
       }));
     }
     
+    // Calculate total experience from employment records
+    const { calculateTotalExperienceFromEmployment } = require('../utils/experienceCalculator');
+    const calculatedExperience = profile && profile.employment ? 
+      calculateTotalExperienceFromEmployment(profile.employment) : '0 months';
+    
     const candidateWithProfile = {
       ...candidate.toObject(),
       ...profile,
       // Override education with properly formatted data
       education: formattedEducation,
+      // Set calculated total experience
+      totalExperience: calculatedExperience || profile?.totalExperience || '0 months',
       hasProfile: !!profile,
       isProfileComplete,
       profileCompletionPercentage: profileCompletion.percentage,
@@ -1107,7 +1115,8 @@ exports.updatePlacementStatus = async (req, res) => {
     if (updateData.status === 'active') {
       try {
         const { sendPlacementOfficerApprovalEmail } = require('../utils/emailService');
-        await sendPlacementOfficerApprovalEmail(placement.email, placement.name);
+        const placementName = placement.name || placement.firstName || 'Placement Officer';
+        await sendPlacementOfficerApprovalEmail(placement.email, placementName);
         
         await createNotification({
           title: 'Account Approved',

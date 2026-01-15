@@ -1,13 +1,19 @@
 import React, { useEffect } from 'react';
 import './PopupNotification.css';
 
-const PopupNotification = ({ message, onClose, type = 'info' }) => {
+const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 }) => {
   useEffect(() => {
     if (message) {
       const audio = new Audio('/sounds/notification.mp3');
       audio.play().catch(() => {});
+
+      const timer = setTimeout(() => {
+        onClose();
+      }, duration);
+
+      return () => clearTimeout(timer);
     }
-  }, [message]);
+  }, [message, duration, onClose]);
 
   if (!message) return null;
 
@@ -28,9 +34,6 @@ const PopupNotification = ({ message, onClose, type = 'info' }) => {
             {type === 'info' && 'ℹ'}
           </div>
           <div className="popup-message" style={{ textAlign: 'center' }}>{message}</div>
-          <button className="popup-button" onClick={onClose}>
-            OK
-          </button>
         </div>
       </div>
     </div>

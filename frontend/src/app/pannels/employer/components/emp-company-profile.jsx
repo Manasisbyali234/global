@@ -2,15 +2,13 @@ import { Briefcase, Building, Calendar, FileText, Globe, Hash, IdCard, Image as 
 import { useEffect, useState } from "react";
 import { loadScript } from "../../../../globals/constants";
 import CountryCodeSelector from "../../../../components/CountryCodeSelector";
-import { ErrorDisplay, GlobalErrorDisplay } from "../../../../components/ErrorDisplay";
-import { validateField, validateForm, displayError, safeApiCall, getErrorMessage } from "../../../../utils/errorHandler";
+import { validateForm, safeApiCall, getErrorMessage } from "../../../../utils/errorHandler";
 import RichTextEditor from "../../../../components/RichTextEditor";
 import TermsModal from '../../../../components/TermsModal';
 import ImageResizer from '../../../../components/ImageResizer';
 import { useImageResizer } from '../../../../hooks/useImageResizer';
 
 import './emp-company-profile.css';
-import '../../../../components/ErrorDisplay.css';
 import '../../../../remove-profile-hover-effects.css';
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
@@ -89,8 +87,6 @@ function EmpCompanyProfilePage() {
 
     const [loading, setLoading] = useState(false);
     const [authSections, setAuthSections] = useState([{ id: 1, companyName: '' }]);
-    const [errors, setErrors] = useState({});
-    const [globalErrors, setGlobalErrors] = useState([]);
     const [fetchingCity, setFetchingCity] = useState(false);
     const [fetchingGST, setFetchingGST] = useState(false);
     const [gstAutoFilled, setGstAutoFilled] = useState(false);
@@ -101,7 +97,7 @@ function EmpCompanyProfilePage() {
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [validationRules] = useState({
         companyName: { required: true, minLength: 2 },
-        phone: { required: true, phone: true },
+        phone: { required: true, pattern: /^\d{6,10}$/, patternMessage: 'Phone number must be 6-10 digits' },
         email: { required: true, email: true },
         website: { required: true, url: true },
         establishedSince: { year: true },
@@ -113,7 +109,7 @@ function EmpCompanyProfilePage() {
         city: { required: true, minLength: 2 },
         state: { required: true },
         officialEmail: { required: true, email: true },
-        officialMobile: { required: true, phone: true },
+        officialMobile: { required: true, pattern: /^\d{6,10}$/, patternMessage: 'Mobile number must be 6-10 digits' },
         companyType: { required: true },
         cin: { pattern: /^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/, patternMessage: 'Invalid CIN format. Must be 21 characters (e.g., U12345AB1234ABC123456)' },
         gstNumber: { required: true, pattern: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, patternMessage: 'Invalid GST format. Must be 15 characters (e.g., 12ABCDE1234F1Z5)' },
@@ -123,7 +119,7 @@ function EmpCompanyProfilePage() {
         contactLastName: { required: true, minLength: 2 },
         contactDesignation: { required: true, minLength: 2 },
         contactOfficialEmail: { required: true, email: true },
-        contactMobile: { required: true, phone: true },
+        contactMobile: { required: true, pattern: /^\d{6,10}$/, patternMessage: 'Mobile number must be 6-10 digits' },
         companyIdCardPicture: { required: true },
         employerCode: { required: true, minLength: 3, maxLength: 20 }
     });
@@ -290,7 +286,7 @@ function EmpCompanyProfilePage() {
                 window.location.href = '/employer/login';
                 return;
             }
-            displayError(error, { useToast: true });
+            showError(getErrorMessage(error, 'profile'));
         }
     };
 
@@ -301,28 +297,6 @@ function EmpCompanyProfilePage() {
         }
         
         setFormData(prev => ({ ...prev, [field]: value }));
-        
-        // Clear global errors when user starts making changes
-        if (globalErrors.length > 0) {
-            setGlobalErrors([]);
-        }
-        
-        // Real-time validation
-        const fieldRules = validationRules[field];
-        if (fieldRules) {
-            const fieldErrors = validateField(field, value, fieldRules);
-            setErrors(prev => ({
-                ...prev,
-                [field]: fieldErrors.length > 0 ? fieldErrors : undefined
-            }));
-        } else {
-            // Clear error for fields without validation rules
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[field];
-                return newErrors;
-            });
-        }
         
         // Fetch city when pincode is entered
         if (field === 'pincode' && value.length === 6) {
@@ -347,21 +321,13 @@ function EmpCompanyProfilePage() {
                 const city = data[0].PostOffice[0].District;
                 const state = data[0].PostOffice[0].State;
                 
-                // Update form data
+                // Clear validation errors for city and state since they're now populated
                 setFormData(prev => ({ 
                     ...prev, 
                     city, 
                     // Only auto-fill state if it's not already selected
                     state: prev.state || state 
                 }));
-                
-                // Clear validation errors for city and state since they're now populated
-                setErrors(prev => {
-                    const newErrors = { ...prev };
-                    delete newErrors.city;
-                    delete newErrors.state;
-                    return newErrors;
-                });
             } else {
                 setFormData(prev => ({ ...prev, city: '' }));
                 showWarning('Invalid pincode or city not found');
@@ -448,21 +414,19 @@ function EmpCompanyProfilePage() {
             }
         }
         
-        setErrors(formErrors);
-        
         const errorCount = Object.keys(formErrors).length;
         if (errorCount > 0) {
             const errorMessages = [];
             Object.entries(formErrors).forEach(([field, fieldErrors]) => {
                 if (Array.isArray(fieldErrors)) {
                     fieldErrors.forEach(error => {
-                        errorMessages.push(`${field}: ${error}`);
+                        errorMessages.push(`${error}`);
                     });
                 } else {
-                    errorMessages.push(`${field}: ${fieldErrors}`);
+                    errorMessages.push(`${fieldErrors}`);
                 }
             });
-            setGlobalErrors(errorMessages);
+            showError(errorMessages.join('\n'));
         }
         
         return errorCount === 0;
@@ -563,11 +527,6 @@ function EmpCompanyProfilePage() {
             
             if (data.success) {
                 handleInputChange(fieldName, data.filePath);
-                setErrors(prev => {
-                    const newErrors = { ...prev };
-                    delete newErrors[fieldName];
-                    return newErrors;
-                });
                 
                 // Show specific document name in success message
                 const documentNames = {
@@ -619,11 +578,6 @@ function EmpCompanyProfilePage() {
             
             if (data.success) {
                 handleInputChange(fieldName, data.filePath);
-                setErrors(prev => {
-                    const newErrors = { ...prev };
-                    delete newErrors[fieldName];
-                    return newErrors;
-                });
                 showSuccess('Image processed and uploaded successfully!');
             } else {
                 showError(data.message || 'Image upload failed');
@@ -780,7 +734,7 @@ function EmpCompanyProfilePage() {
                 window.location.href = '/employer/login';
                 return;
             }
-            displayError(error, { useToast: true });
+            showError(getErrorMessage(error, 'profile'));
         }
     };
 
@@ -942,7 +896,6 @@ function EmpCompanyProfilePage() {
                 firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 firstErrorField.focus();
             }
-            showWarning('Please fix the validation errors before submitting');
             return;
         }
         
@@ -1067,14 +1020,6 @@ function EmpCompanyProfilePage() {
                     <i className="fas fa-info-circle me-2"></i>
                     <strong>Important:</strong> Complete all required fields and upload all required documents (PAN Card, CIN Document, GST Certificate, and Certificate of Incorporation) before clicking "Save Profile". You can post jobs only after admin approval.
                 </div>
-                
-                {globalErrors.length > 0 && (
-                    <GlobalErrorDisplay 
-                        errors={globalErrors}
-                        onDismiss={() => setGlobalErrors([])}
-                        className="mt-3"
-                    />
-                )}
             </div>
             </div>
 
@@ -1234,13 +1179,12 @@ function EmpCompanyProfilePage() {
                                         {gstAutoFilled && <i className="fas fa-robot text-success ms-2" title="Auto-filled from GST"></i>}
                                     </label>
                                     <input
-                                        className={`form-control ${errors.companyName ? 'is-invalid' : ''} ${gstAutoFilled ? 'border-success' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.companyName}
                                         onChange={(e) => handleInputChange('companyName', e.target.value)}
                                         placeholder="Enter company name"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="companyName" />
                                 </div>
                             </div>
 
@@ -1255,7 +1199,7 @@ function EmpCompanyProfilePage() {
                                             />
                                         </div>
                                         <input
-                                            className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
+                                            className="form-control"
                                             type="text"
                                             value={formData.phone}
                                             onChange={(e) => handleInputChange('phone', e.target.value)}
@@ -1263,7 +1207,6 @@ function EmpCompanyProfilePage() {
                                             style={{ paddingLeft: '130px', height: '50px' }}
                                         />
                                     </div>
-                                    <ErrorDisplay errors={errors} fieldName="phone" />
                                 </div>
                             </div>
 
@@ -1271,13 +1214,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Mail size={16} className="me-2" /> Email Address</label>
                                     <input
-                                        className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="email"
                                         value={formData.email}
-                                        onChange={(e) => handleInputChange('email', e.target.value)}
                                         placeholder="company@example.com"
+                                        disabled
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="email" />
                                 </div>
                             </div>
 
@@ -1285,13 +1227,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Globe size={16} className="me-2" /> Website</label>
                                     <input
-                                        className={`form-control ${errors.website ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.website}
                                         onChange={(e) => handleInputChange('website', e.target.value)}
                                         placeholder="https://..."
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="website" />
                                 </div>
                             </div>
 
@@ -1299,13 +1240,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label><Calendar size={16} className="me-2" /> Est. Since</label>
                                     <input
-                                        className={`form-control ${errors.establishedSince ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.establishedSince}
                                         onChange={(e) => handleInputChange('establishedSince', e.target.value)}
                                         placeholder="2020"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="establishedSince" />
                                 </div>
                             </div>
 
@@ -1313,7 +1253,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><UsersIcon size={16} className="me-2" /> Team Size</label>
                                     <select
-                                        className={`form-control ${errors.teamSize ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         value={formData.teamSize}
                                         onChange={(e) => handleInputChange('teamSize', e.target.value)}
                                     >
@@ -1326,7 +1266,6 @@ function EmpCompanyProfilePage() {
                                         <option value="1000+">1000+ (Enterprise)</option>
                                         <option value="custom">Other (Enter manually)</option>
                                     </select>
-                                    <ErrorDisplay errors={errors} fieldName="teamSize" />
                                     {formData.teamSize === 'custom' && (
                                         <input
                                             className="form-control mt-2"
@@ -1348,9 +1287,8 @@ function EmpCompanyProfilePage() {
                                         value={formData.description || 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.'}
                                         onChange={(value) => handleInputChange('description', value)}
                                         placeholder="Enter company description..."
-                                        className={`form-control-editor ${errors.description ? 'is-invalid' : ''}`}
+                                        className="form-control-editor"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="description" />
                                     <small className="text-muted mt-1">Use the toolbar above to format your company description with bold, italic, lists, and alignment options.</small>
                                 </div>
                             </div>
@@ -1359,13 +1297,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><MapPin size={16} className="me-2" /> Primary Office Location</label>
                                     <input
-                                        className={`form-control ${errors.location ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.location || 'Bangalore, India'}
                                         onChange={(e) => handleInputChange('location', e.target.value)}
                                         placeholder="e.g., Bangalore, India"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="location" />
                                     <small className="text-muted">A default location has been provided. You can edit it as needed.</small>
                                 </div>
                             </div>
@@ -1440,13 +1377,12 @@ function EmpCompanyProfilePage() {
                                         {gstAutoFilled && <i className="fas fa-robot text-success ms-2" title="Auto-filled from GST"></i>}
                                     </label>
                                     <input
-                                        className={`form-control ${errors.corporateAddress ? 'is-invalid' : ''} ${gstAutoFilled ? 'border-success' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.corporateAddress}
                                         onChange={(e) => handleInputChange('corporateAddress', e.target.value)}
                                         placeholder="Enter corporate address"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="corporateAddress" />
                                 </div>
                             </div>
 
@@ -1467,14 +1403,13 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><MapPin size={16} className="me-2" /> Pincode</label>
                                     <input
-                                        className={`form-control ${errors.pincode ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.pincode}
                                         onChange={(e) => handleInputChange('pincode', e.target.value)}
                                         placeholder="Enter 6-digit pincode"
                                         maxLength="6"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="pincode" />
                                     {fetchingCity && <small className="text-info">Fetching city...</small>}
                                 </div>
                             </div>
@@ -1483,13 +1418,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><MapPin size={16} className="me-2" /> City</label>
                                     <input
-                                        className={`form-control ${errors.city ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.city}
                                         onChange={(e) => handleInputChange('city', e.target.value)}
                                         placeholder="Enter city or auto-fill from pincode"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="city" />
                                 </div>
                             </div>
 
@@ -1497,7 +1431,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><MapPin size={16} className="me-2" /> State</label>
                                     <select 
-                                        className={`form-control ${errors.state ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         value={formData.state}
                                         onChange={(e) => handleInputChange('state', e.target.value)}
                                     >
@@ -1539,7 +1473,6 @@ function EmpCompanyProfilePage() {
                                         <option value="Lakshadweep">Lakshadweep</option>
                                         <option value="Puducherry">Puducherry</option>
                                     </select>
-                                    <ErrorDisplay errors={errors} fieldName="state" />
                                 </div>
                             </div>
 
@@ -1547,13 +1480,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Mail size={16} className="me-2" /> Official Email ID</label>
                                     <input
-                                        className={`form-control ${errors.officialEmail ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="email"
                                         value={formData.officialEmail}
                                         onChange={(e) => handleInputChange('officialEmail', e.target.value)}
                                         placeholder="email@company.com"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="officialEmail" />
                                 </div>
                             </div>
 
@@ -1568,7 +1500,7 @@ function EmpCompanyProfilePage() {
                                             />
                                         </div>
                                         <input
-                                            className={`form-control ${errors.officialMobile ? 'is-invalid' : ''}`}
+                                            className="form-control"
                                             type="text"
                                             value={formData.officialMobile}
                                             onChange={(e) => handleInputChange('officialMobile', e.target.value)}
@@ -1576,7 +1508,6 @@ function EmpCompanyProfilePage() {
                                             style={{ paddingLeft: '130px', height: '50px' }}
                                         />
                                     </div>
-                                    <ErrorDisplay errors={errors} fieldName="officialMobile" />
                                 </div>
                             </div>
 
@@ -1584,7 +1515,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Briefcase size={16} className="me-2" /> Type of Company / Business</label>
                                     <select 
-                                        className={`form-control ${errors.companyType ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         value={formData.companyType}
                                         onChange={(e) => handleInputChange('companyType', e.target.value)}
                                     >
@@ -1598,7 +1529,6 @@ function EmpCompanyProfilePage() {
                                         <option value="Startup">Startup</option>
                                         <option value="Others">Others</option>
                                     </select>
-                                    <ErrorDisplay errors={errors} fieldName="companyType" />
                                 </div>
                             </div>
 
@@ -1606,13 +1536,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label><Hash size={16} className="me-2" /> Corporate Identification Number (CIN) <span className="text-muted">(Optional)</span></label>
                                     <input
-                                        className={`form-control ${errors.cin ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.cin}
                                         onChange={(e) => handleInputChange('cin', e.target.value)}
                                         placeholder="U12345AB1234ABC123456"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="cin" />
                                 </div>
                             </div>
 
@@ -1621,7 +1550,7 @@ function EmpCompanyProfilePage() {
                                     <label className="required-field"><Hash size={16} className="me-2" /> GST Number</label>
                                     <div className="position-relative">
                                         <input
-                                            className={`form-control ${errors.gstNumber ? 'is-invalid' : ''} ${gstAutoFilled ? 'border-success' : ''}`}
+                                            className="form-control"
                                             type="text"
                                             value={formData.gstNumber}
                                             onChange={(e) => {
@@ -1646,7 +1575,6 @@ function EmpCompanyProfilePage() {
                                             </div>
                                         )}
                                     </div>
-                                    <ErrorDisplay errors={errors} fieldName="gstNumber" />
                                     {fetchingGST && <small className="text-info">Fetching company information from GST database...</small>}
                                     {gstAutoFilled && !fetchingGST && (
                                         <small className="text-success">
@@ -1686,7 +1614,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Briefcase size={16} className="me-2" /> Industry Sector</label>
                                     <select 
-                                        className={`form-control ${errors.industrySector ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         value={formData.industrySector}
                                         onChange={(e) => handleInputChange('industrySector', e.target.value)}
                                     >
@@ -1699,7 +1627,6 @@ function EmpCompanyProfilePage() {
                                         <option value="manufacturing">Manufacturing</option>
                                         <option value="other">Other</option>
                                     </select>
-                                    <ErrorDisplay errors={errors} fieldName="industrySector" />
                                 </div>
                             </div>
 
@@ -1707,13 +1634,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Hash size={16} className="me-2" /> Company PAN Card Number</label>
                                     <input
-                                        className={`form-control ${errors.panNumber ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.panNumber}
                                         onChange={(e) => handleInputChange('panNumber', e.target.value)}
                                         placeholder="ABCDE1234F"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="panNumber" />
                                 </div>
                             </div>
 
@@ -1721,7 +1647,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Upload size={16} className="me-2" /> Upload PAN Card Image</label>
                                     <input
-                                        className={`form-control ${errors.panCardImage ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="file"
                                         accept=".jpg,.jpeg,.png,.pdf"
                                         onChange={(e) => handleDocumentUpload(e, 'panCardImage')}
@@ -1731,7 +1657,6 @@ function EmpCompanyProfilePage() {
                                     ) : (
                                         <p className="text-muted mt-1">No file chosen</p>
                                     )}
-                                    <ErrorDisplay errors={errors} fieldName="panCardImage" />
                                 </div>
                             </div>
 
@@ -1739,7 +1664,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Upload size={16} className="me-2" /> Upload CIN Document</label>
                                     <input
-                                        className={`form-control ${errors.cinImage ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="file"
                                         accept=".jpg,.jpeg,.png,.pdf"
                                         onChange={(e) => handleDocumentUpload(e, 'cinImage')}
@@ -1749,7 +1674,6 @@ function EmpCompanyProfilePage() {
                                     ) : (
                                         <p className="text-muted mt-1">No file chosen</p>
                                     )}
-                                    <ErrorDisplay errors={errors} fieldName="cinImage" />
                                 </div>
                             </div>
 
@@ -1757,7 +1681,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Upload size={16} className="me-2" /> Upload GST Certificate</label>
                                     <input
-                                        className={`form-control ${errors.gstImage ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="file"
                                         accept=".jpg,.jpeg,.png,.pdf"
                                         onChange={(e) => handleDocumentUpload(e, 'gstImage')}
@@ -1767,7 +1691,6 @@ function EmpCompanyProfilePage() {
                                     ) : (
                                         <p className="text-muted mt-1">No file chosen</p>
                                     )}
-                                    <ErrorDisplay errors={errors} fieldName="gstImage" />
                                 </div>
                             </div>
 
@@ -1775,7 +1698,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Upload size={16} className="me-2" /> Certificate of Incorporation (Issued by RoC)</label>
                                     <input
-                                        className={`form-control ${errors.certificateOfIncorporation ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="file"
                                         accept=".jpg,.jpeg,.png,.pdf"
                                         onChange={(e) => handleDocumentUpload(e, 'certificateOfIncorporation')}
@@ -1785,7 +1708,6 @@ function EmpCompanyProfilePage() {
                                     ) : (
                                         <p className="text-muted mt-1">No file chosen</p>
                                     )}
-                                    <ErrorDisplay errors={errors} fieldName="certificateOfIncorporation" />
                                 </div>
                             </div>
 
@@ -1938,13 +1860,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><UserIcon size={16} className="me-2" /> First Name</label>
                                     <input
-                                        className={`form-control ${errors.contactFullName ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.contactFullName}
                                         onChange={(e) => handleInputChange('contactFullName', e.target.value)}
                                         placeholder="Enter Full Name"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="contactFullName" />
                                 </div>
                             </div>
 
@@ -1965,13 +1886,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><UserIcon size={16} className="me-2" /> Last Name</label>
                                     <input
-                                        className={`form-control ${errors.contactLastName ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.contactLastName}
                                         onChange={(e) => handleInputChange('contactLastName', e.target.value)}
                                         placeholder="Enter Last Name"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="contactLastName" />
                                 </div>
                             </div>
 
@@ -1979,13 +1899,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Briefcase size={16} className="me-2" /> Designation</label>
                                     <input
-                                        className={`form-control ${errors.contactDesignation ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.contactDesignation}
                                         onChange={(e) => handleInputChange('contactDesignation', e.target.value)}
                                         placeholder="e.g., HR Manager, Recruitment Lead, Founder"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="contactDesignation" />
                                 </div>
                             </div>
 
@@ -1993,13 +1912,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Mail size={16} className="me-2" /> Official Email ID</label>
                                     <input
-                                        className={`form-control ${errors.contactOfficialEmail ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="email"
                                         value={formData.contactOfficialEmail}
                                         onChange={(e) => handleInputChange('contactOfficialEmail', e.target.value)}
                                         placeholder="Enter official email"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="contactOfficialEmail" />
                                 </div>
                             </div>
 
@@ -2014,7 +1932,7 @@ function EmpCompanyProfilePage() {
                                             />
                                         </div>
                                         <input
-                                            className={`form-control ${errors.contactMobile ? 'is-invalid' : ''}`}
+                                            className="form-control"
                                             type="tel"
                                             value={formData.contactMobile}
                                             onChange={(e) => handleInputChange('contactMobile', e.target.value)}
@@ -2022,7 +1940,6 @@ function EmpCompanyProfilePage() {
                                             style={{ paddingLeft: '130px', height: '50px' }}
                                         />
                                     </div>
-                                    <ErrorDisplay errors={errors} fieldName="contactMobile" />
                                 </div>
                             </div>
 
@@ -2030,7 +1947,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><IdCard size={16} className="me-2" /> Company ID Card Picture</label>
                                     <input
-                                        className={`form-control ${errors.companyIdCardPicture ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="file"
                                         accept="image/*"
                                         onChange={(e) => handleDocumentUpload(e, 'companyIdCardPicture')}
@@ -2055,7 +1972,6 @@ function EmpCompanyProfilePage() {
                                             <p className="text-success mt-1">✓ Company ID Card uploaded</p>
                                         </div>
                                     )}
-                                    <ErrorDisplay errors={errors} fieldName="companyIdCardPicture" />
                                     <p className="text-muted mt-1">Upload any company identification document (Max 5MB)</p>
                                 </div>
                             </div>
@@ -2071,7 +1987,7 @@ function EmpCompanyProfilePage() {
                                             />
                                         </div>
                                         <input
-                                            className={`form-control ${errors.alternateContact ? 'is-invalid' : ''}`}
+                                            className="form-control"
                                             type="tel"
                                             value={formData.alternateContact}
                                             onChange={(e) => handleInputChange('alternateContact', e.target.value)}
@@ -2079,7 +1995,6 @@ function EmpCompanyProfilePage() {
                                             style={{ paddingLeft: '130px', height: '50px' }}
                                         />
                                     </div>
-                                    <ErrorDisplay errors={errors} fieldName="alternateContact" />
                                 </div>
                             </div>
 
@@ -2087,13 +2002,12 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Hash size={16} className="me-2" /> Employer Code</label>
                                     <input
-                                        className={`form-control ${errors.employerCode ? 'is-invalid' : ''}`}
+                                        className="form-control"
                                         type="text"
                                         value={formData.employerCode}
                                         onChange={(e) => handleInputChange('employerCode', e.target.value)}
                                         placeholder="Enter employer code"
                                     />
-                                    <ErrorDisplay errors={errors} fieldName="employerCode" />
                                 </div>
                             </div>
                         </div>

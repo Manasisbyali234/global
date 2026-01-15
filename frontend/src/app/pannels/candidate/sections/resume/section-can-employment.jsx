@@ -11,6 +11,7 @@ function SectionCanEmployment({ profile }) {
         return saved ? JSON.parse(saved) : {
             designation: '',
             organization: '',
+            location: '',
             isCurrent: false,
             startDate: '',
             endDate: '',
@@ -29,7 +30,7 @@ function SectionCanEmployment({ profile }) {
     const [editingIndex, setEditingIndex] = useState(null);
 
     const clearForm = () => {
-        const resetFormData = { designation: '', organization: '', isCurrent: false, startDate: '', endDate: '', description: '', workType: '', presentCTC: '', expectedCTC: '' };
+        const resetFormData = { designation: '', organization: '', location: '', isCurrent: false, startDate: '', endDate: '', description: '', workType: '', presentCTC: '', expectedCTC: '' };
         setFormData(resetFormData);
         localStorage.removeItem('employmentFormData');
         setErrors({});
@@ -48,6 +49,7 @@ function SectionCanEmployment({ profile }) {
         setFormData({
             designation: emp.designation || '',
             organization: emp.organization || '',
+            location: emp.location || '',
             isCurrent: emp.isCurrent || false,
             startDate: formatDateForInput(emp.startDate),
             endDate: formatDateForInput(emp.endDate),
@@ -70,8 +72,9 @@ function SectionCanEmployment({ profile }) {
             });
             setEmployment(sortedEmployment);
         }
-        if (profile?.totalExperience && !localStorage.getItem('totalExperience')) {
+        if (profile?.totalExperience) {
             setTotalExperience(profile.totalExperience);
+            localStorage.setItem('totalExperience', profile.totalExperience);
         }
     }, [profile]);
 
@@ -123,6 +126,14 @@ function SectionCanEmployment({ profile }) {
             newErrors.organization = 'Organization name must be at least 2 characters long';
         } else if (formData.organization.trim().length > 100) {
             newErrors.organization = 'Organization name cannot exceed 100 characters';
+        }
+
+        if (!formData.location || !formData.location.trim()) {
+            newErrors.location = 'Location is required';
+        } else if (formData.location.trim().length < 2) {
+            newErrors.location = 'Location must be at least 2 characters long';
+        } else if (formData.location.trim().length > 100) {
+            newErrors.location = 'Location cannot exceed 100 characters';
         }
 
         if (!formData.startDate) {
@@ -254,6 +265,7 @@ function SectionCanEmployment({ profile }) {
             const employmentEntry = {
                 designation: formData.designation.trim(),
                 organization: formData.organization.trim(),
+                location: formData.location.trim(),
                 isCurrent: Boolean(formData.isCurrent),
                 startDate: formData.startDate,
                 endDate: formData.isCurrent ? null : (formData.endDate || null),
@@ -288,7 +300,7 @@ function SectionCanEmployment({ profile }) {
             
             if (response && (response.success || response.candidate)) {
                 setEmployment(sortedEmployment);
-                const resetFormData = { designation: '', organization: '', isCurrent: false, startDate: '', endDate: '', description: '', workType: '', presentCTC: '', expectedCTC: '' };
+                const resetFormData = { designation: '', organization: '', location: '', isCurrent: false, startDate: '', endDate: '', description: '', workType: '', presentCTC: '', expectedCTC: '' };
                 setFormData(resetFormData);
                 localStorage.removeItem('employmentFormData');
                 setErrors({});
@@ -467,7 +479,7 @@ function SectionCanEmployment({ profile }) {
     return (
         <>
             <div className="panel-heading wt-panel-heading p-a20 panel-heading-with-btn">
-                <h4 className="panel-tittle m-a0">Present Employment</h4>
+                <h4 className="panel-tittle m-a0">Employment History</h4>
                 <button
                     type="button"
                     title="Add Employment"
@@ -486,11 +498,12 @@ function SectionCanEmployment({ profile }) {
             </div>
             <div className="panel-body wt-panel-body p-a20">
                 <div className="twm-panel-inner">
-                    {totalExperience && (
-                        <div style={{background: '#f8f9fa', padding: '12px', borderRadius: '6px', border: '1px solid #e9ecef', marginBottom: '16px'}}>
-                            <p style={{margin: 0}}><b>Total Experience: {totalExperience}</b></p>
-                        </div>
-                    )}
+                    <div style={{background: '#f8f9fa', padding: '14px', borderRadius: '6px', border: '1px solid #e9ecef', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px'}}>
+                        <i className="fa fa-hourglass-half" style={{color: '#FF6A00', fontSize: '16px'}}></i>
+                        <p style={{margin: 0, fontSize: '16px', fontWeight: '600', color: '#2c3e50'}}>
+                            Total Experience: <span style={{color: '#FF6A00'}}>{totalExperience || '0 months'}</span>
+                        </p>
+                    </div>
                     {employment.length > 0 ? (
                         employment.map((emp, index) => (
                             <div key={index} className="employment-card" style={{
@@ -590,6 +603,19 @@ function SectionCanEmployment({ profile }) {
                                                 {emp.startDate ? new Date(emp.startDate).toLocaleDateString('en-GB') : 'Start Date'} - {emp.isCurrent ? 'Present' : (emp.endDate ? new Date(emp.endDate).toLocaleDateString('en-GB') : 'End Date')}
                                             </p>
                                         </div>
+
+                                        {/* Location */}
+                                        {emp.location && (
+                                            <div style={{minWidth: '150px'}}>
+                                                <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
+                                                    <i className="fa fa-map-marker" style={{color: '#FF6A00', marginRight: '6px', fontSize: '14px'}}></i>
+                                                    <strong style={{fontSize: '13px', color: '#495057'}}>Location</strong>
+                                                </div>
+                                                <p style={{margin: 0, fontSize: '14px', color: '#6c757d'}}>
+                                                    {emp.location}
+                                                </p>
+                                            </div>
+                                        )}
 
                                         {/* Current Company */}
                                         <div style={{minWidth: '120px'}}>
@@ -721,6 +747,22 @@ function SectionCanEmployment({ profile }) {
                                         />
                                     </div>
                                     {errors.organization && <div style={formStyles.error}>{errors.organization}</div>}
+                                </div>
+
+                                {/* Location */}
+                                <div style={formStyles.fieldGroup}>
+                                    <label style={formStyles.label}>Work Location</label>
+                                    <div style={formStyles.inputWrapper}>
+                                        <i className="fa fa-map-marker" style={formStyles.icon}></i>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g., Mumbai, Bangalore"
+                                            value={formData.location}
+                                            onChange={(e) => handleInputChange('location', e.target.value)}
+                                            style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.location && formStyles.inputError)}}
+                                        />
+                                    </div>
+                                    {errors.location && <div style={formStyles.error}>{errors.location}</div>}
                                 </div>
 
                                 {/* Current Company */}

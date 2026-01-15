@@ -1,62 +1,11 @@
-/* Fix for header appearing in create-assessment popup */
+/* Fix z-index for modal overlay and content */
 .position-fixed.top-0.start-0.w-100.h-100 {
-  z-index: 999999 !important;
-  isolation: isolate !important;
+  z-index: 100000 !important;
 }
 
 .position-fixed .bg-white.rounded-3 {
-  z-index: 1000000 !important;
+  z-index: 100001 !important;
   position: relative !important;
-  isolation: isolate !important;
-}
-
-/* Hide specific admin header that appears in modal */
-.position-fixed .bg-white.rounded-3 #header-admin,
-.position-fixed #header-admin {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-}
-
-/* Ensure all headers and navigation elements stay below modal */
-body:has(.position-fixed.top-0.start-0.w-100.h-100) #header-admin-wrap,
-body:has(.position-fixed.top-0.start-0.w-100.h-100) #header-admin,
-body:has(.position-fixed.top-0.start-0.w-100.h-100) #sidebar-admin-wraper,
-body:has(.position-fixed.top-0.start-0.w-100.h-100) .site-header,
-body:has(.position-fixed.top-0.start-0.w-100.h-100) .main-bar-wraper,
-body:has(.position-fixed.top-0.start-0.w-100.h-100) .sticky-header,
-body:has(.position-fixed.top-0.start-0.w-100.h-100) header,
-body:has(.position-fixed.top-0.start-0.w-100.h-100) .header,
-body:has(.position-fixed.top-0.start-0.w-100.h-100) nav,
-body:has(.position-fixed.top-0.start-0.w-100.h-100) .navbar {
-  z-index: 999 !important;
-}
-
-/* Hide any global headers that might appear in modal */
-.position-fixed .bg-white.rounded-3 header,
-.position-fixed .bg-white.rounded-3 .header,
-.position-fixed .bg-white.rounded-3 .twm-header,
-.position-fixed .bg-white.rounded-3 .site-header,
-.position-fixed .bg-white.rounded-3 .main-bar-wraper,
-.position-fixed .bg-white.rounded-3 .sticky-header,
-.position-fixed .bg-white.rounded-3 nav,
-.position-fixed .bg-white.rounded-3 .navbar {
-  display: none !important;
-}
-
-/* Additional rule to hide main header when modal is active */
-.position-fixed.top-0.start-0.w-100.h-100 ~ * .site-header,
-.position-fixed.top-0.start-0.w-100.h-100 ~ * .main-bar-wraper,
-.position-fixed.top-0.start-0.w-100.h-100 ~ * .sticky-header {
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-
-/* Ensure modal content is contained */
-.position-fixed .bg-white.rounded-3 > * {
-  position: relative !important;
-  z-index: 1 !important;
 }
 
 /* React Quill Editor Styles */

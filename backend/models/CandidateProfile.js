@@ -50,6 +50,7 @@ const candidateProfileSchema = new mongoose.Schema({
   employment: [{
     designation: String,
     organization: String,
+    location: String,
     isCurrent: { type: Boolean, default: false },
     startDate: Date,
     endDate: Date,

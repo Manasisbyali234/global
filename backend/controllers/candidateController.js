@@ -112,6 +112,10 @@ exports.getProfile = async (req, res) => {
 
     const profileData = profile.toObject({ getters: true });
     
+    // Calculate total experience from employment records
+    const { calculateTotalExperienceFromEmployment } = require('../utils/experienceCalculator');
+    const calculatedExperience = calculateTotalExperienceFromEmployment(profileData.employment);
+    
     // Calculate profile completion
     const { calculateProfileCompletion, calculateProfileCompletionWithDetails } = require('../utils/profileCompletion');
     const profileCompletion = calculateProfileCompletion(profileData);
@@ -123,6 +127,7 @@ exports.getProfile = async (req, res) => {
         ...profileData,
         resumeFileName: profileData.resumeFileName || null,
         resumeMimeType: profileData.resumeMimeType || null,
+        totalExperience: calculatedExperience || profileData.totalExperience,
       },
       profileCompletion,
       profileCompletionDetails
@@ -203,6 +208,13 @@ exports.updateProfile = async (req, res) => {
       console.log('Updating job preferences:', updateData.jobPreferences);
     }
     
+    // Handle employment array updates with auto-calculated experience
+    if (updateData.employment && Array.isArray(updateData.employment)) {
+      const { calculateTotalExperienceFromEmployment } = require('../utils/experienceCalculator');
+      const calculatedExperience = calculateTotalExperienceFromEmployment(updateData.employment);
+      updateData.totalExperience = calculatedExperience;
+    }
+    
     // Handle education array updates with marksheet preservation and field normalization
     if (updateData.education && Array.isArray(updateData.education)) {
       const currentProfile = await CandidateProfile.findOne({ candidateId: req.user._id });
@@ -243,6 +255,11 @@ exports.updateProfile = async (req, res) => {
       { new: true, upsert: true }
     ).populate('candidateId', 'name email phone');
     
+    // Calculate total experience from employment records
+    const { calculateTotalExperienceFromEmployment } = require('../utils/experienceCalculator');
+    const profileObject = profile.toObject({ getters: true });
+    const calculatedExperience = calculateTotalExperienceFromEmployment(profileObject.employment);
+    
     // Calculate profile completion and create notification
     let completionPercentage = 0;
     let profileCompletionDetails = { missingSections: [] };
@@ -259,8 +276,13 @@ exports.updateProfile = async (req, res) => {
       console.error('Profile completion notification error:', notifError);
     }
     
-    // Removed console debug line for security;
-    res.json({ success: true, profile, profileCompletion: completionPercentage, profileCompletionDetails });
+    // Return profile with calculated total experience
+    const profileResponse = {
+      ...profileObject,
+      totalExperience: calculatedExperience || profileObject.totalExperience,
+    };
+    
+    res.json({ success: true, profile: profileResponse, profileCompletion: completionPercentage, profileCompletionDetails });
   } catch (error) {
     console.error('Profile update error:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -700,7 +722,7 @@ exports.applyForJob = async (req, res) => {
         candidate.name,
         job.title,
         job.companyName || job.employerId?.companyName || 'Company',
-        new Date(),
+        application.createdAt || new Date(),
         {
           assessmentId: includeAssessment ? job.assessmentId : null,
           assessmentEnabled: includeAssessment,

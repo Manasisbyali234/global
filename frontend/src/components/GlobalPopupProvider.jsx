@@ -32,6 +32,7 @@ const GlobalPopupProvider = ({ children }) => {
         <PopupNotification
           message={popup.message}
           type={popup.type}
+          duration={popup.duration}
           onClose={hidePopup}
         />
       )}

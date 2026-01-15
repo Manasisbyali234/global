@@ -281,7 +281,7 @@ export default function EmpPostedJobs() {
 									) : (
 										<div>
 											<button className="site-button" disabled>Post Your First Job</button>
-											<div className="alert alert-warning mt-3 d-flex align-items-center" style={{maxWidth: '500px', margin: '16px auto'}}>
+											<div className="alert alert-warning mt-3 d-flex align-items-center justify-content-center" style={{maxWidth: '500px', margin: '16px auto'}}>
 												<i className="fas fa-exclamation-triangle me-2" style={{color: '#856404'}}></i>
 												<div>
 													<strong>Account verification pending</strong><br/>

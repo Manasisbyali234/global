@@ -639,6 +639,15 @@ function AdminCandidateReviewPage() {
                             <h4>Employment History</h4>
                         </div>
                         
+                        {candidate.totalExperience && (
+                            <div style={{background: '#f8f9fa', padding: '14px', borderRadius: '6px', border: '1px solid #e9ecef', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px'}}>
+                                <i className="fas fa-hourglass-half" style={{color: '#FF6A00', fontSize: '16px'}}></i>
+                                <p style={{margin: 0, fontSize: '16px', fontWeight: '600', color: '#2c3e50'}}>
+                                    Total Experience: <span style={{color: '#FF6A00'}}>{candidate.totalExperience}</span>
+                                </p>
+                            </div>
+                        )}
+                        
                         {candidate.employment && candidate.employment.length > 0 ? (
                             <div className="employment-timeline">
                                 {candidate.employment.map((emp, index) => (
@@ -648,25 +657,39 @@ function AdminCandidateReviewPage() {
                                         </div>
                                         <div className="employment-content">
                                             <div className="employment-header">
-                                                <h4>{emp.jobTitle || 'Job Title'}</h4>
+                                                <h4>{emp.designation || emp.jobTitle || 'Job Title'}</h4>
                                                 <span className="employment-duration">
                                                     {emp.startDate ? formatDate(emp.startDate) : 'Start Date'} - 
-                                                    {emp.endDate ? formatDate(emp.endDate) : emp.isCurrentJob ? 'Present' : 'End Date'}
+                                                    {emp.endDate ? formatDate(emp.endDate) : emp.isCurrent || emp.isCurrentJob ? 'Present' : 'End Date'}
                                                 </span>
                                             </div>
                                             <div className="employment-details">
                                                 <div className="detail-item">
                                                     <label>Company:</label>
-                                                    <span>{emp.companyName || 'Not provided'}</span>
+                                                    <span>{emp.organization || emp.companyName || 'Not provided'}</span>
                                                 </div>
-                                                <div className="detail-item">
-                                                    <label>Location:</label>
-                                                    <span>{emp.location || 'Not provided'}</span>
-                                                </div>
-                                                {emp.salary && (
+                                                {emp.location && (
                                                     <div className="detail-item">
-                                                        <label>Salary:</label>
-                                                        <span>{emp.salary}</span>
+                                                        <label>Location:</label>
+                                                        <span>{emp.location}</span>
+                                                    </div>
+                                                )}
+                                                {emp.workType && (
+                                                    <div className="detail-item">
+                                                        <label>Work Type:</label>
+                                                        <span>{emp.workType}</span>
+                                                    </div>
+                                                )}
+                                                {emp.presentCTC && (
+                                                    <div className="detail-item">
+                                                        <label>Current CTC:</label>
+                                                        <span>₹{emp.presentCTC} LPA</span>
+                                                    </div>
+                                                )}
+                                                {emp.expectedCTC && (
+                                                    <div className="detail-item">
+                                                        <label>Expected CTC:</label>
+                                                        <span>₹{emp.expectedCTC} LPA</span>
                                                     </div>
                                                 )}
                                                 {emp.description && (

@@ -31,7 +31,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
           <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Congratulations! 🎉</h2>
           
-          <p>Dear Candidate,</p>
+          <p>Dear ${name || 'Candidate'},</p>
           
           <p>Congratulations! 🎉</p>
           
@@ -63,7 +63,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear Placement Officer,</p>
+          <p>Dear ${name || 'Placement Officer'},</p>
           
           <p>Thank you for registering on the TaleGlobal platform.</p>
           
@@ -87,7 +87,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear Employer,</p>
+          <p>Dear ${name || 'Employer'},</p>
           
           <p>Thank you for registering your company on TaleGlobal.</p>
           
@@ -646,7 +646,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
         type: 'assessment',
         description: 'Complete the online technical assessment',
         dateRange: jobDetails.assessmentStartDate && jobDetails.assessmentEndDate ? 
-          `${new Date(jobDetails.assessmentStartDate).toLocaleDateString()} - ${new Date(jobDetails.assessmentEndDate).toLocaleDateString()}` : 
+          `${new Date(jobDetails.assessmentStartDate).toLocaleDateString('en-GB')} - ${new Date(jobDetails.assessmentEndDate).toLocaleDateString('en-GB')}` : 
           'Date will be communicated',
         time: jobDetails.assessmentStartTime && jobDetails.assessmentEndTime ? 
           `${jobDetails.assessmentStartTime} - ${jobDetails.assessmentEndTime}` : 
@@ -678,20 +678,18 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
           });
         }
         
-        // Only add rounds that have proper details (remove enabled check as it may not be set)
-        if (roundType && roundDetails && (roundDetails.fromDate || roundDetails.toDate || roundDetails.description || roundDetails.time)) {
+        // Only add rounds that have both dates scheduled
+        if (roundType && roundDetails && roundDetails.fromDate && roundDetails.toDate) {
           rounds.push({
             name: roundNames[roundType] || roundType,
             type: roundType,
             description: roundDetails.description || `${roundNames[roundType]} interview`,
-            dateRange: roundDetails.fromDate && roundDetails.toDate ? 
-              `${new Date(roundDetails.fromDate).toLocaleDateString()} - ${new Date(roundDetails.toDate).toLocaleDateString()}` : 
-              'Date will be communicated',
+            dateRange: `${new Date(roundDetails.fromDate).toLocaleDateString('en-GB')} - ${new Date(roundDetails.toDate).toLocaleDateString('en-GB')}`,
             time: roundDetails.time || 'Time will be communicated'
           });
           console.log(`Added round: ${roundNames[roundType] || roundType}`);
         } else {
-          console.log(`Skipped round ${roundKey} - missing required details`);
+          console.log(`Skipped round ${roundKey} - no dates scheduled`);
         }
       });
     }
@@ -775,10 +773,11 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
             </div>
             <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
               <span style="color: #fd7e14; font-weight: bold; margin-right: 10px; min-width: 120px;">Applied On:</span>
-              <span>${new Date(applicationDate).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
+              <span>${new Date(applicationDate).toLocaleDateString('en-GB', { 
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+              })} ${new Date(applicationDate).toLocaleTimeString('en-GB', {
                 hour: '2-digit',
                 minute: '2-digit'
               })}</span>
@@ -1051,7 +1050,7 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Placement Officer,</p>
+        <p>Dear ${name},</p>
         
         <p>We are happy to inform you that your TaleGlobal Placement Officer account has been approved.</p>
         
@@ -1086,7 +1085,7 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear ${companyName ? companyName : 'Employer'},</p>
+        <p>Dear ${name},</p>
         
         <p>Congratulations! 🎉</p>
         
@@ -1132,7 +1131,7 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Employer,</p>
+        <p>Dear ${name},</p>
         
         <p>Your TaleGlobal account has been approved for hiring through consultancy services.</p>
         
@@ -1181,7 +1180,7 @@ const sendEmployerProfileSubmissionEmail = async (email, name) => {
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">TaleGlobal Employer Registration – Action Required</h2>
         
-        <p>Dear Employer,</p>
+        <p>Dear ${name},</p>
         
         <p>Thank you for registering your company on TaleGlobal.</p>
         

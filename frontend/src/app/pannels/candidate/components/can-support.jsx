@@ -182,25 +182,25 @@ function CanSupport() {
         }
         setIsCompressing(false);
         
-        const maxSize = 10 * 1024 * 1024; // 10MB per file
+        const maxSize = 50 * 1024 * 1024; // 50MB per file
         const oversizedFiles = processedFiles.filter(file => file.size > maxSize);
         if (oversizedFiles.length > 0) {
             const fileList = oversizedFiles.map(f => `"${f.name}" (${(f.size / 1024 / 1024).toFixed(1)}MB)`).join(', ');
             setErrors(prev => ({ 
                 ...prev, 
-                files: `File size too large: ${fileList}. Each file must be under 10MB. Please compress your files before uploading.` 
+                files: `File size too large: ${fileList}. Each file must be under 50MB. Please compress your files before uploading.` 
             }));
             clearFileInput();
             return;
         }
         
         const totalSize = processedFiles.reduce((sum, file) => sum + file.size, 0);
-        const maxTotalSize = 30 * 1024 * 1024; // 30MB total
+        const maxTotalSize = 150 * 1024 * 1024; // 150MB total
         if (totalSize > maxTotalSize) {
             const totalSizeMB = (totalSize / 1024 / 1024).toFixed(1);
             setErrors(prev => ({ 
                 ...prev, 
-                files: `Combined file size too large: ${totalSizeMB}MB exceeds the 30MB limit. Please reduce file sizes or number of files.` 
+                files: `Combined file size too large: ${totalSizeMB}MB exceeds the 150MB limit. Please reduce file sizes or number of files.` 
             }));
             clearFileInput();
             return;
@@ -288,7 +288,7 @@ function CanSupport() {
                     console.error('Non-JSON response:', text.substring(0, 200));
                     
                     if (response.status === 413) {
-                        setErrors({ submit: 'File size too large. Each file must be under 10MB and total size under 30MB. Please compress your files before uploading.' });
+                        setErrors({ submit: 'File size too large. Each file must be under 50MB and total size under 150MB. Please compress your files before uploading.' });
                     } else if (response.status === 502 || response.status === 503 || response.status === 504) {
                         setErrors({ submit: 'Server is temporarily busy or unavailable. Your attachments might be too large for the server to process. Please try with smaller or fewer files.' });
                     } else {
@@ -390,6 +390,7 @@ function CanSupport() {
                                                 value={formData.email}
                                                 onChange={handleChange}
                                                 disabled={isLoadingProfile}
+                                                readOnly
                                             />
                                             {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                                         </div>
@@ -476,7 +477,7 @@ function CanSupport() {
                                             )}
                                             <small className="form-text d-block mt-2" style={{ color: '#ff6b35' }}>
                                                 <i className="fa fa-info-circle me-1"></i>
-                                                Upload up to 3 files (max 10MB each, 30MB total). Large images will be automatically compressed.
+                                                Upload up to 3 files (max 50MB each, 150MB total). Large images will be automatically compressed.
                                             </small>
                                             {errors.files && (
                                                 <div className="invalid-feedback d-block">

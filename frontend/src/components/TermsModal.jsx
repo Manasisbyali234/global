@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import './TermsModal.css';
 import { disableBodyScroll, enableBodyScroll } from '../utils/scrollUtils';
 
@@ -119,7 +120,7 @@ const TermsModal = ({ isOpen, onClose, onAccept, role = 'candidate' }) => {
 
     if (!isOpen) return null;
 
-    return (
+    const modalContent = (
         <div className="terms-modal-overlay">
             <div className="terms-modal">
                 <div className="terms-modal-header">
@@ -185,6 +186,8 @@ const TermsModal = ({ isOpen, onClose, onAccept, role = 'candidate' }) => {
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 };
 
 export default TermsModal;

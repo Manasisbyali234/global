@@ -2043,7 +2043,7 @@ exports.sendInterviewInvite = async (req, res) => {
     });
     
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
       to: application.candidateId.email,
       subject: `Interview Invitation - ${application.jobId.title}`,
       html: `
@@ -2123,7 +2123,7 @@ exports.confirmInterview = async (req, res) => {
     const formattedDate = new Date(confirmedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
       to: application.candidateId.email,
       subject: `✓ Interview Confirmed - ${application.jobId.title}`,
       html: `

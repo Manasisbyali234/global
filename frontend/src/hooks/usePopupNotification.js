@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export const usePopupNotification = () => {
-  const [popup, setPopup] = useState({ show: false, message: '', type: 'info' });
+  const [popup, setPopup] = useState({ show: false, message: '', type: 'info', duration: 5000 });
   const [confirmation, setConfirmation] = useState({ 
     show: false, 
     message: '', 
@@ -10,12 +10,12 @@ export const usePopupNotification = () => {
     onCancel: null 
   });
 
-  const showPopup = (message, type = 'info') => {
-    setPopup({ show: true, message, type });
+  const showPopup = (message, type = 'info', duration = 5000) => {
+    setPopup({ show: true, message, type, duration });
   };
 
   const hidePopup = () => {
-    setPopup({ show: false, message: '', type: 'info' });
+    setPopup({ show: false, message: '', type: 'info', duration: 5000 });
   };
 
   const showConfirmation = (message, onConfirm, onCancel, type = 'warning') => {

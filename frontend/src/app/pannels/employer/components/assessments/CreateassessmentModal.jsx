@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import './CreateassessmentModal.css';
 import { disableBodyScroll, enableBodyScroll } from "../../../../../utils/scrollUtils";
 import ReactQuill from 'react-quill';
@@ -299,12 +300,12 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		});
 	};
 
-	return (
+	const modalContent = (
 		<div
 			className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center"
 			style={{ 
 				background: isMinimized ? "transparent" : "rgba(0,0,0,0.5)", 
-				zIndex: 999999,
+				zIndex: 100000,
 				alignItems: isMinimized ? "flex-end" : "center",
 				padding: isMinimized ? "0 0 20px 0" : "0"
 			}}
@@ -323,7 +324,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					position: isMaximized ? "fixed" : "relative",
 					top: isMaximized ? "0" : "auto",
 					left: isMaximized ? "0" : "auto",
-					zIndex: "1000000",
+					zIndex: 100001,
 					borderRadius: isMaximized ? "0" : "12px",
 					boxShadow: isMinimized ? "0 -2px 10px rgba(0,0,0,0.2)" : "0 4px 20px rgba(0,0,0,0.15)",
 				}}
@@ -780,4 +781,6 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			</div>
 		</div>
 	);
+
+	return createPortal(modalContent, document.body);
 }
