@@ -207,7 +207,7 @@ const sendResetEmail = async (email, resetToken, userType) => {
   const resetUrl = `${process.env.FRONTEND_URL}${basePath}/reset-password/${resetToken}`;
 
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Password Reset Request',
     html: `
