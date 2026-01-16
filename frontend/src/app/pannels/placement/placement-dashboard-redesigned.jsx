@@ -72,7 +72,6 @@ function PlacementDashboardRedesigned() {
 
     useEffect(() => {
         if (activeTab === 'overview') {
-            // Refresh data when switching to overview tab
             fetchPlacementDetails();
             fetchStudentData();
         } else if (activeTab === 'students' && !viewingFileId) {
@@ -121,10 +120,19 @@ function PlacementDashboardRedesigned() {
         const courses = [...new Set(students.map(s => s.course).filter(c => c && c !== 'Not Specified'))];
         const batches = [...new Set(students.map(s => s.batch).filter(b => b))];
         
+        console.log('Calculating stats:', {
+            totalStudents,
+            avgCredits,
+            activeBatches: batches.length,
+            coursesCovered: courses.length,
+            batches,
+            courses
+        });
+        
         setStats({
             totalStudents,
             avgCredits,
-            activeBatches: batches.length || 1,
+            activeBatches: batches.length,
             coursesCovered: courses.length
         });
     };
