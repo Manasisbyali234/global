@@ -244,7 +244,7 @@ function TermsConditionsPage() {
                             
                             <div className={`accordion-section ${activeSection === 'payment' ? 'active' : ''}`}>
                                 <div className="accordion-header" onClick={() => toggleSection('payment')}>
-                                    <h3>Payment Terms & Conditions</h3>
+                                    <h3>PAYMENT TERMS & CONDITIONS</h3>
                                     <span className="accordion-icon">▼</span>
                                 </div>
                                 <div className="accordion-content">
