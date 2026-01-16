@@ -150,14 +150,32 @@ router.get('/data', auth(['placement']), async (req, res) => {
             jsonData.forEach(row => {
               const email = row.Email || row.email || row.EMAIL || '';
               if (email && !studentMap.has(email.toLowerCase())) {
+                // Extract credits from multiple possible column names
+                let credits = 0;
+                const creditsValue = row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || 
+                                    row.Credits || row.credits || row.CREDITS || 
+                                    row.Credit || row.credit || row.CREDIT ||
+                                    row['Available Credits'] || row['available credits'] || row['AVAILABLE CREDITS'] ||
+                                    file.credits || placement.credits || 0;
+                
+                // Parse credits value
+                if (typeof creditsValue === 'number') {
+                  credits = creditsValue;
+                } else if (typeof creditsValue === 'string') {
+                  const parsed = parseInt(creditsValue.replace(/[^0-9]/g, ''));
+                  credits = isNaN(parsed) ? 0 : parsed;
+                }
+                
                 studentMap.set(email.toLowerCase(), {
                   name: row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['Student Name'] || '',
                   email: email,
                   phone: row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
                   course: row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || 'Not Specified',
-                  credits: parseInt(row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || '0') || 0,
+                  credits: credits,
                   id: row.ID || row.id || row.Id || '',
-                  fileName: file.fileName
+                  fileName: file.fileName,
+                  batch: file.batch || '',
+                  university: file.university || placement.collegeName || ''
                 });
               }
             });

@@ -103,10 +103,18 @@ function PlacementDashboardRedesigned() {
             const token = localStorage.getItem('placementToken');
             if (!token) return;
             
+            console.log('Fetching student data...');
             const data = await api.getMyPlacementData();
+            console.log('Student data received:', data);
+            
             if (data.success) {
-                setStudentData(data.students || []);
-                calculateStats(data.students || []);
+                const students = data.students || [];
+                console.log('Total students:', students.length);
+                console.log('Sample student data:', students[0]);
+                console.log('Credits distribution:', students.map(s => ({ name: s.name, credits: s.credits })));
+                
+                setStudentData(students);
+                calculateStats(students);
             }
         } catch (error) {
             console.error('Error fetching student data:', error);
@@ -729,7 +737,9 @@ function PlacementDashboardRedesigned() {
                                                             <td>{student.phone || '-'}</td>
                                                             <td>{student.course || 'Not Specified'}</td>
                                                             <td>
-                                                                <span className="credits-badge">{student.credits || 0}</span>
+                                                                <span className="credits-badge" title={`Available Credits: ${student.credits || 0}`}>
+                                                                    {student.credits !== undefined && student.credits !== null ? student.credits : 0}
+                                                                </span>
                                                             </td>
                                                         </tr>
                                                     ))}

@@ -1025,13 +1025,13 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
         
         <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
           <p style="color: #1565c0; margin: 0; font-size: 14px;">
-            <strong>📝 Note:</strong> Use the login credentials provided by your placement officer. If you don't have them or want to set a new password, use the "Reset Password" option below.
+            <strong>📝 Note:</strong> Use the login credentials provided by your placement officer. If you don't have them or want to set a new password, use the "Create Password" option below.
           </p>
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
           <a href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Login Here</a>
-          <a href="${resetPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Reset Password</a>
+          <a href="${resetPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
         </div>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
