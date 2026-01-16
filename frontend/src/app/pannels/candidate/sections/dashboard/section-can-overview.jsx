@@ -360,9 +360,9 @@ function SectionCandidateOverview() {
 		clickable: false
 	};
 
-	// Show credits for placement and admin-created candidates
-	const hasCredits = candidate.registrationMethod === 'placement' || candidate.registrationMethod === 'admin';
-	// Only show credits if candidate is from placement or admin
+	// Show credits for placement candidates or those with a placement officer
+	const hasCredits = candidate.registrationMethod === 'placement' || candidate.placement;
+	// Only show credits if candidate is from placement or has a placement officer
 	const shouldShowCredits = hasCredits;
 	
 	// Debug logging

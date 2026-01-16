@@ -61,7 +61,7 @@ function AdminIndividualCredit() {
     const filteredCandidates = candidates.filter(c => {
         const matchesSearch = c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             c.email?.toLowerCase().includes(searchTerm.toLowerCase());
-        const isAdminOrPlacement = c.registrationMethod === 'admin' || c.registrationMethod === 'placement';
+        const isAdminOrPlacement = c.registrationMethod === 'admin' || c.registrationMethod === 'placement' || c.placementId;
         return matchesSearch && isAdminOrPlacement;
     });
 
@@ -212,16 +212,18 @@ function AdminIndividualCredit() {
                                             <td style={{textAlign: 'center', verticalAlign: 'middle'}}>
                                                 <span style={{
                                                     backgroundColor: candidate.registrationMethod === 'admin' ? '#cfe2ff' : 
-                                                                   candidate.registrationMethod === 'placement' ? '#fff3cd' : '#e2e3e5',
+                                                                   (candidate.registrationMethod === 'placement' || candidate.placementId) ? '#fff3cd' : '#e2e3e5',
                                                     color: candidate.registrationMethod === 'admin' ? '#084298' : 
-                                                          candidate.registrationMethod === 'placement' ? '#664d03' : '#41464b',
+                                                          (candidate.registrationMethod === 'placement' || candidate.placementId) ? '#664d03' : '#41464b',
                                                     padding: '4px 12px',
                                                     borderRadius: '4px',
                                                     fontSize: '0.85rem',
                                                     textTransform: 'capitalize',
                                                     display: 'inline-block'
                                                 }}>
-                                                    {candidate.registrationMethod || 'signup'}
+                                                    {candidate.registrationMethod === 'admin' ? 'Admin' : 
+                                                     (candidate.registrationMethod === 'placement' || candidate.placementId) ? 'Placement' : 
+                                                     (candidate.registrationMethod || 'signup')}
                                                 </span>
                                             </td>
                                             <td style={{textAlign: 'center', verticalAlign: 'middle'}}>

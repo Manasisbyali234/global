@@ -605,7 +605,8 @@ exports.applyForJob = async (req, res) => {
     }
 
     // Check if candidate has credits - only applies to placement candidates
-    if (candidate.registrationMethod === 'placement' && candidate.credits <= 0) {
+    const isPlacementCandidate = candidate.registrationMethod === 'placement' || candidate.placementId;
+    if (isPlacementCandidate && candidate.credits <= 0) {
       return res.status(400).json({ 
         success: false, 
         message: 'You are out of your credits. Please contact support to get more credits.' 
@@ -623,7 +624,7 @@ exports.applyForJob = async (req, res) => {
     });
 
     // Deduct 1 credit only for placement candidates
-    if (candidate.registrationMethod === 'placement') {
+    if (isPlacementCandidate) {
       await Candidate.findByIdAndUpdate(req.user._id, {
         $inc: { credits: -1 }
       });
@@ -1434,7 +1435,7 @@ exports.getCandidateCompleteProfile = async (req, res) => {
     
     // If candidate was created from placement Excel, get additional data
     let excelData = null;
-    if (candidate.registrationMethod === 'placement' && candidate.placementId && candidate.fileId) {
+    if ((candidate.registrationMethod === 'placement' || candidate.placementId) && candidate.fileId) {
       try {
         const Placement = require('../models/Placement');
         const placement = await Placement.findById(candidate.placementId);

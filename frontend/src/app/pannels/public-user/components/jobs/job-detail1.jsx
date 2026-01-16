@@ -171,14 +171,16 @@ function JobDetail1Page() {
                 const credits = statsData.candidate.credits || 0;
                 const registrationMethod = statsData.candidate.registrationMethod || 'signup';
                 
+                const isPlacement = registrationMethod === 'placement' || statsData.candidate.placement;
+                
                 // Only check credits for placement candidates
-                if (registrationMethod === 'placement' && credits <= 0) {
+                if (isPlacement && credits <= 0) {
                     showError('You are out of your credits. Please contact support to get more credits.');
                     return;
                 }
                 
                 // Only show credit confirmation for placement candidates
-                if (registrationMethod === 'placement') {
+                if (isPlacement) {
                     setShowCreditConfirmation(true);
                     setPendingApplicationData({ credits });
                     return;

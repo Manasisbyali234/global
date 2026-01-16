@@ -242,7 +242,7 @@ function AdminCreditsPage() {
 									<div>
 										<h6 className="mb-1 fw-semibold">{candidate.name}</h6>
 										<small className="text-muted">{candidate.email}</small>
-										{candidate.registrationMethod === 'placement' && (
+										{(candidate.registrationMethod === 'placement' || candidate.placementId) && (
 											<span className="badge bg-info ms-2">Placement</span>
 										)}
 									</div>
