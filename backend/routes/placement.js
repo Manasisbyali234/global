@@ -12,13 +12,20 @@ router.post('/register', [
   body('name').notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Valid email is required'),
   body('collegeName').notEmpty().withMessage('College name is required'),
-  body('password').optional().isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('password')
+    .optional()
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)'),
   ...requiredPhoneValidationRules()
 ], handleValidationErrors, placementController.registerPlacement);
 
 router.post('/create-password', [
   body('email').isEmail().withMessage('Valid email is required'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  body('password')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
 ], handleValidationErrors, placementController.createPassword);
 
 // Login route
@@ -35,12 +42,18 @@ router.post('/password/send-otp', [
 router.post('/password/verify-otp', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('otp').notEmpty().withMessage('OTP is required'),
-  body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  body('newPassword')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
 ], handleValidationErrors, placementController.verifyOTPAndResetPassword);
 
 router.post('/password/update-reset', [
   body('email').isEmail().withMessage('Valid email is required'),
-  body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  body('newPassword')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
 ], handleValidationErrors, placementController.updatePasswordReset);
 
 // Get placement officer's student data

@@ -242,6 +242,37 @@ function TermsConditionsPage() {
                                 </div>
                             </div>
                             
+                            <div className={`accordion-section ${activeSection === 'payment' ? 'active' : ''}`}>
+                                <div className="accordion-header" onClick={() => toggleSection('payment')}>
+                                    <h3>Payment Terms & Conditions</h3>
+                                    <span className="accordion-icon">▼</span>
+                                </div>
+                                <div className="accordion-content">
+                                    <div className="accordion-body">
+                                        <h4 className="subsection-title">Service Fee</h4>
+                                        <p>A one-time, non-refundable service fee of ₹129 (Rupees Ninety-Nine only) is charged for accessing the platform features/services.</p>
+                                        
+                                        <h4 className="subsection-title">No Refund Policy</h4>
+                                        <p>All payments are final and non-refundable. After successful processing, no refunds, cancellations, or chargebacks are permitted. No refunds will be issued regardless of interview outcome or employer decision. Candidates are responsible for their internet access and device readiness. TaleGlobal is not liable for these issues.</p>
+                                        
+                                        <h4 className="subsection-title">Payment Confirmation</h4>
+                                        <p>Upon successful payment, users will receive confirmation via the platform and/or registered email. Access to the paid features will be enabled immediately.</p>
+                                        
+                                        <h4 className="subsection-title">Failed or Duplicate Payments</h4>
+                                        <p>In case of a failed transaction where the amount is debited but the service is not activated, users may contact customer support with valid payment proof for resolution.</p>
+                                        
+                                        <h4 className="subsection-title">Pricing Changes</h4>
+                                        <p>The platform reserves the right to modify the pricing at any time without prior notice. Any changes will not affect payments already completed.</p>
+                                        
+                                        <h4 className="subsection-title">Unauthorized Transactions</h4>
+                                        <p>Users are responsible for ensuring the accuracy of payment details. The platform is not liable for payments made due to user error or unauthorized access to user accounts.</p>
+                                        
+                                        <h4 className="subsection-title">Agreement to Terms</h4>
+                                        <p>By proceeding with the payment, users acknowledge that they have read, understood, and agreed to these payment terms and conditions, including the no-refund policy.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div className={`accordion-section ${activeSection === 'legal' ? 'active' : ''}`}>
                                 <div className="accordion-header" onClick={() => toggleSection('legal')}>
                                     <h3>LEGAL COMPLIANCE AND JURISDICTION</h3>

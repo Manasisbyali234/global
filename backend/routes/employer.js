@@ -26,7 +26,10 @@ router.post('/check-email', [
 
 router.post('/create-password', [
   body('email').isEmail().withMessage('Valid email is required'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  body('password')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
 ], validateEmailMiddleware, handleValidationErrors, employerPasswordController.createPassword);
 
 // Password Reset Routes (Public - before auth middleware)
@@ -36,7 +39,10 @@ router.post('/password/reset', [
 
 router.post('/password/confirm-reset', [
   body('token').notEmpty().withMessage('Token is required'),
-  body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  body('newPassword')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
 ], handleValidationErrors, employerPasswordController.confirmResetPassword);
 
 // OTP-based Password Reset Routes
@@ -47,12 +53,18 @@ router.post('/password/send-otp', [
 router.post('/password/verify-otp', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
-  body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  body('newPassword')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
 ], handleValidationErrors, employerPasswordController.verifyOTPAndResetPassword);
 
 router.post('/password/update-reset', [
   body('email').isEmail().withMessage('Valid email is required'),
-  body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  body('newPassword')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
 ], handleValidationErrors, employerPasswordController.updatePasswordReset);
 
 // Protected Routes

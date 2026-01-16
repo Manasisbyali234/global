@@ -3,9 +3,19 @@ const router = express.Router();
 const adminController = require('../controllers/adminController');
 const { auth } = require('../middlewares/auth');
 
+const { body } = require('express-validator');
+const handleValidationErrors = require('../middlewares/validation');
+
 router.post('/login', adminController.loginAdmin);
 router.post('/send-otp', adminController.sendOTP);
-router.post('/verify-otp-reset', adminController.verifyOTPAndResetPassword);
+router.post('/verify-otp-reset', [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('otp').notEmpty().withMessage('OTP is required'),
+  body('newPassword')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
+], handleValidationErrors, adminController.verifyOTPAndResetPassword);
 
 // Sub Admin Profile Route (must be before auth middleware)
 router.get('/sub-admin/profile', auth(['sub-admin']), adminController.getSubAdminProfile);
@@ -39,7 +49,16 @@ router.put('/employers/:employerId/authorization-letters/:letterId/reject', admi
 router.get('/candidates', adminController.getAllCandidates);
 router.get('/candidates/registered', adminController.getRegisteredCandidates);
 router.get('/candidates/:candidateId', adminController.getCandidateDetails);
-router.post('/candidates/create', adminController.createCandidate);
+router.post('/candidates/create', [
+  body('firstName').notEmpty().withMessage('First name is required'),
+  body('lastName').notEmpty().withMessage('Last name is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)'),
+  body('collegeName').notEmpty().withMessage('College name is required')
+], handleValidationErrors, adminController.createCandidate);
 router.delete('/candidates/:id', adminController.deleteCandidate);
 router.put('/candidates/:candidateId/credits', adminController.updateCandidateCredits);
 router.post('/candidates/credits/bulk', adminController.bulkUpdateCandidateCredits);
@@ -93,8 +112,25 @@ router.put('/settings', adminController.updateSettings);
 
 // Sub Admin Management (Admin only)
 router.get('/sub-admins', auth(['admin']), adminController.getAllSubAdmins);
-router.post('/sub-admins', auth(['admin']), adminController.createSubAdmin);
-router.put('/sub-admins/:id', auth(['admin']), adminController.updateSubAdmin);
+router.post('/sub-admins', auth(['admin']), [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('username').notEmpty().withMessage('Username is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
+], handleValidationErrors, adminController.createSubAdmin);
+router.put('/sub-admins/:id', auth(['admin']), [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('username').notEmpty().withMessage('Username is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password')
+    .optional()
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
+], handleValidationErrors, adminController.updateSubAdmin);
 router.delete('/sub-admins/:id', auth(['admin']), adminController.deleteSubAdmin);
 
 router.post('/placement/generate-token', adminController.generatePlacementLoginToken);

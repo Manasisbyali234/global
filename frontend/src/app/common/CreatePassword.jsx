@@ -15,8 +15,6 @@ function CreatePassword() {
     const [passwordValidation, setPasswordValidation] = useState({
         length: false,
         uppercase: false,
-        lowercase: false,
-        number: false,
         specialChars: false
     });
     const email = searchParams.get('email');
@@ -34,16 +32,12 @@ function CreatePassword() {
     const displayRoleLabel = displayRole === 'placement officer' ? 'Placement Officer' : displayRole.charAt(0).toUpperCase() + displayRole.slice(1);
 
     const validatePassword = (pwd) => {
-        const requiredSpecialChars = userType === 'candidate' ? 3 : 1;
-        const minLength = userType === 'candidate' ? 10 : 6;
-        const maxLength = userType === 'candidate' ? 25 : 50;
+        const minLength = 6;
         
         setPasswordValidation({
-            length: pwd.length >= minLength && pwd.length <= maxLength,
+            length: pwd.length >= minLength,
             uppercase: /[A-Z]/.test(pwd),
-            lowercase: userType === 'candidate' ? /[a-z]/.test(pwd) : true,
-            number: userType === 'candidate' ? /[0-9]/.test(pwd) : true,
-            specialChars: (pwd.match(/[@#!%$*?]/g) || []).length >= requiredSpecialChars
+            specialChars: /[@#!%$*?]/.test(pwd)
         });
     };
 
@@ -54,17 +48,9 @@ function CreatePassword() {
     };
 
     const isPasswordValid = () => {
-        if (userType === 'candidate') {
-            return passwordValidation.length && 
-                   passwordValidation.uppercase && 
-                   passwordValidation.lowercase && 
-                   passwordValidation.number && 
-                   passwordValidation.specialChars;
-        } else {
-            return passwordValidation.length && 
-                   passwordValidation.uppercase && 
-                   passwordValidation.specialChars;
-        }
+        return passwordValidation.length && 
+               passwordValidation.uppercase && 
+               passwordValidation.specialChars;
     };
 
     const handleSubmit = async (e) => {
@@ -166,27 +152,15 @@ function CreatePassword() {
                                         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                                             <li style={{ padding: '6px 0', fontSize: '13px', color: passwordValidation.length ? '#28a745' : '#dc3545' }}>
                                                 <i className={`fa ${passwordValidation.length ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '8px' }}></i>
-                                                {userType === 'candidate' ? '10-25 characters' : 'At least 6 characters'}
+                                                At least 6 characters
                                             </li>
                                             <li style={{ padding: '6px 0', fontSize: '13px', color: passwordValidation.uppercase ? '#28a745' : '#dc3545' }}>
                                                 <i className={`fa ${passwordValidation.uppercase ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '8px' }}></i>
                                                 One uppercase letter
                                             </li>
-                                            {userType === 'candidate' && (
-                                                <>
-                                                    <li style={{ padding: '6px 0', fontSize: '13px', color: passwordValidation.lowercase ? '#28a745' : '#dc3545' }}>
-                                                        <i className={`fa ${passwordValidation.lowercase ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '8px' }}></i>
-                                                        One lowercase letter
-                                                    </li>
-                                                    <li style={{ padding: '6px 0', fontSize: '13px', color: passwordValidation.number ? '#28a745' : '#dc3545' }}>
-                                                        <i className={`fa ${passwordValidation.number ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '8px' }}></i>
-                                                        One number
-                                                    </li>
-                                                </>
-                                            )}
                                             <li style={{ padding: '6px 0', fontSize: '13px', color: passwordValidation.specialChars ? '#28a745' : '#dc3545' }}>
                                                 <i className={`fa ${passwordValidation.specialChars ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '8px' }}></i>
-                                                {userType === 'candidate' ? 'Three' : 'One'} special character{userType === 'candidate' ? 's' : ''} (@#!%$*?)
+                                                One special character (@#!%$*?)
                                             </li>
                                         </ul>
                                     </div>

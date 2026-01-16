@@ -686,6 +686,25 @@ function AdminSubAdmin() {
                                                     {validationErrors.password}
                                                 </div>
                                             )}
+                                            {formData.password && (
+                                                <div style={{ marginTop: '10px', padding: '12px', background: '#f8f9fa', borderRadius: '5px', border: '1px solid #dee2e6' }}>
+                                                    <h6 style={{ marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: '#495057' }}>Password Requirements:</h6>
+                                                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                                        <li style={{ padding: '3px 0', fontSize: '12px', color: formData.password.length >= 6 ? '#28a745' : '#dc3545' }}>
+                                                            <i className={`fa ${formData.password.length >= 6 ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '6px' }}></i>
+                                                            At least 6 characters
+                                                        </li>
+                                                        <li style={{ padding: '3px 0', fontSize: '12px', color: /(?=.*[A-Z])/.test(formData.password) ? '#28a745' : '#dc3545' }}>
+                                                            <i className={`fa ${/(?=.*[A-Z])/.test(formData.password) ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '6px' }}></i>
+                                                            One uppercase letter
+                                                        </li>
+                                                        <li style={{ padding: '3px 0', fontSize: '12px', color: /[@#!%$*?]/.test(formData.password) ? '#28a745' : '#dc3545' }}>
+                                                            <i className={`fa ${/[@#!%$*?]/.test(formData.password) ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '6px' }}></i>
+                                                            One special character (@#!%$*?)
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="col-md-6">
