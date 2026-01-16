@@ -33,6 +33,8 @@ import "./badge-text-orange.css";
 import "./global-zindex-fix.css";
 // iOS HAMBURGER ULTIMATE PRODUCTION FIX - Final solution for iPhone visibility issues
 import "./iphone-hamburger-ultimate-production-fix.css";
+// ANDROID HAMBURGER FIX - Addresses visibility issues on Android mobile browsers
+import "./android-hamburger-fix.css";
 
 
 function App() {

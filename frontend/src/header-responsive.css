@@ -66,7 +66,12 @@
 
 @media (max-width: 1199px) {
   .header-nav.navbar-collapse { display: none !important; }
-  .hamburger-btn { display: flex !important; }
+  .hamburger-btn { 
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
   .header-nav-btn-section { display: none !important; }
   
   .main-bar .container,

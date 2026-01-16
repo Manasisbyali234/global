@@ -1,0 +1,301 @@
+/* ============================================================================
+   ANDROID HAMBURGER MENU FIX
+   ============================================================================
+   Addresses hamburger menu visibility issues specific to Android devices
+   including Chrome, Samsung Internet, and other Android browsers
+   ============================================================================ */
+
+/* 1. ANDROID-SPECIFIC HAMBURGER BUTTON VISIBILITY */
+@media (max-width: 1199px) {
+  html body .hamburger-btn,
+  html body button.hamburger-btn,
+  html body .extra-cell button.hamburger-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 2147483647 !important;
+    position: relative !important;
+    width: 40px !important;
+    height: 40px !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 4px !important;
+    color: #333333 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+  }
+
+  /* Active state for Android */
+  html body .hamburger-btn.active,
+  html body button.hamburger-btn.active {
+    background-color: #f8f9fa !important;
+    color: #fd7e14 !important;
+    border-color: #fd7e14 !important;
+  }
+}
+
+/* 2. ANDROID CHROME SPECIFIC FIXES */
+@media screen and (max-width: 1199px) and (-webkit-min-device-pixel-ratio: 0) {
+  html body .hamburger-btn {
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+  }
+}
+
+/* 3. HAMBURGER MENU PANEL - ANDROID OPTIMIZED */
+@media (max-width: 1199px) {
+  html body .hamburger-menu {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 280px !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    background: #ffffff !important;
+    z-index: 2147483646 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border-left: 1px solid #e0e0e0 !important;
+    transform: translateX(100%) !important;
+    -webkit-transform: translateX(100%) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Open state - Critical for Android */
+  html body .hamburger-menu.open {
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: translateX(0) !important;
+    -webkit-transform: translateX(0) !important;
+    display: flex !important;
+  }
+}
+
+/* 4. OVERLAY - ANDROID SPECIFIC */
+@media (max-width: 1199px) {
+  html body .hamburger-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 2147483645 !important;
+    display: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+  }
+
+  html body .hamburger-overlay.show {
+    display: block !important;
+    opacity: 1 !important;
+  }
+}
+
+/* 5. MENU CONTENT VISIBILITY - ANDROID */
+@media (max-width: 1199px) {
+  html body .hamburger-menu.open .hamburger-header {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding: 20px !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    background: #f8f9fa !important;
+    height: 70px !important;
+    flex-shrink: 0 !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  html body .hamburger-menu.open .hamburger-content {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    flex: 1 !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    background: #fff !important;
+  }
+
+  html body .hamburger-menu.open .menu-list {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .hamburger-menu.open .menu-list li {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    width: 100% !important;
+  }
+
+  html body .hamburger-menu.open .menu-link {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding: 16px 20px !important;
+    color: #333 !important;
+    text-decoration: none !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    border-left: 3px solid transparent !important;
+    touch-action: manipulation !important;
+  }
+
+  html body .hamburger-menu.open .auth-section {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding: 20px !important;
+    border-top: 1px solid #e0e0e0 !important;
+    background: #f8f9fa !important;
+  }
+
+  html body .hamburger-menu.open .auth-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    padding: 12px 20px !important;
+    margin-bottom: 10px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    touch-action: manipulation !important;
+  }
+}
+
+/* 6. ANDROID SCROLL LOCK */
+@media (max-width: 1199px) {
+  html body.hamburger-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none !important;
+  }
+}
+
+/* 7. PARENT CONTAINER FIXES FOR ANDROID */
+@media (max-width: 1199px) {
+  html body .site-header,
+  html body .main-bar,
+  html body .main-bar .container-fluid,
+  html body .extra-nav,
+  html body .extra-nav .extra-cell {
+    overflow: visible !important;
+    position: relative !important;
+  }
+
+  html body .extra-nav.header-2-nav {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+  }
+
+  html body .extra-cell {
+    display: flex !important;
+    align-items: center !important;
+  }
+}
+
+/* 8. SMALL ANDROID DEVICES */
+@media (max-width: 480px) {
+  html body .hamburger-menu {
+    width: 260px !important;
+  }
+
+  html body .hamburger-btn {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 18px !important;
+  }
+}
+
+/* 9. ANDROID LANDSCAPE MODE */
+@media (max-width: 1199px) and (orientation: landscape) {
+  html body .hamburger-menu {
+    height: 100vh !important;
+    max-height: 100vh !important;
+  }
+}
+
+/* 10. FORCE HARDWARE ACCELERATION ON ANDROID */
+@media (max-width: 1199px) {
+  html body .hamburger-btn,
+  html body .hamburger-menu,
+  html body .hamburger-overlay {
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    will-change: transform, opacity !important;
+  }
+}
+
+/* 11. PREVENT ANDROID BROWSER ZOOM ON BUTTON TAP */
+@media (max-width: 1199px) {
+  html body .hamburger-btn {
+    touch-action: manipulation !important;
+    -ms-touch-action: manipulation !important;
+  }
+}
+
+/* 12. ANDROID CHROME ADDRESS BAR FIX */
+@media (max-width: 1199px) {
+  html body .hamburger-menu {
+    height: 100dvh !important;
+  }
+}
+
+/* 13. SAMSUNG INTERNET BROWSER SPECIFIC */
+@media (max-width: 1199px) {
+  html body .hamburger-btn {
+    -webkit-user-drag: none !important;
+    -webkit-touch-callout: none !important;
+  }
+}
+
+/* 14. ENSURE BUTTON IS ALWAYS CLICKABLE */
+@media (max-width: 1199px) {
+  html body .hamburger-btn {
+    isolation: isolate !important;
+  }
+}
