@@ -94,8 +94,28 @@ function EmpJobReviewPage() {
                                 </div>
 
                                 <div className="mt-2">
+                                    <h5 className="mb-1">Job Category</h5>
+                                    <p className="mb-0 text-muted">{jobDetails.category || 'N/A'}</p>
+                                </div>
+
+                                <div className="mt-2">
                                     <h5 className="mb-1">Job Type</h5>
                                     <p className="mb-0 text-muted">{jobDetails.jobType}</p>
+                                </div>
+
+                                <div className="mt-2">
+                                    <h5 className="mb-1">Type of Employment</h5>
+                                    <p className="mb-0 text-muted text-capitalize">{jobDetails.typeOfEmployment || 'N/A'}</p>
+                                </div>
+
+                                <div className="mt-2">
+                                    <h5 className="mb-1">Work Mode</h5>
+                                    <p className="mb-0 text-muted text-capitalize">{jobDetails.workMode ? jobDetails.workMode.replace(/-/g, ' ') : 'N/A'}</p>
+                                </div>
+
+                                <div className="mt-2">
+                                    <h5 className="mb-1">Work Shift</h5>
+                                    <p className="mb-0 text-muted text-capitalize">{jobDetails.shift ? jobDetails.shift.replace(/-/g, ' ') : 'N/A'}</p>
                                 </div>
 
                                 <div className="mt-2">
@@ -127,17 +147,42 @@ function EmpJobReviewPage() {
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Experience Level</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.experienceLevel}</p>
+                                    <p className="mb-0 text-muted text-capitalize">{jobDetails.experienceLevel}</p>
+                                    {jobDetails.experienceLevel === 'minimum' && (jobDetails.minExperience || jobDetails.maxExperience) && (
+                                        <p className="mb-0 text-muted">
+                                            {jobDetails.minExperience && `Min: ${jobDetails.minExperience} years`}
+                                            {jobDetails.minExperience && jobDetails.maxExperience && ' | '}
+                                            {jobDetails.maxExperience && `Max: ${jobDetails.maxExperience} years`}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Offer Letter Release Date</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.offerLetterDate}</p>
+                                    <p className="mb-0 text-muted">{jobDetails.offerLetterDate ? new Date(jobDetails.offerLetterDate).toLocaleDateString() : 'N/A'}</p>
+                                </div>
+
+                                <div className="mt-2">
+                                    <h5 className="mb-1">Joining Date</h5>
+                                    <p className="mb-0 text-muted">{jobDetails.joiningDate ? new Date(jobDetails.joiningDate).toLocaleDateString() : 'N/A'}</p>
+                                </div>
+
+                                <div className="mt-2">
+                                    <h5 className="mb-1">Last Date of Application</h5>
+                                    <p className="mb-0 text-muted">
+                                        {jobDetails.lastDateOfApplication ? new Date(jobDetails.lastDateOfApplication).toLocaleDateString() : 'N/A'}
+                                        {jobDetails.lastDateOfApplicationTime && ` at ${jobDetails.lastDateOfApplicationTime}`}
+                                    </p>
                                 </div>
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Candidate Transportation Options</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.transportationOptions}</p>
+                                    <p className="mb-0 text-muted">
+                                        {jobDetails.transportation ? 
+                                            (jobDetails.transportation.oneWay ? 'One-way Cab' : 
+                                             jobDetails.transportation.twoWay ? 'Two-way Cab' : 
+                                             jobDetails.transportation.noCab ? 'No Cab Facility' : 'N/A') : 'N/A'}
+                                    </p>
                                 </div>
                             </div>
 
@@ -145,6 +190,11 @@ function EmpJobReviewPage() {
                                 <div className="mt-2">
                                     <h5 className="mb-1">Number of Vacancies</h5>
                                     <p className="mb-0 text-muted">{jobDetails.vacancies || 'N/A'}</p>
+                                </div>
+
+                                <div className="mt-2">
+                                    <h5 className="mb-1">Application Limit</h5>
+                                    <p className="mb-0 text-muted">{jobDetails.applicationLimit || 'N/A'}</p>
                                 </div>
 
                                 <div className="mt-2">
@@ -169,24 +219,122 @@ function EmpJobReviewPage() {
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Number of Interview Rounds</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.round}</p>
+                                    <p className="mb-0 text-muted">{jobDetails.interviewRoundsCount || jobDetails.round || 'N/A'}</p>
                                 </div>
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Interview Round Types</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.roundTypes}</p>
+                                    <p className="mb-0 text-muted">
+                                        {jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.length > 0 ? (
+                                            jobDetails.interviewRoundOrder.map((key, index) => {
+                                                const roundType = jobDetails.interviewRoundTypes?.[key];
+                                                const roundNames = {
+                                                    technical: 'Technical',
+                                                    nonTechnical: 'Non-Technical',
+                                                    managerial: 'Managerial',
+                                                    final: 'Final',
+                                                    hr: 'HR',
+                                                    assessment: 'Assessment'
+                                                };
+                                                return `${index + 1}. ${roundNames[roundType] || roundType}`;
+                                            }).join(', ')
+                                        ) : (jobDetails.roundTypes || 'N/A')}
+                                    </p>
+                                </div>
+
+                                <div className="mt-2">
+                                    <h5 className="mb-1">Interview Mode</h5>
+                                    <p className="mb-0 text-muted">
+                                        {jobDetails.interviewMode ? 
+                                            Object.entries(jobDetails.interviewMode)
+                                                .filter(([key, value]) => value)
+                                                .map(([key]) => key.replace(/([A-Z])/g, ' $1').trim())
+                                                .map(mode => mode.charAt(0).toUpperCase() + mode.slice(1))
+                                                .join(', ') || 'N/A' : 'N/A'}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                        
                         <hr />
 
+                        {/* Interview Round Details */}
+                        {jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.length > 0 && (
+                            <div className="mt-4">
+                                <h5 className="mb-3">Interview Schedule Details</h5>
+                                <div className="row">
+                                    {jobDetails.interviewRoundOrder.map((key, index) => {
+                                        const roundType = jobDetails.interviewRoundTypes?.[key];
+                                        const details = jobDetails.interviewRoundDetails?.[key];
+                                        const roundNames = {
+                                            technical: 'Technical Round',
+                                            nonTechnical: 'Non-Technical Round',
+                                            managerial: 'Managerial Round',
+                                            final: 'Final Round',
+                                            hr: 'HR Round',
+                                            assessment: 'Assessment'
+                                        };
+                                        
+                                        if (!details) return null;
+                                        
+                                        return (
+                                            <div key={key} className="col-lg-6 col-12 mb-3">
+                                                <div className="border rounded p-3 bg-light">
+                                                    <h6 className="mb-2">
+                                                        <span className="badge bg-primary me-2">{index + 1}</span>
+                                                        {roundNames[roundType] || roundType}
+                                                    </h6>
+                                                    {details.description && (
+                                                        <p className="mb-1"><strong>Description:</strong> {details.description}</p>
+                                                    )}
+                                                    {details.fromDate && (
+                                                        <p className="mb-1"><strong>From Date:</strong> {new Date(details.fromDate).toLocaleDateString()}</p>
+                                                    )}
+                                                    {details.toDate && (
+                                                        <p className="mb-1"><strong>To Date:</strong> {new Date(details.toDate).toLocaleDateString()}</p>
+                                                    )}
+                                                    {details.time && (
+                                                        <p className="mb-1"><strong>Time:</strong> {details.time}</p>
+                                                    )}
+                                                    {details.startTime && (
+                                                        <p className="mb-1"><strong>Start Time:</strong> {details.startTime}</p>
+                                                    )}
+                                                    {details.endTime && (
+                                                        <p className="mb-1"><strong>End Time:</strong> {details.endTime}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        <hr />
+
                         <div className="row">
-                            <div className="col-lg-8 col-12">
+                            <div className="col-lg-12 col-12">
                                 <div className="mt-2">
                                     <h5 className="mb-1">Job Description</h5>
                                     <div className="mb-0 text-muted" dangerouslySetInnerHTML={{ __html: jobDetails.description }} />
                                 </div>
+
+                                {jobDetails.responsibilities && (
+                                    <div className="mt-4">
+                                        <h5 className="mb-1">Roles and Responsibilities</h5>
+                                        <div className="mb-0 text-muted">
+                                            {typeof jobDetails.responsibilities === 'string' ? (
+                                                <div dangerouslySetInnerHTML={{ __html: jobDetails.responsibilities }} />
+                                            ) : Array.isArray(jobDetails.responsibilities) ? (
+                                                <ul>
+                                                    {jobDetails.responsibilities.map((resp, idx) => (
+                                                        <li key={idx}>{resp}</li>
+                                                    ))}
+                                                </ul>
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -1397,10 +1397,15 @@ export default function EmpPostJob({ onNext }) {
 						>
 							<option value="" disabled>Select Job Type</option>
 							<option>Full-Time</option>
-							<option>Internship (Paid)</option>
-							<option>Internship (Unpaid)</option>
-							<option>Work From Home</option>
+							<option>Part-Time</option>
+							<option>Remote</option>
+							<option>Hybrid</option>
 							<option>Contract</option>
+							<option>Freelance</option>
+							<option>Temporary</option>
+							<option>Permanent</option>
+							<option>Apprenticeship</option>
+							<option>Consultant</option>
 						</select>
 						{errors.jobType && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>

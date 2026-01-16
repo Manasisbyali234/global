@@ -27,7 +27,7 @@ const jobSchema = new mongoose.Schema({
     min: { type: Number },
     max: { type: Number }
   },
-  jobType: { type: String, enum: ['full-time', 'part-time', 'contract', 'internship', 'internship-(paid)', 'internship-(unpaid)', 'work-from-home'], required: true },
+  jobType: { type: String, enum: ['full-time', 'part-time', 'remote', 'hybrid', 'contract', 'freelance', 'temporary', 'permanent', 'apprenticeship', 'consultant'], required: true },
   vacancies: { type: Number },
   applicationLimit: { type: Number },
   education: { type: String },

@@ -23,7 +23,6 @@ function AdminSupportTickets() {
         resolved: 0
     });
     const [updating, setUpdating] = useState(false);
-    const modalContainerRef = useRef(null);
 
     const formatDate = (value) => {
         if (!value) return '--';
@@ -510,19 +509,16 @@ function AdminSupportTickets() {
             </Container>
 
             {/* Ticket Detail Modal */}
-            <div id="support-ticket-modal-container" ref={modalContainerRef}>
-                <Modal 
-                    id="support-ticket-modal"
-                    show={showModal} 
-                    onHide={handleCloseModal}
-                    container={modalContainerRef.current || undefined}
-                    backdrop={false}
-                    enforceFocus={false}
-                    size="lg"
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title>Ticket details</Modal.Title>
-                    </Modal.Header>
+            <Modal 
+                id="support-ticket-modal"
+                show={showModal} 
+                onHide={handleCloseModal}
+                size="lg"
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Ticket details</Modal.Title>
+                </Modal.Header>
                 <Modal.Body>
                     {selectedTicket && (
                         <>
@@ -635,8 +631,7 @@ function AdminSupportTickets() {
                         )}
                     </Button>
                 </Modal.Footer>
-                </Modal>
-            </div>
+            </Modal>
         </div>
     );
 }

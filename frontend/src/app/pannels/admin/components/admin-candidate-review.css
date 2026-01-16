@@ -543,6 +543,7 @@
 .detail-item {
     display: flex;
     margin-bottom: 10px;
+    gap: 8px;
 }
 
 .detail-item label {
