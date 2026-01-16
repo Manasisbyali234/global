@@ -42,16 +42,16 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           <p>Once your profile is updated, you can start applying for jobs through our online interview process.</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">👉 Set your password and complete your profile to begin your journey with TaleGlobal.</a>
+            <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">👉 Set your password and complete your profile to begin your journey with TaleGlobal.</a>
           </div>
           
           <p>We're excited to support you as you take the next step toward your career growth.</p>
           
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Warm regards,</p>
-            <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-            <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+            <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -75,9 +75,9 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Best regards,</p>
-            <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-            <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+            <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -100,16 +100,16 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           <p>You will be notified via email once your account is approved.</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Your Password</a>
+            <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Your Password</a>
           </div>
           
           <p>Thank you for choosing TaleGlobal as your hiring partner.</p>
           
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Regards,</p>
-            <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-            <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+            <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -157,7 +157,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Your Password</a>
+            <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Your Password</a>
           </div>
           
           <p>TaleGlobal works in collaboration with your college placement team to support your career journey.</p>
@@ -168,9 +168,9 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Warm regards,</p>
-            <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
+            <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -184,11 +184,11 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           <p>Dear <strong>${name}</strong>,</p>
           <p>Welcome to TaleGlobal!</p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Create Your Password</a>
+            <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Create Your Password</a>
           </div>
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Warm regards,</p>
-            <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
+            <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
           </div>
         </div>
       </div>
@@ -249,7 +249,7 @@ const sendPasswordCreationEmail = async (email, name) => {
         </p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${createPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Create Your Password</a>
+          <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Create Your Password</a>
         </div>
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -394,7 +394,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Your TaleGlobal Account Is Ready – Login & Start Applying</h2>
         
-        <p>Dear Candidate,</p>
+        <p>Dear <strong>${name}</strong>,</p>
         
         <p>Your details have been successfully updated on the TaleGlobal platform by your placement officer.</p>
         
@@ -412,14 +412,14 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
         <p>Take the next step and explore opportunities through completely online interviews.</p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
+          <a href="${resetPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
         </div>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Best wishes for your career journey,</p>
-          <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -518,7 +518,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${loginUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Platform Login</a>
+            <a href="${loginUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Platform Login</a>
             <a href="${createPasswordUrl}" style="background-color: #2c3e50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
           </div>
 
@@ -528,9 +528,9 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
           
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Warm regards,</p>
-            <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">🌐 <a href="http://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
+            <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">🌐 <a href="http://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -561,36 +561,36 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
             <div style="color: #495057; line-height: 1.8; font-size: 15px;">
               ${userType === 'employer' ? `
                 <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-                  <span style="color: #fd7e14; font-weight: bold; margin-right: 10px;">1.</span>
+                  <span style="color: #ff6b35; font-weight: bold; margin-right: 10px;">1.</span>
                   <span><strong>Login to your dashboard</strong> using your credentials</span>
                 </div>
                 <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-                  <span style="color: #fd7e14; font-weight: bold; margin-right: 10px;">2.</span>
+                  <span style="color: #ff6b35; font-weight: bold; margin-right: 10px;">2.</span>
                   <span><strong>Post unlimited job openings</strong> for qualified candidates</span>
                 </div>
                 <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-                  <span style="color: #fd7e14; font-weight: bold; margin-right: 10px;">3.</span>
+                  <span style="color: #ff6b35; font-weight: bold; margin-right: 10px;">3.</span>
                   <span><strong>Review applications</strong> from talented job seekers</span>
                 </div>
                 <div style="display: flex; align-items: flex-start;">
-                  <span style="color: #fd7e14; font-weight: bold; margin-right: 10px;">4.</span>
+                  <span style="color: #ff6b35; font-weight: bold; margin-right: 10px;">4.</span>
                   <span><strong>Manage your hiring process</strong> efficiently</span>
                 </div>
               ` : `
                 <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-                  <span style="color: #fd7e14; font-weight: bold; margin-right: 10px;">1.</span>
+                  <span style="color: #ff6b35; font-weight: bold; margin-right: 10px;">1.</span>
                   <span><strong>Login to your dashboard</strong> using your credentials</span>
                 </div>
                 <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-                  <span style="color: #fd7e14; font-weight: bold; margin-right: 10px;">2.</span>
+                  <span style="color: #ff6b35; font-weight: bold; margin-right: 10px;">2.</span>
                   <span><strong>Upload student data files</strong> (Excel/CSV format)</span>
                 </div>
                 <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-                  <span style="color: #fd7e14; font-weight: bold; margin-right: 10px;">3.</span>
+                  <span style="color: #ff6b35; font-weight: bold; margin-right: 10px;">3.</span>
                   <span><strong>Manage student registrations</strong> and track progress</span>
                 </div>
                 <div style="display: flex; align-items: flex-start;">
-                  <span style="color: #fd7e14; font-weight: bold; margin-right: 10px;">4.</span>
+                  <span style="color: #ff6b35; font-weight: bold; margin-right: 10px;">4.</span>
                   <span><strong>Monitor placement activities</strong> for your college</span>
                 </div>
               `}
@@ -609,7 +609,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
           
           <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 2px solid #e9ecef;">
             <p style="color: #6c757d; font-size: 16px; margin: 0 0 5px 0; font-weight: 600;">Best regards,</p>
-            <p style="color: #fd7e14; font-size: 18px; margin: 0 0 5px 0; font-weight: 700;">The TaleGlobal Team</p>
+            <p style="color: #ff6b35; font-size: 18px; margin: 0 0 5px 0; font-weight: 700;">The TaleGlobal Team</p>
             <p style="color: #6c757d; font-size: 14px; margin: 0;">🌟 Connecting Talent with Opportunities 🌟</p>
           </div>
         </div>
@@ -774,15 +774,15 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
           <h3 style="color: #2c3e50; margin: 0 0 20px 0; font-size: 18px;">📋 Application Details:</h3>
           <div style="color: #495057; line-height: 1.8; font-size: 15px;">
             <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-              <span style="color: #fd7e14; font-weight: bold; margin-right: 10px; min-width: 120px;">Position:</span>
+              <span style="color: #ff6b35; font-weight: bold; margin-right: 10px; min-width: 120px;">Position:</span>
               <span><strong>${jobTitle}</strong></span>
             </div>
             <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-              <span style="color: #fd7e14; font-weight: bold; margin-right: 10px; min-width: 120px;">Company:</span>
+              <span style="color: #ff6b35; font-weight: bold; margin-right: 10px; min-width: 120px;">Company:</span>
               <span><strong>${companyName}</strong></span>
             </div>
             <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-              <span style="color: #fd7e14; font-weight: bold; margin-right: 10px; min-width: 120px;">Applied On:</span>
+              <span style="color: #ff6b35; font-weight: bold; margin-right: 10px; min-width: 120px;">Applied On:</span>
               <span>${new Date(applicationDate).toLocaleDateString('en-GB', { 
                 day: '2-digit',
                 month: '2-digit',
@@ -816,7 +816,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
         
         <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 2px solid #e9ecef;">
           <p style="color: #6c757d; font-size: 16px; margin: 0 0 5px 0; font-weight: 600;">Best of luck!</p>
-          <p style="color: #fd7e14; font-size: 18px; margin: 0 0 5px 0; font-weight: 700;">The TaleGlobal Team</p>
+          <p style="color: #ff6b35; font-size: 18px; margin: 0 0 5px 0; font-weight: 700;">The TaleGlobal Team</p>
           <p style="color: #6c757d; font-size: 14px; margin: 0;">🌟 Connecting Talent with Opportunities 🌟</p>
         </div>
       </div>
@@ -888,7 +888,7 @@ const sendCandidateActiveProfileEmail = async (email, name, password) => {
         </div>
 
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${loginUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Login Here</a>
+          <a href="${loginUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Login Here</a>
           <a href="${createPasswordUrl}" style="background-color: #2c3e50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
         </div>
 
@@ -900,9 +900,9 @@ const sendCandidateActiveProfileEmail = async (email, name, password) => {
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Warm regards,</p>
-          <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -975,7 +975,7 @@ const sendPlacementAccessEnabledEmail = async (email, name, collegeName) => {
         </div>
 
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${loginUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Platform Login</a>
+          <a href="${loginUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Platform Login</a>
           <a href="${createPasswordUrl}" style="background-color: #2c3e50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
         </div>
 
@@ -985,9 +985,9 @@ const sendPlacementAccessEnabledEmail = async (email, name, collegeName) => {
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Warm regards,</p>
-          <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="http://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="http://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1013,7 +1013,7 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Your TaleGlobal Account Is Ready – Login & Start Applying</h2>
         
-        <p>Dear Candidate,</p>
+        <p>Dear <strong>${name}</strong>,</p>
         
         <p>Your details have been successfully updated on the TaleGlobal platform by your placement officer.</p>
         
@@ -1031,14 +1031,14 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
         
         <div style="text-align: center; margin: 30px 0;">
           <a href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Login Here</a>
-          <a href="${resetPasswordUrl}" style="background-color: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
+          <a href="${resetPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
         </div>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Best wishes for your career journey,</p>
-          <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1070,9 +1070,9 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Warm regards,</p>
-          <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1117,9 +1117,9 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Best regards,</p>
-          <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1163,9 +1163,9 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Sincerely,</p>
-          <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1205,16 +1205,16 @@ const sendEmployerProfileSubmissionEmail = async (email, name) => {
         <p>You will be notified via email once your account is approved.</p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${profileUrl}" style="background-color: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">📝 Complete Profile</a>
+          <a href="${profileUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">📝 Complete Profile</a>
         </div>
         
         <p>Thank you for choosing TaleGlobal as your hiring partner.</p>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Regards,</p>
-          <p style="margin: 5px 0; font-weight: bold; color: #fd7e14;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="http://www.taleglobal.net" style="color: #fd7e14; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #fd7e14; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="http://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
         </div>
       </div>
     </div>
