@@ -591,6 +591,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 										<option value="mcq">MCQ</option>
 										<option value="visual-mcq">Visual MCQs</option>
 										<option value="subjective">Subjective</option>
+										<option value="upload">Upload File</option>
 										<option value="image">Upload Image</option>
 									</select>
 									<button

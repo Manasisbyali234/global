@@ -1482,12 +1482,12 @@ exports.getCandidatesForCredits = async (req, res) => {
 
 exports.createCandidate = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, collegeName, credits } = req.body;
+    const { firstName, lastName, email, collegeName, credits } = req.body;
     
-    if (!firstName || !lastName || !email || !password || !collegeName) {
+    if (!firstName || !lastName || !email || !collegeName) {
       return res.status(400).json({ 
         success: false, 
-        message: 'First name, last name, email, password, and college name are required' 
+        message: 'First name, last name, email, and college name are required' 
       });
     }
     
@@ -1502,10 +1502,9 @@ exports.createCandidate = async (req, res) => {
     const candidate = await Candidate.create({
       name: fullName,
       email: email.toLowerCase().trim(),
-      password: password.trim(),
-      credits: finalCredits,
       registrationMethod: 'admin',
-      isVerified: true,
+      credits: finalCredits,
+      isVerified: false,
       status: 'active'
     });
     
@@ -1515,13 +1514,11 @@ exports.createCandidate = async (req, res) => {
     });
     
     try {
-      const { sendPlacementCandidateWelcomeEmail } = require('../utils/emailService');
-      await sendPlacementCandidateWelcomeEmail(
+      const { sendCandidateDetailsUpdatedEmail } = require('../utils/emailService');
+      await sendCandidateDetailsUpdatedEmail(
         candidate.email,
         candidate.name,
-        password.trim(),
-        'Admin',
-        collegeName.trim()
+        finalCredits
       );
     } catch (emailError) {
       console.error('Failed to send welcome email:', emailError);
@@ -1529,7 +1526,7 @@ exports.createCandidate = async (req, res) => {
     
     res.status(201).json({
       success: true,
-      message: 'Candidate created successfully and welcome email sent',
+      message: 'Candidate created successfully. Welcome email sent with create password link.',
       candidate: {
         id: candidate._id,
         name: candidate.name,

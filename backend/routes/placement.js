@@ -206,6 +206,7 @@ router.get('/data', auth(['placement']), async (req, res) => {
     if (students.length === 0) {
       const candidates = await Candidate.find({ placementId })
         .select('name email phone course credits')
+        .sort({ createdAt: -1 })
         .limit(100)
         .lean();
       
@@ -216,6 +217,9 @@ router.get('/data', auth(['placement']), async (req, res) => {
         course: candidate.course || 'Not Specified',
         credits: candidate.credits || 0
       }));
+    } else {
+      // Reverse the array so newest entries appear first
+      students.reverse();
     }
     
     console.log(`Retrieved ${students.length} unique students from ${placement.fileHistory?.length || 0} files`);

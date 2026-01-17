@@ -232,13 +232,27 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
     return () => clearInterval(timer);
   }, []);
 
-  const recordViolation = (type) => {
+  const recordViolation = async (type) => {
     const violation = {
       type,
       timestamp: new Date(),
       details: `Violation at question ${currentQuestion + 1}`
     };
     setViolations(prev => [...prev, violation]);
+    
+    // Immediately send violation to backend
+    try {
+      const token = localStorage.getItem('candidateToken');
+      await axios.post('/api/candidate/assessments/violation', {
+        attemptId,
+        type,
+        details: violation.details
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (error) {
+      console.error('Failed to record violation:', error);
+    }
   };
 
   const handleFileUpload = async (file) => {

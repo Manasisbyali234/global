@@ -703,94 +703,9 @@ exports.getTopRecruiters = async (req, res) => {
 // Apply for job without login
 exports.applyForJob = async (req, res) => {
   try {
-    const { name, email, phone, message, jobId } = req.body;
-    
-    // Validate required fields
-    if (!name || !email || !phone || !jobId) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Name, email, phone, and job ID are required' 
-      });
-    }
-
-    // Check if job exists and is active
-    const job = await Job.findById(jobId).populate('employerId', 'companyName');
-    if (!job) {
-      return res.status(404).json({ success: false, message: 'Job not found' });
-    }
-    if (job.status !== 'active') {
-      return res.status(400).json({ success: false, message: 'Job post ended' });
-    }
-    if (typeof job.applicationLimit === 'number' && job.applicationLimit > 0 && job.applicationCount >= job.applicationLimit) {
-      return res.status(400).json({ success: false, message: 'Job post ended: application limit reached' });
-    }
-
-    // Handle file upload if resume is provided
-    let resumeData = null;
-    if (req.file) {
-      const { fileToBase64 } = require('../middlewares/upload');
-      resumeData = {
-        filename: req.file.originalname,
-        originalName: req.file.originalname,
-        data: fileToBase64(req.file),
-        size: req.file.size,
-        mimetype: req.file.mimetype
-      };
-    }
-
-    // Create application record
-    const Application = require('../models/Application');
-    const application = await Application.create({
-      jobId,
-      candidateId: null, // No candidate ID for non-logged-in users
-      applicantName: name,
-      applicantEmail: email,
-      applicantPhone: phone,
-      coverLetter: message || '',
-      resume: resumeData,
-      status: 'pending',
-      appliedAt: new Date(),
-      isGuestApplication: true
-    });
-
-    // Send job application confirmation email to guest applicant
-    try {
-      const { sendJobApplicationConfirmationEmail } = require('../utils/emailService');
-      await sendJobApplicationConfirmationEmail(
-        email,
-        name,
-        job.title,
-        job.companyName || job.employerId?.companyName || 'Company',
-        new Date()
-      );
-      console.log(`Guest job application confirmation email sent to: ${email}`);
-    } catch (emailError) {
-      console.error('Failed to send guest job application confirmation email:', emailError);
-      // Don't fail the application if email fails
-    }
-
-    // Increment the job's application count and close if limit reached
-    await Job.findByIdAndUpdate(jobId, { $inc: { applicationCount: 1 } });
-    
-    // Invalidate job cache to ensure updated application count is shown
-    const { cache } = require('../utils/cache');
-    cache.delete(`job_${jobId}`);
-    
-    const updatedJob = await Job.findById(jobId).select('applicationCount applicationLimit status');
-    if (
-      updatedJob &&
-      typeof updatedJob.applicationLimit === 'number' &&
-      updatedJob.applicationLimit > 0 &&
-      updatedJob.applicationCount >= updatedJob.applicationLimit &&
-      updatedJob.status !== 'closed'
-    ) {
-      await Job.findByIdAndUpdate(jobId, { status: 'closed' });
-    }
-
-    res.status(201).json({
-      success: true,
-      message: 'Application submitted successfully',
-      applicationId: application._id
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Direct application is no longer supported. Please login and apply through the job detail page with payment of ₹129.' 
     });
   } catch (error) {
     console.error('Error in applyForJob:', error);

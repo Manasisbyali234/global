@@ -20,6 +20,7 @@ const adminRoutes = require('./routes/admin');
 const placementRoutes = require('./routes/placement');
 const holidaysRoutes = require('./routes/holidays');
 const cacheRoutes = require('./routes/cache');
+const paymentRoutes = require('./routes/payment');
 
 const app = express();
 
@@ -297,6 +298,7 @@ app.use('/api/employer', employerRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/placement', placementRoutes);
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/payments', paymentRoutes);
 app.use('/api', holidaysRoutes);
 app.use('/api/cache', cacheRoutes);
 

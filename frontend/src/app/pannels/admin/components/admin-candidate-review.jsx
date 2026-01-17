@@ -113,6 +113,129 @@ function AdminCandidateReviewPage() {
         );
     }
 
+    const educationLevelLabels = {
+        '10th_pass': '10th Pass / SSLC',
+        '12th_pass': '12th Pass / PUC / Higher Secondary',
+        'diploma_general': 'Diploma (General)',
+        'iti_trade': 'ITI / Trade Certification',
+        'polytechnic_diploma': 'Polytechnic Diploma',
+        'vocational_training': 'Vocational Training',
+        'certification_courses': 'Certification Courses',
+        'apprenticeship': 'Apprenticeship Programs',
+        'be': 'B.E. (Bachelor of Engineering)',
+        'btech': 'B.Tech (Bachelor of Technology)',
+        'bsc': 'B.Sc (Bachelor of Science)',
+        'bca': 'BCA (Bachelor of Computer Applications)',
+        'bba': 'BBA (Bachelor of Business Administration)',
+        'bcom': 'B.Com (Bachelor of Commerce)',
+        'ba': 'BA (Bachelor of Arts)',
+        'bba_llb': 'BBA-LLB',
+        'bsc_nursing': 'B.Sc Nursing',
+        'bpharm': 'Bachelor of Pharmacy (B.Pharm)',
+        'bds': 'BDS (Dentistry)',
+        'mbbs': 'MBBS (Medicine)',
+        'bams': 'BAMS (Ayurvedic Medicine)',
+        'bhms': 'BHMS (Homeopathy)',
+        'bums': 'BUMS (Unani Medicine)',
+        'bpt': 'BPT (Physiotherapy)',
+        'bot': 'BOT (Occupational Therapy)',
+        'bvsc': 'B.V.Sc (Veterinary Science)',
+        'barch': 'B.Arch (Architecture)',
+        'bfa': 'BFA (Fine Arts)',
+        'bsw': 'BSW (Social Work)',
+        'bhm': 'BHM (Hotel Management)',
+        'bttm': 'BTTM (Travel & Tourism)',
+        'bba_it': 'BBA (IT Management)',
+        'bsc_it': 'B.Sc (IT)',
+        'bsc_cs': 'B.Sc (Computer Science)',
+        'bsc_data_science': 'B.Sc (Data Science / AI / ML)',
+        'btech_ai': 'B.Tech (AI / Data Science / ML / Cybersecurity)',
+        'be_specializations': 'B.E (Specializations)',
+        'bca_cloud': 'BCA (Cloud Computing)',
+        'bca_data_analytics': 'BCA (Data Analytics)',
+        'bcom_finance': 'B.Com (Finance)',
+        'bcom_banking': 'B.Com (Banking & Insurance)',
+        'bba_finance': 'BBA (Finance)',
+        'bba_marketing': 'BBA (Marketing)',
+        'bba_hr': 'BBA (HR)',
+        'bba_hospital': 'BBA (Hospital Administration)',
+        'bba_retail': 'BBA (Retail Management)',
+        'bba_entrepreneurship': 'BBA (Entrepreneurship)',
+        'bsc_biology': 'B.Sc (Biology)',
+        'bsc_biotech': 'B.Sc (Biotechnology)',
+        'bsc_microbiology': 'B.Sc (Microbiology)',
+        'bsc_genetics': 'B.Sc (Genetics)',
+        'bsc_biochemistry': 'B.Sc (Biochemistry)',
+        'clinical_research': 'Clinical Research Certification',
+        'paramedical': 'Paramedical Courses',
+        'llb': 'LLB (Bachelor of Law)',
+        'aviation': 'Aviation Courses',
+        'me': 'M.E. (Master of Engineering)',
+        'mtech': 'M.Tech (Master of Technology)',
+        'mba': 'MBA (Master of Business Administration)',
+        'mba_finance': 'MBA (Finance)',
+        'mba_marketing': 'MBA (Marketing)',
+        'mba_hr': 'MBA (HR)',
+        'mba_operations': 'MBA (Operations)',
+        'mba_systems': 'MBA (Systems / IT)',
+        'msc': 'M.Sc (Master of Science)',
+        'mca': 'MCA (Master of Computer Applications)',
+        'mcom': 'M.Com (Master of Commerce)',
+        'ma': 'MA (Master of Arts)',
+        'mph': 'MPH (Public Health)',
+        'ms': 'MS (Master of Surgery)',
+        'md': 'MD (Doctor of Medicine)',
+        'mds': 'MDS (Master of Dental Surgery)',
+        'mpt': 'MPT (Master of Physiotherapy)',
+        'phd': 'PhD (Doctorate)',
+        'doctoral_research': 'Doctoral Research Fellow',
+        'post_doctoral': 'Post-Doctoral Programs'
+    };
+
+    const getEducationLevelLabel = (edu, index) => {
+        // 1. Check if educationLevel exists and has a mapping
+        if (edu.educationLevel && educationLevelLabels[edu.educationLevel]) {
+            return educationLevelLabels[edu.educationLevel];
+        }
+
+        // 2. Fallback to existing logic if educationLevel is missing or not mapped
+        if (edu.degreeName) {
+            const degreeLower = edu.degreeName.toLowerCase();
+            if (degreeLower.includes('10th') || degreeLower.includes('sslc') || degreeLower.includes('tenth')) {
+                return '10th Standard';
+            } else if (degreeLower.includes('12th') || degreeLower.includes('hsc') || degreeLower.includes('twelfth') || degreeLower.includes('intermediate') || degreeLower.includes('puc')) {
+                return '12th Standard';
+            } else {
+                return edu.degreeName; // Return actual degree name if it's something else
+            }
+        }
+
+        // 3. Last resort fallback to index-based
+        const levels = ['10th Standard', '12th Standard', 'Course'];
+        return levels[index] || 'Education';
+    };
+
+    const getEducationPriority = (edu) => {
+        const level = edu.educationLevel;
+        if (level === '10th_pass') return 1;
+        if (level === '12th_pass') return 2;
+        
+        const mastersLevels = ['me', 'mtech', 'mba', 'mba_finance', 'mba_marketing', 'mba_hr', 'mba_operations', 'mba_systems', 'msc', 'mca', 'mcom', 'ma', 'mph', 'ms', 'md', 'mds', 'mpt'];
+        const phdLevels = ['phd', 'doctoral_research', 'post_doctoral'];
+        
+        if (mastersLevels.includes(level)) return 4;
+        if (phdLevels.includes(level)) return 5;
+        
+        // Handle cases where educationLevel might be missing but degreeName identifies it
+        if (!level && edu.degreeName) {
+            const degreeLower = edu.degreeName.toLowerCase();
+            if (degreeLower.includes('10th') || degreeLower.includes('sslc') || degreeLower.includes('tenth')) return 1;
+            if (degreeLower.includes('12th') || degreeLower.includes('hsc') || degreeLower.includes('twelfth') || degreeLower.includes('intermediate') || degreeLower.includes('puc')) return 2;
+        }
+        
+        return 3; // Default for Degrees/Diplomas
+    };
+
     return (
         <div className="candidate-review-container">
             {/* Header Section */}
@@ -339,8 +462,11 @@ function AdminCandidateReviewPage() {
                             </div>
                         ) : (
                             <div className="education-timeline">
-                                {candidate.education.map((edu, index) => {
-                                    const levels = ['10th Standard', '12th Standard', 'Degree'];
+                                {[...candidate.education]
+                                    .sort((a, b) => getEducationPriority(a) - getEducationPriority(b))
+                                    .map((edu, index) => {
+                                        const educationLevel = getEducationLevelLabel(edu, index);
+                                    
                                     return (
                                         <div key={index} className="education-item">
                                             <div className="education-icon">
@@ -348,40 +474,65 @@ function AdminCandidateReviewPage() {
                                             </div>
                                             <div className="education-content">
                                                 <div className="education-header">
-                                                    <h4>{levels[index] || 'Education'}</h4>
+                                                    <h4>{educationLevel}</h4>
                                                     <span className="year">{edu.passYear || 'N/A'}</span>
                                                 </div>
                                                 <div className="education-details">
-                                                    {edu.degreeName && (
+                                                    {edu.specialization && educationLevel !== '10th Pass / SSLC' && (
                                                         <div className="detail-item">
-                                                            <label>Degree:</label>
-                                                            <span>{edu.degreeName}</span>
+                                                            <label>Course:</label>
+                                                            <span>{edu.specialization}</span>
                                                         </div>
                                                     )}
                                                     <div className="detail-item">
                                                         <label>Institution:</label>
-                                                        <span>{edu.collegeName || 'Not provided'}</span>
+                                                        <span>{edu.degreeName || 'Not provided'}</span>
                                                     </div>
+                                                    {edu.collegeName && (
+                                                        <div className="detail-item">
+                                                            <label>Board/University:</label>
+                                                            <span>{edu.collegeName}</span>
+                                                        </div>
+                                                    )}
+                                                    {edu.registrationNumber && (
+                                                        <div className="detail-item">
+                                                            <label>Reg. No:</label>
+                                                            <span>{edu.registrationNumber}</span>
+                                                        </div>
+                                                    )}
+                                                    {edu.state && (
+                                                        <div className="detail-item">
+                                                            <label>State:</label>
+                                                            <span>{edu.state}</span>
+                                                        </div>
+                                                    )}
                                                     <div className="detail-item">
                                                         <label>Score:</label>
                                                         <span>
                                                             {edu.scoreValue || edu.percentage || 'Not provided'}
-                                                            {edu.scoreType === 'percentage' ? '%' : ''}
+                                                            {edu.scoreType === 'percentage' || (!edu.scoreType && edu.percentage) ? '%' : ''}
                                                             {edu.scoreType && edu.scoreType !== 'percentage' ? ` ${edu.scoreType.toUpperCase()}` : ''}
+                                                            {edu.cgpa && ` (CGPA: ${edu.cgpa})`}
                                                         </span>
                                                     </div>
+                                                    {edu.grade && (
+                                                        <div className="detail-item">
+                                                            <label>Result/Grade:</label>
+                                                            <span>{edu.grade}</span>
+                                                        </div>
+                                                    )}
                                                     {edu.marksheet && (
                                                         <div className="document-actions">
                                                             <button
                                                                 className="action-btn view"
-                                                                onClick={() => viewDocument(edu.marksheet, `${levels[index]} Marksheet`)}
+                                                                onClick={() => viewDocument(edu.marksheet, `${educationLevel} Marksheet`)}
                                                             >
                                                                 <i className="fas fa-eye"></i>
                                                                 View Marksheet
                                                             </button>
                                                             <button
                                                                 className="action-btn download"
-                                                                onClick={() => downloadDocument(edu.marksheet, `marksheet_${levels[index].replace(' ', '_').toLowerCase()}.pdf`)}
+                                                                onClick={() => downloadDocument(edu.marksheet, `marksheet_${educationLevel.replace(' ', '_').toLowerCase()}.pdf`)}
                                                             >
                                                                 <i className="fas fa-download"></i>
                                                                 Download
@@ -496,29 +647,31 @@ function AdminCandidateReviewPage() {
                                     </div>
                                 )}
 
-                                {candidate.education && candidate.education.map((edu, index) => {
-                                    if (!edu.marksheet) return null;
-                                    const levels = ['10th Standard', '12th Standard', 'Degree'];
+                                {candidate.education && [...candidate.education]
+                                    .sort((a, b) => getEducationPriority(a) - getEducationPriority(b))
+                                    .map((edu, index) => {
+                                        if (!edu.marksheet) return null;
+                                        const eduLevelLabel = getEducationLevelLabel(edu, index);
                                     return (
                                         <div key={index} className="document-card">
                                             <div className="document-icon">
                                                 <i className="fas fa-certificate"></i>
                                             </div>
                                             <div className="document-info">
-                                                <h5>{levels[index]} Marksheet</h5>
+                                                <h5>{eduLevelLabel} Marksheet</h5>
                                                 <p>Academic certificate and marks</p>
                                             </div>
                                             <div className="document-actions">
                                                 <button
                                                     className="action-btn view"
-                                                    onClick={() => viewDocument(edu.marksheet, `${levels[index]} Marksheet`)}
+                                                    onClick={() => viewDocument(edu.marksheet, `${eduLevelLabel} Marksheet`)}
                                                 >
                                                     <i className="fas fa-eye"></i>
                                                     View
                                                 </button>
                                                 <button
                                                     className="action-btn download"
-                                                    onClick={() => downloadDocument(edu.marksheet, `marksheet_${levels[index].replace(' ', '_').toLowerCase()}.pdf`)}
+                                                    onClick={() => downloadDocument(edu.marksheet, `marksheet_${eduLevelLabel.replace(/\s+/g, '_').toLowerCase()}.pdf`)}
                                                 >
                                                     <i className="fas fa-download"></i>
                                                     Download

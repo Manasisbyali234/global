@@ -319,11 +319,11 @@ function EmpJobReviewPage() {
                                     <div className="mb-0 text-muted" dangerouslySetInnerHTML={{ __html: jobDetails.description }} />
                                 </div>
 
-                                {jobDetails.responsibilities && (
-                                    <div className="mt-4">
-                                        <h5 className="mb-1">Roles and Responsibilities</h5>
-                                        <div className="mb-0 text-muted">
-                                            {typeof jobDetails.responsibilities === 'string' ? (
+                                <div className="mt-4">
+                                    <h5 className="mb-1">Roles and Responsibilities</h5>
+                                    <div className="mb-0 text-muted">
+                                        {jobDetails.responsibilities ? (
+                                            typeof jobDetails.responsibilities === 'string' ? (
                                                 <div dangerouslySetInnerHTML={{ __html: jobDetails.responsibilities }} />
                                             ) : Array.isArray(jobDetails.responsibilities) ? (
                                                 <ul>
@@ -331,10 +331,12 @@ function EmpJobReviewPage() {
                                                         <li key={idx}>{resp}</li>
                                                     ))}
                                                 </ul>
-                                            ) : null}
-                                        </div>
+                                            ) : null
+                                        ) : (
+                                            <p>Role and responsibility not available</p>
+                                        )}
                                     </div>
-                                )}
+                                </div>
                             </div>
                         </div>
                     </div>

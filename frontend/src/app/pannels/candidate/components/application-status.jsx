@@ -703,7 +703,9 @@ function CanStatusPage() {
 																	app.status === 'hired' ? 'badge bg-success bg-opacity-10 text-success border border-success' :
 																	app.status === 'rejected' ? 'badge bg-danger bg-opacity-10 text-danger border border-danger' : 'badge bg-secondary bg-opacity-10 text-secondary border border-secondary'
 																} style={{fontSize: '12px', padding: '6px 12px'}}>
-																	{(app.status === 'pending' && app.isSelectedForProcess) ? 'Shortlisted' : app.status?.charAt(0).toUpperCase() + app.status?.slice(1) || 'Pending'}
+																	{(app.status === 'pending' && app.isSelectedForProcess) ? 'Shortlisted' : 
+																	 app.status === 'hired' ? 'Hired' :
+																	 app.status?.charAt(0).toUpperCase() + app.status?.slice(1) || 'Pending'}
 																</span>
 															</td>
 															<td className="px-4 py-3 text-center">
@@ -853,20 +855,6 @@ function CanStatusPage() {
 														{roundName}
 													</h6>
 													<div className="d-flex gap-2 align-items-center">
-														{/* Interview Process Status Badge */}
-														{(() => {
-															const process = selectedApplication.interviewProcesses?.find(p => p.type === (typeof round === 'object' ? round.roundType : round.toLowerCase()));
-															if (process?.status) {
-																const statusColors = {shortlisted: '#6f42c1', under_review: '#fd7e14', interview_scheduled: '#0dcaf0', interview_completed: '#198754', selected: '#198754', rejected: '#dc3545', on_hold: '#6c757d'};
-																const statusLabels = {shortlisted: 'Shortlisted', under_review: 'Under Review', interview_scheduled: 'Interview Scheduled', interview_completed: 'Interview Completed', selected: 'Selected', rejected: 'Rejected', on_hold: 'On Hold'};
-																return (
-																	<span className="badge" style={{fontSize: '12px', padding: '4px 8px', backgroundColor: statusColors[process.status] || '#6c757d', color: 'white', border: 'none'}}>
-																		{statusLabels[process.status] || process.status}
-																	</span>
-																);
-															}
-															return null;
-														})()}
 														<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px', minWidth: '60px', textAlign: 'center'}}>
 															{roundStatus.text}
 														</span>
@@ -922,7 +910,7 @@ function CanStatusPage() {
 
 														{/* Assessment Action Buttons */}
 														<div className="mt-3 pt-2 border-top d-flex gap-2 flex-wrap">
-															{selectedApplication.assessmentStatus === 'expired' || getAssessmentWindowInfo(selectedApplication.jobId).isAfterEnd ? (
+															{(selectedApplication.assessmentStatus === 'expired' || getAssessmentWindowInfo(selectedApplication.jobId).isAfterEnd) && !(selectedApplication.assessmentStatus === 'completed' || selectedApplication.assessmentResult === 'pass' || selectedApplication.assessmentResult === 'fail') ? (
 																<div>
 																	<button 
 																		className="btn btn-sm btn-danger"

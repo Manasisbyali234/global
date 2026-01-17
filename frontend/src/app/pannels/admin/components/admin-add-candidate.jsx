@@ -7,30 +7,16 @@ import './admin-emp-manage-styles.css';
 function AdminAddCandidate() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
-    const [passwordValidation, setPasswordValidation] = useState({
-        length: false,
-        uppercase: false,
-        specialChars: false
-    });
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         email: '',
-        password: '',
         collegeName: '',
         credits: 0
     });
 
-    const validatePassword = (pwd) => {
-        const specialChars = pwd.match(/[@#!%$*?]/g) || [];
-        setPasswordValidation({
-            length: pwd.length >= 6,
-            uppercase: /[A-Z]/.test(pwd),
-            specialChars: specialChars.length >= 1
-        });
-    };
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -39,9 +25,6 @@ function AdminAddCandidate() {
             [name]: value
         }));
         
-        if (name === 'password') {
-            validatePassword(value);
-        }
         
         // Clear error for this field
         if (errors[name]) {
@@ -77,16 +60,6 @@ function AdminAddCandidate() {
             newErrors.email = 'Please enter a valid email address';
         }
         
-        // Password validation
-        if (!formData.password) {
-            newErrors.password = 'Password is required';
-        } else if (!passwordValidation.length) {
-            newErrors.password = 'Password must be at least 6 characters';
-        } else if (!passwordValidation.uppercase) {
-            newErrors.password = 'Password must contain at least one uppercase letter';
-        } else if (!passwordValidation.specialChars) {
-            newErrors.password = 'Password must contain at least one special character (@#!%$*?)';
-        }
         
         // College Name validation
         if (!formData.collegeName.trim()) {
@@ -124,7 +97,6 @@ function AdminAddCandidate() {
                     firstName: '',
                     lastName: '',
                     email: '',
-                    password: '',
                     collegeName: '',
                     credits: 0
                 });
@@ -193,53 +165,6 @@ function AdminAddCandidate() {
                                     placeholder="Enter email address"
                                 />
                                 {errors.email && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.email}</div>}
-                            </div>
-
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Password <span style={{color: 'red'}}>*</span></label>
-                                <div style={{ position: 'relative' }}>
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        name="password"
-                                        className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        placeholder="Enter password"
-                                        style={{ paddingRight: '40px' }}
-                                    />
-                                    <span
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        style={{
-                                            position: 'absolute',
-                                            right: '12px',
-                                            top: '12px',
-                                            cursor: 'pointer',
-                                            color: '#6c757d'
-                                        }}
-                                    >
-                                        <i className={showPassword ? "fa fa-eye-slash" : "fa fa-eye"}></i>
-                                    </span>
-                                </div>
-                                {errors.password && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.password}</div>}
-                                {formData.password && (
-                                    <div style={{ marginTop: '10px', padding: '12px', background: '#f8f9fa', borderRadius: '5px', border: '1px solid #dee2e6' }}>
-                                        <h6 style={{ marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: '#495057' }}>Password Requirements:</h6>
-                                        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                                            <li style={{ padding: '3px 0', fontSize: '12px', color: passwordValidation.length ? '#28a745' : '#dc3545' }}>
-                                                <i className={`fa ${passwordValidation.length ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '6px' }}></i>
-                                                At least 6 characters
-                                            </li>
-                                            <li style={{ padding: '3px 0', fontSize: '12px', color: passwordValidation.uppercase ? '#28a745' : '#dc3545' }}>
-                                                <i className={`fa ${passwordValidation.uppercase ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '6px' }}></i>
-                                                One uppercase letter
-                                            </li>
-                                            <li style={{ padding: '3px 0', fontSize: '12px', color: passwordValidation.specialChars ? '#28a745' : '#dc3545' }}>
-                                                <i className={`fa ${passwordValidation.specialChars ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: '6px' }}></i>
-                                                One special character (@#!%$*?)
-                                            </li>
-                                        </ul>
-                                    </div>
-                                )}
                             </div>
 
                             <div className="col-md-6 mb-3">

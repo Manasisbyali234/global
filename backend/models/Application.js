@@ -91,7 +91,14 @@ const applicationSchema = new mongoose.Schema({
     changedBy: { type: mongoose.Schema.Types.ObjectId, refPath: 'statusHistory.changedByModel' },
     changedByModel: { type: String, enum: ['Employer', 'Admin'] },
     notes: String
-  }]
+  }],
+  
+  // Payment fields
+  paymentStatus: { type: String, enum: ['unpaid', 'paid', 'refunded'], default: 'unpaid' },
+  paymentId: { type: String },
+  orderId: { type: String },
+  paymentAmount: { type: Number },
+  paymentCurrency: { type: String, default: 'INR' }
 }, {
   timestamps: true
 });

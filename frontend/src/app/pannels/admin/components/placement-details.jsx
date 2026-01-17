@@ -272,7 +272,14 @@ function PlacementDetails() {
             
             const data = await response.json();
             if (data.success) {
-                showSuccess(`${data.message}. All candidates will see updated credits immediately.`);
+                const count = data.candidatesUpdated || 0;
+                let message = `File credits updated to ${fileCredits}.`;
+                if (count > 0) {
+                    message += ` ${count} candidates updated successfully.`;
+                } else {
+                    message += ` Credits will be applied when file is processed.`;
+                }
+                showSuccess(message);
                 setShowCreditsModal(false);
                 fetchPlacementDetails();
                 // Refresh student data if currently viewing this file
@@ -439,7 +446,7 @@ function PlacementDetails() {
             <div className="modern-card mb-4 p-4">
                 <div className="d-flex justify-content-between align-items-center">
                     <h2 className="mb-0" style={{color: '#2c3e50', fontWeight: '600'}}>
-                        <i className="fa fa-user-circle mr-2"></i>
+                        <i className="fa fa-user-circle me-2"></i>
                         Placement Officer Details
                     </h2>
                     <button 
@@ -458,7 +465,7 @@ function PlacementDetails() {
                         }}
                         style={{borderRadius: '8px'}}
                     >
-                        <i className="fa fa-arrow-left mr-2"></i>
+                        <i className="fa fa-arrow-left me-2"></i>
                         Back
                     </button>
                 </div>
@@ -538,35 +545,35 @@ function PlacementDetails() {
                             <div className="col-md-6 mb-3">
                                 <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>College Name</h4>
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
-                                    <i className="fa fa-university mr-2" style={{color: '#fd7e14'}}></i>
+                                    <i className="fa fa-university me-2" style={{color: '#fd7e14'}}></i>
                                     {placement.collegeName || 'Not Available'}
                                 </p>
                             </div>
                             <div className="col-md-6 mb-3">
                                 <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>Placement Officer Name</h4>
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
-                                    <i className="fa fa-user mr-2" style={{color: '#fd7e14'}}></i>
+                                    <i className="fa fa-user me-2" style={{color: '#fd7e14'}}></i>
                                     {placement.name}
                                 </p>
                             </div>
                             <div className="col-md-6 mb-3">
                                 <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>College Address</h4>
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
-                                    <i className="fa fa-map-marker mr-2" style={{color: '#fd7e14'}}></i>
+                                    <i className="fa fa-map-marker me-2" style={{color: '#fd7e14'}}></i>
                                     {placement.collegeAddress || 'Not Available'}
                                 </p>
                             </div>
                             <div className="col-md-6 mb-3">
                                 <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>Official Placement Officer Email</h4>
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
-                                    <i className="fa fa-envelope mr-2" style={{color: '#fd7e14'}}></i>
+                                    <i className="fa fa-envelope me-2" style={{color: '#fd7e14'}}></i>
                                     {placement.email}
                                 </p>
                             </div>
                             <div className="col-md-6 mb-3">
                                 <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>College Official Phone Number</h4>
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
-                                    <i className="fa fa-phone mr-2" style={{color: '#fd7e14'}}></i>
+                                    <i className="fa fa-phone me-2" style={{color: '#fd7e14'}}></i>
                                     {placement.collegeOfficialPhone || 'Not Available'}
                                 </p>
                             </div>
@@ -576,7 +583,7 @@ function PlacementDetails() {
                                     {placement.idCard ? (
                                         <>
                                             <i 
-                                                className="fa fa-download mr-2" 
+                                                className="fa fa-download me-2" 
                                                 onClick={() => {
                                                     fetch(`http://localhost:5000/api/admin/placements/${id}/download-id-card`, {
                                                         headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
@@ -599,7 +606,7 @@ function PlacementDetails() {
                                         </>
                                     ) : (
                                         <>
-                                            <i className="fa fa-id-card mr-2"></i>
+                                            <i className="fa fa-id-card me-2"></i>
                                             Not Uploaded
                                         </>
                                     )}
@@ -608,7 +615,7 @@ function PlacementDetails() {
                             <div className="col-md-6 mb-3">
                                 <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>College Official Email ID</h4>
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
-                                    <i className="fa fa-envelope mr-2" style={{color: '#fd7e14'}}></i>
+                                    <i className="fa fa-envelope me-2" style={{color: '#fd7e14'}}></i>
                                     {placement.collegeOfficialEmail || 'Not Available'}
                                 </p>
                             </div>
@@ -622,7 +629,7 @@ function PlacementDetails() {
                     <div className="info-card" style={{minHeight: '100px', background: 'transparent'}}>
                         <div>
                             <label className="text-muted mb-1">
-                                <i className="fa fa-phone mr-2" style={{color: '#fd7e14'}}></i>Phone Number
+                                <i className="fa fa-phone me-2" style={{color: '#fd7e14'}}></i>Phone Number
                             </label>
                             <p className="mb-0 font-weight-bold">{placement.phone || 'Not provided'}</p>
                         </div>
@@ -630,7 +637,7 @@ function PlacementDetails() {
                     <div className="info-card" style={{minHeight: '100px', background: 'transparent'}}>
                         <div>
                             <label className="text-muted mb-1">
-                                <i className="fa fa-calendar mr-2" style={{color: '#fd7e14'}}></i>Registration Date
+                                <i className="fa fa-calendar me-2" style={{color: '#fd7e14'}}></i>Registration Date
                             </label>
                             <p className="mb-0 font-weight-bold">{new Date(placement.createdAt).toLocaleDateString('en-US', {
                                 year: 'numeric',
@@ -642,7 +649,7 @@ function PlacementDetails() {
                     <div className="info-card" style={{minHeight: '100px', background: 'transparent'}}>
                         <div>
                             <label className="text-muted mb-1">
-                                <i className={`fa ${placement.status === 'approved' ? 'fa-check-circle' : 'fa-clock-o'} mr-2`} style={{color: '#fd7e14'}}></i>Status
+                                <i className={`fa ${placement.status === 'approved' ? 'fa-check-circle' : 'fa-clock-o'} me-2`} style={{color: '#fd7e14'}}></i>Status
                             </label>
                             <p className="mb-0 font-weight-bold" style={{
                                 color: placement.status === 'approved' ? '#28a745' :
@@ -655,7 +662,7 @@ function PlacementDetails() {
                     <div className="info-card" style={{minHeight: '100px', background: 'transparent'}}>
                         <div>
                             <label className="text-muted mb-1">
-                                <i className="fa fa-files-o mr-2" style={{color: '#fd7e14'}}></i>Files Uploaded
+                                <i className="fa fa-files-o me-2" style={{color: '#fd7e14'}}></i>Files Uploaded
                             </label>
                             <p className="mb-0 font-weight-bold">{placement.fileHistory?.length || 0}</p>
                         </div>
@@ -677,7 +684,7 @@ function PlacementDetails() {
                                 fontWeight: '600',
                                 fontSize: '1.3rem'
                             }}>
-                                <i className="fa fa-cloud-upload mr-3" style={{fontSize: '1.2rem'}}></i>
+                                <i className="fa fa-cloud-upload me-3" style={{fontSize: '1.2rem'}}></i>
                                 File Upload History
                             </h5>
                             <div style={{
@@ -731,7 +738,7 @@ function PlacementDetails() {
                                                     file.status === 'rejected' ? 'fa-times' : 'fa-clock-o'
                                                 }`} style={{fontSize: '18px', color: '#000'}}></i>
                                             </div>
-                                            <div className="ml-4 flex-grow-1">
+                                            <div className="ms-4 flex-grow-1">
                                                 <div className="d-flex justify-content-between align-items-start">
                                                     <div className="flex-grow-1">
                                                         <h6 className="mb-2" style={{
@@ -740,7 +747,7 @@ function PlacementDetails() {
                                                             fontSize: '1.1rem',
                                                             lineHeight: '1.3'
                                                         }}>
-                                                            <i className="fa fa-file-excel-o mr-2" style={{color: '#1e7e34'}}></i>
+                                                            <i className="fa fa-file-excel-o me-2" style={{color: '#1e7e34'}}></i>
                                                             {file.customName || file.fileName}
                                                         </h6>
                                                         {file.customName && (
@@ -757,7 +764,7 @@ function PlacementDetails() {
                                                                 fontSize: '0.85rem',
                                                                 color: '#6c757d'
                                                             }}>
-                                                                <i className="fa fa-university mr-2" style={{color: '#007bff'}}></i>
+                                                                <i className="fa fa-university me-2" style={{color: '#007bff'}}></i>
                                                                 {file.university}
                                                             </p>
                                                         )}
@@ -766,26 +773,26 @@ function PlacementDetails() {
                                                                 fontSize: '0.85rem',
                                                                 color: '#6c757d'
                                                             }}>
-                                                                <i className="fa fa-users mr-2" style={{color: '#6f42c1'}}></i>
+                                                                <i className="fa fa-users me-2" style={{color: '#6f42c1'}}></i>
                                                                 Batch: {file.batch}
                                                             </p>
                                                         )}
                                                         <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
                                                             <div className="d-flex align-items-center">
-                                                                <i className="fa fa-calendar mr-2" style={{color: '#007bff'}}></i>
+                                                                <i className="fa fa-calendar me-2" style={{color: '#007bff'}}></i>
                                                                 <span style={{fontSize: '0.85rem', color: '#495057'}}>
                                                                     {new Date(file.uploadedAt).toLocaleDateString()}
                                                                 </span>
                                                             </div>
                                                             <div className="d-flex align-items-center">
-                                                                <i className="fa fa-clock-o mr-2" style={{color: '#6f42c1'}}></i>
+                                                                <i className="fa fa-clock-o me-2" style={{color: '#6f42c1'}}></i>
                                                                 <span style={{fontSize: '0.85rem', color: '#495057'}}>
                                                                     {new Date(file.uploadedAt).toLocaleTimeString()}
                                                                 </span>
                                                             </div>
                                                             {file.processedAt && (
                                                                 <div className="d-flex align-items-center">
-                                                                    <i className="fa fa-check-circle mr-2" style={{color: '#28a745'}}></i>
+                                                                    <i className="fa fa-check-circle me-2" style={{color: '#28a745'}}></i>
                                                                     <span style={{fontSize: '0.85rem', color: '#495057'}}>
                                                                         Processed: {new Date(file.processedAt).toLocaleDateString()}
                                                                     </span>
@@ -793,7 +800,7 @@ function PlacementDetails() {
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <div className="d-flex flex-wrap gap-2 ml-3">
+                                                    <div className="d-flex flex-wrap gap-2 ms-3">
                                                         <button
                                                             className="btn btn-sm"
                                                             onClick={() => handleViewFileData(file._id, file.fileName)}
@@ -809,7 +816,7 @@ function PlacementDetails() {
                                                             }}
                                                             title="View file data in Student Records section"
                                                         >
-                                                            <i className="fa fa-eye mr-1" style={{color: '#000'}}></i>View
+                                                            <i className="fa fa-eye me-2" style={{color: '#000'}}></i>View
                                                         </button>
                                                         {file.status !== 'rejected' && (
                                                             <button
@@ -827,7 +834,7 @@ function PlacementDetails() {
                                                                 }}
                                                                 title="Manage credits for this file"
                                                             >
-                                                                <i className="fa fa-credit-card mr-1" style={{color: '#000'}}></i>Credits
+                                                                <i className="fa fa-credit-card me-2" style={{color: '#000'}}></i>Credits
                                                             </button>
                                                         )}
                                                         <button
@@ -847,11 +854,11 @@ function PlacementDetails() {
                                                             title={file.status === 'processed' ? 'File already processed - candidates can login' : 'Process file data and create candidate accounts with login access'}
                                                         >
                                                             {processingFiles[file._id] === 'processing' ? (
-                                                                <><i className="fa fa-spinner fa-spin mr-1" style={{color: '#000'}}></i>Processing...</>
+                                                                <><i className="fa fa-spinner fa-spin me-2" style={{color: '#000'}}></i>Processing...</>
                                                             ) : file.status === 'processed' ? (
-                                                                <><i className="fa fa-check mr-1" style={{color: '#000'}}></i>Processed</>
+                                                                <><i className="fa fa-check me-2" style={{color: '#000'}}></i>Processed</>
                                                             ) : (
-                                                                <><i className="fa fa-cogs mr-1" style={{color: '#000'}}></i>Process</>
+                                                                <><i className="fa fa-cogs me-2" style={{color: '#000'}}></i>Process</>
                                                             )}
                                                         </button>
                                                         {file.status === 'pending' && (
@@ -875,7 +882,7 @@ function PlacementDetails() {
                                                                     {processingFiles[file._id] === 'approving' ? (
                                                                         <i className="fa fa-spinner fa-spin"></i>
                                                                     ) : (
-                                                                        <><i className="fa fa-check mr-1"></i>Approve</>
+                                                                        <><i className="fa fa-check me-2"></i>Approve</>
                                                                     )}
                                                                 </button>
                                                                 <button
@@ -897,7 +904,7 @@ function PlacementDetails() {
                                                                     {processingFiles[file._id] === 'rejecting' ? (
                                                                         <i className="fa fa-spinner fa-spin"></i>
                                                                     ) : (
-                                                                        <><i className="fa fa-times mr-1"></i>Reject</>
+                                                                        <><i className="fa fa-times me-2"></i>Reject</>
                                                                     )}
                                                                 </button>
                                                             </>
@@ -917,7 +924,7 @@ function PlacementDetails() {
                                                                     fontWeight: '500',
                                                                     border: '1px solid #dee2e6'
                                                                 }}>
-                                                                    <i className="fa fa-check-circle mr-2" style={{color: '#000'}}></i>
+                                                                    <i className="fa fa-check-circle me-2" style={{color: '#000'}}></i>
                                                                     Processed - Login Ready
                                                                 </span>
                                                                 {file.candidatesCreated > 0 && (
@@ -930,7 +937,7 @@ function PlacementDetails() {
                                                                         fontWeight: '500',
                                                                         border: '1px solid #dee2e6'
                                                                     }}>
-                                                                        <i className="fa fa-users mr-2" style={{color: '#000'}}></i>
+                                                                        <i className="fa fa-users me-2" style={{color: '#000'}}></i>
                                                                         {file.candidatesCreated} candidates can login
                                                                     </span>
                                                                 )}
@@ -946,7 +953,7 @@ function PlacementDetails() {
                                                                     fontWeight: '500',
                                                                     boxShadow: '0 2px 8px rgba(0, 123, 255, 0.3)'
                                                                 }}>
-                                                                    <i className="fa fa-check mr-2"></i>
+                                                                    <i className="fa fa-check me-2"></i>
                                                                     Approved
                                                                 </span>
                                                                 {file.candidatesCreated > 0 && (
@@ -959,7 +966,7 @@ function PlacementDetails() {
                                                                         fontWeight: '500',
                                                                         boxShadow: '0 2px 8px rgba(108, 117, 125, 0.3)'
                                                                     }}>
-                                                                        <i className="fa fa-user-plus mr-2"></i>
+                                                                        <i className="fa fa-user-plus me-2"></i>
                                                                         {file.candidatesCreated} candidates created
                                                                     </span>
                                                                 )}
@@ -974,7 +981,7 @@ function PlacementDetails() {
                                                                 fontWeight: '500',
                                                                 boxShadow: '0 2px 8px rgba(220, 53, 69, 0.3)'
                                                             }}>
-                                                                <i className="fa fa-times mr-2"></i>
+                                                                <i className="fa fa-times me-2"></i>
                                                                 Rejected
                                                             </span>
                                                         ) : (
@@ -987,7 +994,7 @@ function PlacementDetails() {
                                                                 fontWeight: '500',
                                                                 border: '1px solid #FDC360'
                                                             }}>
-                                                                <i className="fa fa-clock-o mr-2" style={{color: '#000'}}></i>
+                                                                <i className="fa fa-clock-o me-2" style={{color: '#000'}}></i>
                                                                 Waiting for Admin Approval
                                                             </span>
                                                         )}
@@ -1001,7 +1008,7 @@ function PlacementDetails() {
                                                                 fontWeight: '500',
                                                                 border: '1px solid #dee2e6'
                                                             }}>
-                                                                <i className="fa fa-credit-card mr-2" style={{color: '#000'}}></i>
+                                                                <i className="fa fa-credit-card me-2" style={{color: '#000'}}></i>
                                                                 Credits: {file.credits || 0}
                                                             </span>
                                                         )}
@@ -1015,7 +1022,7 @@ function PlacementDetails() {
                                                                 fontWeight: '500',
                                                                 border: '1px solid rgba(253, 126, 20, 0.2)'
                                                             }}>
-                                                                <i className="fa fa-sign-in mr-2"></i>
+                                                                <i className="fa fa-sign-in me-2"></i>
                                                                 Ready for Login
                                                             </span>
                                                         )}
@@ -1046,10 +1053,10 @@ function PlacementDetails() {
                 <div className="col-md-12">
                     <div className="modern-card p-4">
                         <h5 className="mb-3" style={{color: '#2c3e50'}}>
-                            <i className="fa fa-cogs mr-2"></i>
+                            <i className="fa fa-cogs me-2"></i>
                             Actions
                             <button 
-                                className="btn btn-sm btn-outline-secondary ml-2"
+                                className="btn btn-sm btn-outline-secondary ms-2"
                                 onClick={fetchPlacementDetails}
                                 style={{borderRadius: '6px'}}
                             >
@@ -1063,13 +1070,13 @@ function PlacementDetails() {
                                     onClick={handleApprove}
                                     style={{borderRadius: '8px'}}
                                 >
-                                    <i className="fa fa-check mr-1"></i>
+                                    <i className="fa fa-check me-2"></i>
                                     Approve Officer
                                 </button>
                             )}
                             {placement.status === 'approved' && (
                                 <div className="alert alert-success mb-0" style={{borderRadius: '8px', padding: '10px 15px'}}>
-                                    <i className="fa fa-check-circle mr-2"></i>
+                                    <i className="fa fa-check-circle me-2"></i>
                                     Officer Approved - Can now login and upload files
                                 </div>
                             )}
@@ -1081,7 +1088,7 @@ function PlacementDetails() {
                                     style={{borderRadius: '8px'}}
                                     title="Assign credits to all processed files at once"
                                 >
-                                    <i className="fa fa-credit-card mr-1"></i>
+                                    <i className="fa fa-credit-card me-2"></i>
                                     Bulk Credits ({placement.fileHistory.filter(f => f.status === 'processed').length} files)
                                 </button>
                             )}
@@ -1094,9 +1101,9 @@ function PlacementDetails() {
                                     title="Store complete Excel data in MongoDB"
                                 >
                                     {processing ? (
-                                        <><i className="fa fa-spinner fa-spin mr-1"></i>Storing...</>
+                                        <><i className="fa fa-spinner fa-spin me-2"></i>Storing...</>
                                     ) : (
-                                        <><i className="fa fa-database mr-1"></i>Store Excel Data</>
+                                        <><i className="fa fa-database me-2"></i>Store Excel Data</>
                                     )}
                                 </button>
                             )}
@@ -1107,13 +1114,13 @@ function PlacementDetails() {
                                     style={{borderRadius: '8px'}}
                                     title="View stored Excel data from MongoDB"
                                 >
-                                    <i className="fa fa-eye mr-1"></i>
+                                    <i className="fa fa-eye me-2"></i>
                                     View Stored Data
                                 </button>
                             )}
                         </div>
                         <div className="alert alert-info mb-3" style={{borderRadius: '8px', fontSize: '0.9rem'}}>
-                            <i className="fa fa-info-circle mr-1"></i>
+                            <i className="fa fa-info-circle me-2"></i>
                             <strong>Excel Format Required:</strong> Files must contain these 8 columns: ID, Candidate Name, College Name, Email, Phone, Course, Password, Credits Assigned. Use "Credits" to assign credits per file and "View" to see student records.
                         </div>
 
@@ -1125,13 +1132,13 @@ function PlacementDetails() {
             <div className="modern-card p-4" id="studentRecordsTable">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                     <h5 className="mb-0" style={{color: '#2c3e50'}}>
-                        <i className="fa fa-graduation-cap mr-2"></i>
+                        <i className="fa fa-graduation-cap me-2"></i>
                         Student Records
                         {studentData.length > 0 && (
-                            <span className="badge badge-primary ml-2">{studentData.length}</span>
+                            <span className="badge badge-primary ms-2">{studentData.length}</span>
                         )}
                         {showingStudentRecords && currentViewingFileId && (
-                            <small className="text-muted ml-2">
+                            <small className="text-muted ms-2">
                                 (Showing data from selected file)
                             </small>
                         )}
@@ -1146,7 +1153,7 @@ function PlacementDetails() {
                             }}
                             style={{borderRadius: '6px'}}
                         >
-                            <i className="fa fa-times mr-1"></i>
+                            <i className="fa fa-times me-2"></i>
                             Clear View
                         </button>
                     )}
@@ -1166,7 +1173,6 @@ function PlacementDetails() {
                                     <th style={{minWidth: '150px'}}>Name</th>
                                     <th style={{minWidth: '200px'}}>Email</th>
                                     <th style={{minWidth: '120px'}}>Phone</th>
-                                    <th style={{minWidth: '100px'}}>Password</th>
                                     <th style={{minWidth: '80px'}}>Credits</th>
                                 </tr>
                             </thead>
@@ -1180,7 +1186,7 @@ function PlacementDetails() {
                                         </td>
                                         <td>
                                             <div className="d-flex align-items-center">
-                                                <div className="avatar-sm mr-2" style={{
+                                                <div className="avatar-sm me-2" style={{
                                                     width: '32px',
                                                     height: '32px',
                                                     borderRadius: '50%',
@@ -1204,19 +1210,6 @@ function PlacementDetails() {
                                             {student.phone || '-'}
                                         </td>
                                         <td style={{verticalAlign: 'top', paddingTop: '12px'}}>
-                                            <span className="status-badge status-approved" style={{
-                                                fontSize: '0.75rem',
-                                                padding: '4px 8px',
-                                                display: 'inline-block',
-                                                maxWidth: '100px',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
-                                            }} title={student.password || 'N/A'}>
-                                                {student.password || 'N/A'}
-                                            </span>
-                                        </td>
-                                        <td style={{verticalAlign: 'top', paddingTop: '12px'}}>
                                             <span className="status-badge status-approved">
                                                 {student.credits || (() => {
                                                     if (currentViewingFileId) {
@@ -1226,11 +1219,6 @@ function PlacementDetails() {
                                                     return 0;
                                                 })()}
                                             </span>
-                                            {currentViewingFileId && (
-                                                <small className="text-muted d-block" style={{fontSize: '0.7rem'}}>
-                                                    From file
-                                                </small>
-                                            )}
                                         </td>
                                     </tr>
                                 ))}
@@ -1260,7 +1248,7 @@ function PlacementDetails() {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">
-                                    <i className="fa fa-file-excel-o mr-2"></i>
+                                    <i className="fa fa-file-excel-o me-2"></i>
                                     {viewingFile.name} - Student Data
                                 </h5>
                                 <button type="button" className="close" onClick={() => setViewingFile(null)}>
@@ -1324,7 +1312,7 @@ function PlacementDetails() {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">
-                                    <i className="fa fa-credit-card mr-2"></i>
+                                    <i className="fa fa-credit-card me-2"></i>
                                     File Credits Management - {selectedFile.fileName}
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowCreditsModal(false)}>
@@ -1349,7 +1337,7 @@ function PlacementDetails() {
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowCreditsModal(false)}>Cancel</button>
                                 <button type="button" className="btn" onClick={handleUpdateFileCredits} style={{backgroundColor: '#FDC360', border: '1px solid #FDC360', color: '#000'}}>
-                                    <i className="fa fa-save mr-1" style={{color: '#000'}}></i>Update File Credits
+                                    <i className="fa fa-save me-2" style={{color: '#000'}}></i>Update File Credits
                                 </button>
                             </div>
                         </div>
@@ -1364,7 +1352,7 @@ function PlacementDetails() {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">
-                                    <i className="fa fa-credit-card mr-2"></i>
+                                    <i className="fa fa-credit-card me-2"></i>
                                     Bulk Credits Assignment - All Files
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowBulkCreditsModal(false)}>
@@ -1373,7 +1361,7 @@ function PlacementDetails() {
                             </div>
                             <div className="modal-body">
                                 <div className="alert alert-info">
-                                    <i className="fa fa-info-circle mr-2"></i>
+                                    <i className="fa fa-info-circle me-2"></i>
                                     This will update credits for all {placement?.fileHistory?.filter(f => f.status === 'processed').length || 0} processed files and their associated students.
                                 </div>
                                 <div className="form-group">
@@ -1394,15 +1382,15 @@ function PlacementDetails() {
                                     <ul className="list-unstyled mt-2" style={{maxHeight: '150px', overflowY: 'auto'}}>
                                         {placement?.fileHistory?.filter(f => f.status === 'processed').map((file, index) => (
                                             <li key={file._id || index} className="mb-1">
-                                                <i className="fa fa-file-excel-o mr-2 text-success"></i>
+                                                <i className="fa fa-file-excel-o me-2 text-success"></i>
                                                 {file.fileName} 
-                                                <span className="badge badge-secondary ml-2">Current: {file.credits || 0}</span>
+                                                <span className="badge badge-secondary ms-2">Current: {file.credits || 0}</span>
                                             </li>
                                         ))}
                                     </ul>
                                     {placement?.fileHistory?.filter(f => f.status !== 'processed').length > 0 && (
                                         <div className="alert alert-warning mt-2">
-                                            <i className="fa fa-exclamation-triangle mr-2"></i>
+                                            <i className="fa fa-exclamation-triangle me-2"></i>
                                             Only processed files will be updated. {placement?.fileHistory?.filter(f => f.status !== 'processed').length} file(s) excluded (pending/rejected).
                                         </div>
                                     )}
@@ -1411,7 +1399,7 @@ function PlacementDetails() {
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowBulkCreditsModal(false)}>Cancel</button>
                                 <button type="button" className="btn btn-warning" onClick={handleBulkCreditsUpdate}>
-                                    <i className="fa fa-save mr-1"></i>Update All Files Credits
+                                    <i className="fa fa-save me-2"></i>Update All Files Credits
                                 </button>
                             </div>
                         </div>
@@ -1426,7 +1414,7 @@ function PlacementDetails() {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">
-                                    <i className="fa fa-database mr-2"></i>
+                                    <i className="fa fa-database me-2"></i>
                                     Stored Excel Data from MongoDB
                                 </h5>
                                 <button type="button" className="close" onClick={() => setShowStoredDataModal(false)}>
@@ -1442,7 +1430,7 @@ function PlacementDetails() {
                                 ) : storedData.length > 0 ? (
                                     <div className="table-responsive">
                                         <div className="alert alert-success mb-3">
-                                            <i className="fa fa-check-circle mr-2"></i>
+                                            <i className="fa fa-check-circle me-2"></i>
                                             Found {storedData.length} records stored in MongoDB
                                         </div>
                                         <table className="table table-hover table-sm">
@@ -1481,7 +1469,7 @@ function PlacementDetails() {
                                         </table>
                                         {storedData.length > 100 && (
                                             <div className="alert alert-info">
-                                                <i className="fa fa-info-circle mr-2"></i>
+                                                <i className="fa fa-info-circle me-2"></i>
                                                 Showing first 100 records. Total: {storedData.length} records
                                             </div>
                                         )}

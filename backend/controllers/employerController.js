@@ -1433,11 +1433,10 @@ exports.getDashboardStats = async (req, res) => {
 exports.getEmployerApplications = async (req, res) => {
   try {
     const CandidateProfile = require('../models/CandidateProfile');
-    const { companyName } = req.query; // Filter by company name for consultants
+    const { companyName } = req.query;
     
     let query = { employerId: req.user._id };
     
-    // If companyName filter is provided (for consultants)
     if (companyName && companyName.trim() !== '') {
       const jobs = await Job.find({ 
         employerId: req.user._id, 
@@ -1452,9 +1451,9 @@ exports.getEmployerApplications = async (req, res) => {
       .populate('jobId', 'title location companyName')
       .sort({ createdAt: -1 });
 
-    // Add profile pictures to applications
     const applicationsWithProfiles = await Promise.all(
       applications.map(async (application) => {
+        if (!application.candidateId) return null;
         const candidateProfile = await CandidateProfile.findOne({ candidateId: application.candidateId._id });
         return {
           ...application.toObject(),
@@ -1466,7 +1465,7 @@ exports.getEmployerApplications = async (req, res) => {
       })
     );
 
-    res.json({ success: true, applications: applicationsWithProfiles });
+    res.json({ success: true, applications: applicationsWithProfiles.filter(app => app !== null) });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

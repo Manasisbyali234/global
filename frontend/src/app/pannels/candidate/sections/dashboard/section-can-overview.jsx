@@ -197,6 +197,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CountUp from "react-countup";
 import { useWebSocket } from '../../../../../contexts/WebSocketContext';
+import { loadScript } from '../../../../../globals/constants';
+import { showSuccess, showError } from '../../../../../utils/popupNotification';
 
 function SectionCandidateOverview() {
 	const navigate = useNavigate();
@@ -204,17 +206,114 @@ function SectionCandidateOverview() {
 	const [stats, setStats] = useState({
 		applied: 0,
 		inProgress: 0,
-		shortlisted: 0
+		shortlisted: 0,
+		hired: 0
 	});
 	const [candidate, setCandidate] = useState({ name: 'Loading...', credits: 0 });
 	const [notifications, setNotifications] = useState([]);
+	const [razorpayKey, setRazorpayKey] = useState(null);
 
 	useEffect(() => {
 		fetchDashboardData();
+		loadScript("https://checkout.razorpay.com/v1/checkout.js", false);
+		fetchRazorpayKey();
 		// Set up interval to refresh data every 5 seconds for real-time updates
 		const interval = setInterval(fetchDashboardData, 5000);
 		return () => clearInterval(interval);
 	}, []);
+
+	const fetchRazorpayKey = async () => {
+		try {
+			const token = localStorage.getItem('candidateToken');
+			if (!token) return;
+			const response = await fetch('http://localhost:5000/api/payments/key', {
+				headers: { 'Authorization': `Bearer ${token}` }
+			});
+			const data = await response.json();
+			if (data.success) {
+				setRazorpayKey(data.publicKey);
+			}
+		} catch (error) {
+			console.error('Error fetching Razorpay key:', error);
+		}
+	};
+
+	const handleBuyCredits = async () => {
+		try {
+			const token = localStorage.getItem('candidateToken');
+			
+			// For simplicity, let's say 10 credits for 100 INR
+			const amount = 100;
+			const creditsToAdd = 10;
+
+			// 1. Create Order
+			const orderResponse = await fetch('http://localhost:5000/api/payments/create-order', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				},
+				body: JSON.stringify({ amount }) // You might need to update createOrder to accept dynamic amount
+			});
+			const orderData = await orderResponse.json();
+			
+			if (!orderData.success) {
+				showError(orderData.message || 'Failed to initiate payment');
+				return;
+			}
+
+			// 2. Open Razorpay Checkout
+			const options = {
+				key: razorpayKey,
+				amount: orderData.order.amount,
+				currency: orderData.order.currency,
+				name: 'TaleGlobal',
+				description: `Buy ${creditsToAdd} Credits`,
+				order_id: orderData.order.id,
+				handler: async (response) => {
+					// 3. Verify Payment
+					try {
+						const verifyResponse = await fetch('http://localhost:5000/api/payments/verify-credit-payment', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+								'Authorization': `Bearer ${token}`
+							},
+							body: JSON.stringify({
+								...response,
+								amount,
+								credits: creditsToAdd
+							})
+						});
+						const verifyData = await verifyResponse.json();
+						
+						if (verifyData.success) {
+							showSuccess(verifyData.message);
+							fetchDashboardData();
+						} else {
+							showError(verifyData.message || 'Payment verification failed');
+						}
+					} catch (error) {
+						console.error('Error verifying payment:', error);
+						showError('Payment verification failed');
+					}
+				},
+				prefill: {
+					name: candidate.name,
+					email: '', // Could be fetched
+				},
+				theme: {
+					color: '#ff6b35'
+				}
+			};
+
+			const rzp = new window.Razorpay(options);
+			rzp.open();
+		} catch (error) {
+			console.error('Error in buying credits:', error);
+			showError('Failed to initiate payment');
+		}
+	};
 
 	// WebSocket effect for real-time credit updates
 	useEffect(() => {
@@ -349,6 +448,15 @@ function SectionCandidateOverview() {
 				navigate('/candidate/status');
 			}
 		},
+		{
+			bg: "#e8f5e9",
+			icon: "flaticon-job",
+			color: "text-success",
+			count: stats.hired,
+			label: "Hired",
+			clickable: true,
+			onClick: () => navigate('/candidate/status')
+		},
 	];
 
 	const creditsCard = {
@@ -383,15 +491,26 @@ function SectionCandidateOverview() {
 					<p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>Track your job applications and profile activity</p>
 				</div>
 				{shouldShowCredits && (
-					<div className="text-end">
-						<small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Available Credits</small>
-						<span className="fw-bold" style={{ color: '#f97316', fontSize: '1.1rem' }}>{candidate.credits || 0}</span>
+					<div className="text-end d-flex align-items-center">
+						<div className="me-3">
+							<small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Available Credits</small>
+							<span className="fw-bold" style={{ color: '#f97316', fontSize: '1.1rem' }}>{candidate.credits || 0}</span>
+						</div>
+						<button 
+							className="btn btn-sm btn-primary" 
+							style={{ backgroundColor: '#ff6b35', borderColor: '#ff6b35', transition: 'none' }}
+							onMouseEnter={(e) => { e.target.style.backgroundColor = '#ff6b35'; e.target.style.borderColor = '#ff6b35'; }}
+							onMouseLeave={(e) => { e.target.style.backgroundColor = '#ff6b35'; e.target.style.borderColor = '#ff6b35'; }}
+							onClick={handleBuyCredits}
+						>
+							Buy Credits
+						</button>
 					</div>
 				)}
 			</div>
 			<div className="row" style={{ marginBottom: '2rem' }}>
 				{cards.map((card, index) => (
-					<div className={`col-xl-${shouldShowCredits ? '3' : '4'} col-lg-${shouldShowCredits ? '3' : '4'} col-md-12 mb-3`} key={index}>
+					<div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3" key={index}>
 						<div className="panel panel-default">
 							<div 
 								className="panel-body wt-panel-body dashboard-card-2" 
@@ -399,7 +518,8 @@ function SectionCandidateOverview() {
 									backgroundColor: card.bg,
 									cursor: card.clickable ? 'pointer' : 'default',
 									padding: '1.5rem',
-									textAlign: 'center'
+									textAlign: 'center',
+									minHeight: '100px'
 								}}
 								onClick={card.clickable ? card.onClick : undefined}
 							>

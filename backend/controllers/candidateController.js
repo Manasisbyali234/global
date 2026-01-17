@@ -568,195 +568,15 @@ exports.updateEducationWithMarksheet = async (req, res) => {
 // Job Controllers
 exports.applyForJob = async (req, res) => {
   try {
-    const { coverLetter, jobId: bodyJobId } = req.body;
+    const { jobId: bodyJobId } = req.body;
     const jobId = req.params.jobId || bodyJobId;
     
-    if (!jobId) {
-      return res.status(400).json({ success: false, message: 'Job ID is required' });
-    }
-    
-    const job = await Job.findById(jobId).populate('employerId', 'companyName');
-    if (!job) {
-      return res.status(404).json({ success: false, message: 'Job not found' });
-    }
-
-    // Block applying if job is not active or application limit reached
-    if (job.status !== 'active') {
-      return res.status(400).json({ success: false, message: 'Job post ended' });
-    }
-    if (typeof job.applicationLimit === 'number' && job.applicationLimit > 0 && job.applicationCount >= job.applicationLimit) {
-      return res.status(400).json({ success: false, message: 'Job post ended: application limit reached' });
-    }
-
-    const existingApplication = await Application.findOne({
-      jobId,
-      candidateId: req.user._id
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Direct application is no longer supported. Please apply through the job detail page with payment of ₹129.' 
     });
-
-    if (existingApplication) {
-      return res.status(400).json({ success: false, message: 'Already applied to this job' });
-    }
-
-    // Get full candidate data to check credits
-    const candidate = await Candidate.findById(req.user._id);
-    
-    if (!candidate) {
-      return res.status(404).json({ success: false, message: 'Candidate not found' });
-    }
-
-    // Check if candidate has credits - only applies to placement candidates
-    const isPlacementCandidate = candidate.registrationMethod === 'placement' || candidate.placementId;
-    if (isPlacementCandidate && candidate.credits <= 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'You are out of your credits. Please contact support to get more credits.' 
-      });
-    }
-
-    const profile = await CandidateProfile.findOne({ candidateId: req.user._id });
-    
-    const application = await Application.create({
-      jobId,
-      candidateId: req.user._id,
-      employerId: job.employerId,
-      coverLetter,
-      resume: profile?.resume
-    });
-
-    // Deduct 1 credit only for placement candidates
-    if (isPlacementCandidate) {
-      await Candidate.findByIdAndUpdate(req.user._id, {
-        $inc: { credits: -1 }
-      });
-    }
-
-    // Update job application count
-    await Job.findByIdAndUpdate(jobId, { $inc: { applicationCount: 1 } });
-
-    // Invalidate job cache to ensure updated application count is shown
-    const { cache } = require('../utils/cache');
-    cache.delete(`job_${jobId}`);
-
-    // Create notification for employer about new application
-    try {
-      const { createNotification } = require('./notificationController');
-      await createNotification({
-        title: 'New Job Application',
-        message: `${candidate.name} has applied for ${job.title} position`,
-        type: 'application_received',
-        role: 'employer',
-        relatedId: application._id,
-        createdBy: req.user._id
-      });
-    } catch (notifError) {
-      console.error('Employer notification creation failed:', notifError);
-    }
-
-    // Create notification for candidate if job has scheduled interviews
-    if (job.interviewScheduled && job.interviewRoundDetails) {
-      try {
-        const { createNotification } = require('./notificationController');
-        
-        // Get scheduled rounds with details
-        const scheduledRounds = [];
-        Object.entries(job.interviewRoundTypes).forEach(([roundType, isSelected]) => {
-          if (isSelected && job.interviewRoundDetails[roundType]) {
-            const details = job.interviewRoundDetails[roundType];
-            if (details.date && details.time) {
-              const roundNames = {
-                technical: 'Technical Round',
-                nonTechnical: 'Non-Technical Round', 
-                managerial: 'Managerial Round',
-                final: 'Final Round',
-                hr: 'HR Round'
-              };
-              scheduledRounds.push({
-                name: roundNames[roundType],
-                date: new Date(details.date).toLocaleDateString(),
-                time: details.time,
-                description: details.description
-              });
-            }
-          }
-        });
-        
-        if (scheduledRounds.length > 0) {
-          let message = `Your application for ${job.title} has been received. Interview rounds scheduled:\n\n`;
-          scheduledRounds.forEach((round, index) => {
-            message += `${index + 1}. ${round.name}\n`;
-            message += `   Date: ${round.date}\n`;
-            message += `   Time: ${round.time}\n`;
-            if (round.description) {
-              message += `   Details: ${round.description}\n`;
-            }
-            message += '\n';
-          });
-          message += 'Please be prepared and arrive on time. Good luck!';
-          
-          await createNotification({
-            title: 'Interview Schedule - Application Received',
-            message: message,
-            type: 'interview_scheduled',
-            role: 'candidate',
-            relatedId: application._id,
-            createdBy: job.employerId,
-            candidateId: req.user._id
-          });
-        }
-      } catch (notifError) {
-        console.error('Notification creation failed:', notifError);
-      }
-    }
-
-    // Send job application confirmation email to candidate with job details
-    try {
-      // Check if assessment is actually selected in the interview rounds
-      let includeAssessment = false;
-      if (job.interviewRoundOrder && job.interviewRoundTypes) {
-        includeAssessment = job.interviewRoundOrder.some(roundKey => 
-          job.interviewRoundTypes[roundKey] === 'assessment'
-        );
-      }
-      
-      await sendJobApplicationConfirmationEmail(
-        candidate.email,
-        candidate.name,
-        job.title,
-        job.companyName || job.employerId?.companyName || 'Company',
-        application.createdAt || new Date(),
-        {
-          assessmentId: includeAssessment ? job.assessmentId : null,
-          assessmentEnabled: includeAssessment,
-          assessmentStartDate: includeAssessment ? job.assessmentStartDate : null,
-          assessmentEndDate: includeAssessment ? job.assessmentEndDate : null,
-          assessmentStartTime: includeAssessment ? job.assessmentStartTime : null,
-          assessmentEndTime: includeAssessment ? job.assessmentEndTime : null,
-          interviewRoundOrder: job.interviewRoundOrder,
-          interviewRoundTypes: job.interviewRoundTypes,
-          interviewRoundDetails: job.interviewRoundDetails,
-          interviewScheduled: job.interviewScheduled
-        }
-      );
-      console.log(`Job application confirmation email sent to: ${candidate.email}`);
-    } catch (emailError) {
-      console.error('Failed to send job application confirmation email:', emailError);
-      // Don't fail the application if email fails
-    }
-
-    // If we just hit the limit, mark job as closed
-    const updatedJob = await Job.findById(jobId).select('applicationCount applicationLimit status');
-    if (
-      updatedJob &&
-      typeof updatedJob.applicationLimit === 'number' &&
-      updatedJob.applicationLimit > 0 &&
-      updatedJob.applicationCount >= updatedJob.applicationLimit &&
-      updatedJob.status !== 'closed'
-    ) {
-      await Job.findByIdAndUpdate(jobId, { status: 'closed' });
-    }
-
-    res.status(201).json({ success: true, application });
   } catch (error) {
+    console.error('Error in applyForJob:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -1164,6 +984,7 @@ exports.getDashboardStats = async (req, res) => {
     const applied = await Application.countDocuments({ candidateId });
     const inProgress = await Application.countDocuments({ candidateId, status: { $in: ['pending', 'interviewed'] } });
     const shortlisted = await Application.countDocuments({ candidateId, status: 'shortlisted' });
+    const hired = await Application.countDocuments({ candidateId, status: 'hired' });
     
     const candidate = await Candidate.findById(candidateId)
       .select('name email credits registrationMethod placementId course')
@@ -1190,7 +1011,7 @@ exports.getDashboardStats = async (req, res) => {
     
     const responseData = {
       success: true,
-      stats: { applied, inProgress, shortlisted },
+      stats: { applied, inProgress, shortlisted, hired },
       candidate: { 
         name: candidate.name,
         credits: candidate.credits || 0,

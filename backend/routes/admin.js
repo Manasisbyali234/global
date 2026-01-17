@@ -53,10 +53,6 @@ router.post('/candidates/create', [
   body('firstName').notEmpty().withMessage('First name is required'),
   body('lastName').notEmpty().withMessage('Last name is required'),
   body('email').isEmail().withMessage('Valid email is required'),
-  body('password')
-    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
-    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
-    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)'),
   body('collegeName').notEmpty().withMessage('College name is required')
 ], handleValidationErrors, adminController.createCandidate);
 router.delete('/candidates/:id', adminController.deleteCandidate);

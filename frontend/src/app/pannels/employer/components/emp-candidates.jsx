@@ -76,7 +76,11 @@ function EmpCandidatesPage() {
   const fetchApplications = async () => {
     try {
       const token = localStorage.getItem("employerToken");
-      if (!token) return;
+      if (!token) {
+        console.error('No employer token found');
+        setLoading(false);
+        return;
+      }
 
       let url;
       if (jobId) {
@@ -90,19 +94,26 @@ function EmpCandidatesPage() {
         }
       }
 
+      console.log('Fetching applications from:', url);
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      console.log('Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
-        setApplications(data.applications);
+        console.log('Applications data:', data);
+        setApplications(data.applications || []);
         if (data.job) {
           setCurrentJob(data.job);
         }
+      } else {
+        console.error('Failed to fetch applications:', response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error details:', errorData);
       }
     } catch (error) {
-      
+      console.error('Error fetching applications:', error);
     } finally {
       setLoading(false);
     }

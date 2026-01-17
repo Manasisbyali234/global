@@ -225,18 +225,25 @@ exports.uploadStudentData = async (req, res) => {
     const ids = [];
     const duplicateEmails = [];
     const duplicateIds = [];
+    const existingEmails = [];
     
-    jsonData.forEach((row, index) => {
+    for (const row of jsonData) {
       const email = (row.Email || row.email || row.EMAIL || '').toString().trim().toLowerCase();
       const id = (row.ID || row.id || row.Id || '').toString().trim();
       
       if (email) {
+        // Check for duplicates within file
         if (emails.includes(email)) {
           if (!duplicateEmails.includes(email)) {
             duplicateEmails.push(email);
           }
         } else {
           emails.push(email);
+          // Check if email exists across platform
+          const existingUser = await checkEmailExists(email);
+          if (existingUser) {
+            existingEmails.push(email);
+          }
         }
       }
       
@@ -249,24 +256,28 @@ exports.uploadStudentData = async (req, res) => {
           ids.push(id);
         }
       }
-    });
+    }
     
-    // If duplicates found, return error with specific message
-    if (duplicateEmails.length > 0 || duplicateIds.length > 0) {
-      let message = 'Duplicates found in your file:';
+    // If duplicates or existing emails found, return error
+    if (duplicateEmails.length > 0 || duplicateIds.length > 0 || existingEmails.length > 0) {
+      let message = '';
       if (duplicateEmails.length > 0) {
-        message += ` Emails: ${duplicateEmails.join(', ')}`;
+        message += `Duplicate emails in file: ${duplicateEmails.slice(0, 5).join(', ')}${duplicateEmails.length > 5 ? ` and ${duplicateEmails.length - 5} more` : ''}. `;
       }
       if (duplicateIds.length > 0) {
-        message += ` IDs: ${duplicateIds.join(', ')}`;
+        message += `Duplicate IDs in file: ${duplicateIds.slice(0, 5).join(', ')}${duplicateIds.length > 5 ? ` and ${duplicateIds.length - 5} more` : ''}. `;
       }
-      message += '. Please fix the duplicates and upload again.';
+      if (existingEmails.length > 0) {
+        message += `Emails already registered on platform: ${existingEmails.slice(0, 5).join(', ')}${existingEmails.length > 5 ? ` and ${existingEmails.length - 5} more` : ''}. `;
+      }
+      message += 'Please fix these issues and upload again.';
       
       return res.status(400).json({ 
         success: false, 
         message: message,
         duplicateEmails: duplicateEmails,
-        duplicateIds: duplicateIds
+        duplicateIds: duplicateIds,
+        existingEmails: existingEmails
       });
     }
 
@@ -787,43 +798,21 @@ exports.updateFileCredits = async (req, res) => {
     
     await placement.save();
     
-    // Update all candidates linked to this specific file with new credits
-    const candidatesToUpdate = await Candidate.find(
-      { placementId: actualPlacementId, fileId: fileId },
-      { _id: 1 }
-    );
-    
+    // Update all candidates linked to this placement officer
+    // Since fileId tracking may not be consistent, update all candidates from this placement
     const updateResult = await Candidate.updateMany(
-      { placementId: actualPlacementId, fileId: fileId },
+      { placementId: actualPlacementId },
       { $set: { credits: credits } }
     );
     
-    // Removed console debug line for security
-    
     // Emit real-time credit updates to affected candidates
-    if (candidatesToUpdate.length > 0) {
+    if (updateResult.modifiedCount > 0) {
+      const candidatesToUpdate = await Candidate.find(
+        { placementId: actualPlacementId },
+        { _id: 1 }
+      );
       const candidateIds = candidatesToUpdate.map(c => c._id.toString());
       emitBulkCreditUpdate(candidateIds, credits);
-      // Removed console debug line for security
-    }
-    
-    // Also update candidates who don't have fileId but belong to this placement
-    // This handles legacy candidates created before fileId tracking
-    const legacyCandidatesToUpdate = await Candidate.find(
-      { placementId: actualPlacementId, fileId: { $exists: false } },
-      { _id: 1 }
-    );
-    
-    let legacyUpdateResult = { modifiedCount: 0 };
-    if (legacyCandidatesToUpdate.length > 0) {
-      legacyUpdateResult = await Candidate.updateMany(
-        { placementId: actualPlacementId, fileId: { $exists: false } },
-        { $set: { credits: credits } }
-      );
-      
-      const legacyCandidateIds = legacyCandidatesToUpdate.map(c => c._id.toString());
-      emitBulkCreditUpdate(legacyCandidateIds, credits);
-      // Removed console debug line for security
     }
     
     res.json({
@@ -834,7 +823,7 @@ exports.updateFileCredits = async (req, res) => {
         fileName: file.fileName,
         credits: file.credits
       },
-      candidatesUpdated: updateResult.modifiedCount + legacyUpdateResult.modifiedCount
+      candidatesUpdated: updateResult.modifiedCount
     });
     
   } catch (error) {
@@ -1127,6 +1116,22 @@ exports.rejectFile = async (req, res) => {
         }
       }
     );
+    
+    // Create notification for placement officer
+    try {
+      const displayName = file.customName || file.fileName;
+      await createNotification({
+        title: 'File Rejected',
+        message: `Your uploaded file "${displayName}" has been rejected by the admin. Please review and upload a corrected version if needed.`,
+        type: 'file_rejected',
+        role: 'placement',
+        targetUserId: placementId,
+        relatedId: placementId,
+        createdBy: req.user?.id || 'admin'
+      });
+    } catch (notifError) {
+      console.error('Failed to create rejection notification:', notifError);
+    }
     
     const displayName = file.customName || file.fileName;
     res.json({

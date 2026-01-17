@@ -415,7 +415,6 @@ function SectionCandicateBasicInfo() {
                 }
                 
                 showSuccess('Profile updated successfully!');
-                setNotification({ type: 'success', message: 'Profile updated successfully!' });
                 
                 // Scroll to top after a brief delay to ensure content is rendered
                 setTimeout(() => {
@@ -473,13 +472,6 @@ function SectionCandicateBasicInfo() {
     return (
         <>
         <form onSubmit={handleSubmit}>
-            {notification && (
-                <div className={`alert alert-${notification.type === 'error' ? 'danger' : 'success'} alert-dismissible fade show mb-4`} role="alert">
-                    <i className={`fa ${notification.type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'} me-2`}></i>
-                    {notification.message}
-                    <button type="button" className="btn-close" onClick={() => setNotification(null)} aria-label="Close" style={{position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', fontSize: '20px'}}>×</button>
-                </div>
-            )}
             <div className="panel panel-default">
                 <div className="panel-heading wt-panel-heading p-a20">
                     <h4 className="panel-tittle m-a0" style={{color: '#232323'}}>

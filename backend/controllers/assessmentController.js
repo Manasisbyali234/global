@@ -333,6 +333,11 @@ exports.startAssessment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Assessment time expired. You cannot retake this assessment.' });
     }
     
+    // Check if attempt has violations - prevent re-entry if violations exist
+    if (attempt && attempt.violations && attempt.violations.length > 0) {
+      return res.status(403).json({ success: false, message: 'Assessment access denied due to previous violations. You cannot continue this assessment.' });
+    }
+    
     const assessment = await Assessment.findById(assessmentId);
     if (!assessment) {
       return res.status(404).json({ success: false, message: 'Assessment not found' });

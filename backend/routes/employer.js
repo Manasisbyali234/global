@@ -124,11 +124,26 @@ router.post('/jobs', [
   body('title').notEmpty().withMessage('Job title is required'),
   body('description').notEmpty().withMessage('Job description is required'),
   body('location').notEmpty().withMessage('Location is required'),
-  body('jobType').isIn(['full-time', 'part-time', 'contract', 'internship', 'internship-(paid)', 'internship-(unpaid)', 'work-from-home']).withMessage('Invalid job type')
+  body('category').notEmpty().withMessage('Category is required'),
+  body('jobType').isIn([
+    'full-time', 'part-time', 'remote', 'hybrid', 'contract', 'freelance', 
+    'temporary', 'permanent', 'apprenticeship', 'consultant', 'work-from-home',
+    'internship', 'internship-(paid)', 'internship-(unpaid)'
+  ]).withMessage('Invalid job type')
 ], handleValidationErrors, employerController.createJob);
 
 router.get('/jobs/:jobId', employerController.getJob);
-router.put('/jobs/:jobId', employerController.updateJob);
+router.put('/jobs/:jobId', [
+  body('title').optional().notEmpty().withMessage('Job title cannot be empty'),
+  body('description').optional().notEmpty().withMessage('Job description cannot be empty'),
+  body('location').optional().notEmpty().withMessage('Location cannot be empty'),
+  body('category').optional().notEmpty().withMessage('Category cannot be empty'),
+  body('jobType').optional().isIn([
+    'full-time', 'part-time', 'remote', 'hybrid', 'contract', 'freelance', 
+    'temporary', 'permanent', 'apprenticeship', 'consultant', 'work-from-home',
+    'internship', 'internship-(paid)', 'internship-(unpaid)'
+  ]).withMessage('Invalid job type')
+], handleValidationErrors, employerController.updateJob);
 router.delete('/jobs/:jobId', employerController.deleteJob);
 router.get('/jobs/:jobId/test-dates', employerController.testInterviewDates);
 router.post('/jobs/:jobId/schedule-round', [

@@ -250,19 +250,13 @@ function SectionCanAttachment({ profile }) {
                                 <i className="fa fa-file-text me-1"></i>
                                 Choose Resume File
                             </label>
-                            <div className="position-relative">
-                                <input 
-                                    type="file" 
-                                    accept=".pdf,.doc,.docx" 
-                                    onChange={handleFileSelect}
-                                    disabled={uploading || deleting || resumeFile}
-                                    className="form-control"
-                                    style={{opacity: 0, position: 'absolute', zIndex: 2}}
-                                />
-                                <div className="form-control d-flex align-items-center" style={{cursor: resumeFile ? 'not-allowed' : 'pointer', color: resumeFile ? '#dc3545' : '#6c757d', backgroundColor: resumeFile ? '#f8f9fa' : 'white'}}>
-                                    {resumeFile ? `Current: ${resumeFile} (Delete to upload new)` : selectedFile ? selectedFile.name : 'No file chosen'}
-                                </div>
-                            </div>
+                            <input 
+                                type="file" 
+                                accept=".pdf,.doc,.docx" 
+                                onChange={handleFileSelect}
+                                disabled={uploading || deleting || resumeFile}
+                                className="form-control"
+                            />
                         </div>
                         {selectedFile && (
                             <p className="text-info">

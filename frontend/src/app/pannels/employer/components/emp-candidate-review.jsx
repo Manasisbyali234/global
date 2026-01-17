@@ -512,6 +512,124 @@ function EmpCandidateReviewPage () {
 		return <div className="text-center p-4">Candidate not found</div>;
 	}
 
+	const educationLevelLabels = {
+		'10th_pass': '10th Pass / SSLC',
+		'12th_pass': '12th Pass / PUC / Higher Secondary',
+		'diploma_general': 'Diploma (General)',
+		'iti_trade': 'ITI / Trade Certification',
+		'polytechnic_diploma': 'Polytechnic Diploma',
+		'vocational_training': 'Vocational Training',
+		'certification_courses': 'Certification Courses',
+		'apprenticeship': 'Apprenticeship Programs',
+		'be': 'B.E. (Bachelor of Engineering)',
+		'btech': 'B.Tech (Bachelor of Technology)',
+		'bsc': 'B.Sc (Bachelor of Science)',
+		'bca': 'BCA (Bachelor of Computer Applications)',
+		'bba': 'BBA (Bachelor of Business Administration)',
+		'bcom': 'B.Com (Bachelor of Commerce)',
+		'ba': 'BA (Bachelor of Arts)',
+		'bba_llb': 'BBA-LLB',
+		'bsc_nursing': 'B.Sc Nursing',
+		'bpharm': 'Bachelor of Pharmacy (B.Pharm)',
+		'bds': 'BDS (Dentistry)',
+		'mbbs': 'MBBS (Medicine)',
+		'bams': 'BAMS (Ayurvedic Medicine)',
+		'bhms': 'BHMS (Homeopathy)',
+		'bums': 'BUMS (Unani Medicine)',
+		'bpt': 'BPT (Physiotherapy)',
+		'bot': 'BOT (Occupational Therapy)',
+		'bvsc': 'B.V.Sc (Veterinary Science)',
+		'barch': 'B.Arch (Architecture)',
+		'bfa': 'BFA (Fine Arts)',
+		'bsw': 'BSW (Social Work)',
+		'bhm': 'BHM (Hotel Management)',
+		'bttm': 'BTTM (Travel & Tourism)',
+		'bba_it': 'BBA (IT Management)',
+		'bsc_it': 'B.Sc (IT)',
+		'bsc_cs': 'B.Sc (Computer Science)',
+		'bsc_data_science': 'B.Sc (Data Science / AI / ML)',
+		'btech_ai': 'B.Tech (AI / Data Science / ML / Cybersecurity)',
+		'be_specializations': 'B.E (Specializations)',
+		'bca_cloud': 'BCA (Cloud Computing)',
+		'bca_data_analytics': 'BCA (Data Analytics)',
+		'bcom_finance': 'B.Com (Finance)',
+		'bcom_banking': 'B.Com (Banking & Insurance)',
+		'bba_finance': 'BBA (Finance)',
+		'bba_marketing': 'BBA (Marketing)',
+		'bba_hr': 'BBA (HR)',
+		'bba_hospital': 'BBA (Hospital Administration)',
+		'bba_retail': 'BBA (Retail Management)',
+		'bba_entrepreneurship': 'BBA (Entrepreneurship)',
+		'bsc_biology': 'B.Sc (Biology)',
+		'bsc_biotech': 'B.Sc (Biotechnology)',
+		'bsc_microbiology': 'B.Sc (Microbiology)',
+		'bsc_genetics': 'B.Sc (Genetics)',
+		'bsc_biochemistry': 'B.Sc (Biochemistry)',
+		'clinical_research': 'Clinical Research Certification',
+		'paramedical': 'Paramedical Courses',
+		'llb': 'LLB (Bachelor of Law)',
+		'aviation': 'Aviation Courses',
+		'me': 'M.E. (Master of Engineering)',
+		'mtech': 'M.Tech (Master of Technology)',
+		'mba': 'MBA (Master of Business Administration)',
+		'mba_finance': 'MBA (Finance)',
+		'mba_marketing': 'MBA (Marketing)',
+		'mba_hr': 'MBA (HR)',
+		'mba_operations': 'MBA (Operations)',
+		'mba_systems': 'MBA (Systems / IT)',
+		'msc': 'M.Sc (Master of Science)',
+		'mca': 'MCA (Master of Computer Applications)',
+		'mcom': 'M.Com (Master of Commerce)',
+		'ma': 'MA (Master of Arts)',
+		'mph': 'MPH (Public Health)',
+		'ms': 'MS (Master of Surgery)',
+		'md': 'MD (Doctor of Medicine)',
+		'mds': 'MDS (Master of Dental Surgery)',
+		'mpt': 'MPT (Master of Physiotherapy)',
+		'phd': 'PhD (Doctorate)',
+		'doctoral_research': 'Doctoral Research Fellow',
+		'post_doctoral': 'Post-Doctoral Programs'
+	};
+
+	const getEducationLevelLabel = (edu, index) => {
+		if (edu.educationLevel && educationLevelLabels[edu.educationLevel]) {
+			return educationLevelLabels[edu.educationLevel];
+		}
+		if (edu.degreeName) {
+			const degreeLower = edu.degreeName.toLowerCase();
+			if (degreeLower.includes('10th') || degreeLower.includes('sslc') || degreeLower.includes('tenth')) {
+				return '10th Standard';
+			} else if (degreeLower.includes('12th') || degreeLower.includes('hsc') || degreeLower.includes('twelfth') || degreeLower.includes('intermediate') || degreeLower.includes('puc')) {
+				return '12th Standard';
+			} else {
+				return edu.degreeName;
+			}
+		}
+		const levels = ['10th Standard', '12th Standard', 'Course'];
+		return levels[index] || 'Education';
+	};
+
+	const getEducationPriority = (edu) => {
+		const level = edu.educationLevel;
+		if (level === '10th_pass') return 1;
+		if (level === '12th_pass') return 2;
+		
+		const mastersLevels = ['me', 'mtech', 'mba', 'mba_finance', 'mba_marketing', 'mba_hr', 'mba_operations', 'mba_systems', 'msc', 'mca', 'mcom', 'ma', 'mph', 'ms', 'md', 'mds', 'mpt'];
+		const phdLevels = ['phd', 'doctoral_research', 'post_doctoral'];
+		
+		if (mastersLevels.includes(level)) return 4;
+		if (phdLevels.includes(level)) return 5;
+		
+		// Handle cases where educationLevel might be missing but degreeName identifies it
+		if (!level && edu.degreeName) {
+			const degreeLower = edu.degreeName.toLowerCase();
+			if (degreeLower.includes('10th') || degreeLower.includes('sslc') || degreeLower.includes('tenth')) return 1;
+			if (degreeLower.includes('12th') || degreeLower.includes('hsc') || degreeLower.includes('twelfth') || degreeLower.includes('intermediate') || degreeLower.includes('puc')) return 2;
+		}
+		
+		return 3; // Default for Degrees/Diplomas
+	};
+
 	return (
 		<div className="container-fluid py-4 emp-candidate-review-page" style={{backgroundColor: '#f8f9fa', minHeight: '100vh'}}>
 			{/* Header Section */}
@@ -734,8 +852,7 @@ function EmpCandidateReviewPage () {
 									</button>
 								)}
 
-								{/* Shortlist Candidate Button - Disabled if processes incomplete or hired */}
-								{application?.status !== 'hired' && application?.status !== 'offer_shared' && (
+								{/* Shortlist Candidate Button - Disabled if processes incomplete */}
 								<button 
 									className={`action-btn-consistent ${application?.status === 'shortlisted' ? 'btn-shortlisted' : ''}`} 
 									style={{
@@ -771,7 +888,6 @@ function EmpCandidateReviewPage () {
 								>
 									<Check size={16} style={{flexShrink: 0}} />Shortlist Candidate
 								</button>
-								)}
 
 								{/* Offer Letter Button - Disabled if processes incomplete */}
 								<button 
@@ -849,31 +965,33 @@ function EmpCandidateReviewPage () {
 									</button>
 								)}
 
-								{/* Candidate Not Attended - Always Enabled */}
-								<button 
-									className={`action-btn-consistent ${application?.status === 'not_attended' ? 'btn-not-attended' : ''}`} 
-									style={{
-										backgroundColor: 'transparent', 
-										color: '#ff8a00', 
-										border: '1.5px solid #ff8a00', 
-										borderRadius: '20px', 
-										fontSize: '15px', 
-										fontWeight: '500', 
-										padding: '12px 20px', 
-										alignItems: 'center', 
-										justifyContent: 'center', 
-										gap: '10px', 
-										transition: 'background-color 0.3s ease', 
-										whiteSpace: 'nowrap', 
-										boxSizing: 'border-box'
-									}} 
-									onClick={() => updateApplicationStatus('not_attended')}
-									onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff3e5'} 
-									onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-									title="Mark candidate as not attended"
-								>
-									Candidate Not Attended
-								</button>
+								{/* Candidate Not Attended - Hidden if shortlisted/hired */}
+								{application?.status !== 'shortlisted' && application?.status !== 'hired' && application?.status !== 'offer_shared' && (
+									<button 
+										className={`action-btn-consistent ${application?.status === 'not_attended' ? 'btn-not-attended' : ''}`} 
+										style={{
+											backgroundColor: 'transparent', 
+											color: '#ff8a00', 
+											border: '1.5px solid #ff8a00', 
+											borderRadius: '20px', 
+											fontSize: '15px', 
+											fontWeight: '500', 
+											padding: '12px 20px', 
+											alignItems: 'center', 
+											justifyContent: 'center', 
+											gap: '10px', 
+											transition: 'background-color 0.3s ease', 
+											whiteSpace: 'nowrap', 
+											boxSizing: 'border-box'
+										}} 
+										onClick={() => updateApplicationStatus('not_attended')}
+										onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff3e5'} 
+										onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+										title="Mark candidate as not attended"
+									>
+										Candidate Not Attended
+									</button>
+								)}
 							</div>
 						</div>
 					</div>
@@ -1014,17 +1132,25 @@ function EmpCandidateReviewPage () {
 							</div>
 							<div className="card-body">
 								<div className="row">
-									{candidate.education.map((edu, index) => (
-										<div key={index} className="col-md-6 mb-3 d-flex">
-											<div className="border rounded p-3 w-100 d-flex flex-column">
-												<h6 className="text-primary mb-2">
-													{index === 0 ? '10th Grade' : index === 1 ? '12th Grade' : 'Degree'}
-												</h6>
-												<p className="mb-1"><strong>Institution:</strong> {edu.collegeName || 'Not provided'}</p>
-												{edu.specialization && <p className="mb-1"><strong>Specialization:</strong> {edu.specialization}</p>}
-												<p className="mb-1"><strong>Year:</strong> {edu.passYear || 'Not provided'}</p>
-												<p className="mb-2"><strong>Score:</strong> {edu.scoreValue || edu.percentage || 'Not provided'}{edu.scoreType === 'percentage' ? '%' : ''}</p>
-												{edu.marksheet && (
+									{[...candidate.education]
+										.sort((a, b) => getEducationPriority(a) - getEducationPriority(b))
+										.map((edu, index) => {
+											const eduLevelLabel = getEducationLevelLabel(edu, index);
+										return (
+											<div key={index} className="col-md-6 mb-3 d-flex">
+												<div className="border rounded p-3 w-100 d-flex flex-column">
+													<h6 className="text-primary mb-2">
+														{eduLevelLabel}
+													</h6>
+													<p className="mb-1"><strong>Institution:</strong> {edu.degreeName || 'Not provided'}</p>
+													{edu.collegeName && <p className="mb-1"><strong>Board/University:</strong> {edu.collegeName}</p>}
+													{edu.specialization && eduLevelLabel !== '10th Pass / SSLC' && <p className="mb-1"><strong>Course:</strong> {edu.specialization}</p>}
+													{edu.registrationNumber && <p className="mb-1"><strong>Reg. No:</strong> {edu.registrationNumber}</p>}
+													{edu.state && <p className="mb-1"><strong>State:</strong> {edu.state}</p>}
+													<p className="mb-1"><strong>Year:</strong> {edu.passYear || 'Not provided'}</p>
+													<p className="mb-1"><strong>Score:</strong> {edu.scoreValue || edu.percentage || 'Not provided'}{edu.scoreType === 'percentage' || (!edu.scoreType && edu.percentage) ? '%' : ''}{edu.cgpa && ` (CGPA: ${edu.cgpa})`}</p>
+													{edu.grade && <p className="mb-2"><strong>Result/Grade:</strong> {edu.grade}</p>}
+													{edu.marksheet && (
 													<div style={{display: 'flex', flexDirection: 'row', gap: '0.5rem', flexWrap: 'nowrap'}}>
 														<button
 															className="btn btn-outline-primary btn-sm"
@@ -1037,7 +1163,8 @@ function EmpCandidateReviewPage () {
 												)}
 											</div>
 										</div>
-									))}
+									);
+								})}
 								</div>
 							</div>
 						</div>

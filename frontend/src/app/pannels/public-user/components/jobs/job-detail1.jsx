@@ -10,7 +10,7 @@ import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
-import CreditConfirmationPopup from '../../../../../components/CreditConfirmationPopup';
+
 function JobDetail1Page() {
     const { id, param1 } = useParams();
     const jobId = id || param1;
@@ -21,12 +21,10 @@ function JobDetail1Page() {
     const [hasApplied, setHasApplied] = useState(false);
     const [candidateId, setCandidateId] = useState(null);
     const [scrollProgress, setScrollProgress] = useState(0);
-    const [candidateCredits, setCandidateCredits] = useState(0);
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [pendingJobApplication, setPendingJobApplication] = useState(false);
-    const [showCreditConfirmation, setShowCreditConfirmation] = useState(false);
-    const [pendingApplicationData, setPendingApplicationData] = useState(null);
+    const [razorpayKey, setRazorpayKey] = useState(null);
 
     const authState = useMemo(() => {
         const token = localStorage.getItem('candidateToken');
@@ -71,32 +69,14 @@ function JobDetail1Page() {
         }
     }, [jobId]);
 
-    const fetchCandidateCredits = useCallback(async () => {
-        try {
-            const token = localStorage.getItem('candidateToken');
-            const response = await fetch('http://localhost:5000/api/candidate/dashboard/stats', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            if (data.success) {
-                setCandidateCredits(data.candidate.credits || 0);
-            }
-        } catch (error) {
-            console.error('Error fetching credits:', error);
-        }
-    }, []);
-
     useEffect(() => {
         setIsLoggedIn(authState.isLoggedIn);
         setCandidateId(authState.candidateId);
         
         if (authState.token && authState.candidateId && jobId) {
-            Promise.all([
-                checkApplicationStatus(),
-                fetchCandidateCredits()
-            ]);
+            checkApplicationStatus();
         }
-    }, [jobId, authState.token, authState.candidateId, checkApplicationStatus, fetchCandidateCredits]);
+    }, [jobId, authState.token, authState.candidateId, checkApplicationStatus]);
 
     const sidebarConfig = {
         showJobInfo: true
@@ -110,8 +90,27 @@ function JobDetail1Page() {
 
     useEffect(() => {
         loadScript("js/custom.js");
+        loadScript("https://checkout.razorpay.com/v1/checkout.js", false);
+        
+        const fetchRazorpayKey = async () => {
+            try {
+                const token = localStorage.getItem('candidateToken');
+                if (!token) return;
+                const response = await fetch('http://localhost:5000/api/payments/key', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    setRazorpayKey(data.publicKey);
+                }
+            } catch (error) {
+                console.error('Error fetching Razorpay key:', error);
+            }
+        };
+
         if (jobId) {
             fetchJobDetails();
+            fetchRazorpayKey();
         }
         
         let ticking = false;
@@ -162,36 +161,81 @@ function JobDetail1Page() {
                 return;
             }
             
-            const statsResponse = await fetch('http://localhost:5000/api/candidate/dashboard/stats', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const statsData = await statsResponse.json();
-            
-            if (statsData.success) {
-                const credits = statsData.candidate.credits || 0;
-                const registrationMethod = statsData.candidate.registrationMethod || 'signup';
-                
-                const isPlacement = registrationMethod === 'placement' || statsData.candidate.placement;
-                
-                // Only check credits for placement candidates
-                if (isPlacement && credits <= 0) {
-                    showError('You are out of your credits. Please contact support to get more credits.');
-                    return;
-                }
-                
-                // Only show credit confirmation for placement candidates
-                if (isPlacement) {
-                    setShowCreditConfirmation(true);
-                    setPendingApplicationData({ credits });
-                    return;
-                }
-            }
-            
-            // Continue with the application process for non-placement candidates
-            continueJobApplication();
+            // Payment is required for every job application
+            handlePayment();
         } catch (error) {
             console.error('Error applying for job:', error);
             showError('Failed to submit application');
+        }
+    };
+
+    const handlePayment = async () => {
+        try {
+            const token = localStorage.getItem('candidateToken');
+            
+            // 1. Create Order
+            const orderResponse = await fetch('http://localhost:5000/api/payments/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ jobId })
+            });
+            const orderData = await orderResponse.json();
+            
+            if (!orderData.success) {
+                showError(orderData.message || 'Failed to initiate payment');
+                return;
+            }
+
+            // 2. Open Razorpay Checkout
+            const options = {
+                key: razorpayKey,
+                amount: orderData.order.amount,
+                currency: orderData.order.currency,
+                name: 'TaleGlobal',
+                description: `Job Application fee for ${job.title}`,
+                order_id: orderData.order.id,
+                handler: async (response) => {
+                    // 3. Verify Payment
+                    try {
+                        const verifyResponse = await fetch('http://localhost:5000/api/payments/verify-payment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                ...response,
+                                jobId,
+                                coverLetter: "" 
+                            })
+                        });
+                        const verifyData = await verifyResponse.json();
+                        
+                        if (verifyData.success) {
+                            setHasApplied(true);
+                            showSuccess('Payment successful and application submitted!');
+                            fetchJobDetails();
+                        } else {
+                            showError(verifyData.message || 'Payment verification failed');
+                        }
+                    } catch (error) {
+                        console.error('Error verifying payment:', error);
+                        showError('Payment verification failed');
+                    }
+                },
+                theme: {
+                    color: '#ff6b35'
+                }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+        } catch (error) {
+            console.error('Error in payment flow:', error);
+            showError('Failed to initiate payment');
         }
     };
 
@@ -206,47 +250,6 @@ function JobDetail1Page() {
             setTermsAccepted(false);
             setPendingJobApplication(true);
             setShowTermsModal(true);
-        }
-    };
-
-    const handleCreditConfirm = () => {
-        setShowCreditConfirmation(false);
-        setPendingApplicationData(null);
-        // Continue with the application process
-        continueJobApplication();
-    };
-
-    const handleCreditCancel = () => {
-        setShowCreditConfirmation(false);
-        setPendingApplicationData(null);
-    };
-
-    const continueJobApplication = async () => {
-        try {
-            const token = localStorage.getItem('candidateToken');
-            
-            const response = await fetch('http://localhost:5000/api/candidate/applications', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ jobId: jobId })
-            });
-            const data = await response.json();
-            if (data.success) {
-                setHasApplied(true);
-                showSuccess('Application submitted successfully!');
-                // Refresh credits after successful application
-                fetchCandidateCredits();
-                // Refresh job details to show updated application count
-                fetchJobDetails();
-            } else {
-                showError(data.message || 'Failed to submit application');
-            }
-        } catch (error) {
-            console.error('Error applying for job:', error);
-            showError('Failed to submit application');
         }
     };
 
@@ -499,12 +502,6 @@ function JobDetail1Page() {
                     submitJobApplication();
                 }}
                 role="candidateApplication"
-            />
-            <CreditConfirmationPopup 
-                credits={pendingApplicationData?.credits || 0}
-                onConfirm={handleCreditConfirm}
-                onCancel={handleCreditCancel}
-                isOpen={showCreditConfirmation}
             />
         </>
     );

@@ -358,13 +358,6 @@ function AdminSubAdmin() {
             <div className="wt-admin-right-page-header">
                 <h2>Sub Admin Management</h2>
             </div>
-            
-            {error && (
-                <div className="alert alert-danger">
-                    <i className="fa fa-exclamation-triangle me-2"></i>
-                    {error}
-                </div>
-            )}
 
             <div className="panel panel-default site-bg-white">
                 <div className="panel-body wt-panel-body">
@@ -410,8 +403,8 @@ function AdminSubAdmin() {
                                                         <td>
                                                             <span className="company-name">{admin.name}</span>
                                                         </td>
-                                                        <td style={{fontFamily: 'monospace', fontSize: '0.85rem'}}>{admin.username}</td>
-                                                        <td style={{fontFamily: 'monospace', fontSize: '0.85rem'}}>{admin.email}</td>
+                                                        <td>{admin.username}</td>
+                                                        <td>{admin.email}</td>
                                                         <td style={{fontFamily: 'monospace', fontSize: '0.85rem', fontWeight: '600'}}>{admin.employerCode}</td>
                                                         <td style={{fontSize: '0.85rem'}}>
                                                             {admin.permissions.map((permission, index) => (

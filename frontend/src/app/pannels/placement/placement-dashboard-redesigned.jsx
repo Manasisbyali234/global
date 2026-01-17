@@ -147,7 +147,10 @@ function PlacementDashboardRedesigned() {
 
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        if (!file) {
+            showWarning('Please select a file to upload.');
+            return;
+        }
         
         // Validate required fields
         if (!courseName.trim()) {
@@ -587,14 +590,14 @@ function PlacementDashboardRedesigned() {
                                                     )}
                                                     {placementData?.collegeOfficialEmail && (
                                                         <div className="contact-item">
-                                                            <i className="fa fa-envelope-o"></i>
-                                                            <span>Official: {placementData.collegeOfficialEmail}</span>
+                                                            <i className="fa fa-envelope"></i>
+                                                            <span>Official Email: {placementData.collegeOfficialEmail}</span>
                                                         </div>
                                                     )}
                                                     {placementData?.collegeOfficialPhone && (
                                                         <div className="contact-item">
                                                             <i className="fa fa-phone-square"></i>
-                                                            <span>Official: {placementData.collegeOfficialPhone}</span>
+                                                            <span>Official Number: {placementData.collegeOfficialPhone}</span>
                                                         </div>
                                                     )}
                                                 </div>
