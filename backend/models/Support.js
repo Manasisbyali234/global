@@ -12,6 +12,8 @@ const supportSchema = new mongoose.Schema({
   priority: { type: String, enum: ['low', 'medium', 'high', 'urgent'], default: 'medium' },
   message: { type: String, required: true },
   status: { type: String, enum: ['new', 'in-progress', 'resolved', 'closed'], default: 'new' },
+  receiverRole: { type: String, enum: ['admin', 'employer'], default: 'admin' },
+  receiverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employer' },
   isRead: { type: Boolean, default: false },
   response: { type: String },
   respondedAt: { type: Date },

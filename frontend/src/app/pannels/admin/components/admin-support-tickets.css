@@ -457,6 +457,11 @@
   padding: 1.2rem;
   line-height: 1.7;
   color: #0f172a;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .attachment-list {

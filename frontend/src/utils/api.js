@@ -810,6 +810,48 @@ export const api = {
       body: JSON.stringify(data),
     }).then((res) => res.json());
   },
+
+  // Employer Support Ticket APIs
+  getEmployerSupportTickets: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return fetch(`${API_BASE_URL}/employer/support-tickets?${queryString}`, {
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
+  getEmployerSupportTicketById: (id) => {
+    return fetch(`${API_BASE_URL}/employer/support-tickets/${id}`, {
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
+  updateEmployerSupportTicket: (id, data) => {
+    return fetch(`${API_BASE_URL}/employer/support-tickets/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders('employer'),
+      body: JSON.stringify(data),
+    }).then((res) => res.json());
+  },
+
+  deleteEmployerSupportTicket: (id) => {
+    return fetch(`${API_BASE_URL}/employer/support-tickets/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
+  downloadEmployerSupportAttachment: (ticketId, attachmentIndex) => {
+    return fetch(`${API_BASE_URL}/employer/support-tickets/${ticketId}/attachments/${attachmentIndex}`, {
+      headers: getAuthHeaders('employer'),
+    });
+  },
+
+  submitSupportTicket: (formData) => {
+    return fetch(`${API_BASE_URL}/public/support`, {
+      method: 'POST',
+      body: formData,
+    });
+  },
 };
 
 export default api;

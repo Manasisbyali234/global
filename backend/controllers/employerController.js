@@ -5,6 +5,9 @@ const Job = require('../models/Job');
 const Application = require('../models/Application');
 const Message = require('../models/Message');
 const Subscription = require('../models/Subscription');
+const Support = require('../models/Support');
+const mongoose = require('mongoose');
+const { createNotification } = require('./notificationController');
 const { sendWelcomeEmail } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { cacheInvalidation } = require('../utils/cacheInvalidation');
@@ -219,7 +222,6 @@ exports.updateProfile = async (req, res) => {
 
     // Check if profile is now complete and notify admin for approval
     try {
-      const { createNotification } = require('./notificationController');
       const requiredFields = ['companyName', 'description', 'location', 'phone', 'email'];
       const requiredDocuments = ['panCardImage', 'gstImage', 'certificateOfIncorporation'];
       const allRequiredItems = [...requiredFields, ...requiredDocuments];
@@ -1095,7 +1097,6 @@ exports.updateJob = async (req, res) => {
     // Notify only candidates who have applied for this job
     if (hasScheduledRounds) {
       try {
-        const { createNotification } = require('./notificationController');
         const applications = await Application.find({ jobId: job._id }).select('candidateId');
         
         for (const app of applications) {
@@ -1238,7 +1239,6 @@ exports.updateApplicationStatus = async (req, res) => {
     }
 
     try {
-      const { createNotification } = require('./notificationController');
       const statusLabels = {
         pending: 'Pending',
         shortlisted: 'Shortlisted',
@@ -1934,7 +1934,6 @@ exports.scheduleInterviewRound = async (req, res) => {
     
     // Notify only candidates who have applied for this job
     try {
-      const { createNotification } = require('./notificationController');
       const roundNames = {
         technical: 'Technical Round',
         nonTechnical: 'Non-Technical Round',
@@ -2366,5 +2365,202 @@ exports.getGSTInfo = async (req, res) => {
       success: false,
       message: error.message || 'Unable to fetch GST information. Please fill the details manually.'
     });
+  }
+};
+
+// Support Ticket Controllers
+exports.getSupportTickets = async (req, res) => {
+  try {
+    const { status, userType, priority, page = 1, limit = 20 } = req.query;
+    const employerId = req.user.id;
+    
+    let query = { 
+      receiverRole: 'employer',
+      receiverId: employerId
+    };
+    
+    if (status) query.status = status;
+    if (userType) query.userType = userType;
+    if (priority) query.priority = priority;
+
+    const tickets = await Support.find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .lean();
+
+    const totalTickets = await Support.countDocuments(query);
+    const unreadCount = await Support.countDocuments({ ...query, isRead: false });
+
+    res.json({ 
+      success: true, 
+      tickets: tickets,
+      totalTickets,
+      unreadCount,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(totalTickets / parseInt(limit))
+    });
+  } catch (error) {
+    console.error('Error in getSupportTickets:', error);
+    return res.status(500).json({ success: false, message: error.message || 'Failed to fetch support tickets' });
+  }
+};
+
+exports.getSupportTicketById = async (req, res) => {
+  try {
+    const employerId = req.user.id;
+    const ticket = await Support.findOneAndUpdate(
+      { _id: req.params.id, receiverId: employerId },
+      { isRead: true },
+      { new: true }
+    ).lean();
+    
+    if (!ticket) {
+      return res.status(404).json({ success: false, message: 'Support ticket not found' });
+    }
+
+    res.json({ success: true, ticket });
+  } catch (error) {
+    console.error('Error in getSupportTicketById:', error);
+    return res.status(500).json({ success: false, message: error.message || 'Failed to fetch ticket' });
+  }
+};
+
+exports.updateSupportTicketStatus = async (req, res) => {
+  try {
+    const { status, response } = req.body;
+    const ticketId = req.params.id;
+    const employerId = req.user.id;
+    
+    // Validate ticket ID
+    if (!ticketId || !mongoose.Types.ObjectId.isValid(ticketId)) {
+      return res.status(400).json({ success: false, message: 'Invalid ticket ID provided' });
+    }
+    
+    // Validate status
+    const validStatuses = ['new', 'in-progress', 'resolved', 'closed'];
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status provided' });
+    }
+    
+    const updateData = { 
+      status,
+      isRead: true
+    };
+    
+    if (response && response.trim()) {
+      updateData.response = response.trim();
+      updateData.respondedAt = new Date();
+      updateData.respondedBy = employerId;
+    }
+
+    const ticket = await Support.findOneAndUpdate(
+      { _id: ticketId, receiverId: employerId },
+      updateData,
+      { new: true, runValidators: true }
+    ).populate('userId', 'name email companyName');
+
+    if (!ticket) {
+      return res.status(404).json({ success: false, message: 'Support ticket not found or unauthorized' });
+    }
+
+    // Create notification for user if responded or status changed
+    if ((response && response.trim()) || status === 'resolved' || status === 'closed') {
+      try {
+        let notificationTitle = 'Support Ticket Updated';
+        let notificationMessage = `Your support ticket "${ticket.subject}" has been updated by the employer.`;
+        
+        if (response && response.trim()) {
+          notificationTitle = 'Employer Response to Your Support Ticket';
+          notificationMessage = `Subject: ${ticket.subject}\n\nStatus: ${status.toUpperCase()}\n\nEmployer Response:\n${response.trim()}`;
+        } else if (status === 'resolved') {
+          notificationTitle = 'Support Ticket Resolved';
+          notificationMessage = `Subject: ${ticket.subject}\n\nYour support ticket has been resolved by the employer.\n\nStatus: RESOLVED`;
+        } else if (status === 'closed') {
+          notificationTitle = 'Support Ticket Closed';
+          notificationMessage = `Subject: ${ticket.subject}\n\nYour support ticket has been closed by the employer.\n\nStatus: CLOSED`;
+        }
+        
+        let targetUserId = ticket.userId;
+        if (!targetUserId && ticket.email) {
+          const Candidate = require('../models/Candidate');
+          const candidate = await Candidate.findOne({ email: ticket.email });
+          targetUserId = candidate?._id;
+        }
+        
+        if (targetUserId) {
+          const notificationData = {
+            title: notificationTitle,
+            message: notificationMessage,
+            type: 'support_response',
+            role: 'candidate',
+            candidateId: targetUserId,
+            createdBy: employerId
+          };
+          
+          await createNotification(notificationData);
+        }
+      } catch (notifError) {
+        console.error('Error creating support response notification:', notifError);
+      }
+    }
+
+    res.json({ 
+      success: true, 
+      ticket,
+      message: `Support ticket ${status === 'closed' ? 'closed' : 'updated'} successfully`
+    });
+  } catch (error) {
+    console.error('Error updating support ticket:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.deleteSupportTicket = async (req, res) => {
+  try {
+    const ticketId = req.params.id;
+    const employerId = req.user.id;
+    
+    if (!ticketId || !mongoose.Types.ObjectId.isValid(ticketId)) {
+      return res.status(400).json({ success: false, message: 'Invalid ticket ID provided' });
+    }
+    
+    const ticket = await Support.findOneAndDelete({ _id: ticketId, receiverId: employerId });
+    
+    if (!ticket) {
+      return res.status(404).json({ success: false, message: 'Support ticket not found or unauthorized' });
+    }
+
+    res.json({ success: true, message: 'Support ticket deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting support ticket:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.downloadSupportAttachment = async (req, res) => {
+  try {
+    const { ticketId, attachmentIndex } = req.params;
+    const employerId = req.user.id;
+    
+    const ticket = await Support.findOne({ _id: ticketId, receiverId: employerId }).lean();
+    if (!ticket) {
+      return res.status(404).json({ success: false, message: 'Support ticket not found or unauthorized' });
+    }
+
+    if (!ticket.attachments || !ticket.attachments[attachmentIndex]) {
+      return res.status(404).json({ success: false, message: 'Attachment not found' });
+    }
+
+    const attachment = ticket.attachments[attachmentIndex];
+    res.json({
+      success: true,
+      filename: attachment.filename,
+      mimetype: attachment.mimetype,
+      data: attachment.data
+    });
+  } catch (error) {
+    console.error('Error downloading attachment:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };

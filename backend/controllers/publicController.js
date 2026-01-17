@@ -956,9 +956,21 @@ exports.getJobFilterCounts = async (req, res) => {
 // Support Controller
 exports.submitSupportTicket = async (req, res) => {
   try {
-    const { name, email, phone, userType, userId, subject, category, priority, message } = req.body;
+    console.log('Support ticket submission received:', {
+      ...req.body,
+      attachmentsCount: req.files ? req.files.length : 0
+    });
+
+    const { name, email, phone, userType, userId, subject, category, priority, message, receiverRole, receiverId } = req.body;
     
-    // Handle file attachments
+    // Validate required fields manually as backup to express-validator
+    if (!name || !email || !subject || !message || !userType) {
+      console.error('Missing required fields in submitSupportTicket');
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields. Please ensure name, email, subject, message and user type are provided.'
+      });
+    }
     let attachments = [];
     if (req.files && req.files.length > 0) {
       const { fileToBase64 } = require('../middlewares/upload');
@@ -1011,6 +1023,8 @@ exports.submitSupportTicket = async (req, res) => {
       category: category || 'general',
       priority: priority || 'medium',
       message,
+      receiverRole: receiverRole || 'admin',
+      receiverId: receiverId || null,
       attachments
     };
 

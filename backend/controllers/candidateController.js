@@ -593,10 +593,10 @@ exports.getAppliedJobs = async (req, res) => {
     const applications = await Application.find({ candidateId: req.user._id })
       .populate({
         path: 'jobId',
-        select: 'title location jobType status interviewRoundsCount interviewRoundTypes',
+        select: 'title location jobType status interviewRoundsCount interviewRoundTypes employerId',
         options: { lean: false } // Ensure we get the latest data from DB
       })
-      .populate('employerId', 'companyName')
+      .populate('employerId', 'companyName name')
       .sort({ createdAt: -1 })
       .lean(); // Use lean for better performance
 
@@ -947,7 +947,7 @@ exports.getDashboard = async (req, res) => {
     
     const recentApplications = await Application.find({ candidateId })
       .populate('jobId', 'title location')
-      .populate('employerId', 'companyName')
+      .populate('employerId', 'companyName name')
       .sort({ createdAt: -1 })
       .limit(5);
     
@@ -1112,7 +1112,7 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
         select: 'title location jobType status interviewRoundsCount interviewRoundTypes interviewRoundDetails interviewRoundOrder assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime assessmentInstructions assessmentPassingPercentage',
         options: { lean: true }
       })
-      .populate('employerId', 'companyName')
+      .populate('employerId', 'companyName name')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -1172,7 +1172,7 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
         path: 'jobId',
         select: 'title interviewRoundTypes interviewRoundDetails interviewRoundOrder dynamicInterviewRounds assessmentId assessmentStartDate assessmentEndDate'
       })
-      .populate('employerId', 'companyName')
+      .populate('employerId', 'companyName name')
       .sort({ createdAt: -1 });
 
     const interviewProcesses = applications.map(application => {
@@ -1690,7 +1690,7 @@ exports.getInterviewProcessDetails = async (req, res) => {
     if (application.interviewProcessId) {
       const interviewProcess = await InterviewProcess.findById(application.interviewProcessId)
         .populate('jobId', 'title')
-        .populate('employerId', 'companyName')
+        .populate('employerId', 'companyName name')
         .populate('candidateId', 'name email');
       
       if (interviewProcess) {
@@ -1851,7 +1851,7 @@ exports.getAllCandidateInterviewProcesses = async (req, res) => {
     
     const interviewProcesses = await InterviewProcess.find({ candidateId: req.user._id })
       .populate('jobId', 'title location')
-      .populate('employerId', 'companyName')
+      .populate('employerId', 'companyName name')
       .populate('applicationId', 'status createdAt')
       .sort({ createdAt: -1 });
 

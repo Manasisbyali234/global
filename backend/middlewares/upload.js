@@ -107,7 +107,7 @@ const uploadGallery = multer({
     files: 3, // Reduced to 3 files per batch to manage memory better
     fieldSize: 30 * 1024 * 1024, // Increased to 30MB total field size
     fieldNameSize: 100, // Field name size
-    fields: 10 // Maximum number of non-file fields
+    fields: 20 // Maximum number of non-file fields
   }
 });
 
@@ -160,7 +160,7 @@ const uploadSupport = multer({
     files: 3, // Allow up to 3 files
     fieldSize: 30 * 1024 * 1024, // 30MB total field size
     fieldNameSize: 100,
-    fields: 10
+    fields: 20
   }
 });
 

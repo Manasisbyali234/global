@@ -11,9 +11,13 @@ function CanSupport() {
         subject: '',
         category: 'general',
         priority: 'medium',
-        message: ''
+        message: '',
+        receiverRole: 'admin',
+        receiverId: ''
     });
     const [files, setFiles] = useState([]);
+    const [employers, setEmployers] = useState([]);
+    const [isLoadingEmployers, setIsLoadingEmployers] = useState(false);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -23,6 +27,40 @@ function CanSupport() {
     useEffect(() => {
         fetchCandidateData();
     }, []);
+
+    useEffect(() => {
+        if (formData.receiverRole === 'employer') {
+            fetchAppliedEmployers();
+        }
+    }, [formData.receiverRole]);
+
+    const fetchAppliedEmployers = async () => {
+        setIsLoadingEmployers(true);
+        try {
+            const response = await api.getCandidateApplications();
+            if (response.success && response.applications) {
+                // Extract unique employers from applications
+                const uniqueEmployers = [];
+                const seenEmployerIds = new Set();
+
+                response.applications.forEach(app => {
+                    const employer = app.employerId || app.jobId?.employerId;
+                    if (employer && !seenEmployerIds.has(employer._id)) {
+                        seenEmployerIds.add(employer._id);
+                        uniqueEmployers.push({
+                            id: employer._id,
+                            name: employer.companyName || employer.name
+                        });
+                    }
+                });
+                setEmployers(uniqueEmployers);
+            }
+        } catch (error) {
+            console.error('Error fetching applied employers:', error);
+        } finally {
+            setIsLoadingEmployers(false);
+        }
+    };
 
     const fetchCandidateData = async () => {
         try {
@@ -89,6 +127,9 @@ function CanSupport() {
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Valid email is required';
         if (!formData.subject.trim()) newErrors.subject = 'Subject is required';
         if (!formData.message.trim()) newErrors.message = 'Message is required';
+        if (formData.receiverRole === 'employer' && !formData.receiverId) {
+            newErrors.receiverId = 'Please select an employer';
+        }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -231,23 +272,24 @@ function CanSupport() {
                 subject: formData.subject.trim(),
                 category: formData.category,
                 priority: formData.priority,
-                message: formData.message.trim()
+                message: formData.message.trim(),
+                receiverRole: formData.receiverRole,
+                receiverId: formData.receiverId
             };
             
             console.log('Submitting candidate support ticket with data:', requiredData);
             
             Object.keys(requiredData).forEach(key => {
-                submitData.append(key, requiredData[key]);
+                if (requiredData[key] !== undefined && requiredData[key] !== null) {
+                    submitData.append(key, requiredData[key]);
+                }
             });
             
             files.forEach(file => {
                 submitData.append('attachments', file);
             });
 
-            const response = await fetch('/api/public/support', {
-                method: 'POST',
-                body: submitData
-            });
+            const response = await api.submitSupportTicket(submitData);
             
             const contentType = response.headers.get('content-type');
             
@@ -396,6 +438,45 @@ function CanSupport() {
                                         </div>
                                     </div>
                                     
+                                    <div className="col-xl-6 col-lg-6 col-md-12">
+                                        <div className="form-group">
+                                            <label>Send To</label>
+                                            <select 
+                                                name="receiverRole" 
+                                                className="form-control"
+                                                value={formData.receiverRole}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="admin">Admin Support</option>
+                                                <option value="employer">Employer Support</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {formData.receiverRole === 'employer' && (
+                                        <div className="col-xl-6 col-lg-6 col-md-12">
+                                            <div className="form-group">
+                                                <label>Select Employer</label>
+                                                <select 
+                                                    name="receiverId" 
+                                                    className={`form-control ${errors.receiverId ? 'is-invalid' : ''}`}
+                                                    value={formData.receiverId}
+                                                    onChange={handleChange}
+                                                    disabled={isLoadingEmployers}
+                                                >
+                                                    <option value="">{isLoadingEmployers ? 'Loading employers...' : 'Choose an employer'}</option>
+                                                    {employers.map(emp => (
+                                                        <option key={emp.id} value={emp.id}>{emp.name}</option>
+                                                    ))}
+                                                </select>
+                                                {errors.receiverId && <div className="invalid-feedback">{errors.receiverId}</div>}
+                                                {employers.length === 0 && !isLoadingEmployers && (
+                                                    <small className="text-muted">No employers found. You can only send tickets to employers you've applied to.</small>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="col-xl-12 col-lg-12 col-md-12">
                                         <div className="form-group">
                                             <label>Subject</label>

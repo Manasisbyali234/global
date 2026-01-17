@@ -228,4 +228,11 @@ router.delete('/assessments/:id', assessmentController.deleteAssessment);
 router.get('/assessments/:id/results', assessmentController.getAssessmentResults);
 router.get('/assessment-attempts/:attemptId', assessmentController.getAttemptDetails);
 
+// Support Ticket Routes
+router.get('/support-tickets', employerController.getSupportTickets);
+router.get('/support-tickets/:id', employerController.getSupportTicketById);
+router.put('/support-tickets/:id', employerController.updateSupportTicketStatus);
+router.delete('/support-tickets/:id', employerController.deleteSupportTicket);
+router.get('/support-tickets/:ticketId/attachments/:attachmentIndex', employerController.downloadSupportAttachment);
+
 module.exports = router;

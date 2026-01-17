@@ -71,6 +71,10 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
                             <NavLink to={empRoute(employer.CANDIDATES)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-user-friends" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '15px'}}>Applicants</span></NavLink>
                         </li>
 
+                        <li className={setMenuActive(currentpath, empRoute(employer.SUPPORT_TICKETS))}>
+                            <NavLink to={empRoute(employer.SUPPORT_TICKETS)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-ticket-alt" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Candidate Tickets</span></NavLink>
+                        </li>
+
                         <li className={setMenuActive(currentpath, empRoute(employer.SUPPORT))}>
                             <NavLink to={empRoute(employer.SUPPORT)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-headset" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Support</span></NavLink>
                         </li>
