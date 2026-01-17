@@ -189,7 +189,7 @@ function RegisteredCandidatesPage() {
                                         <th><i className="fa fa-user"></i> Name</th>
                                         <th><i className="fa fa-envelope"></i> Email</th>
                                         <th><i className="fa fa-phone"></i> Phone</th>
-                                        <th><i className="fa fa-file-text"></i> Total Apps</th>
+                                        <th><i className="fa fa-file-text"></i> Total Application</th>
                                         <th><i className="fa fa-money"></i> Total Paid</th>
                                         <th><i className="fa fa-id-card"></i> Profile Status</th>
                                         <th><i className="fa fa-map-marker-alt"></i> Location</th>
