@@ -913,14 +913,37 @@ exports.getRegisteredCandidates = async (req, res) => {
         }
       },
       {
+        $lookup: {
+          from: 'applications',
+          localField: '_id',
+          foreignField: 'candidateId',
+          as: 'applications'
+        }
+      },
+      {
         $addFields: {
           profile: { $arrayElemAt: ['$profile', 0] },
-          hasProfile: { $gt: [{ $size: '$profile' }, 0] }
+          hasProfile: { $gt: [{ $size: '$profile' }, 0] },
+          totalApplications: { $size: '$applications' },
+          totalPaidAmount: {
+            $reduce: {
+              input: '$applications',
+              initialValue: 0,
+              in: {
+                $cond: [
+                  { $eq: ['$$this.paymentStatus', 'paid'] },
+                  { $add: ['$$value', { $ifNull: ['$$this.paymentAmount', 129] }] },
+                  '$$value'
+                ]
+              }
+            }
+          }
         }
       },
       {
         $project: {
-          password: 0
+          password: 0,
+          applications: 0
         }
       }
     ]);

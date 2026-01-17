@@ -309,6 +309,20 @@
     color: white !important;
 }
 
+.badge-total-apps {
+    background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+    color: white !important;
+    min-width: 60px !important;
+    padding: 8px 10px !important;
+}
+
+.badge-total-paid {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+    color: white !important;
+    min-width: 80px !important;
+    padding: 8px 10px !important;
+}
+
 .action-btn {
     padding: 6px 10px;
     border: none;

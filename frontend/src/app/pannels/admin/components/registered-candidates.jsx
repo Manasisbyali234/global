@@ -124,6 +124,10 @@ function RegisteredCandidatesPage() {
                                         <div className="col-6"><strong>Profile:</strong> {selectedCandidate.isProfileComplete ? 'Completed' : `Incomplete (${selectedCandidate.profileCompletionPercentage || 0}%)`}</div>
                                     </div>
                                     <div className="row mb-2">
+                                        <div className="col-6"><strong>Total Applications:</strong> {selectedCandidate.totalApplications || 0}</div>
+                                        <div className="col-6"><strong>Total Paid:</strong> ₹{selectedCandidate.totalPaidAmount || 0}</div>
+                                    </div>
+                                    <div className="row mb-2">
                                         <div className="col-6"><strong>Location:</strong> {selectedCandidate.profile?.location || 'Not specified'}</div>
                                         <div className="col-6"><strong>Registered:</strong> {new Date(selectedCandidate.createdAt).toLocaleString()}</div>
                                     </div>
@@ -185,6 +189,8 @@ function RegisteredCandidatesPage() {
                                         <th><i className="fa fa-user"></i> Name</th>
                                         <th><i className="fa fa-envelope"></i> Email</th>
                                         <th><i className="fa fa-phone"></i> Phone</th>
+                                        <th><i className="fa fa-file-text"></i> Total Apps</th>
+                                        <th><i className="fa fa-money"></i> Total Paid</th>
                                         <th><i className="fa fa-id-card"></i> Profile Status</th>
                                         <th><i className="fa fa-map-marker-alt"></i> Location</th>
                                         <th><i className="fa fa-calendar"></i> Registered Date</th>
@@ -208,6 +214,16 @@ function RegisteredCandidatesPage() {
                                                 </td>
                                                 <td>
                                                     {candidate.phone || 'Not provided'}
+                                                </td>
+                                                <td>
+                                                    <span className="status-badge badge-total-apps">
+                                                        {candidate.totalApplications || 0}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className="status-badge badge-total-paid">
+                                                        ₹{candidate.totalPaidAmount || 0}
+                                                    </span>
                                                 </td>
                                                 <td>
                                                     <span className={`status-badge ${
