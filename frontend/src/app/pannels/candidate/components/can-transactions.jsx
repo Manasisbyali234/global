@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
 import { ListChecks, Search, Receipt, Download, Eye, X } from "lucide-react";
-import "../../../styles/print-receipt.css";
+import "../../../../styles/print-receipt.css";
 
 function CanTransactionsPage() {
     const navigate = useNavigate();

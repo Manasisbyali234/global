@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
 import { Search, Receipt, Download, Eye } from "lucide-react";
-import "../../../styles/print-receipt.css";
+import "../../../../styles/print-receipt.css";
 
 function AdminTransactionsPage() {
     const [transactions, setTransactions] = useState([]);
