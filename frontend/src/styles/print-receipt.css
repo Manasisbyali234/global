@@ -57,3 +57,17 @@
         padding: 20px !important;
     }
 }
+
+/* Global Fix for the Print Receipt button to ensure white text */
+/* Using high specificity to override consolidated-master-styles */
+html body .modal-footer .receipt-print-btn,
+html body .modal-footer button.receipt-print-btn {
+    color: #ffffff !important;
+}
+
+html body .modal-footer .receipt-print-btn svg,
+html body .modal-footer .receipt-print-btn i {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+

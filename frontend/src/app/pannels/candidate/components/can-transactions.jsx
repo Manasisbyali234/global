@@ -14,10 +14,21 @@ function CanTransactionsPage() {
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [paymentDetails, setPaymentDetails] = useState(null);
     const [fetchingDetails, setFetchingDetails] = useState(false);
+    const [candidateInfo, setCandidateInfo] = useState(null);
 
     useEffect(() => {
         loadScript("js/custom.js");
         fetchTransactions();
+        
+        // Load candidate info from localStorage
+        try {
+            const cachedUser = localStorage.getItem('candidateUser');
+            if (cachedUser) {
+                setCandidateInfo(JSON.parse(cachedUser));
+            }
+        } catch (e) {
+            console.error('Error loading candidate info:', e);
+        }
     }, []);
 
     const fetchTransactions = async () => {
@@ -246,10 +257,10 @@ function CanTransactionsPage() {
                                         <div className="row mb-4">
                                             <div className="col-6">
                                                 <p className="text-muted small mb-1 fw-bold text-uppercase">Candidate Details</p>
-                                                <h6 className="mb-0">{selectedTransaction?.candidateId?.name}</h6>
-                                                <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.email}</p>
-                                                {selectedTransaction?.candidateId?.phone && (
-                                                    <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.phone}</p>
+                                                <h6 className="mb-0">{selectedTransaction?.candidateId?.name || candidateInfo?.name}</h6>
+                                                <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.email || candidateInfo?.email}</p>
+                                                {(selectedTransaction?.candidateId?.phone || candidateInfo?.phone) && (
+                                                    <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.phone || candidateInfo?.phone}</p>
                                                 )}
                                             </div>
                                             <div className="col-6 text-end">
@@ -305,7 +316,7 @@ function CanTransactionsPage() {
                             </div>
                             <div className="modal-footer bg-light">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowInvoiceModal(false)}>Close</button>
-                                <button type="button" className="btn btn-primary d-flex align-items-center gap-2" onClick={() => window.print()}>
+                                <button type="button" className="btn btn-primary d-flex align-items-center gap-2 receipt-print-btn" onClick={() => window.print()}>
                                     <Download size={16} /> Print Receipt
                                 </button>
                             </div>

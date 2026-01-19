@@ -306,7 +306,7 @@ function EmpTransactionsPage() {
                             </div>
                             <div className="modal-footer bg-light">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowInvoiceModal(false)}>Close</button>
-                                <button type="button" className="btn btn-primary d-flex align-items-center gap-2" onClick={() => window.print()}>
+                                <button type="button" className="btn btn-primary d-flex align-items-center gap-2 receipt-print-btn" onClick={() => window.print()}>
                                     <Download size={16} /> Print Receipt
                                 </button>
                             </div>

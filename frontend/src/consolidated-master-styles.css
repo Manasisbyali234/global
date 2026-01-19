@@ -2961,30 +2961,6 @@ tbody .text-success {
 }
 
 /* ============================================================================
- * MOBILE BUTTON TEXT FIX
- * ============================================================================
- * Force button text to be white for all standard button classes
- * ============================================================================ */
-html body .btn-primary,
-html body .btn-secondary,
-html body .btn-success,
-html body .btn-danger,
-html body .btn-info,
-html body .btn-warning,
-html body .site-button:not(.btn-outline-primary):not(.btn-outline-secondary) {
-    color: #ffffff !important;
-}
-
-/* Specific fix for mobile screens to ensure buttons always have white text */
-@media (max-width: 991px) {
-    html body .btn:not(.btn-light):not(.btn-outline-primary):not(.btn-outline-secondary):not(.btn-close),
-    html body button.btn:not(.btn-light):not(.btn-outline-primary):not(.btn-outline-secondary):not(.btn-close),
-    html body .site-button:not(.btn-outline-primary):not(.btn-outline-secondary) {
-        color: #ffffff !important;
-    }
-}
-
-/* ============================================================================
  * END OF CONSOLIDATED MASTER STYLES
  * ============================================================================
  */
