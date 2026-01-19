@@ -93,8 +93,7 @@ export const employer = {
 	CAN_REVIEW:   "/emp-candidate-review",
     JOB_REVIEW:   "/emp-job-review",
     SUPPORT:      "/support",
-    SUPPORT_TICKETS: "/support-tickets",
-    TRANSACTIONS: "/transactions"
+    SUPPORT_TICKETS: "/support-tickets"
 };
 
 export const admin = {

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { loadScript } from "../../../../globals/constants";
 import { Search, Receipt, Download, Eye } from "lucide-react";
 
@@ -198,11 +199,11 @@ function AdminTransactionsPage() {
             </div>
 
             {/* Invoice Modal */}
-            {showInvoiceModal && (
+            {showInvoiceModal && createPortal(
                 <div className="modal fade show" style={{ 
                     display: 'block', 
                     backgroundColor: 'rgba(0,0,0,0.5)', 
-                    zIndex: 110000,
+                    zIndex: 2147483647,
                     position: 'fixed',
                     top: 0,
                     left: 0,
@@ -304,7 +305,8 @@ function AdminTransactionsPage() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
