@@ -96,7 +96,10 @@
   }
 
   /* Touch-friendly buttons */
-  button, .btn, .site-button, [role="button"] {
+  button:not(.hamburger-btn):not(.hamburger-menu *), 
+  .btn:not(.hamburger-btn):not(.hamburger-menu *), 
+  .site-button:not(.hamburger-btn):not(.hamburger-menu *), 
+  [role="button"]:not(.hamburger-btn):not(.hamburger-menu *) {
     min-height: 44px;
     min-width: 44px;
     padding: 10px 16px;
@@ -215,7 +218,9 @@
   .mt-3 { margin-top: 0.5rem !important; }
 
   /* Compact buttons */
-  button, .btn, .site-button {
+  button:not(.hamburger-btn):not(.hamburger-menu *), 
+  .btn:not(.hamburger-btn):not(.hamburger-menu *), 
+  .site-button:not(.hamburger-btn):not(.hamburger-menu *) {
     padding: 8px 12px;
     font-size: 12px;
     min-height: 40px;
@@ -251,7 +256,9 @@
   .mt-4, .mt-3, .mt-2 { margin-top: 0.5rem !important; }
 
   /* Compact buttons */
-  button, .btn, .site-button {
+  button:not(.hamburger-btn):not(.hamburger-menu *), 
+  .btn:not(.hamburger-btn):not(.hamburger-menu *), 
+  .site-button:not(.hamburger-btn):not(.hamburger-menu *) {
     padding: 6px 10px;
     font-size: 11px;
     min-height: 36px;

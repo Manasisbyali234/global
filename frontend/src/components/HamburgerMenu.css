@@ -81,15 +81,15 @@
 }
 
 .hamburger-menu .close-btn {
-  width: 32px !important;
-  height: 32px !important;
+  background: none !important;
   border: none !important;
-  background: #e9ecef !important;
-  border-radius: 50% !important;
+  color: #333 !important;
+  font-size: 24px !important;
+  cursor: pointer !important;
+  padding: 5px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  color: #666 !important;
 }
 
 .hamburger-content {
@@ -153,6 +153,10 @@
   border: 1px solid #FF7A00 !important;
   background: transparent !important;
   color: #FF7A00 !important;
+  box-shadow: none !important;
+  text-transform: none !important;
+  height: auto !important;
+  min-height: auto !important;
 }
 
 /* Force visibility for all open menu parts */

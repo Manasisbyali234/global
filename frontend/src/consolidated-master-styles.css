@@ -2531,12 +2531,12 @@ img[src*="logo-skin-8.png"] {
  * ============================================================================ */
 
 /* CRITICAL: Force override of ALL button-like elements with intense specificity */
-html body .site-button,
-html body button,
-html body button.site-button,
-html body input[type="button"],
-html body input[type="submit"],
-html body [role="button"] {
+html body .site-button:not(.hamburger-menu *),
+html body button:not(.hamburger-menu *),
+html body button.site-button:not(.hamburger-menu *),
+html body input[type="button"]:not(.hamburger-menu *),
+html body input[type="submit"]:not(.hamburger-menu *),
+html body [role="button"]:not(.hamburger-menu *) {
   background-color: rgba(255, 122, 0, 0.08) !important;
   color: #FF7A00 !important;
   border: 1px solid #FF7A00 !important;
@@ -2545,11 +2545,11 @@ html body [role="button"] {
   letter-spacing: 0.3px !important;
 }
 
-html body .site-button:hover,
-html body button:hover,
-html body button.site-button:hover,
-html body input[type="button"]:hover,
-html body input[type="submit"]:hover {
+html body .site-button:not(.hamburger-menu *):hover,
+html body button:not(.hamburger-menu *):hover,
+html body button.site-button:not(.hamburger-menu *):hover,
+html body input[type="button"]:not(.hamburger-menu *):hover,
+html body input[type="submit"]:not(.hamburger-menu *):hover {
   background-color: #FFF3E5 !important;
   color: #FF7A00 !important;
   border: 1px solid #FF7A00 !important;
