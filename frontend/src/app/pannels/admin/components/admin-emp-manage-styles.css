@@ -427,7 +427,8 @@
 .btn-view:hover {
     background: rgba(255, 122, 0, 0.08) !important;
     color: rgba(255, 122, 0, 0.7) !important;
-    box-shadow: 0 5px 15px rgba(255, 122, 0, 0.2) !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 /* Ensure proper gap between icon and text */

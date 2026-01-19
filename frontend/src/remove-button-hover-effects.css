@@ -154,8 +154,24 @@ a.site-button:hover {
 }
 
 /* ============================================================================
- * ENSURE EYE AND EDIT ICONS ARE ALWAYS ORANGE
+ * ENSURE EYE AND EDIT ICONS ARE ALWAYS ORANGE AND HAVE NO HOVER BACKGROUND
  * ============================================================================ */
+
+.twm-table-controls .twm-DT-controls-icon li button:has(.fa-eye):hover,
+.twm-table-controls .twm-DT-controls-icon li a:has(.fa-eye):hover {
+  background-color: #f0f6fe !important;
+  color: #1967d2 !important;
+}
+
+button:has(.fa-eye):hover,
+.btn:has(.fa-eye):hover,
+a:has(.fa-eye):hover {
+    background-color: rgba(255, 122, 0, 0.08) !important;
+    color: #FF7A00 !important;
+    border: 1px solid #FF7A00 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
 
 .fa-eye,
 .fa-eye-slash,

@@ -346,9 +346,10 @@
 }
 
 .view-btn:hover {
-  background: #e0e7ff;
-  color: #3730a3;
-  transform: translateY(-1px);
+  background: #eef2ff !important;
+  color: #4338ca !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .delete-btn {
