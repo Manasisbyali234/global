@@ -577,7 +577,7 @@ function SectionCandicateBasicInfo() {
                         <div className="col-md-4 mb-3">
                             <label className="form-label"><i className="fa fa-phone me-2" style={{color: '#ff6b35'}}></i>Mobile Number <span style={{color: 'red'}}>*</span></label>
                             <div style={{position: 'relative'}}>
-                                <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10}}>
+                                <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10, display: 'flex', alignItems: 'center', paddingLeft: '5px'}}>
                                     <CountryCodeSelector
                                         value={formData.phoneCountryCode}
                                         onChange={(value) => {
@@ -586,6 +586,7 @@ function SectionCandicateBasicInfo() {
                                                 validateField('phone', formData.phone);
                                             }
                                         }}
+                                        height="40px"
                                     />
                                 </div>
                                 <input

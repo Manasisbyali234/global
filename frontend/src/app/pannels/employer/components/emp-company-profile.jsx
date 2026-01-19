@@ -1192,10 +1192,11 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Phone size={16} className="me-2" /> Phone</label>
                                     <div style={{position: 'relative'}}>
-                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10}}>
+                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10, display: 'flex', alignItems: 'center', paddingLeft: '5px'}}>
                                             <CountryCodeSelector
                                                 value={formData.phoneCountryCode}
                                                 onChange={(value) => handleInputChange('phoneCountryCode', value)}
+                                                height="40px"
                                             />
                                         </div>
                                         <input
@@ -1493,10 +1494,11 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><Phone size={16} className="me-2" /> Official Mobile Number</label>
                                     <div style={{position: 'relative'}}>
-                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10}}>
+                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10, display: 'flex', alignItems: 'center', paddingLeft: '5px'}}>
                                             <CountryCodeSelector
                                                 value={formData.officialMobileCountryCode}
                                                 onChange={(value) => handleInputChange('officialMobileCountryCode', value)}
+                                                height="40px"
                                             />
                                         </div>
                                         <input
@@ -1925,10 +1927,11 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group" style={{overflow: 'visible'}}>
                                     <label className="required-field"><Phone size={16} className="me-2" /> Mobile Number</label>
                                     <div style={{position: 'relative'}}>
-                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10}}>
+                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10, display: 'flex', alignItems: 'center', paddingLeft: '5px'}}>
                                             <CountryCodeSelector
                                                 value={formData.contactMobileCountryCode}
                                                 onChange={(value) => handleInputChange('contactMobileCountryCode', value)}
+                                                height="40px"
                                             />
                                         </div>
                                         <input
@@ -1980,10 +1983,11 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group" style={{overflow: 'visible'}}>
                                     <label><Phone size={16} className="me-2" /> Alternate Contact (Optional)</label>
                                     <div style={{position: 'relative'}}>
-                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 5}}>
+                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 5, display: 'flex', alignItems: 'center', paddingLeft: '5px'}}>
                                             <CountryCodeSelector
                                                 value={formData.alternateContactCountryCode}
                                                 onChange={(value) => handleInputChange('alternateContactCountryCode', value)}
+                                                height="40px"
                                             />
                                         </div>
                                         <input

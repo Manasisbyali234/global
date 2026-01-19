@@ -346,6 +346,8 @@ function SupportPage() {
                                                             onChange={(value) => {
                                                                 setFormData(prev => ({ ...prev, phoneCountryCode: value }));
                                                             }}
+                                                            borderRadius="0.375rem 0 0 0.375rem"
+                                                            height="auto"
                                                         />
                                                         <input
                                                             name="phone"

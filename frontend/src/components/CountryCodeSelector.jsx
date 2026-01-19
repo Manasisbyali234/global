@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const CountryCodeSelector = ({ value, onChange, className = "" }) => {
+const CountryCodeSelector = ({ value, onChange, className = "", height = "40px", borderRadius = "6px" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
@@ -231,21 +231,21 @@ const CountryCodeSelector = ({ value, onChange, className = "" }) => {
   const selectedCountry = countryCodes.find(c => c.code === value) || countryCodes[40];
 
   return (
-    <div ref={dropdownRef} style={{ position: 'relative', width: '70px', height: '50px', flexShrink: 0 }} className="country-code-selector">
+    <div ref={dropdownRef} style={{ position: 'relative', width: '68px', height: height, flexShrink: 0 }} className="country-code-selector">
       <style>{`
         .country-code-selector-btn {
           background-color: transparent !important;
           color: #232323 !important;
-          border: 2px solid #e1e5e9 !important;
-          border-radius: 6px !important;
+          border: 1px solid #e1e5e9 !important;
+          border-radius: ${borderRadius} !important;
         }
         .country-code-selector-btn:hover {
           background-color: transparent !important;
-          border: 2px solid #b8c6db !important;
+          border: 1px solid #b8c6db !important;
         }
         @media (max-width: 576px) {
           .country-code-selector {
-            width: 80px !important;
+            width: 70px !important;
           }
         }
       `}</style>
@@ -255,9 +255,9 @@ const CountryCodeSelector = ({ value, onChange, className = "" }) => {
         className={`country-code-selector-btn ${className}`}
         style={{
           width: '100%',
-          height: '50px',
-          padding: '12px 8px',
-          fontSize: '14px',
+          height: '100%',
+          padding: '8px 6px',
+          fontSize: '13px',
           fontWeight: '500',
           cursor: 'pointer',
           display: 'flex',
@@ -267,8 +267,8 @@ const CountryCodeSelector = ({ value, onChange, className = "" }) => {
           transition: 'all 0.3s ease'
         }}
       >
-        <span style={{ fontSize: '18px' }}>{selectedCountry.flag} {selectedCountry.code}</span>
-        <span style={{ fontSize: '10px' }}>▼</span>
+        <span style={{ fontSize: '14px' }}>{selectedCountry.flag} {selectedCountry.code}</span>
+        <span style={{ fontSize: '9px' }}>▼</span>
       </button>
       
       {isOpen && (
