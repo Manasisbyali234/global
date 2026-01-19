@@ -1,48 +1,24 @@
 /* Print Styles for Transaction Receipts */
 @media print {
-    /* Hide all elements in body */
-    body > * {
-        display: none !important;
+    /* Hide everything by default using visibility to avoid layout breakage */
+    body * {
+        visibility: hidden !important;
     }
 
-    /* Show only the modal with the receipt */
-    body > .modal {
-        display: block !important;
+    /* Show only the modal content and its children */
+    #invoice-content, 
+    #invoice-content * {
+        visibility: visible !important;
+    }
+
+    /* Position the content at the top left of the printed page */
+    #invoice-content {
         position: absolute !important;
         left: 0 !important;
         top: 0 !important;
         width: 100% !important;
-        height: auto !important;
-        overflow: visible !important;
-        background: white !important;
-        z-index: 999999 !important;
-    }
-
-    /* Ensure modal-dialog and modal-content don't have constraints */
-    .modal-dialog {
+        padding: 0 !important;
         margin: 0 !important;
-        max-width: 100% !important;
-        width: 100% !important;
-    }
-
-    .modal-content {
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-    }
-
-    /* Hide non-essential modal parts */
-    .modal-header, 
-    .modal-footer, 
-    .btn-close {
-        display: none !important;
-    }
-
-    /* Reset modal-body padding for print */
-    .modal-body {
-        padding: 0 !important;
-        overflow: visible !important;
-        max-height: none !important;
     }
 
     /* Print colors and backgrounds */
@@ -51,17 +27,33 @@
         print-color-adjust: exact !important;
     }
 
-    /* Prevent page breaks inside the invoice */
-    #invoice-content {
-        page-break-inside: avoid;
-        padding: 20px !important;
+    /* Ensure table borders and colors print correctly */
+    .table {
+        border-collapse: collapse !important;
+    }
+    
+    .table-light {
+        background-color: #f8f9fa !important;
+    }
+
+    .text-primary {
+        color: #f97316 !important; /* Force brand orange in print */
     }
 }
 
-/* Global Fix for the Print Receipt button to ensure white text */
-/* Using high specificity to override consolidated-master-styles */
+/* Screen Styles for the Print Button */
+/* Force white text and a solid background to ensure visibility */
 html body .modal-footer .receipt-print-btn,
 html body .modal-footer button.receipt-print-btn {
+    color: #ffffff !important;
+    background-color: #f97316 !important; /* Brand Orange */
+    border: 1px solid #f97316 !important;
+    opacity: 1 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+html body .modal-footer .receipt-print-btn:hover {
+    background-color: #ea580c !important; /* Darker orange on hover */
     color: #ffffff !important;
 }
 
@@ -70,4 +62,3 @@ html body .modal-footer .receipt-print-btn i {
     color: #ffffff !important;
     stroke: #ffffff !important;
 }
-
