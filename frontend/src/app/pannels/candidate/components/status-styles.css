@@ -37,6 +37,17 @@
 
 
 /* Complete Table Rewrite */
+.twm-pro-view-chart-wrap {
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+}
+
+.table-responsive {
+    overflow-y: visible !important;
+    overflow-x: auto !important;
+    max-height: none !important;
+}
+
 .table {
     width: 100%;
     margin-bottom: 0;
