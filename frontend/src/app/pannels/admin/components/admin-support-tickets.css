@@ -346,10 +346,9 @@
 }
 
 .view-btn:hover {
-  background: #eef2ff !important;
-  color: #4338ca !important;
-  transform: none !important;
-  box-shadow: none !important;
+  background: #eef2ff;
+  color: #4338ca;
+  transform: none;
 }
 
 .delete-btn {
