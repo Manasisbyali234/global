@@ -36,6 +36,23 @@
   font-size: 28px !important;
 }
 
+.can-dashboard .text-success .counter,
+.can-dashboard .text-success.counter {
+  font-size: 28px !important;
+}
+
+.can-dashboard .dashboard-card-2 .fs-3 {
+  font-size: 28px !important;
+}
+
+.can-dashboard .dashboard-card-2 .fs-2 {
+  font-size: 2rem !important;
+}
+
+.can-dashboard .dashboard-card-2 .fa {
+  font-size: 2rem !important;
+}
+
 /* Section containers */
 .can-dashboard .panel,
 .can-dashboard .wt-panel-body {
@@ -61,6 +78,7 @@
 .can-dashboard .site-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(249, 115, 22, 0.45) !important;
+  color: #fff !important;
 }
 
 /* Soft badges */
@@ -197,27 +215,24 @@
 }
 
 /* Icon row universal alignment */
-.can-dashboard .icon-row {
+.can-dashboard .dashboard-card-2 > div:first-child {
   display: flex !important;
   align-items: center !important;
-  justify-content: center !important;
-  gap: 1rem !important;
+  justify-content: space-between !important;
+  width: 100% !important;
 }
 
-.can-dashboard .icon-row > *:first-child {
+.can-dashboard .dashboard-card-2 > div:first-child > div:first-child {
   flex-shrink: 0 !important;
 }
 
-.can-dashboard .dashboard-card-2 > div {
-  text-align: center !important;
+.can-dashboard .dashboard-card-2 > div:first-child > div:last-child {
+  text-align: right !important;
 }
 
-.can-dashboard .dashboard-card-2 h5 {
-  text-align: center !important;
-}
-
-.can-dashboard .dashboard-card-2 .counter {
-  text-align: center !important;
+.can-dashboard .text-success::before {
+  content: none !important;
+  display: none !important;
 }
 
 /* Welcome card improvements */

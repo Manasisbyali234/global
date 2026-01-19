@@ -219,6 +219,13 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                             </NavLink>
                         </li>
 
+                        <li className={setMenuActive(currentpath, adminRoute(admin.TRANSACTIONS))}>
+                            <NavLink to={adminRoute(admin.TRANSACTIONS)}>
+                                <i className="fa fa-receipt" />
+                                <span className="admin-nav-text">Transactions</span>
+                            </NavLink>
+                        </li>
+
                         {!isSubAdmin && (
                             <li className={setMenuActive(currentpath, adminRoute(admin.SUB_ADMIN))}>
                                 <NavLink to={adminRoute(admin.SUB_ADMIN)}>

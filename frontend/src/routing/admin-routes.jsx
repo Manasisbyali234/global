@@ -24,6 +24,7 @@ import AdminSubAdmin from "../app/pannels/admin/components/admin-sub-admin";
 import AdminSupportTickets from "../app/pannels/admin/components/admin-support-tickets";
 import AdminAddCandidate from "../app/pannels/admin/components/admin-add-candidate.jsx";
 import AdminExcelUploads from "../app/pannels/admin/components/admin-excel-uploads";
+import AdminTransactionsPage from "../app/pannels/admin/components/admin-transactions";
 
 import RegisteredCandidatesPage from "../app/pannels/admin/components/registered-candidates";
 import AdminCandidateReviewPage from "../app/pannels/admin/components/admin-candidate-review";
@@ -61,6 +62,7 @@ function AdminRoutes() {
 				<Route path="/jobs/skills" element={<AdminJobsSkills />} />
 				<Route path={admin.SUPPORT_TICKETS} element={<AdminSupportTickets />} />
 				<Route path={admin.SUB_ADMIN} element={<AdminSubAdmin />} />
+				<Route path={admin.TRANSACTIONS} element={<AdminTransactionsPage />} />
 			</Routes>
 		);
 }

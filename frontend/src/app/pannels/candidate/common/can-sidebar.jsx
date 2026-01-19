@@ -66,6 +66,12 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
                 <span className="admin-nav-text">Support</span>
               </NavLink>
             </li>
+            <li className={setMenuActive(currentpath, canRoute(candidate.TRANSACTIONS))}>
+              <NavLink to={canRoute(candidate.TRANSACTIONS)} onClick={handleLinkClick}>
+                <i className="fa fa-receipt" />
+                <span className="admin-nav-text">Transactions</span>
+              </NavLink>
+            </li>
             <li>
               <a href="#" data-bs-toggle="modal" data-bs-target="#logout-dash-profile">
                 <i className="fa fa-share-square" />

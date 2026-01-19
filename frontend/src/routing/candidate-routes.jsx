@@ -18,6 +18,7 @@ import Stepper from "../app/pannels/candidate/components/step-by-step";
 import StartAssessment from "../app/pannels/candidate/pages/start-tech-assessment";
 import AssessmentResults from "../app/pannels/candidate/pages/assessment-result";
 import CanSupport from "../app/pannels/candidate/components/can-support";
+import CanTransactionsPage from "../app/pannels/candidate/components/can-transactions";
 
 function CandidateRoutes() {
     return (
@@ -47,6 +48,7 @@ function CandidateRoutes() {
 				/>
 				<Route path={candidate.CHAT} element={<CanChatPage />} />
 				<Route path={candidate.SUPPORT} element={<CanSupport />} />
+				<Route path={candidate.TRANSACTIONS} element={<CanTransactionsPage />} />
 				<Route path="*" element={<Error404Page />} />
 			</Routes>
 		);

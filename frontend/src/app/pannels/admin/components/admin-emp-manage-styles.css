@@ -5,6 +5,13 @@
     padding: 20px;
     width: 100%;
     box-sizing: border-box;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.admin-emp-manage-container::-webkit-scrollbar {
+    display: none;
 }
 
 .admin-emp-header {
@@ -162,14 +169,27 @@
     padding: 0;
 }
 
-/* Hide scrollbar for desktop table container */
+/* Hide vertical scrollbar but keep horizontal */
 .table-responsive {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
 }
 
 .table-responsive::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #ff9c00;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #ff6b35;
 }
 
 .emp-table {
@@ -598,6 +618,10 @@
     
     .admin-emp-manage-container .panel-body {
         padding: 15px !important;
+    }
+    
+    .table-responsive {
+        overflow-y: hidden !important;
     }
 
     .status-badge {

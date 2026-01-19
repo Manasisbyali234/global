@@ -78,6 +78,10 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
                         <li className={setMenuActive(currentpath, empRoute(employer.SUPPORT))}>
                             <NavLink to={empRoute(employer.SUPPORT)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-headset" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Support</span></NavLink>
                         </li>
+
+                        <li className={setMenuActive(currentpath, empRoute(employer.TRANSACTIONS))}>
+                            <NavLink to={empRoute(employer.TRANSACTIONS)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-receipt" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Transactions</span></NavLink>
+                        </li>
                         
                         <li>
                             <a href="#" data-bs-toggle="modal" data-bs-target="#logout-dash-profile" onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}>

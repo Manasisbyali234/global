@@ -15,6 +15,7 @@ import EmpPostJob from "../app/pannels/employer/components/jobs/emp-post-job";
 import EmpJobReviewPage from "../app/pannels/employer/components/emp-job-review";
 import EmpSupport from "../app/pannels/employer/components/emp-support";
 import EmployerSupportTickets from "../app/pannels/employer/components/employer-support-tickets";
+import EmpTransactionsPage from "../app/pannels/employer/components/emp-transactions";
 
 function EmployerRoutes() {
     return (
@@ -52,6 +53,7 @@ function EmployerRoutes() {
 				/>
 				<Route path={employer.SUPPORT} element={<EmpSupport />} />
 				<Route path={employer.SUPPORT_TICKETS} element={<EmployerSupportTickets />} />
+				<Route path={employer.TRANSACTIONS} element={<EmpTransactionsPage />} />
 				<Route path="*" element={<Error404Page />} />
 			</Routes>
 		);

@@ -73,6 +73,7 @@ export const candidate = {
 	STEP: "/step",
 	RESULT: "/assessment-result/:applicationId",
 	SUPPORT: "/support",
+    TRANSACTIONS: "/transactions"
 };
 
 export const employer = {
@@ -92,7 +93,8 @@ export const employer = {
 	CAN_REVIEW:   "/emp-candidate-review",
     JOB_REVIEW:   "/emp-job-review",
     SUPPORT:      "/support",
-    SUPPORT_TICKETS: "/support-tickets"
+    SUPPORT_TICKETS: "/support-tickets",
+    TRANSACTIONS: "/transactions"
 };
 
 export const admin = {
@@ -117,7 +119,8 @@ export const admin = {
     PLACEMENT_DETAILS: "/placement-details/:id",
     SUB_ADMIN: "/sub-admin",
     SUB_ADMIN_ADD: "/sub-admin/add",
-    SUPPORT_TICKETS: "/support-tickets"
+    SUPPORT_TICKETS: "/support-tickets",
+    TRANSACTIONS: "/transactions"
 }
 
 export function pubRoute(_route) {

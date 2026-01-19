@@ -450,8 +450,8 @@ function SectionCandidateOverview() {
 		},
 		{
 			bg: "#e8f5e9",
-			icon: "flaticon-job",
-			color: "text-success",
+			icon: "fa fa-briefcase",
+			color: "text-warning",
 			count: stats.hired,
 			label: "Hired",
 			clickable: true,
@@ -497,10 +497,21 @@ function SectionCandidateOverview() {
 							<span className="fw-bold" style={{ color: '#f97316', fontSize: '1.1rem' }}>{candidate.credits || 0}</span>
 						</div>
 						<button 
-							className="btn btn-sm btn-primary" 
-							style={{ backgroundColor: '#ff6b35', borderColor: '#ff6b35', transition: 'none' }}
-							onMouseEnter={(e) => { e.target.style.backgroundColor = '#ff6b35'; e.target.style.borderColor = '#ff6b35'; }}
-							onMouseLeave={(e) => { e.target.style.backgroundColor = '#ff6b35'; e.target.style.borderColor = '#ff6b35'; }}
+							className="btn btn-sm" 
+							style={{ 
+								backgroundColor: 'rgba(255, 122, 0, 0.08)',
+								color: '#FF7A00',
+								border: '1px solid #FF7A00',
+								transition: 'all 0.3s ease'
+							}}
+							onMouseEnter={(e) => { 
+								e.target.style.backgroundColor = '#FF7A00';
+								e.target.style.color = '#fff';
+							}}
+							onMouseLeave={(e) => { 
+								e.target.style.backgroundColor = 'rgba(255, 122, 0, 0.08)';
+								e.target.style.color = '#FF7A00';
+							}}
 							onClick={handleBuyCredits}
 						>
 							Buy Credits
@@ -524,13 +535,10 @@ function SectionCandidateOverview() {
 								onClick={card.clickable ? card.onClick : undefined}
 							>
 								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-									{/* Icon on left edge */}
 									<div className={`fs-2 ${card.color}`} style={{ flexShrink: 0, lineHeight: 1 }}>
 										<i className={card.icon} />
 									</div>
-									
-									{/* Number and text on right edge */}
-									<div style={{ textAlign: 'right' }}>
+									<div style={{ textAlign: 'right', marginLeft: 'auto' }}>
 										<div className={`counter fw-bold fs-3 ${card.color}`} style={{ lineHeight: 1, marginBottom: '0.25rem' }}>
 											<CountUp end={card.count} duration={2} />
 										</div>

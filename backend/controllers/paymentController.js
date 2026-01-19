@@ -204,3 +204,93 @@ exports.verifyCreditPayment = async (req, res) => {
   }
 };
 
+exports.getEmployerTransactions = async (req, res) => {
+  try {
+    const employerId = req.user._id;
+    
+    // Find all applications for this employer that have been paid
+    const transactions = await Application.find({
+      employerId,
+      paymentStatus: 'paid'
+    })
+    .populate('candidateId', 'name email phone')
+    .populate('jobId', 'title')
+    .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: transactions.length,
+      transactions
+    });
+  } catch (error) {
+    console.error('Error fetching employer transactions:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getCandidateTransactions = async (req, res) => {
+  try {
+    const candidateId = req.user._id;
+    
+    // Find all applications for this candidate that have been paid
+    const transactions = await Application.find({
+      candidateId,
+      paymentStatus: 'paid'
+    })
+    .populate('jobId', 'title')
+    .populate('employerId', 'companyName')
+    .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: transactions.length,
+      transactions
+    });
+  } catch (error) {
+    console.error('Error fetching candidate transactions:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getAllTransactions = async (req, res) => {
+  try {
+    // Find all applications that have been paid
+    const transactions = await Application.find({
+      paymentStatus: 'paid'
+    })
+    .populate('candidateId', 'name email phone')
+    .populate('jobId', 'title')
+    .populate('employerId', 'companyName email phone')
+    .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: transactions.length,
+      transactions
+    });
+  } catch (error) {
+    console.error('Error fetching all transactions:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getPaymentDetails = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    
+    if (!paymentId) {
+      return res.status(400).json({ success: false, message: 'Payment ID is required' });
+    }
+
+    const payment = await razorpay.payments.fetch(paymentId);
+    
+    res.json({
+      success: true,
+      payment
+    });
+  } catch (error) {
+    console.error('Error fetching Razorpay payment details:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
