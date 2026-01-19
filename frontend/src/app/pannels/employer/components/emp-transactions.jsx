@@ -235,6 +235,7 @@ function EmpTransactionsPage() {
                                             <div>
                                                 <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '40px', marginBottom: '10px' }} />
                                                 <p className="text-muted small mb-0">Platform for Jobs & Assessments</p>
+                                                <p className="text-muted small mb-0"><strong>GST:</strong> 29ABCFG9123F1Z</p>
                                             </div>
                                             <div className="text-end">
                                                 <h5 className="mb-0 text-primary">TRANSACTION INVOICE</h5>
