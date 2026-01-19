@@ -175,12 +175,18 @@ function CanTransactionsPage() {
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <button 
-                                                        className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
-                                                        onClick={() => handleViewInvoice(t)}
-                                                    >
-                                                        <Eye size={14} /> Receipt
-                                                    </button>
+                                                    <div className="twm-table-controls">
+                                                        <ul className="twm-DT-controls-icon list-unstyled">
+                                                            <li>
+                                                                <button 
+                                                                    title="View Details" 
+                                                                    onClick={() => handleViewInvoice(t)}
+                                                                >
+                                                                    <span className="fa fa-eye" />
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))
@@ -194,7 +200,16 @@ function CanTransactionsPage() {
 
             {/* Invoice Modal */}
             {showInvoiceModal && (
-                <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 11000 }}>
+                <div className="modal fade show" style={{ 
+                    display: 'block', 
+                    backgroundColor: 'rgba(0,0,0,0.5)', 
+                    zIndex: 110000,
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%'
+                }}>
                     <div className="modal-dialog modal-lg modal-dialog-centered">
                         <div className="modal-content border-0 shadow-lg">
                             <div className="modal-header bg-light">
