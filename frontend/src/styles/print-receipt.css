@@ -1,0 +1,59 @@
+/* Print Styles for Transaction Receipts */
+@media print {
+    /* Hide all elements in body */
+    body > * {
+        display: none !important;
+    }
+
+    /* Show only the modal with the receipt */
+    body > .modal {
+        display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: white !important;
+        z-index: 999999 !important;
+    }
+
+    /* Ensure modal-dialog and modal-content don't have constraints */
+    .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .modal-content {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    /* Hide non-essential modal parts */
+    .modal-header, 
+    .modal-footer, 
+    .btn-close {
+        display: none !important;
+    }
+
+    /* Reset modal-body padding for print */
+    .modal-body {
+        padding: 0 !important;
+        overflow: visible !important;
+        max-height: none !important;
+    }
+
+    /* Print colors and backgrounds */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Prevent page breaks inside the invoice */
+    #invoice-content {
+        page-break-inside: avoid;
+        padding: 20px !important;
+    }
+}

@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { loadScript } from "../../../../globals/constants";
+import { loadScript, publicUrlFor } from "../../../../globals/constants";
 import { Search, Receipt, Download, Eye } from "lucide-react";
+import "../../../styles/print-receipt.css";
 
 function AdminTransactionsPage() {
     const [transactions, setTransactions] = useState([]);
@@ -227,13 +228,13 @@ function AdminTransactionsPage() {
                                     </div>
                                 ) : (
                                     <div id="invoice-content">
-                                        <div className="d-flex justify-content-between mb-4">
+                                        <div className="d-flex justify-content-between mb-4 align-items-center">
                                             <div>
-                                                <h4 className="text-primary mb-1">TaleGlobal</h4>
+                                                <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '40px', marginBottom: '10px' }} />
                                                 <p className="text-muted small mb-0">Platform Admin Panel</p>
                                             </div>
                                             <div className="text-end">
-                                                <h5 className="mb-0">RECEIPT</h5>
+                                                <h5 className="mb-0 text-primary">ADMIN TRANSACTION RECORD</h5>
                                                 <p className="text-muted small mb-0">Date: {formatDate(selectedTransaction?.createdAt)}</p>
                                             </div>
                                         </div>
@@ -242,22 +243,23 @@ function AdminTransactionsPage() {
 
                                         <div className="row mb-4">
                                             <div className="col-4">
-                                                <p className="text-muted small mb-1">CANDIDATE</p>
+                                                <p className="text-muted small mb-1 fw-bold text-uppercase">Candidate</p>
                                                 <h6 className="mb-0">{selectedTransaction?.candidateId?.name}</h6>
                                                 <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.email}</p>
                                                 <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.phone}</p>
                                             </div>
-                                            <div className="col-4">
-                                                <p className="text-muted small mb-1">EMPLOYER</p>
+                                            <div className="col-4 border-start">
+                                                <p className="text-muted small mb-1 fw-bold text-uppercase">Employer</p>
                                                 <h6 className="mb-0">{selectedTransaction?.employerId?.companyName}</h6>
                                                 <p className="text-muted small mb-0">{selectedTransaction?.employerId?.email}</p>
                                                 <p className="text-muted small mb-0">{selectedTransaction?.employerId?.phone}</p>
                                             </div>
-                                            <div className="col-4 text-end">
-                                                <p className="text-muted small mb-1">PAYMENT INFO</p>
-                                                <p className="mb-0 small"><strong>Order ID:</strong> {selectedTransaction?.orderId}</p>
-                                                <p className="mb-0 small"><strong>Payment ID:</strong> {selectedTransaction?.paymentId}</p>
+                                            <div className="col-4 text-end border-start">
+                                                <p className="text-muted small mb-1 fw-bold text-uppercase">Payment Details</p>
+                                                <p className="mb-0 small"><strong>Order:</strong> {selectedTransaction?.orderId}</p>
+                                                <p className="mb-0 small"><strong>Payment:</strong> {selectedTransaction?.paymentId}</p>
                                                 <p className="mb-0 small"><strong>Method:</strong> {paymentDetails?.method || 'Online'}</p>
+                                                <p className="mb-0 small"><strong>Status:</strong> <span className="text-success fw-bold text-uppercase">{selectedTransaction?.paymentStatus}</span></p>
                                             </div>
                                         </div>
 
@@ -273,24 +275,29 @@ function AdminTransactionsPage() {
                                                 <tbody>
                                                     <tr>
                                                         <td>
-                                                            <strong>Job Application Fee</strong><br />
-                                                            <small className="text-muted">Job: {selectedTransaction?.jobId?.title}</small>
+                                                            <div className="fw-bold text-primary">Job Application Fee</div>
+                                                            <div className="small mt-1">
+                                                                <strong>Job:</strong> {selectedTransaction?.jobId?.title}<br />
+                                                                {selectedTransaction?.jobId?.jobCategory && (
+                                                                    <span><strong>Category:</strong> {selectedTransaction?.jobId?.jobCategory}</span>
+                                                                )}
+                                                            </div>
                                                         </td>
-                                                        <td className="text-center">1</td>
-                                                        <td className="text-end">₹{(selectedTransaction?.paymentAmount || 129).toFixed(2)}</td>
+                                                        <td className="text-center align-middle">1</td>
+                                                        <td className="text-end align-middle">₹{(selectedTransaction?.paymentAmount || 129).toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot>
-                                                    <tr>
+                                                    <tr className="table-light">
                                                         <th colSpan="2" className="text-end">Total Amount</th>
-                                                        <th className="text-end">₹{(selectedTransaction?.paymentAmount || 129).toFixed(2)}</th>
+                                                        <th className="text-end text-primary">₹{(selectedTransaction?.paymentAmount || 129).toFixed(2)}</th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
 
-                                        <div className="bg-light p-3 rounded">
-                                            <p className="mb-0 small text-center text-muted">
+                                        <div className="bg-light p-3 rounded border text-center">
+                                            <p className="mb-0 small text-muted">
                                                 Official platform record of payment via Razorpay.
                                             </p>
                                         </div>

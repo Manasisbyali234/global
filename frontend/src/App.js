@@ -35,6 +35,8 @@ import "./global-zindex-fix.css";
 import "./iphone-hamburger-ultimate-production-fix.css";
 // ANDROID HAMBURGER FIX - Addresses visibility issues on Android mobile browsers
 import "./android-hamburger-fix.css";
+// BUTTON TEXT WHITE - Ensures button text is always white, especially on mobile
+import "./button-text-white.css";
 
 
 function App() {

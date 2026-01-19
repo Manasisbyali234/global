@@ -1,7 +1,9 @@
 import { useEffect, useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { loadScript } from "../../../../globals/constants";
+import { loadScript, publicUrlFor } from "../../../../globals/constants";
 import { ListChecks, Search, Receipt, Download, Eye, X } from "lucide-react";
+import "../../../styles/print-receipt.css";
 
 function CanTransactionsPage() {
     const navigate = useNavigate();
@@ -199,7 +201,7 @@ function CanTransactionsPage() {
             </div>
 
             {/* Invoice Modal */}
-            {showInvoiceModal && (
+            {showInvoiceModal && createPortal(
                 <div className="modal fade show" style={{ 
                     display: 'block', 
                     backgroundColor: 'rgba(0,0,0,0.5)', 
@@ -227,13 +229,13 @@ function CanTransactionsPage() {
                                     </div>
                                 ) : (
                                     <div id="invoice-content">
-                                        <div className="d-flex justify-content-between mb-4">
+                                        <div className="d-flex justify-content-between mb-4 align-items-center">
                                             <div>
-                                                <h4 className="text-primary mb-1">TaleGlobal</h4>
+                                                <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '40px', marginBottom: '10px' }} />
                                                 <p className="text-muted small mb-0">Platform for Jobs & Assessments</p>
                                             </div>
                                             <div className="text-end">
-                                                <h5 className="mb-0">RECEIPT</h5>
+                                                <h5 className="mb-0 text-primary">TRANSACTION RECEIPT</h5>
                                                 <p className="text-muted small mb-0">Date: {formatDate(selectedTransaction?.createdAt)}</p>
                                             </div>
                                         </div>
@@ -242,15 +244,19 @@ function CanTransactionsPage() {
 
                                         <div className="row mb-4">
                                             <div className="col-6">
-                                                <p className="text-muted small mb-1">CANDIDATE</p>
+                                                <p className="text-muted small mb-1 fw-bold text-uppercase">Candidate Details</p>
                                                 <h6 className="mb-0">{selectedTransaction?.candidateId?.name}</h6>
                                                 <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.email}</p>
+                                                {selectedTransaction?.candidateId?.phone && (
+                                                    <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.phone}</p>
+                                                )}
                                             </div>
                                             <div className="col-6 text-end">
-                                                <p className="text-muted small mb-1">PAYMENT INFO</p>
+                                                <p className="text-muted small mb-1 fw-bold text-uppercase">Payment Information</p>
                                                 <p className="mb-0 small"><strong>Order ID:</strong> {selectedTransaction?.orderId}</p>
                                                 <p className="mb-0 small"><strong>Payment ID:</strong> {selectedTransaction?.paymentId}</p>
                                                 <p className="mb-0 small"><strong>Method:</strong> {paymentDetails?.method || 'Online'}</p>
+                                                <p className="mb-0 small"><strong>Status:</strong> <span className="text-success fw-bold text-uppercase">{selectedTransaction?.paymentStatus}</span></p>
                                             </div>
                                         </div>
 
@@ -258,7 +264,7 @@ function CanTransactionsPage() {
                                             <table className="table table-bordered">
                                                 <thead className="table-light">
                                                     <tr>
-                                                        <th>Description</th>
+                                                        <th>Service Description</th>
                                                         <th className="text-center">Qty</th>
                                                         <th className="text-end">Amount</th>
                                                     </tr>
@@ -266,26 +272,31 @@ function CanTransactionsPage() {
                                                 <tbody>
                                                     <tr>
                                                         <td>
-                                                            <strong>Job Application Fee</strong><br />
-                                                            <small className="text-muted">Job: {selectedTransaction?.jobId?.title}</small><br />
-                                                            <small className="text-muted">Company: {selectedTransaction?.employerId?.companyName}</small>
+                                                            <div className="fw-bold text-primary">Job Application Fee</div>
+                                                            <div className="small mt-1">
+                                                                <strong>Job:</strong> {selectedTransaction?.jobId?.title}<br />
+                                                                <strong>Company:</strong> {selectedTransaction?.employerId?.companyName}<br />
+                                                                {selectedTransaction?.jobId?.jobCategory && (
+                                                                    <span><strong>Category:</strong> {selectedTransaction?.jobId?.jobCategory}<br /></span>
+                                                                )}
+                                                            </div>
                                                         </td>
-                                                        <td className="text-center">1</td>
-                                                        <td className="text-end">₹{(selectedTransaction?.paymentAmount || 129).toFixed(2)}</td>
+                                                        <td className="text-center align-middle">1</td>
+                                                        <td className="text-end align-middle">₹{(selectedTransaction?.paymentAmount || 129).toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot>
-                                                    <tr>
-                                                        <th colSpan="2" className="text-end">Total Paid</th>
-                                                        <th className="text-end">₹{(selectedTransaction?.paymentAmount || 129).toFixed(2)}</th>
+                                                    <tr className="table-light">
+                                                        <th colSpan="2" className="text-end">Total Amount Paid</th>
+                                                        <th className="text-end text-primary">₹{(selectedTransaction?.paymentAmount || 129).toFixed(2)}</th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
 
-                                        <div className="bg-light p-3 rounded">
-                                            <p className="mb-0 small text-center text-muted">
-                                                This is a computer-generated receipt for the payment made via Razorpay.
+                                        <div className="bg-light p-3 rounded border text-center">
+                                            <p className="mb-0 small text-muted">
+                                                This is a computer-generated receipt for the payment made via Razorpay on TaleGlobal platform.
                                             </p>
                                         </div>
                                     </div>
@@ -299,7 +310,8 @@ function CanTransactionsPage() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
