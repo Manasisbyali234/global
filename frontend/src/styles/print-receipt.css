@@ -1,60 +1,107 @@
-/* Print Styles for Transaction Receipts */
+/* Professional Print Styles for Transaction Receipts */
+
 @media print {
-    /* Hide everything by default using visibility to avoid layout breakage */
-    body * {
-        visibility: hidden !important;
+    /* Hide everything in the root application */
+    #root, 
+    header, 
+    footer, 
+    .site-header, 
+    .wt-admin-right-page-header, 
+    .twm-right-section-panel,
+    .panel,
+    .modal-backdrop {
+        display: none !important;
     }
 
-    /* Show only the modal content and its children */
-    #invoice-content, 
-    #invoice-content * {
-        visibility: visible !important;
-    }
-
-    /* Position the content at the top left of the printed page */
-    #invoice-content {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
+    /* Force the modal portal to be visible */
+    body {
+        background: white !important;
         padding: 0 !important;
         margin: 0 !important;
     }
 
-    /* Print colors and backgrounds */
+    /* Show only the modal that contains our invoice */
+    body > .modal {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Target the modal content structure */
+    .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .modal-content {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Hide the modal header and footer (chrome) */
+    .modal-header, 
+    .modal-footer, 
+    .btn-close {
+        display: none !important;
+    }
+
+    .modal-body {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+    }
+
+    /* Ensure the invoice content is the only thing printed */
+    #invoice-content {
+        display: block !important;
+        width: 100% !important;
+        padding: 20px !important;
+        background: white !important;
+    }
+
+    /* Print color adjustments */
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        color-adjust: exact !important;
     }
 
-    /* Ensure table borders and colors print correctly */
-    .table {
-        border-collapse: collapse !important;
+    /* Force specific elements to show colors */
+    .text-primary {
+        color: #f97316 !important;
     }
     
     .table-light {
         background-color: #f8f9fa !important;
     }
 
-    .text-primary {
-        color: #f97316 !important; /* Force brand orange in print */
+    /* Ensure table borders are visible */
+    .table-bordered th, 
+    .table-bordered td {
+        border: 1px solid #dee2e6 !important;
     }
 }
 
 /* Screen Styles for the Print Button */
-/* Force white text and a solid background to ensure visibility */
 html body .modal-footer .receipt-print-btn,
 html body .modal-footer button.receipt-print-btn {
     color: #ffffff !important;
-    background-color: #f97316 !important; /* Brand Orange */
+    background-color: #f97316 !important;
     border: 1px solid #f97316 !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
     opacity: 1 !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    border-radius: 6px !important;
 }
 
 html body .modal-footer .receipt-print-btn:hover {
-    background-color: #ea580c !important; /* Darker orange on hover */
-    color: #ffffff !important;
+    background-color: #ea580c !important;
 }
 
 html body .modal-footer .receipt-print-btn svg,
