@@ -157,12 +157,32 @@ a.site-button:hover {
  * ENSURE EYE AND EDIT ICONS ARE ALWAYS ORANGE AND HAVE NO HOVER BACKGROUND
  * ============================================================================ */
 
-.twm-table-controls .twm-DT-controls-icon li button:has(.fa-eye):hover,
-.twm-table-controls .twm-DT-controls-icon li a:has(.fa-eye):hover {
-  background-color: #f0f6fe !important;
-  color: #1967d2 !important;
+/* Force icon base styles to override any table defaults - NO HOVER EFFECT ON ICONS */
+.twm-table tbody tr td button .fa-eye,
+.twm-table tbody tr td a .fa-eye,
+.twm-table-controls .twm-DT-controls-icon li button .fa-eye,
+.twm-table-controls .twm-DT-controls-icon li a .fa-eye,
+.twm-table tbody tr td button:hover .fa-eye,
+.twm-table tbody tr td a:hover .fa-eye,
+.twm-table-controls .twm-DT-controls-icon li button:hover .fa-eye,
+.twm-table-controls .twm-DT-controls-icon li a:hover .fa-eye,
+button:hover .fa-eye,
+.btn:hover .fa-eye,
+a:hover .fa-eye,
+.fa-eye,
+.fa-eye:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: #FF7A00 !important;
+    fill: #FF7A00 !important;
+    stroke: #FF7A00 !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
+/* Ensure the parent buttons also don't have distracting hover effects when they contain an eye icon */
+.twm-table-controls .twm-DT-controls-icon li button:has(.fa-eye):hover,
+.twm-table-controls .twm-DT-controls-icon li a:has(.fa-eye):hover,
 button:has(.fa-eye):hover,
 .btn:has(.fa-eye):hover,
 a:has(.fa-eye):hover {
@@ -173,32 +193,14 @@ a:has(.fa-eye):hover {
     box-shadow: none !important;
 }
 
-.fa-eye,
-.fa-eye-slash,
-.fa-edit,
-.fa-pencil,
-.fa-pen,
-[class*="eye"],
-[class*="edit"],
-[class*="pencil"] {
-  color: #FF7A00 !important;
-  fill: #FF7A00 !important;
-  stroke: #FF7A00 !important;
+/* Repeat for edit/pencil icons */
+.fa-edit, .fa-pencil, .fa-pen,
+[class*="edit"], [class*="pencil"] {
+    color: #FF7A00 !important;
+    fill: #FF7A00 !important;
+    stroke: #FF7A00 !important;
 }
 
-button .fa-eye,
-button .fa-eye-slash,
-button .fa-edit,
-button .fa-pencil,
-.btn .fa-eye,
-.btn .fa-eye-slash,
-.btn .fa-edit,
-.btn .fa-pencil,
-.site-button .fa-eye,
-.site-button .fa-eye-slash,
-.site-button .fa-edit,
-.site-button .fa-pencil {
-  color: #FF7A00 !important;
-  fill: #FF7A00 !important;
-  stroke: #FF7A00 !important;
+.fa-eye-slash {
+    color: #FF7A00 !important;
 }
