@@ -18,9 +18,7 @@
 }
 
 .hamburger-btn.active {
-  background: #f8f9fa !important;
-  color: #fd7e14 !important;
-  border-color: #fd7e14 !important;
+  display: none !important;
 }
 
 .hamburger-overlay {
