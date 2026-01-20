@@ -260,7 +260,24 @@ const fieldLabels = {
   contactDesignation: 'Designation',
   contactOfficialEmail: 'Official Email',
   contactMobile: 'Mobile Number',
-  alternateContact: 'Alternate Contact'
+  alternateContact: 'Alternate Contact',
+  employerCode: 'Employer Code',
+  companyIdCardPicture: 'Company ID Card',
+  panCardImage: 'PAN Card',
+  cinImage: 'CIN Document',
+  gstImage: 'GST Certificate',
+  certificateOfIncorporation: 'Certificate of Incorporation',
+  logo: 'Company Logo',
+  coverImage: 'Background Banner',
+  description: 'Company Description',
+  location: 'Headquarters Location',
+  corporateAddress: 'Corporate Address',
+  pincode: 'Pincode',
+  city: 'City',
+  state: 'State',
+  industrySector: 'Industry Sector',
+  companyType: 'Company Type',
+  teamSize: 'Team Size'
 };
 
 
@@ -285,39 +302,39 @@ export const validateField = (fieldName, value, rules = {}) => {
   
   // Email validation
   if (rules.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-    errors.push('Please enter a valid email address');
+    errors.push(`${fieldLabel}: Please enter a valid email address`);
   }
   
   // Phone validation
   if (rules.phone) {
     const cleanNumber = value.replace(/[\s\-\(\)]/g, '');
     if (cleanNumber.length < 7 || cleanNumber.length > 15) {
-      errors.push('Phone number must be between 7-15 digits');
+      errors.push(`${fieldLabel}: Phone number must be between 7-15 digits`);
     }
   }
   
   // URL validation
   if (rules.url && !/^https?:\/\/.+/.test(value)) {
-    errors.push('URL must start with http:// or https://');
+    errors.push(`${fieldLabel}: URL must start with http:// or https://`);
   }
   
   // Year validation
   if (rules.year && !/^\d{4}$/.test(value)) {
-    errors.push('Please enter a valid 4-digit year');
+    errors.push(`${fieldLabel}: Please enter a valid 4-digit year`);
   }
   
   // Length validation
   if (rules.minLength && value.length < rules.minLength) {
-    errors.push(`Must be at least ${rules.minLength} characters`);
+    errors.push(`${fieldLabel}: Must be at least ${rules.minLength} characters`);
   }
   
   if (rules.maxLength && value.length > rules.maxLength) {
-    errors.push(`Must be no more than ${rules.maxLength} characters`);
+    errors.push(`${fieldLabel}: Must be no more than ${rules.maxLength} characters`);
   }
   
   // Pattern validation
   if (rules.pattern && !rules.pattern.test(value)) {
-    errors.push(rules.patternMessage || 'Invalid format');
+    errors.push(`${fieldLabel}: ${rules.patternMessage || 'Invalid format'}`);
   }
   
   return errors;
@@ -355,6 +372,32 @@ export const getFieldLabel = (fieldName) => {
 export const getErrorMessage = (error, context = '') => {
   if (typeof error === 'string') return error;
   
+  // Handle ValidationError specifically to include field details
+  if (error.name === 'ValidationError' && (error.details || error.field)) {
+    const validationErrors = parseValidationErrors({ 
+      errors: error.details,
+      field: error.field,
+      message: error.message
+    });
+    
+    const messages = [];
+    Object.entries(validationErrors).forEach(([field, fieldMsgs]) => {
+      const label = getFieldLabel(field);
+      fieldMsgs.forEach(msg => {
+        // Ensure the field label is mentioned in the error message
+        if (!msg.toLowerCase().includes(label.toLowerCase())) {
+          messages.push(`${label}: ${msg}`);
+        } else {
+          messages.push(msg);
+        }
+      });
+    });
+    
+    if (messages.length > 0) {
+      return messages.join('\n');
+    }
+  }
+
   const errorData = parseApiError(error);
   
   // Context-specific messages

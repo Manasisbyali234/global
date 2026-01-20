@@ -2,7 +2,7 @@ import { Briefcase, Building, Calendar, FileText, Globe, Hash, IdCard, Image as 
 import { useEffect, useState } from "react";
 import { loadScript } from "../../../../globals/constants";
 import CountryCodeSelector from "../../../../components/CountryCodeSelector";
-import { validateForm, safeApiCall, getErrorMessage } from "../../../../utils/errorHandler";
+import { validateForm, safeApiCall, getErrorMessage, getFieldLabel } from "../../../../utils/errorHandler";
 import RichTextEditor from "../../../../components/RichTextEditor";
 import TermsModal from '../../../../components/TermsModal';
 import ImageResizer from '../../../../components/ImageResizer';
@@ -330,7 +330,7 @@ function EmpCompanyProfilePage() {
                 }));
             } else {
                 setFormData(prev => ({ ...prev, city: '' }));
-                showWarning('Invalid pincode or city not found');
+                showWarning('Pincode: Invalid pincode or city not found');
             }
         } catch (error) {
             console.error('Error fetching city:', error);
@@ -367,13 +367,13 @@ function EmpCompanyProfilePage() {
             console.log('GST API Response:', data);
             
             if (data.success) {
-                showSuccess('GST Number is Valid');
+                showSuccess('GST Number: Valid');
             } else {
-                showError('GST Number is Invalid');
+                showError('GST Number: Invalid');
             }
         } catch (error) {
             console.error('Error fetching GST info:', error);
-            showError('GST Number is Invalid');
+            showError('GST Number: Failed to verify GST information');
         } finally {
             setFetchingGST(false);
         }
@@ -495,12 +495,14 @@ function EmpCompanyProfilePage() {
         // Handle all other files normally
         const maxBytes = 5 * 1024 * 1024;
         const allowed = ['image/jpeg', 'image/png', 'application/pdf'];
+        const label = getFieldLabel(fieldName);
+        
         if (file.size > maxBytes) {
-            showError('Document is too large. Max size is 5MB.');
+            showError(`${label}: File is too large. Max size is 5MB.`);
             return;
         }
         if (!allowed.includes(file.type)) {
-            showPopup('Invalid document type. Allowed: JPEG, PNG, PDF.', 'error');
+            showError(`${label}: Invalid file type. Allowed: JPEG, PNG, PDF.`);
             return;
         }
 
@@ -605,12 +607,14 @@ function EmpCompanyProfilePage() {
         // Validate documents: <=5MB, allow images (jpg/png/jpeg) and PDF
         const maxBytes = 5 * 1024 * 1024;
         const allowed = ['image/jpeg', 'image/png', 'application/pdf'];
+        const label = 'Authorization Letter';
+        
         if (file.size > maxBytes) {
-            showError('Document is too large. Max size is 5MB.');
+            showError(`${label}: Document is too large. Max size is 5MB.`);
             return;
         }
         if (!allowed.includes(file.type)) {
-            showPopup('Invalid document type. Allowed: JPEG, PNG, PDF.', 'error');
+            showError(`${label}: Invalid document type. Allowed: JPEG, PNG, PDF.`);
             return;
         }
 
