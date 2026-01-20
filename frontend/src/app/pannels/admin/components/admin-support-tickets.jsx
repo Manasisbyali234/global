@@ -430,14 +430,14 @@ function AdminSupportTickets() {
                                         <table className="table tickets-table" style={{tableLayout: 'fixed', width: '100%'}}>
                                             <thead>
                                                 <tr>
-                                                    <th style={{width: '20%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Subject</th>
-                                                    <th style={{width: '18%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Requester</th>
-                                                    <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>User type</th>
+                                                    <th style={{width: '16%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Subject</th>
+                                                    <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Requester</th>
+                                                    <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>User type</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
-                                                    <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
-                                                    <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Created</th>
-                                                    <th className="text-end" style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Actions</th>
+                                                    <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
+                                                    <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Created</th>
+                                                    <th className="text-end" style={{width: '18%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -468,13 +468,12 @@ function AdminSupportTickets() {
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={formatDate(ticket.createdAt)}>
                                                             <div className="ticket-date">{formatDate(ticket.createdAt)}</div>
                                                         </td>
-                                                        <td>
+                                                        <td style={{overflow: 'visible'}}>
                                                             <div className="action-buttons">
                                                                 <Button
                                                                     variant="light"
                                                                     className="view-btn"
                                                                     size="sm"
-                                                                    style={{width: '60px', minWidth: '60px'}}
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         handleTicketClick(ticket);
@@ -486,7 +485,6 @@ function AdminSupportTickets() {
                                                                     className="delete-btn"
                                                                     size="sm"
                                                                     variant="outline-danger"
-                                                                    style={{width: '60px', minWidth: '60px'}}
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         handleDeleteTicket(ticket._id);
