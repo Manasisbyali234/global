@@ -1144,9 +1144,9 @@ exports.updatePlacementStatus = async (req, res) => {
     // Send approval email and create notification
     if (updateData.status === 'active') {
       try {
-        const { sendPlacementOfficerApprovalEmail } = require('../utils/emailService');
+        const { sendApprovalEmail } = require('../utils/emailService');
         const placementName = placement.name || placement.firstName || 'Placement Officer';
-        await sendPlacementOfficerApprovalEmail(placement.email, placementName);
+        await sendApprovalEmail(placement.email, placementName, 'placement', placement.collegeName);
         
         await createNotification({
           title: 'Account Approved',

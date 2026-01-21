@@ -85,7 +85,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
           <p>Dear ${name || 'Employer'},</p>
           
-          <p>Thank you for registering your company on TaleGlobal.</p>
+          <p>Thank you for registering your consultancy on TaleGlobal.</p>
           
           <p>To proceed with approval, please log in to your dashboard and complete your company profile by updating the required basic details and uploading the necessary documents.</p>
           
@@ -489,11 +489,15 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear Placement Officer,</p>
+          <p>Dear ${name || 'Placement Officer'},</p>
           
           <p>We are happy to inform you that your TaleGlobal Placement Officer account has been approved.</p>
           
           <p>You may now log in to your dashboard and begin updating final-year candidate details on behalf of your college. Please ensure that the information entered is accurate, as candidates will later complete their profiles independently.</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(255, 107, 53, 0.3);">🔐 Create Password</a>
+          </div>
           
           <p>If you need any assistance while using the platform, feel free to reach out to our support team.</p>
           
@@ -1114,13 +1118,13 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Employer,</p>
+        <p>Dear Consultant,</p>
         
-        <p>Your TaleGlobal account has been approved for hiring through consultancy services.</p>
+        <p>Your TaleGlobal consultancy account has been approved for hiring services.</p>
         
         <p>You can now manage job postings, candidate shortlisting, and conduct online interviews via your dashboard in accordance with TaleGlobal guidelines.</p>
         
-        <p><strong>Important Terms & Conditions:</strong></p>
+        <p><strong>Important Terms &amp; Conditions:</strong></p>
         <ul style="line-height: 1.6;">
           <li>No fees should be collected from candidates at any stage</li>
           <li>Interviews must be conducted on time</li>
@@ -1151,52 +1155,6 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
   await transporter.sendMail(mailOptions);
 };
 
-const sendEmployerProfileSubmissionEmail = async (email, name) => {
-  const transporter = createTransport();
-  const profileUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/employer/profile`;
-  const createPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=employer`;
-  
-  const template = `
-    <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
-      <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear ${name || 'Employer'},</p>
-        
-        <p>Thank you for registering your company on TaleGlobal.</p>
-        
-        <p>To proceed with approval, please log in to your dashboard and complete your company profile by updating the required basic details and uploading the necessary documents.</p>
-        
-        <p>Once submitted, your profile will be reviewed by the TaleGlobal admin team.</p>
-        
-        <p>⏳ Approval Timeline: Within 3 working days</p>
-        
-        <p>You will be notified via email once your account is approved.</p>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Your Password</a>
-        </div>
-        
-        <p>Thank you for choosing TaleGlobal as your hiring partner.</p>
-        
-        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-          <p style="margin: 0;">Regards,</p>
-          <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
-        </div>
-      </div>
-    </div>
-  `;
-
-  const mailOptions = {
-    from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: 'TaleGlobal Employer Registration – Action Required',
-    html: template
-  };
-
-  await transporter.sendMail(mailOptions);
-};
-
 module.exports = { 
   sendWelcomeEmail, 
   sendResetEmail, 
@@ -1212,6 +1170,5 @@ module.exports = {
   sendPlacementOfficerApprovalEmail,
   sendCandidateDetailsUpdatedEmail,
   sendEmployerAccountApprovalEmail,
-  sendConsultantApprovalEmail,
-  sendEmployerProfileSubmissionEmail
+  sendConsultantApprovalEmail
 };
