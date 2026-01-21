@@ -359,8 +359,7 @@ function SectionCanEducation({ profile, onUpdate }) {
 
         // Document validation
         if (!formData.document && !formData.documentBase64) {
-            newErrors.document = 'Supporting document is required';
-            isValid = false;
+            // Document is optional, no error
         }
 
         // Percentage or CGPA validation - at least one is required
@@ -562,8 +561,15 @@ function SectionCanEducation({ profile, onUpdate }) {
         try {
             setLoading(true);
 
+            // Sort entries by year of passing before saving
+            const sortedEntries = [...educationEntries].sort((a, b) => {
+                const yearA = parseInt(a.yearOfPassing) || 0;
+                const yearB = parseInt(b.yearOfPassing) || 0;
+                return yearA - yearB;
+            });
+
             // Convert to backend format
-            const educationArray = educationEntries.map(entry => ({
+            const educationArray = sortedEntries.map(entry => ({
                 educationLevel: entry.educationLevel,
                 degreeName: entry.schoolCollegeName,
                 collegeName: entry.boardUniversityName,
@@ -582,6 +588,7 @@ function SectionCanEducation({ profile, onUpdate }) {
             console.log('Save response:', response);
 
             if (response.success) {
+                setEducationEntries(sortedEntries);
                 setHasUnsavedChanges(false);
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
                 showSuccess('All education details saved successfully!');
@@ -1296,14 +1303,13 @@ function SectionCanEducation({ profile, onUpdate }) {
 
                                     {/* Document Upload */}
                                     <div className="col-12">
-                                        <label className="form-label required-field">Upload Supporting Document (PDF only, max 50MB)</label>
+                                        <label className="form-label">Upload Supporting Document (PDF only, max 50MB)</label>
                                         <input
                                             type="file"
                                             className={`form-control ${errors.document ? 'is-invalid' : ''}`}
                                             name="document"
                                             accept=".pdf"
                                             onChange={handleInputChange}
-                                            required
                                         />
                                         {errors.document && <div className="invalid-feedback">{errors.document}</div>}
                                         {formData.documentName && (
