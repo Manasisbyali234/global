@@ -608,12 +608,6 @@ function AdminSupportTickets() {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button 
-                        className="close-btn" 
-                        onClick={handleCloseModal}
-                    >
-                        Close
-                    </Button>
-                    <Button 
                         variant="outline-primary"
                         className="update-btn" 
                         onClick={handleUpdateTicket}
