@@ -87,7 +87,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear ${name || 'Employer'},</p>
+          <p>Dear Employer,</p>
           
           <p>Thank you for registering your company on TaleGlobal.</p>
           
@@ -99,17 +99,13 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           
           <p>You will be notified via email once your account is approved.</p>
           
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Your Password</a>
-          </div>
-          
           <p>Thank you for choosing TaleGlobal as your hiring partner.</p>
           
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Regards,</p>
             <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
             <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -1090,12 +1086,11 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
 
 const sendEmployerAccountApprovalEmail = async (email, name, companyName = null) => {
   const transporter = createTransport();
-  const loginUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/`;
   
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear ${name},</p>
+        <p>Dear Employer,</p>
         
         <p>Congratulations! 🎉</p>
         
@@ -1103,15 +1098,13 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
         
         <p>You can now log in to your dashboard and post job openings completely free of cost.</p>
         
-        <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #ffc107;">
-          <h3 style="margin-top: 0; color: #856404;">Important Terms & Conditions:</h3>
-          <ul style="color: #856404; margin-bottom: 0; line-height: 1.6;">
-            <li>No fees should be collected from candidates at any stage</li>
-            <li>Interviews must be conducted on time</li>
-            <li>Only online interviews are permitted (no offline interviews)</li>
-            <li>Offer letters must be released as per the date mentioned while posting the job</li>
-          </ul>
-        </div>
+        <p><strong>Important Terms & Conditions:</strong></p>
+        <ul style="line-height: 1.6;">
+          <li>No fees should be collected from candidates at any stage</li>
+          <li>Interviews must be conducted on time</li>
+          <li>Only online interviews are permitted (no offline interviews)</li>
+          <li>Offer letters must be released as per the date mentioned while posting the job</li>
+        </ul>
         
         <p>We look forward to a transparent and successful hiring experience with your organization.</p>
         
@@ -1119,7 +1112,7 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
           <p style="margin: 0;">Best regards,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
           <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1188,9 +1181,7 @@ const sendEmployerProfileSubmissionEmail = async (email, name) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">TaleGlobal Employer Registration – Action Required</h2>
-        
-        <p>Dear ${name},</p>
+        <p>Dear Employer,</p>
         
         <p>Thank you for registering your company on TaleGlobal.</p>
         
@@ -1198,23 +1189,17 @@ const sendEmployerProfileSubmissionEmail = async (email, name) => {
         
         <p>Once submitted, your profile will be reviewed by the TaleGlobal admin team.</p>
         
-        <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #2196f3;">
-          <p style="margin: 0; color: #1565c0;"><strong>⏳ Approval Timeline:</strong> Within 3 working days</p>
-        </div>
+        <p>⏳ Approval Timeline: Within 3 working days</p>
         
         <p>You will be notified via email once your account is approved.</p>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${profileUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">📝 Complete Profile</a>
-        </div>
         
         <p>Thank you for choosing TaleGlobal as your hiring partner.</p>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Regards,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="http://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
         </div>
       </div>
     </div>
