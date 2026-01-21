@@ -579,7 +579,6 @@ exports.createJob = async (req, res) => {
       phone: profile.phone,
       email: profile.email,
       panCardImage: profile.panCardImage ? 'Present' : 'Missing',
-      cinImage: profile.cinImage ? 'Present' : 'Missing',
       gstImage: profile.gstImage ? 'Present' : 'Missing',
       certificateOfIncorporation: profile.certificateOfIncorporation ? 'Present' : 'Missing',
       missingFields,
@@ -590,7 +589,6 @@ exports.createJob = async (req, res) => {
     if (allMissingItems.length > 0) {
       const documentLabels = {
         panCardImage: 'PAN Card Image',
-        cinImage: 'CIN Document',
         gstImage: 'GST Certificate',
         certificateOfIncorporation: 'Certificate of Incorporation'
       };
@@ -1683,7 +1681,6 @@ exports.getProfileCompletion = async (req, res) => {
       phone: profile.phone ? 'Present' : 'Missing',
       email: profile.email ? 'Present' : 'Missing',
       panCardImage: profile.panCardImage ? 'Present' : 'Missing',
-      cinImage: profile.cinImage ? 'Present' : 'Missing',
       gstImage: profile.gstImage ? 'Present' : 'Missing',
       certificateOfIncorporation: profile.certificateOfIncorporation ? 'Present' : 'Missing',
       completedWeight,
@@ -1702,7 +1699,6 @@ exports.getProfileCompletion = async (req, res) => {
     if (missingRequiredFields.length > 0) {
       const documentLabels = {
         panCardImage: 'PAN Card Image',
-        cinImage: 'CIN Document', 
         gstImage: 'GST Certificate',
         certificateOfIncorporation: 'Certificate of Incorporation'
       };

@@ -16,6 +16,8 @@ function BatchUpload() {
     const [uploading, setUploading] = useState(false);
     const [uploadHistory, setUploadHistory] = useState([]);
     const [placementData, setPlacementData] = useState(null);
+    const [resubmitFileId, setResubmitFileId] = useState(null);
+    const [showResubmitModal, setShowResubmitModal] = useState(false);
 
     useEffect(() => {
         if (isAuthenticated() && userType === 'placement') {
@@ -119,6 +121,74 @@ function BatchUpload() {
         }
     };
 
+    const handleResubmit = (fileId, fileName, customName) => {
+        setResubmitFileId(fileId);
+        setCustomFileName(customName || fileName);
+        setShowResubmitModal(true);
+    };
+
+    const handleResubmitUpload = async () => {
+        if (!selectedFile) {
+            showWarning('Please select a file to resubmit.');
+            return;
+        }
+
+        if (!customFileName.trim()) {
+            showWarning('Custom Display Name is required.');
+            return;
+        }
+
+        if (!university.trim()) {
+            showWarning('University name is required.');
+            return;
+        }
+
+        if (!batch.trim()) {
+            showWarning('Batch information is required.');
+            return;
+        }
+
+        const token = localStorage.getItem('placementToken');
+        if (!token) {
+            showError('Authentication token missing. Please login again.');
+            return;
+        }
+
+        setUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append('studentData', selectedFile);
+            formData.append('customFileName', customFileName.trim());
+            formData.append('university', university.trim());
+            formData.append('batch', batch.trim());
+
+            const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+            const response = await fetch(`${API_BASE_URL}/placement/files/${resubmitFileId}/resubmit`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccess('File resubmitted successfully! Waiting for admin approval.');
+                resetForm();
+                setShowResubmitModal(false);
+                setResubmitFileId(null);
+                fetchUploadHistory();
+            } else {
+                showError(data.message || 'Resubmission failed');
+            }
+        } catch (error) {
+            showError(error.message || 'Resubmission failed. Please try again.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     const handleViewFile = async (fileId, fileName) => {
         try {
             console.log('Viewing file:', fileId, fileName);
@@ -169,9 +239,24 @@ function BatchUpload() {
             case 'approved':
                 return <i className="fa fa-check status-info"></i>;
             case 'rejected':
-                return <i className="fa fa-times status-danger"></i>;
+                return <i className="fa fa-times-circle status-danger"></i>;
             default:
                 return <i className="fa fa-clock-o status-warning"></i>;
+        }
+    };
+
+    const getStatusText = (status) => {
+        switch (status) {
+            case 'processed':
+                return 'Processed';
+            case 'approved':
+                return 'Approved';
+            case 'rejected':
+                return 'Rejected';
+            case 'pending':
+                return 'Pending';
+            default:
+                return 'Unknown';
         }
     };
 
@@ -351,15 +436,31 @@ function BatchUpload() {
                                                 <span className="upload-date">{new Date(item.uploadedAt).toLocaleDateString()}</span>
                                             </div>
                                             <div className="item-footer">
-                                                <button className="details-btn" onClick={() => {
-                                                    navigate('/placement/student-directory', { 
-                                                        state: { 
-                                                            fileId: item._id, 
-                                                            fileName: item.fileName,
-                                                            customName: item.customName 
-                                                        } 
-                                                    });
-                                                }}>Details</button>
+                                                {item.status === 'rejected' ? (
+                                                    <>
+                                                        <div className="rejection-reason">
+                                                            <i className="fa fa-exclamation-circle"></i>
+                                                            <span>{item.rejectionReason || 'No reason provided'}</span>
+                                                        </div>
+                                                        <button 
+                                                            className="resubmit-btn" 
+                                                            onClick={() => handleResubmit(item._id, item.fileName, item.customName)}
+                                                        >
+                                                            <i className="fa fa-refresh"></i>
+                                                            Resubmit
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <button className="details-btn" onClick={() => {
+                                                        navigate('/placement/student-directory', { 
+                                                            state: { 
+                                                                fileId: item._id, 
+                                                                fileName: item.fileName,
+                                                                customName: item.customName 
+                                                            } 
+                                                        });
+                                                    }}>Details</button>
+                                                )}
                                             </div>
                                         </div>
                                     ))
@@ -375,6 +476,114 @@ function BatchUpload() {
                     </div>
                 </div>
             </div>
+
+            {/* Resubmit Modal */}
+            {showResubmitModal && (
+                <div className="modal-overlay" onClick={() => setShowResubmitModal(false)}>
+                    <div className="modal-content resubmit-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Resubmit File</h3>
+                            <button className="close-btn" onClick={() => {
+                                setShowResubmitModal(false);
+                                resetForm();
+                                setResubmitFileId(null);
+                            }}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="upload-field">
+                                <label>Student Data File *</label>
+                                <div 
+                                    className="file-upload-area"
+                                    onClick={() => document.getElementById('resubmitFileInput').click()}
+                                >
+                                    <i className="fa fa-file-excel-o upload-icon"></i>
+                                    <div className="upload-text">
+                                        <span className="primary-text">
+                                            {selectedFile ? selectedFile.name : 'Click to select corrected file (CSV, XLSX)'}
+                                        </span>
+                                        <span className="secondary-text">Maximum file size: 5MB</span>
+                                    </div>
+                                </div>
+                                <input
+                                    id="resubmitFileInput"
+                                    type="file"
+                                    accept=".xlsx,.xls,.csv"
+                                    onChange={handleFileSelect}
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
+
+                            <div className="config-fields">
+                                <div className="field-group">
+                                    <label>Custom Display Name *</label>
+                                    <input
+                                        type="text"
+                                        value={customFileName}
+                                        onChange={(e) => setCustomFileName(e.target.value)}
+                                        placeholder="Enter a custom name for this batch"
+                                        maxLength="100"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="field-group">
+                                    <label>University *</label>
+                                    <input
+                                        type="text"
+                                        value={university}
+                                        onChange={(e) => setUniversity(e.target.value)}
+                                        placeholder="Enter university name"
+                                        maxLength="100"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="field-group">
+                                    <label>Batch *</label>
+                                    <input
+                                        type="text"
+                                        value={batch}
+                                        onChange={(e) => setBatch(e.target.value)}
+                                        placeholder="Enter batch information"
+                                        maxLength="50"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button 
+                                className="btn-cancel"
+                                onClick={() => {
+                                    setShowResubmitModal(false);
+                                    resetForm();
+                                    setResubmitFileId(null);
+                                }}
+                                disabled={uploading}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                className="btn-upload"
+                                onClick={handleResubmitUpload}
+                                disabled={uploading || !selectedFile || !customFileName.trim() || !university.trim() || !batch.trim()}
+                            >
+                                {uploading ? (
+                                    <>
+                                        <div className="spinner-sm"></div>
+                                        Resubmitting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fa fa-refresh"></i>
+                                        Resubmit File
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

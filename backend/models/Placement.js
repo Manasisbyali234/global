@@ -41,6 +41,7 @@ const placementSchema = new mongoose.Schema({
     batch: String, // Batch information
     uploadedAt: { type: Date, default: Date.now },
     status: { type: String, enum: ['pending', 'approved', 'rejected', 'processed'], default: 'pending' },
+    rejectionReason: String,
     fileData: String, // Base64 encoded file data
     fileType: String, // MIME type
     processedAt: Date,

@@ -2109,6 +2109,7 @@ exports.approveIndividualFile = async (req, res) => {
 exports.rejectIndividualFile = async (req, res) => {
   try {
     const { id: placementId, fileId } = req.params;
+    const { rejectionReason } = req.body;
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
@@ -2127,7 +2128,11 @@ exports.rejectIndividualFile = async (req, res) => {
     console.log(`Updating file ${fileId} status to rejected`);
     const updatedPlacement = await Placement.findOneAndUpdate(
       { _id: placementId, 'fileHistory._id': fileId },
-      { $set: { 'fileHistory.$.status': 'rejected', 'fileHistory.$.processedAt': new Date() } },
+      { $set: { 
+        'fileHistory.$.status': 'rejected',
+        'fileHistory.$.rejectionReason': rejectionReason || 'No reason provided',
+        'fileHistory.$.processedAt': new Date() 
+      } },
       { new: true }
     );
     console.log(`File status updated to rejected for placement ${placementId}`);
@@ -2137,13 +2142,14 @@ exports.rejectIndividualFile = async (req, res) => {
     const updatedFile = verifyPlacement.fileHistory.find(f => f._id.toString() === fileId);
     console.log(`Verified file status: ${updatedFile?.status}`);
 
-    // Create notification
+    // Create notification for placement officer
     try {
       const notification = await createNotification({
         title: 'File Rejected',
-        message: `File "${file.customName || file.fileName}" has been rejected by admin.`,
+        message: `File "${file.customName || file.fileName}" has been rejected. Reason: ${rejectionReason || 'No reason provided'}. You can resubmit a corrected version.`,
         type: 'file_rejected',
-        role: 'admin',
+        role: 'placement',
+        targetUserId: placementId,
         relatedId: placementId,
         createdBy: req.user.id
       });

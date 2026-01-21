@@ -385,7 +385,6 @@ function EmpCompanyProfilePage() {
         // Add document upload validation
         const requiredDocuments = {
             panCardImage: 'PAN Card Image',
-            cinImage: 'CIN Document',
             gstImage: 'GST Certificate',
             certificateOfIncorporation: 'Certificate of Incorporation (Issued by RoC)'
         };
@@ -1668,7 +1667,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label className="required-field"><Upload size={16} className="me-2" /> Upload CIN Document</label>
+                                    <label><Upload size={16} className="me-2" /> Upload CIN Document <span className="text-muted">(Optional)</span></label>
                                     <input
                                         className="form-control"
                                         type="file"

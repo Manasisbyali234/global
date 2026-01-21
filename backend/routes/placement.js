@@ -120,6 +120,9 @@ router.post('/upload-student-data', auth(['placement']), upload.single('studentD
 // View specific file data
 router.get('/files/:fileId/view', auth(['placement']), placementController.viewFileData);
 
+// Resubmit rejected file
+router.post('/files/:fileId/resubmit', auth(['placement']), upload.single('studentData'), placementController.resubmitFile);
+
 // Get placement data (for placement officers to view their own data)
 router.get('/data', auth(['placement']), async (req, res) => {
   try {

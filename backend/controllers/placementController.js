@@ -1095,6 +1095,7 @@ exports.processFileApproval = async (req, res) => {
 exports.rejectFile = async (req, res) => {
   try {
     const { id: placementId, fileId } = req.params;
+    const { rejectionReason } = req.body;
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
@@ -1112,6 +1113,7 @@ exports.rejectFile = async (req, res) => {
       { 
         $set: { 
           'fileHistory.$.status': 'rejected',
+          'fileHistory.$.rejectionReason': rejectionReason || 'No reason provided',
           'fileHistory.$.processedAt': new Date()
         }
       }
@@ -1122,7 +1124,7 @@ exports.rejectFile = async (req, res) => {
       const displayName = file.customName || file.fileName;
       await createNotification({
         title: 'File Rejected',
-        message: `Your uploaded file "${displayName}" has been rejected by the admin. Please review and upload a corrected version if needed.`,
+        message: `Your uploaded file "${displayName}" has been rejected. Reason: ${rejectionReason || 'No reason provided'}. You can resubmit a corrected version.`,
         type: 'file_rejected',
         role: 'placement',
         targetUserId: placementId,
@@ -1141,6 +1143,160 @@ exports.rejectFile = async (req, res) => {
     
   } catch (error) {
     console.error('Error rejecting file:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Resubmit rejected file
+exports.resubmitFile = async (req, res) => {
+  try {
+    const placementId = req.user.id;
+    const { fileId } = req.params;
+    const { customFileName, university, batch } = req.body;
+    
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    const placement = await Placement.findById(placementId);
+    if (!placement) {
+      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+    }
+
+    const file = placement.fileHistory.id(fileId);
+    if (!file) {
+      return res.status(404).json({ success: false, message: 'File not found' });
+    }
+
+    if (file.status !== 'rejected') {
+      return res.status(400).json({ success: false, message: 'Only rejected files can be resubmitted' });
+    }
+
+    // Validate file content
+    const { validateExcelContent } = require('../middlewares/upload');
+    const validation = validateExcelContent(req.file.buffer, req.file.mimetype);
+    
+    if (!validation.valid) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `${validation.message}. Please upload a file with actual student data.` 
+      });
+    }
+
+    // Check for duplicate emails and IDs
+    const XLSX = require('xlsx');
+    let workbook;
+    if (req.file.mimetype.includes('csv')) {
+      const csvData = req.file.buffer.toString('utf8');
+      workbook = XLSX.read(csvData, { type: 'string' });
+    } else {
+      workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    }
+    
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    
+    const emails = [];
+    const ids = [];
+    const duplicateEmails = [];
+    const duplicateIds = [];
+    const existingEmails = [];
+    
+    for (const row of jsonData) {
+      const email = (row.Email || row.email || row.EMAIL || '').toString().trim().toLowerCase();
+      const id = (row.ID || row.id || row.Id || '').toString().trim();
+      
+      if (email) {
+        if (emails.includes(email)) {
+          if (!duplicateEmails.includes(email)) {
+            duplicateEmails.push(email);
+          }
+        } else {
+          emails.push(email);
+          const existingUser = await checkEmailExists(email);
+          if (existingUser) {
+            existingEmails.push(email);
+          }
+        }
+      }
+      
+      if (id) {
+        if (ids.includes(id)) {
+          if (!duplicateIds.includes(id)) {
+            duplicateIds.push(id);
+          }
+        } else {
+          ids.push(id);
+        }
+      }
+    }
+    
+    if (duplicateEmails.length > 0 || duplicateIds.length > 0 || existingEmails.length > 0) {
+      let message = '';
+      if (duplicateEmails.length > 0) {
+        message += `Duplicate emails in file: ${duplicateEmails.slice(0, 5).join(', ')}${duplicateEmails.length > 5 ? ` and ${duplicateEmails.length - 5} more` : ''}. `;
+      }
+      if (duplicateIds.length > 0) {
+        message += `Duplicate IDs in file: ${duplicateIds.slice(0, 5).join(', ')}${duplicateIds.length > 5 ? ` and ${duplicateIds.length - 5} more` : ''}. `;
+      }
+      if (existingEmails.length > 0) {
+        message += `Emails already registered: ${existingEmails.slice(0, 5).join(', ')}${existingEmails.length > 5 ? ` and ${existingEmails.length - 5} more` : ''}. `;
+      }
+      message += 'Please fix these issues and resubmit.';
+      
+      return res.status(400).json({ 
+        success: false, 
+        message: message,
+        duplicateEmails,
+        duplicateIds,
+        existingEmails
+      });
+    }
+
+    const { fileToBase64 } = require('../middlewares/upload');
+    const studentData = fileToBase64(req.file);
+    
+    // Update the rejected file with new data
+    await Placement.findOneAndUpdate(
+      { _id: placementId, 'fileHistory._id': fileId },
+      { 
+        $set: { 
+          'fileHistory.$.fileName': req.file.originalname,
+          'fileHistory.$.customName': customFileName && customFileName.trim() ? customFileName.trim() : file.customName,
+          'fileHistory.$.university': university && university.trim() ? university.trim() : file.university,
+          'fileHistory.$.batch': batch && batch.trim() ? batch.trim() : file.batch,
+          'fileHistory.$.fileData': studentData,
+          'fileHistory.$.fileType': req.file.mimetype,
+          'fileHistory.$.status': 'pending',
+          'fileHistory.$.rejectionReason': null,
+          'fileHistory.$.uploadedAt': new Date()
+        }
+      }
+    );
+    
+    // Create notification for admin
+    try {
+      const displayName = customFileName && customFileName.trim() ? customFileName.trim() : file.customName || req.file.originalname;
+      await createNotification({
+        title: 'File Resubmitted',
+        message: `${placement.name} has resubmitted the file "${displayName}" after corrections. Please review.`,
+        type: 'file_resubmitted',
+        role: 'admin',
+        relatedId: placementId,
+        createdBy: placementId
+      });
+    } catch (notifError) {
+      console.error('Failed to create resubmission notification:', notifError);
+    }
+
+    res.json({
+      success: true,
+      message: 'File resubmitted successfully. Waiting for admin approval.',
+      fileName: req.file.originalname
+    });
+  } catch (error) {
+    console.error('Error resubmitting file:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

@@ -4,6 +4,7 @@ import { api } from '../../../../utils/api';
 import { useWebSocket } from '../../../../contexts/WebSocketContext';
 import './placement-details.css';
 import '../../../../table-id-fix.css';
+import '../../../../placement-rejection-styles.css';
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 function PlacementDetails() {
@@ -32,6 +33,9 @@ function PlacementDetails() {
     const [showStoredDataModal, setShowStoredDataModal] = useState(false);
     const [storedData, setStoredData] = useState([]);
     const [loadingStoredData, setLoadingStoredData] = useState(false);
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectingFile, setRejectingFile] = useState(null);
+    const [rejectionReason, setRejectionReason] = useState('');
 
     useEffect(() => {
         fetchPlacementDetails();
@@ -156,21 +160,33 @@ function PlacementDetails() {
 
     const handleFileReject = async (fileId, fileName) => {
         const file = placement?.fileHistory?.find(f => f._id === fileId);
-        const displayName = file?.customName || fileName;
+        setRejectingFile({ id: fileId, name: file?.customName || fileName });
+        setRejectionReason('');
+        setShowRejectModal(true);
+    };
+
+    const confirmFileRejection = async () => {
+        if (!rejectionReason.trim()) {
+            showWarning('Rejection reason is required');
+            return;
+        }
         
         try {
-            setProcessingFiles(prev => ({...prev, [fileId]: 'rejecting'}));
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/files/${fileId}/reject`, {
+            setProcessingFiles(prev => ({...prev, [rejectingFile.id]: 'rejecting'}));
+            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/files/${rejectingFile.id}/reject`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({ rejectionReason: rejectionReason.trim() })
             });
             const data = await response.json();
             if (data.success) {
-                const displayName = placement?.fileHistory?.find(f => f._id === fileId)?.customName || fileName;
-                showSuccess(`File "${displayName}" rejected successfully!`);
+                showSuccess(`File "${rejectingFile.name}" rejected successfully!`);
+                setShowRejectModal(false);
+                setRejectingFile(null);
+                setRejectionReason('');
                 // Force immediate refresh
                 setTimeout(() => {
                     fetchPlacementDetails();
@@ -181,7 +197,7 @@ function PlacementDetails() {
         } catch (error) {
             showError(`Error rejecting file: ${error.message}`);
         } finally {
-            setProcessingFiles(prev => ({...prev, [fileId]: null}));
+            setProcessingFiles(prev => ({...prev, [rejectingFile.id]: null}));
         }
     };
 
@@ -707,7 +723,9 @@ function PlacementDetails() {
                             overflowY: 'auto',
                             paddingRight: '8px'
                         }}>
-                            {placement.fileHistory.slice().reverse().map((file, index) => (
+                            {placement.fileHistory.slice().reverse().map((file, index) => {
+                                console.log('File object:', file); // Debug log
+                                return (
                                 <div key={file._id || index} className="timeline-item mb-4">
                                     <div style={{
                                         background: 'rgba(255,255,255,0.95)',
@@ -972,17 +990,46 @@ function PlacementDetails() {
                                                                 )}
                                                             </>
                                                         ) : file.status === 'rejected' ? (
+                                                            <>
+                                                                <span style={{
+                                                                    background: 'linear-gradient(135deg, #dc3545, #c82333)',
+                                                                    color: 'white',
+                                                                    padding: '6px 12px',
+                                                                    borderRadius: '20px',
+                                                                    fontSize: '0.8rem',
+                                                                    fontWeight: '500',
+                                                                    boxShadow: '0 2px 8px rgba(220, 53, 69, 0.3)'
+                                                                }}>
+                                                                    <i className="fa fa-times me-2"></i>
+                                                                    Rejected
+                                                                </span>
+                                                                {file.rejectionReason && (
+                                                                    <div style={{
+                                                                        marginTop: '8px',
+                                                                        padding: '8px 12px',
+                                                                        background: '#fff3cd',
+                                                                        border: '1px solid #ffc107',
+                                                                        borderRadius: '8px',
+                                                                        fontSize: '0.85rem',
+                                                                        color: '#856404'
+                                                                    }}>
+                                                                        <i className="fa fa-info-circle me-2"></i>
+                                                                        <strong>Reason:</strong> {file.rejectionReason}
+                                                                    </div>
+                                                                )}
+                                                            </>
+                                                        ) : file.status === 'resubmitted' || file.resubmitted === true || file.isResubmitted === true ? (
                                                             <span style={{
-                                                                background: 'linear-gradient(135deg, #dc3545, #c82333)',
+                                                                background: 'linear-gradient(135deg, #17a2b8, #138496)',
                                                                 color: 'white',
                                                                 padding: '6px 12px',
                                                                 borderRadius: '20px',
                                                                 fontSize: '0.8rem',
                                                                 fontWeight: '500',
-                                                                boxShadow: '0 2px 8px rgba(220, 53, 69, 0.3)'
+                                                                boxShadow: '0 2px 8px rgba(23, 162, 184, 0.3)'
                                                             }}>
-                                                                <i className="fa fa-times me-2"></i>
-                                                                Rejected
+                                                                <i className="fa fa-refresh me-2"></i>
+                                                                Resubmitted
                                                             </span>
                                                         ) : (
                                                             <span style={{
@@ -1032,7 +1079,7 @@ function PlacementDetails() {
                                         </div>
                                     </div>
                                 </div>
-                            ))}
+                            )})}}
                         </div>
                     </div>
                 ) : null}
@@ -1484,6 +1531,72 @@ function PlacementDetails() {
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowStoredDataModal(false)}>Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* File Rejection Modal */}
+            {showRejectModal && rejectingFile && (
+                <div className="modal fade show" style={{display: 'block', background: 'rgba(0,0,0,0.5)'}} onClick={() => setShowRejectModal(false)}>
+                    <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">
+                                    <i className="fa fa-times-circle me-2" style={{color: '#dc3545'}}></i>
+                                    Reject File: {rejectingFile.name}
+                                </h5>
+                                <button type="button" className="close" onClick={() => setShowRejectModal(false)}>
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="alert alert-warning">
+                                    <i className="fa fa-exclamation-triangle me-2"></i>
+                                    Please provide a clear reason for rejecting this file. The placement officer will see this reason and can resubmit a corrected version.
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="rejectionReason">Rejection Reason *</label>
+                                    <textarea
+                                        id="rejectionReason"
+                                        className="form-control"
+                                        rows="4"
+                                        value={rejectionReason}
+                                        onChange={(e) => setRejectionReason(e.target.value)}
+                                        placeholder="Enter the reason for rejection (e.g., Invalid data format, Missing required columns, Duplicate entries, etc.)"
+                                        maxLength="500"
+                                    />
+                                    <small className="text-muted">
+                                        {rejectionReason.length}/500 characters
+                                    </small>
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button 
+                                    type="button" 
+                                    className="btn btn-secondary" 
+                                    onClick={() => {
+                                        setShowRejectModal(false);
+                                        setRejectingFile(null);
+                                        setRejectionReason('');
+                                    }}
+                                    disabled={processingFiles[rejectingFile?.id]}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="button" 
+                                    className="btn btn-danger" 
+                                    onClick={confirmFileRejection}
+                                    disabled={!rejectionReason.trim() || processingFiles[rejectingFile?.id]}
+                                >
+                                    {processingFiles[rejectingFile?.id] ? (
+                                        <><i className="fa fa-spinner fa-spin me-2"></i>Rejecting...</>
+                                    ) : (
+                                        <><i className="fa fa-times me-2"></i>Reject File</>
+                                    )}
+                                </button>
                             </div>
                         </div>
                     </div>

@@ -5,6 +5,7 @@ import { debugAuth, testAPIConnection, testPlacementAuth } from '../../../utils/
 import PlacementNotificationsRedesigned from './sections/PlacementNotificationsRedesigned';
 import './placement-dashboard-redesigned.css';
 import '../../../placement-mobile-fix.css';
+import '../../../placement-rejection-styles.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../utils/popupNotification';
 import NotificationBell from '../../../components/NotificationBell';
 import JobZImage from '../../common/jobz-img';
@@ -41,6 +42,14 @@ function PlacementDashboardRedesigned() {
     const [uploadingImages, setUploadingImages] = useState(false);
     const [logoPreview, setLogoPreview] = useState(null);
     const [idCardPreview, setIdCardPreview] = useState(null);
+    const [showResubmitModal, setShowResubmitModal] = useState(false);
+    const [resubmittingFile, setResubmittingFile] = useState(null);
+    const [resubmitFile, setResubmitFile] = useState(null);
+    const [resubmitFileName, setResubmitFileName] = useState('');
+    const [resubmitCourseName, setResubmitCourseName] = useState('');
+    const [resubmitUniversity, setResubmitUniversity] = useState('');
+    const [resubmitBatch, setResubmitBatch] = useState('');
+    const [resubmitting, setResubmitting] = useState(false);
     const [stats, setStats] = useState({
         totalStudents: 0,
         avgCredits: 0,
@@ -399,6 +408,80 @@ function PlacementDashboardRedesigned() {
         } catch (error) {
             console.error('Error viewing file:', error);
             showError('Error viewing file. Please try again.');
+        }
+    };
+
+    const handleResubmitFile = (file) => {
+        setResubmittingFile(file);
+        setResubmitCourseName(file.customName || '');
+        setResubmitUniversity(file.university || '');
+        setResubmitBatch(file.batch || '');
+        setResubmitFile(null);
+        setResubmitFileName('');
+        setShowResubmitModal(true);
+    };
+
+    const handleResubmitUpload = async () => {
+        if (!resubmitFile) {
+            showWarning('Please select a file to resubmit.');
+            return;
+        }
+        
+        if (!resubmitCourseName.trim()) {
+            showWarning('Course Name is required.');
+            return;
+        }
+        
+        if (!resubmitUniversity.trim()) {
+            showWarning('University name is required.');
+            return;
+        }
+        
+        if (!resubmitBatch.trim()) {
+            showWarning('Batch information is required.');
+            return;
+        }
+        
+        setResubmitting(true);
+        try {
+            const formData = new FormData();
+            formData.append('studentData', resubmitFile);
+            formData.append('customFileName', resubmitCourseName);
+            formData.append('university', resubmitUniversity);
+            formData.append('batch', resubmitBatch);
+            
+            const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+            const response = await fetch(`${API_BASE_URL}/placement/files/${resubmittingFile._id}/resubmit`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('placementToken')}`
+                },
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccess('File resubmitted successfully! Waiting for admin approval.');
+                setShowResubmitModal(false);
+                setResubmittingFile(null);
+                setResubmitFile(null);
+                setResubmitFileName('');
+                setResubmitCourseName('');
+                setResubmitUniversity('');
+                setResubmitBatch('');
+                await Promise.all([
+                    fetchPlacementDetails(),
+                    fetchStudentData()
+                ]);
+            } else {
+                showError(data.message || 'Resubmission failed');
+            }
+        } catch (error) {
+            console.error('Resubmit error:', error);
+            showError(error.message || 'Resubmission failed. Please try again.');
+        } finally {
+            setResubmitting(false);
         }
     };
 
@@ -959,6 +1042,7 @@ function PlacementDashboardRedesigned() {
                                                         <th>Batch</th>
                                                         <th>Upload Date</th>
                                                         <th>Status</th>
+                                                        <th>Rejection Reason</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
@@ -983,19 +1067,58 @@ function PlacementDashboardRedesigned() {
                                                                     </span>
                                                                 </td>
                                                                 <td>
-                                                                    <button 
-                                                                        className="view-btn"
-                                                                        onClick={() => handleViewFile(file._id, file.fileName)}
-                                                                    >
-                                                                        <i className="fa fa-eye"></i>
-                                                                    </button>
+                                                                    {file.status === 'rejected' && file.rejectionReason ? (
+                                                                        <div className="rejection-reason" style={{
+                                                                            maxWidth: '200px',
+                                                                            fontSize: '0.85rem',
+                                                                            color: '#dc3545',
+                                                                            background: '#fff5f5',
+                                                                            padding: '4px 8px',
+                                                                            borderRadius: '4px',
+                                                                            border: '1px solid #fecaca'
+                                                                        }}>
+                                                                            <i className="fa fa-exclamation-triangle me-1"></i>
+                                                                            {file.rejectionReason}
+                                                                        </div>
+                                                                    ) : (
+                                                                        '-'
+                                                                    )}
+                                                                </td>
+                                                                <td>
+                                                                    <div className="d-flex gap-2">
+                                                                        <button 
+                                                                            className="view-btn"
+                                                                            onClick={() => handleViewFile(file._id, file.fileName)}
+                                                                            title="View file data"
+                                                                        >
+                                                                            <i className="fa fa-eye"></i>
+                                                                        </button>
+                                                                        {file.status === 'rejected' && (
+                                                                            <button 
+                                                                                className="reupload-btn"
+                                                                                onClick={() => handleResubmitFile(file)}
+                                                                                title="Reupload corrected file"
+                                                                                style={{
+                                                                                    backgroundColor: '#28a745',
+                                                                                    color: 'white',
+                                                                                    border: 'none',
+                                                                                    borderRadius: '4px',
+                                                                                    padding: '6px 10px',
+                                                                                    fontSize: '0.8rem',
+                                                                                    cursor: 'pointer'
+                                                                                }}
+                                                                            >
+                                                                                <i className="fa fa-upload"></i>
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                             );
                                                         })
                                                     ) : (
                                                         <tr>
-                                                            <td colSpan="7" style={{textAlign: 'center', padding: '40px'}}>
+                                                            <td colSpan="8" style={{textAlign: 'center', padding: '40px'}}>
                                                                 <i className="fa fa-history" style={{fontSize: '32px', marginBottom: '12px', opacity: '0.5'}}></i>
                                                                 <p>No upload history yet</p>
                                                             </td>
@@ -1165,6 +1288,137 @@ function PlacementDashboardRedesigned() {
                                     <>
                                         <i className="fa fa-save"></i>
                                         Update Profile
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Resubmit File Modal */}
+            {showResubmitModal && resubmittingFile && (
+                <div className="modal-overlay" onClick={() => setShowResubmitModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>
+                                <i className="fa fa-upload me-2" style={{color: '#28a745'}}></i>
+                                Resubmit File: {resubmittingFile.fileName}
+                            </h3>
+                            <button className="close-btn" onClick={() => setShowResubmitModal(false)}>
+                                <i className="fa fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            {resubmittingFile.rejectionReason && (
+                                <div className="alert alert-warning mb-3">
+                                    <h6><i className="fa fa-exclamation-triangle me-2"></i>Rejection Reason:</h6>
+                                    <p className="mb-0">{resubmittingFile.rejectionReason}</p>
+                                </div>
+                            )}
+                            
+                            <div className="form-group">
+                                <label>Course Name *</label>
+                                <input
+                                    type="text"
+                                    value={resubmitCourseName}
+                                    onChange={(e) => setResubmitCourseName(e.target.value)}
+                                    placeholder="Enter course name"
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>University *</label>
+                                <input
+                                    type="text"
+                                    value={resubmitUniversity}
+                                    onChange={(e) => setResubmitUniversity(e.target.value)}
+                                    placeholder="Enter university name"
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Batch *</label>
+                                <input
+                                    type="text"
+                                    value={resubmitBatch}
+                                    onChange={(e) => setResubmitBatch(e.target.value)}
+                                    placeholder="Enter batch information"
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Select Corrected File *</label>
+                                <div 
+                                    className="file-upload-area"
+                                    onClick={() => !resubmitting && document.getElementById('resubmitFileInput').click()}
+                                    style={{
+                                        border: '2px dashed #ccc',
+                                        borderRadius: '8px',
+                                        padding: '20px',
+                                        textAlign: 'center',
+                                        cursor: resubmitting ? 'not-allowed' : 'pointer',
+                                        background: resubmitting ? '#f5f5f5' : '#fafafa'
+                                    }}
+                                >
+                                    <i className="fa fa-file-excel-o" style={{fontSize: '24px', marginBottom: '8px'}}></i>
+                                    <p className="mb-0">
+                                        {resubmitting ? 'Uploading...' : 
+                                         resubmitFileName ? resubmitFileName : 
+                                         'Click to select corrected file (CSV, XLSX)'}
+                                    </p>
+                                    {resubmitting && <div className="spinner-sm mt-2"></div>}
+                                </div>
+                                <input 
+                                    id="resubmitFileInput"
+                                    type="file" 
+                                    accept=".xlsx,.xls,.csv"
+                                    style={{display: 'none'}}
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            setResubmitFile(file);
+                                            setResubmitFileName(file.name);
+                                        }
+                                    }}
+                                    disabled={resubmitting}
+                                />
+                                <small className="text-muted">
+                                    Please upload the corrected version of your file addressing the rejection reason above.
+                                </small>
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button 
+                                className="btn-secondary" 
+                                onClick={() => {
+                                    setShowResubmitModal(false);
+                                    setResubmittingFile(null);
+                                    setResubmitFile(null);
+                                    setResubmitFileName('');
+                                    setResubmitCourseName('');
+                                    setResubmitUniversity('');
+                                    setResubmitBatch('');
+                                }} 
+                                disabled={resubmitting}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                className="btn-primary" 
+                                onClick={handleResubmitUpload} 
+                                disabled={resubmitting || !resubmitFile || !resubmitCourseName.trim() || !resubmitUniversity.trim() || !resubmitBatch.trim()}
+                                style={{backgroundColor: '#28a745', borderColor: '#28a745'}}
+                            >
+                                {resubmitting ? (
+                                    <>
+                                        <div className="spinner-sm"></div>
+                                        Resubmitting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fa fa-upload"></i>
+                                        Resubmit File
                                     </>
                                 )}
                             </button>
