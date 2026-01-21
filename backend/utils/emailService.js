@@ -54,14 +54,12 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
         </div>
       </div>
     `;
-  } else
-
-  if (normalizedUserType === 'placement') {
+  } else if (normalizedUserType === 'placement') {
     subject = 'TaleGlobal Registration Received – Approval Pending';
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear ${name || 'Placement Officer'},</p>
+          <p>Dear Placement Officer,</p>
           
           <p>Thank you for registering on the TaleGlobal platform.</p>
           
@@ -70,10 +68,6 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           <p>You will receive a confirmation email as soon as your profile is approved.</p>
           
           <p>Thank you for partnering with TaleGlobal to support student career opportunities.</p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Your Password</a>
-          </div>
           
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Best regards,</p>
@@ -495,17 +489,13 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear ${name || 'Placement Officer'},</p>
+          <p>Dear Placement Officer,</p>
           
           <p>We are happy to inform you that your TaleGlobal Placement Officer account has been approved.</p>
           
           <p>You may now log in to your dashboard and begin updating final-year candidate details on behalf of your college. Please ensure that the information entered is accurate, as candidates will later complete their profiles independently.</p>
           
           <p>If you need any assistance while using the platform, feel free to reach out to our support team.</p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${loginUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔗 Login to Dashboard</a>
-          </div>
           
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Warm regards,</p>
@@ -516,7 +506,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
         </div>
       </div>
     `;
-  } else {
+  } else
     subject = '🎉 Profile Approved - Welcome to TaleGlobal!';
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa;">
