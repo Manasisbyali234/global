@@ -29,7 +29,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear Candidate,</p>
+          <p>Dear ${name || 'Candidate'},</p>
           
           <p>Congratulations! 🎉</p>
           
@@ -61,7 +61,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear Placement Officer,</p>
+          <p>Dear ${name || 'Placement Officer'},</p>
           
           <p>Thank you for registering on the TaleGlobal platform.</p>
           
@@ -89,7 +89,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear Employer,</p>
+          <p>Dear ${name || 'Employer'},</p>
           
           <p>Thank you for registering your company on TaleGlobal.</p>
           
@@ -393,7 +393,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Candidate,</p>
+        <p>Dear ${name || 'Candidate'},</p>
         
         <p>Your details have been successfully updated on the TaleGlobal platform by your placement officer.</p>
         
@@ -1052,7 +1052,7 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Placement Officer,</p>
+        <p>Dear ${name || 'Placement Officer'},</p>
         
         <p>We are happy to inform you that your TaleGlobal Placement Officer account has been approved.</p>
         
@@ -1086,7 +1086,7 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Employer,</p>
+        <p>Dear ${name || 'Employer'},</p>
         
         <p>Congratulations! 🎉</p>
         
@@ -1178,7 +1178,7 @@ const sendEmployerProfileSubmissionEmail = async (email, name) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Employer,</p>
+        <p>Dear ${name || 'Employer'},</p>
         
         <p>Thank you for registering your company on TaleGlobal.</p>
         
