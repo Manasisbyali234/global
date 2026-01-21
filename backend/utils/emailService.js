@@ -1118,28 +1118,34 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Consultant,</p>
+        <p>Dear Employer,</p>
         
-        <p>Your TaleGlobal consultancy account has been approved for hiring services.</p>
+        <p>Congratulations! 🎉</p>
         
-        <p>You can now manage job postings, candidate shortlisting, and conduct online interviews via your dashboard in accordance with TaleGlobal guidelines.</p>
+        <p>Your employer account has been approved by the TaleGlobal Admin Team.</p>
+        
+        <p>You can now:</p>
+        <ul style="line-height: 1.6;">
+          <li>Log in to your dashboard</li>
+          <li>Post job openings completely free of cost</li>
+          <li>Conduct interviews online</li>
+        </ul>
         
         <p><strong>Important Terms &amp; Conditions:</strong></p>
         <ul style="line-height: 1.6;">
-          <li>No fees should be collected from candidates at any stage</li>
+          <li>No fee should be collected from candidates</li>
           <li>Interviews must be conducted on time</li>
-          <li>Only online interviews are permitted (no offline interviews)</li>
-          <li>Offer letters must be released as per the date mentioned while posting the job</li>
+          <li>Offline interviews are strictly not permitted</li>
+          <li>Job offers must be released as per the date mentioned in the job posting</li>
         </ul>
         
-        <p>Please ensure all hiring activities remain transparent and compliant with platform policies.</p>
-        <p>Thank you for partnering with TaleGlobal.</p>
+        <p>We look forward to supporting your hiring needs.</p>
+        <p>For queries, contact <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a>.</p>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-          <p style="margin: 0;">Sincerely,</p>
+          <p style="margin: 0;">Best regards,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;"><a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1148,7 +1154,7 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'TaleGlobal Approval – Consultancy Hiring Access Granted',
+    subject: 'Your Employer Account Has Been Approved – Start Posting Jobs',
     html: template
   };
 
