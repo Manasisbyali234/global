@@ -44,6 +44,14 @@ exports.getNotificationsByRole = async (req, res) => {
     } else if (role === 'admin') {
       // For admin, show all admin notifications
       query = { role: 'admin' };
+    } else if (role === 'placement') {
+      query = {
+        $or: [
+          { role, placementId: { $exists: false } }, // General notifications for all placements
+          { role, placementId: userId }, // Specific notifications for this placement
+          { role, relatedId: userId } // Also check relatedId for backward compatibility
+        ]
+      };
     } else {
       query = {
         $or: [
@@ -115,6 +123,14 @@ exports.markAllAsRead = async (req, res) => {
     } else if (role === 'admin') {
       // For admin, mark all admin notifications as read
       query = { role: 'admin', isRead: false };
+    } else if (role === 'placement') {
+      query = {
+        $or: [
+          { role, placementId: { $exists: false }, isRead: false },
+          { role, placementId: userId, isRead: false },
+          { role, relatedId: userId, isRead: false }
+        ]
+      };
     } else {
       query = {
         $or: [

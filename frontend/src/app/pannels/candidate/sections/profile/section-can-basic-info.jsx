@@ -178,8 +178,8 @@ function SectionCandicateBasicInfo() {
             case 'phone':
                 if (!value || !value.trim()) {
                     newErrors.phone = 'Mobile number is required';
-                } else if (!/^\d{10}$/.test(value.replace(/\s/g, ''))) {
-                    newErrors.phone = 'Mobile number must be exactly 10 digits';
+                } else if (!/^\d{10,15}$/.test(value.replace(/\s/g, ''))) {
+                    newErrors.phone = 'Mobile number must be at least 10 digits';
                 } else {
                     delete newErrors.phone;
                 }
@@ -594,9 +594,16 @@ function SectionCandicateBasicInfo() {
                                     type="tel"
                                     name="phone"
                                     value={formData.phone}
-                                    onChange={handleInputChange}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        if (value.length <= 15) {
+                                            setFormData(prev => ({ ...prev, phone: value }));
+                                            if (touched.phone) validateField('phone', value);
+                                        }
+                                    }}
                                     onBlur={handleBlur}
                                     placeholder="Enter mobile number"
+                                    minLength="10"
                                     maxLength="15"
                                     required
                                     style={{ paddingLeft: '80px', height: '50px', borderRadius: '0 8px 8px 0', borderLeft: 'none' }}

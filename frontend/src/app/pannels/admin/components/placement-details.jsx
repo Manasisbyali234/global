@@ -777,6 +777,23 @@ function PlacementDetails() {
                                                                 Original: {file.fileName}
                                                             </p>
                                                         )}
+                                                        {file.isResubmitted && (
+                                                            <div style={{marginBottom: '8px'}}>
+                                                                <span style={{
+                                                                    background: 'linear-gradient(135deg, #17a2b8, #138496)',
+                                                                    color: 'white',
+                                                                    padding: '4px 10px',
+                                                                    borderRadius: '12px',
+                                                                    fontSize: '0.75rem',
+                                                                    fontWeight: '600',
+                                                                    boxShadow: '0 2px 8px rgba(23, 162, 184, 0.3)',
+                                                                    display: 'inline-block'
+                                                                }}>
+                                                                    <i className="fa fa-refresh me-1"></i>
+                                                                    RESUBMITTED
+                                                                </span>
+                                                            </div>
+                                                        )}
                                                         {file.university && (
                                                             <p className="mb-1" style={{
                                                                 fontSize: '0.85rem',

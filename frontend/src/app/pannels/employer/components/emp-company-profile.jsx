@@ -97,7 +97,7 @@ function EmpCompanyProfilePage() {
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [validationRules] = useState({
         companyName: { required: true, minLength: 2 },
-        phone: { required: true, pattern: /^\d{6,10}$/, patternMessage: 'Phone number must be 6-10 digits' },
+        phone: { required: true, pattern: /^\d{10,15}$/, patternMessage: 'Phone number must be at least 10 digits' },
         email: { required: true, email: true },
         website: { required: true, url: true },
         establishedSince: { year: true },
@@ -109,7 +109,7 @@ function EmpCompanyProfilePage() {
         city: { required: true, minLength: 2 },
         state: { required: true },
         officialEmail: { required: true, email: true },
-        officialMobile: { required: true, pattern: /^\d{6,10}$/, patternMessage: 'Mobile number must be 6-10 digits' },
+        officialMobile: { required: true, pattern: /^\d{10,15}$/, patternMessage: 'Mobile number must be at least 10 digits' },
         companyType: { required: true },
         cin: { pattern: /^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/, patternMessage: 'Invalid CIN format. Must be 21 characters (e.g., U12345AB1234ABC123456)' },
         gstNumber: { required: true, pattern: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, patternMessage: 'Invalid GST format. Must be 15 characters (e.g., 12ABCDE1234F1Z5)' },
@@ -119,7 +119,7 @@ function EmpCompanyProfilePage() {
         contactLastName: { required: true, minLength: 2 },
         contactDesignation: { required: true, minLength: 2 },
         contactOfficialEmail: { required: true, email: true },
-        contactMobile: { required: true, pattern: /^\d{6,10}$/, patternMessage: 'Mobile number must be 6-10 digits' },
+        contactMobile: { required: true, pattern: /^\d{10,15}$/, patternMessage: 'Mobile number must be at least 10 digits' },
         companyIdCardPicture: { required: true },
         employerCode: { required: true, minLength: 3, maxLength: 20 }
     });
@@ -1206,8 +1206,13 @@ function EmpCompanyProfilePage() {
                                             className="form-control"
                                             type="text"
                                             value={formData.phone}
-                                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                if (value.length <= 15) handleInputChange('phone', value);
+                                            }}
                                             placeholder="9087654321"
+                                            minLength="10"
+                                            maxLength="15"
                                             style={{ paddingLeft: '130px', height: '50px' }}
                                         />
                                     </div>
@@ -1508,8 +1513,13 @@ function EmpCompanyProfilePage() {
                                             className="form-control"
                                             type="text"
                                             value={formData.officialMobile}
-                                            onChange={(e) => handleInputChange('officialMobile', e.target.value)}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                if (value.length <= 15) handleInputChange('officialMobile', value);
+                                            }}
                                             placeholder="9876543210"
+                                            minLength="10"
+                                            maxLength="15"
                                             style={{ paddingLeft: '130px', height: '50px' }}
                                         />
                                     </div>
@@ -1941,8 +1951,13 @@ function EmpCompanyProfilePage() {
                                             className="form-control"
                                             type="tel"
                                             value={formData.contactMobile}
-                                            onChange={(e) => handleInputChange('contactMobile', e.target.value)}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                if (value.length <= 15) handleInputChange('contactMobile', value);
+                                            }}
                                             placeholder="9876543210"
+                                            minLength="10"
+                                            maxLength="15"
                                             style={{ paddingLeft: '130px', height: '50px' }}
                                         />
                                     </div>
@@ -1997,8 +2012,13 @@ function EmpCompanyProfilePage() {
                                             className="form-control"
                                             type="tel"
                                             value={formData.alternateContact}
-                                            onChange={(e) => handleInputChange('alternateContact', e.target.value)}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                if (value.length <= 15) handleInputChange('alternateContact', value);
+                                            }}
                                             placeholder="9876543210"
+                                            minLength="10"
+                                            maxLength="15"
                                             style={{ paddingLeft: '130px', height: '50px' }}
                                         />
                                     </div>

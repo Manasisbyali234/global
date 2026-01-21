@@ -42,6 +42,7 @@ const placementSchema = new mongoose.Schema({
     uploadedAt: { type: Date, default: Date.now },
     status: { type: String, enum: ['pending', 'approved', 'rejected', 'processed'], default: 'pending' },
     rejectionReason: String,
+    isResubmitted: { type: Boolean, default: false },
     fileData: String, // Base64 encoded file data
     fileType: String, // MIME type
     processedAt: Date,

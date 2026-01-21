@@ -1127,7 +1127,7 @@ exports.rejectFile = async (req, res) => {
         message: `Your uploaded file "${displayName}" has been rejected. Reason: ${rejectionReason || 'No reason provided'}. You can resubmit a corrected version.`,
         type: 'file_rejected',
         role: 'placement',
-        targetUserId: placementId,
+        placementId: placementId,
         relatedId: placementId,
         createdBy: req.user?.id || 'admin'
       });
@@ -1269,6 +1269,7 @@ exports.resubmitFile = async (req, res) => {
           'fileHistory.$.fileData': studentData,
           'fileHistory.$.fileType': req.file.mimetype,
           'fileHistory.$.status': 'pending',
+          'fileHistory.$.isResubmitted': true,
           'fileHistory.$.rejectionReason': null,
           'fileHistory.$.uploadedAt': new Date()
         }
