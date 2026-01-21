@@ -490,34 +490,6 @@ function SectionCandidateOverview() {
 					<h5 className="mb-1" style={{ color: '#111827', fontWeight: '700' }}>Dashboard Overview</h5>
 					<p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>Track your job applications and profile activity</p>
 				</div>
-				{shouldShowCredits && (
-					<div className="text-end d-flex align-items-center">
-						<div className="me-3">
-							<small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Available Credits</small>
-							<span className="fw-bold" style={{ color: '#f97316', fontSize: '1.1rem' }}>{candidate.credits || 0}</span>
-						</div>
-						<button 
-							className="btn btn-sm" 
-							style={{ 
-								backgroundColor: 'rgba(255, 122, 0, 0.08)',
-								color: '#FF7A00',
-								border: '1px solid #FF7A00',
-								transition: 'all 0.3s ease'
-							}}
-							onMouseEnter={(e) => { 
-								e.target.style.backgroundColor = '#FF7A00';
-								e.target.style.color = '#fff';
-							}}
-							onMouseLeave={(e) => { 
-								e.target.style.backgroundColor = 'rgba(255, 122, 0, 0.08)';
-								e.target.style.color = '#FF7A00';
-							}}
-							onClick={handleBuyCredits}
-						>
-							Buy Credits
-						</button>
-					</div>
-				)}
 			</div>
 			<div className="row" style={{ marginBottom: '2rem' }}>
 				{cards.map((card, index) => (
