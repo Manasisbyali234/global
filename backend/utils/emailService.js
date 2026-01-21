@@ -116,6 +116,38 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
         </div>
       </div>
     `;
+  } else if (normalizedUserType === 'consultant') {
+    subject = 'TaleGlobal Consultant Registration – Action Required';
+    template = `
+      <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
+        <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+          <p>Dear ${name || 'Consultant'},</p>
+          
+          <p>Thank you for registering your consultancy on TaleGlobal.</p>
+          
+          <p>To proceed with approval, please log in to your dashboard and complete your company profile by updating the required basic details and uploading the necessary documents.</p>
+          
+          <p>Once submitted, your profile will be reviewed by the TaleGlobal admin team.</p>
+          
+          <p>⏳ Approval Timeline: Within 3 working days</p>
+          
+          <p>You will be notified via email once your account is approved.</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Your Password</a>
+          </div>
+          
+          <p>Thank you for choosing TaleGlobal as your hiring partner.</p>
+          
+          <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            <p style="margin: 0;">Regards,</p>
+            <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+            <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
+          </div>
+        </div>
+      </div>
+    `;
   } else if (normalizedUserType === 'placement_candidate') {
     subject = 'Your TaleGlobal Account Is Active – Please Update Your Profile';
     template = `
@@ -459,70 +491,27 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
   let subject;
 
   if (userType === 'placement') {
-    subject = 'Welcome to TaleGlobal - Placement Access Enabled';
+    subject = 'Your TaleGlobal Placement Officer Account Has Been Approved';
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear <strong>${name}</strong>,</p>
+          <p>Dear ${name || 'Placement Officer'},</p>
           
-          <p>Greetings from <strong>TaleGlobal</strong>.</p>
+          <p>We are happy to inform you that your TaleGlobal Placement Officer account has been approved.</p>
           
-          <p>As discussed and agreed, we are pleased to confirm the collaboration between <strong>TaleGlobal and ${collegeName || 'your institution'}</strong> to support final-year students in their career and placement readiness journey.</p>
+          <p>You may now log in to your dashboard and begin updating final-year candidate details on behalf of your college. Please ensure that the information entered is accurate, as candidates will later complete their profiles independently.</p>
           
-          <p>Placement Officer access has been <strong>successfully enabled</strong> on the TaleGlobal platform, allowing you to upload and update <strong>final-year student data</strong> directly.</p>
+          <p>If you need any assistance while using the platform, feel free to reach out to our support team.</p>
           
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #2c3e50;">🔹 Scope of Collaboration:</h3>
-            <ul style="line-height: 1.6;">
-              <li>TaleGlobal will support students by providing access to:
-                <ul>
-                  <li>Career opportunities</li>
-                  <li>Placement-related resources</li>
-                </ul>
-              </li>
-              <li>TaleGlobal <strong>does not provide any assurance or guarantee of 100% placement</strong></li>
-              <li>The platform is intended to <strong>support and enhance employability</strong>, not to promise job outcomes</li>
-            </ul>
-          </div>
-
-          <div style="background-color: #e7f5ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #1971c2;">🔹 Financial Clarification:</h3>
-            <ul style="line-height: 1.6; margin-bottom: 0;">
-              <li><strong>No fees or payments are collected from ${collegeName || 'your institution'}</strong></li>
-              <li>Credits provided to students are <strong>offered as part of platform support</strong></li>
-              <li>Credits are <strong>not linked to any monetary transaction</strong> with the institution</li>
-            </ul>
-          </div>
-
-          <div style="background-color: #fff4e6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #d9480f;">🔹 Student Account Process:</h3>
-            <ul style="line-height: 1.6; margin-bottom: 0;">
-              <li>Student data submitted by the Placement Officer will be <strong>reviewed and approved by the TaleGlobal Admin</strong></li>
-              <li>Upon approval, students will receive:
-                <ul>
-                  <li>Platform access</li>
-                  <li>Credits for platform usage</li>
-                  <li>Login credentials via email</li>
-                </ul>
-              </li>
-              <li>Students may <strong>change their passwords</strong> after first login for security purposes</li>
-            </ul>
-          </div>
-
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${loginUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Platform Login</a>
-            <a href="${createPasswordUrl}" style="background-color: #2c3e50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
+            <a href="${loginUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔗 Login to Dashboard</a>
           </div>
-
-          <p>We look forward to working closely with <strong>${collegeName || 'your institution'}</strong> to support students in exploring suitable career and placement opportunities.</p>
-          
-          <p>Please feel free to reach out if you require any assistance with onboarding or platform usage.</p>
           
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Warm regards,</p>
             <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">🌐 <a href="http://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -1086,29 +1075,34 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear ${name || 'Employer'},</p>
+        <p>Dear Employer,</p>
         
         <p>Congratulations! 🎉</p>
         
-        <p>Your TaleGlobal employer account has been successfully approved.</p>
+        <p>Your employer account has been approved by the TaleGlobal Admin Team.</p>
         
-        <p>You can now log in to your dashboard and post job openings completely free of cost.</p>
+        <p>You can now:</p>
+        <ul style="line-height: 1.6;">
+          <li>Log in to your dashboard</li>
+          <li>Post job openings completely free of cost</li>
+          <li>Conduct interviews online</li>
+        </ul>
         
         <p><strong>Important Terms & Conditions:</strong></p>
         <ul style="line-height: 1.6;">
-          <li>No fees should be collected from candidates at any stage</li>
+          <li>No fee should be collected from candidates</li>
           <li>Interviews must be conducted on time</li>
-          <li>Only online interviews are permitted (no offline interviews)</li>
-          <li>Offer letters must be released as per the date mentioned while posting the job</li>
+          <li>Offline interviews are strictly not permitted</li>
+          <li>Job offers must be released as per the date mentioned in the job posting</li>
         </ul>
         
-        <p>We look forward to a transparent and successful hiring experience with your organization.</p>
+        <p>We look forward to supporting your hiring needs.</p>
+        <p>For queries, contact <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a>.</p>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Best regards,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;"><a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1117,7 +1111,7 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Your TaleGlobal Employer Account Has Been Approved',
+    subject: 'Your Employer Account Has Been Approved – Start Posting Jobs',
     html: template
   };
 
@@ -1130,31 +1124,28 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear ${name},</p>
+        <p>Dear Employer,</p>
         
         <p>Your TaleGlobal account has been approved for hiring through consultancy services.</p>
         
         <p>You can now manage job postings, candidate shortlisting, and conduct online interviews via your dashboard in accordance with TaleGlobal guidelines.</p>
         
-        <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #ffc107;">
-          <h3 style="margin-top: 0; color: #856404;">Important Terms & Conditions:</h3>
-          <ul style="color: #856404; margin-bottom: 0; line-height: 1.6;">
-            <li>No fees should be collected from candidates at any stage</li>
-            <li>Interviews must be conducted on time</li>
-            <li>Only online interviews are permitted (no offline interviews)</li>
-            <li>Offer letters must be released as per the date mentioned while posting the job</li>
-          </ul>
-        </div>
+        <p><strong>Important Terms & Conditions:</strong></p>
+        <ul style="line-height: 1.6;">
+          <li>No fees should be collected from candidates at any stage</li>
+          <li>Interviews must be conducted on time</li>
+          <li>Only online interviews are permitted (no offline interviews)</li>
+          <li>Offer letters must be released as per the date mentioned while posting the job</li>
+        </ul>
         
         <p>Please ensure all hiring activities remain transparent and compliant with platform policies.</p>
-        
         <p>Thank you for partnering with TaleGlobal.</p>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Sincerely,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
           <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
         </div>
       </div>
     </div>

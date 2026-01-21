@@ -500,9 +500,16 @@ exports.updateEmployerStatus = async (req, res) => {
     if (isApproved !== undefined) {
       try {
         if (isApproved) {
-          const { sendEmployerAccountApprovalEmail } = require('../utils/emailService');
           const employerName = employer.name || employer.firstName || employer.companyName || 'Employer';
-          await sendEmployerAccountApprovalEmail(employer.email, employerName, employer.companyName);
+          
+          // Send different email based on employer type
+          if (employer.employerType === 'consultant') {
+            const { sendConsultantApprovalEmail } = require('../utils/emailService');
+            await sendConsultantApprovalEmail(employer.email, employerName, employer.companyName);
+          } else {
+            const { sendEmployerAccountApprovalEmail } = require('../utils/emailService');
+            await sendEmployerAccountApprovalEmail(employer.email, employerName, employer.companyName);
+          }
         }
         
         const notificationData = {
