@@ -447,8 +447,8 @@ function CanSupport() {
                                                 value={formData.receiverRole}
                                                 onChange={handleChange}
                                             >
-                                                <option value="admin">Admin Support</option>
                                                 <option value="employer">HR Support</option>
+                                                <option value="admin">Admin Support</option>
                                             </select>
                                         </div>
                                     </div>
