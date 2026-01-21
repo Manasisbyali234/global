@@ -506,7 +506,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
         </div>
       </div>
     `;
-  } else
+  } else {
     subject = '🎉 Profile Approved - Welcome to TaleGlobal!';
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa;">
