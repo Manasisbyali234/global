@@ -44,8 +44,8 @@ const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, 
         managerial: 'Managerial Round',
         final: 'Final Round',
         hr: 'HR Round',
-        aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-        coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+        aptitude: 'Aptitude test',
+        coding: 'Coding'
     };
 
     const formatDate = (dateString) => {
@@ -71,13 +71,14 @@ const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, 
     };
 
     return (
-        <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-            <div className="modal-dialog modal-lg modal-dialog-centered">
-                <div className="modal-content" style={{ borderRadius: '12px', border: 'none' }}>
+        <div className="modal fade show" style={{ display: 'flex', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100001, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}>
+            <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style={{ maxHeight: 'calc(100vh - 40px)', margin: '20px auto' }}>
+                <div className="modal-content" style={{ borderRadius: '12px', border: 'none', maxHeight: '100%', display: 'flex', flexDirection: 'column' }}>
                     <div className="modal-header" style={{ 
                         background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', 
                         color: 'white',
-                        borderRadius: '12px 12px 0 0'
+                        borderRadius: '12px 12px 0 0',
+                        flexShrink: 0
                     }}>
                         <h5 className="modal-title d-flex align-items-center gap-2">
                             <FileText size={20} />
@@ -90,7 +91,7 @@ const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, 
                             style={{ filter: 'invert(1)' }}
                         ></button>
                     </div>
-                    <div className="modal-body" style={{ padding: '2rem' }}>
+                    <div className="modal-body" style={{ padding: '2rem', overflowY: 'auto' }}>
                         {roundType === 'technical' && assessmentId ? (
                             loadingAssessment ? (
                                 <div className="text-center py-4">

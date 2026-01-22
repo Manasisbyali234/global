@@ -20,17 +20,32 @@ function CreatePassword() {
     const email = searchParams.get('email');
     const rawType = (searchParams.get('type') || 'candidate').toLowerCase();
     const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
+    // Normalize user type to map to correct endpoints
+    const typeMapping = {
+        candidate: 'candidate',
+        placement_candidate: 'candidate',
+        employer: 'employer',
+        company: 'employer',
+        consultant: 'employer',
+        placement: 'placement'
+    };
+
+    const userType = typeMapping[rawType] || 'candidate';
+    
     const endpointMap = {
         candidate: `${apiUrl}/api/candidate/create-password`,
         employer: `${apiUrl}/api/employer/create-password`,
-        consultant: `${apiUrl}/api/employer/create-password`,
         placement: `${apiUrl}/api/placement/create-password`
     };
-    const hasTypeParam = !!searchParams.get('type');
-    const userType = endpointMap[rawType] ? rawType : 'candidate';
+
     const endpoint = endpointMap[userType];
-    const displayRole = userType === 'placement' ? 'placement officer' : userType;
-    const displayRoleLabel = displayRole === 'placement officer' ? 'Placement Officer' : displayRole.charAt(0).toUpperCase() + displayRole.slice(1);
+    
+    // Display role logic
+    const displayRole = rawType === 'placement' ? 'placement officer' : 
+                        rawType === 'placement_candidate' ? 'candidate' :
+                        rawType === 'company' ? 'employer' : rawType;
+    const displayRoleLabel = displayRole.charAt(0).toUpperCase() + displayRole.slice(1);
 
     const validatePassword = (pwd) => {
         const minLength = 6;
@@ -73,7 +88,7 @@ function CreatePassword() {
             return;
         }
 
-        if (hasTypeParam && !endpointMap[rawType]) {
+        if (searchParams.get('type') && !typeMapping[rawType]) {
             setError('Invalid user type. Please use the link provided in your email.');
             return;
         }
@@ -116,9 +131,9 @@ function CreatePassword() {
         <div className="row justify-content-center">
                 <div className="col-md-6">
                     <div className="card">
-                        <div className="card-header">
+                        <div className="card-header text-center">
                             <h3>Create Your Password</h3>
-                            {email && <p className="mb-0">for {email} ({displayRoleLabel})</p>}
+                            {email && <p className="mb-0" style={{ fontWeight: '500', color: '#666' }}>{email}({displayRole})</p>}
                         </div>
                         <div className="card-body">
                             <form onSubmit={handleSubmit}>

@@ -236,8 +236,8 @@ function CanStatusPage() {
 						final: 'Final',
 						hr: 'HR',
 						assessment: 'Assessment',
-						aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-						coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+						aptitude: 'Aptitude test',
+						coding: 'Coding'
 					};
 					rounds.push({
 						name: roundNames[roundType] || roundType,
@@ -770,17 +770,17 @@ function CanStatusPage() {
 
 			{/* All Interview Details Modal */}
 			{showAllDetails && selectedApplication && (
-				<div className="modal fade show" style={{display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999}} onClick={(e) => { if (e.target === e.currentTarget) setShowAllDetails(false); }}>
-					<div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
-						<div className="modal-content" style={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.2)'}}>
-							<div className="modal-header" style={{backgroundColor: '#f5f5f5', color: '#000', borderRadius: '12px 12px 0 0'}}>
+				<div className="modal fade show" style={{display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100001, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%'}} onClick={(e) => { if (e.target === e.currentTarget) setShowAllDetails(false); }}>
+					<div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style={{maxHeight: 'calc(100vh - 40px)', margin: '20px auto'}} onClick={(e) => e.stopPropagation()}>
+						<div className="modal-content" style={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', maxHeight: '100%', display: 'flex', flexDirection: 'column'}}>
+							<div className="modal-header" style={{backgroundColor: '#f5f5f5', color: '#000', borderRadius: '12px 12px 0 0', flexShrink: 0}}>
 								<h5 className="modal-title">
 									<i className="fa fa-clipboard-list me-2"></i>
 									Interview Process Details
 								</h5>
 								<button type="button" className="btn-close" onClick={() => setShowAllDetails(false)}></button>
 							</div>
-							<div className="modal-body" style={{padding: '30px'}}>
+							<div className="modal-body" style={{padding: '30px', overflowY: 'auto'}}>
 								{/* Job Information */}
 								<div className="mb-4 p-3" style={{backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #e0e0e0'}}>
 									<h6 className="mb-3" style={{color: '#232323', fontWeight: '600'}}>
@@ -1073,7 +1073,7 @@ function CanStatusPage() {
 									</div>
 								)}
 							</div>
-							<div className="modal-footer" style={{borderTop: '1px solid #e0e0e0'}}>
+							<div className="modal-footer" style={{borderTop: '1px solid #e0e0e0', flexShrink: 0}}>
 								<button type="button" className="btn btn-secondary" onClick={() => setShowAllDetails(false)}>
 									Close
 								</button>

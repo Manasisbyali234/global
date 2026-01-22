@@ -618,3 +618,37 @@ td .text-success {
     margin-top: 0 !important;
     vertical-align: top !important;
 }
+
+/* Ensure modal is contained and scrollable */
+.modal.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+    z-index: 100001 !important;
+}
+
+.modal-dialog-centered.modal-dialog-scrollable {
+    display: flex !important;
+    align-items: center !important;
+    max-height: 100% !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+.modal-dialog-centered.modal-dialog-scrollable .modal-content {
+    max-height: 90vh !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.modal-dialog-centered.modal-dialog-scrollable .modal-body {
+    overflow-y: auto !important;
+    flex: 1 1 auto !important;
+}
+
+/* Fix for header overlap */
+.modal-backdrop {
+    z-index: 100000 !important;
+}

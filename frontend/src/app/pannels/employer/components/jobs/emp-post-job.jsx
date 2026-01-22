@@ -2254,8 +2254,8 @@ export default function EmpPostJob({ onNext }) {
 							}}
 						>
 							<option value="">-- Select Round Type --</option>
-							<option value="aptitude">Aptitude test - SOFTWARE ENGINEERING</option>
-							<option value="coding">Coding - SENIOR SOFTWARE ENGINEERING</option>
+							<option value="aptitude">Aptitude test</option>
+							<option value="coding">Coding</option>
 							<option value="technical">Technical</option>
 							<option value="nonTechnical">Non-Technical</option>
 							<option value="managerial">Managerial Round</option>
@@ -2277,8 +2277,8 @@ export default function EmpPostJob({ onNext }) {
 									final: 'Final Round',
 									hr: 'HR Round',
 									assessment: 'Assessment Schedule',
-									aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-									coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+									aptitude: 'Aptitude test',
+									coding: 'Coding'
 								};
 								return (
 									<div key={uniqueKey} style={{
