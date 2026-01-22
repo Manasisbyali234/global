@@ -10,7 +10,7 @@ input {
 /* Dropdown and select elements should not overflow header */
 .form-select:focus,
 select:focus {
-    z-index: 2;
+    z-index: 100 !important;
 }
 
 /* Education section specific z-index fixes */
@@ -561,8 +561,14 @@ body.modal-open {
 
 /* Panel stability - prevent blinking and flickering */
 .panel {
+    position: relative;
+    z-index: 1;
     transition: none !important;
     animation: none !important;
+}
+
+.panel:focus-within {
+    z-index: 20 !important;
 }
 
 .panel-heading {
