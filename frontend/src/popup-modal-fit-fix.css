@@ -1,0 +1,206 @@
+/* Popup Modal Fit Fix - Remove scrolling and make content fit */
+
+/* Override global modal styles with highest specificity */
+.twm-sign-up .modal-dialog,
+#sign_up_popup .modal-dialog,
+#sign_up_popup2 .modal-dialog {
+    max-height: 98vh !important;
+    max-width: 900px !important;
+    width: 95% !important;
+    margin: 1vh auto !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.twm-sign-up .modal-content,
+#sign_up_popup .modal-content,
+#sign_up_popup2 .modal-content {
+    max-height: 98vh !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Optimize header spacing */
+.twm-sign-up .modal-header,
+#sign_up_popup .modal-header,
+#sign_up_popup2 .modal-header {
+    padding: 12px 20px 8px 20px !important;
+    flex-shrink: 0 !important;
+}
+
+.twm-sign-up .modal-header h2,
+#sign_up_popup .modal-header h2,
+#sign_up_popup2 .modal-header h2 {
+    font-size: 1.3rem !important;
+    margin-bottom: 4px !important;
+}
+
+.twm-sign-up .modal-header p,
+#sign_up_popup .modal-header p,
+#sign_up_popup2 .modal-header p {
+    font-size: 0.85rem !important;
+    margin-bottom: 0 !important;
+}
+
+/* Make modal body flexible and remove scrolling - Override global styles */
+.twm-sign-up.show .modal-dialog .modal-content .modal-body,
+#sign_up_popup.show .modal-dialog .modal-content .modal-body,
+#sign_up_popup2.show .modal-dialog .modal-content .modal-body,
+.twm-sign-up .modal-body,
+#sign_up_popup .modal-body,
+#sign_up_popup2 .modal-body {
+    flex: 1 !important;
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    max-height: none !important;
+    padding: 8px 20px 15px 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Optimize tab navigation */
+.twm-sign-up .nav-tabs,
+#sign_up_popup .nav-tabs,
+#sign_up_popup2 .nav-tabs {
+    margin-bottom: 10px !important;
+    flex-shrink: 0 !important;
+}
+
+.twm-sign-up .nav-tabs .nav-link,
+#sign_up_popup .nav-tabs .nav-link,
+#sign_up_popup2 .nav-tabs .nav-link {
+    padding: 7px 10px !important;
+    font-size: 0.85rem !important;
+}
+
+/* Make tab content flexible */
+.twm-sign-up .tab-content,
+#sign_up_popup .tab-content,
+#sign_up_popup2 .tab-content {
+    flex: 1 !important;
+    overflow: hidden !important;
+}
+
+.twm-sign-up .tab-pane,
+#sign_up_popup .tab-pane,
+#sign_up_popup2 .tab-pane {
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+/* Optimize form spacing */
+.twm-sign-up .tab-pane form,
+#sign_up_popup .tab-pane form,
+#sign_up_popup2 .tab-pane form {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.twm-sign-up .tab-pane .row,
+#sign_up_popup .tab-pane .row,
+#sign_up_popup2 .tab-pane .row {
+    flex: 1 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+}
+
+/* Reduce form group margins */
+.twm-sign-up .form-group,
+#sign_up_popup .form-group,
+#sign_up_popup2 .form-group {
+    margin-bottom: 8px !important;
+}
+
+/* Optimize input sizing */
+.twm-sign-up .form-control,
+#sign_up_popup .form-control,
+#sign_up_popup2 .form-control {
+    padding: 9px 12px !important;
+    font-size: 0.9rem !important;
+}
+
+/* Optimize button spacing */
+.twm-sign-up .col-12:last-child,
+#sign_up_popup .col-12:last-child,
+#sign_up_popup2 .col-12:last-child {
+    margin-top: auto !important;
+}
+
+/* Reduce alert margins */
+.twm-sign-up .alert,
+#sign_up_popup .alert,
+#sign_up_popup2 .alert {
+    margin-bottom: 8px !important;
+    padding: 6px 10px !important;
+    font-size: 0.85rem !important;
+}
+
+/* Optimize country code and phone input layout */
+.twm-sign-up .col-lg-3.col-md-3,
+.twm-sign-up .col-lg-9.col-md-9,
+#sign_up_popup .col-lg-3.col-md-3,
+#sign_up_popup .col-lg-9.col-md-9,
+#sign_up_popup2 .col-lg-3.col-md-3,
+#sign_up_popup2 .col-lg-9.col-md-9 {
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+}
+
+/* Ensure proper mobile responsiveness */
+@media (max-width: 768px) {
+    .twm-sign-up .modal-dialog,
+    #sign_up_popup .modal-dialog,
+    #sign_up_popup2 .modal-dialog {
+        max-height: 98vh !important;
+        max-width: 95% !important;
+        width: 95% !important;
+        margin: 1vh auto !important;
+    }
+    
+    .twm-sign-up .modal-content,
+    #sign_up_popup .modal-content,
+    #sign_up_popup2 .modal-content {
+        max-height: 98vh !important;
+    }
+    
+    .twm-sign-up .modal-header,
+    #sign_up_popup .modal-header,
+    #sign_up_popup2 .modal-header {
+        padding: 10px 15px 6px 15px !important;
+    }
+    
+    .twm-sign-up .modal-body,
+    #sign_up_popup .modal-body,
+    #sign_up_popup2 .modal-body {
+        padding: 6px 15px 12px 15px !important;
+        overflow: hidden !important;
+        overflow-y: hidden !important;
+        max-height: none !important;
+    }
+    
+    .twm-sign-up .nav-tabs .nav-link,
+    #sign_up_popup .nav-tabs .nav-link,
+    #sign_up_popup2 .nav-tabs .nav-link {
+        padding: 6px 8px !important;
+        font-size: 0.8rem !important;
+    }
+    
+    .twm-sign-up .form-group,
+    #sign_up_popup .form-group,
+    #sign_up_popup2 .form-group {
+        margin-bottom: 7px !important;
+    }
+}
+
+/* Remove any conflicting overflow settings */
+body.modal-open {
+    overflow: hidden !important;
+}
+
+.modal {
+    overflow-y: auto !important;
+}
