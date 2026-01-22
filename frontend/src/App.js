@@ -35,6 +35,8 @@ import "./global-zindex-fix.css";
 import "./iphone-hamburger-ultimate-production-fix.css";
 // ANDROID HAMBURGER FIX - Addresses visibility issues on Android mobile browsers
 import "./android-hamburger-fix.css";
+// POPUP SCROLL FIX - Ensures whole modal scrolls naturally
+import "./popup-scroll-fix.css";
 
 
 function App() {

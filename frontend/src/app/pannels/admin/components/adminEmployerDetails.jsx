@@ -1008,7 +1008,9 @@ function EmployerDetails() {
                                                         doc.status === 'rejected' ? 'fa-times' : 'fa-clock'
                                                     }`}></i>
                                                 )}
-                                                {doc.status === 'approved' ? 'Approved' : doc.status === 'rejected' ? 'Rejected' : 'Pending'}
+                                                {doc.status === 'approved' ? 'Approved' : 
+                                                 doc.status === 'rejected' ? 'Rejected' : 
+                                                 doc.isResubmitted ? 'Resubmitted' : 'Pending'}
                                             </span>
                                         </td>
                                         <td>

@@ -553,6 +553,47 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 						/>
 					</div>
 
+					<div className="mb-4 p-3 border rounded-3" style={{ backgroundColor: '#f8f9fa' }}>
+						<h6 className="fw-semibold mb-3 text-primary">
+							<i className="fa fa-shield-alt me-2"></i>
+							Security & Privacy
+						</h6>
+						<ul className="list-unstyled mb-0" style={{ textAlign: 'left' }}>
+							<li className="mb-2 d-flex align-items-start">
+								<span className="me-2">•</span>
+								<span>End-to-end encryption keeps your assessments secure between you and the candidates you choose.</span>
+							</li>
+							<li className="mb-2 d-flex align-items-start">
+								<span className="me-2">•</span>
+								<span>Not even Tale-Global can read or copy the content</span>
+							</li>
+							<li className="mb-2 d-flex align-items-start">
+								<span className="me-2">•</span>
+								<span>No one outside can read, copy, or share them</span>
+							</li>
+							<li className="mb-2 d-flex align-items-start">
+								<span className="me-2">•</span>
+								<span>Questions and answers are protected</span>
+							</li>
+							<li className="mb-2 d-flex align-items-start">
+								<span className="me-2">•</span>
+								<span>Assessment content is encrypted</span>
+							</li>
+							<li className="mb-2 d-flex align-items-start">
+								<span className="me-2">•</span>
+								<span>Candidate responses are secure</span>
+							</li>
+							<li className="mb-2 d-flex align-items-start">
+								<span className="me-2">•</span>
+								<span>Results and evaluations are private</span>
+							</li>
+							<li className="mb-0 d-flex align-items-start">
+								<span className="me-2">•</span>
+								<span>All assessment data is protected</span>
+							</li>
+						</ul>
+					</div>
+
 					<h6 className="fw-semibold mb-3 mt-2">Questions ({questions.length})</h6>
 
 					<div style={{

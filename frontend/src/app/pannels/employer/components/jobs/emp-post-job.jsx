@@ -715,13 +715,7 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}
 
-		// Validate Application Limit vs Vacancies
-		const vacancies = parseInt(formData.vacancies) || 0;
-		const applicationLimit = parseInt(formData.applicationLimit) || 0;
-		if (vacancies > 0 && applicationLimit > 0 && applicationLimit < vacancies) {
-			newErrors.applicationLimit = [`Application limit (${applicationLimit}) cannot be less than number of vacancies (${vacancies}). Please set application limit to at least ${vacancies}.`];
-			errorMessages.push(`Application limit must be at least equal to the number of vacancies. Current: Application Limit = ${applicationLimit}, Vacancies = ${vacancies}`);
-		}
+		// Application limit validation removed - employers can set any application limit
 
 		// Validate Interview Rounds Count
 		const specifiedRoundsCount = parseInt(formData.interviewRoundsCount) || 0;
@@ -1648,41 +1642,6 @@ export default function EmpPostJob({ onNext }) {
 
 					<div>
 						<label style={label}>
-							<i className="fa fa-users" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Number of Vacancies *
-						</label>
-						<input
-							style={{
-								...input,
-								borderColor: errors.vacancies ? '#dc2626' : '#d1d5db'
-							}}
-							className={errors.vacancies ? 'is-invalid' : ''}
-							type="number"
-							min="1"
-							placeholder="e.g., 5"
-							value={formData.vacancies}
-							onChange={(e) => {
-								const vacancies = parseInt(e.target.value) || 0;
-								const applicationLimit = parseInt(formData.applicationLimit) || 0;
-								
-								update({ vacancies: e.target.value });
-								
-								// Check if application limit is less than vacancies after updating vacancies
-								if (vacancies > 0 && applicationLimit > 0 && applicationLimit < vacancies) {
-									showWarning(`Warning: Your application limit (${applicationLimit}) is now less than the number of vacancies (${vacancies}). Please update the application limit to at least ${vacancies}.`);
-								}
-							}}
-						/>
-						{errors.vacancies && (
-							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
-								<i className="fa fa-exclamation-circle"></i>
-								{errors.vacancies[0]}
-							</div>
-						)}
-					</div>
-
-					<div>
-						<label style={label}>
 							<i className="fa fa-file-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Application Limit *
 						</label>
@@ -1718,6 +1677,47 @@ export default function EmpPostJob({ onNext }) {
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
 							Maximum number of applications to accept (must be at least equal to number of vacancies)
 						</small>
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-users" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Number of Vacancies *
+						</label>
+						<input
+							style={{
+								...input,
+								borderColor: errors.vacancies ? '#dc2626' : '#d1d5db'
+							}}
+							className={errors.vacancies ? 'is-invalid' : ''}
+							type="number"
+							min="1"
+							placeholder="e.g., 5"
+							value={formData.vacancies}
+							onChange={(e) => {
+								const vacancies = parseInt(e.target.value) || 0;
+								const applicationLimit = parseInt(formData.applicationLimit) || 0;
+								
+								update({ vacancies: e.target.value });
+								
+								// Auto-suggest application limit based on vacancies
+								if (vacancies > 0) {
+									const suggestedLimit = vacancies * 10; // 10x the vacancies as suggestion
+									update({ applicationLimit: suggestedLimit.toString() });
+								}
+								
+								// Check if application limit is less than vacancies after updating vacancies
+								if (vacancies > 0 && applicationLimit > 0 && applicationLimit < vacancies) {
+									showWarning(`Warning: Your application limit (${applicationLimit}) is now less than the number of vacancies (${vacancies}). Please update the application limit to at least ${vacancies}.`);
+								}
+							}}
+						/>
+						{errors.vacancies && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.vacancies[0]}
+							</div>
+						)}
 					</div>
 
 					{/* Requirements Section */}

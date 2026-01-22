@@ -19,7 +19,7 @@ const ConfirmationDialog = ({ message, onConfirm, onCancel, type = 'warning' }) 
             {type === 'error' && '✕'}
             {type === 'info' && 'ℹ'}
           </div>
-          <div className="popup-message" style={{ textAlign: 'center' }}>{message}</div>
+          <div className="popup-message-left">{message}</div>
           <div className="popup-buttons" style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
             <button 
               className="popup-button popup-button-confirm" 

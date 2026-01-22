@@ -102,6 +102,15 @@
   white-space: pre-line;
 }
 
+.popup-message-left {
+  color: #333;
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+  text-align: left !important;
+  white-space: pre-line;
+}
+
 .popup-button {
   background-color: rgba(255, 122, 0, 0.08) !important;
   color: #FF7A00 !important;
