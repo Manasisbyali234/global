@@ -5,7 +5,8 @@ import { loadScript } from "../../../../globals/constants";
 import InterviewProcessManager from "./InterviewProcessManager";
 import './emp-candidate-review.css';
 import './emp-candidate-review-mobile.css';
-import '../../../../assessment-badge-fix.css';
+import './emp-candidate-review-mobile-fix.css';
+import '../../../assessment-badge-fix.css';
 
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
