@@ -857,7 +857,14 @@ exports.getAssessmentResult = async (req, res) => {
         result: attempt.result,
         correctAnswers: attempt.answers.filter(a => {
           const question = attempt.assessmentId.questions[a.questionIndex];
-          return question && parseInt(a.selectedAnswer) === parseInt(question.correctAnswer);
+          if (!question) return false;
+
+          if (question.type === 'mcq' || question.type === 'visual-mcq') {
+            return !isNaN(parseInt(a.selectedAnswer)) && parseInt(a.selectedAnswer) === parseInt(question.correctAnswer);
+          } else if (question.type === 'subjective' || question.type === 'image' || question.type === 'upload') {
+            return (a.textAnswer && a.textAnswer.trim()) || a.uploadedFile;
+          }
+          return false;
         }).length,
         totalQuestions: attempt.assessmentId.totalQuestions,
         violations: attempt.violations

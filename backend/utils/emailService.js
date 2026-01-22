@@ -1,6 +1,26 @@
 const nodemailer = require('nodemailer');
 
 const createTransport = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('❌ EMAIL_USER or EMAIL_PASS not set in environment variables');
+  }
+
+  // Use explicit host/port if available, otherwise fallback to service: 'gmail'
+  if (process.env.EMAIL_HOST && process.env.EMAIL_PORT) {
+    return nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: parseInt(process.env.EMAIL_PORT),
+      secure: process.env.EMAIL_SECURE === 'true' || process.env.EMAIL_PORT === '465',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+  }
+
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {

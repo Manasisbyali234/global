@@ -23,6 +23,7 @@ function CreatePassword() {
     const endpointMap = {
         candidate: `${apiUrl}/api/candidate/create-password`,
         employer: `${apiUrl}/api/employer/create-password`,
+        consultant: `${apiUrl}/api/employer/create-password`,
         placement: `${apiUrl}/api/placement/create-password`
     };
     const hasTypeParam = !!searchParams.get('type');

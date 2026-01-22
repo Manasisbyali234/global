@@ -23,6 +23,8 @@ const XLSX = require('xlsx');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
 const { checkEmailExists } = require('../utils/authUtils');
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 };

@@ -54,7 +54,7 @@ exports.registerEmployer = async (req, res) => {
 
     // Send welcome email with password creation link
     try {
-      await sendWelcomeEmail(email, companyName, 'employer');
+      await sendWelcomeEmail(email, companyName, finalEmployerType);
       console.log('Welcome email sent to:', email);
     } catch (emailError) {
       console.error('Welcome email failed:', emailError);

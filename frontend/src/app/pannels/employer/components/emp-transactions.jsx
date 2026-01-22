@@ -246,19 +246,19 @@ function EmpTransactionsPage() {
                                         <hr />
 
                                         <div className="row mb-4">
-                                            <div className="col-6">
-                                                <p className="text-muted small mb-1 fw-bold text-uppercase">Candidate Details</p>
-                                                <h6 className="mb-0">{selectedTransaction?.candidateId?.name}</h6>
-                                                <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.email}</p>
+                                            <div className="col-md-6 mb-3">
+                                                <p className="text-muted small mb-2 fw-bold text-uppercase">Candidate Details</p>
+                                                <h6 className="mb-1">{selectedTransaction?.candidateId?.name}</h6>
+                                                <p className="text-muted small mb-1">{selectedTransaction?.candidateId?.email}</p>
                                                 {selectedTransaction?.candidateId?.phone && (
                                                     <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.phone}</p>
                                                 )}
                                             </div>
-                                            <div className="col-6 text-end">
-                                                <p className="text-muted small mb-1 fw-bold text-uppercase">Payment Info</p>
-                                                <p className="mb-0 small"><strong>Order ID:</strong> {selectedTransaction?.orderId}</p>
-                                                <p className="mb-0 small"><strong>Payment ID:</strong> {selectedTransaction?.paymentId}</p>
-                                                <p className="mb-0 small"><strong>Method:</strong> {paymentDetails?.method || 'Online'}</p>
+                                            <div className="col-md-6 mb-3">
+                                                <p className="text-muted small mb-2 fw-bold text-uppercase">Payment Info</p>
+                                                <p className="mb-1 small"><strong>Order ID:</strong> {selectedTransaction?.orderId}</p>
+                                                <p className="mb-1 small"><strong>Payment ID:</strong> {selectedTransaction?.paymentId}</p>
+                                                <p className="mb-1 small"><strong>Method:</strong> {paymentDetails?.method || 'Online'}</p>
                                                 <p className="mb-0 small"><strong>Status:</strong> <span className="text-success fw-bold text-uppercase">{selectedTransaction?.paymentStatus}</span></p>
                                             </div>
                                         </div>

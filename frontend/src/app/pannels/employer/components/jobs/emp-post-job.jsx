@@ -259,6 +259,10 @@ export default function EmpPostJob({ onNext }) {
 		category: { required: true },
 		jobType: { required: true },
 		typeOfEmployment: { required: true },
+		workMode: { required: true },
+		shift: { required: true },
+		ctc: { required: true },
+		netSalary: { required: true },
 		jobLocation: { required: true, minLength: 2 },
 		vacancies: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
 		applicationLimit: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
@@ -1464,14 +1468,14 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-home" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Work Mode
+							Work Mode *
 						</label>
 						<div style={{
 							display: 'grid',
 							gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
 							gap: 8,
 							padding: 12,
-							border: '1px solid #d1d5db',
+							border: errors.workMode ? '1px solid #dc2626' : '1px solid #d1d5db',
 							borderRadius: 8,
 							background: '#fff'
 						}}>
@@ -1503,19 +1507,25 @@ export default function EmpPostJob({ onNext }) {
 								</label>
 							))}
 						</div>
+						{errors.workMode && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.workMode[0]}
+							</div>
+						)}
 					</div>
 
 					<div>
 						<label style={label}>
 							<i className="fa fa-clock" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Work Shift
+							Work Shift *
 						</label>
 						<div style={{
 							display: 'grid',
 							gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
 							gap: 8,
 							padding: 12,
-							border: '1px solid #d1d5db',
+							border: errors.shift ? '1px solid #dc2626' : '1px solid #d1d5db',
 							borderRadius: 8,
 							background: '#fff'
 						}}>
@@ -1547,6 +1557,12 @@ export default function EmpPostJob({ onNext }) {
 								</label>
 							))}
 						</div>
+						{errors.shift && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.shift[0]}
+							</div>
+						)}
 					</div>
 
 					{/* Row 2 */}
@@ -1587,10 +1603,14 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-rupee-sign" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							CTC (Annual)
+							CTC (Annual) *
 						</label>
 						<input
-							style={input}
+							style={{
+								...input,
+								borderColor: errors.ctc ? '#dc2626' : '#d1d5db'
+							}}
+							className={errors.ctc ? 'is-invalid' : ''}
 							placeholder="e.g., 8 L.P.A or 6-8 L.P.A"
 							value={formData.ctc}
 							onChange={(e) => {
@@ -1602,6 +1622,12 @@ export default function EmpPostJob({ onNext }) {
 								}
 							}}
 						/>
+						{errors.ctc && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.ctc[0]}
+							</div>
+						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
 							Enter annual CTC in lakhs (e.g., 8 or 6-8) - Net salary will auto-calculate
 						</small>
@@ -1610,7 +1636,7 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-money-bill-wave" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Net Salary (Monthly)
+							Net Salary (Monthly) *
 							{formData.netSalary && (
 								<span style={{
 									fontSize: 11, 
@@ -1628,13 +1654,20 @@ export default function EmpPostJob({ onNext }) {
 						<input
 							style={{
 								...input,
-								borderColor: formData.netSalary ? '#10b981' : '#d1d5db',
+								borderColor: errors.netSalary ? '#dc2626' : (formData.netSalary ? '#10b981' : '#d1d5db'),
 								background: formData.netSalary ? '#f0fdf4' : '#fff'
 							}}
+							className={errors.netSalary ? 'is-invalid' : ''}
 							placeholder="Auto-calculated from CTC"
 							value={formData.netSalary}
 							onChange={(e) => update({ netSalary: e.target.value })}
 						/>
+						{errors.netSalary && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.netSalary[0]}
+							</div>
+						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
 							Auto-calculated as ~77% of CTC (monthly take-home). You can edit if needed.
 						</small>
