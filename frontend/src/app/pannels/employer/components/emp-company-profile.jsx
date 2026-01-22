@@ -659,56 +659,6 @@ function EmpCompanyProfilePage() {
     };
 
     const handleDeleteAuthorizationLetter = async (documentId) => {
-        // Show confirmation toast instead of window.confirm
-        const confirmDelete = () => {
-            return new Promise((resolve) => {
-                showWarning('Click "Delete" to confirm or wait 5 seconds to cancel');
-                
-                // Create confirmation buttons
-                const container = document.getElementById('toast-container');
-                if (container) {
-                    const lastToast = container.lastElementChild;
-                    if (lastToast) {
-                        const buttonContainer = document.createElement('div');
-                        buttonContainer.style.cssText = 'margin-top: 10px; display: flex; gap: 10px;';
-                        
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.textContent = 'Delete';
-                        deleteBtn.style.cssText = 'background: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;';
-                        deleteBtn.onclick = () => {
-                            lastToast.remove();
-                            resolve(true);
-                        };
-                        
-                        const cancelBtn = document.createElement('button');
-                        cancelBtn.textContent = 'Cancel';
-                        cancelBtn.style.cssText = 'background: #6c757d; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;';
-                        cancelBtn.onclick = () => {
-                            lastToast.remove();
-                            resolve(false);
-                        };
-                        
-                        buttonContainer.appendChild(deleteBtn);
-                        buttonContainer.appendChild(cancelBtn);
-                        lastToast.appendChild(buttonContainer);
-                        
-                        // Auto-cancel after 5 seconds
-                        setTimeout(() => {
-                            if (lastToast.parentNode) {
-                                lastToast.remove();
-                                resolve(false);
-                            }
-                        }, 5000);
-                    }
-                }
-            });
-        };
-        
-        const shouldDelete = await confirmDelete();
-        if (!shouldDelete) {
-            return;
-        }
-
         try {
             const token = localStorage.getItem('employerToken');
             if (!token) {

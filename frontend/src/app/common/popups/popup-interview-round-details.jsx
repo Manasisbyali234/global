@@ -43,7 +43,9 @@ const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, 
         nonTechnical: 'Non-Technical Round',
         managerial: 'Managerial Round',
         final: 'Final Round',
-        hr: 'HR Round'
+        hr: 'HR Round',
+        aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+        coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
     };
 
     const formatDate = (dateString) => {

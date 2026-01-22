@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CreateAssessmentModal from './CreateassessmentModal';
+import { showInfo } from '../../../../../utils/popupNotification';
 
 function CreateAssessmentPage() {
     const [assessments, setAssessments] = useState([]);
@@ -69,7 +70,26 @@ function CreateAssessmentPage() {
                         </h4>
                         <button
                             className="btn btn-primary"
-                            onClick={() => setShowModal(true)}
+                            onClick={() => {
+                                const securityMessage = (
+                                    <div style={{ textAlign: 'left', lineHeight: '1.6' }}>
+                                        <h6 style={{ marginBottom: '15px', color: '#2563eb', textAlign: 'center' }}>End-to-end encryption keeps your assessments secure between you and the candidates you choose</h6>
+                                        <div style={{ fontSize: '14px' }}>
+                                            <div style={{ marginBottom: '8px' }}>🚫 Not even Tale-Global can read or copy the content</div>
+                                            <div style={{ marginBottom: '8px' }}>👥 No one outside can read, copy, or share them</div>
+                                            <div style={{ marginBottom: '8px' }}>❓ Questions and answers are protected</div>
+                                            <div style={{ marginBottom: '8px' }}>🔐 Assessment content is encrypted</div>
+                                            <div style={{ marginBottom: '8px' }}>🛡️ Candidate responses are secure</div>
+                                            <div style={{ marginBottom: '8px' }}>📊 Results and evaluations are private</div>
+                                            <div style={{ marginBottom: '8px' }}>🔒 All assessment data is protected</div>
+                                            <div style={{ marginBottom: '8px' }}>✅ Agree to terms and conditions or not</div>
+                                            <div style={{ marginBottom: '8px' }}>📋 Agree to terms and conditions or not</div>
+                                        </div>
+                                    </div>
+                                );
+                                showInfo(securityMessage, 8000);
+                                setShowModal(true);
+                            }}
                         >
                             <i className="fa fa-plus" /> Create New Assessment
                         </button>

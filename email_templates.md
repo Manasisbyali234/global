@@ -23,7 +23,7 @@ This document contains all the email templates used in the TaleGlobal platform, 
 <p>Warm regards,<br>
 Team TaleGlobal<br>
 🌐 <a href="https://www.taleglobal.net/">www.taleglobal.net</a><br>
-📧 support@taleglobal.net</p>
+📧info@taleglobal.net</p>
 ```
 
 ### Placement Officer Welcome Email (Pending Approval)

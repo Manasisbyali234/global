@@ -23,7 +23,8 @@ export default function AssessmentDashboard() {
 			'• Assessment content is encrypted\n' +
 			'• Candidate responses are secure\n' +
 			'• Results and evaluations are private\n' +
-			'• All assessment data is protected',
+			'• All assessment data is protected\n' +
+			'• Agree to terms and conditions or not',
 			() => setShowModal(true),
 			null,
 			'info'

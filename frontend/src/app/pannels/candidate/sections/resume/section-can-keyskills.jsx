@@ -3,7 +3,7 @@ import { api } from "../../../../../utils/api";
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 function SectionCanKeySkills({ profile }) {
     const [skills, setSkills] = useState([]);
-    const [selectedSkill, setSelectedSkill] = useState('');
+    const [selectedSkills, setSelectedSkills] = useState([]);
     const [customSkill, setCustomSkill] = useState('');
     const [loading, setLoading] = useState(false);
     const [showCustomInput, setShowCustomInput] = useState(false);
@@ -54,6 +54,38 @@ function SectionCanKeySkills({ profile }) {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const addMultipleSkills = async (skillsToAdd) => {
+        if (!skillsToAdd || skillsToAdd.length === 0) return;
+        
+        // Filter out duplicates (case-insensitive)
+        const newSkills = skillsToAdd.filter(skillToAdd => 
+            !skills.some(skill => skill.toLowerCase() === skillToAdd.toLowerCase())
+        );
+        
+        if (newSkills.length === 0) {
+            showWarning('All selected skills are already added!');
+            return;
+        }
+        
+        setLoading(true);
+        try {
+            const updatedSkills = [...skills, ...newSkills];
+            const response = await api.updateCandidateProfile({ skills: updatedSkills });
+            if (response.success) {
+                setSkills(updatedSkills);
+                setSelectedSkills([]);
+                setCustomSkill('');
+                setShowCustomInput(false);
+                showSuccess(`${newSkills.length} skill(s) added successfully!`);
+                window.dispatchEvent(new CustomEvent('profileUpdated'));
+            }
+        } catch (error) {
+            showError('Failed to add skills');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const addSkill = async (skillToAdd) => {
         if (!skillToAdd) return;
         
@@ -70,7 +102,6 @@ function SectionCanKeySkills({ profile }) {
             const response = await api.updateCandidateProfile({ skills: updatedSkills });
             if (response.success) {
                 setSkills(updatedSkills);
-                setSelectedSkill('');
                 setCustomSkill('');
                 setShowCustomInput(false);
                 showSuccess(`Skill "${skillToAdd}" added successfully!`);
@@ -101,11 +132,19 @@ function SectionCanKeySkills({ profile }) {
     };
 
     const handleAddFromDropdown = () => {
-        if (selectedSkill) {
-            addSkill(selectedSkill);
+        if (selectedSkills.length > 0) {
+            addMultipleSkills(selectedSkills);
         } else {
-            showError('Please select a skill from the dropdown first.');
+            showError('Please select skills from the dropdown first.');
         }
+    };
+
+    const toggleSkillSelection = (skill) => {
+        setSelectedSkills(prev => 
+            prev.includes(skill) 
+                ? prev.filter(s => s !== skill)
+                : [...prev, skill]
+        );
     };
 
     const handleAddCustom = () => {
@@ -133,18 +172,17 @@ function SectionCanKeySkills({ profile }) {
                                     <input 
                                         type="text"
                                         className="form-control"
-                                        placeholder="Search or select a skill..."
-                                        value={searchTerm || selectedSkill}
+                                        placeholder={selectedSkills.length > 0 ? `${selectedSkills.length} skill(s) selected` : "Search and select skills..."}
+                                        value={searchTerm}
                                         onChange={(e) => {
                                             setSearchTerm(e.target.value);
-                                            setSelectedSkill('');
                                             setShowDropdown(true);
                                         }}
                                         onFocus={() => setShowDropdown(true)}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
                                                 e.preventDefault();
-                                                if (selectedSkill) {
+                                                if (selectedSkills.length > 0) {
                                                     handleAddFromDropdown();
                                                     setShowDropdown(false);
                                                 }
@@ -161,11 +199,65 @@ function SectionCanKeySkills({ profile }) {
                                             background: 'white',
                                             border: '1px solid #ddd',
                                             borderTop: 'none',
-                                            maxHeight: '200px',
+                                            maxHeight: '250px',
                                             overflowY: 'auto',
                                             zIndex: 1000,
                                             borderRadius: '0 0 4px 4px'
                                         }}>
+                                            {/* Select All / Clear All Controls */}
+                                            {predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())).length > 0 && (
+                                                <div style={{
+                                                    padding: '8px 12px',
+                                                    borderBottom: '2px solid #e0e0e0',
+                                                    backgroundColor: '#f8f9fa',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <span style={{fontSize: '12px', color: '#666', fontWeight: '500'}}>
+                                                        {selectedSkills.length} of {predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())).length} selected
+                                                    </span>
+                                                    <div style={{display: 'flex', gap: '8px'}}>
+                                                        <button
+                                                            type="button"
+                                                            onMouseDown={(e) => {
+                                                                e.preventDefault();
+                                                                const availableSkills = predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase()));
+                                                                setSelectedSkills(availableSkills);
+                                                            }}
+                                                            style={{
+                                                                background: 'none',
+                                                                border: 'none',
+                                                                color: '#0056b3',
+                                                                fontSize: '11px',
+                                                                cursor: 'pointer',
+                                                                padding: '2px 6px',
+                                                                borderRadius: '3px'
+                                                            }}
+                                                        >
+                                                            Select All
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onMouseDown={(e) => {
+                                                                e.preventDefault();
+                                                                setSelectedSkills([]);
+                                                            }}
+                                                            style={{
+                                                                background: 'none',
+                                                                border: 'none',
+                                                                color: '#dc3545',
+                                                                fontSize: '11px',
+                                                                cursor: 'pointer',
+                                                                padding: '2px 6px',
+                                                                borderRadius: '3px'
+                                                            }}
+                                                        >
+                                                            Clear All
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                             {predefinedSkills
                                                 .filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase()))
                                                 .map(skill => (
@@ -173,20 +265,38 @@ function SectionCanKeySkills({ profile }) {
                                                         key={skill}
                                                         onMouseDown={(e) => {
                                                             e.preventDefault();
-                                                            setSelectedSkill(skill);
-                                                            setSearchTerm('');
-                                                            setShowDropdown(false);
+                                                            toggleSkillSelection(skill);
                                                         }}
                                                         style={{
-                                                            padding: '10px 12px',
+                                                            padding: '8px 12px',
                                                             cursor: 'pointer',
                                                             borderBottom: '1px solid #f0f0f0',
-                                                            transition: 'background 0.2s'
+                                                            transition: 'background 0.2s',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '8px',
+                                                            backgroundColor: selectedSkills.includes(skill) ? '#e3f2fd' : 'white'
                                                         }}
-                                                        onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
-                                                        onMouseLeave={(e) => e.target.style.background = 'white'}
+                                                        onMouseEnter={(e) => {
+                                                            if (!selectedSkills.includes(skill)) {
+                                                                e.currentTarget.style.background = '#f5f5f5';
+                                                            }
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.background = selectedSkills.includes(skill) ? '#e3f2fd' : 'white';
+                                                        }}
                                                     >
-                                                        {skill}
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedSkills.includes(skill)}
+                                                            onChange={() => {}}
+                                                            style={{
+                                                                margin: 0,
+                                                                cursor: 'pointer',
+                                                                accentColor: '#0056b3'
+                                                            }}
+                                                        />
+                                                        <span style={{flex: 1}}>{skill}</span>
                                                     </div>
                                                 ))}
                                             {predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 && searchTerm && (
@@ -204,11 +314,11 @@ function SectionCanKeySkills({ profile }) {
                                         handleAddFromDropdown();
                                         setShowDropdown(false);
                                     }}
-                                    disabled={!selectedSkill || loading}
+                                    disabled={selectedSkills.length === 0 || loading}
                                     style={{backgroundColor: 'transparent'}}
                                 >
                                     <i className="fa fa-plus me-1"></i>
-                                    Add Skill
+                                    Add Skills ({selectedSkills.length})
                                 </button>
                                 <button 
                                     type="button" 

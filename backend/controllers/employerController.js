@@ -1936,7 +1936,9 @@ exports.scheduleInterviewRound = async (req, res) => {
         managerial: 'Managerial Round',
         final: 'Final Round',
         hr: 'HR Round',
-        assessment: 'Assessment'
+        assessment: 'Assessment',
+        aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+        coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
       };
       
       const roundName = roundNames[roundType] || roundType;
@@ -1968,7 +1970,9 @@ exports.scheduleInterviewRound = async (req, res) => {
           managerial: 'Managerial round',
           final: 'Final round',
           hr: 'HR round',
-          assessment: 'Assessment'
+          assessment: 'Assessment',
+          aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+          coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
         };
         
         const roundName = roundNames[roundType] || roundType;

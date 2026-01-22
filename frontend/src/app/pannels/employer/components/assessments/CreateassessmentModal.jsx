@@ -226,6 +226,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	};
 
 	const handleSubmit = (isDraft = false) => {
+		// Validate all mandatory fields regardless of draft status
 		if (!designation.trim()) {
 			showWarning("Please enter a designation");
 			return;
@@ -246,44 +247,42 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			return;
 		}
 		
-		if (!isDraft) {
-			if (!timeLimit || timeLimit < 1) {
-				showWarning("Please enter a valid time limit (at least 1 minute)");
+		if (!timeLimit || timeLimit < 1) {
+			showWarning("Please enter a valid time limit (at least 1 minute)");
+			return;
+		}
+		
+		if (questions.length === 0) {
+			showWarning("Please add at least one question");
+			return;
+		}
+		
+		for (let i = 0; i < questions.length; i++) {
+			const question = questions[i];
+			
+			const questionText = question.question.replace(/<[^>]*>/g, '').trim();
+			if (!questionText) {
+				showWarning(`Please enter text for Question ${i + 1}`);
 				return;
 			}
 			
-			if (questions.length === 0) {
-				showWarning("Please add at least one question");
-				return;
-			}
-			
-			for (let i = 0; i < questions.length; i++) {
-				const question = questions[i];
-				
-				const questionText = question.question.replace(/<[^>]*>/g, '').trim();
-				if (!questionText) {
-					showWarning(`Please enter text for Question ${i + 1}`);
-					return;
-				}
-				
-				if (question.type === "mcq" || question.type === "visual-mcq") {
-					for (let j = 0; j < question.options.length; j++) {
-						if (!question.options[j].trim()) {
-							showWarning(`Please fill Option ${String.fromCharCode(65 + j)} for Question ${i + 1}`);
-							return;
-						}
-					}
-					
-					if (question.correctAnswer === null || question.correctAnswer === undefined) {
-						showWarning(`Please select answer before you create question`);
+			if (question.type === "mcq" || question.type === "visual-mcq") {
+				for (let j = 0; j < question.options.length; j++) {
+					if (!question.options[j].trim()) {
+						showWarning(`Please fill Option ${String.fromCharCode(65 + j)} for Question ${i + 1}`);
 						return;
 					}
 				}
 				
-				if (!question.marks || question.marks < 1) {
-					showWarning(`Please enter valid marks for Question ${i + 1} (at least 1)`);
+				if (question.correctAnswer === null || question.correctAnswer === undefined) {
+					showWarning(`Please select answer before you create question`);
 					return;
 				}
+			}
+			
+			if (!question.marks || question.marks < 1) {
+				showWarning(`Please enter valid marks for Question ${i + 1} (at least 1)`);
+				return;
 			}
 		}
 		
@@ -399,7 +398,8 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				>
 					<div className="mb-3">
 						<label className="form-label small text-muted mb-2">
-							Designation
+							Designation *
+							<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
 						</label>
 						<input
 							type="text"
@@ -409,7 +409,17 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							onChange={(e) => setDesignation(e.target.value)}
 							list="designations"
 							required
+							style={{
+								borderColor: designation ? '#10b981' : '#dc2626',
+								borderWidth: 2
+							}}
 						/>
+						{!designation && (
+							<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
+								<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
+								Please enter a designation
+							</small>
+						)}
 						<datalist id="designations">
 							<option value="Software Engineer" />
 							<option value="Senior Software Engineer" />
@@ -498,15 +508,20 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 
 					<div className="mb-3">
 						<label className="form-label small text-muted mb-2">
-							Assessment Type
+							Assessment Type *
+							<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
 						</label>
 						<select
 							className="form-select"
 							value={title}
 							onChange={(e) => setTitle(e.target.value)}
 							required
+							style={{
+								borderColor: title ? '#10b981' : '#dc2626',
+								borderWidth: 2
+							}}
 						>
-							<option value="">Select Assessment Type</option>
+							<option value="" disabled>Select Assessment Type</option>
 							<option value="Aptitude Test">Aptitude Test</option>
 							<option value="Coding Assessment">Coding Assessment</option>
 							<option value="Case Study Round">Case Study Round</option>
@@ -519,6 +534,12 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							<option value="Behavioral Interview">Behavioral Interview</option>
 							<option value="Skills Assessment">Skills Assessment</option>
 						</select>
+						{!title && (
+							<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
+								<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
+								Please select an assessment type
+							</small>
+						)}
 					</div>
 
 
@@ -526,7 +547,8 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					<div className="row mb-3">
 						<div className="col-6">
 							<label className="form-label small text-muted mb-2">
-								Time Limit (min)
+								Time Limit (min) *
+								<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
 							</label>
 							<input
 								type="number"
@@ -535,13 +557,24 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								onChange={(e) => setTimeLimit(e.target.value)}
 								min="1"
 								required
+								style={{
+									borderColor: timeLimit && timeLimit > 0 ? '#10b981' : '#dc2626',
+									borderWidth: 2
+								}}
 							/>
+							{(!timeLimit || timeLimit < 1) && (
+								<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
+									<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
+									Please enter a valid time limit (at least 1 minute)
+								</small>
+							)}
 						</div>
 					</div>
 
 					<div className="mb-4">
 						<label className="form-label small text-muted mb-2">
-							Instructions
+							Instructions *
+							<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
 						</label>
 						<textarea
 							className="form-control"
@@ -550,7 +583,17 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
 							required
+							style={{
+								borderColor: description ? '#10b981' : '#dc2626',
+								borderWidth: 2
+							}}
 						/>
+						{!description && (
+							<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
+								<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
+								Please provide instructions for the assessment
+							</small>
+						)}
 					</div>
 
 					<h6 className="fw-semibold mb-3 mt-2">Questions ({questions.length})</h6>
@@ -731,14 +774,28 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							
 							<div className="row">
 								<div className="col-6">
-									<label className="form-label small text-muted mb-1">Marks</label>
+									<label className="form-label small text-muted mb-1">
+										Marks *
+										<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+									</label>
 									<input
 										type="number"
 										className="form-control"
 										value={q.marks}
 										onChange={(e) => handleQuestionChange(qIndex, "marks", parseInt(e.target.value) || 1)}
 										min="1"
+										required
+										style={{
+											borderColor: q.marks && q.marks > 0 ? '#10b981' : '#dc2626',
+											borderWidth: 2
+										}}
 									/>
+									{(!q.marks || q.marks < 1) && (
+										<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
+											<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
+											Please enter valid marks (at least 1)
+										</small>
+									)}
 								</div>
 							</div>
 						</div>

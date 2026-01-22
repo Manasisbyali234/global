@@ -234,7 +234,9 @@ function EmpJobReviewPage() {
                                                     managerial: 'Managerial',
                                                     final: 'Final',
                                                     hr: 'HR',
-                                                    assessment: 'Assessment'
+                                                    assessment: 'Assessment',
+                                                    aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+                                                    coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
                                                 };
                                                 return `${index + 1}. ${roundNames[roundType] || roundType}`;
                                             }).join(', ')
@@ -272,7 +274,9 @@ function EmpJobReviewPage() {
                                             managerial: 'Managerial Round',
                                             final: 'Final Round',
                                             hr: 'HR Round',
-                                            assessment: 'Assessment'
+                                            assessment: 'Assessment',
+                                            aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+                                            coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
                                         };
                                         
                                         if (!details) return null;

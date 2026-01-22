@@ -211,6 +211,26 @@
     padding: 4px 8px !important;
   }
 
+  /* Assessment Results Badge Mobile Fix - CRITICAL */
+  .emp-candidate-review-page .card-body .badge {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.8rem !important;
+    max-width: 120px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    box-sizing: border-box !important;
+  }
+  
+  .emp-candidate-review-page .card-body .d-flex.align-items-start.justify-content-between .badge {
+    max-width: 120px !important;
+    font-size: 0.8rem !important;
+    padding: 0.4rem 0.8rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
   /* Assigned Interview Processes Header - Mobile Fix */
   .emp-candidate-review-page .card-header .d-flex.align-items-center.justify-content-between {
     flex-direction: column !important;
@@ -519,5 +539,28 @@
     height: 12px !important;
     margin-right: 0.25rem !important;
     flex-shrink: 0 !important;
+  }
+}
+
+/* EXTRA SMALL SCREENS - Assessment Badge Fix */
+@media (max-width: 575px) {
+  /* Assessment Results Badge Extra Small Screen Fix */
+  .emp-candidate-review-page .card-body .badge {
+    padding: 0.35rem 0.7rem !important;
+    font-size: 0.75rem !important;
+    max-width: 100px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    box-sizing: border-box !important;
+  }
+  
+  .emp-candidate-review-page .card-body .d-flex.align-items-start.justify-content-between .badge {
+    max-width: 100px !important;
+    font-size: 0.75rem !important;
+    padding: 0.35rem 0.7rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 }

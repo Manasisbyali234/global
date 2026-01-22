@@ -20,6 +20,8 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
 
   const stageTypes = [
     { value: 'assessment', label: 'Assessment Schedule', icon: '📝' },
+    { value: 'aptitude', label: 'Aptitude test - SOFTWARE ENGINEERING', icon: '🧠' },
+    { value: 'coding', label: 'Coding - SENIOR SOFTWARE ENGINEERING', icon: '💻' },
     { value: 'technical', label: 'Technical Round', icon: '💻' },
     { value: 'hr', label: 'HR Round', icon: '👥' },
     { value: 'managerial', label: 'Managerial Round', icon: '👔' },
@@ -272,7 +274,9 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
             managerial: 'Managerial round',
             final: 'Final round',
             hr: 'HR round',
-            assessment: 'Assessment'
+            assessment: 'Assessment',
+            aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+            coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
           };
           
           const stageName = stageNames[stage.stageType] || stage.stageName || 'Interview round';

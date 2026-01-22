@@ -203,6 +203,8 @@ export default function EmpPostJob({ onNext }) {
 			final: false,
 			hr: false,
 			assessment: false,
+			aptitude: false,
+			coding: false
 		},
 		interviewRoundOrder: [],
 		interviewRoundDetails: {
@@ -211,7 +213,9 @@ export default function EmpPostJob({ onNext }) {
 			managerial: { description: '', fromDate: '', toDate: '', time: '' },
 			final: { description: '', fromDate: '', toDate: '', time: '' },
 			hr: { description: '', fromDate: '', toDate: '', time: '' },
-			assessment: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' }
+			assessment: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
+			aptitude: { description: '', fromDate: '', toDate: '', time: '' },
+			coding: { description: '', fromDate: '', toDate: '', time: '' }
 		},
 		offerLetterDate: "",
 		joiningDate: "",
@@ -635,41 +639,13 @@ export default function EmpPostJob({ onNext }) {
 				}
 			};
 			
-			// Calculate Last Date of Application when fromDate is updated
-			let calculatedLastDate = s.lastDateOfApplication;
-			if (field === 'fromDate' && value) {
-				// Get all fromDates from interview rounds
-				const allFromDates = [];
-				
-				// Add the current date being updated
-				allFromDates.push(new Date(value));
-				
-				// Add existing fromDates from other rounds
-				s.interviewRoundOrder.forEach(key => {
-					if (key !== roundType && updatedDetails[key]?.fromDate) {
-						allFromDates.push(new Date(updatedDetails[key].fromDate));
-					}
-				});
-				
-				// Find the earliest date and subtract 1 day for application deadline
-				if (allFromDates.length > 0) {
-					const earliestDate = new Date(Math.min(...allFromDates));
-					earliestDate.setDate(earliestDate.getDate() - 1);
-					calculatedLastDate = earliestDate.toISOString().split('T')[0];
-				}
-			}
-			
 			// Log the update for debugging
 			console.log(`Updated ${roundType} ${field}:`, value);
 			console.log('Updated interview round details:', updatedDetails);
-			if (field === 'fromDate' && value) {
-				console.log('Auto-calculated Last Date of Application:', calculatedLastDate);
-			}
 			
 			return {
 				...s,
-				interviewRoundDetails: updatedDetails,
-				lastDateOfApplication: calculatedLastDate
+				interviewRoundDetails: updatedDetails
 			};
 		});
 
@@ -742,7 +718,9 @@ export default function EmpPostJob({ onNext }) {
 				nonTechnical: 'Non-Technical Round',
 				managerial: 'Managerial Round',
 				final: 'Final Round',
-				hr: 'HR Round'
+				hr: 'HR Round',
+				aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+				coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 			};
 
 			const roundName = roundNames[roundType] || roundType;
@@ -1271,7 +1249,7 @@ export default function EmpPostJob({ onNext }) {
 									"Network Administrator", "Telecaller"
 								].includes(formData.jobTitle) ? 'Others' : formData.jobTitle}
 								onChange={(e) => {
-									if (e.target.value === 'Others') {
+									if (e.target.value === 'Others' || e.target.value === 'WriteNew') {
 										update({ jobTitle: 'Others' });
 									} else {
 										update({ jobTitle: e.target.value });
@@ -1307,6 +1285,7 @@ export default function EmpPostJob({ onNext }) {
 								<option value="System Administrator">System Administrator</option>
 								<option value="Network Administrator">Network Administrator</option>
 								<option value="Telecaller">Telecaller</option>
+								<option value="WriteNew" style={{borderTop: '1px solid #e5e7eb', marginTop: '4px', fontWeight: '600', color: '#ff6b35'}}>✏️ Write New Title</option>
 								<option value="Others">Others</option>
 							</select>
 						</div>
@@ -1331,7 +1310,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Select from common job titles or choose "Others" to enter a custom title
+							Select from common job titles or choose "✏️ Write New Title" to enter a custom title
 						</small>
 						{errors.jobTitle && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
@@ -1481,7 +1460,7 @@ export default function EmpPostJob({ onNext }) {
 						}}>
 							{[
 								{ value: 'work-from-home', label: 'Work from Home' },
-								{ value: 'remote', label: 'Remote' },
+								{ value: 'work-from-office', label: 'Work from Office' },
 								{ value: 'hybrid', label: 'Hybrid' }
 							].map(workMode => (
 								<label key={workMode.value} style={{
@@ -2276,6 +2255,8 @@ export default function EmpPostJob({ onNext }) {
 							}}
 						>
 							<option value="">-- Select Round Type --</option>
+							<option value="aptitude">Aptitude test - SOFTWARE ENGINEERING</option>
+							<option value="coding">Coding - SENIOR SOFTWARE ENGINEERING</option>
 							<option value="technical">Technical</option>
 							<option value="nonTechnical">Non-Technical</option>
 							<option value="managerial">Managerial Round</option>
@@ -2296,7 +2277,9 @@ export default function EmpPostJob({ onNext }) {
 									managerial: 'Managerial Round',
 									final: 'Final Round',
 									hr: 'HR Round',
-									assessment: 'Assessment Schedule'
+									assessment: 'Assessment Schedule',
+									aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+									coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 								};
 								return (
 									<div key={uniqueKey} style={{
@@ -2438,8 +2421,39 @@ export default function EmpPostJob({ onNext }) {
 									}}>
 										<i className="fa fa-clock" style={{fontSize: 16, color: '#d97706'}}></i>
 										<div>
-											<div style={{fontWeight: 700, marginBottom: 2}}>⏰ 24-Hour Assessment Duration</div>
-											<div style={{fontSize: 12, opacity: 0.9}}>Candidates get a full 24-hour window to complete the assessment</div>
+											<div style={{fontWeight: 700, marginBottom: 2}}>⏰ Assessment Schedule</div>
+											<div style={{fontSize: 12, opacity: 0.9}}>
+												{(() => {
+													const assessmentKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
+													const details = assessmentKey ? formData.interviewRoundDetails[assessmentKey] : null;
+													if (details?.fromDate && details?.toDate && details?.startTime && details?.endTime) {
+														return `Available from ${new Date(details.fromDate).toLocaleDateString()} ${details.startTime} to ${new Date(details.toDate).toLocaleDateString()} ${details.endTime}`;
+													}
+													return 'Set assessment dates and times below to see the schedule';
+												})()
+											}
+											</div>
+										</div>
+									</div>
+								)}
+								{selectedAssessment && (
+									<div style={{
+										marginTop: 8,
+										padding: '12px 16px',
+										background: 'linear-gradient(135deg, #dbeafe 0%, #3b82f6 100%)',
+										borderRadius: 8,
+										color: '#1e40af',
+										fontSize: 13,
+										display: 'flex',
+										alignItems: 'center',
+										gap: 8,
+										border: '2px solid #3b82f6',
+										boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)'
+									}}>
+										<i className="fa fa-exclamation-triangle" style={{fontSize: 16, color: '#1d4ed8'}}></i>
+										<div>
+											<div style={{fontWeight: 700, marginBottom: 2}}>⚠️ Assessment Time Restriction</div>
+											<div style={{fontSize: 12, opacity: 0.9}}>Candidates can only access the assessment during the specified date/time window you set below</div>
 										</div>
 									</div>
 								)}
@@ -2971,7 +2985,9 @@ export default function EmpPostJob({ onNext }) {
 										managerial: 'Managerial Round',
 										final: 'Final Round',
 										hr: 'HR Round',
-										assessment: 'Assessment'
+										assessment: 'Assessment',
+										aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+										coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 									};
 									const stageNumber = formData.interviewRoundOrder.indexOf(uniqueKey) + 1;
 									return (
@@ -3190,7 +3206,9 @@ export default function EmpPostJob({ onNext }) {
 											managerial: 'Managerial',
 											final: 'Final',
 											hr: 'HR',
-											assessment: 'Assessment'
+											assessment: 'Assessment',
+											aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+											coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 										};
 										
 										return (
@@ -3288,21 +3306,22 @@ export default function EmpPostJob({ onNext }) {
 						<label style={label}>
 							<i className="fa fa-calendar-times" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Last Date of Application *
-							{formData.lastDateOfApplication && (
-								<span style={{
-									fontSize: 11, 
-									color: '#10b981', 
-									fontWeight: 500,
-									marginLeft: 8,
-									background: '#d1fae5',
-									padding: '2px 8px',
-									borderRadius: 4,
-								}}>
-									✓ Auto-calculated
-								</span>
-							)}
 						</label>
 						<div style={{display: 'flex', gap: 12, alignItems: 'flex-end'}}>
+							<div style={{flex: 1}}>
+								<input
+									style={{
+										...input,
+										borderColor: formData.lastDateOfApplication ? '#10b981' : '#d1d5db',
+										background: formData.lastDateOfApplication ? '#f0fdf4' : '#fff'
+									}}
+									type="date"
+									min={new Date().toISOString().split('T')[0]}
+									value={formData.lastDateOfApplication}
+									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
+									placeholder="DD/MM/YYYY"
+								/>
+							</div>
 							<div style={{flex: 1}}>
 								<input
 									style={{
@@ -3316,21 +3335,6 @@ export default function EmpPostJob({ onNext }) {
 									placeholder="HH:MM"
 								/>
 							</div>
-							<div style={{flex: 1}}>
-								<input
-									style={{
-										...input,
-										borderColor: formData.lastDateOfApplication ? '#10b981' : '#d1d5db',
-										background: formData.lastDateOfApplication ? '#f0fdf4' : '#fff'
-									}}
-									type="date"
-									min={new Date().toISOString().split('T')[0]}
-									value={formData.lastDateOfApplication}
-									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
-									placeholder="DD/MM/YYYY"
-									readOnly={false}
-								/>
-							</div>
 						</div>
 						<small style={{color: '#6b7280', fontSize: 11, marginTop: 4, display: 'block'}}>
 							Time (24-hour format) and Date - Optional: Set deadline time (e.g., 23:59)
@@ -3342,10 +3346,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							{formData.lastDateOfApplication 
-								? 'Auto-set prior to first interview'
-								: 'Will be auto-calculated when you set interview stage dates'
-							}
+							Set the deadline for job applications
 						</small>
 						<HolidayIndicator date={formData.lastDateOfApplication} />
 					</div>

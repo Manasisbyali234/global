@@ -5,6 +5,7 @@ import { loadScript } from "../../../../globals/constants";
 import InterviewProcessManager from "./InterviewProcessManager";
 import './emp-candidate-review.css';
 import './emp-candidate-review-mobile.css';
+import '../../../../assessment-badge-fix.css';
 
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
@@ -84,7 +85,9 @@ function EmpCandidateReviewPage () {
 									nonTechnical: 'Non-Technical Round',
 									managerial: 'Managerial Round',
 									final: 'Final Round',
-									hr: 'HR Round'
+									hr: 'HR Round',
+									aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+									coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 								};
 								
 								const existingRound = data.application.interviewRounds?.find(r => r.round === index + 1);
@@ -103,6 +106,8 @@ function EmpCandidateReviewPage () {
 						
 						const roundNames = [];
 						if (job.interviewRoundTypes.technical) roundNames.push('Technical Round');
+						if (job.interviewRoundTypes.aptitude) roundNames.push('Aptitude test - SOFTWARE ENGINEERING');
+						if (job.interviewRoundTypes.coding) roundNames.push('Coding - SENIOR SOFTWARE ENGINEERING');
 						if (job.interviewRoundTypes.managerial) roundNames.push('Managerial Round');
 						if (job.interviewRoundTypes.nonTechnical) roundNames.push('Non-Technical Round');
 						if (job.interviewRoundTypes.hr) roundNames.push('HR Round');
@@ -160,7 +165,9 @@ function EmpCandidateReviewPage () {
 								managerial: 'Managerial Round',
 								final: 'Final Round',
 								hr: 'HR Round',
-								assessment: 'Assessment'
+								assessment: 'Assessment',
+								aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+								coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 							};
 							processes.push({
 								id: uniqueKey,

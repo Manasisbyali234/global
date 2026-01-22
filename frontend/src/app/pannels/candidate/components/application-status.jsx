@@ -235,7 +235,9 @@ function CanStatusPage() {
 						managerial: 'Managerial',
 						final: 'Final',
 						hr: 'HR',
-						assessment: 'Assessment'
+						assessment: 'Assessment',
+						aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+						coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 					};
 					rounds.push({
 						name: roundNames[roundType] || roundType,
@@ -260,7 +262,9 @@ function CanStatusPage() {
 						managerial: 'Managerial',
 						final: 'Final',
 						hr: 'HR',
-						assessment: 'Assessment'
+						assessment: 'Assessment',
+						aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+						coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 					};
 					rounds.push({
 						name: roundNames[roundType] || roundType,
@@ -279,6 +283,8 @@ function CanStatusPage() {
 
 			if (job.assessmentId) rounds.push({ name: 'Assessment', uniqueKey: 'assessment', roundType: 'assessment' });
 			if (roundTypes.technical) rounds.push({ name: 'Technical', uniqueKey: 'technical', roundType: 'technical' });
+			if (roundTypes.aptitude) rounds.push({ name: 'Aptitude test - SOFTWARE ENGINEERING', uniqueKey: 'aptitude', roundType: 'aptitude' });
+			if (roundTypes.coding) rounds.push({ name: 'Coding - SENIOR SOFTWARE ENGINEERING', uniqueKey: 'coding', roundType: 'coding' });
 			if (roundTypes.hr) rounds.push({ name: 'HR', uniqueKey: 'hr', roundType: 'hr' });
 			if (roundTypes.managerial) rounds.push({ name: 'Managerial', uniqueKey: 'managerial', roundType: 'managerial' });
 			if (roundTypes.nonTechnical) rounds.push({ name: 'Non-Technical', uniqueKey: 'nonTechnical', roundType: 'nonTechnical' });
@@ -379,10 +385,11 @@ function CanStatusPage() {
 		if (!windowInfo.isWithinWindow) {
 			if (windowInfo.isBeforeStart) {
 				const startLabel = windowInfo.startDate ? windowInfo.startDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : null;
-				showWarning(startLabel ? `Assessment opens on ${startLabel}` : 'Assessment is not yet available');
+				showWarning(startLabel ? `⏰ Assessment Not Yet Available\n\nThe assessment will open on ${startLabel}. Please check back at the scheduled time.` : '⏰ Assessment is not yet available. Please wait for the scheduled time.');
 				return;
 			}
-			showError('Assessment window has ended');
+			const endLabel = windowInfo.endDate ? windowInfo.endDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : null;
+			showError(endLabel ? `⛔ Assessment Window Closed\n\nThe assessment window ended on ${endLabel}. You can no longer take this assessment.` : '⛔ Assessment window has ended. You can no longer access this assessment.');
 			return;
 		}
 		const assessmentId = job?.assessmentId;
