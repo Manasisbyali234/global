@@ -98,14 +98,14 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
         </div>
       </div>
     `;
-  } else if (normalizedUserType === 'employer') {
+  } else if (normalizedUserType === 'employer' || normalizedUserType === 'company') {
     subject = 'TaleGlobal Employer Registration – Action Required';
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
           <p>Dear ${name || 'Employer'},</p>
           
-          <p>Thank you for registering your consultancy on TaleGlobal.</p>
+          <p>Thank you for registering as an Employer on TaleGlobal.</p>
           
           <p>To proceed with approval, please log in to your dashboard and complete your company profile by updating the required basic details and uploading the necessary documents.</p>
           
@@ -137,7 +137,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
           <p>Dear ${name || 'Consultant'},</p>
           
-          <p>Thank you for registering your consultancy on TaleGlobal.</p>
+          <p>Thank you for registering as a Consultant on TaleGlobal.</p>
           
           <p>To proceed with approval, please log in to your dashboard and complete your company profile by updating the required basic details and uploading the necessary documents.</p>
           
@@ -255,7 +255,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
 
 const sendResetEmail = async (email, resetToken, userType) => {
   const transporter = createTransport();
-  const basePath = userType === 'employer' ? '/employer' : userType === 'placement' ? '/placement' : '/candidate';
+  const basePath = (userType === 'employer' || userType === 'company' || userType === 'consultant') ? '/employer' : userType === 'placement' ? '/placement' : '/candidate';
   const resetUrl = `${process.env.FRONTEND_URL}${basePath}/reset-password/${resetToken}`;
 
   const mailOptions = {
@@ -543,7 +543,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
           
           <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 100%); padding: 25px; border-radius: 10px; margin: 25px 0; border-left: 5px solid #28a745;">
             <p style="color: #155724; margin: 0; font-size: 18px; line-height: 1.6; font-weight: 600;">
-              ✅ Congratulations! Your ${userType === 'employer' ? 'company' : 'placement officer'} profile has been successfully approved by our admin team.
+              ✅ Congratulations! Your ${userType === 'employer' || userType === 'company' ? 'employer' : userType === 'consultant' ? 'consultant' : 'placement officer'} profile has been successfully approved by our admin team.
             </p>
           </div>
           
@@ -554,7 +554,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
           <div style="background-color: #f8f9fa; padding: 25px; border-radius: 10px; margin: 25px 0;">
             <h3 style="color: #2c3e50; margin: 0 0 20px 0; font-size: 18px;">📋 Next Steps:</h3>
             <div style="color: #495057; line-height: 1.8; font-size: 15px;">
-              ${userType === 'employer' ? `
+              ${(userType === 'employer' || userType === 'company' || userType === 'consultant') ? `
                 <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
                   <span style="color: #ff6b35; font-weight: bold; margin-right: 10px;">1.</span>
                   <span><strong>Login to your dashboard</strong> using your credentials</span>
@@ -1138,11 +1138,11 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Employer,</p>
+        <p>Dear Consultant,</p>
         
         <p>Congratulations! 🎉</p>
         
-        <p>Your employer account has been approved by the TaleGlobal Admin Team.</p>
+        <p>Your consultant account has been approved by the TaleGlobal Admin Team.</p>
         
         <p>You can now:</p>
         <ul style="line-height: 1.6;">
@@ -1174,7 +1174,7 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Your Employer Account Has Been Approved – Start Posting Jobs',
+    subject: 'Your Consultant Account Has Been Approved – Start Posting Jobs',
     html: template
   };
 
