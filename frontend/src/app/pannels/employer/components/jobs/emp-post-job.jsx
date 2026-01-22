@@ -1249,7 +1249,7 @@ export default function EmpPostJob({ onNext }) {
 									"Network Administrator", "Telecaller"
 								].includes(formData.jobTitle) ? 'Others' : formData.jobTitle}
 								onChange={(e) => {
-									if (e.target.value === 'Others' || e.target.value === 'WriteNew') {
+									if (e.target.value === 'Others') {
 										update({ jobTitle: 'Others' });
 									} else {
 										update({ jobTitle: e.target.value });
@@ -1285,7 +1285,6 @@ export default function EmpPostJob({ onNext }) {
 								<option value="System Administrator">System Administrator</option>
 								<option value="Network Administrator">Network Administrator</option>
 								<option value="Telecaller">Telecaller</option>
-								<option value="WriteNew" style={{borderTop: '1px solid #e5e7eb', marginTop: '4px', fontWeight: '600', color: '#ff6b35'}}>✏️ Write New Title</option>
 								<option value="Others">Others</option>
 							</select>
 						</div>
@@ -1310,7 +1309,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Select from common job titles or choose "✏️ Write New Title" to enter a custom title
+							Select from common job titles or choose "Others" to enter a custom title
 						</small>
 						{errors.jobTitle && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
@@ -1654,45 +1653,6 @@ export default function EmpPostJob({ onNext }) {
 
 					<div>
 						<label style={label}>
-							<i className="fa fa-file-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Application Limit *
-						</label>
-						<input
-							style={{
-								...input,
-								borderColor: errors.applicationLimit ? '#dc2626' : '#d1d5db'
-							}}
-							className={errors.applicationLimit ? 'is-invalid' : ''}
-							type="number"
-							min="1"
-							placeholder="e.g., 100"
-							value={formData.applicationLimit}
-							onChange={(e) => {
-								const applicationLimit = parseInt(e.target.value) || 0;
-								const vacancies = parseInt(formData.vacancies) || 0;
-								
-								// Check if application limit is less than vacancies
-								if (applicationLimit > 0 && vacancies > 0 && applicationLimit < vacancies) {
-									showError(`Application limit (${applicationLimit}) cannot be less than number of vacancies (${vacancies}). Please set application limit to at least ${vacancies}.`);
-									return; // Don't update the value
-								}
-								
-								update({ applicationLimit: e.target.value });
-							}}
-						/>
-						{errors.applicationLimit && (
-							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
-								<i className="fa fa-exclamation-circle"></i>
-								{errors.applicationLimit[0]}
-							</div>
-						)}
-						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Maximum number of applications to accept (must be at least equal to number of vacancies)
-						</small>
-					</div>
-
-					<div>
-						<label style={label}>
 							<i className="fa fa-users" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Number of Vacancies *
 						</label>
@@ -1730,6 +1690,45 @@ export default function EmpPostJob({ onNext }) {
 								{errors.vacancies[0]}
 							</div>
 						)}
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-file-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Application Limit *
+						</label>
+						<input
+							style={{
+								...input,
+								borderColor: errors.applicationLimit ? '#dc2626' : '#d1d5db'
+							}}
+							className={errors.applicationLimit ? 'is-invalid' : ''}
+							type="number"
+							min="1"
+							placeholder="e.g., 100"
+							value={formData.applicationLimit}
+							onChange={(e) => {
+								const applicationLimit = parseInt(e.target.value) || 0;
+								const vacancies = parseInt(formData.vacancies) || 0;
+								
+								// Check if application limit is less than vacancies
+								if (applicationLimit > 0 && vacancies > 0 && applicationLimit < vacancies) {
+									showError(`Application limit (${applicationLimit}) cannot be less than number of vacancies (${vacancies}). Please set application limit to at least ${vacancies}.`);
+									return; // Don't update the value
+								}
+								
+								update({ applicationLimit: e.target.value });
+							}}
+						/>
+						{errors.applicationLimit && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.applicationLimit[0]}
+							</div>
+						)}
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
+							Maximum number of applications to accept (must be at least equal to number of vacancies)
+						</small>
 					</div>
 
 					{/* Requirements Section */}
@@ -2385,9 +2384,16 @@ export default function EmpPostJob({ onNext }) {
 										value={selectedAssessment}
 										onChange={(e) => {
 											setSelectedAssessment(e.target.value);
-											// Show assessment duration popup when selecting an assessment
+											// Show assessment info when selecting an assessment
 											if (e.target.value) {
-												showInfo('⏰ Assessment Duration - 24 Hours: The assessment duration is 24 hours. Candidates will have a full 24-hour window to complete the assessment from the start time to the end time you specify. Please set your start and end times accordingly.', 6000);
+												const assessmentKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
+												const details = assessmentKey ? formData.interviewRoundDetails[assessmentKey] : null;
+												
+												if (details?.fromDate && details?.toDate && details?.startTime && details?.endTime) {
+													showInfo(`Assessment scheduled from ${new Date(details.fromDate).toLocaleDateString()} ${details.startTime} to ${new Date(details.toDate).toLocaleDateString()} ${details.endTime}`, 4000);
+												} else {
+													showInfo('Please set assessment dates and times below to complete the schedule.', 3000);
+												}
 											}
 										}}
 									>
