@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AssessmentCard from "../assessments/AssessmnetCard";
-import CreateAssessmentModal from "../assessments/CreateassessmentModal";
+import CreateAssessmentModal from "../assessments/CreateAssessmentModal";
 import axios from "axios";
 import './assessment-dashboard.css';
 import '../../../../../assessment-modal-fix.css';
@@ -38,7 +38,7 @@ export default function AssessmentDashboard() {
 	const fetchAssessments = async () => {
 		try {
 			const token = localStorage.getItem('employerToken');
-			const response = await axios.get('http://localhost:5000/api/employer/assessments', {
+			const response = await axios.get('https://taleglobal.net/api/employer/assessments', {
 				headers: { Authorization: `Bearer ${token}` }
 			});
 			if (response.data.success) {
@@ -58,7 +58,7 @@ export default function AssessmentDashboard() {
 			
 			if (assessmentData.id) {
 				// Update existing assessment
-				const response = await axios.put(`http://localhost:5000/api/employer/assessments/${assessmentData.id}`, assessmentData, {
+				const response = await axios.put(`https://taleglobal.net/api/employer/assessments/${assessmentData.id}`, assessmentData, {
 					headers: { Authorization: `Bearer ${token}` }
 				});
 				if (response.data.success) {
@@ -71,7 +71,7 @@ export default function AssessmentDashboard() {
 				}
 			} else {
 				// Create new assessment
-				const response = await axios.post('http://localhost:5000/api/employer/assessments', assessmentData, {
+				const response = await axios.post('https://taleglobal.net/api/employer/assessments', assessmentData, {
 					headers: { Authorization: `Bearer ${token}` }
 				});
 				if (response.data.success) {
@@ -106,7 +106,7 @@ export default function AssessmentDashboard() {
 		if (!window.confirm('Are you sure you want to delete this assessment?')) return;
 		try {
 			const token = localStorage.getItem('employerToken');
-			await axios.delete(`http://localhost:5000/api/employer/assessments/${id}`, {
+			await axios.delete(`https://taleglobal.net/api/employer/assessments/${id}`, {
 				headers: { Authorization: `Bearer ${token}` }
 			});
 			const updatedAssessments = assessments.filter(a => a._id !== id);

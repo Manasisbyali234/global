@@ -57,7 +57,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			try {
 				const token = localStorage.getItem('employerToken');
 				if (token) {
-					const response = await fetch('http://localhost:5000/api/employer/profile', {
+					const response = await fetch('https://taleglobal.net/api/employer/profile', {
 						headers: { 'Authorization': `Bearer ${token}` }
 					});
 					const data = await response.json();
@@ -75,7 +75,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			try {
 				const token = localStorage.getItem('employerToken');
 				if (token) {
-					const response = await fetch('http://localhost:5000/api/employer/approved-authorization-companies', {
+					const response = await fetch('https://taleglobal.net/api/employer/approved-authorization-companies', {
 						headers: { 'Authorization': `Bearer ${token}` }
 					});
 					const data = await response.json();
@@ -175,7 +175,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		
 		try {
 			const token = localStorage.getItem('employerToken');
-			const response = await fetch('http://localhost:5000/api/employer/assessments/upload-option-image', {
+			const response = await fetch('https://taleglobal.net/api/employer/assessments/upload-option-image', {
 				method: 'POST',
 				headers: {
 					'Authorization': `Bearer ${token}`
@@ -205,7 +205,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		
 		try {
 			const token = localStorage.getItem('employerToken');
-			const response = await fetch('http://localhost:5000/api/employer/assessments/upload-question-image', {
+			const response = await fetch('https://taleglobal.net/api/employer/assessments/upload-question-image', {
 				method: 'POST',
 				headers: {
 					'Authorization': `Bearer ${token}`
