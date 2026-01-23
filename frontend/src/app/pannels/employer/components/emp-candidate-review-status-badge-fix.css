@@ -1,0 +1,146 @@
+/* STATUS BADGE MOBILE OPTIMIZATION */
+/* Ensures status badges in header display correctly on all mobile screen sizes */
+
+/* Mobile Status Badge Fixes */
+@media (max-width: 767px) {
+  /* Status badge container - ensure proper spacing and alignment */
+  .emp-candidate-review-page .d-flex.gap-2 {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.5rem !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  /* All status badges - consistent mobile styling */
+  .emp-candidate-review-page .badge.fs-6.px-4.py-2.rounded-pill,
+  .emp-candidate-review-page .badge.text-capitalize.fs-6.px-4.py-2.rounded-pill {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.75rem !important;
+    border-radius: 15px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 90px !important;
+    min-height: 28px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Interview process status badge */
+  .emp-candidate-review-page .badge.bg-success,
+  .emp-candidate-review-page .badge.bg-warning {
+    background-color: var(--bs-success) !important;
+    color: white !important;
+  }
+
+  .emp-candidate-review-page .badge.bg-warning {
+    background-color: var(--bs-warning) !important;
+    color: black !important;
+  }
+
+  /* Application status badges with proper colors */
+  .emp-candidate-review-page .badge.twm-bg-yellow {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+  }
+
+  .emp-candidate-review-page .badge.twm-bg-purple {
+    background-color: #6f42c1 !important;
+    color: #fff !important;
+  }
+
+  .emp-candidate-review-page .badge.twm-bg-orange {
+    background-color: #fd7e14 !important;
+    color: #fff !important;
+  }
+
+  .emp-candidate-review-page .badge.twm-bg-green {
+    background-color: #28a745 !important;
+    color: #fff !important;
+  }
+
+  .emp-candidate-review-page .badge.twm-bg-red {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+  }
+
+  .emp-candidate-review-page .badge.twm-bg-light-blue {
+    background-color: #17a2b8 !important;
+    color: #fff !important;
+  }
+
+  /* Badge text transformations */
+  .emp-candidate-review-page .badge.text-capitalize {
+    text-transform: capitalize !important;
+  }
+
+  /* Ensure badges don't break layout */
+  .emp-candidate-review-page .d-flex.gap-2 .badge:last-child {
+    margin-right: 0 !important;
+  }
+}
+
+/* Extra small screens - further optimization */
+@media (max-width: 575px) {
+  /* Allow badges to wrap on very small screens */
+  .emp-candidate-review-page .d-flex.gap-2 {
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    gap: 0.4rem !important;
+  }
+
+  /* Smaller badges for extra small screens */
+  .emp-candidate-review-page .badge.fs-6.px-4.py-2.rounded-pill,
+  .emp-candidate-review-page .badge.text-capitalize.fs-6.px-4.py-2.rounded-pill {
+    font-size: 0.7rem !important;
+    padding: 0.35rem 0.6rem !important;
+    max-width: 80px !important;
+    min-height: 26px !important;
+  }
+}
+
+/* Tablet screens - intermediate sizing */
+@media (min-width: 768px) and (max-width: 991px) {
+  .emp-candidate-review-page .badge.fs-6.px-4.py-2.rounded-pill,
+  .emp-candidate-review-page .badge.text-capitalize.fs-6.px-4.py-2.rounded-pill {
+    font-size: 0.8rem !important;
+    padding: 0.45rem 0.8rem !important;
+    max-width: 110px !important;
+    min-height: 30px !important;
+  }
+}
+
+/* Prevent badge overflow in header */
+@media (max-width: 767px) {
+  .emp-candidate-review-page .d-flex.justify-content-between.align-items-center {
+    overflow: hidden !important;
+  }
+
+  .emp-candidate-review-page .d-flex.justify-content-between.align-items-center .d-flex.gap-2 {
+    overflow: hidden !important;
+    max-width: 50% !important;
+  }
+}
+
+/* High specificity overrides for badge styling */
+.emp-candidate-review-page .row.mb-4 .col-12 .d-flex.justify-content-between .d-flex.gap-2 .badge {
+  font-size: 0.75rem !important;
+  padding: 0.4rem 0.75rem !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+@media (max-width: 575px) {
+  .emp-candidate-review-page .row.mb-4 .col-12 .d-flex.justify-content-between .d-flex.gap-2 .badge {
+    font-size: 0.7rem !important;
+    padding: 0.35rem 0.6rem !important;
+  }
+}

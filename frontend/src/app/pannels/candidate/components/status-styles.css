@@ -403,7 +403,7 @@ td .text-success {
     
     .card-shadow .card-body {
         width: 100% !important;
-        overflow: hidden !important;
+        overflow: visible !important;
         padding: 0 !important;
         margin: 0 !important;
     }
@@ -420,8 +420,10 @@ td .text-success {
     }
     
     .table tbody td {
-        white-space: nowrap;
+        white-space: normal !important;
         min-width: auto;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
     }
     
     .table thead th {
@@ -435,7 +437,11 @@ td .text-success {
     
     .table tbody td:nth-child(2) h6,
     .table tbody td:nth-child(3) span {
-        max-width: 120px;
+        max-width: none !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        overflow: visible !important;
     }
     
     .interview-round-item {
@@ -488,6 +494,23 @@ td .text-success {
     .table tbody tr.highlight-shortlisted td:last-child {
         background-color: transparent !important;
         border-left: none !important;
+    }
+    
+    /* Android-specific text overflow fixes */
+    .panel-body,
+    .card-body {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto !important;
+        -webkit-hyphens: auto !important;
+    }
+    
+    /* Force text wrapping on Android */
+    .table td *,
+    .table th * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
     }
 }
 

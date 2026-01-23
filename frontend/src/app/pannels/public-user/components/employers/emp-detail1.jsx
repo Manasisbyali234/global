@@ -177,7 +177,7 @@ function EmployersDetail1Page() {
 
     return (
 			<>
-				<div className="section-full p-t120 p-b90 bg-white">
+				<div className="section-full p-t120 p-b90 bg-white emp-detail">
 					<div className="container">
 						<div className="section-content">
 							<div className="row d-flex justify-content-center">

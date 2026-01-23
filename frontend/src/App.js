@@ -37,6 +37,8 @@ import "./iphone-hamburger-ultimate-production-fix.css";
 import "./android-hamburger-fix.css";
 // POPUP SCROLL FIX - Ensures whole modal scrolls naturally
 import "./popup-scroll-fix.css";
+// ANDROID TEXT OVERFLOW FIX - Prevents text from overflowing cards on Android devices
+import "./android-text-overflow-fix.css";
 
 
 function App() {

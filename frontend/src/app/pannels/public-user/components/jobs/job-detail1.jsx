@@ -25,6 +25,7 @@ function JobDetail1Page() {
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [pendingJobApplication, setPendingJobApplication] = useState(false);
     const [razorpayKey, setRazorpayKey] = useState(null);
+    const [candidateData, setCandidateData] = useState(null);
 
     const authState = useMemo(() => {
         const token = localStorage.getItem('candidateToken');
@@ -69,14 +70,38 @@ function JobDetail1Page() {
         }
     }, [jobId]);
 
+    const fetchCandidateData = useCallback(async () => {
+        try {
+            const token = localStorage.getItem('candidateToken');
+            if (!token) return;
+            
+            // Use a relative URL if possible, or a more robust way to get the base URL
+            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+            const response = await fetch(`${baseUrl}/api/candidate/dashboard/stats`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!response.ok) throw new Error('Failed to fetch candidate stats');
+            
+            const data = await response.json();
+            if (data.success) {
+                console.log('Candidate data loaded for job detail:', data.candidate);
+                setCandidateData(data.candidate);
+            }
+        } catch (error) {
+            console.error('Error fetching candidate data:', error);
+        }
+    }, []);
+
     useEffect(() => {
         setIsLoggedIn(authState.isLoggedIn);
         setCandidateId(authState.candidateId);
         
         if (authState.token && authState.candidateId && jobId) {
             checkApplicationStatus();
+            fetchCandidateData();
         }
-    }, [jobId, authState.token, authState.candidateId, checkApplicationStatus]);
+    }, [jobId, authState.token, authState.candidateId, checkApplicationStatus, fetchCandidateData]);
 
     const sidebarConfig = {
         showJobInfo: true
@@ -96,7 +121,8 @@ function JobDetail1Page() {
             try {
                 const token = localStorage.getItem('candidateToken');
                 if (!token) return;
-                const response = await fetch('http://localhost:5000/api/payments/key', {
+                const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+                const response = await fetch(`${baseUrl}/api/payments/key`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
@@ -149,8 +175,23 @@ function JobDetail1Page() {
     const submitJobApplication = async () => {
         try {
             const token = localStorage.getItem('candidateToken');
+            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
             
-            const profileResponse = await fetch('http://localhost:5000/api/candidate/profile', {
+            // Fetch fresh candidate data to be sure about credits
+            const statsResponse = await fetch(`${baseUrl}/api/candidate/dashboard/stats`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const statsData = await statsResponse.json();
+            let currentCandidateData = candidateData;
+            
+            if (statsData.success) {
+                currentCandidateData = statsData.candidate;
+                setCandidateData(statsData.candidate);
+            }
+            
+            console.log('Applying for job. Candidate data:', currentCandidateData);
+
+            const profileResponse = await fetch(`${baseUrl}/api/candidate/profile`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const profileData = await profileResponse.json();
@@ -161,20 +202,82 @@ function JobDetail1Page() {
                 return;
             }
             
-            // Payment is required for every job application
-            handlePayment();
+            // Check if candidate is from Placement Officer and has credits
+            // Robust check for placement candidate
+            const registrationMethod = currentCandidateData?.registrationMethod?.toLowerCase();
+            const isPlacementCandidate = currentCandidateData && 
+                (registrationMethod === 'placement' || currentCandidateData.placement);
+            
+            const credits = Number(currentCandidateData?.credits || 0);
+            const hasCredits = credits > 0;
+
+            console.log('Condition check:', { 
+                registrationMethod, 
+                isPlacementCandidate, 
+                credits,
+                hasCredits,
+                placementData: currentCandidateData?.placement 
+            });
+
+            if (isPlacementCandidate && hasCredits) {
+                console.log('Placement candidate with credits detected. Using credit-based application.');
+                showInfo(`Applying using 1 credit. Remaining credits: ${credits}`);
+                handleCreditApplication();
+            } else {
+                // Payment is required for every job application
+                console.log('Proceeding to Razorpay payment. Reason:', 
+                    !isPlacementCandidate ? 'Not a placement candidate' : 'Insufficient credits');
+                handlePayment();
+            }
         } catch (error) {
             console.error('Error applying for job:', error);
             showError('Failed to submit application');
         }
     };
 
+    const handleCreditApplication = async () => {
+        try {
+            const token = localStorage.getItem('candidateToken');
+            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+            
+            console.log('Calling apply-with-credits endpoint...');
+            const response = await fetch(`${baseUrl}/api/payments/apply-with-credits`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ jobId, coverLetter: "" })
+            });
+            
+            const data = await response.json();
+            console.log('Apply with credits response:', data);
+            
+            if (data.success) {
+                setHasApplied(true);
+                showSuccess('Application submitted successfully using credits!');
+                fetchJobDetails();
+                fetchCandidateData(); // Refresh credits
+            } else {
+                console.warn('Apply with credits failed:', data.message);
+                showError(data.message || 'Failed to apply using credits');
+                // Fallback to payment if credit application fails for some reason
+                handlePayment();
+            }
+        } catch (error) {
+            console.error('Error applying with credits:', error);
+            showError('Failed to apply using credits');
+            handlePayment();
+        }
+    };
+
     const handlePayment = async () => {
         try {
             const token = localStorage.getItem('candidateToken');
+            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
             
             // 1. Create Order
-            const orderResponse = await fetch('http://localhost:5000/api/payments/create-order', {
+            const orderResponse = await fetch(`${baseUrl}/api/payments/create-order`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -200,7 +303,7 @@ function JobDetail1Page() {
                 handler: async (response) => {
                     // 3. Verify Payment
                     try {
-                        const verifyResponse = await fetch('http://localhost:5000/api/payments/verify-payment', {
+                        const verifyResponse = await fetch(`${baseUrl}/api/payments/verify-payment`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -341,7 +444,12 @@ function JobDetail1Page() {
                                                             onClick={handleApplyClick}
                                                             disabled={hasApplied || isEnded}
                                                         >
-                                                            {hasApplied ? 'Already Applied' : isExpired ? 'Application Closed' : isEnded ? 'Job Closed' : 'Apply Now'}
+                                                            {hasApplied ? 'Already Applied' : 
+                                                             isExpired ? 'Application Closed' : 
+                                                             isEnded ? 'Job Closed' : 
+                                                             (candidateData && (candidateData.registrationMethod === 'placement' || candidateData.placement) && candidateData.credits > 0) ? 
+                                                             `Apply with 1 Credit (${candidateData.credits} left)` : 
+                                                             'Apply Now'}
                                                         </button>
                                                     </div>
                                                 </div>

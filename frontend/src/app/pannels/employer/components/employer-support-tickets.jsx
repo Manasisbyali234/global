@@ -169,6 +169,42 @@ function EmployerSupportTickets() {
         }
     };
 
+    const handleCloseTicket = async (ticketId) => {
+        showConfirmation(
+            'Are you sure you want to close this support ticket? This will mark it as resolved.',
+            async () => {
+                try {
+                    const token = localStorage.getItem('employerToken');
+                    
+                    if (!token) {
+                        showError('Authentication token not found. Please login again.');
+                        return;
+                    }
+                    
+                    const result = await api.updateEmployerSupportTicket(ticketId, { 
+                        status: 'closed',
+                        response: 'Ticket closed by employer'
+                    });
+                    
+                    if (result.success) {
+                        await fetchSupportTickets();
+                        showSuccess('Support ticket closed successfully');
+                        if (showModal && selectedTicket && selectedTicket._id === ticketId) {
+                            handleCloseModal();
+                        }
+                    } else {
+                        showError(result.message || 'Failed to close support ticket');
+                    }
+                } catch (error) {
+                    console.error('Error closing support ticket:', error);
+                    showError('Error closing support ticket. Please try again.');
+                }
+            },
+            () => {},
+            'info'
+        );
+    };
+
     const handleDeleteTicket = async (ticketId) => {
         showConfirmation(
             'Are you sure you want to delete this support ticket? This action cannot be undone.',
@@ -502,12 +538,6 @@ function EmployerSupportTickets() {
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button 
-                        className="close-btn" 
-                        onClick={handleCloseModal}
-                    >
-                        Close
-                    </Button>
                     <Button 
                         variant="outline-primary"
                         className="update-btn" 

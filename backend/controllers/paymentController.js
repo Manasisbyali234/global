@@ -166,6 +166,142 @@ exports.verifyPayment = async (req, res) => {
   }
 };
 
+exports.applyWithCredits = async (req, res) => {
+  try {
+    const { jobId, coverLetter } = req.body;
+    const candidateId = req.user._id;
+
+    // 1. Fetch candidate and check credits
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found' });
+    }
+
+    if (candidate.registrationMethod !== 'placement' && !candidate.placementId) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Credit-based applications are only available for candidates registered through Placement Officers' 
+      });
+    }
+
+    if (candidate.credits <= 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Insufficient credits. Please contact your Placement Officer or pay using Razorpay.' 
+      });
+    }
+
+    // 2. Fetch job
+    const job = await Job.findById(jobId).populate('employerId', 'companyName');
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+
+    // 3. Check for existing application
+    const existingApplication = await Application.findOne({
+      jobId,
+      candidateId: candidateId
+    });
+
+    if (existingApplication) {
+      return res.status(400).json({ success: false, message: 'Already applied to this job' });
+    }
+
+    // 4. Deduct credit
+    candidate.credits -= 1;
+    await candidate.save();
+
+    // 5. Create application
+    const profile = await CandidateProfile.findOne({ candidateId });
+    
+    const applicationData = {
+      jobId,
+      candidateId,
+      employerId: job.employerId,
+      coverLetter,
+      paymentStatus: 'paid',
+      paymentId: `credit_${Date.now()}_${candidateId.toString().slice(-6)}`,
+      orderId: `credit_order_${Date.now()}`,
+      paymentAmount: 0, // Paid via credits
+      paymentCurrency: 'CREDITS'
+    };
+
+    if (profile && profile.resume) {
+      applicationData.resume = {
+        data: profile.resume,
+        originalName: profile.resumeFileName,
+        mimetype: profile.resumeMimeType
+      };
+    }
+    
+    const application = await Application.create(applicationData);
+
+    // 6. Update job application count
+    await Job.findByIdAndUpdate(jobId, { $inc: { applicationCount: 1 } });
+
+    // 7. Invalidate job cache
+    const { cache } = require('../utils/cache');
+    cache.delete(`job_${jobId}`);
+
+    // 8. Create notification for employer
+    try {
+      const { createNotification } = require('./notificationController');
+      await createNotification({
+        title: 'New Job Application (Credits)',
+        message: `${candidate.name} has applied for ${job.title} position using credits`,
+        type: 'application_received',
+        role: 'employer',
+        relatedId: application._id,
+        createdBy: candidateId
+      });
+    } catch (notifError) {
+      console.error('Employer notification creation failed:', notifError);
+    }
+
+    // 9. Send confirmation email
+    try {
+      let includeAssessment = false;
+      if (job.interviewRoundOrder && job.interviewRoundTypes) {
+        includeAssessment = job.interviewRoundOrder.some(roundKey => 
+          job.interviewRoundTypes[roundKey] === 'assessment'
+        );
+      }
+      
+      await sendJobApplicationConfirmationEmail(
+        candidate.email,
+        candidate.name,
+        job.title,
+        job.companyName || job.employerId?.companyName || 'Company',
+        application.createdAt || new Date(),
+        {
+          assessmentId: includeAssessment ? job.assessmentId : null,
+          assessmentEnabled: includeAssessment,
+          assessmentStartDate: includeAssessment ? job.assessmentStartDate : null,
+          assessmentEndDate: includeAssessment ? job.assessmentEndDate : null,
+          assessmentStartTime: includeAssessment ? job.assessmentStartTime : null,
+          assessmentEndTime: includeAssessment ? job.assessmentEndTime : null,
+          interviewRoundOrder: job.interviewRoundOrder,
+          interviewRoundTypes: job.interviewRoundTypes,
+          interviewRoundDetails: job.interviewRoundDetails,
+          interviewScheduled: job.interviewScheduled
+        }
+      );
+    } catch (emailError) {
+      console.error('Failed to send job application confirmation email:', emailError);
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Application submitted successfully using credits', 
+      application,
+      remainingCredits: candidate.credits
+    });
+  } catch (error) {
+    console.error('Error applying with credits:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.verifyCreditPayment = async (req, res) => {
   try {
     const {

@@ -7,11 +7,22 @@
 }
 
 /* Additional spacing for main content areas */
-.section-full .container,
-.cabdidate-de-info,
-.twm-job-self-wrap {
-    margin-left: 80px !important;
-    margin-right: 80px !important;
+@media (min-width: 992px) {
+    .section-full .container,
+    .cabdidate-de-info,
+    .twm-job-self-wrap {
+        margin-left: 80px !important;
+        margin-right: 80px !important;
+    }
+}
+
+@media (max-width: 991px) {
+    .section-full .container,
+    .cabdidate-de-info,
+    .twm-job-self-wrap {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
 }
 
 @media (max-width: 768px) {

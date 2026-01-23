@@ -6,6 +6,8 @@ import InterviewProcessManager from "./InterviewProcessManager";
 import './emp-candidate-review.css';
 import './emp-candidate-review-mobile.css';
 import './emp-candidate-review-mobile-fix.css';
+import './emp-candidate-review-header-final-fix.css';
+import './emp-candidate-review-status-badge-fix.css';
 import '../../../../assessment-badge-fix.css';
 
 

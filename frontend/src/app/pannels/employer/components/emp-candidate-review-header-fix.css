@@ -1,0 +1,6 @@
+/* Header Overlap Fix for Mobile */
+@media (max-width: 767px) {
+  .emp-candidate-review-page .row.g-4 {
+    padding-top: 2rem !important;
+  }
+}
