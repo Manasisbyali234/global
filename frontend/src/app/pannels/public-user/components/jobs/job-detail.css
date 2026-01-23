@@ -1,3 +1,8 @@
+/* Main container with increased left padding */
+.section-full .container {
+    padding-left: 50px;
+}
+
 /* Professional Job Detail Page Styling */
 
 /* Scroll Progress Indicator */

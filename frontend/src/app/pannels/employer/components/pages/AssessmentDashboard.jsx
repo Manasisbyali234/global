@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AssessmentCard from "../assessments/AssessmnetCard";
 import CreateAssessmentModal from "../assessments/CreateAssessmentModal";
-import axios from "axios";
+import { api } from '../../../../../utils/api';
 import './assessment-dashboard.css';
 import '../../../../../assessment-modal-fix.css';
 
@@ -37,13 +37,10 @@ export default function AssessmentDashboard() {
 
 	const fetchAssessments = async () => {
 		try {
-			const token = localStorage.getItem('employerToken');
-			const response = await axios.get('https://taleglobal.net/api/employer/assessments', {
-				headers: { Authorization: `Bearer ${token}` }
-			});
-			if (response.data.success) {
-				setAssessments(response.data.assessments);
-				setFilteredAssessments(response.data.assessments);
+			const response = await api.getEmployerAssessments();
+			if (response.success) {
+				setAssessments(response.assessments);
+				setFilteredAssessments(response.assessments);
 			}
 		} catch (error) {
 			console.error('Error fetching assessments:', error);
@@ -54,15 +51,12 @@ export default function AssessmentDashboard() {
 
 	const handleCreateAssessment = async (assessmentData) => {
 		try {
-			const token = localStorage.getItem('employerToken');
-			
+			let response;
 			if (assessmentData.id) {
 				// Update existing assessment
-				const response = await axios.put(`https://taleglobal.net/api/employer/assessments/${assessmentData.id}`, assessmentData, {
-					headers: { Authorization: `Bearer ${token}` }
-				});
-				if (response.data.success) {
-					const updatedAssessments = assessments.map(a => a._id === assessmentData.id ? response.data.assessment : a);
+				response = await api.updateEmployerAssessment(assessmentData.id, assessmentData);
+				if (response.success) {
+					const updatedAssessments = assessments.map(a => a._id === assessmentData.id ? response.assessment : a);
 					setAssessments(updatedAssessments);
 					setFilteredAssessments(updatedAssessments);
 					setShowModal(false);
@@ -71,11 +65,9 @@ export default function AssessmentDashboard() {
 				}
 			} else {
 				// Create new assessment
-				const response = await axios.post('https://taleglobal.net/api/employer/assessments', assessmentData, {
-					headers: { Authorization: `Bearer ${token}` }
-				});
-				if (response.data.success) {
-					const newAssessments = [response.data.assessment, ...assessments];
+				response = await api.createEmployerAssessment(assessmentData);
+				if (response.success) {
+					const newAssessments = [response.assessment, ...assessments];
 					setAssessments(newAssessments);
 					setFilteredAssessments(newAssessments);
 					setShowModal(false);
@@ -83,16 +75,11 @@ export default function AssessmentDashboard() {
 				}
 			}
 		} catch (error) {
-			console.error('Error saving assessment:', error.response?.data || error.message);
-			
-			// Show specific error message from server
+			console.error('Error saving assessment:', error.message);
 			let errorMessage = assessmentData.id ? 'Failed to update assessment' : 'Failed to create assessment';
-			if (error.response?.data?.message) {
-				errorMessage = error.response.data.message;
-			} else if (error.response?.data?.errors && error.response.data.errors.length > 0) {
-				errorMessage = error.response.data.errors[0].msg;
+			if (error.message) {
+				errorMessage = error.message;
 			}
-			
 			showError(errorMessage);
 		}
 	};
@@ -105,10 +92,7 @@ export default function AssessmentDashboard() {
 	const handleDeleteAssessment = async (id) => {
 		if (!window.confirm('Are you sure you want to delete this assessment?')) return;
 		try {
-			const token = localStorage.getItem('employerToken');
-			await axios.delete(`https://taleglobal.net/api/employer/assessments/${id}`, {
-				headers: { Authorization: `Bearer ${token}` }
-			});
+			await api.deleteEmployerAssessment(id);
 			const updatedAssessments = assessments.filter(a => a._id !== id);
 			setAssessments(updatedAssessments);
 			setFilteredAssessments(updatedAssessments);

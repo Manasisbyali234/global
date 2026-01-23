@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import InterviewProcessManager from "./InterviewProcessManager";
 import './emp-candidate-review.css';
+import './emp-candidate-review-active-button-fix.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
 
 function EmpCandidateReviewPage() {
@@ -17,6 +18,8 @@ function EmpCandidateReviewPage() {
     const [isSelected, setIsSelected] = useState(false);
     const [interviewRounds, setInterviewRounds] = useState([]);
     const [documentModal, setDocumentModal] = useState({ isOpen: false, url: '', title: '' });
+    const [assessmentModal, setAssessmentModal] = useState({ isOpen: false, data: null });
+    const [capturesModal, setCapturesModal] = useState({ isOpen: false, captures: [] });
     const autoSaveTimeoutRef = useRef(null);
 
     useEffect(() => {
@@ -409,7 +412,7 @@ function EmpCandidateReviewPage() {
                 </div>
             </div>
 
-            <div className="profile-card">
+            <div className="profile-section">
                 <div className="profile-header">
                     <div className="profile-avatar">
                         {candidate.profilePicture || candidate.profileImage ? (
@@ -449,7 +452,7 @@ function EmpCandidateReviewPage() {
             <div className="tab-navigation">
                 <button className={`tab-btn ${activeTab === 'review' ? 'active' : ''}`} onClick={() => setActiveTab('review')}>
                     <i className="fas fa-tasks"></i>
-                    Application Review
+                    Stages & Review
                 </button>
                 <button className={`tab-btn ${activeTab === 'personal' ? 'active' : ''}`} onClick={() => setActiveTab('personal')}>
                     <i className="fas fa-user"></i>
@@ -461,7 +464,7 @@ function EmpCandidateReviewPage() {
                 </button>
                 <button className={`tab-btn ${activeTab === 'employment' ? 'active' : ''}`} onClick={() => setActiveTab('employment')}>
                     <i className="fas fa-briefcase"></i>
-                    Employment
+                    Experience
                 </button>
                 <button className={`tab-btn ${activeTab === 'skills' ? 'active' : ''}`} onClick={() => setActiveTab('skills')}>
                     <i className="fas fa-cogs"></i>
@@ -509,6 +512,9 @@ function EmpCandidateReviewPage() {
                                                                 onChange={(e) => updateProcessCompletion(process.id, e.target.checked)}
                                                             />
                                                             <h6>{process.name}</h6>
+                                                            <span className={`status-badge ${process.status || 'pending'}`}>
+                                                                {(process.status || 'pending').replace('_', ' ')}
+                                                            </span>
                                                         </div>
                                                         <div className="process-controls">
                                                             <select 
@@ -560,6 +566,25 @@ function EmpCandidateReviewPage() {
                                                         {application.assessmentAttempt.result}
                                                     </span>
                                                 </div>
+                                            </div>
+                                            <div className="assessment-actions mt-3">
+                                                <button 
+                                                    className="btn-view-answers"
+                                                    onClick={() => {
+                                                        setAssessmentModal({ isOpen: true, data: application.assessmentAttempt });
+                                                    }}
+                                                >
+                                                    <i className="fas fa-file-alt"></i> View Answers
+                                                </button>
+                                                <button 
+                                                    className="btn-view-captures"
+                                                    onClick={() => {
+                                                        const captures = application.assessmentAttempt.captures || application.assessmentAttempt.capturedImages || [];
+                                                        setCapturesModal({ isOpen: true, captures });
+                                                    }}
+                                                >
+                                                    <i className="fas fa-camera"></i> View Captures
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -1040,6 +1065,102 @@ function EmpCandidateReviewPage() {
                     </div>
                 )}
             </div>
+
+            {/* Captures Modal */}
+            {capturesModal.isOpen && (
+                <div className="document-modal-overlay" onClick={() => setCapturesModal({ isOpen: false, captures: [] })}>
+                    <div className="captures-modal-container" onClick={e => e.stopPropagation()}>
+                        <div className="document-modal-header">
+                            <h3>Assessment Captures</h3>
+                            <button className="modal-btn close" onClick={() => setCapturesModal({ isOpen: false, captures: [] })}>
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="captures-modal-body">
+                            {capturesModal.captures.length > 0 ? (
+                                <div className="captures-grid">
+                                    {capturesModal.captures.map((capture, index) => (
+                                        <div key={index} className="capture-item">
+                                            <img 
+                                                src={capture.startsWith('data:') ? capture : `http://localhost:5000/${capture}`} 
+                                                alt={`Capture ${index + 1}`}
+                                                onClick={() => viewDocument(capture, `Capture ${index + 1}`)}
+                                            />
+                                            <p>Capture {index + 1}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="no-captures">
+                                    <i className="fas fa-camera"></i>
+                                    <p>No captures available for this assessment</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Assessment Results Modal */}
+            {assessmentModal.isOpen && (
+                <div className="document-modal-overlay" onClick={() => setAssessmentModal({ isOpen: false, data: null })}>
+                    <div className="assessment-modal-container" onClick={e => e.stopPropagation()}>
+                        <div className="document-modal-header">
+                            <h3>Assessment Results</h3>
+                            <button className="modal-btn close" onClick={() => setAssessmentModal({ isOpen: false, data: null })}>
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="assessment-modal-body">
+                            {assessmentModal.data && (
+                                <div className="assessment-details">
+                                    <div className="assessment-summary">
+                                        <div className="summary-stats">
+                                            <div className="stat">
+                                                <span className="label">Score</span>
+                                                <span className="value">{assessmentModal.data.score} / {assessmentModal.data.totalMarks}</span>
+                                            </div>
+                                            <div className="stat">
+                                                <span className="label">Percentage</span>
+                                                <span className="value">{assessmentModal.data.percentage?.toFixed(1)}%</span>
+                                            </div>
+                                            <div className="stat">
+                                                <span className="label">Result</span>
+                                                <span className={`value result ${assessmentModal.data.result?.toLowerCase()}`}>
+                                                    {assessmentModal.data.result}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {assessmentModal.data.answers && (
+                                        <div className="answers-section">
+                                            <h4>Answers</h4>
+                                            <div className="answers-list">
+                                                {assessmentModal.data.answers.map((answer, index) => (
+                                                    <div key={index} className="answer-item">
+                                                        <div className="question">
+                                                            <strong>Q{index + 1}:</strong> {answer.question}
+                                                        </div>
+                                                        <div className="answer">
+                                                            <strong>Answer:</strong> {answer.selectedAnswer || answer.answer}
+                                                        </div>
+                                                        <div className="correct">
+                                                            <strong>Correct:</strong> 
+                                                            <span className={answer.isCorrect ? 'correct' : 'incorrect'}>
+                                                                {answer.isCorrect ? 'Yes' : 'No'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Document Viewer Modal */}
             {documentModal.isOpen && (

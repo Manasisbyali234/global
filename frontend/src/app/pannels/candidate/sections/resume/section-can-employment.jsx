@@ -11,14 +11,14 @@ function SectionCanEmployment({ profile }) {
         return saved ? JSON.parse(saved) : {
             designation: '',
             organization: '',
-            location: '',
             isCurrent: false,
             startDate: '',
             endDate: '',
             description: '',
             workType: '',
             presentCTC: '',
-            expectedCTC: ''
+            expectedCTC: '',
+            noticePeriod: ''
         };
     });
     const [totalExperience, setTotalExperience] = useState(() => {
@@ -100,7 +100,7 @@ function SectionCanEmployment({ profile }) {
     };
 
     const clearForm = () => {
-        const resetFormData = { designation: '', organization: '', location: '', isCurrent: false, startDate: '', endDate: '', description: '', workType: '', presentCTC: '', expectedCTC: '' };
+        const resetFormData = { designation: '', organization: '', isCurrent: false, startDate: '', endDate: '', description: '', workType: '', presentCTC: '', expectedCTC: '', noticePeriod: '' };
         setFormData(resetFormData);
         localStorage.removeItem('employmentFormData');
         setErrors({});
@@ -119,14 +119,14 @@ function SectionCanEmployment({ profile }) {
         setFormData({
             designation: emp.designation || '',
             organization: emp.organization || '',
-            location: emp.location || '',
             isCurrent: emp.isCurrent || false,
             startDate: formatDateForInput(emp.startDate),
             endDate: formatDateForInput(emp.endDate),
             description: emp.description || '',
             workType: emp.workType || '',
             presentCTC: emp.presentCTC || '',
-            expectedCTC: emp.expectedCTC || ''
+            expectedCTC: emp.expectedCTC || '',
+            noticePeriod: emp.noticePeriod || ''
         });
         setEditingIndex(index);
         setErrors({});
@@ -208,14 +208,6 @@ function SectionCanEmployment({ profile }) {
             newErrors.organization = 'Organization name must be at least 2 characters long';
         } else if (formData.organization.trim().length > 100) {
             newErrors.organization = 'Organization name cannot exceed 100 characters';
-        }
-
-        if (!formData.location || !formData.location.trim()) {
-            newErrors.location = 'Location is required';
-        } else if (formData.location.trim().length < 2) {
-            newErrors.location = 'Location must be at least 2 characters long';
-        } else if (formData.location.trim().length > 100) {
-            newErrors.location = 'Location cannot exceed 100 characters';
         }
 
         if (!formData.startDate) {
@@ -352,14 +344,14 @@ function SectionCanEmployment({ profile }) {
             const employmentEntry = {
                 designation: formData.designation.trim(),
                 organization: formData.organization.trim(),
-                location: formData.location.trim(),
                 isCurrent: Boolean(formData.isCurrent),
                 startDate: formData.startDate,
                 endDate: formData.isCurrent ? null : (formData.endDate || null),
                 description: formData.description ? formData.description.trim() : '',
                 workType: formData.workType,
                 presentCTC: formData.presentCTC ? formData.presentCTC.trim() : '',
-                expectedCTC: formData.expectedCTC ? formData.expectedCTC.trim() : ''
+                expectedCTC: formData.expectedCTC ? formData.expectedCTC.trim() : '',
+                noticePeriod: formData.noticePeriod ? formData.noticePeriod.trim() : ''
             };
             
             let newEmployment;
@@ -693,19 +685,6 @@ function SectionCanEmployment({ profile }) {
                                                     </p>
                                                 </div>
 
-                                                {/* Location */}
-                                                {emp.location && (
-                                                    <div style={{minWidth: '150px'}}>
-                                                        <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
-                                                            <i className="fa fa-map-marker" style={{color: '#FF6A00', marginRight: '6px', fontSize: '14px'}}></i>
-                                                            <strong style={{fontSize: '13px', color: '#495057'}}>Location</strong>
-                                                        </div>
-                                                        <p style={{margin: 0, fontSize: '14px', color: '#6c757d'}}>
-                                                            {emp.location}
-                                                        </p>
-                                                    </div>
-                                                )}
-
                                                 {/* Current Company */}
                                                 <div style={{minWidth: '120px'}}>
                                                     <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
@@ -752,6 +731,19 @@ function SectionCanEmployment({ profile }) {
                                                         </div>
                                                         <p style={{margin: 0, fontSize: '14px', color: '#6c757d', fontWeight: '500'}}>
                                                             ₹{emp.expectedCTC} LPA
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                                {/* Notice Period */}
+                                                {emp.noticePeriod && (
+                                                    <div style={{minWidth: '120px'}}>
+                                                        <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
+                                                            <i className="fa fa-clock" style={{color: '#FF6A00', marginRight: '6px', fontSize: '14px'}}></i>
+                                                            <strong style={{fontSize: '13px', color: '#495057'}}>Notice Period</strong>
+                                                        </div>
+                                                        <p style={{margin: 0, fontSize: '14px', color: '#6c757d', fontWeight: '500'}}>
+                                                            {emp.noticePeriod}
                                                         </p>
                                                     </div>
                                                 )}
@@ -881,25 +873,6 @@ function SectionCanEmployment({ profile }) {
                                     {errors.organization && <div style={formStyles.error}>{errors.organization}</div>}
                                 </div>
 
-                                {/* Location */}
-                                <div style={formStyles.fieldGroup}>
-                                    <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                        Work Location
-                                        <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                    </label>
-                                    <div style={formStyles.inputWrapper}>
-                                        <i className="fa fa-map-marker" style={formStyles.icon}></i>
-                                        <input
-                                            type="text"
-                                            placeholder="e.g., Mumbai, Bangalore"
-                                            value={formData.location}
-                                            onChange={(e) => handleInputChange('location', e.target.value)}
-                                            style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.location && formStyles.inputError)}}
-                                        />
-                                    </div>
-                                    {errors.location && <div style={formStyles.error}>{errors.location}</div>}
-                                </div>
-
                                 {/* Current Company */}
                                 <div style={formStyles.fieldGroup}>
                                     <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
@@ -1027,6 +1000,27 @@ function SectionCanEmployment({ profile }) {
                                         </div>
                                         {errors.expectedCTC && <div style={formStyles.error}>{errors.expectedCTC}</div>}
                                     </div>
+                                </div>
+
+                                {/* Notice Period */}
+                                <div style={formStyles.fieldGroup}>
+                                    <label style={formStyles.label}>Notice Period</label>
+                                    <div style={formStyles.inputWrapper}>
+                                        <i className="fa fa-clock" style={formStyles.icon}></i>
+                                        <select
+                                            value={formData.noticePeriod}
+                                            onChange={(e) => handleInputChange('noticePeriod', e.target.value)}
+                                            style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.noticePeriod && formStyles.inputError)}}
+                                        >
+                                            <option value="">Select Notice Period</option>
+                                            <option value="Immediate">Immediate</option>
+                                            <option value="15 days">15 days</option>
+                                            <option value="1 month">1 month</option>
+                                            <option value="2 months">2 months</option>
+                                            <option value="3 months">3 months</option>
+                                        </select>
+                                    </div>
+                                    {errors.noticePeriod && <div style={formStyles.error}>{errors.noticePeriod}</div>}
                                 </div>
 
                                 {/* Description */}

@@ -650,6 +650,35 @@ export const api = {
     });
   },
 
+  getEmployerAssessments: () => {
+    return fetch(`${API_BASE_URL}/employer/assessments`, {
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
+  createEmployerAssessment: (assessmentData) => {
+    return fetch(`${API_BASE_URL}/employer/assessments`, {
+      method: 'POST',
+      headers: getAuthHeaders('employer'),
+      body: JSON.stringify(assessmentData),
+    }).then((res) => res.json());
+  },
+
+  updateEmployerAssessment: (assessmentId, assessmentData) => {
+    return fetch(`${API_BASE_URL}/employer/assessments/${assessmentId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders('employer'),
+      body: JSON.stringify(assessmentData),
+    }).then((res) => res.json());
+  },
+
+  deleteEmployerAssessment: (assessmentId) => {
+    return fetch(`${API_BASE_URL}/employer/assessments/${assessmentId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
   // Assessment APIs
   getAssessmentById: (assessmentId) => {
     return fetch(`${API_BASE_URL}/candidate/assessments/${assessmentId}`, {

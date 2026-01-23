@@ -1,0 +1,38 @@
+/* Active Button Light Color Fix */
+/* Changes the Active button text from dark orange to light orange to match badge theme */
+
+/* Target the active status badge with orange background */
+.emp-candidate-review-page .badge.twm-bg-orange,
+.candidate-review-container .badge.twm-bg-orange,
+.badge.twm-bg-orange {
+    background-color: #ffb366 !important; /* Light orange instead of dark orange */
+    color: #333 !important; /* Dark text for better readability on light background */
+}
+
+/* Alternative light orange variations */
+.emp-candidate-review-page .badge.twm-bg-orange.light-theme,
+.candidate-review-container .badge.twm-bg-orange.light-theme {
+    background-color: #ffd4a3 !important; /* Even lighter orange */
+    color: #333 !important;
+}
+
+/* For any active buttons with orange styling */
+.btn-action.active.orange-theme,
+.status-badge.active.orange-theme,
+.tab-btn.active {
+    background-color: #FFF3E5 !important;
+    color: #FF7A00 !important;
+    border: 1px solid #FF7A00 !important;
+    box-shadow: 0 8px 20px rgba(255, 122, 0, 0.3) !important;
+    transform: translateY(-1px);
+}
+
+.tab-btn.active i {
+    color: #FF7A00 !important;
+}
+
+/* Ensure text remains readable */
+.badge.twm-bg-orange:hover {
+    background-color: #ff9933 !important; /* Slightly darker on hover */
+    color: #333 !important;
+}

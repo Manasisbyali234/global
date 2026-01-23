@@ -2401,9 +2401,9 @@ export default function EmpPostJob({ onNext }) {
 										<option value="">-- Select Assessment --</option>
 										{availableAssessments.map((assessment) => (
 											<option key={assessment._id} value={assessment._id}>
-												{assessment.title}
+												{assessment.title} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'No duration set'}{assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime ? ' min' : ''})
 											</option>
-										))}
+										))}}
 									</select>
 									{selectedAssessment && (
 										<div style={{display: 'flex', alignItems: 'center', gap: 6, color: '#10b981', fontSize: 14, fontWeight: 600}}>

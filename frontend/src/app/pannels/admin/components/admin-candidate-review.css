@@ -349,14 +349,16 @@
 }
 
 .tab-btn.active {
-    background: #FF7A00 !important;
-    color: #fff !important;
+    background: #FFF3E5 !important;
+    color: #FF7A00 !important;
     font-weight: 700 !important;
-    border-color: #FF7A00 !important;
+    border: 1px solid #FF7A00 !important;
+    box-shadow: 0 8px 20px rgba(255, 122, 0, 0.3) !important;
+    transform: translateY(-1px);
 }
 
 .tab-btn.active i {
-    color: #fff !important;
+    color: #FF7A00 !important;
 }
 
 .tab-content {

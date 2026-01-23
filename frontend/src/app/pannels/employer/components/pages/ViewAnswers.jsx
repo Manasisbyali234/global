@@ -136,7 +136,7 @@ export default function ViewAnswers() {
           alignItems: 'center',
           gap: '0.5rem',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          margin: '5rem 0 1rem 1rem',
+          margin: '1rem 0 1rem 1rem',
           position: 'relative',
           zIndex: 1000
         }}
