@@ -63,9 +63,12 @@ function SectionCanPersonalDetail({ profile }) {
     const [errors, setErrors] = useState({});
     const [sameAsResidential, setSameAsResidential] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [profileData, setProfileData] = useState(null);
 
     useEffect(() => {
         if (profile) {
+            // Fetch profile data to get pincode, stateCode, and location
+            fetchProfileData();
             setFormData({
                 firstName: profile.firstName || profile.candidateId?.name || '',
                 middleName: profile.middleName || '',
@@ -86,23 +89,35 @@ function SectionCanPersonalDetail({ profile }) {
         }
     }, [profile]);
 
+    const fetchProfileData = async () => {
+        try {
+            const response = await api.getCandidateProfile();
+            if (response.success && response.profile) {
+                setProfileData(response.profile);
+                // Update form data with profile data
+                setFormData(prev => ({
+                    ...prev,
+                    location: response.profile.location || prev.location,
+                    stateCode: response.profile.stateCode || prev.stateCode,
+                    pincode: response.profile.pincode || prev.pincode
+                }));
+            }
+        } catch (error) {
+            console.error('Error fetching profile data:', error);
+        }
+    };
+
     const validateField = (field, value) => {
         const newErrors = { ...errors };
         
         switch (field) {
             case 'location':
-                if (!value || !value.trim()) {
-                    newErrors[field] = 'Location is required';
-                } else {
-                    delete newErrors[field];
-                }
+                // Location is fetched from profile, no validation needed
+                delete newErrors[field];
                 break;
             case 'pincode':
-                if (!value || !value.trim()) {
-                    newErrors[field] = 'Pincode is required';
-                } else {
-                    delete newErrors[field];
-                }
+                // Pincode is fetched from profile, no validation needed
+                delete newErrors[field];
                 break;
             case 'gender':
                 if (!value || !value.trim()) {
@@ -198,7 +213,7 @@ function SectionCanPersonalDetail({ profile }) {
     };
 
     const validateAllRequiredFields = () => {
-        const requiredFields = ['location', 'pincode', 'dateOfBirth', 'gender', 'fatherName', 'motherName', 'residentialAddress', 'permanentAddress'];
+        const requiredFields = ['dateOfBirth', 'gender', 'fatherName', 'motherName', 'residentialAddress', 'permanentAddress'];
         let isValid = true;
         
         requiredFields.forEach(field => {
@@ -210,30 +225,11 @@ function SectionCanPersonalDetail({ profile }) {
         return isValid;
     };
 
-    const fetchLocationByPincode = async (pincode) => {
-        if (pincode.length === 6) {
-            try {
-                const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
-                const data = await response.json();
-                if (data[0].Status === 'Success' && data[0].PostOffice.length > 0) {
-                    const postOffice = data[0].PostOffice[0];
-                    const location = `${postOffice.Name}, ${postOffice.District}, ${postOffice.State}`;
-                    setFormData(prev => ({ ...prev, location }));
-                }
-            } catch (error) {
-                console.error('Error fetching location:', error);
-            }
-        }
-    };
+
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         setHasUnsavedChanges(true);
-        
-        // If pincode changes, fetch location
-        if (field === 'pincode') {
-            fetchLocationByPincode(value);
-        }
         
         // If residential address changes and checkbox is checked, update permanent address
         if (field === 'residentialAddress' && sameAsResidential) {
@@ -265,9 +261,6 @@ function SectionCanPersonalDetail({ profile }) {
             const updateData = {
                 dateOfBirth: formData.dateOfBirth,
                 gender: formData.gender,
-                location: formData.location,
-                stateCode: formData.stateCode,
-                pincode: formData.pincode,
                 fatherName: formData.fatherName.trim(),
                 motherName: formData.motherName.trim(),
                 residentialAddress: formData.residentialAddress.trim(),
@@ -301,6 +294,10 @@ function SectionCanPersonalDetail({ profile }) {
             <form onSubmit={(e) => e.preventDefault()}>
                 <div className="panel panel-default">
                     <div className="panel-body wt-panel-body p-a20 m-b30">
+                        <div className="alert alert-info mb-3" style={{padding: '8px 12px', fontSize: '13px', backgroundColor: '#e3f2fd', borderColor: '#2196f3', color: '#1976d2'}}>
+                            <i className="fa fa-info-circle me-1"></i>
+                            Pincode, State Code, and Location are fetched from your <a href="/candidate/profile" style={{color: '#1976d2'}}>Profile page</a>.
+                        </div>
                         <div className="row">
                             <div className="col-12 col-md-6 mb-3">
                                 <label><i className="fa fa-user me-1"></i> First Name</label>
@@ -410,51 +407,42 @@ function SectionCanPersonalDetail({ profile }) {
                             </div>
 
                             <div className="col-12 col-md-6 mb-3">
-                                <label className="required-field"><i className="fa fa-map-pin me-1"></i> Pincode</label>
+                                <label><i className="fa fa-map-pin me-1"></i> Pincode</label>
                                 <input
-                                    className={`form-control ${errors.pincode ? 'is-invalid' : ''}`}
-                                    type="text"
-                                    placeholder="Enter 6-digit pincode"
-                                    value={formData.pincode}
-                                    onChange={(e) => {
-                                        handleInputChange('pincode', e.target.value);
-                                        validateField('pincode', e.target.value);
-                                    }}
-                                    maxLength="6"
-                                    pattern="[0-9]{6}"
-                                    required
-                                />
-                                {errors.pincode && <div className="text-danger mt-1"><small>{errors.pincode}</small></div>}
-                            </div>
-
-                            <div className="col-12 col-md-6 mb-3">
-                                <label className="required-field"><i className="fa fa-map-marker me-1"></i> Location</label>
-                                <input
-                                    className={`form-control ${errors.location ? 'is-invalid' : ''}`}
-                                    type="text"
-                                    placeholder="Enter location"
-                                    value={formData.location}
-                                    onChange={(e) => {
-                                        handleInputChange('location', e.target.value);
-                                        validateField('location', e.target.value);
-                                    }}
-                                    required
-                                />
-                                {errors.location && <div className="text-danger mt-1"><small>{errors.location}</small></div>}
-                            </div>
-
-                            <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-map me-1"></i> State Code</label>
-                                <select 
                                     className="form-control"
-                                    value={formData.stateCode}
-                                    onChange={(e) => handleInputChange('stateCode', e.target.value)}
-                                >
-                                    <option value="">Select State Code</option>
-                                    {indianStateCodes.map((state, index) => (
-                                        <option key={index} value={state.code}>{state.code} - {state.name}</option>
-                                    ))}
-                                </select>
+                                    type="text"
+                                    placeholder="Pincode fetched from profile"
+                                    value={formData.pincode}
+                                    readOnly
+                                    style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
+                                />
+                                <small className="text-muted">Pincode is fetched from your profile page</small>
+                            </div>
+
+                            <div className="col-12 col-md-6 mb-3">
+                                <label><i className="fa fa-map-marker me-1"></i> Location *</label>
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="Location fetched from profile"
+                                    value={formData.location}
+                                    readOnly
+                                    style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
+                                />
+                                <small className="text-muted">Location is fetched from your profile page</small>
+                            </div>
+
+                            <div className="col-12 col-md-6 mb-3">
+                                <label><i className="fa fa-map me-1"></i> State Code *</label>
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="State code fetched from profile"
+                                    value={formData.stateCode ? `${formData.stateCode} - ${indianStateCodes.find(state => state.code === formData.stateCode)?.name || ''}` : ''}
+                                    readOnly
+                                    style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
+                                />
+                                <small className="text-muted">State code is fetched from your profile page</small>
                             </div>
                             <div className="col-12 col-md-6 mb-3">
                                 <label className="required-field"><i className="fa fa-calendar me-1"></i> Date of Birth</label>

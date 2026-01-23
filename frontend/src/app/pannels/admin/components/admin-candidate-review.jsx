@@ -265,7 +265,7 @@ function AdminCandidateReviewPage() {
                     </div>
                     <div className="profile-info">
                         <h3>{candidate.name}</h3>
-                        <p className="email">{candidate.email}</p>
+                        <p className="email">{candidate.email || 'Email not provided'}</p>
                         <div className="profile-stats">
                             <div className="stat">
                                 <span className="label">Registered</span>

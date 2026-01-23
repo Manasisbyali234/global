@@ -198,8 +198,8 @@ function SectionCanEmployment({ profile }) {
             newErrors.designation = 'Designation must be at least 2 characters long';
         } else if (formData.designation.trim().length > 100) {
             newErrors.designation = 'Designation cannot exceed 100 characters';
-        } else if (!/^[a-zA-Z\s\-\.]+$/.test(formData.designation.trim())) {
-            newErrors.designation = 'Designation can only contain letters, spaces, hyphens, and periods';
+        } else if (!/^[a-zA-Z0-9\s\-\.]+$/.test(formData.designation.trim())) {
+            newErrors.designation = 'Designation can only contain letters, numbers, spaces, hyphens, and periods';
         }
 
         if (!formData.organization || !formData.organization.trim()) {

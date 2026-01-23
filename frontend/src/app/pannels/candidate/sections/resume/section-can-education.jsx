@@ -270,6 +270,69 @@ function SectionCanEducation({ profile, onUpdate }) {
         return 4;
     };
 
+    const getResultFromPercentage = (percentage) => {
+        return percentage >= 35 ? 'Passed' : 'Failed';
+    };
+
+    const handleEducationChange = (level, field, value, index = null) => {
+        // Validate enrollment number for alphanumeric characters only
+        if (field === 'registrationNumber') {
+            const alphanumericRegex = /^[a-zA-Z0-9]*$/;
+            if (value && !alphanumericRegex.test(value)) {
+                if (index !== null) {
+                    const updatedAdditionalErrors = [...additionalErrors];
+                    if (!updatedAdditionalErrors[index]) {
+                        updatedAdditionalErrors[index] = {};
+                    }
+                    updatedAdditionalErrors[index][field] = 'Only alphabets and numbers are allowed';
+                    setAdditionalErrors(updatedAdditionalErrors);
+                } else {
+                    setErrors(prev => ({ ...prev, [`${level}_${field}`]: 'Only alphabets and numbers are allowed' }));
+                }
+                return;
+            }
+        }
+
+        if (index !== null) {
+            // Handle additional rows
+            const updatedRows = [...additionalRows];
+            updatedRows[index][field] = value;
+            
+            // Auto-calculate CGPA and result from percentage
+            if (field === 'percentage' && value) {
+                const percentageValue = parseFloat(value);
+                if (!isNaN(percentageValue) && percentageValue >= 0 && percentageValue <= 100) {
+                    const cgpa = convertPercentageToCGPA(percentageValue);
+                    const result = getResultFromPercentage(percentageValue);
+                    updatedRows[index].cgpa = cgpa.toString();
+                    updatedRows[index].grade = result;
+                }
+            }
+            
+            setAdditionalRows(updatedRows);
+        } else {
+            // Handle main education levels
+            const updatedData = { ...educationData };
+            updatedData[level][field] = value;
+            
+            // Auto-calculate CGPA and result from percentage
+            if (field === 'percentage' && value) {
+                const percentageValue = parseFloat(value);
+                if (!isNaN(percentageValue) && percentageValue >= 0 && percentageValue <= 100) {
+                    const cgpa = convertPercentageToCGPA(percentageValue);
+                    const result = getResultFromPercentage(percentageValue);
+                    updatedData[level].cgpa = cgpa.toString();
+                    updatedData[level].grade = result;
+                }
+            }
+            
+            setEducationData(updatedData);
+        }
+        
+        // Clear validation errors for this field
+        validateEducationField(level, field, value, index);
+    };
+
     const handleEducationLevelChange = (level) => {
         setSelectedEducationLevel(level);
         setFormData(prev => ({
@@ -310,24 +373,33 @@ function SectionCanEducation({ profile, onUpdate }) {
                 uploadDocument(file);
             }
         } else {
+            // Validate enrollment number for alphanumeric characters only
+            if (name === 'registrationNumber') {
+                const alphanumericRegex = /^[a-zA-Z0-9]*$/;
+                if (value && !alphanumericRegex.test(value)) {
+                    setErrors(prev => ({ ...prev, [name]: 'Only alphabets and numbers are allowed' }));
+                    return;
+                }
+            }
+
             setFormData(prev => ({
                 ...prev,
                 [name]: value
             }));
 
-            // Auto-calculate CGPA from percentage
+            // Auto-calculate CGPA and result from percentage
             if (name === 'percentage' && value) {
                 const percentageValue = parseFloat(value);
                 if (!isNaN(percentageValue) && percentageValue >= 0 && percentageValue <= 100) {
                     const cgpa = convertPercentageToCGPA(percentageValue);
+                    const result = getResultFromPercentage(percentageValue);
                     setFormData(prev => ({
                         ...prev,
-                        cgpa: cgpa.toString()
+                        cgpa: cgpa.toString(),
+                        result: result
                     }));
                 }
             }
-
-
 
             // Clear error for this field
             if (errors[name]) {
@@ -385,8 +457,8 @@ function SectionCanEducation({ profile, onUpdate }) {
             }
         }
 
-        // Course Name is required for all education levels except 10th/SSLC
-        if (selectedEducationLevel && selectedEducationLevel !== '10th_pass' && selectedEducationLevel !== 'sslc' && (!formData.courseName || !formData.courseName.trim())) {
+        // Course Name is required for all education levels except 10th/SSLC where it's now required
+        if (selectedEducationLevel && (!formData.courseName || !formData.courseName.trim())) {
             newErrors.courseName = 'Course Name is required';
             isValid = false;
         }
@@ -621,6 +693,14 @@ function SectionCanEducation({ profile, onUpdate }) {
                     errors[field] = 'Location is required';
                 } else if (value.trim().length < 2) {
                     errors[field] = 'Location must be at least 2 characters';
+                }
+                break;
+            case 'registrationNumber':
+                if (value) {
+                    const alphanumericRegex = /^[a-zA-Z0-9]*$/;
+                    if (!alphanumericRegex.test(value)) {
+                        errors[field] = 'Only alphabets and numbers are allowed';
+                    }
                 }
                 break;
             case 'passoutYear':
@@ -1249,6 +1329,25 @@ function SectionCanEducation({ profile, onUpdate }) {
                                         />
                                         {errors.cgpa && <div className="invalid-feedback">{errors.cgpa}</div>}
                                     </div>
+
+                                    {/* Course Name/Stream for 10th pass/SSLC */}
+                                    {(selectedEducationLevel === '10th_pass' || selectedEducationLevel === 'sslc') && (
+                                        <div className="col-md-6">
+                                            <label className="form-label required-field">Course Name / Stream</label>
+                                            <select
+                                                className={`form-select ${errors.courseName ? 'is-invalid' : ''}`}
+                                                name="courseName"
+                                                value={formData.courseName}
+                                                onChange={handleInputChange}
+                                                required
+                                            >
+                                                <option value="">Select Board</option>
+                                                <option value="CBSE">CBSE</option>
+                                                <option value="State Board">State Board</option>
+                                            </select>
+                                            {errors.courseName && <div className="invalid-feedback">{errors.courseName}</div>}
+                                        </div>
+                                    )}
 
                                     {/* Year of Passing for basic education levels */}
                                     {(selectedEducationLevel === '10th_pass' || selectedEducationLevel === 'sslc') && (
