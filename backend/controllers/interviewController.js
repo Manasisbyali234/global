@@ -2,13 +2,24 @@ const InterviewProcess = require('../models/InterviewProcess');
 const Application = require('../models/Application');
 const Job = require('../models/Job');
 const Candidate = require('../models/Candidate');
+const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
 
 // Create or update interview process
 const createOrUpdateInterviewProcess = async (req, res) => {
   try {
     const { applicationId } = req.params;
-    const { stages, processStatus, finalDecision } = req.body;
+    let { stages, processStatus, finalDecision } = req.body;
     const employerId = req.user.id;
+
+    // Normalize times in stages if they exist
+    if (stages && Array.isArray(stages)) {
+      stages = stages.map(stage => {
+        if (stage.scheduledTime) {
+          stage.scheduledTime = normalizeTimeFormat(stage.scheduledTime);
+        }
+        return stage;
+      });
+    }
 
     // Verify application belongs to employer
     const application = await Application.findById(applicationId)
@@ -163,13 +174,14 @@ const scheduleInterviewStage = async (req, res) => {
     // Update stage scheduling details
     // Combine date and time into full datetime for proper timezone handling
     if (scheduledDate && scheduledTime) {
-      const dateTimeString = `${scheduledDate}T${scheduledTime}`;
+      const normalizedTime = normalizeTimeFormat(scheduledTime);
+      const dateTimeString = `${scheduledDate}T${normalizedTime}`;
       stage.scheduledDate = new Date(dateTimeString);
-      stage.scheduledTime = scheduledTime;
+      stage.scheduledTime = normalizedTime;
     } else if (scheduledDate) {
       stage.scheduledDate = new Date(scheduledDate);
     } else if (scheduledTime) {
-      stage.scheduledTime = scheduledTime;
+      stage.scheduledTime = normalizeTimeFormat(scheduledTime);
     }
     
     if (fromDate) stage.fromDate = new Date(fromDate);
@@ -219,7 +231,7 @@ const scheduleInterviewStage = async (req, res) => {
         }
         
         if (stage.scheduledTime) {
-          message += ` | Time: ${stage.scheduledTime}`;
+          message += ` | Time: ${formatTimeToAMPM(stage.scheduledTime)}`;
         }
         
         return message;

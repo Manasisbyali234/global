@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { publicUser } from "../../../../../../globals/route-names";
 import SectionSideAdvert from "./section-side-advert";
 import JobZImage from "../../../../../common/jobz-img";
-import { formatDate } from "../../../../../../utils/dateFormatter";
+import { formatDate, formatTimeToAMPM } from "../../../../../../utils/dateFormatter";
 
 function SectionJobsSidebar2 ({ _config, job }) {
     return (
@@ -48,7 +48,7 @@ function SectionJobsSidebar2 ({ _config, job }) {
 													{formatDate(job.lastDateOfApplication)}
 													{job?.lastDateOfApplicationTime && (
 														<span style={{fontSize: '12px', marginLeft: '8px'}}>
-															at {job.lastDateOfApplicationTime}
+															at {formatTimeToAMPM(job.lastDateOfApplicationTime)}
 													</span>
 													)}
 												</>

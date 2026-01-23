@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import JobZImage from "../../../common/jobz-img";
 import { loadScript } from "../../../../globals/constants";
 import { useNavigate, useParams } from "react-router-dom";
+import { formatTimeToAMPM } from "../../../../utils/dateFormatter";
 import "./emp-job-review.css";
 
 function EmpJobReviewPage() {
@@ -171,7 +172,7 @@ function EmpJobReviewPage() {
                                     <h5 className="mb-1">Last Date of Application</h5>
                                     <p className="mb-0 text-muted">
                                         {jobDetails.lastDateOfApplication ? new Date(jobDetails.lastDateOfApplication).toLocaleDateString() : 'N/A'}
-                                        {jobDetails.lastDateOfApplicationTime && ` at ${jobDetails.lastDateOfApplicationTime}`}
+                                        {jobDetails.lastDateOfApplicationTime && ` at ${formatTimeToAMPM(jobDetails.lastDateOfApplicationTime)}`}
                                     </p>
                                 </div>
 
@@ -298,13 +299,13 @@ function EmpJobReviewPage() {
                                                         <p className="mb-1"><strong>To Date:</strong> {new Date(details.toDate).toLocaleDateString()}</p>
                                                     )}
                                                     {details.time && (
-                                                        <p className="mb-1"><strong>Time:</strong> {details.time}</p>
+                                                        <p className="mb-1"><strong>Time:</strong> {formatTimeToAMPM(details.time)}</p>
                                                     )}
                                                     {details.startTime && (
-                                                        <p className="mb-1"><strong>Start Time:</strong> {details.startTime}</p>
+                                                        <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(details.startTime)}</p>
                                                     )}
                                                     {details.endTime && (
-                                                        <p className="mb-1"><strong>End Time:</strong> {details.endTime}</p>
+                                                        <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(details.endTime)}</p>
                                                     )}
                                                 </div>
                                             </div>

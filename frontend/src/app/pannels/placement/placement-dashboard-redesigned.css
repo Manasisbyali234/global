@@ -1358,6 +1358,7 @@
     align-items: center;
     justify-content: center;
     z-index: 1500;
+    padding: 20px;
 }
 
 .dashboard-container .modal-content {
@@ -1365,39 +1366,52 @@
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-medium);
     width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-width: 600px;
+    max-height: calc(100vh - 40px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
 }
 
-.modal-header {
-    padding: 24px 24px 0;
+.dashboard-container .modal-header {
+    padding: 20px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid var(--border-light);
+    flex-shrink: 0;
 }
 
-.modal-header h3 {
+.dashboard-container .modal-header h3 {
     font-size: 18px;
     font-weight: 600;
     color: var(--text-primary);
+    margin: 0;
 }
 
-.close-btn {
+.dashboard-container .close-btn {
     background: none;
     border: none;
     font-size: 20px;
     color: var(--text-muted);
     cursor: pointer;
     padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
 }
 
-.close-btn:hover {
-    color: var(--text-primary);
+.dashboard-container .close-btn:hover {
+    color: #ef4444;
 }
 
-.modal-body {
+.dashboard-container .modal-body {
     padding: 24px;
+    overflow-y: auto !important;
+    flex: 1 !important;
+    max-height: none !important;
+    -webkit-overflow-scrolling: touch;
 }
 
 .form-group {
@@ -1515,11 +1529,13 @@
     margin-top: 8px;
 }
 
-.modal-footer {
-    padding: 0 24px 24px;
+.dashboard-container .modal-footer {
+    padding: 16px 24px;
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+    border-top: 1px solid var(--border-light);
+    flex-shrink: 0;
 }
 
 .btn-secondary {
@@ -1918,14 +1934,14 @@
         padding: 15px;
     }
 
-    .modal-content {
+    .dashboard-container .modal-content {
         width: 95%;
-        margin: 16px;
+        margin: 10px auto;
     }
     
-    .modal-header,
-    .modal-body,
-    .modal-footer {
+    .dashboard-container .modal-header,
+    .dashboard-container .modal-body,
+    .dashboard-container .modal-footer {
         padding: 16px;
     }
     

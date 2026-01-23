@@ -10,6 +10,7 @@ import InterviewDateTester from "../../../../../components/InterviewDateTester";
 import { ErrorDisplay, GlobalErrorDisplay } from "../../../../../components/ErrorDisplay";
 import { validateField, validateForm, displayError, safeApiCall, getErrorMessage } from "../../../../../utils/errorHandler";
 import RichTextEditor from "../../../../../components/RichTextEditor";
+import { formatTimeToAMPM } from "../../../../../utils/dateFormatter";
 
 import "../../../../../components/ErrorDisplay.css";
 
@@ -3256,7 +3257,7 @@ export default function EmpPostJob({ onNext }) {
 														{details.time && (
 															<span style={{marginLeft: 8}}>
 																<i className="fa fa-clock" style={{marginRight: 4}}></i>
-																{details.time}
+																{formatTimeToAMPM(details.time)}
 															</span>
 														)}
 													</div>
@@ -3338,12 +3339,12 @@ export default function EmpPostJob({ onNext }) {
 									type="time"
 									value={formData.lastDateOfApplicationTime || ''}
 									onChange={(e) => update({ lastDateOfApplicationTime: e.target.value })}
-									placeholder="HH:MM"
+									placeholder="HH:MM AM/PM"
 								/>
 							</div>
 						</div>
 						<small style={{color: '#6b7280', fontSize: 11, marginTop: 4, display: 'block'}}>
-							Time (24-hour format) and Date - Optional: Set deadline time (e.g., 23:59)
+							Time (AM/PM or 24-hour format) and Date - Optional: Set deadline time (e.g., 11:59 PM or 23:59)
 						</small>
 						{errors.lastDateOfApplication && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>

@@ -12,6 +12,7 @@ const { sendWelcomeEmail } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { cacheInvalidation } = require('../utils/cacheInvalidation');
 const { validateGSTFormat, fetchGSTInfo, mapGSTToProfile } = require('../utils/gstService');
+const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -719,11 +720,11 @@ exports.createJob = async (req, res) => {
 
     // Handle assessment time fields (startTime and endTime)
     // These remain as strings in HH:MM format and are applied to all days
-    if (jobData.assessmentStartTime && typeof jobData.assessmentStartTime !== 'string') {
-      jobData.assessmentStartTime = String(jobData.assessmentStartTime);
+    if (jobData.assessmentStartTime) {
+      jobData.assessmentStartTime = normalizeTimeFormat(String(jobData.assessmentStartTime));
     }
-    if (jobData.assessmentEndTime && typeof jobData.assessmentEndTime !== 'string') {
-      jobData.assessmentEndTime = String(jobData.assessmentEndTime);
+    if (jobData.assessmentEndTime) {
+      jobData.assessmentEndTime = normalizeTimeFormat(String(jobData.assessmentEndTime));
     }
 
     // If assessment is selected, automatically enable technical interview round
@@ -767,6 +768,10 @@ exports.createJob = async (req, res) => {
             roundDetails.toDate = new Date(roundDetails.toDate);
           }
           
+          if (roundDetails.time) {
+            roundDetails.time = normalizeTimeFormat(String(roundDetails.time));
+          }
+          
           // Validate date range
           if (roundDetails.fromDate && roundDetails.toDate && 
               roundDetails.fromDate > roundDetails.toDate) {
@@ -808,11 +813,12 @@ exports.createJob = async (req, res) => {
     
     // Validate time format if provided
     if (jobData.lastDateOfApplicationTime) {
+      jobData.lastDateOfApplicationTime = normalizeTimeFormat(String(jobData.lastDateOfApplicationTime));
       const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
       if (!timeRegex.test(jobData.lastDateOfApplicationTime)) {
         return res.status(400).json({ 
           success: false, 
-          message: 'Invalid time format for Last Date of Application. Please use HH:MM format (24-hour).' 
+          message: 'Invalid time format for Last Date of Application. Please use HH:MM format (24-hour) or HH:MM AM/PM.' 
         });
       }
     }
@@ -952,11 +958,12 @@ exports.updateJob = async (req, res) => {
     
     // Validate time format if provided
     if (req.body.lastDateOfApplicationTime) {
+      req.body.lastDateOfApplicationTime = normalizeTimeFormat(String(req.body.lastDateOfApplicationTime));
       const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
       if (!timeRegex.test(req.body.lastDateOfApplicationTime)) {
         return res.status(400).json({ 
           success: false, 
-          message: 'Invalid time format for Last Date of Application. Please use HH:MM format (24-hour).' 
+          message: 'Invalid time format for Last Date of Application. Please use HH:MM format (24-hour) or HH:MM AM/PM.' 
         });
       }
     }
@@ -1033,6 +1040,13 @@ exports.updateJob = async (req, res) => {
     if (req.body.assessmentEndDate && typeof req.body.assessmentEndDate === 'string') {
       req.body.assessmentEndDate = new Date(req.body.assessmentEndDate);
     }
+
+    if (req.body.assessmentStartTime) {
+      req.body.assessmentStartTime = normalizeTimeFormat(String(req.body.assessmentStartTime));
+    }
+    if (req.body.assessmentEndTime) {
+      req.body.assessmentEndTime = normalizeTimeFormat(String(req.body.assessmentEndTime));
+    }
     
     // Remove assessment from interviewRoundTypes (it's stored separately in assessmentId)
     if (req.body.interviewRoundTypes && req.body.interviewRoundTypes.assessment) {
@@ -1058,6 +1072,10 @@ exports.updateJob = async (req, res) => {
           }
           if (round.toDate && typeof round.toDate === 'string') {
             round.toDate = new Date(round.toDate);
+          }
+          
+          if (round.time) {
+            round.time = normalizeTimeFormat(String(round.time));
           }
           
           // Validate date range
@@ -2005,9 +2023,10 @@ exports.scheduleInterviewRound = async (req, res) => {
 exports.sendInterviewInvite = async (req, res) => {
   try {
     const { applicationId } = req.params;
-    const { interviewDate, interviewTime, meetingLink, instructions } = req.body;
+    let { interviewDate, interviewTime, meetingLink, instructions } = req.body;
     
-    // Additional validation
+    // Normalize time
+    interviewTime = normalizeTimeFormat(interviewTime);
     if (!interviewDate || !interviewTime) {
       return res.status(400).json({ success: false, message: 'Interview date and time are required' });
     }
@@ -2048,8 +2067,8 @@ exports.sendInterviewInvite = async (req, res) => {
         <h2>Interview Invitation</h2>
         <p>Dear ${application.candidateId.name},</p>
         <p>We would like to invite you for an interview for the position of <strong>${application.jobId.title}</strong>.</p>
-        <p><strong>Preferred Date:</strong> ${new Date(interviewDate).toLocaleDateString()}</p>
-        <p><strong>Preferred Time:</strong> ${interviewTime}</p>
+        <p><strong>Preferred Date:</strong> ${new Date(interviewDate).toLocaleDateString('en-GB')}</p>
+        <p><strong>Preferred Time:</strong> ${formatTimeToAMPM(interviewTime)}</p>
         ${meetingLink ? `<p><strong>Meeting Link:</strong> <a href="${meetingLink}">${meetingLink}</a></p>` : ''}
         ${instructions ? `<p><strong>Instructions:</strong> ${instructions}</p>` : ''}
         <p>Please log in to your dashboard to confirm your availability or suggest alternative time slots.</p>
@@ -2095,8 +2114,10 @@ exports.sendInterviewInvite = async (req, res) => {
 exports.confirmInterview = async (req, res) => {
   try {
     const { applicationId } = req.params;
-    const { confirmedDate, confirmedTime } = req.body;
+    let { confirmedDate, confirmedTime } = req.body;
     
+    // Normalize time
+    confirmedTime = normalizeTimeFormat(confirmedTime);
     const application = await Application.findOne({
       _id: applicationId,
       employerId: req.user._id

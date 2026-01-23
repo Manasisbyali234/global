@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Save, Plus, Trash2, Edit3, Mail, Send } from 'lucide-react';
 import api from '../../../../utils/api';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
 const InterviewProcessManager = ({ applicationId, onSave }) => {
   const [interviewProcess, setInterviewProcess] = useState(null);
   const [stages, setStages] = useState([]);
@@ -304,7 +305,7 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
           }
           
           if (stage.scheduledTime) {
-            message += ` | Time: ${stage.scheduledTime}`;
+            message += ` | Time: ${formatTimeToAMPM(stage.scheduledTime)}`;
           }
           
           showSuccess(message);
@@ -376,7 +377,7 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
               </div>
               <div className="col-md-6 mb-2">
                 <small className="text-muted d-block">Proposed Time:</small>
-                <strong>{interviewProcess.interviewInvite.proposedTime}</strong>
+                <strong>{formatTimeToAMPM(interviewProcess.interviewInvite.proposedTime)}</strong>
               </div>
               {interviewProcess.interviewInvite.meetingLink && (
                 <div className="col-12 mb-2">
@@ -425,8 +426,9 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
                   <div className="mb-3">
                     <label className="form-label fw-semibold">Preferred Interview Time</label>
                     <input
-                      type="time"
+                      type="text"
                       className="form-control"
+                      placeholder="e.g. 10:00 AM or 14:00"
                       value={emailData.interviewTime}
                       onChange={(e) => setEmailData({...emailData, interviewTime: e.target.value})}
                       style={{ borderColor: '#ff6600' }}
@@ -508,7 +510,7 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
               </div>
               <div className="col-md-6 mb-2">
                 <small className="text-muted d-block">Available Time:</small>
-                <strong>{candidateResponse.availableTime}</strong>
+                <strong>{formatTimeToAMPM(candidateResponse.availableTime)}</strong>
               </div>
               {candidateResponse.message && (
                 <div className="col-12 mb-2">
@@ -554,7 +556,7 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
               </div>
               <div className="col-md-6 mb-2">
                 <small className="text-muted d-block">Confirmed Time:</small>
-                <strong>{interviewProcess.interviewInvite.confirmedTime}</strong>
+                <strong>{formatTimeToAMPM(interviewProcess.interviewInvite.confirmedTime)}</strong>
               </div>
               <div className="col-12 mt-2">
                 <small className="text-muted d-block">Confirmed on:</small>
@@ -709,8 +711,9 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
                             Time
                           </label>
                           <input
-                            type="time"
+                            type="text"
                             className="form-control"
+                            placeholder="e.g. 10:00 AM"
                             value={stage.scheduledTime || ''}
                             onChange={(e) => updateStage(index, 'scheduledTime', e.target.value)}
                             style={{ borderColor: '#ff6600' }}

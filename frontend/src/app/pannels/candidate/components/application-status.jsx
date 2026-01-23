@@ -1,5 +1,6 @@
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 import { formatInterviewTime } from '../../../../utils/timeUtils';
+import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
 // Route: /candidate/status
 
 import { useState, useEffect } from "react";
@@ -893,7 +894,7 @@ function CanStatusPage() {
 																	)}
 																	{(selectedApplication.jobId?.assessmentStartTime || selectedApplication.jobId?.assessmentEndTime) && (
 																		<div className="mt-1">
-																			<strong>Time:</strong> {selectedApplication.jobId?.assessmentStartTime || '--:--'} - {selectedApplication.jobId?.assessmentEndTime || '--:--'}
+																			<strong>Time:</strong> {selectedApplication.jobId?.assessmentStartTime ? formatTimeToAMPM(selectedApplication.jobId.assessmentStartTime) : '--:--'} - {selectedApplication.jobId?.assessmentEndTime ? formatTimeToAMPM(selectedApplication.jobId.assessmentEndTime) : '--:--'}
 																		</div>
 																	)}
 																</div>

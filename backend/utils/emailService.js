@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const { formatTimeToAMPM } = require('./timeUtils');
 
 const createTransport = () => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
@@ -648,7 +649,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
           `${new Date(jobDetails.assessmentStartDate).toLocaleDateString('en-GB')} - ${new Date(jobDetails.assessmentEndDate).toLocaleDateString('en-GB')}` : 
           'Date will be communicated',
         time: jobDetails.assessmentStartTime && jobDetails.assessmentEndTime ? 
-          `${jobDetails.assessmentStartTime} - ${jobDetails.assessmentEndTime}` : 
+          `${formatTimeToAMPM(jobDetails.assessmentStartTime)} - ${formatTimeToAMPM(jobDetails.assessmentEndTime)}` : 
           'Available 24/7 during assessment period'
       });
     }
@@ -692,7 +693,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
             type: roundType,
             description: roundDetails.description || `${roundNames[roundType]} interview`,
             dateRange: `${new Date(roundDetails.fromDate).toLocaleDateString('en-GB')} - ${new Date(roundDetails.toDate).toLocaleDateString('en-GB')}`,
-            time: roundDetails.time || 'Time will be communicated'
+            time: roundDetails.time ? formatTimeToAMPM(roundDetails.time) : 'Time will be communicated'
           });
           console.log(`Added round: ${roundNames[roundType] || roundType}`);
         } else {
