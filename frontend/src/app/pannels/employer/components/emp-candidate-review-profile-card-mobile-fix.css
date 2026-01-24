@@ -1,0 +1,145 @@
+/* Mobile Profile Card Visibility Fix */
+/* Fixes the issue where profile card is hidden behind buttons on mobile screens */
+
+@media (max-width: 767px) {
+  /* Remove fixed height from profile section to prevent content being cut off */
+  .profile-section {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Ensure profile header has proper spacing and doesn't get cut off */
+  .profile-header {
+    padding: 20px 15px !important;
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 15px !important;
+  }
+
+  /* Profile avatar adjustments for mobile */
+  .profile-avatar {
+    width: 80px !important;
+    height: 80px !important;
+    margin-bottom: 10px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Profile info section adjustments */
+  .profile-info {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .profile-info h3 {
+    font-size: 20px !important;
+    margin-bottom: 5px !important;
+    word-break: break-word !important;
+  }
+
+  .profile-info .email {
+    font-size: 14px !important;
+    margin-bottom: 15px !important;
+    word-break: break-word !important;
+  }
+
+  /* Profile stats grid - make it single column on mobile */
+  .profile-stats {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+    margin-top: 15px !important;
+  }
+
+  /* Individual stat boxes */
+  .stat {
+    padding: 12px !important;
+    text-align: center !important;
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+    border: 1px solid #e9ecef !important;
+  }
+
+  .stat .label {
+    font-size: 10px !important;
+    margin-bottom: 3px !important;
+  }
+
+  .stat .value {
+    font-size: 14px !important;
+    word-break: break-word !important;
+  }
+
+  /* Ensure container doesn't have fixed dimensions */
+  .candidate-review-container {
+    min-height: auto !important;
+    height: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Tab navigation spacing adjustment */
+  .tab-navigation {
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Ensure no elements have z-index issues */
+  .profile-section {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  /* Fix any potential button overlap issues */
+  .back-btn {
+    margin-bottom: 15px !important;
+    z-index: 10 !important;
+    position: relative !important;
+  }
+
+  /* Header adjustments to prevent overlap */
+  .candidate-review-header {
+    margin-bottom: 15px !important;
+    z-index: 10 !important;
+    position: relative !important;
+  }
+}
+
+/* Extra small screens (phones in portrait) */
+@media (max-width: 480px) {
+  .profile-section {
+    margin: 15px 10px !important;
+    padding: 0 !important;
+  }
+
+  .profile-header {
+    padding: 15px 10px !important;
+  }
+
+  .profile-avatar {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  .profile-info h3 {
+    font-size: 18px !important;
+  }
+
+  .profile-info .email {
+    font-size: 13px !important;
+  }
+
+  .stat {
+    padding: 10px !important;
+  }
+
+  .stat .value {
+    font-size: 13px !important;
+  }
+}

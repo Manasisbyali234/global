@@ -1,0 +1,86 @@
+/* Overall Actions Button Size Fix */
+/* Ensures all buttons in the Overall Actions section have consistent sizing */
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.action-buttons .btn-action {
+    padding: 12px 16px !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    background: white !important;
+    color: #495057 !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    transition: all 0.2s !important;
+    min-height: 48px !important; /* Ensures consistent height */
+    width: 100% !important; /* Ensures consistent width */
+    box-sizing: border-box !important;
+    text-align: center !important;
+    font-size: 14px !important;
+}
+
+.action-buttons .btn-action i {
+    font-size: 14px !important;
+    width: 16px !important; /* Fixed icon width for alignment */
+    text-align: center !important;
+}
+
+.action-buttons .btn-action:hover:not(:disabled) {
+    border-color: #ff6600 !important;
+    color: #ff6600 !important;
+}
+
+.action-buttons .btn-action.active {
+    background: #ff6600 !important;
+    color: white !important;
+    border-color: #ff6600 !important;
+}
+
+.action-buttons .btn-action:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+}
+
+/* Specific button styling to ensure consistency */
+.action-buttons .btn-action.shortlist,
+.action-buttons .btn-action.hire,
+.action-buttons .btn-action.reject {
+    min-height: 48px !important;
+    width: 100% !important;
+    padding: 12px 16px !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .action-buttons .btn-action {
+        min-height: 44px !important;
+        padding: 10px 14px !important;
+        font-size: 13px !important;
+    }
+    
+    .action-buttons .btn-action i {
+        font-size: 13px !important;
+        width: 14px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .action-buttons .btn-action {
+        min-height: 42px !important;
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+    
+    .action-buttons .btn-action i {
+        font-size: 12px !important;
+        width: 12px !important;
+    }
+}

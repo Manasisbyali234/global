@@ -18,21 +18,7 @@
     margin-bottom: 0;
 }
 
-.back-btn {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    padding: 12px 24px !important;
-    background: white !important;
-    border: 1px solid #dee2e6 !important;
-    border-radius: 10px !important;
-    color: #495057 !important;
-    text-decoration: none !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-}
+
 
 .header-title {
     text-align: right;
@@ -188,39 +174,7 @@
     border: 1px solid #e9ecef;
 }
 
-.tab-btn {
-    flex: 1 1 0;
-    min-width: 130px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 16px 12px;
-    background: transparent;
-    border: none;
-    border-radius: 14px;
-    color: #6c757d;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
 
-.tab-btn i {
-    font-size: 1.3rem;
-}
-
-.tab-btn.active {
-    background: #FFF3E5 !important;
-    color: #FF7A00 !important;
-    border: 1px solid #FF7A00 !important;
-    box-shadow: 0 8px 20px rgba(255, 122, 0, 0.3) !important;
-    transform: translateY(-1px);
-}
-
-.tab-btn.active i {
-    color: #FF7A00 !important;
-}
 
 /* Enhanced Tab Content */
 .tab-panel {
@@ -479,30 +433,7 @@
     margin-top: 25px;
 }
 
-.btn-view-answers, .btn-view-captures {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 28px;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 1rem;
-}
 
-.btn-view-answers {
-    background: #495057;
-    color: white;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.btn-view-captures {
-    background: #6c757d;
-    color: white;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
 
 /* Assessment Modal */
 .assessment-modal-container {
@@ -695,25 +626,7 @@
     resize: vertical;
 }
 
-.btn-save-remarks {
-    width: 100%;
-    padding: 12px;
-    background: #ff6600;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background 0.2s;
-}
 
-.btn-save-remarks:hover {
-    background: #e55a00;
-}
 
 .action-buttons {
     display: flex;
@@ -721,36 +634,12 @@
     gap: 10px;
 }
 
-.btn-action {
-    padding: 12px;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    background: white;
-    color: #495057;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.2s;
+.action-buttons button, .remarks-area button {
+    width: 100%;
+    gap: 8px;
 }
 
-.btn-action:hover:not(:disabled) {
-    border-color: #ff6600;
-    color: #ff6600;
-}
 
-.btn-action.active {
-    background: #ff6600;
-    color: white !important;
-    border-color: #ff6600;
-}
-
-.btn-action:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
 
 .warning-text {
     color: #dc3545;
@@ -1009,39 +898,11 @@
     justify-content: center;
 }
 
-.action-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 15px;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: white;
-    border: 1px solid #dee2e6;
-    color: #495057;
+.document-actions button {
+    flex: 1;
 }
 
-.action-btn i {
-    font-size: 1rem;
-}
 
-.action-btn.view {
-    border-color: #ff6600;
-    color: #ff6600;
-}
-
-.action-btn.view:hover {
-    background: #ff6600;
-    color: white;
-}
-
-.action-btn.download:hover {
-    background: #f8f9fa;
-    border-color: #adb5bd;
-}
 
 /* Document Modal */
 .document-modal-overlay {
@@ -1090,31 +951,7 @@
     gap: 15px;
 }
 
-.modal-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
 
-.modal-btn.download {
-    background: rgba(255, 122, 0, 0.1);
-    color: #ff6600;
-}
-
-.modal-btn.close {
-    background: #f1f3f5;
-    color: #495057;
-}
-
-.modal-btn:hover {
-    transform: scale(1.1);
-}
 
 .document-modal-body {
     flex: 1;

@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import InterviewProcessManager from "./InterviewProcessManager";
 import './emp-candidate-review.css';
 import './emp-candidate-review-active-button-fix.css';
+import './emp-candidate-review-back-button-mobile-fix.css';
+import './emp-candidate-review-profile-card-mobile-fix.css';
+import './emp-candidate-review-button-size-fix.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
 
 function EmpCandidateReviewPage() {
@@ -604,27 +607,34 @@ function EmpCandidateReviewPage() {
                                                 onChange={(e) => setRemarks(e.target.value)}
                                                 placeholder="Enter overall feedback..."
                                             />
-                                            <button className="btn-save-remarks" onClick={saveReview}>
+                                            <button onClick={saveReview}>
                                                 <i className="fas fa-save"></i> Save Remarks
                                             </button>
                                         </div>
                                         <div className="action-buttons">
                                             <button 
-                                                className={`btn-action shortlist ${application.status === 'shortlisted' ? 'active' : ''}`}
+                                                className={`${application.status === 'shortlisted' ? 'active' : ''}`}
                                                 onClick={() => updateApplicationStatus('shortlisted')}
                                                 disabled={!allProcessesCompleted()}
                                             >
                                                 <i className="fas fa-check"></i> Shortlist
                                             </button>
                                             <button 
-                                                className={`btn-action hire ${application.status === 'hired' ? 'active' : ''}`}
+                                                className={`${application.status === 'hired' ? 'active' : ''}`}
                                                 onClick={() => updateApplicationStatus('hired')}
                                                 disabled={!allProcessesCompleted()}
                                             >
                                                 <i className="fas fa-briefcase"></i> Mark as Hired
                                             </button>
                                             <button 
-                                                className={`btn-action reject ${application.status === 'rejected' ? 'active' : ''}`}
+                                                className={`${application.status === 'offer_sent' ? 'active' : ''}`}
+                                                onClick={() => updateApplicationStatus('offer_sent')}
+                                                disabled={!allProcessesCompleted()}
+                                            >
+                                                <i className="fas fa-envelope"></i> Offer Letter Sent
+                                            </button>
+                                            <button 
+                                                className={`${application.status === 'rejected' ? 'active' : ''}`}
                                                 onClick={() => updateApplicationStatus('rejected')}
                                                 disabled={!allProcessesCompleted()}
                                             >
