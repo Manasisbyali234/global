@@ -345,6 +345,8 @@ function AdminEmployersAllRequest() {
                                                             switch(status) {
                                                                 case 'approved':
                                                                     return { background: 'rgba(255, 122, 0, 0.08)', color: '#FF7A00', borderColor: '#FF7A00' };
+                                                                case 'rejected':
+                                                                    return { background: 'rgba(220, 53, 69, 0.08)', color: '#dc3545', borderColor: '#dc3545' };
                                                                 case 'pending':
                                                                     return { background: 'rgba(255, 122, 0, 0.08)', color: '#FF7A00', borderColor: '#FF7A00' };
                                                                 case 'incomplete':
@@ -355,8 +357,10 @@ function AdminEmployersAllRequest() {
                                                         };
                                                         
                                                         const status = employer.isApproved ? 'approved' : 
+                                                                      employer.status === 'rejected' ? 'rejected' :
                                                                       employer.profileSubmittedForReview ? 'pending' : 'incomplete';
                                                         const statusText = employer.isApproved ? 'Approved' : 
+                                                                          employer.status === 'rejected' ? 'Rejected' :
                                                                           employer.profileSubmittedForReview ? 'Under Review' : 'Profile Incomplete';
                                                         const style = getStatusStyle(status);
                                                         
@@ -385,7 +389,7 @@ function AdminEmployersAllRequest() {
                                                 </td>
                                                 <td style={{textAlign: 'center'}}>
                                                     <div className="action-buttons">
-                                                        {employer.isProfileComplete && employer.profileSubmittedForReview && !employer.isApproved && employer.status !== 'rejected' ? (
+                                                        {employer.isProfileComplete && employer.profileSubmittedForReview && !employer.isApproved && employer.status !== 'rejected' && employer.status !== 'approved' ? (
                                                             <>
                                                                 <button
                                                                     type="button"
@@ -406,12 +410,12 @@ function AdminEmployersAllRequest() {
                                                                     Reject
                                                                 </button>
                                                             </>
-                                                        ) : (
+                                                        ) : (!employer.isApproved && employer.status !== 'rejected' && employer.status !== 'approved') ? (
                                                             <span style={{color: '#dc3545', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'}}>
                                                                 <i className="fa fa-exclamation-circle"></i>
                                                                 Profile not completed
                                                             </span>
-                                                        )}
+                                                        ) : null}
                                                         <button
                                                             type="button"
                                                             className="action-btn btn-view"
