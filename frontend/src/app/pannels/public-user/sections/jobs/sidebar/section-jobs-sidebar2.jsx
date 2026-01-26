@@ -90,7 +90,7 @@ function SectionJobsSidebar2 ({ _config, job }) {
 										<i className="fas fa-suitcase" />
 										<span className="twm-title">Qualification</span>
 										<div className="twm-s-info-discription">
-											{job?.education || 'Not specified'}
+											{Array.isArray(job?.education) ? job.education.join(', ') : (job?.education || 'Not specified')}
 										</div>
 									</div>
 								</li>

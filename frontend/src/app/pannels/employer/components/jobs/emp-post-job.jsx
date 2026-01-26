@@ -189,7 +189,7 @@ export default function EmpPostJob({ onNext }) {
 		applicationLimit: "",
 		jobDescription: "",
 		rolesAndResponsibilities: "",
-		education: "", // dropdown
+		education: [], // dropdown
 		backlogsAllowed: false,
 		requiredSkills: [],
 		skillInput: "",
@@ -258,6 +258,7 @@ export default function EmpPostJob({ onNext }) {
 	const [scheduledRounds, setScheduledRounds] = useState({});
 	const [locationSearchTerm, setLocationSearchTerm] = useState('');
 	const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+	const [showEducationDropdown, setShowEducationDropdown] = useState(false);
 	const [approvedCompanies, setApprovedCompanies] = useState([]);
 	const [validationRules] = useState({
 		jobTitle: { required: true, minLength: 3 },
@@ -449,7 +450,7 @@ export default function EmpPostJob({ onNext }) {
 					applicationLimit: job.applicationLimit || '',
 					jobDescription: job.description || '',
 					rolesAndResponsibilities: job.responsibilities ? job.responsibilities.join('\n') : '',
-					education: job.education || '',
+					education: Array.isArray(job.education) ? job.education : (job.education ? [job.education] : []),
 					backlogsAllowed: job.backlogsAllowed || false,
 					requiredSkills: job.requiredSkills || [],
 					experienceLevel: job.experienceLevel || 'freshers',
@@ -1740,37 +1741,114 @@ export default function EmpPostJob({ onNext }) {
 						</h3>
 					</div>
 
-					<div>
+					<div style={{ position: 'relative' }}>
 						<label style={label}>
 							<i className="fa fa-graduation-cap" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Required Educational Background *
 						</label>
-						<select
-							style={{ ...input, cursor: 'pointer' }}
-							value={formData.education}
-							onChange={(e) => update({ education: e.target.value })}
+						<div 
+							onClick={() => setShowEducationDropdown(!showEducationDropdown)}
+							style={{
+								...input,
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								cursor: 'pointer',
+								minHeight: '45px',
+								height: 'auto',
+								padding: '8px 12px'
+							}}
 						>
-							<option value="" disabled>Select Education Level</option>
-							<option value="Any">Any</option>
-							<option value="10th Pass">10th Pass</option>
-							<option value="12th Pass">12th Pass</option>
-							<option value="Diploma">Diploma</option>
-							<option value="B.E">B.E</option>
-							<option value="B.Tech">B.Tech</option>
-							<option value="B.Sc">B.Sc</option>
-							<option value="BCA">BCA</option>
-							<option value="BBA">BBA</option>
-							<option value="B.Com">B.Com</option>
-							<option value="BA">BA</option>
-							<option value="M.E">M.E</option>
-							<option value="M.Tech">M.Tech</option>
-							<option value="M.Sc">M.Sc</option>
-							<option value="MCA">MCA</option>
-							<option value="MBA">MBA</option>
-							<option value="M.Com">M.Com</option>
-							<option value="MA">MA</option>
-							<option value="PhD">PhD</option>
-						</select>
+							<div style={{ 
+								display: 'flex', 
+								flexWrap: 'wrap', 
+								gap: '4px',
+								fontSize: '14px',
+								color: formData.education.length > 0 ? '#111827' : '#9ca3af'
+							}}>
+								{formData.education.length > 0 
+									? formData.education.join(", ") 
+									: "Select educational background..."}
+							</div>
+							<i className={`fa fa-chevron-${showEducationDropdown ? 'up' : 'down'}`} style={{ color: '#6b7280', fontSize: '12px' }}></i>
+						</div>
+
+						{showEducationDropdown && (
+							<>
+								<div 
+									style={{
+										position: 'fixed',
+										top: 0,
+										left: 0,
+										right: 0,
+										bottom: 0,
+										zIndex: 999
+									}}
+									onClick={() => setShowEducationDropdown(false)}
+								/>
+								<div style={{
+									position: 'absolute',
+									top: '100%',
+									left: 0,
+									right: 0,
+									zIndex: 1000,
+									marginTop: '4px',
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '4px',
+									padding: '12px',
+									background: '#fff',
+									borderRadius: '8px',
+									border: '1px solid #d1d5db',
+									boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+									maxHeight: '300px',
+									overflowY: 'auto'
+								}}>
+									{["Any", "10th Pass", "12th Pass", "Diploma", "B.E", "B.Tech", "B.Sc", "BCA", "BBA", "B.Com", "BA", "M.E", "M.Tech", "M.Sc", "MCA", "MBA", "M.Com", "MA", "PhD"].map(level => (
+										<label key={level} style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '12px',
+											cursor: 'pointer',
+											fontSize: '14px',
+											color: '#374151',
+											margin: 0,
+											padding: '8px 4px',
+											borderRadius: '4px',
+											transition: 'background 0.2s'
+										}}
+										onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
+										onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+										>
+											<input
+												type="checkbox"
+												name="education_checkbox"
+												checked={formData.education.includes(level)}
+												onChange={(e) => {
+													const isChecked = e.target.checked;
+													let newEducation;
+													if (level === "Any") {
+														newEducation = isChecked ? ["Any"] : [];
+													} else {
+														newEducation = isChecked 
+															? [...formData.education.filter(edu => edu !== "Any"), level]
+															: formData.education.filter(edu => edu !== level);
+													}
+													update({ education: newEducation });
+												}}
+												style={{ 
+													width: '18px', 
+													height: '18px', 
+													cursor: 'pointer',
+													accentColor: '#ff6b35'
+												}}
+											/>
+											{level}
+										</label>
+									))}
+								</div>
+							</>
+						)}
 						{errors.education && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
 								<i className="fa fa-exclamation-circle"></i>

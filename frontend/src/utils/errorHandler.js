@@ -290,9 +290,14 @@ export const validateField = (fieldName, value, rules = {}) => {
   const fieldLabel = getFieldLabel(fieldName);
   
   // Required validation
-  if (rules.required && (!value || (typeof value === 'string' && !value.trim()))) {
-    errors.push(`${fieldLabel} is required`);
-    return errors;
+  if (rules.required) {
+    const isEmpty = !value || 
+                   (typeof value === 'string' && !value.trim()) || 
+                   (Array.isArray(value) && value.length === 0);
+    if (isEmpty) {
+      errors.push(`${fieldLabel} is required`);
+      return errors;
+    }
   }
   
   // Skip other validations if field is empty and not required

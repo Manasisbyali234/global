@@ -30,7 +30,7 @@ const jobSchema = new mongoose.Schema({
   jobType: { type: String, enum: ['full-time', 'part-time', 'remote', 'hybrid', 'contract', 'freelance', 'temporary', 'permanent', 'apprenticeship', 'consultant'], required: true },
   vacancies: { type: Number },
   applicationLimit: { type: Number },
-  education: { type: String },
+  education: [String],
   backlogsAllowed: { type: Boolean, default: false },
   requiredSkills: [String],
   experienceLevel: { type: String, enum: ['freshers', 'minimum', 'both', 'entry', 'mid', 'senior', 'executive'] },

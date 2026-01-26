@@ -383,7 +383,8 @@ function Home16Page() {
                 filtered = filtered.filter(job => {
                     try {
                         // Check if job has education requirements that match
-                        const jobEducation = job.education || job.educationRequirement || job.qualifications || '';
+                        const rawEducation = job.education || job.educationRequirement || job.qualifications || '';
+                        const jobEducation = Array.isArray(rawEducation) ? rawEducation.join(', ') : String(rawEducation);
                         return jobEducation.toLowerCase().includes(education) ||
                                job.requirements?.toLowerCase().includes(education) ||
                                job.description?.toLowerCase().includes(education);

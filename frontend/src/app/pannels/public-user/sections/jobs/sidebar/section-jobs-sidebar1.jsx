@@ -20,8 +20,11 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
         employmentType: [],
         jobTitle: '',
         skills: [],
-        category: []
+        category: [],
+        education: []
     });
+
+    const educationLevels = ["Any", "10th Pass", "12th Pass", "Diploma", "B.E", "B.Tech", "B.Sc", "BCA", "BBA", "B.Com", "BA", "M.E", "M.Tech", "M.Sc", "MCA", "MBA", "M.Com", "MA", "PhD"];
 
     const skillCategories = [
         'Developer',
@@ -434,6 +437,51 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                         </div>
 
                         <div className="twm-sidebar-ele-filter">
+                            <h4 className="section-head-small mb-4">Qualification</h4>
+                            <ul style={{listStyle: 'none', padding: 0, maxHeight: '200px', overflowY: 'auto'}}>
+                                <li style={{marginBottom: '10px'}}>
+                                    <div className="form-check" style={{margin: 0}}>
+                                        <input 
+                                            type="checkbox" 
+                                            className="form-check-input" 
+                                            id="educationAll"
+                                            checked={!filters.education || filters.education.length === 0}
+                                            onChange={() => setFilters({...filters, education: []})}
+                                            style={{marginRight: '8px'}}
+                                        />
+                                        <label className="form-check-label" htmlFor="educationAll" style={{fontSize: '14px', color: '#333', fontWeight: (!filters.education || filters.education.length === 0) ? '600' : 'normal'}}>
+                                            Any Qualification
+                                        </label>
+                                    </div>
+                                </li>
+                                {educationLevels.filter(level => level !== "Any").map((level, index) => (
+                                    <li key={level} style={{marginBottom: '10px'}}>
+                                        <div className="form-check" style={{margin: 0}}>
+                                            <input 
+                                                type="checkbox" 
+                                                className="form-check-input" 
+                                                id={`education${index}`}
+                                                value={level}
+                                                checked={filters.education.includes(level)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setFilters({...filters, education: [...filters.education, level]});
+                                                    } else {
+                                                        setFilters({...filters, education: filters.education.filter(edu => edu !== level)});
+                                                    }
+                                                }}
+                                                style={{marginRight: '8px'}}
+                                            />
+                                            <label className="form-check-label" htmlFor={`education${index}`} style={{fontSize: '14px', color: '#333', fontWeight: filters.education.includes(level) ? '600' : 'normal'}}>
+                                                {level}
+                                            </label>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div className="twm-sidebar-ele-filter">
                             <h4 className="section-head-small mb-4">Type of Employment</h4>
                             <ul style={{listStyle: 'none', padding: 0}}>
                                 <li style={{marginBottom: '10px'}}>
@@ -614,7 +662,8 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                                         employmentType: [],
                                         jobTitle: '',
                                         skills: [],
-                                        category: []
+                                        category: [],
+                                        education: []
                                     });
                                     setShowLocationSuggestions(false);
                                 }}

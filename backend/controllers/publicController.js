@@ -18,10 +18,10 @@ exports.getJobs = async (req, res) => {
       return res.json({ success: true, jobs: [], total: 0, message: 'Database offline' });
     }
     
-    const { location, jobType, category, search, title, employerId, employmentType, skills, keyword, jobTitle, page = 1, limit = 10, sortBy } = req.query;
+    const { location, jobType, category, search, title, employerId, employmentType, skills, keyword, jobTitle, education, page = 1, limit = 10, sortBy } = req.query;
     
     // Create cache key for this specific query
-    const cacheKey = `jobs_${JSON.stringify({ location, jobType, category, search, title, employerId, employmentType, skills, keyword, jobTitle, page, limit, sortBy })}`;
+    const cacheKey = `jobs_${JSON.stringify({ location, jobType, category, search, title, employerId, employmentType, skills, keyword, jobTitle, education, page, limit, sortBy })}`;
     const cached = cache.get(cacheKey);
     
     if (cached) {
@@ -84,6 +84,13 @@ exports.getJobs = async (req, res) => {
       query.requiredSkills = { $in: skillsArray.map(skill => new RegExp(skill, 'i')) };
     }
 
+    if (education) {
+      const educationArray = Array.isArray(education) ? education : [education];
+      if (educationArray.length > 0) {
+        query.education = { $in: [...educationArray, "Any"] };
+      }
+    }
+
     const sortMap = {
       'Most Recent': { createdAt: -1 },
       'Oldest': { createdAt: 1 },
@@ -101,7 +108,7 @@ exports.getJobs = async (req, res) => {
         select: 'companyName employerType',
         match: { status: 'active', isApproved: true }
       })
-      .select('title location jobType vacancies category ctc createdAt employerId companyName companyLogo')
+      .select('title location jobType vacancies category ctc createdAt employerId companyName companyLogo education')
       .sort(sortCriteria)
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))

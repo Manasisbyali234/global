@@ -94,6 +94,10 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                     filters.skills.forEach(skill => params.append('skills', skill));
                 }
 
+                if (filters.education?.length > 0) {
+                    filters.education.forEach(edu => params.append('education', edu));
+                }
+
                 const url = `http://localhost:5000/api/public/jobs?${params.toString()}`;
                 console.log('Fetching jobs with URL:', url);
                 
