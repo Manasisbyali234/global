@@ -2077,7 +2077,7 @@ function EmpCompanyProfilePage() {
                                                             fontSize: '12px', 
                                                             border: '2px solid #ffffff', 
                                                             borderRadius: '50%', 
-                                                            backgroundColor: '#dc3545', 
+                                                            backgroundColor: '#ff6b35', 
                                                             boxShadow: '0 2px 8px rgba(0,0,0,0.3)', 
                                                             display: 'flex', 
                                                             alignItems: 'center', 
@@ -2091,7 +2091,19 @@ function EmpCompanyProfilePage() {
                                                         onClick={() => handleDeleteGalleryImage(image._id || index)}
                                                         title="Delete image"
                                                     >
-                                                        <i className="fas fa-times" style={{color: '#ffffff', fontSize: '12px'}}></i>
+                                                        <i className="fas fa-times" style={{
+                                                            color: '#ffffff', 
+                                                            fontSize: '12px',
+                                                            lineHeight: '1',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            margin: '0',
+                                                            marginRight: '0',
+                                                            padding: '0'
+                                                        }}></i>
                                                     </button>
                                                 </div>
                                             ))}

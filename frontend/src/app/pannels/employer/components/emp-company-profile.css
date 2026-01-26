@@ -1192,7 +1192,7 @@ button.btn-danger:hover i.fas {
   opacity: 1 !important;
   visibility: visible !important;
   display: flex !important;
-  background-color: #dc3545 !important;
+  background-color: #ff6b35 !important;
   border: 2px solid #ffffff !important;
   color: #ffffff !important;
   z-index: 1000 !important;
@@ -1200,7 +1200,7 @@ button.btn-danger:hover i.fas {
 }
 
 .gallery-delete-btn:hover {
-  background-color: #c82333 !important;
+  background-color: #e05a2b !important;
   border-color: #ffffff !important;
   color: #ffffff !important;
   opacity: 1 !important;
@@ -1219,7 +1219,26 @@ button.btn-danger:hover i.fas {
 .gallery-item .fa-times {
   opacity: 1 !important;
   visibility: visible !important;
-  display: block !important;
+}
+
+.gallery-item .btn-danger {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+.gallery-item .btn-danger i {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 12px !important;
+  margin-right: 0 !important;
 }
 
 /* Universal Image Fitting - Minimal CSS for all layouts */
