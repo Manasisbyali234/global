@@ -405,3 +405,36 @@
     flex: 0 0 100% !important;
   }
 }
+/* Mobile center alignment for stats cards */
+@media (max-width: 768px) {
+  .can-dashboard .dashboard-card-2 > div[style*="justify-content: space-between"] {
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 0.25rem !important;
+  }
+  
+  .can-dashboard .dashboard-card-2 > div > div:last-child {
+    text-align: center !important;
+    margin-left: 0 !important;
+  }
+}
+/* Mobile horizontal alignment for icon and number */
+@media (max-width: 768px) {
+  .can-dashboard .dashboard-card-2 > div[style*="justify-content: space-between"] {
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 1rem !important;
+  }
+}
+/* Override mobile alignment - keep icon and number horizontal */
+@media (max-width: 768px) {
+  .can-dashboard .dashboard-card-2 > div {
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 1rem !important;
+  }
+}
