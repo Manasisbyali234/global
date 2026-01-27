@@ -209,14 +209,14 @@ export default function EmpPostJob({ onNext }) {
 		},
 		interviewRoundOrder: [],
 		interviewRoundDetails: {
-			technical: { description: '', fromDate: '', toDate: '', time: '' },
-			nonTechnical: { description: '', fromDate: '', toDate: '', time: '' },
-			managerial: { description: '', fromDate: '', toDate: '', time: '' },
-			final: { description: '', fromDate: '', toDate: '', time: '' },
-			hr: { description: '', fromDate: '', toDate: '', time: '' },
+			technical: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
+			nonTechnical: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
+			managerial: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
+			final: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
+			hr: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
 			assessment: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			aptitude: { description: '', fromDate: '', toDate: '', time: '' },
-			coding: { description: '', fromDate: '', toDate: '', time: '' }
+			aptitude: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
+			coding: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' }
 		},
 		offerLetterDate: "",
 		joiningDate: "",
@@ -510,7 +510,7 @@ export default function EmpPostJob({ onNext }) {
 				}
 				
 				// Load assessment dates into interview round details if they exist
-				if (job.assessmentStartDate || job.assessmentEndDate) {
+				if (job.assessmentStartDate) {
 					const assessmentRoundKey = job.interviewRoundOrder?.find(key => job.interviewRoundTypes?.[key] === 'assessment');
 					if (assessmentRoundKey) {
 						setFormData(prev => ({
@@ -520,7 +520,8 @@ export default function EmpPostJob({ onNext }) {
 								[assessmentRoundKey]: {
 									...prev.interviewRoundDetails[assessmentRoundKey],
 									fromDate: job.assessmentStartDate ? new Date(job.assessmentStartDate).toISOString().split('T')[0] : '',
-									toDate: job.assessmentEndDate ? new Date(job.assessmentEndDate).toISOString().split('T')[0] : ''
+									startTime: job.assessmentStartTime || prev.interviewRoundDetails[assessmentRoundKey]?.startTime || '',
+									endTime: job.assessmentEndTime || prev.interviewRoundDetails[assessmentRoundKey]?.endTime || ''
 								}
 							}
 						}));
@@ -615,22 +616,6 @@ export default function EmpPostJob({ onNext }) {
 
 	/* Update interview round details */
 	const updateRoundDetails = async (roundType, field, value) => {
-		// Validate date range
-		if (field === 'toDate' && value) {
-			const fromDate = formData.interviewRoundDetails[roundType]?.fromDate;
-			if (fromDate && new Date(value) < new Date(fromDate)) {
-				showError('To Date cannot be earlier than From Date');
-				return;
-			}
-		}
-		if (field === 'fromDate' && value) {
-			const toDate = formData.interviewRoundDetails[roundType]?.toDate;
-			if (toDate && new Date(value) > new Date(toDate)) {
-				showError('From Date cannot be later than To Date');
-				return;
-			}
-		}
-
 		// Ensure the roundType exists in interviewRoundDetails
 		setFormData(s => {
 			const updatedDetails = {
@@ -652,7 +637,7 @@ export default function EmpPostJob({ onNext }) {
 		});
 
 		// Check for holidays when date is selected
-		if ((field === 'fromDate' || field === 'toDate') && value) {
+		if (field === 'fromDate' && value) {
 			const holidayCheck = await holidaysApi.checkHoliday(value);
 			if (holidayCheck.success && holidayCheck.isHoliday) {
 				showWarning(`Note: ${value} is a public holiday (${holidayCheck.holidayInfo.name}). Consider selecting a different date.`);
@@ -731,16 +716,13 @@ export default function EmpPostJob({ onNext }) {
 				errorMessages.push(`Please enter description for ${roundName}`);
 			}
 			if (!details?.fromDate) {
-				errorMessages.push(`Please select From Date for ${roundName}`);
+				errorMessages.push(`Please select Date for ${roundName}`);
 			}
-			if (!details?.toDate) {
-				errorMessages.push(`Please select To Date for ${roundName}`);
+			if (!details?.startTime) {
+				errorMessages.push(`Please select From Time for ${roundName}`);
 			}
-			if (!details?.time) {
-				errorMessages.push(`Please select Time for ${roundName}`);
-			}
-			if (details?.fromDate && details?.toDate && new Date(details.fromDate) > new Date(details.toDate)) {
-				errorMessages.push(`From Date cannot be after To Date for ${roundName}`);
+			if (!details?.endTime) {
+				errorMessages.push(`Please select To Time for ${roundName}`);
 			}
 		}
 
@@ -752,19 +734,13 @@ export default function EmpPostJob({ onNext }) {
 			}
 			const assessmentDetails = formData.interviewRoundDetails[assessmentKey];
 			if (!assessmentDetails?.fromDate) {
-				errorMessages.push(`Please select From Date for Assessment ${index + 1}`);
-			}
-			if (!assessmentDetails?.toDate) {
-				errorMessages.push(`Please select To Date for Assessment ${index + 1}`);
+				errorMessages.push(`Please select Date for Assessment ${index + 1}`);
 			}
 			if (!assessmentDetails?.startTime) {
 				errorMessages.push(`Please select Start Time for Assessment ${index + 1}`);
 			}
 			if (!assessmentDetails?.endTime) {
 				errorMessages.push(`Please select End Time for Assessment ${index + 1}`);
-			}
-			if (assessmentDetails?.fromDate && assessmentDetails?.toDate && new Date(assessmentDetails.fromDate) > new Date(assessmentDetails.toDate)) {
-				errorMessages.push(`Assessment ${index + 1} From Date cannot be after To Date`);
 			}
 		});
 
@@ -856,7 +832,7 @@ export default function EmpPostJob({ onNext }) {
 				interviewRoundOrder: formData.interviewRoundOrder || [],
 				assignedAssessment: selectedAssessment || null,
 				assessmentStartDate: assessmentDetails?.fromDate || null,
-				assessmentEndDate: assessmentDetails?.toDate || null,
+				assessmentEndDate: assessmentDetails?.fromDate || null,
 				assessmentStartTime: assessmentDetails?.startTime || null,
 				assessmentEndTime: assessmentDetails?.endTime || null,
 				offerLetterDate: formData.offerLetterDate || null,
@@ -2316,9 +2292,7 @@ export default function EmpPostJob({ onNext }) {
 											},
 											interviewRoundDetails: {
 												...s.interviewRoundDetails,
-												[uniqueKey]: roundType === 'assessment' 
-													? { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' }
-													: { description: '', fromDate: '', toDate: '', time: '' }
+												[uniqueKey]: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' }
 											}
 										};
 										
@@ -2468,8 +2442,8 @@ export default function EmpPostJob({ onNext }) {
 												const assessmentKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
 												const details = assessmentKey ? formData.interviewRoundDetails[assessmentKey] : null;
 												
-												if (details?.fromDate && details?.toDate && details?.startTime && details?.endTime) {
-													showInfo(`Assessment scheduled from ${new Date(details.fromDate).toLocaleDateString()} ${details.startTime} to ${new Date(details.toDate).toLocaleDateString()} ${details.endTime}`, 4000);
+												if (details?.fromDate && details?.startTime && details?.endTime) {
+													showInfo(`Assessment scheduled on ${new Date(details.fromDate).toLocaleDateString()} from ${formatTimeToAMPM(details.startTime)} to ${formatTimeToAMPM(details.endTime)}`, 4000);
 												} else {
 													showInfo('Please set assessment dates and times below to complete the schedule.', 3000);
 												}
@@ -2511,8 +2485,8 @@ export default function EmpPostJob({ onNext }) {
 												{(() => {
 													const assessmentKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
 													const details = assessmentKey ? formData.interviewRoundDetails[assessmentKey] : null;
-													if (details?.fromDate && details?.toDate && details?.startTime && details?.endTime) {
-														return `Available from ${new Date(details.fromDate).toLocaleDateString()} ${details.startTime} to ${new Date(details.toDate).toLocaleDateString()} ${details.endTime}`;
+													if (details?.fromDate && details?.startTime && details?.endTime) {
+														return `Available on ${new Date(details.fromDate).toLocaleDateString()} from ${formatTimeToAMPM(details.startTime)} to ${formatTimeToAMPM(details.endTime)}`;
 													}
 													return 'Set assessment dates and times below to see the schedule';
 												})()
@@ -2599,13 +2573,8 @@ export default function EmpPostJob({ onNext }) {
 																return;
 															}
 															
-															if (!assessmentDetails?.fromDate || !assessmentDetails?.toDate) {
-																showWarning(`Please set both From Date and To Date for Assessment ${assessmentIndex + 1}`);
-																return;
-															}
-															
-															if (new Date(assessmentDetails.fromDate) > new Date(assessmentDetails.toDate)) {
-																showError(`Assessment ${assessmentIndex + 1} From Date cannot be after To Date`);
+															if (!assessmentDetails?.fromDate) {
+																showWarning(`Please set the Date for Assessment ${assessmentIndex + 1}`);
 																return;
 															}
 															
@@ -2621,7 +2590,7 @@ export default function EmpPostJob({ onNext }) {
 																return `${day}/${month}/${year}`;
 															};
 															
-															showSuccess(`Assessment ${assessmentIndex + 1} scheduled successfully! Assessment: ${availableAssessments.find(a => a._id === selectedAssessment)?.title} | From: ${formatDate(assessmentDetails.fromDate)} | To: ${formatDate(assessmentDetails.toDate)}`);
+															showSuccess(`Assessment ${assessmentIndex + 1} scheduled successfully! Assessment: ${availableAssessments.find(a => a._id === selectedAssessment)?.title} | Date: ${formatDate(assessmentDetails.fromDate)}`);
 														}}
 													>
 														<i className="fa fa-calendar-plus"></i>
@@ -2648,7 +2617,7 @@ export default function EmpPostJob({ onNext }) {
 												data-assessment-key={assessmentKey}
 												style={{ 
 													display: 'grid', 
-													gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr 1fr', 
+													gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
 													gap: isMobile ? 8 : 12,
 													padding: 12,
 													border: '1px solid #0ea5e9',
@@ -2659,7 +2628,7 @@ export default function EmpPostJob({ onNext }) {
 												<div>
 													<label style={{...label, marginBottom: 4}}>
 														<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
-														From Date
+														Select Date
 													</label>
 													<input
 														style={{...input, fontSize: 13}}
@@ -2669,20 +2638,6 @@ export default function EmpPostJob({ onNext }) {
 														onChange={(e) => updateRoundDetails(assessmentKey, 'fromDate', e.target.value)}
 													/>
 													<HolidayIndicator date={formData.interviewRoundDetails[assessmentKey]?.fromDate} />
-												</div>
-												<div>
-													<label style={{...label, marginBottom: 4}}>
-														<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
-														To Date
-													</label>
-													<input
-														style={{...input, fontSize: 13}}
-														type="date"
-														min={formData.interviewRoundDetails[assessmentKey]?.fromDate || new Date().toISOString().split('T')[0]}
-														value={formData.interviewRoundDetails[assessmentKey]?.toDate || ''}
-														onChange={(e) => updateRoundDetails(assessmentKey, 'toDate', e.target.value)}
-													/>
-													<HolidayIndicator date={formData.interviewRoundDetails[assessmentKey]?.toDate} />
 												</div>
 												<div>
 													<label style={{...label, marginBottom: 4}}>
@@ -3136,13 +3091,13 @@ export default function EmpPostJob({ onNext }) {
 																return;
 															}
 															
-															if (!roundDetails?.fromDate || !roundDetails?.toDate) {
-																showWarning(`Please set both From Date and To Date for ${roundNames[roundType]}`);
+															if (!roundDetails?.fromDate) {
+																showWarning(`Please set the Date for ${roundNames[roundType]}`);
 																return;
 															}
 															
-															if (!roundDetails?.time) {
-																showWarning(`Please set time for ${roundNames[roundType]}`);
+															if (!roundDetails?.startTime || !roundDetails?.endTime) {
+																showWarning(`Please set both From and To Time for ${roundNames[roundType]}`);
 																return;
 															}
 															
@@ -3158,7 +3113,7 @@ export default function EmpPostJob({ onNext }) {
 																return `${day}/${month}/${year}`;
 															};
 															
-															showSuccess(`${roundNames[roundType]} scheduled successfully! From: ${formatDate(roundDetails.fromDate)} | To: ${formatDate(roundDetails.toDate)} | Time: ${roundDetails.time}`);
+															showSuccess(`${roundNames[roundType]} scheduled successfully! Date: ${formatDate(roundDetails.fromDate)} | Time: ${formatTimeToAMPM(roundDetails.startTime)} - ${formatTimeToAMPM(roundDetails.endTime)}`);
 														}}
 													>
 														<i className="fa fa-calendar-plus"></i>
@@ -3181,7 +3136,7 @@ export default function EmpPostJob({ onNext }) {
 													/>
 												</div>
 											</h5>
-											<div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr 1fr', gap: isMobile ? 8 : 12, alignItems: 'start' }}>
+											<div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.5fr 1fr 1fr 1fr', gap: isMobile ? 8 : 12, alignItems: 'start' }}>
 												<div>
 													<label style={{...label, marginBottom: 4}}>Description</label>
 													<textarea
@@ -3192,10 +3147,18 @@ export default function EmpPostJob({ onNext }) {
 													/>
 												</div>
 												<div>
-													<label style={{...label, marginBottom: 4}}>
-														<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
-														From Date
-													</label>
+													<div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4}}>
+														<label style={{...label, marginBottom: 0}}>
+															<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
+															Select Date
+														</label>
+														{formData.interviewRoundDetails[uniqueKey]?.fromDate && (
+															<div style={{fontSize: 10, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '2px 6px', borderRadius: 4, border: '1px solid #6b7280'}}>
+																<i className="fa fa-check-circle"></i>
+																Saved
+															</div>
+														)}
+													</div>
 													<input
 														style={{
 															...input, 
@@ -3208,46 +3171,24 @@ export default function EmpPostJob({ onNext }) {
 														value={formData.interviewRoundDetails[uniqueKey]?.fromDate || ''}
 														onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
 													/>
-													{formData.interviewRoundDetails[uniqueKey]?.fromDate && (
-														<div style={{fontSize: 11, color: '#10b981', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4}}>
-															<i className="fa fa-check-circle"></i>
-															Date saved
-														</div>
-													)}
 													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.fromDate} />
 												</div>
 												<div>
-													<label style={{...label, marginBottom: 4}}>
-														<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
-														To Date
-													</label>
-													<input
-														style={{
-															...input, 
-															fontSize: 13,
-															borderColor: formData.interviewRoundDetails[uniqueKey]?.toDate ? '#10b981' : '#d1d5db',
-															background: formData.interviewRoundDetails[uniqueKey]?.toDate ? '#f0fdf4' : '#fff'
-														}}
-														type="date"
-														min={formData.interviewRoundDetails[uniqueKey]?.fromDate || new Date().toISOString().split('T')[0]}
-														value={formData.interviewRoundDetails[uniqueKey]?.toDate || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'toDate', e.target.value)}
-													/>
-													{formData.interviewRoundDetails[uniqueKey]?.toDate && (
-														<div style={{fontSize: 11, color: '#10b981', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4}}>
-															<i className="fa fa-check-circle"></i>
-															Date saved
-														</div>
-													)}
-													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.toDate} />
-												</div>
-												<div>
-													<label style={{...label, marginBottom: 4}}>Time</label>
+													<label style={{...label, marginBottom: 4}}>From Time</label>
 													<input
 														style={{...input, fontSize: 13}}
 														type="time"
-														value={formData.interviewRoundDetails[uniqueKey]?.time || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'time', e.target.value)}
+														value={formData.interviewRoundDetails[uniqueKey]?.startTime || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'startTime', e.target.value)}
+													/>
+												</div>
+												<div>
+													<label style={{...label, marginBottom: 4}}>To Time</label>
+													<input
+														style={{...input, fontSize: 13}}
+														type="time"
+														value={formData.interviewRoundDetails[uniqueKey]?.endTime || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'endTime', e.target.value)}
 													/>
 												</div>
 											</div>
@@ -3328,21 +3269,21 @@ export default function EmpPostJob({ onNext }) {
 														{roundNames[roundType]} Round
 													</span>
 												</div>
-												{details?.fromDate && details?.toDate ? (
-													<div style={{fontSize: 13, color: '#10b981', fontWeight: 500}}>
+												{details?.fromDate ? (
+													<div style={{fontSize: 13, color: '#6b7280', fontWeight: 500}}>
 														<i className="fa fa-calendar" style={{marginRight: 6}}></i>
-														{new Date(details.fromDate).toLocaleDateString()} - {new Date(details.toDate).toLocaleDateString()}
-														{details.time && (
+														{new Date(details.fromDate).toLocaleDateString()}
+														{(details.startTime || details.endTime) && (
 															<span style={{marginLeft: 8}}>
 																<i className="fa fa-clock" style={{marginRight: 4}}></i>
-																{formatTimeToAMPM(details.time)}
+																{details.startTime ? formatTimeToAMPM(details.startTime) : 'N/A'} - {details.endTime ? formatTimeToAMPM(details.endTime) : 'N/A'}
 															</span>
 														)}
 													</div>
 												) : (
 													<div style={{fontSize: 13, color: '#ef4444', fontStyle: 'italic'}}>
 														<i className="fa fa-exclamation-triangle" style={{marginRight: 6}}></i>
-														Dates not set
+														Date not set
 													</div>
 												)}
 											</div>

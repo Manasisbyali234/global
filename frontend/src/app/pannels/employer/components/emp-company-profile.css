@@ -306,7 +306,7 @@ input[type="file"]:focus {
 
 /* Success message styling */
 .text-success {
-  color: #48bb78;
+  color: #6c757d !important;
   display: flex;
   align-items: center;
   gap: 6px;

@@ -2750,7 +2750,7 @@ div[class*="container"].transparent-container {
 
 /* Success Message */
 .text-success {
-    color: #28a745 !important;
+    color: #6b7280 !important;
 }
 
 /* Override text-success for badges and table elements */

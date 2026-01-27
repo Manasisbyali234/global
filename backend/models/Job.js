@@ -90,35 +90,6 @@ const jobSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Pre-save middleware to validate interview round dates
-jobSchema.pre('save', function(next) {
-  if (this.interviewRoundDetails) {
-    for (const [roundType, details] of Object.entries(this.interviewRoundDetails)) {
-      if (details && details.fromDate && details.toDate) {
-        if (new Date(details.fromDate) > new Date(details.toDate)) {
-          return next(new Error(`Invalid date range for ${roundType}: From Date cannot be after To Date`));
-        }
-      }
-    }
-  }
-  next();
-});
-
-// Pre-update middleware to validate interview round dates
-jobSchema.pre('findOneAndUpdate', function(next) {
-  const update = this.getUpdate();
-  if (update.interviewRoundDetails) {
-    for (const [roundType, details] of Object.entries(update.interviewRoundDetails)) {
-      if (details && details.fromDate && details.toDate) {
-        if (new Date(details.fromDate) > new Date(details.toDate)) {
-          return next(new Error(`Invalid date range for ${roundType}: From Date cannot be after To Date`));
-        }
-      }
-    }
-  }
-  next();
-});
-
 // Optimized compound indexes for faster queries
 jobSchema.index({ status: 1, createdAt: -1 }); // Most common sort
 jobSchema.index({ status: 1, employerId: 1, createdAt: -1 }); // Employer jobs

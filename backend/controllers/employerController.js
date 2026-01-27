@@ -780,18 +780,26 @@ exports.createJob = async (req, res) => {
           if (roundDetails.fromDate && typeof roundDetails.fromDate === 'string') {
             roundDetails.fromDate = new Date(roundDetails.fromDate);
           }
-          if (roundDetails.toDate && typeof roundDetails.toDate === 'string') {
+          
+          // If toDate is missing, use fromDate
+          if (!roundDetails.toDate && roundDetails.fromDate) {
+            roundDetails.toDate = roundDetails.fromDate;
+          } else if (roundDetails.toDate && typeof roundDetails.toDate === 'string') {
             roundDetails.toDate = new Date(roundDetails.toDate);
           }
           
-          if (roundDetails.time) {
-            roundDetails.time = normalizeTimeFormat(String(roundDetails.time));
+          if (roundDetails.startTime) {
+            roundDetails.startTime = normalizeTimeFormat(String(roundDetails.startTime));
+          }
+          if (roundDetails.endTime) {
+            roundDetails.endTime = normalizeTimeFormat(String(roundDetails.endTime));
           }
           
-          // Validate date range
-          if (roundDetails.fromDate && roundDetails.toDate && 
-              roundDetails.fromDate > roundDetails.toDate) {
-            throw new Error(`Invalid date range for ${roundKey}: From Date cannot be after To Date`);
+          // Backward compatibility for 'time' field
+          if (roundDetails.startTime && !roundDetails.time) {
+            roundDetails.time = roundDetails.startTime;
+          } else if (roundDetails.time) {
+            roundDetails.time = normalizeTimeFormat(String(roundDetails.time));
           }
         }
       });
@@ -1017,7 +1025,7 @@ exports.updateJob = async (req, res) => {
     // Check if interview rounds are being scheduled/updated
     const hasScheduledRounds = req.body.interviewRoundDetails && 
       Object.values(req.body.interviewRoundDetails).some(round => 
-        round && (round.date || round.fromDate) && round.time && round.description
+        round && round.fromDate && (round.startTime || round.time) && round.description
       );
     
     console.log('Update job - Interview rounds scheduled check:', {
@@ -1079,24 +1087,33 @@ exports.updateJob = async (req, res) => {
       // Process and validate interview round details dates
       Object.keys(req.body.interviewRoundDetails).forEach(key => {
         const round = req.body.interviewRoundDetails[key];
-        if (!round || (!round.description && !round.fromDate && !round.toDate && !round.time)) {
+        if (!round || (!round.description && !round.fromDate && !round.toDate && !round.startTime && !round.time)) {
           delete req.body.interviewRoundDetails[key];
         } else {
           // Convert date strings to Date objects for proper storage
           if (round.fromDate && typeof round.fromDate === 'string') {
             round.fromDate = new Date(round.fromDate);
           }
-          if (round.toDate && typeof round.toDate === 'string') {
+          
+          // If toDate is missing, use fromDate
+          if (!round.toDate && round.fromDate) {
+            round.toDate = round.fromDate;
+          } else if (round.toDate && typeof round.toDate === 'string') {
             round.toDate = new Date(round.toDate);
           }
           
-          if (round.time) {
-            round.time = normalizeTimeFormat(String(round.time));
+          if (round.startTime) {
+            round.startTime = normalizeTimeFormat(String(round.startTime));
+          }
+          if (round.endTime) {
+            round.endTime = normalizeTimeFormat(String(round.endTime));
           }
           
-          // Validate date range
-          if (round.fromDate && round.toDate && round.fromDate > round.toDate) {
-            throw new Error(`Invalid date range for ${key}: From Date cannot be after To Date`);
+          // Backward compatibility for 'time' field
+          if (round.startTime && !round.time) {
+            round.time = round.startTime;
+          } else if (round.time) {
+            round.time = normalizeTimeFormat(String(round.time));
           }
         }
       });
