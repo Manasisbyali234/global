@@ -892,7 +892,13 @@ exports.getJobFilterCounts = async (req, res) => {
     const locationCounts = {};
     activeJobs.forEach(job => {
       if (job.location) {
-        locationCounts[job.location] = (locationCounts[job.location] || 0) + 1;
+        if (Array.isArray(job.location)) {
+          job.location.forEach(loc => {
+            if (loc) locationCounts[loc] = (locationCounts[loc] || 0) + 1;
+          });
+        } else {
+          locationCounts[job.location] = (locationCounts[job.location] || 0) + 1;
+        }
       }
     });
 

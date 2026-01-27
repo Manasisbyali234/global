@@ -77,7 +77,8 @@ const sanitizeJobTypeClass = (jobType) => {
 
 const HomeJobCard = ({ job }) => {
     const title = job?.title || "Job title";
-    const location = job?.location || job?.city || "Location not specified";
+    const rawLocation = job?.location || job?.city || "Location not specified";
+    const location = Array.isArray(rawLocation) ? rawLocation.join(', ') : rawLocation;
     const jobType = job?.jobType || job?.type || "Full-time";
     const jobTypeClass = sanitizeJobTypeClass(jobType);
     const ctcText = formatCtcText(job);

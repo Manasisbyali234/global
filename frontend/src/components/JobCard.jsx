@@ -42,7 +42,7 @@ const JobCard = ({ job }) => {
                     )}
                     <p style={{margin: 0}}>{job.companyName || job.employerId?.companyName || job.company}</p>
                 </div>
-                <span>{job.location}</span>
+                <span>{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}</span>
                 <div className="posted-by-info" style={{fontSize: '12px', color: '#666', marginTop: '4px'}}>
                     Posted by: {job.employerId?.employerType === 'consultant' ? 'Consultancy' : 'Company'}
                 </div>

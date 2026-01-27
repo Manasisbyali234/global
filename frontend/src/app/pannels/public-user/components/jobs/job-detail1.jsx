@@ -405,7 +405,7 @@ function JobDetail1Page() {
                                                             <span>{job.companyName || job.employerId?.companyName || 'Not specified'}</span>
                                                         )}
                                                     </p>
-                                                    <p className="twm-job-address"><i className="feather-map-pin" />{job.location}</p>
+                                                    <p className="twm-job-address"><i className="feather-map-pin" />{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}</p>
                                                     
                                                     {job.shift && (
                                                         <p className="twm-job-shift" style={{marginTop: '10px'}}>

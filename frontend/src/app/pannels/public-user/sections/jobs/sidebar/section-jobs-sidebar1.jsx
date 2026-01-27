@@ -145,7 +145,17 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
             const response = await fetch('http://localhost:5000/api/public/jobs?limit=1000');
             const data = await response.json();
             if (data.success && data.jobs && data.jobs.length > 0) {
-                const dbLocations = [...new Set(data.jobs.map(job => job.location))].filter(location => location).sort();
+                const allLocations = [];
+                data.jobs.forEach(job => {
+                    if (job.location) {
+                        if (Array.isArray(job.location)) {
+                            allLocations.push(...job.location);
+                        } else {
+                            allLocations.push(job.location);
+                        }
+                    }
+                });
+                const dbLocations = [...new Set(allLocations)].filter(location => location).sort();
                 setLocations(dbLocations);
             } else {
                 setLocations([]);

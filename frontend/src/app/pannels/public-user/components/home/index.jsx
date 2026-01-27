@@ -126,7 +126,7 @@ function HomeJobsList() {
                                     <NavLink to={`${publicUser.jobs.DETAIL1}/${job._id}`} className="twm-job-title">
                                         <h4>{job.title}<span className="twm-job-post-duration">/ {formatDate(job.createdAt)}</span></h4>
                                     </NavLink>
-                                    <p className="twm-job-address">{job.location}</p>
+                                    <p className="twm-job-address">{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}</p>
                                     {(job.companyName || job.employerId?.companyName) && (
                                         <a href="#" className="twm-job-websites site-text-primary">{job.companyName || job.employerId?.companyName}</a>
                                     )}

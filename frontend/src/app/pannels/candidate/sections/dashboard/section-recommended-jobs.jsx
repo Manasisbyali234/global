@@ -192,7 +192,7 @@ function SectionRecommendedJobs() {
                                 <div className="d-flex flex-wrap gap-2 mb-2">
                                     <div className="d-flex align-items-center" style={{ fontSize: '0.8rem', color: '#6b7280' }}>
                                         <MapPin size={12} className="me-1" />
-                                        {job.location}
+                                        {Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}
                                     </div>
                                     <div className="d-flex align-items-center" style={{ fontSize: '0.8rem', color: '#6b7280' }}>
                                         <Clock size={12} className="me-1" />

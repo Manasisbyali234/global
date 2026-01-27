@@ -106,7 +106,7 @@ function SectionAvailableJobsList({ employerId }) {
 											<h4 className="job-title">{job.title}</h4>
 											<div className="job-location">
 												<i className="feather-map-pin" />
-												{job.location || 'Location not specified'}
+												{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}
 											</div>
 										</div>
 									</div>

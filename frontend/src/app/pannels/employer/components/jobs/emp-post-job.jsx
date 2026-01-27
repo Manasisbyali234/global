@@ -35,36 +35,39 @@ const LOCATION_OPTIONS = [
 
 // LocationSearchInput Component
 function LocationSearchInput({ value, onChange, error, style }) {
-	const [searchTerm, setSearchTerm] = useState(value || '');
+	const [searchTerm, setSearchTerm] = useState('');
 	const [showDropdown, setShowDropdown] = useState(false);
 	const [filteredLocations, setFilteredLocations] = useState(LOCATION_OPTIONS);
 
-	useEffect(() => {
-		setSearchTerm(value || '');
-	}, [value]);
+	const selectedLocations = Array.isArray(value) ? value : (value ? [value] : []);
 
 	useEffect(() => {
 		if (searchTerm.trim() === '') {
-			setFilteredLocations(LOCATION_OPTIONS);
+			setFilteredLocations(LOCATION_OPTIONS.filter(loc => !selectedLocations.includes(loc)));
 		} else {
 			const filtered = LOCATION_OPTIONS.filter(location =>
-				location.toLowerCase().includes(searchTerm.toLowerCase())
+				location.toLowerCase().includes(searchTerm.toLowerCase()) &&
+				!selectedLocations.includes(location)
 			);
 			setFilteredLocations(filtered);
 		}
-	}, [searchTerm]);
+	}, [searchTerm, selectedLocations]);
 
 	const handleInputChange = (e) => {
-		const newValue = e.target.value;
-		setSearchTerm(newValue);
+		setSearchTerm(e.target.value);
 		setShowDropdown(true);
-		onChange(newValue);
 	};
 
 	const handleLocationSelect = (location) => {
-		setSearchTerm(location);
+		const updatedLocations = [...selectedLocations, location];
+		onChange(updatedLocations);
+		setSearchTerm('');
 		setShowDropdown(false);
-		onChange(location);
+	};
+
+	const removeLocation = (locationToRemove) => {
+		const updatedLocations = selectedLocations.filter(loc => loc !== locationToRemove);
+		onChange(updatedLocations);
 	};
 
 	const handleInputFocus = () => {
@@ -72,37 +75,88 @@ function LocationSearchInput({ value, onChange, error, style }) {
 	};
 
 	const handleInputBlur = () => {
-		setTimeout(() => setShowDropdown(false), 150);
+		setTimeout(() => setShowDropdown(false), 200);
+	};
+
+	const handleKeyDown = (e) => {
+		if (e.key === 'Enter' && searchTerm.trim() !== '') {
+			e.preventDefault();
+			if (!selectedLocations.includes(searchTerm.trim())) {
+				handleLocationSelect(searchTerm.trim());
+			} else {
+				setSearchTerm('');
+			}
+		} else if (e.key === 'Backspace' && searchTerm === '' && selectedLocations.length > 0) {
+			removeLocation(selectedLocations[selectedLocations.length - 1]);
+		}
 	};
 
 	return (
 		<div style={{ position: 'relative' }}>
-			<input
-				style={{
-					...style,
-					paddingRight: '40px'
-				}}
-				type="text"
-				value={searchTerm}
-				onChange={handleInputChange}
-				onFocus={handleInputFocus}
-				onBlur={handleInputBlur}
-				placeholder="Search or select location..."
-				autoComplete="off"
-			/>
-			<i 
-				className="fa fa-search" 
-				style={{
-					position: 'absolute',
-					right: '12px',
-					top: '50%',
-					transform: 'translateY(-50%)',
-					color: '#9ca3af',
-					pointerEvents: 'none',
-					fontSize: '14px'
-				}}
-			/>
-			{showDropdown && filteredLocations.length > 0 && (
+			<div style={{
+				...style,
+				display: 'flex',
+				flexWrap: 'wrap',
+				gap: '8px',
+				padding: '8px 12px',
+				minHeight: '45px',
+				alignItems: 'center',
+				cursor: 'text'
+			}} onClick={() => document.getElementById('location-input').focus()}>
+				{selectedLocations.map((location, index) => (
+					<div key={index} style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '6px',
+						background: '#f3f4f6',
+						border: '1px solid #e5e7eb',
+						borderRadius: '16px',
+						padding: '2px 10px',
+						fontSize: '13px',
+						color: '#374151'
+					}}>
+						<span>{location}</span>
+						<i 
+							className="fa fa-times" 
+							style={{ cursor: 'pointer', color: '#9ca3af', fontSize: '11px' }}
+							onClick={(e) => {
+								e.stopPropagation();
+								removeLocation(location);
+							}}
+						/>
+					</div>
+				))}
+				<input
+					id="location-input"
+					style={{
+						border: 'none',
+						outline: 'none',
+						flex: 1,
+						minWidth: '120px',
+						padding: '4px 0',
+						fontSize: '14px',
+						background: 'transparent'
+					}}
+					type="text"
+					value={searchTerm}
+					onChange={handleInputChange}
+					onFocus={handleInputFocus}
+					onBlur={handleInputBlur}
+					onKeyDown={handleKeyDown}
+					placeholder={selectedLocations.length === 0 ? "Search or select locations..." : ""}
+					autoComplete="off"
+				/>
+				<i 
+					className="fa fa-search" 
+					style={{
+						color: '#9ca3af',
+						fontSize: '14px',
+						marginLeft: 'auto'
+					}}
+				/>
+			</div>
+
+			{showDropdown && (filteredLocations.length > 0 || searchTerm.trim() !== '') && (
 				<div style={{
 					position: 'absolute',
 					top: '100%',
@@ -110,12 +164,12 @@ function LocationSearchInput({ value, onChange, error, style }) {
 					right: 0,
 					background: '#fff',
 					border: '1px solid #d1d5db',
-					borderTop: 'none',
 					borderRadius: '0 0 8px 8px',
 					maxHeight: '200px',
 					overflowY: 'auto',
 					zIndex: 1000,
-					boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+					boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+					marginTop: '2px'
 				}}>
 					{filteredLocations.slice(0, 10).map((location, index) => (
 						<div
@@ -123,12 +177,15 @@ function LocationSearchInput({ value, onChange, error, style }) {
 							style={{
 								padding: '10px 12px',
 								cursor: 'pointer',
-								borderBottom: index < filteredLocations.slice(0, 10).length - 1 ? '1px solid #f3f4f6' : 'none',
+								borderBottom: '1px solid #f3f4f6',
 								transition: 'background-color 0.2s'
 							}}
 							onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
 							onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-							onMouseDown={() => handleLocationSelect(location)}
+							onMouseDown={(e) => {
+								e.preventDefault();
+								handleLocationSelect(location);
+							}}
 						>
 							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 								<i className="fa fa-map-marker-alt" style={{ color: '#ff6b35', fontSize: '12px' }}></i>
@@ -136,39 +193,29 @@ function LocationSearchInput({ value, onChange, error, style }) {
 							</div>
 						</div>
 					))}
-					{filteredLocations.length > 10 && (
-						<div style={{
-							padding: '8px 12px',
-							background: '#f9fafb',
-							color: '#6b7280',
-							fontSize: '12px',
-							textAlign: 'center',
-							borderTop: '1px solid #e5e7eb'
-						}}>
-							+{filteredLocations.length - 10} more locations. Keep typing to narrow down...
+					{searchTerm.trim() !== '' && !LOCATION_OPTIONS.some(loc => loc.toLowerCase() === searchTerm.toLowerCase()) && !selectedLocations.includes(searchTerm.trim()) && (
+						<div
+							style={{
+								padding: '10px 12px',
+								cursor: 'pointer',
+								color: '#ff6b35',
+								fontWeight: '500',
+								borderBottom: '1px solid #f3f4f6'
+							}}
+							onMouseDown={(e) => {
+								e.preventDefault();
+								handleLocationSelect(searchTerm.trim());
+							}}
+						>
+							<i className="fa fa-plus" style={{ marginRight: 8 }}></i>
+							Add "{searchTerm}"
 						</div>
 					)}
-				</div>
-			)}
-			{showDropdown && filteredLocations.length === 0 && searchTerm.trim() !== '' && (
-				<div style={{
-					position: 'absolute',
-					top: '100%',
-					left: 0,
-					right: 0,
-					background: '#fff',
-					border: '1px solid #d1d5db',
-					borderTop: 'none',
-					borderRadius: '0 0 8px 8px',
-					padding: '12px',
-					zIndex: 1000,
-					boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-					textAlign: 'center',
-					color: '#6b7280',
-					fontSize: '14px'
-				}}>
-					<i className="fa fa-search" style={{ marginRight: 8 }}></i>
-					No locations found. You can still type a custom location.
+					{filteredLocations.length === 0 && searchTerm.trim() === '' && (
+						<div style={{ padding: '12px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
+							All locations selected or none found.
+						</div>
+					)}
 				</div>
 			)}
 		</div>
@@ -181,7 +228,7 @@ export default function EmpPostJob({ onNext }) {
 	const [formData, setFormData] = useState({
 		jobTitle: "",
 		customJobTitle: "",
-		jobLocation: "",
+		jobLocation: [],
 		jobType: "",
 		netSalary: "",
 		ctc: "",
@@ -269,7 +316,7 @@ export default function EmpPostJob({ onNext }) {
 		shift: { required: true },
 		ctc: { required: true },
 		netSalary: { required: true },
-		jobLocation: { required: true, minLength: 2 },
+		jobLocation: { required: true },
 		vacancies: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
 		applicationLimit: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
 		education: { required: true },
@@ -442,7 +489,7 @@ export default function EmpPostJob({ onNext }) {
 				update({
 					jobTitle: isCustomTitle ? 'Others' : job.title || '',
 					customJobTitle: isCustomTitle ? job.title || '' : '',
-					jobLocation: job.location || '',
+					jobLocation: Array.isArray(job.location) ? job.location : (job.location ? [job.location] : []),
 					jobType: job.jobType || '',
 					netSalary: job.netSalary || '',
 					ctc: job.ctc ? (typeof job.ctc === 'object' ? `${job.ctc.min}-${job.ctc.max}` : job.ctc) : '',
