@@ -618,11 +618,30 @@ export default function EmpPostJob({ onNext }) {
 	const updateRoundDetails = async (roundType, field, value) => {
 		// Ensure the roundType exists in interviewRoundDetails
 		setFormData(s => {
+			let updatedValue = value;
+			let additionalUpdates = {};
+
+			// Auto-calculate end time for assessments if startTime is changed
+			if (s.interviewRoundTypes[roundType] === 'assessment' && field === 'startTime' && value && selectedAssessment) {
+				const assessment = availableAssessments.find(a => a._id === selectedAssessment);
+				const duration = assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime;
+				
+				if (duration) {
+					const [hours, mins] = value.split(':').map(Number);
+					const date = new Date();
+					date.setHours(hours);
+					date.setMinutes(mins + parseInt(duration));
+					const endTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+					additionalUpdates.endTime = endTime;
+				}
+			}
+
 			const updatedDetails = {
 				...s.interviewRoundDetails,
 				[roundType]: {
 					...s.interviewRoundDetails[roundType],
-					[field]: value
+					[field]: updatedValue,
+					...additionalUpdates
 				}
 			};
 			
@@ -2436,9 +2455,39 @@ export default function EmpPostJob({ onNext }) {
 										style={{ ...input, flex: 1, cursor: 'pointer', borderColor: selectedAssessment ? '#10b981' : '#d1d5db', borderWidth: 2 }}
 										value={selectedAssessment}
 										onChange={(e) => {
-											setSelectedAssessment(e.target.value);
-											// Show assessment info when selecting an assessment
-											if (e.target.value) {
+											const newAssessmentId = e.target.value;
+											setSelectedAssessment(newAssessmentId);
+											
+											// Auto-calculate endTime for existing assessment rounds
+											if (newAssessmentId) {
+												const assessment = availableAssessments.find(a => a._id === newAssessmentId);
+												const duration = assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime;
+												
+												if (duration) {
+													setFormData(prev => {
+														const newDetails = { ...prev.interviewRoundDetails };
+														let changed = false;
+														
+														prev.interviewRoundOrder.forEach(key => {
+															if (prev.interviewRoundTypes[key] === 'assessment') {
+																const startTime = newDetails[key]?.startTime;
+																if (startTime) {
+																	const [hours, mins] = startTime.split(':').map(Number);
+																	const date = new Date();
+																	date.setHours(hours);
+																	date.setMinutes(mins + parseInt(duration));
+																	const endTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+																	newDetails[key] = { ...newDetails[key], endTime };
+																	changed = true;
+																}
+															}
+														});
+														
+														return changed ? { ...prev, interviewRoundDetails: newDetails } : prev;
+													});
+												}
+
+												// Show assessment info when selecting an assessment
 												const assessmentKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
 												const details = assessmentKey ? formData.interviewRoundDetails[assessmentKey] : null;
 												
@@ -2626,10 +2675,18 @@ export default function EmpPostJob({ onNext }) {
 													transition: 'border 0.3s ease'
 												}}>
 												<div>
-													<label style={{...label, marginBottom: 4}}>
-														<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
-														Select Date
-													</label>
+													<div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4}}>
+														<label style={{...label, marginBottom: 0}}>
+															<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
+															Select Date
+														</label>
+														{formData.interviewRoundDetails[assessmentKey]?.fromDate && (
+															<div style={{fontSize: 10, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '2px 6px', borderRadius: 4, border: '1px solid #6b7280'}}>
+																<i className="fa fa-check-circle"></i>
+																Saved
+															</div>
+														)}
+													</div>
 													<input
 														style={{...input, fontSize: 13}}
 														type="date"
@@ -3147,7 +3204,7 @@ export default function EmpPostJob({ onNext }) {
 													/>
 												</div>
 												<div>
-													<div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4}}>
+													<div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4}}>
 														<label style={{...label, marginBottom: 0}}>
 															<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
 															Select Date
