@@ -622,17 +622,27 @@ export default function EmpPostJob({ onNext }) {
 			let additionalUpdates = {};
 
 			// Auto-calculate end time for assessments if startTime is changed
-			if (s.interviewRoundTypes[roundType] === 'assessment' && field === 'startTime' && value && selectedAssessment) {
-				const assessment = availableAssessments.find(a => a._id === selectedAssessment);
-				const duration = assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime;
-				
-				if (duration) {
-					const [hours, mins] = value.split(':').map(Number);
-					const date = new Date();
-					date.setHours(hours);
-					date.setMinutes(mins + parseInt(duration));
-					const endTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-					additionalUpdates.endTime = endTime;
+			if ((s.interviewRoundTypes[roundType] === 'assessment' || roundType === 'assessment' || String(roundType).startsWith('assessment_')) && field === 'startTime' && value) {
+				const currentAssessmentId = selectedAssessment || s.assignedAssessment || s.assessmentId;
+				if (currentAssessmentId) {
+					const assessment = availableAssessments.find(a => (a._id === currentAssessmentId || a.id === currentAssessmentId));
+					const duration = assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime;
+					
+					if (duration) {
+						try {
+							const [hours, mins] = value.split(':').map(Number);
+							if (!isNaN(hours) && !isNaN(mins)) {
+								const date = new Date();
+								date.setHours(hours);
+								date.setMinutes(mins + parseInt(duration));
+								const calculatedEndTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+								additionalUpdates.endTime = calculatedEndTime;
+								console.log(`Auto-calculated assessment end time: ${calculatedEndTime} based on ${duration} min duration`);
+							}
+						} catch (e) {
+							console.error('Error calculating end time:', e);
+						}
+					}
 				}
 			}
 
@@ -762,6 +772,33 @@ export default function EmpPostJob({ onNext }) {
 				errorMessages.push(`Please select End Time for Assessment ${index + 1}`);
 			}
 		});
+
+		// Validate Last Date of Application vs First Interview Round
+		if (formData.lastDateOfApplication) {
+			const allRoundDates = [];
+			
+			// Collect all interview round dates
+			formData.interviewRoundOrder.forEach(key => {
+				const details = formData.interviewRoundDetails[key];
+				if (details?.fromDate) {
+					allRoundDates.push(new Date(details.fromDate));
+				}
+			});
+			
+			if (allRoundDates.length > 0) {
+				const earliestRoundDate = new Date(Math.min(...allRoundDates));
+				const lastAppDate = new Date(formData.lastDateOfApplication);
+				
+				// Calculate difference in days
+				const timeDiff = earliestRoundDate.getTime() - lastAppDate.getTime();
+				const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+				
+				if (dayDiff < 1) {
+					newErrors.lastDateOfApplication = ['Last date of application must be at least 1 day before the first interview round'];
+					errorMessages.push(`Last date of application (${formData.lastDateOfApplication}) must be at least one day before the first interview round (${earliestRoundDate.toISOString().split('T')[0]})`);
+				}
+			}
+		}
 
 		// Skip consultant field validation - these are optional
 
@@ -2458,9 +2495,12 @@ export default function EmpPostJob({ onNext }) {
 											const newAssessmentId = e.target.value;
 											setSelectedAssessment(newAssessmentId);
 											
+											// Also store in formData for better sync in updateRoundDetails
+											update({ assignedAssessment: newAssessmentId });
+											
 											// Auto-calculate endTime for existing assessment rounds
 											if (newAssessmentId) {
-												const assessment = availableAssessments.find(a => a._id === newAssessmentId);
+												const assessment = availableAssessments.find(a => (a._id === newAssessmentId || a.id === newAssessmentId));
 												const duration = assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime;
 												
 												if (duration) {
@@ -2701,134 +2741,24 @@ export default function EmpPostJob({ onNext }) {
 														<i className="fa fa-clock" style={{marginRight: 4, color: '#ff6b35'}}></i>
 														Start Time
 													</label>
-													<div style={{display: 'flex', gap: 8, alignItems: 'center'}}>
-														<select
-															style={{...input, fontSize: 13, flex: 1}}
-															value={(() => {
-																const time = formData.interviewRoundDetails[assessmentKey]?.startTime || '';
-																if (!time) return '';
-																const [hours, minutes] = time.split(':');
-																const hour12 = hours === '00' ? 12 : hours > 12 ? hours - 12 : parseInt(hours);
-																return `${hour12}:${minutes}`;
-															})()}
-															onChange={(e) => {
-																const timeValue = e.target.value;
-																if (timeValue) {
-																	const currentAmPm = (() => {
-																		const existingTime = formData.interviewRoundDetails[assessmentKey]?.startTime || '';
-																		if (!existingTime) return 'AM';
-																		const [hours] = existingTime.split(':');
-																		return parseInt(hours) >= 12 ? 'PM' : 'AM';
-																	})();
-																	const [hour, minute] = timeValue.split(':');
-																	let hour24 = parseInt(hour);
-																	if (currentAmPm === 'PM' && hour24 !== 12) hour24 += 12;
-																	if (currentAmPm === 'AM' && hour24 === 12) hour24 = 0;
-																	updateRoundDetails(assessmentKey, 'startTime', `${hour24.toString().padStart(2, '0')}:${minute}`);
-																}
-															}}
-														>
-															<option value="">Select Time</option>
-															{Array.from({length: 12}, (_, i) => i + 1).map(hour => 
-																Array.from({length: 4}, (_, j) => j * 15).map(minute => (
-																	<option key={`${hour}:${minute.toString().padStart(2, '0')}`} value={`${hour}:${minute.toString().padStart(2, '0')}`}>
-																		{hour}:{minute.toString().padStart(2, '0')}
-																	</option>
-																))
-															).flat()}
-														</select>
-														<select
-															style={{...input, fontSize: 13, width: '70px'}}
-															value={(() => {
-																const time = formData.interviewRoundDetails[assessmentKey]?.startTime || '';
-																if (!time) return 'AM';
-																const [hours] = time.split(':');
-																return parseInt(hours) >= 12 ? 'PM' : 'AM';
-															})()}
-															onChange={(e) => {
-																const ampm = e.target.value;
-																const currentTime = formData.interviewRoundDetails[assessmentKey]?.startTime || '';
-																if (currentTime) {
-																	const [hours, minutes] = currentTime.split(':');
-																	let hour12 = hours === '00' ? 12 : hours > 12 ? hours - 12 : parseInt(hours);
-																	let hour24 = hour12;
-																	if (ampm === 'PM' && hour12 !== 12) hour24 = hour12 + 12;
-																	if (ampm === 'AM' && hour12 === 12) hour24 = 0;
-																	updateRoundDetails(assessmentKey, 'startTime', `${hour24.toString().padStart(2, '0')}:${minutes}`);
-																}
-															}}
-														>
-															<option value="AM">AM</option>
-															<option value="PM">PM</option>
-														</select>
-													</div>
+													<input
+														style={{...input, fontSize: 13}}
+														type="time"
+														value={formData.interviewRoundDetails[assessmentKey]?.startTime || ''}
+														onChange={(e) => updateRoundDetails(assessmentKey, 'startTime', e.target.value)}
+													/>
 												</div>
 												<div>
 													<label style={{...label, marginBottom: 4}}>
 														<i className="fa fa-clock" style={{marginRight: 4, color: '#ff6b35'}}></i>
 														End Time
 													</label>
-													<div style={{display: 'flex', gap: 8, alignItems: 'center'}}>
-														<select
-															style={{...input, fontSize: 13, flex: 1}}
-															value={(() => {
-																const time = formData.interviewRoundDetails[assessmentKey]?.endTime || '';
-																if (!time) return '';
-																const [hours, minutes] = time.split(':');
-																const hour12 = hours === '00' ? 12 : hours > 12 ? hours - 12 : parseInt(hours);
-																return `${hour12}:${minutes}`;
-															})()}
-															onChange={(e) => {
-																const timeValue = e.target.value;
-																if (timeValue) {
-																	const currentAmPm = (() => {
-																		const existingTime = formData.interviewRoundDetails[assessmentKey]?.endTime || '';
-																		if (!existingTime) return 'AM';
-																		const [hours] = existingTime.split(':');
-																		return parseInt(hours) >= 12 ? 'PM' : 'AM';
-																	})();
-																	const [hour, minute] = timeValue.split(':');
-																	let hour24 = parseInt(hour);
-																	if (currentAmPm === 'PM' && hour24 !== 12) hour24 += 12;
-																	if (currentAmPm === 'AM' && hour24 === 12) hour24 = 0;
-																	updateRoundDetails(assessmentKey, 'endTime', `${hour24.toString().padStart(2, '0')}:${minute}`);
-																}
-															}}
-														>
-															<option value="">Select Time</option>
-															{Array.from({length: 12}, (_, i) => i + 1).map(hour => 
-																Array.from({length: 4}, (_, j) => j * 15).map(minute => (
-																	<option key={`${hour}:${minute.toString().padStart(2, '0')}`} value={`${hour}:${minute.toString().padStart(2, '0')}`}>
-																		{hour}:{minute.toString().padStart(2, '0')}
-																	</option>
-																))
-															).flat()}
-														</select>
-														<select
-															style={{...input, fontSize: 13, width: '70px'}}
-															value={(() => {
-																const time = formData.interviewRoundDetails[assessmentKey]?.endTime || '';
-																if (!time) return 'AM';
-																const [hours] = time.split(':');
-																return parseInt(hours) >= 12 ? 'PM' : 'AM';
-															})()}
-															onChange={(e) => {
-																const ampm = e.target.value;
-																const currentTime = formData.interviewRoundDetails[assessmentKey]?.endTime || '';
-																if (currentTime) {
-																	const [hours, minutes] = currentTime.split(':');
-																	let hour12 = hours === '00' ? 12 : hours > 12 ? hours - 12 : parseInt(hours);
-																	let hour24 = hour12;
-																	if (ampm === 'PM' && hour12 !== 12) hour24 = hour12 + 12;
-																	if (ampm === 'AM' && hour12 === 12) hour24 = 0;
-																	updateRoundDetails(assessmentKey, 'endTime', `${hour24.toString().padStart(2, '0')}:${minutes}`);
-																}
-															}}
-														>
-															<option value="AM">AM</option>
-															<option value="PM">PM</option>
-														</select>
-													</div>
+													<input
+														style={{...input, fontSize: 13}}
+														type="time"
+														value={formData.interviewRoundDetails[assessmentKey]?.endTime || ''}
+														onChange={(e) => updateRoundDetails(assessmentKey, 'endTime', e.target.value)}
+													/>
 												</div>
 											</div>
 										</div>
@@ -3400,6 +3330,22 @@ export default function EmpPostJob({ onNext }) {
 									}}
 									type="date"
 									min={new Date().toISOString().split('T')[0]}
+									max={(() => {
+										const allRoundDates = [];
+										formData.interviewRoundOrder.forEach(key => {
+											const details = formData.interviewRoundDetails[key];
+											if (details?.fromDate) {
+												allRoundDates.push(new Date(details.fromDate));
+											}
+										});
+										if (allRoundDates.length > 0) {
+											const earliest = new Date(Math.min(...allRoundDates));
+											// Subtract 1 day
+											earliest.setDate(earliest.getDate() - 1);
+											return earliest.toISOString().split('T')[0];
+										}
+										return undefined;
+									})()}
 									value={formData.lastDateOfApplication}
 									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
 									placeholder="DD/MM/YYYY"
