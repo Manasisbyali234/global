@@ -438,3 +438,7 @@
     gap: 1rem !important;
   }
 }
+/* Remove checkmark icon from text-success */
+.text-success::before {
+  display: none !important;
+}

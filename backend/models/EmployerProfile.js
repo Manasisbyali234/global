@@ -55,10 +55,15 @@ const employerProfileSchema = new mongoose.Schema({
   
   // Document verification status
   panCardVerified: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  panCardReuploadedAt: { type: Date },
   cinVerified: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  cinReuploadedAt: { type: Date },
   gstVerified: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  gstReuploadedAt: { type: Date },
   incorporationVerified: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  incorporationReuploadedAt: { type: Date },
   authorizationVerified: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  authorizationReuploadedAt: { type: Date },
   agreeTerms: { type: String },
   
   // Primary Contact

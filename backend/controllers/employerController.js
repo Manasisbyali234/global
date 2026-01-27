@@ -372,6 +372,22 @@ exports.uploadDocument = async (req, res) => {
     const documentBase64 = fileToBase64(req.file);
     const updateData = { [fieldName]: documentBase64 };
 
+    // Mapping for document verification fields and reupload timestamps
+    const documentStatusMap = {
+      'panCardImage': { status: 'panCardVerified', reuploadedAt: 'panCardReuploadedAt' },
+      'cinImage': { status: 'cinVerified', reuploadedAt: 'cinReuploadedAt' },
+      'gstImage': { status: 'gstVerified', reuploadedAt: 'gstReuploadedAt' },
+      'certificateOfIncorporation': { status: 'incorporationVerified', reuploadedAt: 'incorporationReuploadedAt' },
+      'authorizationLetter': { status: 'authorizationVerified', reuploadedAt: 'authorizationReuploadedAt' }
+    };
+
+    // If it's a verifiable document, reset status to pending and set reuploadedAt timestamp
+    if (documentStatusMap[fieldName]) {
+      const { status, reuploadedAt } = documentStatusMap[fieldName];
+      updateData[status] = 'pending';
+      updateData[reuploadedAt] = new Date();
+    }
+
     const profile = await EmployerProfile.findOneAndUpdate(
       { employerId: req.user._id },
       updateData,

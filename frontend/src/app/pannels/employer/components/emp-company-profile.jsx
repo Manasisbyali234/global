@@ -290,6 +290,39 @@ function EmpCompanyProfilePage() {
         }
     };
 
+    const renderStatusBadge = (status, reuploadedAt) => {
+        if (!status) return null;
+        
+        let badgeClass = 'bg-secondary';
+        let statusText = status.charAt(0).toUpperCase() + status.slice(1);
+        
+        switch (status) {
+            case 'approved':
+                badgeClass = 'bg-success';
+                break;
+            case 'rejected':
+                badgeClass = 'bg-danger';
+                break;
+            case 'pending':
+                badgeClass = 'bg-warning text-dark';
+                break;
+            default:
+                break;
+        }
+        
+        return (
+            <div className="d-flex align-items-center gap-2 mt-1">
+                <span className={`badge ${badgeClass}`}>{statusText}</span>
+                {reuploadedAt && (
+                    <small className="text-muted" style={{fontSize: '0.75rem'}}>
+                        <i className="fas fa-redo me-1"></i>
+                        Re-uploaded: {new Date(reuploadedAt).toLocaleDateString()}
+                    </small>
+                )}
+            </div>
+        );
+    };
+
     const handleInputChange = async (field, value) => {
         // Handle uppercase conversion for specific fields
         if (['cin', 'gstNumber', 'panNumber'].includes(field)) {
@@ -1618,7 +1651,10 @@ function EmpCompanyProfilePage() {
                                         onChange={(e) => handleDocumentUpload(e, 'panCardImage')}
                                     />
                                     {formData.panCardImage ? (
-                                        <p className="text-success mt-1">✓ PAN Card uploaded</p>
+                                        <>
+                                            <p className="text-success mt-1 mb-0">✓ PAN Card uploaded</p>
+                                            {renderStatusBadge(formData.panCardVerified, formData.panCardReuploadedAt)}
+                                        </>
                                     ) : (
                                         <p className="text-muted mt-1">No file chosen</p>
                                     )}
@@ -1635,7 +1671,10 @@ function EmpCompanyProfilePage() {
                                         onChange={(e) => handleDocumentUpload(e, 'cinImage')}
                                     />
                                     {formData.cinImage ? (
-                                        <p className="text-success mt-1">✓ CIN Document uploaded</p>
+                                        <>
+                                            <p className="text-success mt-1 mb-0">✓ CIN Document uploaded</p>
+                                            {renderStatusBadge(formData.cinVerified, formData.cinReuploadedAt)}
+                                        </>
                                     ) : (
                                         <p className="text-muted mt-1">No file chosen</p>
                                     )}
@@ -1652,7 +1691,10 @@ function EmpCompanyProfilePage() {
                                         onChange={(e) => handleDocumentUpload(e, 'gstImage')}
                                     />
                                     {formData.gstImage ? (
-                                        <p className="text-success mt-1">✓ GST Certificate uploaded</p>
+                                        <>
+                                            <p className="text-success mt-1 mb-0">✓ GST Certificate uploaded</p>
+                                            {renderStatusBadge(formData.gstVerified, formData.gstReuploadedAt)}
+                                        </>
                                     ) : (
                                         <p className="text-muted mt-1">No file chosen</p>
                                     )}
@@ -1669,7 +1711,10 @@ function EmpCompanyProfilePage() {
                                         onChange={(e) => handleDocumentUpload(e, 'certificateOfIncorporation')}
                                     />
                                     {formData.certificateOfIncorporation ? (
-                                        <p className="text-success mt-1">✓ Certificate of Incorporation uploaded</p>
+                                        <>
+                                            <p className="text-success mt-1 mb-0">✓ Certificate of Incorporation uploaded</p>
+                                            {renderStatusBadge(formData.incorporationVerified, formData.incorporationReuploadedAt)}
+                                        </>
                                     ) : (
                                         <p className="text-muted mt-1">No file chosen</p>
                                     )}
