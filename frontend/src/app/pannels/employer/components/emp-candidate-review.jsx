@@ -258,7 +258,21 @@ function EmpCandidateReviewPage() {
     };
 
     const allProcessesCompleted = () => {
-        if (interviewProcesses.length === 0) return true;
+        if (!application || !application.jobId) return false;
+        
+        const requiredRoundsCount = application.jobId.interviewRoundOrder?.length || 0;
+        
+        // If there are required rounds, we must have at least that many processes started
+        if (requiredRoundsCount > 0 && interviewProcesses.length < requiredRoundsCount) {
+            return false;
+        }
+        
+        // If no processes have been started and none are required, allow actions
+        if (interviewProcesses.length === 0) {
+            return requiredRoundsCount === 0;
+        }
+        
+        // All started processes must be completed
         return interviewProcesses.every(p => p.isCompleted);
     };
 
@@ -495,7 +509,19 @@ function EmpCandidateReviewPage() {
                                 <div className="interview-manager-container">
                                     <InterviewProcessManager 
                                         applicationId={applicationId}
-                                        onSave={(process) => console.log('Process saved', process)}
+                                        onSave={(process) => {
+                                            if (process && process.stages) {
+                                                const processes = process.stages.map(stage => ({
+                                                    id: stage._id || `${stage.stageType}-${stage.stageOrder}`,
+                                                    name: stage.stageName,
+                                                    type: stage.stageType,
+                                                    status: stage.status,
+                                                    isCompleted: stage.status === 'completed' || stage.status === 'passed',
+                                                    result: stage.assessmentResult
+                                                }));
+                                                setInterviewProcesses(processes);
+                                            }
+                                        }}
                                     />
                                 </div>
                                 
@@ -612,20 +638,22 @@ function EmpCandidateReviewPage() {
                                             </button>
                                         </div>
                                         <div className="action-buttons">
-                                            <button 
-                                                className={`${application.status === 'shortlisted' ? 'active' : ''}`}
-                                                onClick={() => updateApplicationStatus('shortlisted')}
-                                                disabled={!allProcessesCompleted()}
-                                            >
-                                                <i className="fas fa-check"></i> Shortlist
-                                            </button>
-                                            <button 
-                                                className={`${application.status === 'hired' ? 'active' : ''}`}
-                                                onClick={() => updateApplicationStatus('hired')}
-                                                disabled={!allProcessesCompleted()}
-                                            >
-                                                <i className="fas fa-briefcase"></i> Mark as Hired
-                                            </button>
+                                            {allProcessesCompleted() && (
+                                                <>
+                                                    <button 
+                                                        className={`${application.status === 'shortlisted' ? 'active shortlisted-btn' : ''}`}
+                                                        onClick={() => updateApplicationStatus('shortlisted')}
+                                                    >
+                                                        <i className="fas fa-check"></i> Shortlist
+                                                    </button>
+                                                    <button 
+                                                        className={`${application.status === 'hired' ? 'active' : ''}`}
+                                                        onClick={() => updateApplicationStatus('hired')}
+                                                    >
+                                                        <i className="fas fa-briefcase"></i> Mark as Hired
+                                                    </button>
+                                                </>
+                                            )}
                                             <button 
                                                 className={`${application.status === 'offer_sent' ? 'active' : ''}`}
                                                 onClick={() => updateApplicationStatus('offer_sent')}
@@ -633,13 +661,14 @@ function EmpCandidateReviewPage() {
                                             >
                                                 <i className="fas fa-envelope"></i> Offer Letter Sent
                                             </button>
-                                            <button 
-                                                className={`${application.status === 'rejected' ? 'active' : ''}`}
-                                                onClick={() => updateApplicationStatus('rejected')}
-                                                disabled={!allProcessesCompleted()}
-                                            >
-                                                <i className="fas fa-times"></i> Reject
-                                            </button>
+                                            {application.status !== 'shortlisted' && (
+                                                <button 
+                                                    className={`${application.status === 'rejected' ? 'active' : ''}`}
+                                                    onClick={() => updateApplicationStatus('rejected')}
+                                                >
+                                                    <i className="fas fa-times"></i> Reject
+                                                </button>
+                                            )}
                                         </div>
                                         {!allProcessesCompleted() && (
                                             <p className="warning-text">Complete all interview stages to enable actions.</p>

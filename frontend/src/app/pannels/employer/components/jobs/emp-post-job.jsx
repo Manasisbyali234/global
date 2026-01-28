@@ -532,7 +532,7 @@ export default function EmpPostJob({ onNext }) {
 					})(),
 					interviewRoundOrder: job.interviewRoundOrder || [],
 					offerLetterDate: job.offerLetterDate ? job.offerLetterDate.split('T')[0] : '',
-					joiningDate: job.lastDateOfApplication ? job.lastDateOfApplication.split('T')[0] : '',
+					joiningDate: job.joiningDate ? job.joiningDate.split('T')[0] : '',
 					lastDateOfApplication: job.lastDateOfApplication ? job.lastDateOfApplication.split('T')[0] : '',
 					lastDateOfApplicationTime: job.lastDateOfApplicationTime || '',
 					transportation: job.transportation || {
@@ -926,6 +926,38 @@ export default function EmpPostJob({ onNext }) {
 					newErrors.lastDateOfApplication = ['Last date of application must be at least 1 day before the first interview round'];
 					errorMessages.push(`Last date of application (${formData.lastDateOfApplication}) must be at least one day before the first interview round (${earliestRoundDate.toISOString().split('T')[0]})`);
 				}
+			}
+		}
+
+		// Validate Offer Letter Date vs Last Interview Round
+		if (formData.offerLetterDate) {
+			const allRoundDates = [];
+			formData.interviewRoundOrder.forEach(key => {
+				const details = formData.interviewRoundDetails[key];
+				if (details?.fromDate) {
+					allRoundDates.push(new Date(details.fromDate));
+				}
+			});
+			
+			if (allRoundDates.length > 0) {
+				const latestRoundDate = new Date(Math.max(...allRoundDates));
+				const offerDate = new Date(formData.offerLetterDate);
+				
+				if (offerDate < latestRoundDate) {
+					newErrors.offerLetterDate = ['Offer letter date cannot be before the interview rounds'];
+					errorMessages.push(`Offer letter date (${formData.offerLetterDate}) must be on or after the last interview round (${latestRoundDate.toISOString().split('T')[0]})`);
+				}
+			}
+		}
+
+		// Validate Joining Date vs Offer Letter Date
+		if (formData.joiningDate && formData.offerLetterDate) {
+			const joiningDate = new Date(formData.joiningDate);
+			const offerDate = new Date(formData.offerLetterDate);
+			
+			if (joiningDate <= offerDate) {
+				newErrors.joiningDate = ['Joining date must be after the offer letter date'];
+				errorMessages.push(`Joining date (${formData.joiningDate}) must be after the offer letter date (${formData.offerLetterDate})`);
 			}
 		}
 
@@ -3510,7 +3542,7 @@ export default function EmpPostJob({ onNext }) {
 							style={input}
 							type="date"
 							min={new Date().toISOString().split('T')[0]}
-							value={formData.offerLetterDate}
+							value={formData.offerLetterDate || ''}
 							onChange={(e) => update({ offerLetterDate: e.target.value })}
 							placeholder="DD/MM/YYYY"
 						/>
@@ -3524,6 +3556,31 @@ export default function EmpPostJob({ onNext }) {
 							Format: DD/MM/YYYY
 						</small>
 						<HolidayIndicator date={formData.offerLetterDate} />
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-walking" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Joining Date
+						</label>
+						<input
+							style={input}
+							type="date"
+							min={formData.offerLetterDate || new Date().toISOString().split('T')[0]}
+							value={formData.joiningDate || ''}
+							onChange={(e) => update({ joiningDate: e.target.value })}
+							placeholder="DD/MM/YYYY"
+						/>
+						{errors.joiningDate && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.joiningDate[0]}
+							</div>
+						)}
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
+							Format: DD/MM/YYYY
+						</small>
+						<HolidayIndicator date={formData.joiningDate} />
 					</div>
 
 					<div>
@@ -3546,18 +3603,27 @@ export default function EmpPostJob({ onNext }) {
 										formData.interviewRoundOrder.forEach(key => {
 											const details = formData.interviewRoundDetails[key];
 											if (details?.fromDate) {
-												allRoundDates.push(new Date(details.fromDate));
+												const d = new Date(details.fromDate);
+												if (!isNaN(d.getTime())) {
+													allRoundDates.push(d);
+												}
 											}
 										});
 										if (allRoundDates.length > 0) {
 											const earliest = new Date(Math.min(...allRoundDates));
-											// Subtract 1 day
-											earliest.setDate(earliest.getDate() - 1);
-											return earliest.toISOString().split('T')[0];
+											if (!isNaN(earliest.getTime())) {
+												// Subtract 1 day
+												earliest.setDate(earliest.getDate() - 1);
+												const maxDate = earliest.toISOString().split('T')[0];
+												const today = new Date().toISOString().split('T')[0];
+												// If maxDate would be before today, don't set a max so user can at least select today
+												// and let the manual validation show the error message
+												return maxDate < today ? undefined : maxDate;
+											}
 										}
 										return undefined;
 									})()}
-									value={formData.lastDateOfApplication}
+									value={formData.lastDateOfApplication || ''}
 									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
 									placeholder="DD/MM/YYYY"
 								/>
