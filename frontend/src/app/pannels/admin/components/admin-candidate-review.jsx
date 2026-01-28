@@ -255,7 +255,7 @@ function AdminCandidateReviewPage() {
                 <div className="profile-header">
                     <div className="profile-avatar">
                         {candidate.profilePicture ? (
-                            <img src={candidate.profilePicture} alt={candidate.name} />
+                            <img src={candidate.profilePicture.startsWith('data:') ? candidate.profilePicture : `http://localhost:5000/${candidate.profilePicture}`} alt={candidate.name} />
                         ) : (
                             <div className="avatar-placeholder">
                                 <i className="fas fa-user"></i>
@@ -349,7 +349,12 @@ function AdminCandidateReviewPage() {
                                         </div>
                                         <div className="field-content">
                                             <label>Full Name</label>
-                                            <span>{candidate.name || 'Not provided'}</span>
+                                            <span>
+                                                {candidate.firstName ? 
+                                                    `${candidate.firstName} ${candidate.middleName ? candidate.middleName + ' ' : ''}${candidate.lastName || ''}` : 
+                                                    (candidate.name || 'Not provided')
+                                                }
+                                            </span>
                                         </div>
                                     </div>
                                     <div className="info-field">
@@ -369,12 +374,12 @@ function AdminCandidateReviewPage() {
                                         </div>
                                         <div className="field-content">
                                             <label>Mobile Number</label>
-                                            <span>{candidate.phone || 'Not provided'}</span>
+                                            <span>{candidate.phone || candidate.mobileNumber || 'Not provided'}</span>
                                         </div>
                                     </div>
                                     <div className="info-field">
                                         <div className="field-icon">
-                                            <i className="fas fa-calendar-alt"></i>
+                                            <i className="fas fa-calendar"></i>
                                         </div>
                                         <div className="field-content">
                                             <label>Date of Birth</label>
@@ -422,6 +427,37 @@ function AdminCandidateReviewPage() {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="info-row">
+                                    <div className="info-field">
+                                        <div className="field-icon">
+                                            <i className="fas fa-map-marker-alt"></i>
+                                        </div>
+                                        <div className="field-content">
+                                            <label>Location</label>
+                                            <span>{candidate.location || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="info-field">
+                                        <div className="field-icon">
+                                            <i className="fas fa-map-pin"></i>
+                                        </div>
+                                        <div className="field-content">
+                                            <label>Pincode</label>
+                                            <span>{candidate.pincode || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="info-row">
+                                    <div className="info-field">
+                                        <div className="field-icon">
+                                            <i className="fas fa-map"></i>
+                                        </div>
+                                        <div className="field-content">
+                                            <label>State Code</label>
+                                            <span>{candidate.stateCode || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div className="info-row single-field">
                                     <div className="info-field full-width">
                                         <div className="field-icon">
@@ -441,6 +477,17 @@ function AdminCandidateReviewPage() {
                                         <div className="field-content">
                                             <label>Permanent Address</label>
                                             <span>{candidate.permanentAddress || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="info-row single-field">
+                                    <div className="info-field full-width">
+                                        <div className="field-icon">
+                                            <i className="fas fa-envelope-open-text"></i>
+                                        </div>
+                                        <div className="field-content">
+                                            <label>Correspondence Address</label>
+                                            <span>{candidate.correspondenceAddress || 'Not provided'}</span>
                                         </div>
                                     </div>
                                 </div>

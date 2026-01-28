@@ -939,28 +939,6 @@ function SectionCanEmployment({ profile }) {
                                     </div>
                                 </div>
 
-                                {/* Work Type */}
-                                <div style={formStyles.fieldGroup}>
-                                    <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                        Work Type
-                                        <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                    </label>
-                                    <div style={formStyles.inputWrapper}>
-                                        <i className="fa fa-laptop" style={formStyles.icon}></i>
-                                        <select
-                                            value={formData.workType}
-                                            onChange={(e) => handleInputChange('workType', e.target.value)}
-                                            style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.workType && formStyles.inputError)}}
-                                        >
-                                            <option value="">Select Work Type</option>
-                                            <option value="Remote">Remote</option>
-                                            <option value="Onsite">Onsite</option>
-                                            <option value="Hybrid">Hybrid</option>
-                                        </select>
-                                    </div>
-                                    {errors.workType && <div style={formStyles.error}>{errors.workType}</div>}
-                                </div>
-
                                 {/* CTC Fields */}
                                 <div style={formStyles.twoColumnGrid}>
                                     <div style={formStyles.fieldGroup}>

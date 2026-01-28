@@ -400,13 +400,16 @@ export default function EmpPostJob({ onNext }) {
 			if (netSalary) {
 				update({ netSalary });
 			}
+		} else {
+			// Clear net salary when CTC is empty
+			update({ netSalary: '' });
 		}
 	}, []);
 
-	// Debounced auto-save
+	// Debounced auto-save - only trigger if CTC has a value
 	useEffect(() => {
 		const timer = setTimeout(() => {
-			if (formData.ctc) {
+			if (formData.ctc && formData.ctc.trim()) {
 				autoSaveCTC(formData.ctc);
 			}
 		}, 500); // Save after 500ms of no typing
@@ -421,11 +424,11 @@ export default function EmpPostJob({ onNext }) {
 		if (isEditMode) {
 			fetchJobData();
 		} else {
-			// Load saved CTC from localStorage for new jobs
-			const savedCTC = localStorage.getItem('draft_ctc');
-			if (savedCTC) {
-				update({ ctc: savedCTC });
-			}
+			// Don't load saved CTC from localStorage to prevent default values
+			// const savedCTC = localStorage.getItem('draft_ctc');
+			// if (savedCTC) {
+			//		update({ ctc: savedCTC });
+			// }
 		}
 		fetchEmployerType();
 		fetchAssessments();
@@ -738,7 +741,13 @@ export default function EmpPostJob({ onNext }) {
 				const startTime = field === 'startTime' ? value : formData.interviewRoundDetails[roundType].startTime;
 				const endTime = field === 'endTime' ? value : formData.interviewRoundDetails[roundType].endTime;
 				
-				if (startTime && endTime && endTime <= startTime) {
+				const isAssessment = formData.interviewRoundTypes[roundType] === 'assessment' || 
+									 roundType === 'assessment' || 
+									 String(roundType).startsWith('assessment_');
+
+				// For assessments, when changing startTime, the endTime will be auto-calculated, 
+				// so we skip the validation against the OLD endTime
+				if (!(isAssessment && field === 'startTime') && startTime && endTime && endTime <= startTime) {
 					showWarning(`End time must be after the start time for the same round.`);
 					return;
 				}
@@ -843,7 +852,7 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}
 
-		// Application limit validation removed - employers can set any application limit
+		// Application limit validation - removed strict requirement, now just a warning
 
 		// Validate Interview Rounds Count
 		const specifiedRoundsCount = parseInt(formData.interviewRoundsCount) || 0;
@@ -953,16 +962,7 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}
 
-		// Validate Joining Date vs Offer Letter Date
-		if (formData.joiningDate && formData.offerLetterDate) {
-			const joiningDate = new Date(formData.joiningDate);
-			const offerDate = new Date(formData.offerLetterDate);
-			
-			if (joiningDate <= offerDate) {
-				newErrors.joiningDate = ['Joining date must be after the offer letter date'];
-				errorMessages.push(`Joining date (${formData.joiningDate}) must be after the offer letter date (${formData.offerLetterDate})`);
-			}
-		}
+
 
 		// Skip consultant field validation - these are optional
 		// Actually, let's add validation for consultant fields since they're marked as required
@@ -1399,7 +1399,7 @@ export default function EmpPostJob({ onNext }) {
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-building" style={{marginRight: '8px'}}></i>
 									Company Name <span style={redAsterisk}>*</span>
-									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}></span>
 								</label>
 								{approvedCompanies.length > 0 ? (
 									<select
@@ -1450,7 +1450,7 @@ export default function EmpPostJob({ onNext }) {
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-info-circle" style={{marginRight: '8px'}}></i>
 									Why Join Us <span style={redAsterisk}>*</span>
-									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}></span>
 								</label>
 								<textarea
 									style={{
@@ -1475,7 +1475,7 @@ export default function EmpPostJob({ onNext }) {
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-building" style={{marginRight: '8px'}}></i>
 									About Company <span style={redAsterisk}>*</span>
-									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}></span>
 								</label>
 								<textarea
 									style={{
@@ -1944,13 +1944,16 @@ export default function EmpPostJob({ onNext }) {
 							}}
 							className={errors.ctc ? 'is-invalid' : ''}
 							placeholder="e.g., 8 L.P.A or 6-8 L.P.A"
-							value={formData.ctc}
+							value={formData.ctc || ''}
 							onChange={(e) => {
 								const value = e.target.value;
 								update({ ctc: value });
 								// Trigger auto-calculation immediately
 								if (value.trim()) {
 									autoSaveCTC(value);
+								} else {
+									// Clear net salary when CTC is cleared
+									update({ netSalary: '' });
 								}
 							}}
 						/>
@@ -1990,8 +1993,8 @@ export default function EmpPostJob({ onNext }) {
 								background: formData.netSalary ? '#f0fdf4' : '#fff'
 							}}
 							className={errors.netSalary ? 'is-invalid' : ''}
-							placeholder="Auto-calculated from CTC"
-							value={formData.netSalary}
+							placeholder="Auto-calculated from CTC or enter manually"
+							value={formData.netSalary || ''}
 							onChange={(e) => update({ netSalary: e.target.value })}
 						/>
 						{errors.netSalary && (
@@ -2021,21 +2024,7 @@ export default function EmpPostJob({ onNext }) {
 							placeholder="e.g., 5"
 							value={formData.vacancies}
 							onChange={(e) => {
-								const vacancies = parseInt(e.target.value) || 0;
-								const applicationLimit = parseInt(formData.applicationLimit) || 0;
-								
 								update({ vacancies: e.target.value });
-								
-								// Auto-suggest application limit based on vacancies
-								if (vacancies > 0) {
-									const suggestedLimit = vacancies * 10; // 10x the vacancies as suggestion
-									update({ applicationLimit: suggestedLimit.toString() });
-								}
-								
-								// Check if application limit is less than vacancies after updating vacancies
-								if (vacancies > 0 && applicationLimit > 0 && applicationLimit < vacancies) {
-									showWarning(`Warning: Your application limit (${applicationLimit}) is now less than the number of vacancies (${vacancies}). Please update the application limit to at least ${vacancies}.`);
-								}
 							}}
 						/>
 						{errors.vacancies && (
@@ -2065,10 +2054,9 @@ export default function EmpPostJob({ onNext }) {
 								const applicationLimit = parseInt(e.target.value) || 0;
 								const vacancies = parseInt(formData.vacancies) || 0;
 								
-								// Check if application limit is less than vacancies
+								// Only show popup if application limit is less than vacancies
 								if (applicationLimit > 0 && vacancies > 0 && applicationLimit < vacancies) {
-									showError(`Application limit (${applicationLimit}) cannot be less than number of vacancies (${vacancies}). Please set application limit to at least ${vacancies}.`);
-									return; // Don't update the value
+									showWarning(`Warning: Application limit (${applicationLimit}) is less than number of vacancies (${vacancies}). Consider setting it to at least ${vacancies} for better hiring outcomes.`);
 								}
 								
 								update({ applicationLimit: e.target.value });
@@ -2081,7 +2069,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Maximum number of applications to accept (must be at least equal to number of vacancies)
+							Maximum number of applications to accept
 						</small>
 					</div>
 
@@ -2864,7 +2852,7 @@ export default function EmpPostJob({ onNext }) {
 											<option key={assessment._id} value={assessment._id}>
 												{assessment.title} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'No duration set'}{assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime ? ' min' : ''})
 											</option>
-										))}}
+										))}
 									</select>
 									{selectedAssessment && (
 										<div style={{display: 'flex', alignItems: 'center', gap: 6, color: '#10b981', fontSize: 14, fontWeight: 600}}>
@@ -3003,7 +2991,7 @@ export default function EmpPostJob({ onNext }) {
 														}}
 													>
 														<i className="fa fa-calendar-plus"></i>
-														Schedule
+														Interview Schedule
 													</button>
 													<i 
 														className="fa fa-edit"
@@ -3424,7 +3412,7 @@ export default function EmpPostJob({ onNext }) {
 														}}
 													>
 														<i className="fa fa-calendar-plus"></i>
-														Schedule
+														Interview Schedule
 													</button>
 													<i 
 														className="fa fa-edit"
@@ -3635,30 +3623,7 @@ export default function EmpPostJob({ onNext }) {
 						<HolidayIndicator date={formData.offerLetterDate} />
 					</div>
 
-					<div>
-						<label style={label}>
-							<i className="fa fa-walking" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Joining Date
-						</label>
-						<input
-							style={input}
-							type="date"
-							min={formData.offerLetterDate || new Date().toISOString().split('T')[0]}
-							value={formData.joiningDate || ''}
-							onChange={(e) => update({ joiningDate: e.target.value })}
-							placeholder="DD/MM/YYYY"
-						/>
-						{errors.joiningDate && (
-							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
-								<i className="fa fa-exclamation-circle"></i>
-								{errors.joiningDate[0]}
-							</div>
-						)}
-						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Format: DD/MM/YYYY
-						</small>
-						<HolidayIndicator date={formData.joiningDate} />
-					</div>
+
 
 					<div>
 						<label style={label}>

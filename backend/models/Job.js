@@ -14,7 +14,7 @@ const jobSchema = new mongoose.Schema({
   category: { type: String }, // Job category (IT, Sales, Marketing, etc.)
   typeOfEmployment: { type: String, enum: ['permanent', 'temporary', 'freelance', 'consultant', 'trainee'] }, // Type of employment
   shift: { type: String, enum: ['day-shift', 'night-shift', 'rotational'] }, // Work shift
-  workMode: { type: String, enum: ['work-from-home', 'remote', 'hybrid'] }, // Work mode
+  workMode: { type: String, enum: ['work-from-home', 'work-from-office', 'remote', 'hybrid'] }, // Work mode
   salary: {
     min: { type: Number },
     max: { type: Number },

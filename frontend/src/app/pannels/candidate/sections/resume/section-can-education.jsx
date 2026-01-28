@@ -1344,6 +1344,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                                 <option value="">Select Board</option>
                                                 <option value="CBSE">CBSE</option>
                                                 <option value="State Board">State Board</option>
+                                                <option value="ICSE">ICSE</option>
                                             </select>
                                             {errors.courseName && <div className="invalid-feedback">{errors.courseName}</div>}
                                         </div>

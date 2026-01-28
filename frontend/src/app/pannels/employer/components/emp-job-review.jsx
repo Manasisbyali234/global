@@ -163,10 +163,7 @@ function EmpJobReviewPage() {
                                     <p className="mb-0 text-muted">{jobDetails.offerLetterDate ? new Date(jobDetails.offerLetterDate).toLocaleDateString() : 'N/A'}</p>
                                 </div>
 
-                                <div className="mt-2">
-                                    <h5 className="mb-1">Joining Date</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.joiningDate ? new Date(jobDetails.joiningDate).toLocaleDateString() : 'N/A'}</p>
-                                </div>
+
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Last Date of Application</h5>
@@ -245,17 +242,7 @@ function EmpJobReviewPage() {
                                     </p>
                                 </div>
 
-                                <div className="mt-2">
-                                    <h5 className="mb-1">Interview Mode</h5>
-                                    <p className="mb-0 text-muted">
-                                        {jobDetails.interviewMode ? 
-                                            Object.entries(jobDetails.interviewMode)
-                                                .filter(([key, value]) => value)
-                                                .map(([key]) => key.replace(/([A-Z])/g, ' $1').trim())
-                                                .map(mode => mode.charAt(0).toUpperCase() + mode.slice(1))
-                                                .join(', ') || 'N/A' : 'N/A'}
-                                    </p>
-                                </div>
+
                             </div>
                         </div>
                        

@@ -6,10 +6,17 @@ const Application = require('../models/Application');
 const CandidateProfile = require('../models/CandidateProfile');
 const { sendJobApplicationConfirmationEmail } = require('../utils/emailService');
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Initialize Razorpay only when needed
+let razorpay = null;
+const getRazorpay = () => {
+  if (!razorpay && process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+    razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+  }
+  return razorpay;
+};
 
 const APPLICATION_FEE = 129; // Amount in INR
 
@@ -27,6 +34,14 @@ exports.createOrder = async (req, res) => {
       });
     }
 
+    const razorpayInstance = getRazorpay();
+    if (!razorpayInstance) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Razorpay is not properly configured' 
+      });
+    }
+
     const { jobId, amount } = req.body;
     
     const finalAmount = amount || APPLICATION_FEE;
@@ -37,7 +52,7 @@ exports.createOrder = async (req, res) => {
       receipt: `rcpt_${Date.now()}_${req.user._id.toString().slice(-6)}`,
     };
 
-    const order = await razorpay.orders.create(options);
+    const order = await razorpayInstance.orders.create(options);
     res.json({ success: true, order });
   } catch (error) {
     console.error('Error creating Razorpay order:', error);
@@ -418,7 +433,15 @@ exports.getPaymentDetails = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Payment ID is required' });
     }
 
-    const payment = await razorpay.payments.fetch(paymentId);
+    const razorpayInstance = getRazorpay();
+    if (!razorpayInstance) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Razorpay is not properly configured' 
+      });
+    }
+
+    const payment = await razorpayInstance.payments.fetch(paymentId);
     
     res.json({
       success: true,

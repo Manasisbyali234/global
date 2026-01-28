@@ -1282,19 +1282,6 @@ function EmpCompanyProfilePage() {
 
 
 
-                            <div className="col-md-12">
-                                <div className="form-group">
-                                    <label className="required-field"><FileText size={16} className="me-2" /> About Company</label>
-                                    <RichTextEditor
-                                        value={formData.description || 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.'}
-                                        onChange={(value) => handleInputChange('description', value)}
-                                        placeholder="Enter company description..."
-                                        className="form-control-editor"
-                                    />
-                                    <small className="text-muted mt-1">Use the toolbar above to format your company description with bold, italic, lists, and alignment options.</small>
-                                </div>
-                            </div>
-
                             <div className="col-md-6">
                                 <div className="form-group">
                                     <label className="required-field"><MapPin size={16} className="me-2" /> Primary Office Location</label>
@@ -1347,7 +1334,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-12">
                                 <div className="form-group">
-                                    <label><Briefcase size={16} className="me-2" /> Why join us</label>
+                                    <label className="required-field"><Briefcase size={16} className="me-2" /> Why join us</label>
                                     <RichTextEditor
                                         value={formData.whyJoinUs}
                                         onChange={(value) => handleInputChange('whyJoinUs', value)}
@@ -1355,6 +1342,19 @@ function EmpCompanyProfilePage() {
                                         className="form-control-editor"
                                     />
                                     <small className="text-muted mt-1" style={{color: '#000000 !important'}}>Use the toolbar above to format your text with bold, italic, lists, and alignment options.</small>
+                                </div>
+                            </div>
+
+                            <div className="col-md-12">
+                                <div className="form-group">
+                                    <label className="required-field"><FileText size={16} className="me-2" /> About Company</label>
+                                    <RichTextEditor
+                                        value={formData.description || 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.'}
+                                        onChange={(value) => handleInputChange('description', value)}
+                                        placeholder="Enter company description..."
+                                        className="form-control-editor"
+                                    />
+                                    <small className="text-muted mt-1">Use the toolbar above to format your company description with bold, italic, lists, and alignment options.</small>
                                 </div>
                             </div>
                         </div>

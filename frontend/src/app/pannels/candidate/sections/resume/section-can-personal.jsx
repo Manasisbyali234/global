@@ -420,7 +420,7 @@ function SectionCanPersonalDetail({ profile }) {
                             </div>
 
                             <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-map-marker me-1"></i> Location *</label>
+                                <label><i className="fa fa-map-marker me-1"></i> Location <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     className="form-control"
                                     type="text"
@@ -433,7 +433,7 @@ function SectionCanPersonalDetail({ profile }) {
                             </div>
 
                             <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-map me-1"></i> State Code *</label>
+                                <label><i className="fa fa-map me-1"></i> State Code <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     className="form-control"
                                     type="text"

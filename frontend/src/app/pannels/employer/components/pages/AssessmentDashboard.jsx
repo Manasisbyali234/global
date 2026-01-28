@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AssessmentCard from "../assessments/AssessmnetCard";
-import CreateAssessmentModal from "../assessments/CreateAssessmentModal";
+import CreateAssessmentModal from "../assessments/CreateassessmentModal";
 import { api } from '../../../../../utils/api';
 import './assessment-dashboard.css';
 import '../../../../../assessment-modal-fix.css';
