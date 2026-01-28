@@ -1,0 +1,15 @@
+.cabdidate-de-info > div {
+    margin-bottom: 5px !important;
+}
+
+.cabdidate-de-info h4.twm-s-title {
+    margin-bottom: 5px !important;
+}
+
+.cabdidate-de-info div[style*="marginBottom"] {
+    margin-bottom: 5px !important;
+}
+
+.cabdidate-de-info * {
+    margin-bottom: 5px !important;
+}
