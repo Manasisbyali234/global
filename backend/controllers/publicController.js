@@ -387,7 +387,7 @@ exports.getEmployerProfile = async (req, res) => {
     const Employer = require('../models/Employer');
     
     let profile = await EmployerProfile.findOne({ employerId: req.params.id })
-      .populate('employerId', 'name email phone companyName');
+      .populate('employerId', 'name email phone companyName employerType');
     
     // If no profile exists, create basic profile from employer data
     if (!profile) {
