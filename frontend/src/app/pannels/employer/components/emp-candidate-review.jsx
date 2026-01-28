@@ -689,7 +689,12 @@ function EmpCandidateReviewPage() {
                                         <div className="field-icon"><i className="fas fa-user"></i></div>
                                         <div className="field-content">
                                             <label>Full Name</label>
-                                            <span>{candidate.name || 'Not provided'}</span>
+                                            <span>
+                                                {candidate.firstName ? 
+                                                    `${candidate.firstName} ${candidate.middleName ? candidate.middleName + ' ' : ''}${candidate.lastName || ''}` : 
+                                                    (candidate.name || 'Not provided')
+                                                }
+                                            </span>
                                         </div>
                                     </div>
                                     <div className="info-field">
@@ -705,7 +710,7 @@ function EmpCandidateReviewPage() {
                                         <div className="field-icon"><i className="fas fa-phone"></i></div>
                                         <div className="field-content">
                                             <label>Phone Number</label>
-                                            <span>{candidate.phone || 'Not provided'}</span>
+                                            <span>{candidate.phone || candidate.mobileNumber || 'Not provided'}</span>
                                         </div>
                                     </div>
                                     <div className="info-field">
@@ -750,30 +755,32 @@ function EmpCandidateReviewPage() {
                                 </div>
                                 <div className="info-row">
                                     <div className="info-field">
-                                        <div className="field-icon"><i className="fas fa-id-card"></i></div>
+                                        <div className="field-icon"><i className="fas fa-map-marker-alt"></i></div>
                                         <div className="field-content">
-                                            <label>Aadhar Number</label>
-                                            <span>{candidate.aadharNumber || 'Not provided'}</span>
+                                            <label>Location</label>
+                                            <span>{candidate.location || 'Not provided'}</span>
                                         </div>
                                     </div>
                                     <div className="info-field">
-                                        <div className="field-icon"><i className="fas fa-language"></i></div>
+                                        <div className="field-icon"><i className="fas fa-map-pin"></i></div>
                                         <div className="field-content">
-                                            <label>Preferred Language</label>
-                                            <span>{candidate.preferredLanguage || 'Not provided'}</span>
+                                            <label>Pincode</label>
+                                            <span>{candidate.pincode || 'Not provided'}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="info-row">
                                     <div className="info-field">
-                                        <div className="field-icon"><i className="fas fa-map-pin"></i></div>
+                                        <div className="field-icon"><i className="fas fa-map"></i></div>
                                         <div className="field-content">
-                                            <label>State & City</label>
-                                            <span>{candidate.state}, {candidate.city}</span>
+                                            <label>State Code</label>
+                                            <span>{candidate.stateCode || 'Not provided'}</span>
                                         </div>
                                     </div>
-                                    <div className="info-field">
-                                        <div className="field-icon"><i className="fas fa-map-marker-alt"></i></div>
+                                </div>
+                                <div className="info-row single-field">
+                                    <div className="info-field full-width">
+                                        <div className="field-icon"><i className="fas fa-home"></i></div>
                                         <div className="field-content">
                                             <label>Residential Address</label>
                                             <span>{candidate.residentialAddress || 'Not provided'}</span>
@@ -782,10 +789,19 @@ function EmpCandidateReviewPage() {
                                 </div>
                                 <div className="info-row single-field">
                                     <div className="info-field full-width">
-                                        <div className="field-icon"><i className="fas fa-home"></i></div>
+                                        <div className="field-icon"><i className="fas fa-building"></i></div>
                                         <div className="field-content">
                                             <label>Permanent Address</label>
                                             <span>{candidate.permanentAddress || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="info-row single-field">
+                                    <div className="info-field full-width">
+                                        <div className="field-icon"><i className="fas fa-envelope-open-text"></i></div>
+                                        <div className="field-content">
+                                            <label>Correspondence Address</label>
+                                            <span>{candidate.correspondenceAddress || 'Not provided'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1067,13 +1083,6 @@ function EmpCandidateReviewPage() {
                                         <div className="field-content">
                                             <label>Expected CTC</label>
                                             <span>{candidate.expectedCTC ? `₹ ${candidate.expectedCTC} LPA` : 'Not provided'}</span>
-                                        </div>
-                                    </div>
-                                    <div className="info-field">
-                                        <div className="field-icon"><i className="fas fa-hourglass-half"></i></div>
-                                        <div className="field-content">
-                                            <label>Notice Period</label>
-                                            <span>{candidate.noticePeriod || 'Not provided'}</span>
                                         </div>
                                     </div>
                                 </div>

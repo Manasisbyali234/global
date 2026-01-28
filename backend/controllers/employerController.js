@@ -1615,9 +1615,18 @@ exports.getApplicationDetails = async (req, res) => {
     const interviewProcess = await InterviewProcess.findOne({ applicationId: application._id });
     
     // Merge candidate and profile data
+    const candidateProfileObj = candidateProfile ? candidateProfile.toObject() : {};
+    const currentEmployment = candidateProfileObj.employment?.find(emp => emp.isCurrent || emp.current);
+    const currentExp = candidateProfileObj.experience?.find(exp => exp.current || exp.isCurrent);
+    
     const candidateData = {
       ...application.candidateId.toObject(),
-      ...candidateProfile?.toObject()
+      ...candidateProfileObj,
+      currentCompany: currentEmployment?.organization || currentEmployment?.company || currentExp?.company || currentExp?.organization,
+      currentCTC: currentEmployment?.presentCTC,
+      expectedCTC: currentEmployment?.expectedCTC || candidateProfileObj.expectedSalary,
+      noticePeriod: candidateProfileObj.jobPreferences?.noticePeriod,
+      preferredLocations: candidateProfileObj.jobPreferences?.preferredLocations
     };
 
     const responseApplication = {

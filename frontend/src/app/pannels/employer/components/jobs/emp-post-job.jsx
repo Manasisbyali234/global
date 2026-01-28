@@ -741,7 +741,13 @@ export default function EmpPostJob({ onNext }) {
 				const startTime = field === 'startTime' ? value : formData.interviewRoundDetails[roundType].startTime;
 				const endTime = field === 'endTime' ? value : formData.interviewRoundDetails[roundType].endTime;
 				
-				if (startTime && endTime && endTime <= startTime) {
+				const isAssessment = formData.interviewRoundTypes[roundType] === 'assessment' || 
+									 roundType === 'assessment' || 
+									 String(roundType).startsWith('assessment_');
+
+				// For assessments, when changing startTime, the endTime will be auto-calculated, 
+				// so we skip the validation against the OLD endTime
+				if (!(isAssessment && field === 'startTime') && startTime && endTime && endTime <= startTime) {
 					showWarning(`End time must be after the start time for the same round.`);
 					return;
 				}
@@ -956,16 +962,7 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}
 
-		// Validate Joining Date vs Offer Letter Date
-		if (formData.joiningDate && formData.offerLetterDate) {
-			const joiningDate = new Date(formData.joiningDate);
-			const offerDate = new Date(formData.offerLetterDate);
-			
-			if (joiningDate <= offerDate) {
-				newErrors.joiningDate = ['Joining date must be after the offer letter date'];
-				errorMessages.push(`Joining date (${formData.joiningDate}) must be after the offer letter date (${formData.offerLetterDate})`);
-			}
-		}
+
 
 		// Skip consultant field validation - these are optional
 		// Actually, let's add validation for consultant fields since they're marked as required
@@ -1367,7 +1364,7 @@ export default function EmpPostJob({ onNext }) {
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-building" style={{marginRight: '8px'}}></i>
 									Company Name <span style={redAsterisk}>*</span>
-									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}></span>
 								</label>
 								{approvedCompanies.length > 0 ? (
 									<select
@@ -1418,7 +1415,7 @@ export default function EmpPostJob({ onNext }) {
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-info-circle" style={{marginRight: '8px'}}></i>
 									Why Join Us <span style={redAsterisk}>*</span>
-									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}></span>
 								</label>
 								<textarea
 									style={{
@@ -1443,7 +1440,7 @@ export default function EmpPostJob({ onNext }) {
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-building" style={{marginRight: '8px'}}></i>
 									About Company <span style={redAsterisk}>*</span>
-									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}></span>
 								</label>
 								<textarea
 									style={{
@@ -2835,7 +2832,7 @@ export default function EmpPostJob({ onNext }) {
 											<option key={assessment._id} value={assessment._id}>
 												{assessment.title} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'No duration set'}{assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime ? ' min' : ''})
 											</option>
-										))}}
+										))}
 									</select>
 									{selectedAssessment && (
 										<div style={{display: 'flex', alignItems: 'center', gap: 6, color: '#10b981', fontSize: 14, fontWeight: 600}}>
@@ -2974,7 +2971,7 @@ export default function EmpPostJob({ onNext }) {
 														}}
 													>
 														<i className="fa fa-calendar-plus"></i>
-														Schedule
+														Interview Schedule
 													</button>
 													<i 
 														className="fa fa-edit"
@@ -3395,7 +3392,7 @@ export default function EmpPostJob({ onNext }) {
 														}}
 													>
 														<i className="fa fa-calendar-plus"></i>
-														Schedule
+														Interview Schedule
 													</button>
 													<i 
 														className="fa fa-edit"
@@ -3606,30 +3603,7 @@ export default function EmpPostJob({ onNext }) {
 						<HolidayIndicator date={formData.offerLetterDate} />
 					</div>
 
-					<div>
-						<label style={label}>
-							<i className="fa fa-walking" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Joining Date
-						</label>
-						<input
-							style={input}
-							type="date"
-							min={formData.offerLetterDate || new Date().toISOString().split('T')[0]}
-							value={formData.joiningDate || ''}
-							onChange={(e) => update({ joiningDate: e.target.value })}
-							placeholder="DD/MM/YYYY"
-						/>
-						{errors.joiningDate && (
-							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
-								<i className="fa fa-exclamation-circle"></i>
-								{errors.joiningDate[0]}
-							</div>
-						)}
-						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Format: DD/MM/YYYY
-						</small>
-						<HolidayIndicator date={formData.joiningDate} />
-					</div>
+
 
 					<div>
 						<label style={label}>

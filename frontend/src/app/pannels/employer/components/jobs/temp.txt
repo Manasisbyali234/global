@@ -830,7 +830,7 @@ export default function EmpPostJob({ onNext }) {
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-building" style={{marginRight: '8px'}}></i>
 									Company Name *
-									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}></span>
 								</label>
 								<input
 									style={{
@@ -854,7 +854,7 @@ export default function EmpPostJob({ onNext }) {
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-info-circle" style={{marginRight: '8px'}}></i>
 									Company Description *
-									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}></span>
 								</label>
 								<textarea
 									style={{
