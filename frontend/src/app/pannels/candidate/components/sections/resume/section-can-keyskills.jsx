@@ -88,7 +88,7 @@ function SectionCanKeySkills({ profile }) {
             <div className="panel-heading wt-panel-heading p-a20">
                 <h4 className="panel-tittle m-a0 mb-3">
                     <i className="fa fa-cogs site-text-primary me-2"></i>
-                    Key Skills
+                    Key Skills*
                 </h4>
                 
                 <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">

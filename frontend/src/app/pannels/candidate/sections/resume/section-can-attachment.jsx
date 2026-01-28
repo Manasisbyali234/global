@@ -238,7 +238,7 @@ function SectionCanAttachment({ profile }) {
             <div className="panel-heading wt-panel-heading p-a20 panel-heading-with-btn ">
                 <h4 className="panel-tittle m-a0">
                     <i className="fa fa-paperclip site-text-primary me-2"></i>
-                    Attach Resume
+                    Attach Resume<span style={{ color: 'red' }}>*</span>
                 </h4>
             </div>
             <div className="panel-body wt-panel-body p-a20 ">

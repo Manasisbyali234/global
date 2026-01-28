@@ -1261,7 +1261,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     </div>
 
                                     <div className="col-md-4">
-                                        <label className="form-label required-field">State</label>
+                                        <label className="form-label required-field">State *</label>
                                         <select
                                             className={`form-select ${errors.state ? 'is-invalid' : ''}`}
                                             name="state"
@@ -1551,7 +1551,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     <thead className="table-light">
                                         <tr>
                                             <th style={{minWidth: '120px', whiteSpace: 'nowrap'}}>Qualification</th>
-                                            <th style={{minWidth: '150px'}}>Degree/Course</th>
+                                            <th style={{minWidth: '150px'}}>Degree/Course/Board</th>
                                             <th style={{minWidth: '120px'}}>Institution</th>
                                             <th style={{minWidth: '80px', whiteSpace: 'nowrap'}}>Enrollment No.</th>
                                             <th style={{minWidth: '80px'}}>State</th>

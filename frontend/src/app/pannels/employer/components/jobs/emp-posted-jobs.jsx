@@ -36,7 +36,7 @@ export default function EmpPostedJobs() {
         if (query) {
             next = next.filter(job => {
                 const title = (job.title || '').toLowerCase();
-                const location = (job.location || '').toLowerCase();
+                const location = (typeof job.location === 'string' ? job.location : '').toLowerCase();
                 const companyName = (job.companyName || '').toLowerCase();
                 
                 // Search in title, location, and company name for all employer types

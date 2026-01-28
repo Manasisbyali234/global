@@ -9,7 +9,7 @@ function SectionCanAttachment() {
     return (
         <>
             <div className="panel-heading wt-panel-heading p-a20 panel-heading-with-btn ">
-                <h4 className="panel-tittle m-a0">Attach Resume</h4>
+                <h4 className="panel-tittle m-a0">Attach Resume</h4><span style={{ color: 'red' }}>*</span>
             </div>
             <div className="panel-body wt-panel-body p-a20 ">
                 <div className="twm-panel-inner">
