@@ -399,13 +399,16 @@ export default function EmpPostJob({ onNext }) {
 			if (netSalary) {
 				update({ netSalary });
 			}
+		} else {
+			// Clear net salary when CTC is empty
+			update({ netSalary: '' });
 		}
 	}, []);
 
-	// Debounced auto-save
+	// Debounced auto-save - only trigger if CTC has a value
 	useEffect(() => {
 		const timer = setTimeout(() => {
-			if (formData.ctc) {
+			if (formData.ctc && formData.ctc.trim()) {
 				autoSaveCTC(formData.ctc);
 			}
 		}, 500); // Save after 500ms of no typing
@@ -420,11 +423,11 @@ export default function EmpPostJob({ onNext }) {
 		if (isEditMode) {
 			fetchJobData();
 		} else {
-			// Load saved CTC from localStorage for new jobs
-			const savedCTC = localStorage.getItem('draft_ctc');
-			if (savedCTC) {
-				update({ ctc: savedCTC });
-			}
+			// Don't load saved CTC from localStorage to prevent default values
+			// const savedCTC = localStorage.getItem('draft_ctc');
+			// if (savedCTC) {
+			//		update({ ctc: savedCTC });
+			// }
 		}
 		fetchEmployerType();
 		fetchAssessments();
@@ -1835,13 +1838,16 @@ export default function EmpPostJob({ onNext }) {
 							}}
 							className={errors.ctc ? 'is-invalid' : ''}
 							placeholder="e.g., 8 L.P.A or 6-8 L.P.A"
-							value={formData.ctc}
+							value={formData.ctc || ''}
 							onChange={(e) => {
 								const value = e.target.value;
 								update({ ctc: value });
 								// Trigger auto-calculation immediately
 								if (value.trim()) {
 									autoSaveCTC(value);
+								} else {
+									// Clear net salary when CTC is cleared
+									update({ netSalary: '' });
 								}
 							}}
 						/>
@@ -1881,8 +1887,8 @@ export default function EmpPostJob({ onNext }) {
 								background: formData.netSalary ? '#f0fdf4' : '#fff'
 							}}
 							className={errors.netSalary ? 'is-invalid' : ''}
-							placeholder="Auto-calculated from CTC"
-							value={formData.netSalary}
+							placeholder="Auto-calculated from CTC or enter manually"
+							value={formData.netSalary || ''}
 							onChange={(e) => update({ netSalary: e.target.value })}
 						/>
 						{errors.netSalary && (

@@ -1545,3 +1545,16 @@ img {
   }
 }
 
+/* Important notice text styling - Red color */
+.alert.alert-info strong {
+  color: #dc3545 !important;
+}
+
+.alert.alert-info {
+  color: #dc3545 !important;
+  background-color: transparent !important;
+  background: none !important;
+  border: 2px solid #dc3545 !important;
+  border-radius: 8px !important;
+}
+

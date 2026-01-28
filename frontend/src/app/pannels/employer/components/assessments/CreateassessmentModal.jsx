@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import './CreateAssessmentModal.css';
+import './CreateassessmentModal.css';
 import { disableBodyScroll, enableBodyScroll } from "../../../../../utils/scrollUtils";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -398,8 +398,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				>
 					<div className="mb-3">
 						<label className="form-label small text-muted mb-2">
-							Designation *
-							<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+							Designation <span style={{color: '#dc2626'}}>*</span>
 						</label>
 						<input
 							type="text"
@@ -455,8 +454,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					{employerCategory === 'consultancy' && (
 						<div className="mb-3">
 							<label className="form-label small text-muted mb-2">
-								Company Name *
-								<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+								Company Name <span style={{color: '#dc2626'}}>*</span>
 							</label>
 							{approvedCompanies.length > 0 ? (
 								<select
@@ -508,8 +506,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 
 					<div className="mb-3">
 						<label className="form-label small text-muted mb-2">
-							Assessment Type *
-							<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+							Assessment Type <span style={{color: '#dc2626'}}>*</span>
 						</label>
 						<select
 							className="form-select"
@@ -547,8 +544,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					<div className="row mb-3">
 						<div className="col-6">
 							<label className="form-label small text-muted mb-2">
-								Time Limit (min) *
-								<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+								Time Limit (min) <span style={{color: '#dc2626'}}>*</span>
 							</label>
 							<input
 								type="number"
@@ -573,8 +569,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 
 					<div className="mb-4">
 						<label className="form-label small text-muted mb-2">
-							Instructions *
-							<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+							Instructions <span style={{color: '#dc2626'}}>*</span>
 						</label>
 						<textarea
 							className="form-control"
@@ -775,8 +770,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							<div className="row">
 								<div className="col-6">
 									<label className="form-label small text-muted mb-1">
-										Marks *
-										<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+										Marks <span style={{color: '#dc2626'}}>*</span>
 									</label>
 									<input
 										type="number"
