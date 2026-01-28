@@ -509,39 +509,6 @@ function JobDetail1Page() {
                                                 <p style={{color: '#6c757d', fontStyle: 'italic'}}>No specific skills mentioned for this position</p>
                                             )}
                                         </div>
-                                        
-                                        {(job?.transportation && (job.transportation.oneWay || job.transportation.twoWay || job.transportation.noCab)) || job?.workMode ? (
-                                            <div style={{marginTop: '25px', display: 'flex', gap: '30px', flexWrap: 'wrap'}}>
-                                                {job?.transportation && (job.transportation.oneWay || job.transportation.twoWay || job.transportation.noCab) && (
-                                                    <div style={{flex: '1', minWidth: '200px'}}>
-                                                        <h5 style={{color: '#2c3e50', marginBottom: '15px', fontSize: '18px', fontWeight: '600'}}>
-                                                            Transportation
-                                                        </h5>
-                                                        <p style={{color: '#495057', fontSize: '16px', lineHeight: '1.6'}}>
-                                                            {[
-                                                                job.transportation.oneWay && 'One-way Cab',
-                                                                job.transportation.twoWay && 'Two-way Cab',
-                                                                job.transportation.noCab && 'No Cab Facility'
-                                                            ].filter(Boolean).join(', ')}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                                
-                                                {job?.workMode && (
-                                                    <div style={{flex: '1', minWidth: '200px'}}>
-                                                        <h5 style={{color: '#2c3e50', marginBottom: '15px', fontSize: '18px', fontWeight: '600'}}>
-                                                            <i className="feather-home" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-                                                            Work Mode
-                                                        </h5>
-                                                        <p style={{color: '#495057', fontSize: '16px', lineHeight: '1.6', textTransform: 'capitalize'}}>
-                                                            {job.workMode === 'work-from-home' ? 'Work from Home' : 
-                                                             job.workMode === 'remote' ? 'Remote' : 
-                                                             job.workMode === 'hybrid' ? 'Hybrid' : job.workMode}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ) : null}
                                     </div>
 
                                     {job.employerId?.employerType === 'consultant' && job.employerProfile && (

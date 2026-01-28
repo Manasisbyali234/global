@@ -852,7 +852,7 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}
 
-		// Application limit validation removed - employers can set any application limit
+		// Application limit validation - removed strict requirement, now just a warning
 
 		// Validate Interview Rounds Count
 		const specifiedRoundsCount = parseInt(formData.interviewRoundsCount) || 0;
@@ -1989,21 +1989,7 @@ export default function EmpPostJob({ onNext }) {
 							placeholder="e.g., 5"
 							value={formData.vacancies}
 							onChange={(e) => {
-								const vacancies = parseInt(e.target.value) || 0;
-								const applicationLimit = parseInt(formData.applicationLimit) || 0;
-								
 								update({ vacancies: e.target.value });
-								
-								// Auto-suggest application limit based on vacancies
-								if (vacancies > 0) {
-									const suggestedLimit = vacancies * 10; // 10x the vacancies as suggestion
-									update({ applicationLimit: suggestedLimit.toString() });
-								}
-								
-								// Check if application limit is less than vacancies after updating vacancies
-								if (vacancies > 0 && applicationLimit > 0 && applicationLimit < vacancies) {
-									showWarning(`Warning: Your application limit (${applicationLimit}) is now less than the number of vacancies (${vacancies}). Please update the application limit to at least ${vacancies}.`);
-								}
 							}}
 						/>
 						{errors.vacancies && (
@@ -2033,10 +2019,9 @@ export default function EmpPostJob({ onNext }) {
 								const applicationLimit = parseInt(e.target.value) || 0;
 								const vacancies = parseInt(formData.vacancies) || 0;
 								
-								// Check if application limit is less than vacancies
+								// Only show popup if application limit is less than vacancies
 								if (applicationLimit > 0 && vacancies > 0 && applicationLimit < vacancies) {
-									showError(`Application limit (${applicationLimit}) cannot be less than number of vacancies (${vacancies}). Please set application limit to at least ${vacancies}.`);
-									return; // Don't update the value
+									showWarning(`Warning: Application limit (${applicationLimit}) is less than number of vacancies (${vacancies}). Consider setting it to at least ${vacancies} for better hiring outcomes.`);
 								}
 								
 								update({ applicationLimit: e.target.value });
@@ -2049,7 +2034,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Maximum number of applications to accept (must be at least equal to number of vacancies)
+							Maximum number of applications to accept
 						</small>
 					</div>
 
