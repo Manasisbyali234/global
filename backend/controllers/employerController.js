@@ -773,10 +773,11 @@ exports.createJob = async (req, res) => {
       if (!jobData.interviewRoundTypes) {
         jobData.interviewRoundTypes = {
           technical: false,
-          managerial: false,
-          nonTechnical: false,
-          final: false,
-          hr: false
+          oneOnOne: false,
+          panel: false,
+          group: false,
+          situational: false,
+          others: false
         };
       }
       jobData.interviewRoundTypes.technical = true;
@@ -2016,14 +2017,13 @@ exports.scheduleInterviewRound = async (req, res) => {
     // Notify only candidates who have applied for this job
     try {
       const roundNames = {
-        technical: 'Technical Round',
-        nonTechnical: 'Non-Technical Round',
-        managerial: 'Managerial Round',
-        final: 'Final Round',
-        hr: 'HR Round',
-        assessment: 'Assessment',
-        aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-        coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+        technical: 'Technical',
+        oneOnOne: 'One – On – One',
+        panel: 'Panel',
+        group: 'Group',
+        situational: 'Situational / Behavioral',
+        others: 'Others – Specify.',
+        assessment: 'Assessment'
       };
       
       const roundName = roundNames[roundType] || roundType;
@@ -2050,14 +2050,13 @@ exports.scheduleInterviewRound = async (req, res) => {
       job: updatedJob,
       formattedMessage: (() => {
         const roundNames = {
-          technical: 'Technical round',
-          nonTechnical: 'Non-Technical round',
-          managerial: 'Managerial round',
-          final: 'Final round',
-          hr: 'HR round',
-          assessment: 'Assessment',
-          aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-          coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+          technical: 'Technical',
+          oneOnOne: 'One – On – One',
+          panel: 'Panel',
+          group: 'Group',
+          situational: 'Situational / Behavioral',
+          others: 'Others – Specify.',
+          assessment: 'Assessment'
         };
         
         const roundName = roundNames[roundType] || roundType;

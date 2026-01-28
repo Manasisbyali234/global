@@ -359,23 +359,23 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                             <h4 className="section-head-small mb-4">Job Type</h4>
                             <ul style={{listStyle: 'none', padding: 0}}>
                                 <li style={{marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                    <div className="form-check" style={{margin: 0}}>
+                                    <div className="form-check" style={{margin: 0, display: 'flex', alignItems: 'center'}}>
                                         <input 
                                             type="checkbox" 
                                             className="form-check-input" 
                                             id="jobTypeAll"
                                             checked={!filters.jobType || filters.jobType.length === 0}
                                             onChange={() => setFilters({...filters, jobType: []})}
-                                            style={{marginRight: '8px'}}
+                                            style={{marginRight: '8px', marginTop: '0', flexShrink: 0}}
                                         />
-                                        <label className="form-check-label" htmlFor="jobTypeAll" style={{fontSize: '14px', color: '#333', fontWeight: (!filters.jobType || filters.jobType.length === 0) ? '600' : 'normal'}}>
+                                        <label className="form-check-label" htmlFor="jobTypeAll" style={{fontSize: '14px', color: '#333', fontWeight: (!filters.jobType || filters.jobType.length === 0) ? '600' : 'normal', marginBottom: '0', lineHeight: '1.2'}}>
                                             All Types
                                         </label>
                                     </div>
                                 </li>
                                 {jobTypes.length > 0 ? jobTypes.map(([type, count], index) => (
                                     <li key={type} style={{marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                        <div className="form-check" style={{margin: 0}}>
+                                        <div className="form-check" style={{margin: 0, display: 'flex', alignItems: 'center'}}>
                                             <input 
                                                 type="checkbox" 
                                                 className="form-check-input" 
@@ -389,9 +389,9 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                                                         setFilters({...filters, jobType: filters.jobType.filter(t => t !== type)});
                                                     }
                                                 }}
-                                                style={{marginRight: '8px'}}
+                                                style={{marginRight: '8px', marginTop: '0', flexShrink: 0}}
                                             />
-                                            <label className="form-check-label" htmlFor={`jobType${index}`} style={{fontSize: '14px', color: '#333', fontWeight: filters.jobType.includes(type) ? '600' : 'normal'}}>
+                                            <label className="form-check-label" htmlFor={`jobType${index}`} style={{fontSize: '14px', color: '#333', fontWeight: filters.jobType.includes(type) ? '600' : 'normal', marginBottom: '0', lineHeight: '1.2'}}>
                                                 {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                                             </label>
                                         </div>
@@ -407,22 +407,23 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                             <h4 className="section-head-small mb-4">Skills & Technologies</h4>
                             <ul style={{maxHeight: '300px', overflowY: 'auto', listStyle: 'none', padding: 0}}>
                                 <li style={{marginBottom: '10px'}}>
-                                    <div className="form-check" style={{margin: 0}}>
+                                    <div className="form-check" style={{margin: 0, display: 'flex', alignItems: 'center'}}>
                                         <input 
                                             type="checkbox" 
                                             className="form-check-input" 
                                             id="skillAll"
                                             checked={!filters.skills || filters.skills.length === 0}
                                             onChange={() => setFilters({...filters, skills: []})}
+                                            style={{marginRight: '8px', marginTop: '0', flexShrink: 0}}
                                         />
-                                        <label className="form-check-label" htmlFor="skillAll" style={{fontSize: '14px', color: '#333', fontWeight: (!filters.skills || filters.skills.length === 0) ? '600' : 'normal'}}>
+                                        <label className="form-check-label" htmlFor="skillAll" style={{fontSize: '14px', color: '#333', fontWeight: (!filters.skills || filters.skills.length === 0) ? '600' : 'normal', marginBottom: '0', lineHeight: '1.2'}}>
                                             All Skills
                                         </label>
                                     </div>
                                 </li>
                                 {skillCategories.map((skill, index) => (
                                     <li key={skill} style={{marginBottom: '10px'}}>
-                                        <div className="form-check" style={{margin: 0}}>
+                                        <div className="form-check" style={{margin: 0, display: 'flex', alignItems: 'center'}}>
                                             <input 
                                                 type="checkbox" 
                                                 className="form-check-input" 
@@ -436,8 +437,9 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                                                         setFilters({...filters, skills: filters.skills.filter(s => s !== skill)});
                                                     }
                                                 }}
+                                                style={{marginRight: '8px', marginTop: '0', flexShrink: 0}}
                                             />
-                                            <label className="form-check-label" htmlFor={`skill${index}`} style={{fontSize: '14px', color: '#333', fontWeight: filters.skills.includes(skill) ? '600' : 'normal'}}>
+                                            <label className="form-check-label" htmlFor={`skill${index}`} style={{fontSize: '14px', color: '#333', fontWeight: filters.skills.includes(skill) ? '600' : 'normal', marginBottom: '0', lineHeight: '1.2'}}>
                                                 {skill}
                                             </label>
                                         </div>
@@ -450,23 +452,23 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                             <h4 className="section-head-small mb-4">Qualification</h4>
                             <ul style={{listStyle: 'none', padding: 0, maxHeight: '200px', overflowY: 'auto'}}>
                                 <li style={{marginBottom: '10px'}}>
-                                    <div className="form-check" style={{margin: 0}}>
+                                    <div className="form-check" style={{margin: 0, display: 'flex', alignItems: 'center'}}>
                                         <input 
                                             type="checkbox" 
                                             className="form-check-input" 
                                             id="educationAll"
                                             checked={!filters.education || filters.education.length === 0}
                                             onChange={() => setFilters({...filters, education: []})}
-                                            style={{marginRight: '8px'}}
+                                            style={{marginRight: '8px', marginTop: '0', flexShrink: 0}}
                                         />
-                                        <label className="form-check-label" htmlFor="educationAll" style={{fontSize: '14px', color: '#333', fontWeight: (!filters.education || filters.education.length === 0) ? '600' : 'normal'}}>
+                                        <label className="form-check-label" htmlFor="educationAll" style={{fontSize: '14px', color: '#333', fontWeight: (!filters.education || filters.education.length === 0) ? '600' : 'normal', marginBottom: '0', lineHeight: '1.2'}}>
                                             Any Qualification
                                         </label>
                                     </div>
                                 </li>
                                 {educationLevels.filter(level => level !== "Any").map((level, index) => (
                                     <li key={level} style={{marginBottom: '10px'}}>
-                                        <div className="form-check" style={{margin: 0}}>
+                                        <div className="form-check" style={{margin: 0, display: 'flex', alignItems: 'center'}}>
                                             <input 
                                                 type="checkbox" 
                                                 className="form-check-input" 
@@ -480,9 +482,9 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                                                         setFilters({...filters, education: filters.education.filter(edu => edu !== level)});
                                                     }
                                                 }}
-                                                style={{marginRight: '8px'}}
+                                                style={{marginRight: '8px', marginTop: '0', flexShrink: 0}}
                                             />
-                                            <label className="form-check-label" htmlFor={`education${index}`} style={{fontSize: '14px', color: '#333', fontWeight: filters.education.includes(level) ? '600' : 'normal'}}>
+                                            <label className="form-check-label" htmlFor={`education${index}`} style={{fontSize: '14px', color: '#333', fontWeight: filters.education.includes(level) ? '600' : 'normal', marginBottom: '0', lineHeight: '1.2'}}>
                                                 {level}
                                             </label>
                                         </div>
@@ -614,23 +616,23 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                             <h4 className="section-head-small mb-4">Job Category</h4>
                             <ul style={{listStyle: 'none', padding: 0}}>
                                 <li style={{marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                    <div className="form-check" style={{margin: 0}}>
+                                    <div className="form-check" style={{margin: 0, display: 'flex', alignItems: 'center'}}>
                                         <input 
                                             type="checkbox" 
                                             className="form-check-input" 
                                             id="categoryAll"
                                             checked={!filters.category || filters.category.length === 0}
                                             onChange={() => setFilters({...filters, category: []})}
-                                            style={{marginRight: '8px'}}
+                                            style={{marginRight: '8px', marginTop: '0', flexShrink: 0}}
                                         />
-                                        <label className="form-check-label" htmlFor="categoryAll" style={{fontSize: '14px', color: '#333', fontWeight: (!filters.category || filters.category.length === 0) ? '600' : 'normal'}}>
+                                        <label className="form-check-label" htmlFor="categoryAll" style={{fontSize: '14px', color: '#333', fontWeight: (!filters.category || filters.category.length === 0) ? '600' : 'normal', marginBottom: '0', lineHeight: '1.2'}}>
                                             All Categories
                                         </label>
                                     </div>
                                 </li>
                                 {categories.length > 0 ? categories.map(([category, count], index) => (
                                     <li key={category} style={{marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                        <div className="form-check" style={{margin: 0}}>
+                                        <div className="form-check" style={{margin: 0, display: 'flex', alignItems: 'center'}}>
                                             <input 
                                                 type="checkbox" 
                                                 className="form-check-input" 
@@ -644,9 +646,9 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                                                         setFilters({...filters, category: filters.category.filter(c => c !== category)});
                                                     }
                                                 }}
-                                                style={{marginRight: '8px'}}
+                                                style={{marginRight: '8px', marginTop: '0', flexShrink: 0}}
                                             />
-                                            <label className="form-check-label" htmlFor={`category${index}`} style={{fontSize: '14px', color: '#333', fontWeight: filters.category.includes(category) ? '600' : 'normal'}}>
+                                            <label className="form-check-label" htmlFor={`category${index}`} style={{fontSize: '14px', color: '#333', fontWeight: filters.category.includes(category) ? '600' : 'normal', marginBottom: '0', lineHeight: '1.2'}}>
                                                 {category}
                                             </label>
                                         </div>

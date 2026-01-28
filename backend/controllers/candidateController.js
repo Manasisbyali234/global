@@ -1216,11 +1216,13 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
             // Add other interview rounds
             const details = job.interviewRoundDetails[uniqueKey];
             const roundTypeNames = {
-              technical: 'Technical Round',
-              nonTechnical: 'Non-Technical Round',
-              managerial: 'Managerial Round',
-              final: 'Final Round',
-              hr: 'HR Round'
+              technical: 'Technical',
+              oneOnOne: 'One – On – One',
+              panel: 'Panel',
+              group: 'Group',
+              situational: 'Situational / Behavioral',
+              others: 'Others – Specify.',
+              assessment: 'Assessment'
             };
             
             if (details.description || details.fromDate || details.toDate) {
@@ -1491,13 +1493,15 @@ exports.getApplicationInterviewDetails = async (req, res) => {
         } else if (roundType && job.interviewRoundDetails[uniqueKey]) {
           // Add other interview rounds with detailed info
           const details = job.interviewRoundDetails[uniqueKey];
-          const roundTypeNames = {
-            technical: 'Technical Round',
-            nonTechnical: 'Non-Technical Round',
-            managerial: 'Managerial Round',
-            final: 'Final Round',
-            hr: 'HR Round'
-          };
+            const roundTypeNames = {
+              technical: 'Technical',
+              oneOnOne: 'One – On – One',
+              panel: 'Panel',
+              group: 'Group',
+              situational: 'Situational / Behavioral',
+              others: 'Others – Specify.',
+              assessment: 'Assessment'
+            };
           
           if (details.description || details.fromDate || details.toDate) {
             interviewDetails.rounds.push({
@@ -1751,13 +1755,15 @@ exports.getInterviewProcessDetails = async (req, res) => {
           });
         } else if (roundType && job.interviewRoundDetails[uniqueKey]) {
           const details = job.interviewRoundDetails[uniqueKey];
-          const roundTypeNames = {
-            technical: 'Technical Round',
-            nonTechnical: 'Non-Technical Round',
-            managerial: 'Managerial Round',
-            final: 'Final Round',
-            hr: 'HR Round'
-          };
+            const roundTypeNames = {
+              technical: 'Technical',
+              oneOnOne: 'One – On – One',
+              panel: 'Panel',
+              group: 'Group',
+              situational: 'Situational / Behavioral',
+              others: 'Others – Specify.',
+              assessment: 'Assessment'
+            };
           
           if (details.description || details.fromDate || details.toDate) {
             interviewProcess.stages.push({

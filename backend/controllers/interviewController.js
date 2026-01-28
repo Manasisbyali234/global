@@ -203,11 +203,12 @@ const scheduleInterviewStage = async (req, res) => {
       interviewProcess,
       formattedMessage: (() => {
         const stageNames = {
-          technical: 'Technical round',
-          nonTechnical: 'Non-Technical round', 
-          managerial: 'Managerial round',
-          final: 'Final round',
-          hr: 'HR round',
+          technical: 'Technical',
+          oneOnOne: 'One – On – One',
+          panel: 'Panel',
+          group: 'Group',
+          situational: 'Situational / Behavioral',
+          others: 'Others – Specify.',
           assessment: 'Assessment'
         };
         

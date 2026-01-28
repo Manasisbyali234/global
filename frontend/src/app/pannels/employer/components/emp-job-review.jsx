@@ -228,13 +228,12 @@ function EmpJobReviewPage() {
                                                 const roundType = jobDetails.interviewRoundTypes?.[key];
                                                 const roundNames = {
                                                     technical: 'Technical',
-                                                    nonTechnical: 'Non-Technical',
-                                                    managerial: 'Managerial',
-                                                    final: 'Final',
-                                                    hr: 'HR',
-                                                    assessment: 'Assessment',
-                                                    aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-                                                    coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+                                                    oneOnOne: 'One – On – One',
+                                                    panel: 'Panel',
+                                                    group: 'Group',
+                                                    situational: 'Situational / Behavioral',
+                                                    others: 'Others – Specify.',
+                                                    assessment: 'Assessment'
                                                 };
                                                 return `${index + 1}. ${roundNames[roundType] || roundType}`;
                                             }).join(', ')
@@ -257,14 +256,13 @@ function EmpJobReviewPage() {
                                         const roundType = jobDetails.interviewRoundTypes?.[key];
                                         const details = jobDetails.interviewRoundDetails?.[key];
                                         const roundNames = {
-                                            technical: 'Technical Round',
-                                            nonTechnical: 'Non-Technical Round',
-                                            managerial: 'Managerial Round',
-                                            final: 'Final Round',
-                                            hr: 'HR Round',
-                                            assessment: 'Assessment',
-                                            aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-                                            coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+                                            technical: 'Technical',
+                                            oneOnOne: 'One – On – One',
+                                            panel: 'Panel',
+                                            group: 'Group',
+                                            situational: 'Situational / Behavioral',
+                                            others: 'Others – Specify.',
+                                            assessment: 'Assessment'
                                         };
                                         
                                         if (!details) return null;

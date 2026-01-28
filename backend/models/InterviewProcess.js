@@ -17,7 +17,7 @@ const InterviewProcessSchema = new mongoose.Schema({
   stages: [{
     stageType: { 
       type: String, 
-      enum: ['assessment', 'technical', 'hr', 'managerial', 'final', 'nonTechnical', 'custom', 'aptitude', 'coding'],
+      enum: ['oneOnOne', 'panel', 'group', 'technical', 'situational', 'others', 'assessment', 'custom'],
       required: true 
     },
     stageName: { type: String, required: true }, // e.g., "Technical Round", "HR Interview"

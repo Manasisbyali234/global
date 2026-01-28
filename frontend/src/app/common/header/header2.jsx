@@ -100,16 +100,94 @@ const Header2 = memo(function Header2({ _config }) {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="header-nav-btn-section">
-                                            <div className="twm-nav-btn-left">
-                                                <a className="twm-nav-sign-up" data-bs-toggle="modal" href="#sign_up_popup" role="button">
-                                                    <i className="feather-log-in" /> Sign Up
+                                        <div className="header-nav-btn-section d-flex align-items-center">
+                                            <div className="twm-nav-btn-left dropdown">
+                                                <a 
+                                                    className="twm-nav-sign-up dropdown-toggle" 
+                                                    href="#" 
+                                                    role="button" 
+                                                    data-bs-toggle="dropdown" 
+                                                    aria-expanded="false"
+                                                    style={{ display: 'flex', alignItems: 'center' }}
+                                                >
+                                                    <i className="feather-user-plus" /> Sign Up
                                                 </a>
+                                                <ul className="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a 
+                                                            className="dropdown-item" 
+                                                            data-bs-toggle="modal" 
+                                                            href="#sign_up_popup" 
+                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup', tab: 'candidate' } }))}
+                                                        >
+                                                            Candidate
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a 
+                                                            className="dropdown-item" 
+                                                            data-bs-toggle="modal" 
+                                                            href="#sign_up_popup" 
+                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup', tab: 'employer' } }))}
+                                                        >
+                                                            Employer
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a 
+                                                            className="dropdown-item" 
+                                                            data-bs-toggle="modal" 
+                                                            href="#sign_up_popup" 
+                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup', tab: 'placement' } }))}
+                                                        >
+                                                            Placement Officer
+                                                        </a>
+                                                    </li>
+                                                </ul>
                                             </div>
-                                            <div className="twm-nav-btn-right">
-                                                <a className="twm-nav-post-a-job" data-bs-toggle="modal" href="#sign_up_popup2" role="button">
+                                            <div className="twm-nav-btn-right dropdown ms-3">
+                                                <a 
+                                                    className="twm-nav-post-a-job dropdown-toggle" 
+                                                    href="#" 
+                                                    role="button" 
+                                                    data-bs-toggle="dropdown" 
+                                                    aria-expanded="false"
+                                                    style={{ display: 'flex', alignItems: 'center' }}
+                                                >
                                                     <i className="feather-log-in" /> Sign In
                                                 </a>
+                                                <ul className="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a 
+                                                            className="dropdown-item" 
+                                                            data-bs-toggle="modal" 
+                                                            href="#sign_up_popup2" 
+                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup2', tab: 'candidate' } }))}
+                                                        >
+                                                            Candidate
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a 
+                                                            className="dropdown-item" 
+                                                            data-bs-toggle="modal" 
+                                                            href="#sign_up_popup2" 
+                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup2', tab: 'employer' } }))}
+                                                        >
+                                                            Employer
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a 
+                                                            className="dropdown-item" 
+                                                            data-bs-toggle="modal" 
+                                                            href="#sign_up_popup2" 
+                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup2', tab: 'placement' } }))}
+                                                        >
+                                                            Placement Officer
+                                                        </a>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </div>
                                     )}

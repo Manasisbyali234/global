@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import './CreateassessmentModal.css';
+import './CreateAssessmentModal.css';
 import { disableBodyScroll, enableBodyScroll } from "../../../../../utils/scrollUtils";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -238,7 +238,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		}
 		
 		if (!title.trim()) {
-			showWarning("Please select an assessment type");
+			showWarning("Please enter an assessment title");
 			return;
 		}
 		
@@ -506,10 +506,12 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 
 					<div className="mb-3">
 						<label className="form-label small text-muted mb-2">
-							Assessment Type <span style={{color: '#dc2626'}}>*</span>
+							Assessment Title <span style={{color: '#dc2626'}}>*</span>
 						</label>
-						<select
-							className="form-select"
+						<input
+							type="text"
+							className="form-control"
+							placeholder="Enter assessment title (e.g., Aptitude Test)"
 							value={title}
 							onChange={(e) => setTitle(e.target.value)}
 							required
@@ -517,24 +519,11 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								borderColor: title ? '#10b981' : '#dc2626',
 								borderWidth: 2
 							}}
-						>
-							<option value="" disabled>Select Assessment Type</option>
-							<option value="Aptitude Test">Aptitude Test</option>
-							<option value="Coding Assessment">Coding Assessment</option>
-							<option value="Case Study Round">Case Study Round</option>
-							<option value="Group Discussion">Group Discussion</option>
-							<option value="Managerial Round">Managerial Round</option>
-							<option value="Panel Interview">Panel Interview</option>
-							<option value="Final HR Round">Final HR Round</option>
-							<option value="Leadership Interview">Leadership Interview</option>
-							<option value="Technical Interview">Technical Interview</option>
-							<option value="Behavioral Interview">Behavioral Interview</option>
-							<option value="Skills Assessment">Skills Assessment</option>
-						</select>
+						/>
 						{!title && (
 							<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
 								<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
-								Please select an assessment type
+								Please enter an assessment title
 							</small>
 						)}
 					</div>

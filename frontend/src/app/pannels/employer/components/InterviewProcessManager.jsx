@@ -21,13 +21,12 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
 
   const stageTypes = [
     { value: 'assessment', label: 'Assessment Schedule', icon: '📝' },
-    { value: 'aptitude', label: 'Aptitude test - SOFTWARE ENGINEERING', icon: '🧠' },
-    { value: 'coding', label: 'Coding - SENIOR SOFTWARE ENGINEERING', icon: '💻' },
-    { value: 'technical', label: 'Technical Round', icon: '💻' },
-    { value: 'hr', label: 'HR Round', icon: '👥' },
-    { value: 'managerial', label: 'Managerial Round', icon: '👔' },
-    { value: 'final', label: 'Final Round', icon: '🎯' },
-    { value: 'custom', label: 'Custom Round', icon: '⚙️' }
+    { value: 'oneOnOne', label: 'One – On – One', icon: '🤝' },
+    { value: 'panel', label: 'Panel', icon: '👥' },
+    { value: 'group', label: 'Group', icon: '👨‍👩‍👧‍👦' },
+    { value: 'technical', label: 'Technical', icon: '💻' },
+    { value: 'situational', label: 'Situational / Behavioral', icon: '🎭' },
+    { value: 'others', label: 'Others – Specify.', icon: '⚙️' }
   ];
 
   useEffect(() => {
@@ -270,14 +269,13 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
         if (scheduledStages.length > 0) {
           const stage = scheduledStages[0]; // Get first scheduled stage for message
           const stageNames = {
-            technical: 'Technical round',
-            nonTechnical: 'Non-Technical round', 
-            managerial: 'Managerial round',
-            final: 'Final round',
-            hr: 'HR round',
-            assessment: 'Assessment',
-            aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-            coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+            technical: 'Technical',
+            oneOnOne: 'One – On – One',
+            panel: 'Panel',
+            group: 'Group',
+            situational: 'Situational / Behavioral',
+            others: 'Others – Specify.',
+            assessment: 'Assessment'
           };
           
           const stageName = stageNames[stage.stageType] || stage.stageName || 'Interview round';
@@ -644,7 +642,7 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
                                   value={assessment._id}
                                   disabled={isUsed}
                                 >
-                                  {assessment.title} {isUsed ? '(Already assigned)' : ''}
+                                  {assessment.title} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min) {isUsed ? '(Already assigned)' : ''}
                                 </option>
                               );
                             })}

@@ -232,13 +232,12 @@ function CanStatusPage() {
 				if (roundType) {
 					const roundNames = {
 						technical: 'Technical',
-						nonTechnical: 'Non-Technical',
-						managerial: 'Managerial',
-						final: 'Final',
-						hr: 'HR',
-						assessment: 'Assessment',
-						aptitude: 'Aptitude test',
-						coding: 'Coding'
+						oneOnOne: 'One – On – One',
+						panel: 'Panel',
+						group: 'Group',
+						situational: 'Situational / Behavioral',
+						others: 'Others – Specify.',
+						assessment: 'Assessment'
 					};
 					rounds.push({
 						name: roundNames[roundType] || roundType,
@@ -283,13 +282,12 @@ function CanStatusPage() {
 			const roundTypes = job.interviewRoundTypes;
 
 			if (job.assessmentId) rounds.push({ name: 'Assessment', uniqueKey: 'assessment', roundType: 'assessment' });
+			if (roundTypes.oneOnOne) rounds.push({ name: 'One – On – One', uniqueKey: 'oneOnOne', roundType: 'oneOnOne' });
+			if (roundTypes.panel) rounds.push({ name: 'Panel', uniqueKey: 'panel', roundType: 'panel' });
+			if (roundTypes.group) rounds.push({ name: 'Group', uniqueKey: 'group', roundType: 'group' });
 			if (roundTypes.technical) rounds.push({ name: 'Technical', uniqueKey: 'technical', roundType: 'technical' });
-			if (roundTypes.aptitude) rounds.push({ name: 'Aptitude test - SOFTWARE ENGINEERING', uniqueKey: 'aptitude', roundType: 'aptitude' });
-			if (roundTypes.coding) rounds.push({ name: 'Coding - SENIOR SOFTWARE ENGINEERING', uniqueKey: 'coding', roundType: 'coding' });
-			if (roundTypes.hr) rounds.push({ name: 'HR', uniqueKey: 'hr', roundType: 'hr' });
-			if (roundTypes.managerial) rounds.push({ name: 'Managerial', uniqueKey: 'managerial', roundType: 'managerial' });
-			if (roundTypes.nonTechnical) rounds.push({ name: 'Non-Technical', uniqueKey: 'nonTechnical', roundType: 'nonTechnical' });
-			if (roundTypes.final) rounds.push({ name: 'Final', uniqueKey: 'final', roundType: 'final' });
+			if (roundTypes.situational) rounds.push({ name: 'Situational / Behavioral', uniqueKey: 'situational', roundType: 'situational' });
+			if (roundTypes.others) rounds.push({ name: 'Others – Specify.', uniqueKey: 'others', roundType: 'others' });
 
 			if (rounds.length > 0) return rounds;
 		}

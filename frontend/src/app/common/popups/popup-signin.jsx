@@ -20,6 +20,18 @@ function SignInPopup() {
     const [showCanPassword, setShowCanPassword] = useState(false);
     const [showEmpPassword, setShowEmpPassword] = useState(false);
     const [showPlacementPassword, setShowPlacementPassword] = useState(false);
+    const [activeTab, setActiveTab] = useState('candidate');
+
+    useEffect(() => {
+        const handleSetTab = (e) => {
+            if (e.detail.modalId === 'sign_up_popup2') {
+                setActiveTab(e.detail.tab);
+            }
+        };
+
+        window.addEventListener('setModalTab', handleSetTab);
+        return () => window.removeEventListener('setModalTab', handleSetTab);
+    }, []);
 
     useEffect(() => {
         setCanUsername('');
@@ -61,18 +73,9 @@ function SignInPopup() {
             modal.addEventListener('show.bs.modal', handleModalShow);
             modal.addEventListener('hide.bs.modal', handleModalHide);
             
-            // Add event listeners for tab changes
-            const tabButtons = modal.querySelectorAll('[data-bs-toggle="tab"]');
-            tabButtons.forEach(button => {
-                button.addEventListener('click', handleTabChange);
-            });
-
             return () => {
                 modal.removeEventListener('show.bs.modal', handleModalShow);
                 modal.removeEventListener('hide.bs.modal', handleModalHide);
-                tabButtons.forEach(button => {
-                    button.removeEventListener('click', handleTabChange);
-                });
             };
         }
     }, []);
@@ -163,9 +166,9 @@ function SignInPopup() {
     }
 
     const buttonStyle = {
-        backgroundColor: '#1967d2',
-        color: '#f0f6fe',
-        border: '1px solid #1967d2',
+        backgroundColor: '#FF7A00',
+        color: '#ffffff',
+        border: '1px solid #FF7A00',
         borderRadius: '10px',
         padding: '12px',
         fontWeight: 700,
@@ -183,16 +186,16 @@ function SignInPopup() {
     };
 
     const handleButtonEnter = (event) => {
-        event.currentTarget.style.backgroundColor = '#165bbf';
-        event.currentTarget.style.borderColor = '#165bbf';
-        event.currentTarget.style.color = '#f0f6fe';
+        event.currentTarget.style.backgroundColor = '#e66e00';
+        event.currentTarget.style.borderColor = '#e66e00';
+        event.currentTarget.style.color = '#ffffff';
         event.currentTarget.style.boxShadow = 'none';
     };
 
     const handleButtonLeave = (event) => {
-        event.currentTarget.style.backgroundColor = '#1967d2';
-        event.currentTarget.style.borderColor = '#1967d2';
-        event.currentTarget.style.color = '#f0f6fe';
+        event.currentTarget.style.backgroundColor = '#FF7A00';
+        event.currentTarget.style.borderColor = '#FF7A00';
+        event.currentTarget.style.color = '#ffffff';
     };
 
     return (
@@ -209,7 +212,7 @@ function SignInPopup() {
 							{/* <form> */}
 							<div className="modal-header">
 								<h2 className="modal-title" id="sign_up_popupLabel2">
-									Login
+									Login - {activeTab === 'candidate' ? 'Candidate' : activeTab === 'employer' ? 'Employer' : 'Placement Officer'}
 								</h2>
 								<p>Login and get access to all the features of TaleGlobal</p>
 								<button
@@ -222,51 +225,11 @@ function SignInPopup() {
 
 							<div className="modal-body">
 								<div className="twm-tabs-style-2">
-									<ul className="nav nav-tabs" id="myTab2" role="tablist">
-										{/*Login Candidate*/}
-										<li className="nav-item">
-											<button
-												className="nav-link active"
-												data-bs-toggle="tab"
-												data-bs-target="#login-candidate"
-												type="button"
-											>
-												<i className="fas fa-user-tie" />
-												Candidate
-											</button>
-										</li>
-
-										{/*Login Employer*/}
-										<li className="nav-item">
-											<button
-												className="nav-link"
-												data-bs-toggle="tab"
-												data-bs-target="#login-Employer"
-												type="button"
-											>
-												<i className="fas fa-building" />
-												Employer
-											</button>
-										</li>
-
-										<li className="nav-item">
-											<button
-												className="nav-link"
-												data-bs-toggle="tab"
-												data-bs-target="#login-Placement"
-												type="button"
-											>
-												<i className="fas fa-graduation-cap" />
-												Placement Officer
-											</button>
-										</li>
-									</ul>
-
 									<div className="tab-content" id="myTab2Content">
 										{/*Login Candidate Content*/}
 										<form
 											onSubmit={handleCandidateLogin}
-											className="tab-pane fade show active"
+											className={`tab-pane fade ${activeTab === 'candidate' ? 'show active' : ''}`}
 											id="login-candidate"
 										>
 											<div className="row">
@@ -315,7 +278,7 @@ function SignInPopup() {
 															style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', userSelect: 'none', background: '#f8f9fa', padding: '5px 8px', borderRadius: '4px', zIndex: 10 }}
 															onClick={() => setShowCanPassword(!showCanPassword)}
 														>
-															<i className={showCanPassword ? "fas fa-eye-slash" : "fas fa-eye"} style={{ color: '#fd7e14' }} />
+															<i className={showCanPassword ? "fas fa-eye-slash" : "fas fa-eye"} style={{ color: '#FF7A00' }} />
 														</span>
 													</div>
 												</div>
@@ -339,7 +302,7 @@ function SignInPopup() {
 													</button>
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
-														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign Up</a>
+														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#FF7A00"}}>Sign Up</a>
 													</div>
 												</div>
 											</div>
@@ -348,7 +311,7 @@ function SignInPopup() {
 										{/*Login Employer Content*/}
 										<form
 											onSubmit={handleEmployerLogin}
-											className="tab-pane fade"
+											className={`tab-pane fade ${activeTab === 'employer' ? 'show active' : ''}`}
 											id="login-Employer"
 										>
 											<div className="row">
@@ -397,7 +360,7 @@ function SignInPopup() {
 															style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', userSelect: 'none', background: '#f8f9fa', padding: '5px 8px', borderRadius: '4px', zIndex: 10 }}
 															onClick={() => setShowEmpPassword(!showEmpPassword)}
 														>
-															<i className={showEmpPassword ? "fas fa-eye-slash" : "fas fa-eye"} style={{ color: '#fd7e14' }} />
+															<i className={showEmpPassword ? "fas fa-eye-slash" : "fas fa-eye"} style={{ color: '#FF7A00' }} />
 														</span>
 													</div>
 												</div>
@@ -421,7 +384,7 @@ function SignInPopup() {
 													</button>
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
-														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign Up</a>
+														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#FF7A00"}}>Sign Up</a>
 													</div>
 												</div>
 											</div>
@@ -430,7 +393,7 @@ function SignInPopup() {
 										{/*Login Placement Content*/}
 										<form
 											onSubmit={handlePlacementLogin}
-											className="tab-pane fade"
+											className={`tab-pane fade ${activeTab === 'placement' ? 'show active' : ''}`}
 											id="login-Placement"
 										>
 											<div className="row">
@@ -479,7 +442,7 @@ function SignInPopup() {
 															style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', userSelect: 'none', background: '#f8f9fa', padding: '5px 8px', borderRadius: '4px', zIndex: 10 }}
 															onClick={() => setShowPlacementPassword(!showPlacementPassword)}
 														>
-															<i className={showPlacementPassword ? "fas fa-eye-slash" : "fas fa-eye"} style={{ color: '#fd7e14' }} />
+															<i className={showPlacementPassword ? "fas fa-eye-slash" : "fas fa-eye"} style={{ color: '#FF7A00' }} />
 														</span>
 													</div>
 												</div>
@@ -503,7 +466,7 @@ function SignInPopup() {
 													</button>
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
-														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign Up</a>
+														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#FF7A00"}}>Sign Up</a>
 													</div>
 												</div>
 											</div>

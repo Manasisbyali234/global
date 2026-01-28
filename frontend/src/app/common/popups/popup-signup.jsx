@@ -38,6 +38,17 @@ function SignUpPopup() {
     const [termsAccepted, setTermsAccepted] = useState({ candidate: false, employer: false, placement: false });
 
     useEffect(() => {
+        const handleSetTab = (e) => {
+            if (e.detail.modalId === 'sign_up_popup') {
+                setCurrentRole(e.detail.tab);
+            }
+        };
+
+        window.addEventListener('setModalTab', handleSetTab);
+        return () => window.removeEventListener('setModalTab', handleSetTab);
+    }, []);
+
+    useEffect(() => {
         setCandidateData({ username: '', email: '', mobile: '', countryCode: '+91' });
         setEmployerData({ name: '', email: '', mobile: '', employerCategory: '', countryCode: '+91' });
         setPlacementData({ name: '', email: '', phone: '', collegeName: '', countryCode: '+91' });
@@ -79,18 +90,9 @@ function SignUpPopup() {
             modal.addEventListener('show.bs.modal', handleModalShow);
             modal.addEventListener('hide.bs.modal', handleModalHide);
             
-            // Add event listeners for tab changes
-            const tabButtons = modal.querySelectorAll('[data-bs-toggle="tab"]');
-            tabButtons.forEach(button => {
-                button.addEventListener('click', handleTabChange);
-            });
-
             return () => {
                 modal.removeEventListener('show.bs.modal', handleModalShow);
                 modal.removeEventListener('hide.bs.modal', handleModalHide);
-                tabButtons.forEach(button => {
-                    button.removeEventListener('click', handleTabChange);
-                });
             };
         }
     }, []);
@@ -521,7 +523,7 @@ function SignUpPopup() {
 						<div className="modal-content">
 							<div className="modal-header">
 								<h2 className="modal-title" id="sign_up_popupLabel">
-									Sign Up
+									Sign Up - {currentRole === 'candidate' ? 'Candidate' : currentRole === 'employer' ? 'Employer' : 'Placement Officer'}
 								</h2>
 								<p>
 									Sign Up and get access to all the features of TaleGlobal
@@ -536,47 +538,9 @@ function SignUpPopup() {
 
 							<div className="modal-body">
 								<div className="twm-tabs-style-2">
-									<ul className="nav nav-tabs" id="myTab" role="tablist">
-										<li className="nav-item" role="presentation">
-											<button
-												className="nav-link active"
-												data-bs-toggle="tab"
-												data-bs-target="#sign-candidate"
-												type="button"
-											>
-												<i className="fas fa-user-tie" />
-												Candidate
-											</button>
-										</li>
-
-										<li className="nav-item" role="presentation">
-											<button
-												className="nav-link"
-												data-bs-toggle="tab"
-												data-bs-target="#sign-Employer"
-												type="button"
-											>
-												<i className="fas fa-building" />
-												Employer
-											</button>
-										</li>
-
-										<li className="nav-item" role="presentation">
-											<button
-												className="nav-link"
-												data-bs-toggle="tab"
-												data-bs-target="#sign-Placement"
-												type="button"
-											>
-												<i className="fas fa-graduation-cap" />
-												Placement Officer
-											</button>
-										</li>
-									</ul>
-
 									<div className="tab-content" id="myTabContent">
 										<div
-											className="tab-pane fade show active"
+											className={`tab-pane fade ${currentRole === 'candidate' ? 'show active' : ''}`}
 											id="sign-candidate"
 										>
 											<form onSubmit={handleCandidateSubmit}>
@@ -670,11 +634,11 @@ function SignUpPopup() {
 												
 												<div className="col-lg-12">
 													<p style={{marginTop: "10px", marginBottom: "10px", fontSize: "14px"}}>
-														Already registered? <a href="#sign_up_popup2" data-bs-target="#sign_up_popup2" data-bs-toggle="modal" data-bs-dismiss="modal" onClick={() => { setError(''); setSuccess(''); setFieldErrors({}); }} style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign in</a>
+														Already registered? <a href="#sign_up_popup2" data-bs-target="#sign_up_popup2" data-bs-toggle="modal" data-bs-dismiss="modal" onClick={() => { setError(''); setSuccess(''); setFieldErrors({}); }} style={{textDecoration: "underline", cursor: "pointer", color: "#FF7A00"}}>Sign in</a>
 													</p>
 												</div>
 												<div className="col-12">
-													<button id="candidate-submit-btn" type="submit" style={{ width: "100%", maxWidth: "none", minWidth: "100%", padding: "12px", borderRadius: "10px", fontSize: "16px", fontWeight: "700", minHeight: "48px", backgroundColor: "#fd7e14", color: "white", border: "none", cursor: "pointer", display: "block", boxSizing: "border-box", flex: "1 1 100%", boxShadow: "none", whiteSpace: "nowrap" }} disabled={loading}>
+													<button id="candidate-submit-btn" type="submit" style={{ width: "100%", maxWidth: "none", minWidth: "100%", padding: "12px", borderRadius: "10px", fontSize: "16px", fontWeight: "700", minHeight: "48px", backgroundColor: "#FF7A00", color: "white", border: "none", cursor: "pointer", display: "block", boxSizing: "border-box", flex: "1 1 100%", boxShadow: "none", whiteSpace: "nowrap" }} disabled={loading}>
 														{loading ? 'Signing Up...' : 'Sign Up'}
 													</button>
 												</div>
@@ -682,7 +646,7 @@ function SignUpPopup() {
 											</form>
 										</div>
 
-										<div className="tab-pane fade" id="sign-Employer">
+										<div className={`tab-pane fade ${currentRole === 'employer' ? 'show active' : ''}`} id="sign-Employer">
 											<form onSubmit={handleEmployerSubmit}>
 											<div className="row">
 												{error && (
@@ -791,12 +755,12 @@ function SignUpPopup() {
 
 												<div className="col-lg-12">
 													<p style={{marginTop: "10px", marginBottom: "10px", fontSize: "14px"}}>
-														Already registered? <a href="#sign_up_popup2" data-bs-target="#sign_up_popup2" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign in</a>
+														Already registered? <a href="#sign_up_popup2" data-bs-target="#sign_up_popup2" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#FF7A00"}}>Sign in</a>
 													</p>
 												</div>
 
 												<div className="col-12">
-													<button id="employer-submit-btn" type="submit" style={{ width: "100%", maxWidth: "none", minWidth: "100%", padding: "12px", borderRadius: "10px", fontSize: "16px", fontWeight: "700", minHeight: "48px", backgroundColor: "#fd7e14", color: "white", border: "none", cursor: "pointer", display: "block", boxSizing: "border-box", flex: "1 1 100%", boxShadow: "none", whiteSpace: "nowrap" }} disabled={loading}>
+													<button id="employer-submit-btn" type="submit" style={{ width: "100%", maxWidth: "none", minWidth: "100%", padding: "12px", borderRadius: "10px", fontSize: "16px", fontWeight: "700", minHeight: "48px", backgroundColor: "#FF7A00", color: "white", border: "none", cursor: "pointer", display: "block", boxSizing: "border-box", flex: "1 1 100%", boxShadow: "none", whiteSpace: "nowrap" }} disabled={loading}>
 														{loading ? 'Signing Up...' : 'Sign Up'}
 													</button>
 												</div>
@@ -804,7 +768,7 @@ function SignUpPopup() {
 											</form>
 										</div>
 
-										<div className="tab-pane fade" id="sign-Placement">
+										<div className={`tab-pane fade ${currentRole === 'placement' ? 'show active' : ''}`} id="sign-Placement">
 											<form onSubmit={handlePlacementSubmit}>
 											<div className="row">
 												{error && (
@@ -912,12 +876,12 @@ function SignUpPopup() {
 
 												<div className="col-lg-12">
 													<p style={{marginTop: "10px", marginBottom: "10px", fontSize: "14px"}}>
-														Already registered? <a href="#sign_up_popup2" data-bs-target="#sign_up_popup2" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign in</a>
+														Already registered? <a href="#sign_up_popup2" data-bs-target="#sign_up_popup2" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#FF7A00"}}>Sign in</a>
 													</p>
 												</div>
 
 												<div className="col-12">
-													<button id="placement-submit-btn" type="submit" style={{ width: "100%", maxWidth: "none", minWidth: "100%", padding: "12px", borderRadius: "10px", fontSize: "16px", fontWeight: "700", minHeight: "48px", backgroundColor: "#fd7e14", color: "white", border: "none", cursor: "pointer", display: "block", boxSizing: "border-box", flex: "1 1 100%", boxShadow: "none", whiteSpace: "nowrap" }} disabled={loading}>
+													<button id="placement-submit-btn" type="submit" style={{ width: "100%", maxWidth: "none", minWidth: "100%", padding: "12px", borderRadius: "10px", fontSize: "16px", fontWeight: "700", minHeight: "48px", backgroundColor: "#FF7A00", color: "white", border: "none", cursor: "pointer", display: "block", boxSizing: "border-box", flex: "1 1 100%", boxShadow: "none", whiteSpace: "nowrap" }} disabled={loading}>
 														{loading ? 'Signing Up...' : 'Sign Up'}
 													</button>
 												</div>

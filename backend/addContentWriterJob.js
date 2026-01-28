@@ -44,11 +44,13 @@ async function addContentWriterJob() {
         backlogsAllowed: true,
         interviewRoundsCount: 2,
         interviewRoundTypes: {
-          technical: false,
-          managerial: true,
-          nonTechnical: true,
-          final: false,
-          hr: true
+          technical: true,
+          oneOnOne: true,
+          panel: false,
+          group: false,
+          situational: false,
+          others: false,
+          assessment: false
         },
         transportation: {
           oneWay: false,
@@ -84,11 +86,13 @@ async function addContentWriterJob() {
         backlogsAllowed: true,
         interviewRoundsCount: 2,
         interviewRoundTypes: {
-          technical: false,
-          managerial: true,
-          nonTechnical: true,
-          final: false,
-          hr: true
+          technical: true,
+          oneOnOne: true,
+          panel: false,
+          group: false,
+          situational: false,
+          others: false,
+          assessment: false
         },
         transportation: {
           oneWay: false,

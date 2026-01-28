@@ -260,25 +260,23 @@ export default function EmpPostJob({ onNext }) {
 		maxExperience: "",
 		interviewRoundsCount: "",
 		interviewRoundTypes: {
+			oneOnOne: false,
+			panel: false,
+			group: false,
 			technical: false,
-			managerial: false,
-			nonTechnical: false,
-			final: false,
-			hr: false,
-			assessment: false,
-			aptitude: false,
-			coding: false
+			situational: false,
+			others: false,
+			assessment: false
 		},
 		interviewRoundOrder: [],
 		interviewRoundDetails: {
+			oneOnOne: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
+			panel: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
+			group: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
 			technical: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			nonTechnical: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			managerial: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			final: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			hr: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			assessment: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			aptitude: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			coding: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' }
+			situational: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
+			others: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
+			assessment: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' }
 		},
 		offerLetterDate: "",
 		joiningDate: "",
@@ -810,6 +808,40 @@ export default function EmpPostJob({ onNext }) {
 				showWarning(`Note: ${value} is a public holiday (${holidayCheck.holidayInfo.name}). Consider selecting a different date.`);
 			}
 		}
+
+		// Auto-calculate Last Date of Application based on the earliest interview round date
+		if (field === 'fromDate' && value) {
+			setTimeout(() => {
+				// Get all interview round dates after the update
+				const allRoundDates = [];
+				formData.interviewRoundOrder.forEach(key => {
+					const details = key === roundType 
+						? { ...formData.interviewRoundDetails[key], fromDate: value }
+						: formData.interviewRoundDetails[key];
+					if (details?.fromDate) {
+						allRoundDates.push(new Date(details.fromDate));
+					}
+				});
+				
+				if (allRoundDates.length > 0) {
+					const earliestRoundDate = new Date(Math.min(...allRoundDates));
+					// Set last date of application to 1 day before the earliest interview round
+					const lastAppDate = new Date(earliestRoundDate);
+					lastAppDate.setDate(lastAppDate.getDate() - 1);
+					
+					// Only auto-update if it's not already set or if the new date is earlier
+					const currentLastAppDate = formData.lastDateOfApplication ? new Date(formData.lastDateOfApplication) : null;
+					if (!currentLastAppDate || lastAppDate < currentLastAppDate) {
+						const formattedDate = lastAppDate.toISOString().split('T')[0];
+						update({ 
+							lastDateOfApplication: formattedDate,
+							lastDateOfApplicationTime: '23:59'
+						});
+						showInfo(`Last Date of Application auto-updated to ${lastAppDate.toLocaleDateString()} at 11:59 PM (1 day before the earliest interview round)`);
+					}
+				}
+			}, 100); // Small delay to ensure state is updated
+		}
 	};
 
 	const handleLogoUpload = (e) => {
@@ -871,13 +903,13 @@ export default function EmpPostJob({ onNext }) {
 			const roundType = formData.interviewRoundTypes[uniqueKey];
 			const details = formData.interviewRoundDetails[uniqueKey];
 			const roundNames = {
-				technical: 'Technical Round',
-				nonTechnical: 'Non-Technical Round',
-				managerial: 'Managerial Round',
-				final: 'Final Round',
-				hr: 'HR Round',
-				aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-				coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+				technical: 'Technical',
+				oneOnOne: 'One – On – One',
+				panel: 'Panel',
+				group: 'Group',
+				situational: 'Situational / Behavioral',
+				others: 'Others – Specify.',
+				assessment: 'Assessment Schedule'
 			};
 
 			const roundName = roundNames[roundType] || roundType;
@@ -2671,13 +2703,12 @@ export default function EmpPostJob({ onNext }) {
 							}}
 						>
 							<option value="">-- Select Round Type --</option>
-							<option value="aptitude">Aptitude test</option>
-							<option value="coding">Coding</option>
+							<option value="oneOnOne">One – On – One</option>
+							<option value="panel">Panel</option>
+							<option value="group">Group</option>
 							<option value="technical">Technical</option>
-							<option value="nonTechnical">Non-Technical</option>
-							<option value="managerial">Managerial Round</option>
-							<option value="final">Final Round</option>
-							<option value="hr">HR Round</option>
+							<option value="situational">Situational / Behavioral</option>
+							<option value="others">Others – Specify.</option>
 							<option value="assessment">Assessment</option>
 						</select>
 						<div style={{marginTop: 12}}>
@@ -2689,13 +2720,12 @@ export default function EmpPostJob({ onNext }) {
 								const roundType = formData.interviewRoundTypes[uniqueKey];
 								const roundNames = {
 									technical: 'Technical',
-									nonTechnical: 'Non-Technical',
-									managerial: 'Managerial Round',
-									final: 'Final Round',
-									hr: 'HR Round',
-									assessment: 'Assessment Schedule',
-									aptitude: 'Aptitude test',
-									coding: 'Coding'
+									oneOnOne: 'One – On – One',
+									panel: 'Panel',
+									group: 'Group',
+									situational: 'Situational / Behavioral',
+									others: 'Others – Specify.',
+									assessment: 'Assessment Schedule'
 								};
 								return (
 									<div key={uniqueKey} style={{
@@ -2850,7 +2880,7 @@ export default function EmpPostJob({ onNext }) {
 										<option value="">-- Select Assessment --</option>
 										{availableAssessments.map((assessment) => (
 											<option key={assessment._id} value={assessment._id}>
-												{assessment.title} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'No duration set'}{assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime ? ' min' : ''})
+												{assessment.title} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)
 											</option>
 										))}
 									</select>
@@ -3315,14 +3345,13 @@ export default function EmpPostJob({ onNext }) {
 								.map((uniqueKey, index) => {
 									const roundType = formData.interviewRoundTypes[uniqueKey];
 									const roundNames = {
-										technical: 'Technical Round',
-										nonTechnical: 'Non-Technical Round',
-										managerial: 'Managerial Round',
-										final: 'Final Round',
-										hr: 'HR Round',
-										assessment: 'Assessment',
-										aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-										coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+										technical: 'Technical',
+										oneOnOne: 'One – On – One',
+										panel: 'Panel',
+										group: 'Group',
+										situational: 'Situational / Behavioral',
+										others: 'Others – Specify.',
+										assessment: 'Assessment'
 									};
 									const stageNumber = formData.interviewRoundOrder.indexOf(uniqueKey) + 1;
 									return (
@@ -3445,7 +3474,7 @@ export default function EmpPostJob({ onNext }) {
 													<div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4}}>
 														<label style={{...label, marginBottom: 0}}>
 															<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
-															Select Date
+															From Date
 														</label>
 														{formData.interviewRoundDetails[uniqueKey]?.fromDate && (
 															<div style={{fontSize: 10, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '2px 6px', borderRadius: 4, border: '1px solid #6b7280'}}>
@@ -3467,6 +3496,33 @@ export default function EmpPostJob({ onNext }) {
 														onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
 													/>
 													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.fromDate} />
+												</div>
+												<div>
+													<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4}}>
+														<label style={{...label, marginBottom: 0}}>
+															<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
+															To Date
+														</label>
+														{formData.interviewRoundDetails[uniqueKey]?.toDate && (
+															<div style={{fontSize: 10, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '2px 6px', borderRadius: 4, border: '1px solid #6b7280'}}>
+																<i className="fa fa-check-circle"></i>
+																Saved
+															</div>
+														)}
+													</div>
+													<input
+														style={{
+															...input, 
+															fontSize: 13,
+															borderColor: formData.interviewRoundDetails[uniqueKey]?.toDate ? '#10b981' : '#d1d5db',
+															background: formData.interviewRoundDetails[uniqueKey]?.toDate ? '#f0fdf4' : '#fff'
+														}}
+														type="date"
+														min={formData.interviewRoundDetails[uniqueKey]?.fromDate || new Date().toISOString().split('T')[0]}
+														value={formData.interviewRoundDetails[uniqueKey]?.toDate || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'toDate', e.target.value)}
+													/>
+													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.toDate} />
 												</div>
 												<div>
 													<label style={{...label, marginBottom: 4}}>From Time</label>
@@ -3523,13 +3579,12 @@ export default function EmpPostJob({ onNext }) {
 										const details = formData.interviewRoundDetails[uniqueKey];
 										const roundNames = {
 											technical: 'Technical',
-											nonTechnical: 'Non-Technical',
-											managerial: 'Managerial',
-											final: 'Final',
-											hr: 'HR',
-											assessment: 'Assessment',
-											aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-											coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+											oneOnOne: 'One – On – One',
+											panel: 'Panel',
+											group: 'Group',
+											situational: 'Situational / Behavioral',
+											others: 'Others – Specify.',
+											assessment: 'Assessment'
 										};
 										
 										return (
@@ -3566,13 +3621,18 @@ export default function EmpPostJob({ onNext }) {
 												</div>
 												{details?.fromDate ? (
 													<div style={{fontSize: 13, color: '#6b7280', fontWeight: 500}}>
-														<i className="fa fa-calendar" style={{marginRight: 6}}></i>
-														{new Date(details.fromDate).toLocaleDateString()}
+														<div style={{marginBottom: 4}}>
+															<i className="fa fa-calendar" style={{marginRight: 6}}></i>
+															{new Date(details.fromDate).toLocaleDateString()}
+															{details.toDate && details.toDate !== details.fromDate && (
+																<> to {new Date(details.toDate).toLocaleDateString()}</>
+															)}
+														</div>
 														{(details.startTime || details.endTime) && (
-															<span style={{marginLeft: 8}}>
+															<div>
 																<i className="fa fa-clock" style={{marginRight: 4}}></i>
 																{details.startTime ? formatTimeToAMPM(details.startTime) : 'N/A'} - {details.endTime ? formatTimeToAMPM(details.endTime) : 'N/A'}
-															</span>
+															</div>
 														)}
 													</div>
 												) : (

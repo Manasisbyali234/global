@@ -657,13 +657,13 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
     // Add interview rounds based on order - only if they are enabled and NOT assessment type
     if (jobDetails.interviewRoundOrder && jobDetails.interviewRoundDetails) {
       const roundNames = {
-        technical: 'Technical Round',
-        nonTechnical: 'Non-Technical Round',
-        managerial: 'Managerial Round',
-        final: 'Final Round',
-        hr: 'HR Round',
-        aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-        coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+        technical: 'Technical',
+        oneOnOne: 'One – On – One',
+        panel: 'Panel',
+        group: 'Group',
+        situational: 'Situational / Behavioral',
+        others: 'Others – Specify.',
+        assessment: 'Assessment'
       };
       
       jobDetails.interviewRoundOrder.forEach((roundKey, index) => {

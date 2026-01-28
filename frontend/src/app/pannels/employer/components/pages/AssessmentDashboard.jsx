@@ -185,7 +185,7 @@ export default function AssessmentDashboard() {
 						<option value="" style={{ color: '#6c757d' }}>Select Assessment</option>
 						{assessments.map(assessment => (
 							<option key={assessment._id} value={assessment.title} style={{ color: '#28a745' }}>
-								{assessment.title}{assessment.companyName ? ` - ${assessment.companyName}` : ''}
+								{assessment.title} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)
 							</option>
 						))}
 					</select>

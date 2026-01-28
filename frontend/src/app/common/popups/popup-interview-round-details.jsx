@@ -39,13 +39,13 @@ const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, 
     if (!isOpen) return null;
 
     const roundNames = {
-        technical: 'Technical Round',
-        nonTechnical: 'Non-Technical Round',
-        managerial: 'Managerial Round',
-        final: 'Final Round',
-        hr: 'HR Round',
-        aptitude: 'Aptitude test',
-        coding: 'Coding'
+        technical: 'Technical',
+        oneOnOne: 'One – On – One',
+        panel: 'Panel',
+        group: 'Group',
+        situational: 'Situational / Behavioral',
+        others: 'Others – Specify.',
+        assessment: 'Assessment'
     };
 
     const formatDate = (dateString) => {

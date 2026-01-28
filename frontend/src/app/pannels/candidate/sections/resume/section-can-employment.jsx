@@ -98,6 +98,26 @@ function SectionCanEmployment({ profile }) {
         }
     };
 
+    const calculateExperience = (startDateStr, endDateStr, isCurrent) => {
+        if (!startDateStr) return "";
+        const start = new Date(startDateStr);
+        const end = isCurrent ? new Date() : (endDateStr ? new Date(endDateStr) : new Date());
+        
+        let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+        if (months < 0) months = 0;
+        
+        const years = Math.floor(months / 12);
+        const remainingMonths = months % 12;
+        
+        let result = "";
+        if (years > 0) result += `${years} year${years > 1 ? 's' : ''}`;
+        if (remainingMonths > 0) {
+            if (result) result += " ";
+            result += `${remainingMonths} month${remainingMonths > 1 ? 's' : ''}`;
+        }
+        return result || "0 months";
+    };
+
     const clearForm = () => {
         const resetFormData = { designation: '', organization: '', isCurrent: false, startDate: '', endDate: '', description: '', presentCTC: '', expectedCTC: '', noticePeriod: '' };
         setFormData(resetFormData);
@@ -580,225 +600,136 @@ function SectionCanEmployment({ profile }) {
                         </p>
                     </div>
                     {employment.length > 0 ? (
-                        employment.map((emp, index) => {
-                            const gap = index < employment.length - 1 ? calculateGap(emp, employment[index + 1]) : null;
-                            return (
-                                <Fragment key={index}>
-                                    <div className="employment-card" style={{
-                                        background: '#fff',
-                                        padding: '20px',
-                                        borderRadius: '12px',
-                                        border: '1px solid #e0e0e0',
-                                        marginBottom: gap ? '0' : '16px',
-                                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                                        transition: 'box-shadow 0.2s ease',
-                                        position: 'relative'
-                                    }}>
-                                        {/* Action Buttons */}
-                                        <div style={{
-                                            position: 'absolute',
-                                            top: '15px',
-                                            right: '15px',
-                                            display: 'flex',
-                                            gap: '8px'
-                                        }}>
-                                            <button
-                                                onClick={() => {
-                                                    handleEdit(index);
-                                                    // Open modal
-                                                    const modal = document.getElementById(modalId);
-                                                    if (modal) {
-                                                        if (window.bootstrap?.Modal) {
-                                                            const modalInstance = new window.bootstrap.Modal(modal);
-                                                            modalInstance.show();
-                                                        } else if (window.$ && window.$.fn.modal) {
-                                                            window.$(`#${modalId}`).modal('show');
-                                                        }
-                                                    }
-                                                }}
-                                                style={{
-                                                    background: '#007bff',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '50%',
-                                                    width: '30px',
-                                                    height: '30px',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontSize: '12px',
-                                                    transition: 'background-color 0.2s ease'
-                                                }}
-                                                title="Edit Employment"
-                                            >
-                                                <i className="fa fa-edit"></i>
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(index)}
-                                                style={{
-                                                    background: '#dc3545',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '50%',
-                                                    width: '30px',
-                                                    height: '30px',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontSize: '12px',
-                                                    transition: 'background-color 0.2s ease'
-                                                }}
-                                                 title="Delete Employment"
-                                            >
-                                                <i className="fa fa-trash"></i>
-                                            </button>
-                                        </div>
-
-                                        {/* Header Section */}
-                                        <div style={{borderBottom: '1px solid #f0f0f0', paddingBottom: '12px', marginBottom: '16px', paddingRight: '80px'}}>
-                                            <h4 style={{color: '#2c3e50', marginBottom: '4px', fontWeight: '600', fontSize: '18px', margin: 0}}>
-                                                <i className="fa fa-briefcase" style={{color: '#FF6A00', marginRight: '8px'}}></i>
-                                                {emp.designation}
-                                            </h4>
-                                            <p style={{color: '#34495e', marginBottom: '0', fontSize: '16px', fontWeight: '500'}}>
-                                                <i className="fa fa-building" style={{color: '#FF6A00', marginRight: '8px'}}></i>
-                                                {emp.organization}
-                                            </p>
-                                        </div>
-
-                                        {/* All Details in One Section */}
-                                        <div style={{background: '#f8f9fa', padding: '16px', borderRadius: '8px', border: '1px solid #e9ecef'}}>
-                                            <div style={{display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-start'}}>
-                                                {/* Duration */}
-                                                <div style={{minWidth: '200px'}}>
-                                                    <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
-                                                        <i className="fa fa-calendar" style={{color: '#FF6A00', marginRight: '6px', fontSize: '14px'}}></i>
-                                                        <strong style={{fontSize: '13px', color: '#495057'}}>Duration</strong>
+                        <div className="m-b30">
+                            <h4 className="section-head-small m-b20">1. Employment History / Experience</h4>
+                            <div className="table-responsive">
+                                <table className="table table-bordered twm-table-style-1">
+                                    <thead className="table-light">
+                                        <tr>
+                                            <th>Organization Name</th>
+                                            <th>Designation</th>
+                                            <th>Years of Experience</th>
+                                            <th>Job Description</th>
+                                            <th style={{ width: '100px' }}>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {employment.map((emp, index) => (
+                                            <tr key={index}>
+                                                <td>{emp.organization}</td>
+                                                <td>{emp.designation}</td>
+                                                <td>{calculateExperience(emp.startDate, emp.endDate, emp.isCurrent)}</td>
+                                                <td>{emp.description || ''}</td>
+                                                <td>
+                                                    <div className="d-flex gap-2">
+                                                        <button
+                                                            onClick={() => {
+                                                                handleEdit(index);
+                                                                const modal = document.getElementById(modalId);
+                                                                if (modal) {
+                                                                    if (window.bootstrap?.Modal) {
+                                                                        const modalInstance = new window.bootstrap.Modal(modal);
+                                                                        modalInstance.show();
+                                                                    } else if (window.$ && window.$.fn.modal) {
+                                                                        window.$(`#${modalId}`).modal('show');
+                                                                    }
+                                                                }
+                                                            }}
+                                                            className="btn btn-sm btn-outline-primary"
+                                                            title="Edit"
+                                                        >
+                                                            <i className="fa fa-edit"></i>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(index)}
+                                                            className="btn btn-sm btn-outline-danger"
+                                                            title="Delete"
+                                                        >
+                                                            <i className="fa fa-trash"></i>
+                                                        </button>
                                                     </div>
-                                                    <p style={{margin: 0, fontSize: '14px', color: '#6c757d'}}>
-                                                        {emp.startDate ? new Date(emp.startDate).toLocaleDateString('en-GB') : 'Start Date'} - {emp.isCurrent ? 'Present' : (emp.endDate ? new Date(emp.endDate).toLocaleDateString('en-GB') : 'End Date')}
-                                                    </p>
-                                                </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                <p className="text-muted small">The Job Description column is left blank to be filled by the candidate.</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center p-a30 site-bg-gray m-b30">
+                            <p>No employment history found. Click the "+" button to add.</p>
+                        </div>
+                    )}
 
-                                                {/* Current Company */}
-                                                <div style={{minWidth: '120px'}}>
-                                                    <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
-                                                        <i className="fa fa-check-circle" style={{color: '#FF6A00', marginRight: '6px', fontSize: '14px'}}></i>
-                                                        <strong style={{fontSize: '13px', color: '#495057'}}>Current Company</strong>
-                                                    </div>
-                                                    <p style={{margin: 0, fontSize: '14px', color: emp.isCurrent ? '#28a745' : '#6c757d', fontWeight: '500'}}>
-                                                        {emp.isCurrent ? 'Yes' : 'No'}
-                                                    </p>
-                                                </div>
+                    {/* Current Company Details */}
+                    <div className="m-b30">
+                        <h4 className="section-head-small m-b20">2. Current Company Details</h4>
+                        <div className="table-responsive">
+                            <table className="table table-bordered">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>Field</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(() => {
+                                        const currentEmp = employment.find(emp => emp.isCurrent);
+                                        return (
+                                            <>
+                                                <tr>
+                                                    <td><strong>Current Company Name</strong></td>
+                                                    <td>{currentEmp?.organization || 'GAP'}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Notice Period</strong></td>
+                                                    <td>{currentEmp?.noticePeriod || 'Immediate Joining'}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Present CTC</strong></td>
+                                                    <td>{currentEmp?.presentCTC ? `₹${currentEmp.presentCTC} LPA` : '—'}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Expected CTC</strong></td>
+                                                    <td>{currentEmp?.expectedCTC ? `₹${currentEmp.expectedCTC} LPA` : '10,00,000'}</td>
+                                                </tr>
+                                            </>
+                                        );
+                                    })()}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-                                                {/* Work Type */}
-                                                {emp.workType && (
-                                                    <div style={{minWidth: '100px'}}>
-                                                        <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
-                                                            <i className="fa fa-laptop" style={{color: '#FF6A00', marginRight: '6px', fontSize: '14px'}}></i>
-                                                            <strong style={{fontSize: '13px', color: '#495057'}}>Work Type</strong>
-                                                        </div>
-                                                        <p style={{margin: 0, fontSize: '14px', color: '#6c757d'}}>
-                                                            {emp.workType}
-                                                        </p>
-                                                    </div>
-                                                )}
-
-                                                {/* Present CTC */}
-                                                {emp.presentCTC && (
-                                                    <div style={{minWidth: '120px'}}>
-                                                        <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
-                                                            <i className="fa fa-rupee-sign" style={{color: '#FF6A00', marginRight: '6px', fontSize: '14px'}}></i>
-                                                            <strong style={{fontSize: '13px', color: '#495057'}}>Present CTC</strong>
-                                                        </div>
-                                                        <p style={{margin: 0, fontSize: '14px', color: '#6c757d', fontWeight: '500'}}>
-                                                            ₹{emp.presentCTC} LPA
-                                                        </p>
-                                                    </div>
-                                                )}
-
-                                                {/* Expected CTC */}
-                                                {emp.expectedCTC && (
-                                                    <div style={{minWidth: '120px'}}>
-                                                        <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
-                                                            <i className="fa fa-chart-line" style={{color: '#FF6A00', marginRight: '6px', fontSize: '14px'}}></i>
-                                                            <strong style={{fontSize: '13px', color: '#495057'}}>Expected CTC</strong>
-                                                        </div>
-                                                        <p style={{margin: 0, fontSize: '14px', color: '#6c757d', fontWeight: '500'}}>
-                                                            ₹{emp.expectedCTC} LPA
-                                                        </p>
-                                                    </div>
-                                                )}
-
-                                                {/* Notice Period */}
-                                                {emp.noticePeriod && (
-                                                    <div style={{minWidth: '120px'}}>
-                                                        <div style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
-                                                            <i className="fa fa-clock" style={{color: '#FF6A00', marginRight: '6px', fontSize: '14px'}}></i>
-                                                            <strong style={{fontSize: '13px', color: '#495057'}}>Notice Period</strong>
-                                                        </div>
-                                                        <p style={{margin: 0, fontSize: '14px', color: '#6c757d', fontWeight: '500'}}>
-                                                            {emp.noticePeriod}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Job Description */}
-                                            {emp.description && (
-                                                <div style={{marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #dee2e6'}}>
-                                                    <div style={{display: 'flex', alignItems: 'center', marginBottom: '8px'}}>
-                                                        <i className="fa fa-file-text" style={{color: '#FF6A00', marginRight: '6px', fontSize: '14px'}}></i>
-                                                        <strong style={{fontSize: '14px', color: '#495057'}}>Job Profile Description</strong>
-                                                    </div>
-                                                    <p style={{margin: 0, fontSize: '14px', lineHeight: '1.6', color: '#555'}}>
-                                                        {emp.description}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    {gap && (
-                                        <div style={{
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            padding: '8px 0',
-                                            margin: '4px 0',
-                                            position: 'relative'
-                                        }}>
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: '50%',
-                                                left: '10%',
-                                                right: '10%',
-                                                height: '1px',
-                                                background: 'repeating-linear-gradient(to right, #ccc, #ccc 5px, transparent 5px, transparent 10px)',
-                                                zIndex: 1
-                                            }}></div>
-                                            <span style={{
-                                                background: '#fff5f0',
-                                                color: '#e65100',
-                                                padding: '2px 12px',
-                                                borderRadius: '12px',
-                                                fontSize: '12px',
-                                                fontWeight: '600',
-                                                border: '1px dashed #ff9800',
-                                                zIndex: 2,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '5px'
-                                            }}>
-                                                <i className="fa fa-exclamation-triangle" style={{fontSize: '10px'}}></i>
-                                                {gap}
-                                            </span>
-                                        </div>
-                                    )}
-                                </Fragment>
-                            );
-                        })
-                    ) : null}
+                    {/* Minimum Notice / Buyout Information */}
+                    <div className="m-b30">
+                        <h4 className="section-head-small m-b20">3. Minimum Notice / Buyout Information</h4>
+                        <div className="table-responsive">
+                            <table className="table table-bordered">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>Option</th>
+                                        <th>Amount/Days</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Minimum</strong></td>
+                                        <td>{employment.find(emp => emp.isCurrent)?.noticePeriod || '30 days'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Buyout Amount</strong></td>
+                                        <td>80,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total</strong></td>
+                                        <td>10,00,000</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
