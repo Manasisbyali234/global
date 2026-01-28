@@ -50,6 +50,8 @@ function PlacementDashboardRedesigned() {
     const [resubmitUniversity, setResubmitUniversity] = useState('');
     const [resubmitBatch, setResubmitBatch] = useState('');
     const [resubmitting, setResubmitting] = useState(false);
+    const [showRejectionModal, setShowRejectionModal] = useState(false);
+    const [selectedRejectionReason, setSelectedRejectionReason] = useState('');
     const [stats, setStats] = useState({
         totalStudents: 0,
         avgCredits: 0,
@@ -1068,18 +1070,28 @@ function PlacementDashboardRedesigned() {
                                                                 </td>
                                                                 <td>
                                                                     {file.status === 'rejected' && file.rejectionReason ? (
-                                                                        <div className="rejection-reason" style={{
-                                                                            maxWidth: '200px',
-                                                                            fontSize: '0.85rem',
-                                                                            color: '#dc3545',
-                                                                            background: '#fff5f5',
-                                                                            padding: '4px 8px',
-                                                                            borderRadius: '4px',
-                                                                            border: '1px solid #fecaca'
-                                                                        }}>
-                                                                            <i className="fa fa-exclamation-triangle me-1"></i>
-                                                                            {file.rejectionReason}
-                                                                        </div>
+                                                                        <button 
+                                                                            className="eye-btn"
+                                                                            onClick={() => {
+                                                                                setSelectedRejectionReason(file.rejectionReason);
+                                                                                setShowRejectionModal(true);
+                                                                            }}
+                                                                            title="View rejection reason"
+                                                                            style={{
+                                                                                background: 'none',
+                                                                                border: 'none',
+                                                                                color: '#dc3545',
+                                                                                fontSize: '16px',
+                                                                                cursor: 'pointer',
+                                                                                padding: '4px 8px',
+                                                                                borderRadius: '4px',
+                                                                                transition: 'background-color 0.2s'
+                                                                            }}
+                                                                            onMouseEnter={(e) => e.target.style.backgroundColor = '#fff5f5'}
+                                                                            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                                                        >
+                                                                            <i className="fa fa-eye"></i>
+                                                                        </button>
                                                                     ) : (
                                                                         '-'
                                                                     )}
@@ -1290,6 +1302,44 @@ function PlacementDashboardRedesigned() {
                                         Update Profile
                                     </>
                                 )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Rejection Reason Modal */}
+            {showRejectionModal && (
+                <div className="modal-overlay" onClick={() => setShowRejectionModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '500px'}}>
+                        <div className="modal-header">
+                            <h3>
+                                <i className="fa fa-exclamation-triangle me-2" style={{color: '#dc3545'}}></i>
+                                Rejection Reason
+                            </h3>
+                            <button className="close-btn" onClick={() => setShowRejectionModal(false)}>
+                                <i className="fa fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="rejection-reason-content" style={{
+                                padding: '20px',
+                                backgroundColor: '#fff5f5',
+                                border: '1px solid #fecaca',
+                                borderRadius: '8px',
+                                fontSize: '14px',
+                                lineHeight: '1.5',
+                                color: '#dc3545'
+                            }}>
+                                {selectedRejectionReason}
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button 
+                                className="btn-secondary" 
+                                onClick={() => setShowRejectionModal(false)}
+                            >
+                                Close
                             </button>
                         </div>
                     </div>
