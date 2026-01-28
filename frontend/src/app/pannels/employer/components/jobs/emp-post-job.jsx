@@ -299,6 +299,7 @@ export default function EmpPostJob({ onNext }) {
 		companyLogo: "",
 		companyName: "",
 		companyDescription: "",
+		aboutCompany: "",
 		category: "",
 		// Type of Employment
 		typeOfEmployment: "",
@@ -549,6 +550,7 @@ export default function EmpPostJob({ onNext }) {
 					companyLogo: job.companyLogo || '',
 					companyName: job.companyName || '',
 					companyDescription: job.companyDescription || '',
+					aboutCompany: job.aboutCompany || '',
 					category: job.category || '',
 					typeOfEmployment: job.typeOfEmployment || '',
 					shift: job.shift || '',
@@ -611,7 +613,8 @@ export default function EmpPostJob({ onNext }) {
 					update({
 						companyLogo: data.profile.consultantCompanyLogo || '',
 						companyName: data.profile.consultantCompanyName || '',
-						companyDescription: data.profile.consultantCompanyDescription || ''
+						companyDescription: data.profile.consultantCompanyDescription || '',
+						aboutCompany: data.profile.consultantAboutCompany || ''
 					});
 				}
 			}
@@ -962,6 +965,18 @@ export default function EmpPostJob({ onNext }) {
 		}
 
 		// Skip consultant field validation - these are optional
+		// Actually, let's add validation for consultant fields since they're marked as required
+		if (employerType === 'consultant') {
+			if (!formData.companyName || formData.companyName.trim().length < 2) {
+				newErrors.companyName = ['Please enter a valid company name (minimum 2 characters)'];
+			}
+			if (!formData.aboutCompany || formData.aboutCompany.trim().length < 10) {
+				newErrors.aboutCompany = ['Please enter about company information (minimum 10 characters)'];
+			}
+			if (!formData.companyDescription || formData.companyDescription.trim().length < 10) {
+				newErrors.companyDescription = ['Please enter why join us information (minimum 10 characters)'];
+			}
+		}
 
 		// Validate Transportation
 		if (!formData.transportation.oneWay && !formData.transportation.twoWay && !formData.transportation.noCab) {
@@ -1075,11 +1090,13 @@ export default function EmpPostJob({ onNext }) {
 				console.log('Adding consultant fields:', {
 					companyLogo: formData.companyLogo,
 					companyName: formData.companyName,
-					companyDescription: formData.companyDescription
+					companyDescription: formData.companyDescription,
+					aboutCompany: formData.aboutCompany
 				});
 				jobData.companyLogo = formData.companyLogo;
 				jobData.companyName = formData.companyName;
 				jobData.companyDescription = formData.companyDescription;
+				jobData.aboutCompany = formData.aboutCompany;
 			}
 
 			
@@ -1397,7 +1414,7 @@ export default function EmpPostJob({ onNext }) {
 							<div style={fullRow}>
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-info-circle" style={{marginRight: '8px'}}></i>
-									Company Description <span style={redAsterisk}>*</span>
+									Why Join Us <span style={redAsterisk}>*</span>
 									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
 								</label>
 								<textarea
@@ -1407,7 +1424,7 @@ export default function EmpPostJob({ onNext }) {
 										borderColor: formData.companyDescription ? '#10b981' : '#dc2626',
 										borderWidth: 2,
 									}}
-									placeholder="Brief description about the company, its culture, and what makes it unique..."
+									placeholder="Describe the company culture, benefits, growth opportunities, and what makes it unique..."
 									value={formData.companyDescription}
 									onChange={(e) => update({ companyDescription: e.target.value })}
 									required
@@ -1415,7 +1432,32 @@ export default function EmpPostJob({ onNext }) {
 								{!formData.companyDescription && (
 									<p style={{color: '#dc2626', fontSize: 12, margin: '6px 0 0 0', display: 'flex', alignItems: 'center', gap: 4}}>
 										<i className="fa fa-exclamation-circle"></i>
-										Please enter company description
+										Please enter why join us information
+									</p>
+								)}
+							</div>
+							<div style={fullRow}>
+								<label style={{...label, color: '#dc2626'}}>
+									<i className="fa fa-building" style={{marginRight: '8px'}}></i>
+									About Company <span style={redAsterisk}>*</span>
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+								</label>
+								<textarea
+									style={{
+										...input, 
+										minHeight: '100px',
+										borderColor: formData.aboutCompany ? '#10b981' : '#dc2626',
+										borderWidth: 2,
+									}}
+									placeholder="Brief description about the company, its history, mission, and what it does..."
+									value={formData.aboutCompany}
+									onChange={(e) => update({ aboutCompany: e.target.value })}
+									required
+								/>
+								{!formData.aboutCompany && (
+									<p style={{color: '#dc2626', fontSize: 12, margin: '6px 0 0 0', display: 'flex', alignItems: 'center', gap: 4}}>
+										<i className="fa fa-exclamation-circle"></i>
+										Please enter about company information
 									</p>
 								)}
 							</div>
