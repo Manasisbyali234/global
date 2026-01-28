@@ -613,7 +613,8 @@ exports.updateEmployerProfile = async (req, res) => {
         cinVerified: 'CIN Document',
         gstVerified: 'GST Certificate',
         incorporationVerified: 'Certificate of Incorporation',
-        authorizationVerified: 'Authorization Letter'
+        authorizationVerified: 'Authorization Letter',
+        companyIdCardVerified: 'Company ID Card'
       };
 
       for (const [field, documentName] of Object.entries(verificationFields)) {

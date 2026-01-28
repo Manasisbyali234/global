@@ -369,17 +369,31 @@ exports.uploadDocument = async (req, res) => {
 
     const { fileToBase64 } = require('../middlewares/upload');
     const { fieldName } = req.body;
-    const documentBase64 = fileToBase64(req.file);
-    const updateData = { [fieldName]: documentBase64 };
-
+    
     // Mapping for document verification fields and reupload timestamps
     const documentStatusMap = {
       'panCardImage': { status: 'panCardVerified', reuploadedAt: 'panCardReuploadedAt' },
       'cinImage': { status: 'cinVerified', reuploadedAt: 'cinReuploadedAt' },
       'gstImage': { status: 'gstVerified', reuploadedAt: 'gstReuploadedAt' },
       'certificateOfIncorporation': { status: 'incorporationVerified', reuploadedAt: 'incorporationReuploadedAt' },
-      'authorizationLetter': { status: 'authorizationVerified', reuploadedAt: 'authorizationReuploadedAt' }
+      'authorizationLetter': { status: 'authorizationVerified', reuploadedAt: 'authorizationReuploadedAt' },
+      'companyIdCardPicture': { status: 'companyIdCardVerified', reuploadedAt: 'companyIdCardReuploadedAt' }
     };
+
+    // Check if current document is already approved
+    const existingProfile = await EmployerProfile.findOne({ employerId: req.user._id });
+    if (existingProfile && documentStatusMap[fieldName]) {
+      const { status } = documentStatusMap[fieldName];
+      if (existingProfile[status] === 'approved') {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'This document has already been approved and cannot be updated. Please contact support if you need to change it.' 
+        });
+      }
+    }
+
+    const documentBase64 = fileToBase64(req.file);
+    const updateData = { [fieldName]: documentBase64 };
 
     // If it's a verifiable document, reset status to pending and set reuploadedAt timestamp
     if (documentStatusMap[fieldName]) {
@@ -435,17 +449,28 @@ exports.deleteAuthorizationLetter = async (req, res) => {
   try {
     const { documentId } = req.params;
     
-    const profile = await EmployerProfile.findOneAndUpdate(
+    // First find the profile to check if the document is approved
+    const profile = await EmployerProfile.findOne({ employerId: req.user._id });
+    if (!profile) {
+      return res.status(404).json({ success: false, message: 'Profile not found' });
+    }
+
+    const letter = profile.authorizationLetters.id(documentId);
+    if (letter && letter.status === 'approved') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'This authorization letter has already been approved and cannot be deleted. Please contact support if you need to change it.' 
+      });
+    }
+    
+    // If not approved or doesn't exist, proceed with deletion
+    const updatedProfile = await EmployerProfile.findOneAndUpdate(
       { employerId: req.user._id },
       { $pull: { authorizationLetters: { _id: documentId } } },
       { new: true }
     );
 
-    if (!profile) {
-      return res.status(404).json({ success: false, message: 'Profile not found' });
-    }
-
-    res.json({ success: true, message: 'Authorization letter deleted successfully', profile });
+    res.json({ success: true, message: 'Authorization letter deleted successfully', profile: updatedProfile });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

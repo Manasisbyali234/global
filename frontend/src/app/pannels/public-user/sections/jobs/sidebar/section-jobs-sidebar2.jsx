@@ -143,6 +143,26 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
+										<i className="fas fa-laptop-house" />
+										<span className="twm-title" style={{color: '#000'}}>Work Mode</span>
+										<div className="twm-s-info-discription">
+											{job?.workMode ? (job.workMode.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')) : 'Not specified'}
+										</div>
+									</div>
+								</li>
+
+								<li>
+									<div className="twm-s-info-inner">
+										<i className="fas fa-bus" />
+										<span className="twm-title" style={{color: '#000'}}>Transportation</span>
+										<div className="twm-s-info-discription">
+											{job?.transportation?.twoWay ? 'Two Way' : job?.transportation?.oneWay ? 'One Way' : job?.transportation?.noCab ? 'No Cab' : 'Not specified'}
+										</div>
+									</div>
+								</li>
+
+								<li>
+									<div className="twm-s-info-inner">
 										<i className="fas fa-money-bill-wave" />
 										<span className="twm-title">Offered Salary</span>
 											<div className="twm-s-info-discription">

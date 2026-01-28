@@ -33,6 +33,22 @@ const LOCATION_OPTIONS = [
 	"Maheshtala", "Remote", "Work From Home", "Hybrid"
 ];
 
+const PREDEFINED_JOB_TITLES = [
+	"Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", 
+	"Full Stack Developer", "Data Scientist", "Data Analyst", "Product Manager", 
+	"Project Manager", "Business Analyst", "UI/UX Designer", "Graphic Designer", 
+	"Marketing Manager", "Sales Manager", "Sales Executive", "HR Manager", 
+	"HR Executive", "Finance Manager", "Accountant", "Content Writer", 
+	"Digital Marketing Specialist", "Customer Support Executive", "Operations Manager", 
+	"Quality Assurance Engineer", "DevOps Engineer", "System Administrator", 
+	"Network Administrator", "Telecaller"
+];
+
+const PREDEFINED_CATEGORIES = [
+	"IT", "Sales", "Marketing", "Sales & Marketing", "Finance", "HR", "Operations", 
+	"Design", "Content", "Healthcare", "Education"
+];
+
 // LocationSearchInput Component
 function LocationSearchInput({ value, onChange, error, style }) {
 	const [searchTerm, setSearchTerm] = useState('');
@@ -227,7 +243,6 @@ export default function EmpPostJob({ onNext }) {
 	const isEditMode = Boolean(id);
 	const [formData, setFormData] = useState({
 		jobTitle: "",
-		customJobTitle: "",
 		jobLocation: [],
 		jobType: "",
 		netSalary: "",
@@ -320,9 +335,12 @@ export default function EmpPostJob({ onNext }) {
 		vacancies: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
 		applicationLimit: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
 		education: { required: true },
+		requiredSkills: { required: true },
 		interviewRoundsCount: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
 		offerLetterDate: { required: true },
-		lastDateOfApplication: { required: true }
+		lastDateOfApplication: { required: true },
+		jobDescription: { required: true },
+		rolesAndResponsibilities: { required: true }
 	});
 
 	/* Helpers */
@@ -473,22 +491,8 @@ export default function EmpPostJob({ onNext }) {
 				const job = data.job;
 
 				// Populate form with job data
-				const predefinedTitles = [
-					"Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", 
-					"Full Stack Developer", "Data Scientist", "Data Analyst", "Product Manager", 
-					"Project Manager", "Business Analyst", "UI/UX Designer", "Graphic Designer", 
-					"Marketing Manager", "Sales Manager", "Sales Executive", "HR Manager", 
-					"HR Executive", "Finance Manager", "Accountant", "Content Writer", 
-					"Digital Marketing Specialist", "Customer Support Executive", "Operations Manager", 
-					"Quality Assurance Engineer", "DevOps Engineer", "System Administrator", 
-					"Network Administrator", "Telecaller"
-				];
-				
-				const isCustomTitle = !predefinedTitles.includes(job.title);
-				
 				update({
-					jobTitle: isCustomTitle ? 'Others' : job.title || '',
-					customJobTitle: isCustomTitle ? job.title || '' : '',
+					jobTitle: job.title || '',
 					jobLocation: Array.isArray(job.location) ? job.location : (job.location ? [job.location] : []),
 					jobType: job.jobType || '',
 					netSalary: job.netSalary || '',
@@ -663,6 +667,81 @@ export default function EmpPostJob({ onNext }) {
 
 	/* Update interview round details */
 	const updateRoundDetails = async (roundType, field, value) => {
+		// Validation to ensure rounds are scheduled in order
+		if (field === 'fromDate' || field === 'startTime' || field === 'endTime') {
+			const currentIndex = formData.interviewRoundOrder.indexOf(roundType);
+			
+			// Check against previous round
+			if (currentIndex > 0) {
+				const prevRoundKey = formData.interviewRoundOrder[currentIndex - 1];
+				const prevRound = formData.interviewRoundDetails[prevRoundKey];
+				
+				const currentFromDate = field === 'fromDate' ? value : formData.interviewRoundDetails[roundType].fromDate;
+				const currentStartTime = field === 'startTime' ? value : formData.interviewRoundDetails[roundType].startTime;
+				
+				if (prevRound.fromDate && currentFromDate) {
+					if (currentFromDate < prevRound.fromDate) {
+						showWarning(`Round ${currentIndex + 1} cannot be scheduled before Round ${currentIndex}. Please select a date on or after ${prevRound.fromDate}.`);
+						return;
+					}
+					
+					if (currentFromDate === prevRound.fromDate) {
+						// Prioritize check against previous round's "To Time" (endTime)
+						const prevCompareTime = prevRound.endTime || prevRound.startTime;
+						if (prevCompareTime && currentStartTime && currentStartTime < prevCompareTime) {
+							showWarning(`Round ${currentIndex + 1} cannot start before Round ${currentIndex} finishes (ends at ${prevCompareTime}).`);
+							return;
+						}
+						if (prevCompareTime && currentStartTime && currentStartTime === prevCompareTime) {
+							showWarning(`Round ${currentIndex + 1} cannot start at the exact same time as Round ${currentIndex} ends (${prevCompareTime}). Please select a later time.`);
+							return;
+						}
+					}
+				}
+			}
+			
+			// Check against next round (if user is modifying an earlier round)
+			if (currentIndex !== -1 && currentIndex < formData.interviewRoundOrder.length - 1) {
+				const nextRoundKey = formData.interviewRoundOrder[currentIndex + 1];
+				const nextRound = formData.interviewRoundDetails[nextRoundKey];
+				
+				const currentFromDate = field === 'fromDate' ? value : formData.interviewRoundDetails[roundType].fromDate;
+				const currentEndTime = field === 'endTime' ? value : formData.interviewRoundDetails[roundType].endTime;
+				const currentStartTime = field === 'startTime' ? value : formData.interviewRoundDetails[roundType].startTime;
+				
+				if (nextRound.fromDate && currentFromDate) {
+					if (currentFromDate > nextRound.fromDate) {
+						showWarning(`Round ${currentIndex + 1} cannot be scheduled after Round ${currentIndex + 2}. Please select a date on or before ${nextRound.fromDate}.`);
+						return;
+					}
+					
+					if (currentFromDate === nextRound.fromDate && nextRound.startTime) {
+						// For the current round, its end time (or start time if end not set) should be before next round's start time
+						const currentCompareTime = currentEndTime || currentStartTime;
+						if (currentCompareTime && currentCompareTime > nextRound.startTime) {
+							showWarning(`Round ${currentIndex + 1} cannot end after Round ${currentIndex + 2} starts (${nextRound.startTime}).`);
+							return;
+						}
+						if (currentCompareTime && currentCompareTime === nextRound.startTime) {
+							showWarning(`Round ${currentIndex + 1} cannot end at the exact same time as Round ${currentIndex + 2} starts (${nextRound.startTime}). Please select an earlier time.`);
+							return;
+						}
+					}
+				}
+			}
+
+			// Internal validation: End time must be after Start time for the same round
+			if (field === 'startTime' || field === 'endTime') {
+				const startTime = field === 'startTime' ? value : formData.interviewRoundDetails[roundType].startTime;
+				const endTime = field === 'endTime' ? value : formData.interviewRoundDetails[roundType].endTime;
+				
+				if (startTime && endTime && endTime <= startTime) {
+					showWarning(`End time must be after the start time for the same round.`);
+					return;
+				}
+			}
+		}
+
 		// Ensure the roundType exists in interviewRoundDetails
 		setFormData(s => {
 			let updatedValue = value;
@@ -741,11 +820,14 @@ export default function EmpPostJob({ onNext }) {
 		const basicErrors = validateForm(formData, validationRules);
 		Object.assign(newErrors, basicErrors);
 
-		// Custom validation for job title when "Others" is selected
-		if (formData.jobTitle === 'Others') {
-			if (!formData.customJobTitle || formData.customJobTitle.trim().length < 3) {
-				newErrors.jobTitle = ['Please enter a custom job title (minimum 3 characters)'];
-			}
+		// Custom validation for job title
+		if (formData.jobTitle === 'Other - Specify' || (formData.jobTitle && formData.jobTitle.trim().length < 3)) {
+			newErrors.jobTitle = ['Please enter a valid job title (minimum 3 characters)'];
+		}
+
+		// Custom validation for job category
+		if (formData.category === 'Other - Specify' || (formData.category && formData.category.trim().length < 2)) {
+			newErrors.category = ['Please enter a valid job category (minimum 2 characters)'];
 		}
 
 		// Custom validations
@@ -849,6 +931,11 @@ export default function EmpPostJob({ onNext }) {
 
 		// Skip consultant field validation - these are optional
 
+		// Validate Transportation
+		if (!formData.transportation.oneWay && !formData.transportation.twoWay && !formData.transportation.noCab) {
+			newErrors.transportation = ['Please select a transportation option'];
+		}
+
 		setErrors(newErrors);
 		setGlobalErrors(errorMessages);
 
@@ -914,7 +1001,7 @@ export default function EmpPostJob({ onNext }) {
 			});
 
 			const jobData = {
-				title: formData.jobTitle === 'Others' ? formData.customJobTitle : formData.jobTitle,
+				title: formData.jobTitle,
 				location: formData.jobLocation,
 				jobType: formData.jobType ? formData.jobType.toLowerCase().replace(/\s+/g, '-') : '',
 				ctc: formData.ctc,
@@ -1048,6 +1135,12 @@ export default function EmpPostJob({ onNext }) {
 		color: "#374151",
 		marginBottom: 8,
 		fontWeight: 500,
+	};
+	
+	// Style for making asterisks red
+	const redAsterisk = {
+		color: "#dc2626", // Red color for asterisks
+		fontWeight: "bold"
 	};
 	const input = {
 		width: "100%",
@@ -1221,7 +1314,7 @@ export default function EmpPostJob({ onNext }) {
 							<div>
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-building" style={{marginRight: '8px'}}></i>
-									Company Name *
+									Company Name <span style={redAsterisk}>*</span>
 									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
 								</label>
 								{approvedCompanies.length > 0 ? (
@@ -1272,7 +1365,7 @@ export default function EmpPostJob({ onNext }) {
 							<div style={fullRow}>
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-info-circle" style={{marginRight: '8px'}}></i>
-									Company Description *
+									Company Description <span style={redAsterisk}>*</span>
 									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
 								</label>
 								<textarea
@@ -1309,7 +1402,7 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-briefcase" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Job Title / Designation *
+							Job Title / Designation <span style={redAsterisk}>*</span>
 						</label>
 						<div style={{position: 'relative'}}>
 							<select
@@ -1319,57 +1412,23 @@ export default function EmpPostJob({ onNext }) {
 									cursor: 'pointer'
 								}}
 								className={errors.jobTitle ? 'is-invalid' : ''}
-								value={formData.jobTitle === 'Others' || ![
-									"Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", 
-									"Full Stack Developer", "Data Scientist", "Data Analyst", "Product Manager", 
-									"Project Manager", "Business Analyst", "UI/UX Designer", "Graphic Designer", 
-									"Marketing Manager", "Sales Manager", "Sales Executive", "HR Manager", 
-									"HR Executive", "Finance Manager", "Accountant", "Content Writer", 
-									"Digital Marketing Specialist", "Customer Support Executive", "Operations Manager", 
-									"Quality Assurance Engineer", "DevOps Engineer", "System Administrator", 
-									"Network Administrator", "Telecaller"
-								].includes(formData.jobTitle) ? 'Others' : formData.jobTitle}
+								value={PREDEFINED_JOB_TITLES.includes(formData.jobTitle) ? formData.jobTitle : (formData.jobTitle === '' ? '' : 'Other - Specify')}
 								onChange={(e) => {
-									if (e.target.value === 'Others') {
-										update({ jobTitle: 'Others' });
+									if (e.target.value === 'Other - Specify') {
+										update({ jobTitle: 'Other - Specify' });
 									} else {
 										update({ jobTitle: e.target.value });
 									}
 								}}
 							>
 								<option value="" disabled>Select Job Title</option>
-								<option value="Software Engineer">Software Engineer</option>
-								<option value="Senior Software Engineer">Senior Software Engineer</option>
-								<option value="Frontend Developer">Frontend Developer</option>
-								<option value="Backend Developer">Backend Developer</option>
-								<option value="Full Stack Developer">Full Stack Developer</option>
-								<option value="Data Scientist">Data Scientist</option>
-								<option value="Data Analyst">Data Analyst</option>
-								<option value="Product Manager">Product Manager</option>
-								<option value="Project Manager">Project Manager</option>
-								<option value="Business Analyst">Business Analyst</option>
-								<option value="UI/UX Designer">UI/UX Designer</option>
-								<option value="Graphic Designer">Graphic Designer</option>
-								<option value="Marketing Manager">Marketing Manager</option>
-								<option value="Sales Manager">Sales Manager</option>
-								<option value="Sales Executive">Sales Executive</option>
-								<option value="HR Manager">HR Manager</option>
-								<option value="HR Executive">HR Executive</option>
-								<option value="Finance Manager">Finance Manager</option>
-								<option value="Accountant">Accountant</option>
-								<option value="Content Writer">Content Writer</option>
-								<option value="Digital Marketing Specialist">Digital Marketing Specialist</option>
-								<option value="Customer Support Executive">Customer Support Executive</option>
-								<option value="Operations Manager">Operations Manager</option>
-								<option value="Quality Assurance Engineer">Quality Assurance Engineer</option>
-								<option value="DevOps Engineer">DevOps Engineer</option>
-								<option value="System Administrator">System Administrator</option>
-								<option value="Network Administrator">Network Administrator</option>
-								<option value="Telecaller">Telecaller</option>
-								<option value="Others">Others</option>
+								{PREDEFINED_JOB_TITLES.map(title => (
+									<option key={title} value={title}>{title}</option>
+								))}
+								<option value="Other - Specify">Other - Specify</option>
 							</select>
 						</div>
-						{formData.jobTitle === 'Others' && (
+						{(formData.jobTitle === 'Other - Specify' || (formData.jobTitle !== '' && !PREDEFINED_JOB_TITLES.includes(formData.jobTitle))) && (
 							<div style={{marginTop: 8}}>
 								<input
 									style={{
@@ -1379,9 +1438,8 @@ export default function EmpPostJob({ onNext }) {
 									}}
 									type="text"
 									placeholder="Please enter your custom job title"
-									value={formData.customJobTitle || ''}
-									onChange={(e) => update({ customJobTitle: e.target.value })}
-									autoFocus
+									value={formData.jobTitle === 'Other - Specify' ? '' : formData.jobTitle}
+									onChange={(e) => update({ jobTitle: e.target.value })}
 								/>
 								<small style={{color: '#ff6b35', fontSize: 12, marginTop: 4, display: 'block'}}>
 									<i className="fa fa-info-circle" style={{marginRight: 4}}></i>
@@ -1390,7 +1448,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Select from common job titles or choose "Others" to enter a custom title
+							Select from common job titles or choose "Other - Specify" to enter a custom title
 						</small>
 						{errors.jobTitle && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
@@ -1403,7 +1461,7 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-tags" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Job Category *
+							Job Category <span style={redAsterisk}>*</span>
 						</label>
 						<select
 							style={{ 
@@ -1412,23 +1470,40 @@ export default function EmpPostJob({ onNext }) {
 								borderColor: errors.category ? '#dc2626' : '#d1d5db'
 							}}
 							className={errors.category ? 'is-invalid' : ''}
-							value={formData.category}
-							onChange={(e) => update({ category: e.target.value })}
+							value={PREDEFINED_CATEGORIES.includes(formData.category) ? formData.category : (formData.category === '' ? '' : 'Other - Specify')}
+							onChange={(e) => {
+								if (e.target.value === 'Other - Specify') {
+									update({ category: 'Other - Specify' });
+								} else {
+									update({ category: e.target.value });
+								}
+							}}
 						>
 							<option value="" disabled>Select Category</option>
-							<option value="IT">IT</option>
-							<option value="Sales">Sales</option>
-							<option value="Marketing">Marketing</option>
-							<option value="Sales & Marketing">Sales & Marketing</option>
-							<option value="Finance">Finance</option>
-							<option value="HR">HR</option>
-							<option value="Operations">Operations</option>
-							<option value="Design">Design</option>
-							<option value="Content">Content Writer</option>
-							<option value="Healthcare">Healthcare</option>
-							<option value="Education">Education</option>
-							<option value="Other">Other</option>
+							{PREDEFINED_CATEGORIES.map(cat => (
+								<option key={cat} value={cat}>{cat}</option>
+							))}
+							<option value="Other - Specify">Other - Specify</option>
 						</select>
+						{(formData.category === 'Other - Specify' || (formData.category !== '' && !PREDEFINED_CATEGORIES.includes(formData.category))) && (
+							<div style={{marginTop: 8}}>
+								<input
+									style={{
+										...input,
+										borderColor: '#ff6b35',
+										background: '#fff5f2'
+									}}
+									type="text"
+									placeholder="Please enter your custom job category"
+									value={formData.category === 'Other - Specify' ? '' : formData.category}
+									onChange={(e) => update({ category: e.target.value })}
+								/>
+								<small style={{color: '#ff6b35', fontSize: 12, marginTop: 4, display: 'block'}}>
+									<i className="fa fa-info-circle" style={{marginRight: 4}}></i>
+									Enter your custom job category above
+								</small>
+							</div>
+						)}
 						{errors.category && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
 								<i className="fa fa-exclamation-circle"></i>
@@ -1437,97 +1512,10 @@ export default function EmpPostJob({ onNext }) {
 						)}
 					</div>
 
-					<div>
-						<label style={label}>
-							<i className="fa fa-clock" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Job Type *
-						</label>
-						<select
-							style={{ 
-								...input, 
-								cursor: 'pointer',
-								borderColor: errors.jobType ? '#dc2626' : '#d1d5db'
-							}}
-							className={errors.jobType ? 'is-invalid' : ''}
-							value={formData.jobType}
-							onChange={(e) => update({ jobType: e.target.value })}
-						>
-							<option value="" disabled>Select Job Type</option>
-							<option>Full-Time</option>
-							<option>Part-Time</option>
-							<option>Remote</option>
-							<option>Hybrid</option>
-							<option>Contract</option>
-							<option>Freelance</option>
-							<option>Temporary</option>
-							<option>Permanent</option>
-							<option>Apprenticeship</option>
-							<option>Consultant</option>
-						</select>
-						{errors.jobType && (
-							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
-								<i className="fa fa-exclamation-circle"></i>
-								{errors.jobType[0]}
-							</div>
-						)}
-					</div>
-
-					<div>
-						<label style={label}>
-							<i className="fa fa-briefcase" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Type of Employment *
-						</label>
-						<div style={{
-							display: 'grid',
-							gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-							gap: 8,
-							padding: 12,
-							border: '1px solid #d1d5db',
-							borderRadius: 8,
-							background: '#fff'
-						}}>
-							{[
-								{ value: 'permanent', label: 'Permanent' },
-								{ value: 'temporary', label: 'Temporary' },
-								{ value: 'freelance', label: 'Freelance' },
-								{ value: 'consultant', label: 'Consultant' },
-								{ value: 'trainee', label: 'Trainee' }
-							].map(empType => (
-								<label key={empType.value} style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: 6,
-									cursor: 'pointer',
-									fontSize: 13,
-									padding: '6px 8px',
-									borderRadius: 4,
-									transition: 'background 0.2s',
-									background: formData.typeOfEmployment === empType.value ? '#fff5f2' : 'transparent'
-								}}>
-									<input
-										type="radio"
-										name="typeOfEmployment"
-										value={empType.value}
-										checked={formData.typeOfEmployment === empType.value}
-										onChange={(e) => update({ typeOfEmployment: e.target.value })}
-										style={{cursor: 'pointer'}}
-									/>
-									<span>{empType.label}</span>
-								</label>
-							))}
-						</div>
-						{errors.typeOfEmployment && (
-							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
-								<i className="fa fa-exclamation-circle"></i>
-								{errors.typeOfEmployment[0]}
-							</div>
-						)}
-					</div>
-
-					<div>
+					<div style={fullRow}>
 						<label style={label}>
 							<i className="fa fa-home" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Work Mode *
+							Work Mode <span style={redAsterisk}>*</span>
 						</label>
 						<div style={{
 							display: 'grid',
@@ -1574,10 +1562,186 @@ export default function EmpPostJob({ onNext }) {
 						)}
 					</div>
 
+					{/* Transportation */}
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-car" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Transportation Options <span style={redAsterisk}>*</span>
+						</label>
+						<div style={{
+							display: "grid",
+							gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+							gap: 12,
+							padding: 12,
+							border: errors.transportation ? '1px solid #dc2626' : '1px solid #d1d5db',
+							borderRadius: 8,
+							background: '#fff'
+						}}>
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 8,
+								cursor: 'pointer',
+								fontSize: 14,
+								padding: '8px 10px',
+								borderRadius: 4,
+								background: formData.transportation.oneWay ? '#fff5f2' : 'transparent',
+								transition: 'background 0.2s'
+							}}>
+								<input
+									type="radio"
+									name="transportation"
+									value="oneWay"
+									checked={formData.transportation.oneWay}
+									onChange={() => update({ transportation: { oneWay: true, twoWay: false, noCab: false } })}
+									style={{cursor: 'pointer'}}
+								/>
+								<span>One-way Cab</span>
+							</label>
+
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 8,
+								cursor: 'pointer',
+								fontSize: 14,
+								padding: '8px 10px',
+								borderRadius: 4,
+								background: formData.transportation.twoWay ? '#fff5f2' : 'transparent',
+								transition: 'background 0.2s'
+							}}>
+								<input
+									type="radio"
+									name="transportation"
+									value="twoWay"
+									checked={formData.transportation.twoWay}
+									onChange={() => update({ transportation: { oneWay: false, twoWay: true, noCab: false } })}
+									style={{cursor: 'pointer'}}
+								/>
+								<span>Two-way Cab</span>
+							</label>
+
+							<label style={{ 
+								display: "flex", 
+								alignItems: "center", 
+								gap: 8,
+								cursor: 'pointer',
+								fontSize: 14,
+								padding: '8px 10px',
+								borderRadius: 4,
+								background: formData.transportation.noCab ? '#fff5f2' : 'transparent',
+								transition: 'background 0.2s'
+							}}>
+								<input
+									type="radio"
+									name="transportation"
+									value="noCab"
+									checked={formData.transportation.noCab}
+									onChange={() => update({ transportation: { oneWay: false, twoWay: false, noCab: true } })}
+									style={{cursor: 'pointer'}}
+								/>
+								<span>No Cab Facility</span>
+							</label>
+						</div>
+						{errors.transportation && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.transportation[0]}
+							</div>
+						)}
+					</div>
+
 					<div>
 						<label style={label}>
 							<i className="fa fa-clock" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Work Shift *
+							Job Type <span style={redAsterisk}>*</span>
+						</label>
+						<select
+							style={{ 
+								...input, 
+								cursor: 'pointer',
+								borderColor: errors.jobType ? '#dc2626' : '#d1d5db'
+							}}
+							className={errors.jobType ? 'is-invalid' : ''}
+							value={formData.jobType}
+							onChange={(e) => update({ jobType: e.target.value })}
+						>
+							<option value="" disabled>Select Job Type</option>
+							<option>Full-Time</option>
+							<option>Part-Time</option>
+							<option>Remote</option>
+							<option>Hybrid</option>
+							<option>Contract</option>
+							<option>Freelance</option>
+							<option>Temporary</option>
+							<option>Permanent</option>
+							<option>Apprenticeship</option>
+							<option>Consultant</option>
+						</select>
+						{errors.jobType && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.jobType[0]}
+							</div>
+						)}
+					</div>
+
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-briefcase" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Type of Employment <span style={redAsterisk}>*</span>
+						</label>
+						<div style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+							gap: 8,
+							padding: 12,
+							border: errors.typeOfEmployment ? '1px solid #dc2626' : '1px solid #d1d5db',
+							borderRadius: 8,
+							background: '#fff'
+						}}>
+							{[
+								{ value: 'permanent', label: 'Permanent' },
+								{ value: 'temporary', label: 'Temporary' },
+								{ value: 'freelance', label: 'Freelance' },
+								{ value: 'consultant', label: 'Consultant' },
+								{ value: 'trainee', label: 'Trainee' }
+							].map(empType => (
+								<label key={empType.value} style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: 6,
+									cursor: 'pointer',
+									fontSize: 13,
+									padding: '6px 8px',
+									borderRadius: 4,
+									transition: 'background 0.2s',
+									background: formData.typeOfEmployment === empType.value ? '#fff5f2' : 'transparent'
+								}}>
+									<input
+										type="radio"
+										name="typeOfEmployment"
+										value={empType.value}
+										checked={formData.typeOfEmployment === empType.value}
+										onChange={(e) => update({ typeOfEmployment: e.target.value })}
+										style={{cursor: 'pointer'}}
+									/>
+									<span>{empType.label}</span>
+								</label>
+							))}
+						</div>
+						{errors.typeOfEmployment && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.typeOfEmployment[0]}
+							</div>
+						)}
+					</div>
+
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-clock" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Work Shift <span style={redAsterisk}>*</span>
 						</label>
 						<div style={{
 							display: 'grid',
@@ -1625,10 +1789,10 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					{/* Row 2 */}
-					<div>
+					<div style={fullRow}>
 						<label style={label}>
 							<i className="fa fa-map-marker-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Job Location *
+							Job Location <span style={redAsterisk}>*</span>
 						</label>
 						<LocationSearchInput
 							value={formData.jobLocation}
@@ -1662,7 +1826,7 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-rupee-sign" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							CTC (Annual) *
+							CTC (Annual) <span style={redAsterisk}>*</span>
 						</label>
 						<input
 							style={{
@@ -1695,7 +1859,7 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-money-bill-wave" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Net Salary (Monthly) *
+							Net Salary (Monthly) <span style={redAsterisk}>*</span>
 							{formData.netSalary && (
 								<span style={{
 									fontSize: 11, 
@@ -1735,7 +1899,7 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-users" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Number of Vacancies *
+							Number of Vacancies <span style={redAsterisk}>*</span>
 						</label>
 						<input
 							style={{
@@ -1776,7 +1940,7 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-file-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Application Limit *
+							Application Limit <span style={redAsterisk}>*</span>
 						</label>
 						<input
 							style={{
@@ -1823,7 +1987,7 @@ export default function EmpPostJob({ onNext }) {
 					<div style={{ position: 'relative' }}>
 						<label style={label}>
 							<i className="fa fa-graduation-cap" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Required Educational Background *
+							Required Educational Background <span style={redAsterisk}>*</span>
 						</label>
 						<div 
 							onClick={() => setShowEducationDropdown(!showEducationDropdown)}
@@ -1957,7 +2121,7 @@ export default function EmpPostJob({ onNext }) {
 					<div style={fullRow}>
 						<label style={label}>
 							<i className="fa fa-cogs" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Required Skills
+							Required Skills <span style={redAsterisk}>*</span>
 							<span style={{fontSize: 12, color: '#6b7280', fontWeight: 'normal', marginLeft: 8}}>
 								({formData.requiredSkills.length} skills selected)
 							</span>
@@ -2286,7 +2450,7 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-comments" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Number of Interview Rounds *
+							Number of Interview Rounds <span style={redAsterisk}>*</span>
 							{formData.interviewRoundsCount && formData.interviewRoundOrder.length > 0 && (
 								<span style={{
 									fontSize: 11,
@@ -3340,7 +3504,7 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-calendar-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Offer Letter Release Date *
+							Offer Letter Release Date <span style={redAsterisk}>*</span>
 						</label>
 						<input
 							style={input}
@@ -3365,7 +3529,7 @@ export default function EmpPostJob({ onNext }) {
 					<div>
 						<label style={label}>
 							<i className="fa fa-calendar-times" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Last Date of Application *
+							Last Date of Application <span style={redAsterisk}>*</span>
 						</label>
 						<div style={{display: 'flex', gap: 12, alignItems: 'flex-end'}}>
 							<div style={{flex: 1}}>
@@ -3427,79 +3591,11 @@ export default function EmpPostJob({ onNext }) {
 						<HolidayIndicator date={formData.lastDateOfApplication} />
 					</div>
 
-					{/* Transportation */}
-					<div>
-						<label style={label}>
-							<i className="fa fa-car" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Transportation Options
-						</label>
-						<div style={{
-							display: "flex",
-							flexDirection: "column",
-							gap: 10,
-							padding: 12,
-						}}>
-							<label style={{ 
-								display: "flex", 
-								alignItems: "center", 
-								gap: 8,
-								cursor: 'pointer',
-								fontSize: 14,
-							}}>
-								<input
-									type="radio"
-									name="transportation"
-									value="oneWay"
-									checked={formData.transportation.oneWay}
-									onChange={() => update({ transportation: { oneWay: true, twoWay: false, noCab: false } })}
-									style={{cursor: 'pointer'}}
-								/>
-								One-way Cab
-							</label>
-
-							<label style={{ 
-								display: "flex", 
-								alignItems: "center", 
-								gap: 8,
-								cursor: 'pointer',
-								fontSize: 14,
-							}}>
-								<input
-									type="radio"
-									name="transportation"
-									value="twoWay"
-									checked={formData.transportation.twoWay}
-									onChange={() => update({ transportation: { oneWay: false, twoWay: true, noCab: false } })}
-									style={{cursor: 'pointer'}}
-								/>
-								Two-way Cab
-							</label>
-
-							<label style={{ 
-								display: "flex", 
-								alignItems: "center", 
-								gap: 8,
-								cursor: 'pointer',
-								fontSize: 14,
-							}}>
-								<input
-									type="radio"
-									name="transportation"
-									value="noCab"
-									checked={formData.transportation.noCab}
-									onChange={() => update({ transportation: { oneWay: false, twoWay: false, noCab: true } })}
-									style={{cursor: 'pointer'}}
-								/>
-								No Cab Facility
-							</label>
-						</div>
-					</div>
-					
 					{/* Job Description */}
 					<div style={fullRow}>
 						<label style={label}>
 							<i className="fa fa-align-left" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Job Description *
+							Job Description <span style={redAsterisk}>*</span>
 						</label>
 						<RichTextEditor
 							value={formData.jobDescription || 'We are looking for a talented professional to join our dynamic team. The ideal candidate will be responsible for key tasks and contribute to our company\'s growth and success.'}
@@ -3516,7 +3612,7 @@ export default function EmpPostJob({ onNext }) {
 					<div style={fullRow}>
 						<label style={label}>
 							<i className="fa fa-tasks" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Roles and Responsibilities
+							Roles and Responsibilities <span style={redAsterisk}>*</span>
 						</label>
 						<RichTextEditor
 							value={formData.rolesAndResponsibilities || ''}

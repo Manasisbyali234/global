@@ -64,6 +64,8 @@ const employerProfileSchema = new mongoose.Schema({
   incorporationReuploadedAt: { type: Date },
   authorizationVerified: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   authorizationReuploadedAt: { type: Date },
+  companyIdCardVerified: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  companyIdCardReuploadedAt: { type: Date },
   agreeTerms: { type: String },
   
   // Primary Contact

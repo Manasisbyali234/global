@@ -1649,6 +1649,7 @@ function EmpCompanyProfilePage() {
                                         type="file"
                                         accept=".jpg,.jpeg,.png,.pdf"
                                         onChange={(e) => handleDocumentUpload(e, 'panCardImage')}
+                                        disabled={formData.panCardVerified === 'approved'}
                                     />
                                     {formData.panCardImage ? (
                                         <>
@@ -1669,6 +1670,7 @@ function EmpCompanyProfilePage() {
                                         type="file"
                                         accept=".jpg,.jpeg,.png,.pdf"
                                         onChange={(e) => handleDocumentUpload(e, 'cinImage')}
+                                        disabled={formData.cinVerified === 'approved'}
                                     />
                                     {formData.cinImage ? (
                                         <>
@@ -1689,6 +1691,7 @@ function EmpCompanyProfilePage() {
                                         type="file"
                                         accept=".jpg,.jpeg,.png,.pdf"
                                         onChange={(e) => handleDocumentUpload(e, 'gstImage')}
+                                        disabled={formData.gstVerified === 'approved'}
                                     />
                                     {formData.gstImage ? (
                                         <>
@@ -1709,6 +1712,7 @@ function EmpCompanyProfilePage() {
                                         type="file"
                                         accept=".jpg,.jpeg,.png,.pdf"
                                         onChange={(e) => handleDocumentUpload(e, 'certificateOfIncorporation')}
+                                        disabled={formData.incorporationVerified === 'approved'}
                                     />
                                     {formData.certificateOfIncorporation ? (
                                         <>
@@ -1823,6 +1827,7 @@ function EmpCompanyProfilePage() {
                                                                         <i className="fas fa-file-alt text-primary me-2"></i>
                                                                         <span className="fw-bold">{doc.fileName}</span>
                                                                     </div>
+                                                                    {renderStatusBadge(doc.status)}
                                                                     {doc.companyName && (
                                                                         <div className="mb-1">
                                                                             <small className="text-info">
@@ -1840,7 +1845,8 @@ function EmpCompanyProfilePage() {
                                                                     type="button" 
                                                                     className="btn btn-outline-danger btn-sm"
                                                                     onClick={() => handleDeleteAuthorizationLetter(doc._id)}
-                                                                    title="Delete document"
+                                                                    title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
+                                                                    disabled={doc.status === 'approved'}
                                                                 >
                                                                     <i className="fas fa-trash"></i>
                                                                 </button>
@@ -1967,6 +1973,7 @@ function EmpCompanyProfilePage() {
                                         type="file"
                                         accept="image/*"
                                         onChange={(e) => handleDocumentUpload(e, 'companyIdCardPicture')}
+                                        disabled={formData.companyIdCardVerified === 'approved'}
                                     />
                                     {formData.companyIdCardPicture && (
                                         <div className="mt-2">
@@ -1985,7 +1992,8 @@ function EmpCompanyProfilePage() {
                                                     e.target.style.display = 'none';
                                                 }}
                                             />
-                                            <p className="text-success mt-1">✓ Company ID Card uploaded</p>
+                                            <p className="text-success mt-1 mb-0">✓ Company ID Card uploaded</p>
+                                            {renderStatusBadge(formData.companyIdCardVerified, formData.companyIdCardReuploadedAt)}
                                         </div>
                                     )}
                                     <p className="text-muted mt-1">Upload any company identification document (Max 5MB)</p>
