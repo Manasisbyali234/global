@@ -1,0 +1,78 @@
+/* Employer Detail Title Display Fix */
+
+/* Ensure the title is visible and properly styled */
+.twm-job-title {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 8px !important;
+    line-height: 1.3 !important;
+    text-align: left !important;
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Override any conflicting styles */
+.wt-bnr-inr-entry .banner-title-outer .banner-title-name .wt-title,
+.wt-bnr-inr-entry .banner-title-outer .wt-title,
+.section-head h2, 
+.wt-title {
+    font-size: 28px !important;
+    line-height: 1.3 !important;
+    text-align: left !important;
+    color: #2c3e50 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Ensure the container is visible */
+.twm-mid-content {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Make sure the company name displays properly */
+.twm-job-title,
+h4.twm-job-title {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #2c3e50 !important;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    margin-bottom: 8px !important;
+    line-height: 1.3 !important;
+    text-align: left !important;
+    background: none !important;
+    background-color: transparent !important;
+}
+
+/* Override any global color scheme that might be hiding text */
+*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *) .twm-job-title {
+    color: #2c3e50 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .twm-job-title,
+    h4.twm-job-title {
+        font-size: 24px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .twm-job-title,
+    h4.twm-job-title {
+        font-size: 20px !important;
+    }
+}

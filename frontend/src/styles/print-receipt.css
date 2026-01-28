@@ -101,11 +101,32 @@ html body .modal-footer button.receipt-print-btn {
 }
 
 html body .modal-footer .receipt-print-btn:hover {
+    color: #ffffff !important;
     background-color: #ea580c !important;
+}
+
+html body .modal-footer .receipt-print-btn:focus,
+html body .modal-footer .receipt-print-btn:active,
+html body .modal-footer .receipt-print-btn:visited {
+    color: #ffffff !important;
 }
 
 html body .modal-footer .receipt-print-btn svg,
 html body .modal-footer .receipt-print-btn i {
     color: #ffffff !important;
     stroke: #ffffff !important;
+}
+
+/* Additional specificity to override any other styles */
+.modal-footer .receipt-print-btn,
+.modal-footer .receipt-print-btn:hover,
+.modal-footer .receipt-print-btn:focus,
+.modal-footer .receipt-print-btn:active,
+.modal-footer .receipt-print-btn:visited,
+button.receipt-print-btn,
+button.receipt-print-btn:hover,
+button.receipt-print-btn:focus,
+button.receipt-print-btn:active,
+button.receipt-print-btn:visited {
+    color: #ffffff !important;
 }

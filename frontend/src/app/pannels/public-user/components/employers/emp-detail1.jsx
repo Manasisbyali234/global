@@ -11,6 +11,7 @@ import { loadScript } from "../../../../../globals/constants";
 import "../jobs/job-detail.css";
 import "../../../../../employer-detail-tabs.css";
 import "../../../../../emp-detail-mobile-tabs-fix.css";
+import "../../../../../emp-detail-title-fix.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 function EmployersDetail1Page() {
@@ -66,6 +67,12 @@ function EmployersDetail1Page() {
             const data = await response.json();
             
             if (data.success) {
+                console.log('Employer data received:', data.profile);
+                console.log('Company name fields:', {
+                    companyName: data.profile.companyName,
+                    employerIdCompanyName: data.profile.employerId?.companyName,
+                    employerIdName: data.profile.employerId?.name
+                });
                 setEmployer(data.profile);
                 
             } else {
@@ -216,8 +223,13 @@ function EmployersDetail1Page() {
 															)}
 														</div>
 
-														<h4 className="twm-job-title">
-															{employer.companyName || employer.employerId?.companyName || 'Company Name'}
+														<h4 className="twm-job-title" style={{display: 'block', visibility: 'visible', opacity: 1, color: '#2c3e50', fontSize: '28px', fontWeight: '700'}}>
+															{employer.companyName || 
+															 employer.employerId?.companyName || 
+															 employer.employerId?.name || 
+															 employer.name ||
+															 employer.company ||
+															 'Company Name Not Available'}
 														</h4>
 														<p className="twm-job-address">
 															<i className="feather-map-pin" />
