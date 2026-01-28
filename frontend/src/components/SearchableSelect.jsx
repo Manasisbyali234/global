@@ -239,7 +239,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
                                                         type="checkbox"
                                                         checked={isSelected}
                                                         onChange={() => {}}
-                                                        style={{ marginRight: '8px' }}
+                                                        style={{ marginRight: '8px', flexShrink: 0, zIndex: 1 }}
                                                     />
                                                 )}
                                                 <span style={{ flex: 1 }}>{opt.label}</span>
@@ -282,7 +282,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
                                                 type="checkbox"
                                                 checked={isSelected}
                                                 onChange={() => {}}
-                                                style={{ marginRight: '8px' }}
+                                                style={{ marginRight: '8px', flexShrink: 0, zIndex: 1 }}
                                             />
                                         )}
                                         {opt.label}
