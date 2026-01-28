@@ -438,6 +438,19 @@ function JobDetail1Page() {
                                                                  job.minSalary ? `₹${job.minSalary}+` :
                                                                  `₹${job.maxSalary}`}
                                                             </span>
+                                                            {(job.minSalary || job.maxSalary || job.salary) && (
+                                                                <div style={{fontSize: '14px', color: '#6c757d', marginTop: '5px'}}>
+                                                                    <strong>Net Monthly: </strong>
+                                                                    {typeof job.salary === 'string' || typeof job.salary === 'number' ? 
+                                                                        `₹${Math.round((Number(job.salary) * 0.8) / 12).toLocaleString()}` : 
+                                                                        (job.minSalary && job.maxSalary) ? 
+                                                                            `₹${Math.round((Number(job.minSalary) * 0.8) / 12).toLocaleString()} - ₹${Math.round((Number(job.maxSalary) * 0.8) / 12).toLocaleString()}` :
+                                                                        job.minSalary ? 
+                                                                            `₹${Math.round((Number(job.minSalary) * 0.8) / 12).toLocaleString()}+` :
+                                                                            `₹${Math.round((Number(job.maxSalary) * 0.8) / 12).toLocaleString()}`
+                                                                    } (approx.)
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     )}
 
