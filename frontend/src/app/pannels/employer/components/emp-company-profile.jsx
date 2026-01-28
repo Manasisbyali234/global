@@ -127,6 +127,16 @@ function EmpCompanyProfilePage() {
     useEffect(() => {
         loadScript("js/custom.js");
         fetchProfile();
+        
+        // Handle hash navigation for hiring companies section
+        if (window.location.hash === '#hiring-companies') {
+            setTimeout(() => {
+                const element = document.getElementById('hiring-companies');
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 500);
+        }
     }, []);
 
     const fetchProfile = async () => {
@@ -1351,6 +1361,134 @@ function EmpCompanyProfilePage() {
                     </div>
                 </div>
 
+                {/* Hiring Companies Section - Only for Consultancy */}
+                {formData.employerCategory === 'consultancy' && (
+                    <div className="panel panel-default" id="hiring-companies">
+                        <div className="panel-heading wt-panel-heading p-a20">
+                            <h4 className="panel-tittle m-a0"><Building size={18} className="me-2" /> Hiring Companies</h4>
+                        </div>
+                        <div className="panel-body wt-panel-body p-a20 m-b30">
+                            <div className="alert alert-info mb-3">
+                                <i className="fas fa-info-circle me-2"></i>
+                                <strong>Consultancy Profile:</strong> Please list all the companies you hire for and upload their authorization letters.
+                            </div>
+                            
+                            <div className="row">
+                                {authSections.map((section, index) => (
+                                    <div key={section.id} className="col-md-6 mb-4">
+                                        <div className="card border" style={{padding: '15px'}}>
+                                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 className="mb-0">
+                                                    <Building size={16} className="me-2" /> 
+                                                    Hiring Company #{index + 1}
+                                                </h6>
+                                                {authSections.length > 1 && (
+                                                    <button 
+                                                        type="button" 
+                                                        className="btn btn-outline-danger btn-sm"
+                                                        onClick={() => removeAuthSection(section.id)}
+                                                        title="Remove this company"
+                                                    >
+                                                        <i className="fas fa-times"></i>
+                                                    </button>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="form-group mb-3">
+                                                <label className="required-field">Company Name</label>
+                                                <input
+                                                    className={`form-control ${!section.companyName?.trim() ? 'is-invalid' : ''}`}
+                                                    type="text"
+                                                    value={section.companyName}
+                                                    onChange={(e) => handleAuthSectionCompanyNameChange(section.id, e.target.value)}
+                                                    placeholder="Enter hiring company name"
+                                                    required
+                                                />
+                                                {!section.companyName?.trim() && (
+                                                    <div className="invalid-feedback">
+                                                        Company name is required
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="form-group">
+                                                <label>Authorization Letter</label>
+                                                <input
+                                                    className="form-control"
+                                                    type="file"
+                                                    accept=".jpg,.jpeg,.png,.pdf"
+                                                    onChange={(e) => handleAuthorizationLetterUpload(e, section.id)}
+                                                />
+                                                <small className="text-muted">Upload authorization letter for this company (JPG, PNG, PDF, max 5MB)</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            <div className="mt-3">
+                                <button 
+                                    type="button" 
+                                    className="btn btn-sm"
+                                    style={{backgroundColor: '#ffb366', color: 'white', border: 'none'}}
+                                    onClick={addNewAuthSection}
+                                >
+                                    <i className="fas fa-plus me-1"></i> 
+                                    Add New Hiring Company
+                                </button>
+                            </div>
+                            
+                            {/* Display uploaded authorization letters */}
+                            {formData.authorizationLetters && formData.authorizationLetters.length > 0 && (
+                                <div className="mt-4">
+                                    <h6 className="text-success mb-3">
+                                        <i className="fas fa-check-circle me-2"></i>
+                                        Uploaded Authorization Letters ({formData.authorizationLetters.length})
+                                    </h6>
+                                    <div className="row">
+                                        {formData.authorizationLetters.map((doc, index) => (
+                                            <div key={doc._id || index} className="col-md-6 mb-2">
+                                                <div className="document-card p-3 border rounded shadow-sm" style={{backgroundColor: '#fff'}}>
+                                                    <div className="d-flex justify-content-between align-items-start">
+                                                        <div className="flex-grow-1">
+                                                            <div className="d-flex align-items-center mb-1">
+                                                                <i className="fas fa-file-alt text-primary me-2"></i>
+                                                                <span className="fw-bold">{doc.fileName}</span>
+                                                            </div>
+                                                            {renderStatusBadge(doc.status)}
+                                                            {doc.companyName && (
+                                                                <div className="mb-1">
+                                                                    <small className="text-info">
+                                                                        <i className="fas fa-building me-1"></i>
+                                                                        {doc.companyName}
+                                                                    </small>
+                                                                </div>
+                                                            )}
+                                                            <small className="text-muted">
+                                                                <i className="fas fa-calendar me-1"></i>
+                                                                {new Date(doc.uploadedAt).toLocaleDateString('en-GB')}
+                                                            </small>
+                                                        </div>
+                                                        <button 
+                                                            type="button" 
+                                                            className="btn btn-outline-danger btn-sm"
+                                                            onClick={() => handleDeleteAuthorizationLetter(doc._id)}
+                                                            title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
+                                                            disabled={doc.status === 'approved'}
+                                                        >
+                                                            <i className="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {/* Company Details */}
                 <div className="panel panel-default">
                     <div className="panel-heading wt-panel-heading p-a20">
@@ -1729,10 +1867,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="mb-3">
                                         <FileText size={16} className="me-2" /> 
-                                        {formData.employerCategory === 'consultancy' 
-                                            ? 'List of hiring company names' 
-                                            : 'Authorization Letters (if registering on behalf of someone else)'
-                                        }
+                                        Authorization Letters (if registering on behalf of someone else)
                                     </label>
                                     
                                     <div className="row">
@@ -1743,10 +1878,7 @@ function EmpCompanyProfilePage() {
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <label>
                                                         <Upload size={16} className="me-2" /> 
-                                                        {formData.employerCategory === 'consultancy' 
-                                                            ? `Hiring Company #${index + 1}` 
-                                                            : `Authorization Letter #${index + 1}`
-                                                        }
+                                                        Authorization Letter #{index + 1}
                                                     </label>
                                                     {authSections.length > 1 && (
                                                         <button 
@@ -1758,25 +1890,6 @@ function EmpCompanyProfilePage() {
                                                         </button>
                                                     )}
                                                 </div>
-                                                
-                                                {formData.employerCategory === 'consultancy' && (
-                                                    <div className="mb-2">
-                                                        <label className="required-field"><Building size={14} className="me-1" /> Hiring Company Name</label>
-                                                        <input
-                                                            className={`form-control ${!section.companyName?.trim() ? 'is-invalid' : ''}`}
-                                                            type="text"
-                                                            value={section.companyName}
-                                                            onChange={(e) => handleAuthSectionCompanyNameChange(section.id, e.target.value)}
-                                                            placeholder="Enter hiring company name"
-                                                            required
-                                                        />
-                                                        {!section.companyName?.trim() && (
-                                                            <div className="invalid-feedback">
-                                                                Hiring company name is required
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
                                                 
                                                 <input
                                                     className="form-control"
@@ -1790,32 +1903,24 @@ function EmpCompanyProfilePage() {
                                     
                                     </div>
                                     
-                                    {formData.employerCategory === 'consultancy' && (
-                                        <div className="mt-2">
-                                            <button 
-                                                type="button" 
-                                                className="btn btn-sm"
-                                                style={{backgroundColor: '#ffb366', color: 'white', border: 'none'}}
-                                                onClick={addNewAuthSection}
-                                            >
-                                                <i className="fas fa-plus me-1"></i> 
-                                                {formData.employerCategory === 'consultancy' 
-                                                    ? 'Add New Hiring Company' 
-                                                    : 'Add New Authorization Letter'
-                                                }
-                                            </button>
-                                        </div>
-                                    )}
+                                    <div className="mt-2">
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-sm"
+                                            style={{backgroundColor: '#ffb366', color: 'white', border: 'none'}}
+                                            onClick={addNewAuthSection}
+                                        >
+                                            <i className="fas fa-plus me-1"></i> 
+                                            Add New Authorization Letter
+                                        </button>
+                                    </div>
                                     
                                     {/* Display uploaded authorization letters */}
                                     {formData.authorizationLetters && formData.authorizationLetters.length > 0 && (
                                         <div className="uploaded-documents mt-4">
                                             <h6 className="text-success">
                                                 <i className="fas fa-check-circle me-2"></i>
-                                                {formData.employerCategory === 'consultancy' 
-                                                    ? 'Uploaded Hiring Company Documents' 
-                                                    : 'Uploaded Authorization Letters'
-                                                }
+                                                Uploaded Authorization Letters
                                             </h6>
                                             <div className="row">
                                                 {formData.authorizationLetters.map((doc, index) => (

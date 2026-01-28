@@ -1331,6 +1331,41 @@ export default function EmpPostJob({ onNext }) {
 										Select from your approved authorization companies
 									</p>
 								</div>
+								<div style={{
+									display: 'flex',
+									justifyContent: 'flex-start',
+									marginBottom: 16
+								}}>
+									<button
+										type="button"
+										style={{
+											background: '#ff6b35',
+											color: 'white',
+											border: 'none',
+											padding: '10px 20px',
+											borderRadius: 8,
+											cursor: 'pointer',
+											fontSize: 14,
+											fontWeight: 600,
+											transition: 'all 0.2s ease',
+											display: 'flex',
+											alignItems: 'center',
+											gap: 8
+										}}
+										onClick={() => {
+											window.location.href = '/employer/profile#hiring-companies';
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.background = '#e55a2b';
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.background = '#ff6b35';
+										}}
+									>
+										<i className="fa fa-plus"></i>
+										Add New Company
+									</button>
+								</div>
 							</div>
 							<div>
 								<label style={label}>
