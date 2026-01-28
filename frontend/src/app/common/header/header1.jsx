@@ -7,6 +7,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import HamburgerMenu from "../../../components/HamburgerMenu";
 import { useHamburgerMenu } from "../../../components/useHamburgerMenu";
 import "../../../header-responsive.css";
+import "../../../navbar-active-highlight.css";
 
 const Header1 = memo(function Header1({ _config }) {
     const { user, userType, isAuthenticated } = useAuth();

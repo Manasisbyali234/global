@@ -11,7 +11,7 @@ function InnerPageBanner({_data}) {
                     <div className="wt-bnr-inr-entry">
                         {/* BREADCRUMB ROW */}
                         {_data.crumb && _data.title !== 'About TaleGlobal' && (
-                            <div>
+                            <div style={{display: 'none'}}>
                                 <ul className="wt-breadcrumb breadcrumb-style-2">
                                     <li><NavLink to="/">Home</NavLink></li>
                                     <li>{_data.crumb}</li>

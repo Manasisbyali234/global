@@ -1,0 +1,9 @@
+/* Active navigation item highlighting */
+.nav.navbar-nav li a.active {
+    color: #ff6b35 !important;
+    font-weight: 600 !important;
+}
+
+.nav.navbar-nav li a.active:hover {
+    color: #e55a2b !important;
+}
