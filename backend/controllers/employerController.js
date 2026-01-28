@@ -1275,7 +1275,7 @@ exports.reviewApplication = async (req, res) => {
       employerId: req.user._id
     })
     .populate('candidateId', 'name email phone')
-    .populate('jobId', 'title');
+    .populate('jobId', 'title interviewRoundOrder');
 
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });

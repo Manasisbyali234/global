@@ -299,6 +299,7 @@ export default function EmpPostJob({ onNext }) {
 		companyLogo: "",
 		companyName: "",
 		companyDescription: "",
+		aboutCompany: "",
 		category: "",
 		// Type of Employment
 		typeOfEmployment: "",
@@ -535,7 +536,7 @@ export default function EmpPostJob({ onNext }) {
 					})(),
 					interviewRoundOrder: job.interviewRoundOrder || [],
 					offerLetterDate: job.offerLetterDate ? job.offerLetterDate.split('T')[0] : '',
-					joiningDate: job.lastDateOfApplication ? job.lastDateOfApplication.split('T')[0] : '',
+					joiningDate: job.joiningDate ? job.joiningDate.split('T')[0] : '',
 					lastDateOfApplication: job.lastDateOfApplication ? job.lastDateOfApplication.split('T')[0] : '',
 					lastDateOfApplicationTime: job.lastDateOfApplicationTime || '',
 					transportation: job.transportation || {
@@ -552,6 +553,7 @@ export default function EmpPostJob({ onNext }) {
 					companyLogo: job.companyLogo || '',
 					companyName: job.companyName || '',
 					companyDescription: job.companyDescription || '',
+					aboutCompany: job.aboutCompany || '',
 					category: job.category || '',
 					typeOfEmployment: job.typeOfEmployment || '',
 					shift: job.shift || '',
@@ -614,7 +616,8 @@ export default function EmpPostJob({ onNext }) {
 					update({
 						companyLogo: data.profile.consultantCompanyLogo || '',
 						companyName: data.profile.consultantCompanyName || '',
-						companyDescription: data.profile.consultantCompanyDescription || ''
+						companyDescription: data.profile.consultantCompanyDescription || '',
+						aboutCompany: data.profile.consultantAboutCompany || ''
 					});
 				}
 			}
@@ -932,7 +935,51 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}
 
+		// Validate Offer Letter Date vs Last Interview Round
+		if (formData.offerLetterDate) {
+			const allRoundDates = [];
+			formData.interviewRoundOrder.forEach(key => {
+				const details = formData.interviewRoundDetails[key];
+				if (details?.fromDate) {
+					allRoundDates.push(new Date(details.fromDate));
+				}
+			});
+			
+			if (allRoundDates.length > 0) {
+				const latestRoundDate = new Date(Math.max(...allRoundDates));
+				const offerDate = new Date(formData.offerLetterDate);
+				
+				if (offerDate < latestRoundDate) {
+					newErrors.offerLetterDate = ['Offer letter date cannot be before the interview rounds'];
+					errorMessages.push(`Offer letter date (${formData.offerLetterDate}) must be on or after the last interview round (${latestRoundDate.toISOString().split('T')[0]})`);
+				}
+			}
+		}
+
+		// Validate Joining Date vs Offer Letter Date
+		if (formData.joiningDate && formData.offerLetterDate) {
+			const joiningDate = new Date(formData.joiningDate);
+			const offerDate = new Date(formData.offerLetterDate);
+			
+			if (joiningDate <= offerDate) {
+				newErrors.joiningDate = ['Joining date must be after the offer letter date'];
+				errorMessages.push(`Joining date (${formData.joiningDate}) must be after the offer letter date (${formData.offerLetterDate})`);
+			}
+		}
+
 		// Skip consultant field validation - these are optional
+		// Actually, let's add validation for consultant fields since they're marked as required
+		if (employerType === 'consultant') {
+			if (!formData.companyName || formData.companyName.trim().length < 2) {
+				newErrors.companyName = ['Please enter a valid company name (minimum 2 characters)'];
+			}
+			if (!formData.aboutCompany || formData.aboutCompany.trim().length < 10) {
+				newErrors.aboutCompany = ['Please enter about company information (minimum 10 characters)'];
+			}
+			if (!formData.companyDescription || formData.companyDescription.trim().length < 10) {
+				newErrors.companyDescription = ['Please enter why join us information (minimum 10 characters)'];
+			}
+		}
 
 		// Validate Transportation
 		if (!formData.transportation.oneWay && !formData.transportation.twoWay && !formData.transportation.noCab) {
@@ -1046,11 +1093,13 @@ export default function EmpPostJob({ onNext }) {
 				console.log('Adding consultant fields:', {
 					companyLogo: formData.companyLogo,
 					companyName: formData.companyName,
-					companyDescription: formData.companyDescription
+					companyDescription: formData.companyDescription,
+					aboutCompany: formData.aboutCompany
 				});
 				jobData.companyLogo = formData.companyLogo;
 				jobData.companyName = formData.companyName;
 				jobData.companyDescription = formData.companyDescription;
+				jobData.aboutCompany = formData.aboutCompany;
 			}
 
 			
@@ -1368,7 +1417,7 @@ export default function EmpPostJob({ onNext }) {
 							<div style={fullRow}>
 								<label style={{...label, color: '#dc2626'}}>
 									<i className="fa fa-info-circle" style={{marginRight: '8px'}}></i>
-									Company Description <span style={redAsterisk}>*</span>
+									Why Join Us <span style={redAsterisk}>*</span>
 									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
 								</label>
 								<textarea
@@ -1378,7 +1427,7 @@ export default function EmpPostJob({ onNext }) {
 										borderColor: formData.companyDescription ? '#10b981' : '#dc2626',
 										borderWidth: 2,
 									}}
-									placeholder="Brief description about the company, its culture, and what makes it unique..."
+									placeholder="Describe the company culture, benefits, growth opportunities, and what makes it unique..."
 									value={formData.companyDescription}
 									onChange={(e) => update({ companyDescription: e.target.value })}
 									required
@@ -1386,7 +1435,32 @@ export default function EmpPostJob({ onNext }) {
 								{!formData.companyDescription && (
 									<p style={{color: '#dc2626', fontSize: 12, margin: '6px 0 0 0', display: 'flex', alignItems: 'center', gap: 4}}>
 										<i className="fa fa-exclamation-circle"></i>
-										Please enter company description
+										Please enter why join us information
+									</p>
+								)}
+							</div>
+							<div style={fullRow}>
+								<label style={{...label, color: '#dc2626'}}>
+									<i className="fa fa-building" style={{marginRight: '8px'}}></i>
+									About Company <span style={redAsterisk}>*</span>
+									<span style={{fontSize: 11, color: '#dc2626', marginLeft: 6}}>(Required)</span>
+								</label>
+								<textarea
+									style={{
+										...input, 
+										minHeight: '100px',
+										borderColor: formData.aboutCompany ? '#10b981' : '#dc2626',
+										borderWidth: 2,
+									}}
+									placeholder="Brief description about the company, its history, mission, and what it does..."
+									value={formData.aboutCompany}
+									onChange={(e) => update({ aboutCompany: e.target.value })}
+									required
+								/>
+								{!formData.aboutCompany && (
+									<p style={{color: '#dc2626', fontSize: 12, margin: '6px 0 0 0', display: 'flex', alignItems: 'center', gap: 4}}>
+										<i className="fa fa-exclamation-circle"></i>
+										Please enter about company information
 									</p>
 								)}
 							</div>
@@ -3516,7 +3590,7 @@ export default function EmpPostJob({ onNext }) {
 							style={input}
 							type="date"
 							min={new Date().toISOString().split('T')[0]}
-							value={formData.offerLetterDate}
+							value={formData.offerLetterDate || ''}
 							onChange={(e) => update({ offerLetterDate: e.target.value })}
 							placeholder="DD/MM/YYYY"
 						/>
@@ -3530,6 +3604,31 @@ export default function EmpPostJob({ onNext }) {
 							Format: DD/MM/YYYY
 						</small>
 						<HolidayIndicator date={formData.offerLetterDate} />
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-walking" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Joining Date
+						</label>
+						<input
+							style={input}
+							type="date"
+							min={formData.offerLetterDate || new Date().toISOString().split('T')[0]}
+							value={formData.joiningDate || ''}
+							onChange={(e) => update({ joiningDate: e.target.value })}
+							placeholder="DD/MM/YYYY"
+						/>
+						{errors.joiningDate && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.joiningDate[0]}
+							</div>
+						)}
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
+							Format: DD/MM/YYYY
+						</small>
+						<HolidayIndicator date={formData.joiningDate} />
 					</div>
 
 					<div>
@@ -3552,18 +3651,27 @@ export default function EmpPostJob({ onNext }) {
 										formData.interviewRoundOrder.forEach(key => {
 											const details = formData.interviewRoundDetails[key];
 											if (details?.fromDate) {
-												allRoundDates.push(new Date(details.fromDate));
+												const d = new Date(details.fromDate);
+												if (!isNaN(d.getTime())) {
+													allRoundDates.push(d);
+												}
 											}
 										});
 										if (allRoundDates.length > 0) {
 											const earliest = new Date(Math.min(...allRoundDates));
-											// Subtract 1 day
-											earliest.setDate(earliest.getDate() - 1);
-											return earliest.toISOString().split('T')[0];
+											if (!isNaN(earliest.getTime())) {
+												// Subtract 1 day
+												earliest.setDate(earliest.getDate() - 1);
+												const maxDate = earliest.toISOString().split('T')[0];
+												const today = new Date().toISOString().split('T')[0];
+												// If maxDate would be before today, don't set a max so user can at least select today
+												// and let the manual validation show the error message
+												return maxDate < today ? undefined : maxDate;
+											}
 										}
 										return undefined;
 									})()}
-									value={formData.lastDateOfApplication}
+									value={formData.lastDateOfApplication || ''}
 									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
 									placeholder="DD/MM/YYYY"
 								/>

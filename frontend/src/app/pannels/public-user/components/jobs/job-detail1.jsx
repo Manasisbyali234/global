@@ -8,6 +8,7 @@ import SectionJobsSidebar2 from "../../sections/jobs/sidebar/section-jobs-sideba
 import TermsModal from "../../../../../components/TermsModal";
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
+import "../../../../../job-detail-section-spacing.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 
@@ -459,7 +460,7 @@ function JobDetail1Page() {
 
 
 
-                                    <div style={{marginBottom: '40px'}}>
+                                    <div style={{marginBottom: '20px'}}>
                                         <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
                                             <i className="feather-file-text" style={{marginRight: '10px', color: '#3498db'}}></i>
                                             Job Description
@@ -469,7 +470,7 @@ function JobDetail1Page() {
                                     </div>
 
                                     {job.rolesAndResponsibilities && job.rolesAndResponsibilities.trim() !== '' && (
-                                        <div style={{marginBottom: '40px'}}>
+                                        <div style={{marginBottom: '20px'}}>
                                             <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
                                                 <i className="feather-list" style={{marginRight: '10px', color: '#e74c3c'}}></i>
                                                 Roles and Responsibilities
@@ -479,7 +480,7 @@ function JobDetail1Page() {
                                         </div>
                                     )}
 
-                                    <div style={{marginBottom: '40px'}}>
+                                    <div style={{marginBottom: '20px'}}>
                                         <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
                                             <i className="feather-code" style={{marginRight: '10px', color: '#9b59b6'}}></i>
                                             Required Skills

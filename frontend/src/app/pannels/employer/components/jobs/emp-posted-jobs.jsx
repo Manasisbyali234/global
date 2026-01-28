@@ -311,6 +311,12 @@ export default function EmpPostedJobs() {
 														<span className="d-inline-flex align-items-center">Annual CTC:&nbsp;{formatCtc(job)}</span>
 														<span className="d-inline-flex align-items-center">Vacancies:&nbsp;{job.vacancies || 0}</span>
 														<span className="d-inline-flex align-items-center"><Calendar size={14} className="me-1" /> Posted:&nbsp;{formatDate(job.createdAt)}</span>
+														{job.offerLetterDate && (
+															<span className="d-inline-flex align-items-center"><Calendar size={14} className="me-1" /> Offer Date:&nbsp;{formatDate(job.offerLetterDate)}</span>
+														)}
+														{job.joiningDate && (
+															<span className="d-inline-flex align-items-center"><Calendar size={14} className="me-1" /> Joining:&nbsp;{formatDate(job.joiningDate)}</span>
+														)}
 														<span className="text-primary fw-bold">Applications:&nbsp;{applicationCounts[job._id] || 0}</span>
 													</div>
 												</div>

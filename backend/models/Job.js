@@ -10,6 +10,7 @@ const jobSchema = new mongoose.Schema({
   companyLogo: { type: String }, // Base64 encoded image (only for consultants)
   companyName: { type: String }, // Company name (only for consultants)
   companyDescription: { type: String }, // Company description (only for consultants)
+  aboutCompany: { type: String }, // About company information
   category: { type: String }, // Job category (IT, Sales, Marketing, etc.)
   typeOfEmployment: { type: String, enum: ['permanent', 'temporary', 'freelance', 'consultant', 'trainee'] }, // Type of employment
   shift: { type: String, enum: ['day-shift', 'night-shift', 'rotational'] }, // Work shift
