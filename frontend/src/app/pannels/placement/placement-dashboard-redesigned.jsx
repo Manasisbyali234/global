@@ -890,7 +890,7 @@ function PlacementDashboardRedesigned() {
                                                             <option value="Business Administration">Business Administration</option>
                                                             <option value="Commerce">Commerce</option>
                                                             <option value="Arts">Arts</option>
-                                                            <option value="other">Other</option>
+                                                            <option value="other">Other-Specify</option>
                                                         </select>
                                                         {courseNameOption === 'other' && (
                                                             <input 
@@ -928,7 +928,7 @@ function PlacementDashboardRedesigned() {
                                                             <option value="Pune University">Pune University</option>
                                                             <option value="Osmania University">Osmania University</option>
                                                             <option value="Andhra University">Andhra University</option>
-                                                            <option value="other">Other</option>
+                                                            <option value="other">Other-Specify</option>
                                                         </select>
                                                         {universityOption === 'other' && (
                                                             <input 

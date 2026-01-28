@@ -158,7 +158,7 @@ function SectionCanKeySkills({ profile }) {
         <>
             <div className="panel-heading wt-panel-heading p-a20 d-flex justify-content-between align-items-center">
                 <h4 className="panel-tittle m-a0">
-                    Key Skills
+                    Key Skills<span style={{ color: 'red' }}>*</span>
                 </h4>
             </div>
 

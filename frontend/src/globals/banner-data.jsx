@@ -31,8 +31,8 @@ export const banner = {
                 crumb: "Companies"
             },
             detail1: {
-                title: "",
-                crumb: "Companies"
+                title: "Corporate Showcase",
+                crumb: "Company Detail"
             }
         },
         candidate: {

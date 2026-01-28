@@ -55,7 +55,6 @@ const candidateProfileSchema = new mongoose.Schema({
     startDate: Date,
     endDate: Date,
     description: String,
-    workType: { type: String, enum: ['Remote', 'Onsite', 'Hybrid'] },
     presentCTC: String,
     expectedCTC: String
   }],

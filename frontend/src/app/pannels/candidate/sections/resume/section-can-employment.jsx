@@ -15,7 +15,6 @@ function SectionCanEmployment({ profile }) {
             startDate: '',
             endDate: '',
             description: '',
-            workType: '',
             presentCTC: '',
             expectedCTC: '',
             noticePeriod: ''
@@ -100,7 +99,7 @@ function SectionCanEmployment({ profile }) {
     };
 
     const clearForm = () => {
-        const resetFormData = { designation: '', organization: '', isCurrent: false, startDate: '', endDate: '', description: '', workType: '', presentCTC: '', expectedCTC: '', noticePeriod: '' };
+        const resetFormData = { designation: '', organization: '', isCurrent: false, startDate: '', endDate: '', description: '', presentCTC: '', expectedCTC: '', noticePeriod: '' };
         setFormData(resetFormData);
         localStorage.removeItem('employmentFormData');
         setErrors({});
@@ -123,7 +122,6 @@ function SectionCanEmployment({ profile }) {
             startDate: formatDateForInput(emp.startDate),
             endDate: formatDateForInput(emp.endDate),
             description: emp.description || '',
-            workType: emp.workType || '',
             presentCTC: emp.presentCTC || '',
             expectedCTC: emp.expectedCTC || '',
             noticePeriod: emp.noticePeriod || ''
@@ -247,7 +245,7 @@ function SectionCanEmployment({ profile }) {
         }
 
         if (!formData.workType) {
-            newErrors.workType = 'Work type is required';
+            // workType validation removed - field no longer required
         }
 
         if (formData.presentCTC && formData.presentCTC.trim()) {
@@ -348,7 +346,6 @@ function SectionCanEmployment({ profile }) {
                 startDate: formData.startDate,
                 endDate: formData.isCurrent ? null : (formData.endDate || null),
                 description: formData.description ? formData.description.trim() : '',
-                workType: formData.workType,
                 presentCTC: formData.presentCTC ? formData.presentCTC.trim() : '',
                 expectedCTC: formData.expectedCTC ? formData.expectedCTC.trim() : '',
                 noticePeriod: formData.noticePeriod ? formData.noticePeriod.trim() : ''
@@ -380,7 +377,7 @@ function SectionCanEmployment({ profile }) {
             
             if (response && (response.success || response.candidate)) {
                 setEmployment(sortedEmployment);
-                const resetFormData = { designation: '', organization: '', location: '', isCurrent: false, startDate: '', endDate: '', description: '', workType: '', presentCTC: '', expectedCTC: '' };
+                const resetFormData = { designation: '', organization: '', location: '', isCurrent: false, startDate: '', endDate: '', description: '', presentCTC: '', expectedCTC: '' };
                 setFormData(resetFormData);
                 localStorage.removeItem('employmentFormData');
                 setErrors({});

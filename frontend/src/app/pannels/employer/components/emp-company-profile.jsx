@@ -2098,7 +2098,6 @@ function EmpCompanyProfilePage() {
                                                 }}
                                             />
                                             <p className="text-success mt-1 mb-0">✓ Company ID Card uploaded</p>
-                                            {renderStatusBadge(formData.companyIdCardVerified, formData.companyIdCardReuploadedAt)}
                                         </div>
                                     )}
                                     <p className="text-muted mt-1">Upload any company identification document (Max 5MB)</p>

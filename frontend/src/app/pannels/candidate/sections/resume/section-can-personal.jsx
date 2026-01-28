@@ -300,7 +300,7 @@ function SectionCanPersonalDetail({ profile }) {
                         </div>
                         <div className="row">
                             <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-user me-1"></i> First Name</label>
+                                <label><i className="fa fa-user me-1"></i> First Name <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     className="form-control"
                                     type="text"
@@ -313,7 +313,7 @@ function SectionCanPersonalDetail({ profile }) {
                             </div>
 
                             <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-user me-1"></i> Middle Name</label>
+                                <label><i className="fa fa-user me-1"></i> Middle Name <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     className="form-control"
                                     type="text"
@@ -326,7 +326,7 @@ function SectionCanPersonalDetail({ profile }) {
                             </div>
 
                             <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-user me-1"></i> Last Name</label>
+                                <label><i className="fa fa-user me-1"></i> Last Name <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     className="form-control"
                                     type="text"
@@ -353,7 +353,7 @@ function SectionCanPersonalDetail({ profile }) {
                                         }
                                     }
                                 `}</style>
-                                <label><i className="fa fa-phone me-1"></i> Mobile Number</label>
+                                <label><i className="fa fa-phone me-1"></i> Mobile Number <span style={{color: 'red'}}>*</span></label>
                                 <div style={{position: 'relative'}} className="mobile-input-wrapper">
                                     <div className="mobile-country-code" style={{
                                         position: 'absolute',
@@ -394,7 +394,7 @@ function SectionCanPersonalDetail({ profile }) {
                             </div>
 
                             <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-envelope me-1"></i> Email Address</label>
+                                <label><i className="fa fa-envelope me-1"></i> Email Address <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     className="form-control"
                                     type="email"
@@ -407,7 +407,7 @@ function SectionCanPersonalDetail({ profile }) {
                             </div>
 
                             <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-map-pin me-1"></i> Pincode</label>
+                                <label><i className="fa fa-map-pin me-1"></i> Pincode <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     className="form-control"
                                     type="text"

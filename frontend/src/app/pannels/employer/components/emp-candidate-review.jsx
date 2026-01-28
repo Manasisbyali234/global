@@ -491,14 +491,6 @@ function EmpCandidateReviewPage() {
                     <i className="fas fa-file-alt"></i>
                     Documents
                 </button>
-                <button className={`tab-btn ${activeTab === 'company' ? 'active' : ''}`} onClick={() => setActiveTab('company')}>
-                    <i className="fas fa-building"></i>
-                    Company Details
-                </button>
-                <button className={`tab-btn ${activeTab === 'locations' ? 'active' : ''}`} onClick={() => setActiveTab('locations')}>
-                    <i className="fas fa-map-marker-alt"></i>
-                    Work Locations
-                </button>
             </div>
 
             <div className="tab-content">
@@ -880,63 +872,60 @@ function EmpCandidateReviewPage() {
                             <h4><i className="fas fa-briefcase"></i> Employment History</h4>
                         </div>
                         
-                        {candidate.totalExperience && (
-                            <div className="experience-badge-container">
-                                <i className="fas fa-hourglass-half"></i>
-                                <p>
-                                    Total Experience: <span>{candidate.totalExperience}</span>
-                                </p>
-                            </div>
-                        )}
+                        <div className="experience-overview-header">
+                            {candidate.totalExperience && (
+                                <div className="experience-badge-container">
+                                    <i className="fas fa-hourglass-half"></i>
+                                    <p>
+                                        Total Experience: <span>{candidate.totalExperience}</span>
+                                    </p>
+                                </div>
+                            )}
 
-                        {!candidate.employment || candidate.employment.length === 0 ? (
-                            <div className="no-data-content">
-                                <i className="fas fa-briefcase"></i>
-                                <h5>No Employment Information</h5>
-                            </div>
-                        ) : (
-                            <div className="employment-timeline">
-                                {candidate.employment.map((emp, index) => (
-                                    <div key={index} className="employment-item">
-                                        <div className="employment-icon">
-                                            <i className="fas fa-briefcase"></i>
+                            <div className="experience-quick-stats">
+                                {/* Current Professional Details added under Experience */}
+                                <div className="professional-details-section">
+                                    <div className="sub-section-header">
+                                        <i className="fas fa-building"></i>
+                                        <h5>Current Professional Details</h5>
+                                    </div>
+                                    <div className="info-grid-simple">
+                                        <div className="info-item-simple">
+                                            <label>Current Company:</label>
+                                            <span>{candidate.currentCompany || 'Not provided'}</span>
                                         </div>
-                                        <div className="employment-content">
-                                            <div className="employment-header">
-                                                <h4>{emp.designation}</h4>
-                                                <span className="duration">
-                                                    {formatDate(emp.startDate)} - {emp.isCurrent ? 'Present' : formatDate(emp.endDate)}
-                                                </span>
-                                            </div>
-                                            <div className="employment-details">
-                                                <div className="detail-item">
-                                                    <label>Organization:</label>
-                                                    <span>{emp.organization} {emp.isCurrent && <span className="current-badge">Current</span>}</span>
-                                                </div>
-                                                {emp.location && (
-                                                    <div className="detail-item">
-                                                        <label>Location:</label>
-                                                        <span>{emp.location}</span>
-                                                    </div>
-                                                )}
-                                                {emp.workType && (
-                                                    <div className="detail-item">
-                                                        <label>Work Type:</label>
-                                                        <span>{emp.workType}</span>
-                                                    </div>
-                                                )}
-                                                {emp.description && (
-                                                    <div className="detail-item full-width">
-                                                        <label>Description:</label>
-                                                        <p>{emp.description}</p>
-                                                    </div>
-                                                )}
-                                            </div>
+                                        <div className="info-item-simple">
+                                            <label>Current CTC:</label>
+                                            <span>{candidate.currentCTC ? `₹ ${candidate.currentCTC} LPA` : 'Not provided'}</span>
+                                        </div>
+                                        <div className="info-item-simple">
+                                            <label>Expected CTC:</label>
+                                            <span>{candidate.expectedCTC ? `₹ ${candidate.expectedCTC} LPA` : 'Not provided'}</span>
                                         </div>
                                     </div>
-                                ))}
+                                </div>
+
+                                {/* Preferred Locations added under Experience */}
+                                <div className="locations-section">
+                                    <div className="sub-section-header">
+                                        <i className="fas fa-map-marker-alt"></i>
+                                        <h5>Preferred Locations</h5>
+                                    </div>
+                                    <div className="locations-tags-container">
+                                        {candidate.preferredLocations && candidate.preferredLocations.length > 0 ? (
+                                            candidate.preferredLocations.map((loc, index) => (
+                                                <div key={index} className="location-tag-simple">
+                                                    <i className="fas fa-map-pin"></i>
+                                                    <span>{loc}</span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="no-data-text">No preferred locations provided.</p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                        )}
+                        </div>
                     </div>
                 )}
 
@@ -945,18 +934,6 @@ function EmpCandidateReviewPage() {
                         <div className="section-header">
                             <h4><i className="fas fa-cogs"></i> Skills & Professional Summary</h4>
                         </div>
-
-                        {candidate.resumeHeadline && (
-                            <div className="summary-section">
-                                <div className="sub-section-header">
-                                    <i className="fas fa-newspaper"></i>
-                                    <h5>Resume Headline</h5>
-                                </div>
-                                <div className="summary-content">
-                                    <p>{candidate.resumeHeadline}</p>
-                                </div>
-                            </div>
-                        )}
 
                         {candidate.skills && candidate.skills.length > 0 && (
                             <div className="skills-section mt-4">
@@ -970,6 +947,18 @@ function EmpCandidateReviewPage() {
                                             <span>{skill}</span>
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {candidate.resumeHeadline && (
+                            <div className="summary-section mt-4">
+                                <div className="sub-section-header">
+                                    <i className="fas fa-newspaper"></i>
+                                    <h5>Resume Headline</h5>
+                                </div>
+                                <div className="summary-content">
+                                    <p>{candidate.resumeHeadline}</p>
                                 </div>
                             </div>
                         )}
@@ -1050,65 +1039,6 @@ function EmpCandidateReviewPage() {
                                     </div>
                                 </div>
                             ))}
-                        </div>
-                    </div>
-                )}
-
-                {activeTab === 'company' && (
-                    <div className="tab-panel company-info">
-                        <div className="section-header">
-                            <h4><i className="fas fa-building"></i> Current Professional Details</h4>
-                        </div>
-                        <div className="info-section">
-                            <div className="info-rows">
-                                <div className="info-row">
-                                    <div className="info-field">
-                                        <div className="field-icon"><i className="fas fa-industry"></i></div>
-                                        <div className="field-content">
-                                            <label>Current Company</label>
-                                            <span>{candidate.currentCompany || 'Not provided'}</span>
-                                        </div>
-                                    </div>
-                                    <div className="info-field">
-                                        <div className="field-icon"><i className="fas fa-money-bill-wave"></i></div>
-                                        <div className="field-content">
-                                            <label>Current CTC</label>
-                                            <span>{candidate.currentCTC ? `₹ ${candidate.currentCTC} LPA` : 'Not provided'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="info-row">
-                                    <div className="info-field">
-                                        <div className="field-icon"><i className="fas fa-coins"></i></div>
-                                        <div className="field-content">
-                                            <label>Expected CTC</label>
-                                            <span>{candidate.expectedCTC ? `₹ ${candidate.expectedCTC} LPA` : 'Not provided'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {activeTab === 'locations' && (
-                    <div className="tab-panel locations-info">
-                        <div className="info-section">
-                            <div className="section-header">
-                                <h4><i className="fas fa-map-marker-alt"></i> Preferred Locations</h4>
-                            </div>
-                            <div className="skills-grid">
-                                {candidate.preferredLocations && candidate.preferredLocations.length > 0 ? (
-                                    candidate.preferredLocations.map((loc, index) => (
-                                        <div key={index} className="skill-tag location">
-                                            <i className="fas fa-map-pin mr-2"></i>
-                                            <span>{loc}</span>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p>No preferred locations provided.</p>
-                                )}
-                            </div>
                         </div>
                     </div>
                 )}

@@ -1600,7 +1600,7 @@ exports.getApplicationDetails = async (req, res) => {
     }
 
     // Get candidate profile data with job preferences
-    const candidateProfile = await CandidateProfile.findOne({ candidateId: application.candidateId._id });
+    const candidateProfile = await CandidateProfile.findOne({ candidateId: application.candidateId });
     
     // Get assessment attempt details if job has assessment
     let assessmentAttempt = null;

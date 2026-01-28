@@ -231,6 +231,17 @@ function EmployersDetail1Page() {
 															 employer.company ||
 															 'Company Name Not Available'}
 														</h4>
+														<p className="twm-employer-industry" style={{color: '#6b7280', marginBottom: '10px'}}>
+															<i className="feather-briefcase" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+															{employer.industrySector || employer.industry || 'Various Industries'}
+														</p>
+														<div className="hiring-type-badge" style={{marginBottom: '15px'}}>
+															<span className={`badge ${employer.employerId?.employerType === 'consultant' ? 'badge-warning' : 'badge-success'}`} 
+																style={{fontSize: '14px', padding: '8px 16px', fontWeight: '600'}}>
+																<i className={`feather-${employer.employerId?.employerType === 'consultant' ? 'users' : 'building'}`} style={{marginRight: '6px'}}></i>
+																{employer.employerId?.employerType === 'consultant' ? 'Recruitment Consultancy' : 'Direct Hiring Company'}
+															</span>
+														</div>
 														<p className="twm-job-address">
 															<i className="feather-map-pin" />
 															{employer.corporateAddress || employer.location || 'Location not specified'}

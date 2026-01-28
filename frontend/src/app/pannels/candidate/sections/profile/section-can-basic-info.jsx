@@ -216,6 +216,14 @@ function SectionCandicateBasicInfo() {
                     delete newErrors.pincode;
                 }
                 break;
+            
+            case 'stateCode':
+                if (!value || !value.trim()) {
+                    newErrors.stateCode = 'State code is required';
+                } else {
+                    delete newErrors.stateCode;
+                }
+                break;
         }
         
         setErrors(newErrors);
@@ -335,7 +343,7 @@ function SectionCandicateBasicInfo() {
 
 
     const validateForm = () => {
-        const fieldsToValidate = ['name', 'email', 'lastName', 'phone', 'location', 'pincode'];
+        const fieldsToValidate = ['name', 'email', 'lastName', 'phone', 'location', 'pincode', 'stateCode'];
         let isValid = true;
         
         fieldsToValidate.forEach(field => {
@@ -727,12 +735,14 @@ function SectionCandicateBasicInfo() {
                             {errors.location && <div className="invalid-feedback">{errors.location}</div>}
                         </div>
                         <div className="col-md-4 mb-3">
-                            <label className="form-label"><i className="fa fa-map me-2" style={{color: '#ff6b35'}}></i>State Code</label>
+                            <label className="form-label"><i className="fa fa-map me-2" style={{color: '#ff6b35'}}></i>State Code <span style={{color: 'red'}}>*</span></label>
                             <select 
-                                className="form-control"
+                                className={`form-control ${errors.stateCode ? 'is-invalid' : ''}`}
                                 name="stateCode"
                                 value={formData.stateCode}
                                 onChange={handleInputChange}
+                                onBlur={handleBlur}
+                                required
                             >
                                 <option value="">Select State Code</option>
                                 <option value="AP">AP - Andhra Pradesh</option>
@@ -772,6 +782,7 @@ function SectionCandicateBasicInfo() {
                                 <option value="LD">LD - Lakshadweep</option>
                                 <option value="PY">PY - Puducherry</option>
                             </select>
+                            {errors.stateCode && <div className="invalid-feedback">{errors.stateCode}</div>}
                         </div>
                     </div>
 

@@ -365,7 +365,7 @@ function CanSupport() {
                             <i className="fa fa-check-circle" style={{fontSize: '4rem', color: '#28a745'}}></i>
                         </div>
                         <h3 className="text-success mb-3" style={{wordBreak: 'break-word', display: 'block', textAlign: 'center'}}>✓ Support Ticket Submitted!</h3>
-                        <p className="mb-4">Thank you for contacting our support team. We have received your ticket and will respond within 24 hours.</p>
+                        <p className="mb-4">Thank you for contacting our support team. We have received your ticket and will respond within 2 to 3 Days.</p>
                         <button 
                             onClick={() => setIsSubmitted(false)} 
                             className="site-button"
