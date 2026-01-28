@@ -446,7 +446,7 @@ function JobDetail1Page() {
                                                         >
                                                             {hasApplied ? 'Already Applied' : 
                                                              isExpired ? 'Application Closed' : 
-                                                             isEnded ? 'Job Closed' : 
+                                                             isEnded ? 'Application Closed' : 
                                                              (candidateData && (candidateData.registrationMethod === 'placement' || candidateData.placement) && candidateData.credits > 0) ? 
                                                              `Apply with 1 Credit (${candidateData.credits} left)` : 
                                                              'Apply Now'}
