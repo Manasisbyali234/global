@@ -277,8 +277,7 @@ function SupportPage() {
             <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', overflow: 'hidden', zIndex: 9999, touchAction: 'none' }} onWheel={(e) => e.preventDefault()} onTouchMove={(e) => e.preventDefault()}>
                 <div className="d-flex align-items-center justify-content-center" style={{ height: '100%', width: '100%', backgroundColor: '#fff' }}>
                     <div className="text-center" style={{ padding: '20px' }}>
-                        <h2 className="text-success mb-4">✓ Support Ticket Submitted!</h2>
-                        <p className="mb-4">Thank you for contacting our support team. We have received your ticket and will respond within 2 to 3 Days.</p>
+                        <p className="mb-4">Thank you for contacting our support team. We have received your ticket and will respond within 2 to 3 Working Days.</p>
                         <button 
                             onClick={() => setIsSubmitted(false)} 
                             className="site-button"

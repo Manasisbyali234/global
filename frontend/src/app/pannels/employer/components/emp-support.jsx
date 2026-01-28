@@ -339,8 +339,7 @@ function EmpSupport() {
                         <div className="success-icon mb-3">
                             <i className="fa fa-check-circle" style={{fontSize: '4rem', color: '#28a745'}}></i>
                         </div>
-                        <h3 className="text-success mb-3">✓ Support Ticket Submitted!</h3>
-                        <p className="mb-4">Thank you for contacting our support team. We have received your ticket and will respond within 2 to 3 Days.</p>
+                        <p className="mb-4">Thank you for contacting our support team. We have received your ticket and will respond within 2 to 3 Working Days.</p>
                         <button 
                             onClick={() => setIsSubmitted(false)} 
                             className="site-button"
@@ -384,7 +383,7 @@ function EmpSupport() {
                                 <div className="row">
                                     <div className="col-xl-12 col-lg-12 col-md-12">
                                         <div className="form-group">
-                                            <label>Subject *</label>
+                                            <label>Subject <span style={{ color: 'red' }}>*</span></label>
                                             <input 
                                                 name="subject" 
                                                 type="text" 
@@ -431,7 +430,7 @@ function EmpSupport() {
                                     
                                     <div className="col-xl-12 col-lg-12 col-md-12">
                                         <div className="form-group">
-                                            <label>Message *</label>
+                                            <label>Message<span style={{ color: 'red' }}>*</span></label>
                                             <textarea 
                                                 name="message" 
                                                 className={`form-control ${errors.message ? 'is-invalid' : ''}`}
