@@ -210,7 +210,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
                                         borderBottom: '1px solid #dee2e6',
                                         position: 'sticky',
                                         top: 0,
-                                        zIndex: 1
+                                        zIndex: 10
                                     }}>
                                         <i className={`fa ${category === 'Metro Cities' ? 'fa-star' : category === 'Major Cities' ? 'fa-building' : 'fa-map-marker'} me-2`}></i>
                                         {category}
