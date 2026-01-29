@@ -73,11 +73,7 @@ function SignupPlacement() {
             return;
         }
 
-        if (!termsAccepted) {
-            setShowTermsModal(true);
-            return;
-        }
-        
+
         setLoading(true);
         try {
             const apiUrl = process.env.REACT_APP_API_URL || '';
@@ -160,18 +156,18 @@ function SignupPlacement() {
                         </div>
 
                         <div className="auth-form-group">
-                            <div className="input-group">
-                                <span className="input-group-text" style={{ borderRadius: '8px 0 0 8px', borderRight: 'none' }}>{placementData.countryCode}</span>
+                            <div style={{ position: 'relative' }}>
                                 <input 
                                     name="phone" 
                                     type="text" 
                                     required 
                                     className={`auth-input ${fieldErrors.phone ? 'is-invalid' : ''}`} 
-                                    style={{ borderRadius: '0 8px 8px 0' }}
+                                    style={{ paddingLeft: '50px' }}
                                     placeholder="Mobile Number" 
                                     value={placementData.phone} 
                                     onChange={handleChange} 
                                 />
+                                <span style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none' }}>{placementData.countryCode}</span>
                             </div>
                             {fieldErrors.phone && <div className="invalid-feedback d-block">{fieldErrors.phone}</div>}
                         </div>
@@ -187,15 +183,6 @@ function SignupPlacement() {
                                 onChange={handleChange} 
                             />
                             {fieldErrors.collegeName && <div className="invalid-feedback">{fieldErrors.collegeName}</div>}
-                        </div>
-
-                        <div className="auth-form-group">
-                            <div className="form-check">
-                                <input type="checkbox" className="form-check-input" id="terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
-                                <label className="form-check-label" htmlFor="terms" style={{ fontSize: '13px' }}>
-                                    I agree to the <span onClick={() => setShowTermsModal(true)} style={{color: '#0F172A', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline'}}>Terms and Conditions</span>
-                                </label>
-                            </div>
                         </div>
 
                         <button type="submit" className="login-btn" disabled={loading}>
