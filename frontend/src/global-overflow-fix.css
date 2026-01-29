@@ -5,6 +5,34 @@
   max-width: 100% !important;
 }
 
+/* Fix location overflow in job cards */
+@media (max-width: 767px) {
+  .job-grid-page .new-job-card .job-card-header, 
+  .job-grid-page .new-job-card .job-card-middle, 
+  .job-grid-page .new-job-card .job-card-footer,
+  .new-job-card .job-card-header, 
+  .new-job-card .job-card-middle, 
+  .new-job-card .job-card-footer {
+    flex-wrap: wrap !important;
+  }
+}
+
+.job-location,
+.card-location,
+[class*="location"] {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+}
+
+.job-info,
+.title-location {
+  min-width: 0 !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+}
+
 .container,
 .container-fluid,
 .row,

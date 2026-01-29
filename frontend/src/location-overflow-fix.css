@@ -1,0 +1,51 @@
+/* Location Overflow Fix */
+
+/* Remove conflicting nowrap rules on mobile */
+@media (max-width: 767px) {
+    .job-grid-page .new-job-card .job-card-header, 
+    .job-grid-page .new-job-card .job-card-middle, 
+    .job-grid-page .new-job-card .job-card-footer,
+    .new-job-card .job-card-header, 
+    .new-job-card .job-card-middle, 
+    .new-job-card .job-card-footer {
+        flex-wrap: wrap !important;
+    }
+}
+
+/* Fix location text overflow in all job card types */
+.job-location,
+.card-location,
+[class*="location"],
+.new-job-card .job-location,
+.job-card .job-location,
+.home-job-card .job-location,
+.home-job-card .card-location {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
+    word-break: break-word !important;
+}
+
+/* Ensure location container has proper width constraints */
+.job-info,
+.title-location {
+    min-width: 0 !important;
+    flex: 1 !important;
+    overflow: hidden !important;
+}
+
+/* Mobile specific location fixes */
+@media (max-width: 767px) {
+    .job-location,
+    .card-location {
+        font-size: 13px !important;
+        max-width: calc(100vw - 120px) !important;
+    }
+    
+    .job-card-left,
+    .logo-title-section {
+        min-width: 0 !important;
+        flex: 1 !important;
+    }
+}

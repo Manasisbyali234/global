@@ -232,9 +232,14 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                             </div>
                             <div className="job-info">
                                 <h4 className="job-title">{job.title}</h4>
-                                <div className="job-location">
+                                <div className="job-location" title={Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}>
                                     <i className="feather-map-pin" />
-                                    {Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}
+                                    {Array.isArray(job.location) ? 
+                                        job.location.length > 2 ? 
+                                            `${job.location.slice(0, 2).join(', ')} +${job.location.length - 2} more` : 
+                                            job.location.join(', ') : 
+                                        (job.location || 'Location not specified')
+                                    }
                                 </div>
                             </div>
                         </div>

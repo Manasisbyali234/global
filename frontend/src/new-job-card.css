@@ -83,11 +83,29 @@
 }
 
 .job-location {
-  display: flex;
-  align-items: center;
-  gap: 4px;
   color: #6b7280;
   font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: block;
+  cursor: help;
+}
+
+.job-location i {
+  margin-right: 4px;
+}
+
+/* Force location text to not overflow */
+.new-job-card .job-location,
+.job-card .job-location,
+.home-job-card .job-location {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+  display: block !important;
 }
 
 .job-location i {
@@ -214,6 +232,10 @@
   
   .job-title {
     font-size: 15px;
+  }
+  
+  .job-location {
+    max-width: calc(100vw - 120px) !important;
   }
 }
 
