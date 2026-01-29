@@ -19,16 +19,39 @@ function LoginPlacement() {
         setLoading(true);
         setError('');
         
-        const result = await login({
-            email: email.trim(),
-            password: password.trim()
-        }, 'placement');
+        console.log('Form submission:', { email: email.trim(), password: password.trim() });
         
-        if (result.success) {
-            navigate(placementRoute(placement.DASHBOARD));
-        } else {
-            setError(result.message);
+        // Basic validation
+        if (!email.trim()) {
+            setError('Email is required');
+            setLoading(false);
+            return;
         }
+        
+        if (!password.trim()) {
+            setError('Password is required');
+            setLoading(false);
+            return;
+        }
+        
+        try {
+            const result = await login({
+                email: email.trim(),
+                password: password.trim()
+            }, 'placement');
+            
+            console.log('Login result:', result);
+            
+            if (result.success) {
+                navigate(placementRoute(placement.DASHBOARD));
+            } else {
+                setError(result.message || 'Login failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setError('Login failed. Please try again.');
+        }
+        
         setLoading(false);
     }
 

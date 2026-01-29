@@ -29,7 +29,10 @@ router.post('/create-password', [
 ], handleValidationErrors, placementController.createPassword);
 
 // Login route
-router.post('/login', placementController.loginPlacement);
+router.post('/login', [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').notEmpty().withMessage('Password is required')
+], handleValidationErrors, placementController.loginPlacement);
 
 router.post('/check-email', [
   body('email').isEmail().withMessage('Valid email is required')

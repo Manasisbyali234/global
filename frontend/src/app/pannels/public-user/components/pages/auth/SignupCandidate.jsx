@@ -60,7 +60,7 @@ function SignupCandidate() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (Object.keys(fieldErrors).length > 0) {
+        if (Object.keys(fieldErrors).filter(key => fieldErrors[key]).length > 0) {
             showError('Please correct the errors before submitting.');
             return;
         }

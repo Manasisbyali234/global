@@ -68,7 +68,18 @@ function SignupPlacement() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (Object.keys(fieldErrors).length > 0 || !placementData.collegeName) {
+        // Debug logging
+        console.log('Form data:', placementData);
+        console.log('Field errors:', fieldErrors);
+        
+        // Validate all required fields
+        const requiredFields = ['name', 'email', 'phone', 'collegeName'];
+        const missingFields = requiredFields.filter(field => !placementData[field] || !placementData[field].trim());
+        
+        console.log('Missing fields:', missingFields);
+        console.log('Has field errors:', Object.keys(fieldErrors).length > 0);
+        
+        if (Object.keys(fieldErrors).filter(key => fieldErrors[key]).length > 0 || missingFields.length > 0) {
             showError('Please complete all required fields correctly.');
             return;
         }
