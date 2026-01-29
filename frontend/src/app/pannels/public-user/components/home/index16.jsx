@@ -987,25 +987,15 @@ function Home16Page() {
                                                             overflow: 'hidden'
                                                         }}>
                                                             <h4 className="job-title">{job.title}</h4>
-                                                            <div className="job-location">
+                                                            <div className="job-location" title={Array.isArray(job.location) ? job.location.filter(loc => loc && loc.trim()).join(', ') : job.location}>
                                                                 <i className="feather-map-pin" />
                                                                 {(() => {
                                                                     if (Array.isArray(job.location)) {
                                                                         const locations = job.location.filter(loc => loc && loc.trim());
                                                                         if (locations.length <= 1) {
-                                                                            return locations.join(', ');
+                                                                            return locations[0] || 'Location not specified';
                                                                         } else {
-                                                                            return (
-                                                                                <>
-                                                                                    {locations[0]}
-                                                                                    <span 
-                                                                                        className="location-more" 
-                                                                                        title={locations.slice(1).join(', ')}
-                                                                                    >
-                                                                                        {' '}+{locations.length - 1} more
-                                                                                    </span>
-                                                                                </>
-                                                                            );
+                                                                            return `${locations[0]} +${locations.length - 1}`;
                                                                         }
                                                                     }
                                                                     return job.location || 'Location not specified';
