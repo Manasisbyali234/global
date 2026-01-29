@@ -102,9 +102,10 @@
   margin-left: 2px;
   flex-shrink: 0;
   cursor: help;
+  white-space: nowrap;
 }
 
-/* Force location text to not overflow */
+/* Ensure location text doesn't get cut off */
 .new-job-card .job-location,
 .job-card .job-location,
 .home-job-card .job-location {
@@ -112,6 +113,16 @@
   flex: 1 !important;
   min-width: 0 !important;
   white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+.new-job-card .job-location .location-more,
+.job-card .job-location .location-more,
+.home-job-card .job-location .location-more {
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
 }
 
 .job-location i {

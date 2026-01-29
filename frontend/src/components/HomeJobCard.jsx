@@ -78,7 +78,6 @@ const sanitizeJobTypeClass = (jobType) => {
 const HomeJobCard = ({ job }) => {
     const title = job?.title || "Job title";
     const rawLocation = job?.location || job?.city || "Location not specified";
-    const location = Array.isArray(rawLocation) ? rawLocation.join(', ') : rawLocation;
     const jobType = job?.jobType || job?.type || "Full-time";
     const jobTypeClass = sanitizeJobTypeClass(jobType);
     const ctcText = formatCtcText(job);
@@ -87,6 +86,28 @@ const HomeJobCard = ({ job }) => {
     const companyName = job?.companyName || job?.employerProfile?.companyName || "Company";
     const logo = job?.companyLogo || job?.employerProfile?.logo;
     const placeholderInitial = companyName?.charAt(0)?.toUpperCase() || "?";
+
+    const locationDisplay = (() => {
+        if (Array.isArray(rawLocation)) {
+            const locations = rawLocation.filter(loc => loc && loc.trim());
+            if (locations.length <= 1) {
+                return locations.join(', ');
+            } else {
+                return (
+                    <>
+                        {locations[0]}
+                        <span 
+                            className="location-more" 
+                            title={locations.slice(1).join(', ')}
+                        >
+                            {' '}+{locations.length - 1} more
+                        </span>
+                    </>
+                );
+            }
+        }
+        return rawLocation || 'Location not specified';
+    })();
 
     return (
         <div className="home-job-card">
@@ -101,9 +122,9 @@ const HomeJobCard = ({ job }) => {
                     )}
                     <div className="title-location" title={title}>
                         <h4 className="card-job-title">{title}</h4>
-                        <div className="card-location" title={location}>
+                        <div className="card-location" title={Array.isArray(rawLocation) ? rawLocation.join(', ') : rawLocation}>
                             <i className="fa fa-map-marker-alt" aria-hidden="true" />
-                            <span>{location}</span>
+                            <span>{locationDisplay}</span>
                         </div>
                     </div>
                 </div>

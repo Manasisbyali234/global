@@ -10,6 +10,7 @@ import { formatDate } from "../../../../../utils/dateFormatter";
 // CSS is now in public/assets/css/home-job-cards.css
 import "../../../../../categories-mobile-grid-fix.css";
 import "../../../../../remove-carousel-hover-effects.css";
+import "../../../../../home-location-fix.css";
 
 function TopRecruitersSection() {
     const [jobs, setJobs] = useState([]);
@@ -126,7 +127,32 @@ function HomeJobsList() {
                                     <NavLink to={`${publicUser.jobs.DETAIL1}/${job._id}`} className="twm-job-title">
                                         <h4>{job.title}<span className="twm-job-post-duration">/ {formatDate(job.createdAt)}</span></h4>
                                     </NavLink>
-                                    <p className="twm-job-address">{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}</p>
+                                    <p className="twm-job-address">
+                                        {(() => {
+                                            const rawLocation = job.location;
+                                            if (Array.isArray(rawLocation)) {
+                                                const locations = rawLocation.filter(loc => loc && loc.trim());
+                                                if (locations.length <= 1) {
+                                                    return locations.join(', ');
+                                                } else {
+                                                    return (
+                                                        <>
+                                                            {locations[0]}
+                                                            <span 
+                                                                className="location-more" 
+                                                                title={locations.slice(1).join(', ')}
+                                                                style={{color: '#1967d2', fontWeight: '600', marginLeft: '2px', cursor: 'help'}}
+                                                            >
+                                                                {' '}+{locations.length - 1} more
+                                                            </span>
+                                                        </>
+                                                    );
+                                                }
+                                            }
+                                            return rawLocation || 'Location not specified';
+                                        })()
+                                        }
+                                    </p>
                                     {(job.companyName || job.employerId?.companyName) && (
                                         <a href="#" className="twm-job-websites site-text-primary">{job.companyName || job.employerId?.companyName}</a>
                                     )}

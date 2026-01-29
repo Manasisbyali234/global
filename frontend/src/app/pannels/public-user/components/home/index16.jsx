@@ -981,11 +981,36 @@ function Home16Page() {
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div className="job-info">
+                                                        <div className="job-info" style={{
+                                                            flex: 1,
+                                                            minWidth: 0,
+                                                            overflow: 'hidden'
+                                                        }}>
                                                             <h4 className="job-title">{job.title}</h4>
                                                             <div className="job-location">
                                                                 <i className="feather-map-pin" />
-                                                                {job.location}
+                                                                {(() => {
+                                                                    if (Array.isArray(job.location)) {
+                                                                        const locations = job.location.filter(loc => loc && loc.trim());
+                                                                        if (locations.length <= 1) {
+                                                                            return locations.join(', ');
+                                                                        } else {
+                                                                            return (
+                                                                                <>
+                                                                                    {locations[0]}
+                                                                                    <span 
+                                                                                        className="location-more" 
+                                                                                        title={locations.slice(1).join(', ')}
+                                                                                    >
+                                                                                        {' '}+{locations.length - 1} more
+                                                                                    </span>
+                                                                                </>
+                                                                            );
+                                                                        }
+                                                                    }
+                                                                    return job.location || 'Location not specified';
+                                                                })()
+                                                                }
                                                             </div>
                                                         </div>
                                                     </div>

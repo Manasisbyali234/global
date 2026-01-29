@@ -116,6 +116,16 @@
     white-space: nowrap;
 }
 
+.card-location .location-more {
+    color: #1967d2;
+    font-weight: 600;
+    margin-left: 2px;
+    flex-shrink: 0;
+    cursor: help;
+    white-space: nowrap;
+    overflow: visible;
+}
+
 .card-location i {
     color: #1967d2;
     font-size: 14px;

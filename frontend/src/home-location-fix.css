@@ -1,0 +1,50 @@
+/* Home page location overflow fix */
+.twm-job-address {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+}
+
+.twm-job-address .location-more {
+    color: #1967d2 !important;
+    font-weight: 600 !important;
+    margin-left: 2px !important;
+    flex-shrink: 0 !important;
+    cursor: help !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+}
+
+/* Ensure home job cards don't overflow */
+.home-job-card .card-location,
+.twm-jobs-list-style1 .twm-job-address {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+}
+
+.home-job-card .card-location .location-more,
+.twm-jobs-list-style1 .twm-job-address .location-more {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+}
+
+/* Override conflicting word-break rules */
+.job-location .location-more,
+.card-location .location-more,
+.twm-job-address .location-more {
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    white-space: nowrap !important;
+    display: inline !important;
+}
+
+/* Ensure location containers don't break */
+.job-location,
+.card-location,
+.twm-job-address {
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
