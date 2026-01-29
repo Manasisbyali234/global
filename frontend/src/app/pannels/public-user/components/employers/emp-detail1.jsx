@@ -460,7 +460,7 @@ function EmployersDetail1Page() {
 															<h4 className="twm-s-title">Add Your Review</h4>
 														<form onSubmit={handleReviewSubmit} className="review-form">
 															<div className="mb-3">
-																<label className="form-label">Your Name *</label>
+																<label className="form-label">Your Name <span style={{ color: 'red' }}>*</span></label>
 																<input
 																	type="text"
 																	className="form-control"
@@ -471,7 +471,7 @@ function EmployersDetail1Page() {
 															</div>
 															
 															<div className="mb-3">
-																<label className="form-label">Your Email *</label>
+																<label className="form-label">Your Email <span style={{ color: 'red' }}>*</span></label>
 																<input
 																	type="email"
 																	className="form-control"
@@ -482,14 +482,14 @@ function EmployersDetail1Page() {
 															</div>
 															
 															<div className="mb-3">
-																<label className="form-label">Rating *</label>
+																<label className="form-label">Rating <span style={{ color: 'red' }}>*</span></label>
 																<div className="rating-input">
 																	{renderStars(reviewForm.rating, true, (rating) => setReviewForm({...reviewForm, rating}))}
 																</div>
 															</div>
 															
 															<div className="mb-3">
-																<label className="form-label">Your Review *</label>
+																<label className="form-label">Your Review <span style={{ color: 'red' }}>*</span></label>
 																<textarea
 																	className="form-control"
 																	rows="4"

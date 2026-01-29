@@ -13,6 +13,9 @@ const ConfirmationDialog = ({ message, onConfirm, onCancel, type = 'warning' }) 
   return (
     <div className="popup-overlay" onClick={handleOverlayClick}>
       <div className={`popup-box popup-${type}`}>
+        <button className="popup-close-button" onClick={onCancel} aria-label="Close">
+          ✕
+        </button>
         <div className="popup-content">
           <div className="popup-icon">
             {type === 'warning' && '⚠'}

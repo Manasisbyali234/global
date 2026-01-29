@@ -134,6 +134,26 @@
   transform: translateY(0);
 }
 
+.popup-close-button {
+  position: absolute !important;
+  top: 15px !important;
+  right: 15px !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 20px !important;
+  font-weight: bold !important;
+  color: #999 !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+  padding: 5px !important;
+  transition: color 0.2s !important;
+  z-index: 2147483647 !important;
+}
+
+.popup-close-button:hover {
+  color: #333 !important;
+}
+
 /* Mobile responsive */
 @media (max-width: 480px) {
   .popup-overlay {

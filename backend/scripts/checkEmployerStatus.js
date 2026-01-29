@@ -30,8 +30,8 @@ const checkEmployerStatus = async (email) => {
     console.log(`Company: ${employer.companyName}`);
     console.log(`Type: ${employer.employerType}`);
     console.log(`Status: ${employer.status}`);
-    console.log(`Approved: ${employer.isApproved ? '✅ YES' : '❌ NO'}`);
-    console.log(`Verified: ${employer.isVerified ? '✅ YES' : '❌ NO'}`);
+    console.log(`Approved: ${employer.isApproved ? '✅ YES'.padEnd(20) + '✕' : '❌ NO'}`);
+    console.log(`Verified: ${employer.isVerified ? '✅ YES'.padEnd(20) + '✕' : '❌ NO'}`);
 
     if (profile) {
       console.log('\n=== PROFILE STATUS ===');
@@ -41,21 +41,21 @@ const checkEmployerStatus = async (email) => {
         return !value || (typeof value === 'string' && value.trim() === '');
       });
       
-      console.log(`Profile exists: ✅ YES`);
+      console.log(`Profile exists: ${'✅ YES'.padEnd(16)} ✕`);
       console.log(`Company Name: ${profile.companyName || '❌ Missing'}`);
-      console.log(`Description: ${profile.description ? '✅ Present' : '❌ Missing'}`);
+      console.log(`Description: ${profile.description ? '✅ Present'.padEnd(16) + '✕' : '❌ Missing'}`);
       console.log(`Location: ${profile.location || '❌ Missing'}`);
       console.log(`Phone: ${profile.phone || '❌ Missing'}`);
       console.log(`Email: ${profile.email || '❌ Missing'}`);
       
       if (missingFields.length === 0) {
-        console.log(`\n✅ Profile is COMPLETE`);
+        console.log(`\n${'✅ Profile is COMPLETE'.padEnd(25)} ✕`);
       } else {
         console.log(`\n❌ Profile is INCOMPLETE. Missing: ${missingFields.join(', ')}`);
       }
       
       const canPostJobs = employer.isApproved && missingFields.length === 0;
-      console.log(`\nCan post jobs: ${canPostJobs ? '✅ YES' : '❌ NO'}`);
+      console.log(`\n${'Can post jobs: ✅ YES'.padEnd(25)} ✕`);
       
       if (!canPostJobs) {
         if (missingFields.length > 0) {

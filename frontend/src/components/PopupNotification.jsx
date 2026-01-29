@@ -26,6 +26,9 @@ const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 })
   return (
     <div className="popup-overlay" onClick={handleOverlayClick}>
       <div className={`popup-box popup-${type}`}>
+        <button className="popup-close-button" onClick={onClose} aria-label="Close">
+          ✕
+        </button>
         <div className="popup-content">
           <div className="popup-icon">
             {type === 'success' && '✓'}

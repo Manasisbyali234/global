@@ -826,30 +826,32 @@ function PlacementDetails() {
                                                                 <i className="fa fa-credit-card me-2" style={{color: '#000'}}></i>Credits
                                                             </button>
                                                         )}
-                                                        <button
-                                                            className="btn btn-sm"
-                                                            onClick={() => handleProcessData(file._id, file.fileName)}
-                                                            disabled={processingFiles[file._id] || file.status === 'processed'}
-                                                            style={{
-                                                                fontSize: '0.8rem',
-                                                                padding: '6px 12px',
-                                                                borderRadius: '8px',
-                                                                fontWeight: '500',
-                                                                transition: 'all 0.2s ease',
-                                                                backgroundColor: '#FDC360',
-                                                                border: '1px solid #FDC360',
-                                                                color: '#000'
-                                                            }}
-                                                            title={file.status === 'processed' ? 'File already processed - candidates can login' : 'Process file data and create candidate accounts with login access'}
-                                                        >
-                                                            {processingFiles[file._id] === 'processing' ? (
-                                                                <><i className="fa fa-spinner fa-spin me-2" style={{color: '#000'}}></i>Processing...</>
-                                                            ) : file.status === 'processed' ? (
-                                                                <><i className="fa fa-check me-2" style={{color: '#000'}}></i>Processed</>
-                                                            ) : (
-                                                                <><i className="fa fa-cogs me-2" style={{color: '#000'}}></i>Process</>
-                                                            )}
-                                                        </button>
+                                                        {file.status !== 'rejected' && (
+                                                            <button
+                                                                className="btn btn-sm"
+                                                                onClick={() => handleProcessData(file._id, file.fileName)}
+                                                                disabled={processingFiles[file._id] || file.status === 'processed'}
+                                                                style={{
+                                                                    fontSize: '0.8rem',
+                                                                    padding: '6px 12px',
+                                                                    borderRadius: '8px',
+                                                                    fontWeight: '500',
+                                                                    transition: 'all 0.2s ease',
+                                                                    backgroundColor: '#FDC360',
+                                                                    border: '1px solid #FDC360',
+                                                                    color: '#000'
+                                                                }}
+                                                                title={file.status === 'processed' ? 'File already processed - candidates can login' : 'Process file data and create candidate accounts with login access'}
+                                                            >
+                                                                {processingFiles[file._id] === 'processing' ? (
+                                                                    <><i className="fa fa-spinner fa-spin me-2" style={{color: '#000'}}></i>Processing...</>
+                                                                ) : file.status === 'processed' ? (
+                                                                    <><i className="fa fa-check me-2" style={{color: '#000'}}></i>Processed</>
+                                                                ) : (
+                                                                    <><i className="fa fa-cogs me-2" style={{color: '#000'}}></i>Process</>
+                                                                )}
+                                                            </button>
+                                                        )}
                                                         {file.status === 'pending' && (
                                                             <>
                                                                 <button

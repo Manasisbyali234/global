@@ -70,53 +70,28 @@ const showToast = (message, type = 'info', duration = 3000) => {
     toast.innerHTML = `
         ${style.icon ? `<span style="flex-shrink: 0; font-size: 18px; font-weight: bold;">${style.icon}</span>` : ''}
         <span style="flex: 1;">${message}</span>
+        <button class="close-toast" aria-label="Close" style="
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            opacity: 0.8;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 0 0 10px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+        ">✕</button>
     `;
 
     container.appendChild(toast);
 
-    // Add animation keyframes if not already present
-    if (!document.getElementById('toast-animation-styles')) {
-        const style = document.createElement('style');
-        style.id = 'toast-animation-styles';
-        style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(400px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            @keyframes slideOut {
-                from {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: translateX(400px);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    // Auto remove toast after duration
-    const timeoutId = setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease-out forwards';
-        setTimeout(() => {
-            toast.remove();
-            // Remove container if empty
-            if (container.children.length === 0) {
-                container.remove();
-            }
-        }, 300);
-    }, duration);
-
-    // Return function to manually close toast
-    return () => {
+    // Add event listener for close button
+    const closeBtn = toast.querySelector('.close-toast');
+    const closeToast = () => {
         clearTimeout(timeoutId);
         toast.style.animation = 'slideOut 0.3s ease-out forwards';
         setTimeout(() => {
@@ -126,6 +101,13 @@ const showToast = (message, type = 'info', duration = 3000) => {
             }
         }, 300);
     };
+    closeBtn.addEventListener('click', closeToast);
+
+    // Auto remove toast after duration
+    const timeoutId = setTimeout(closeToast, duration);
+
+    // Return function to manually close toast
+    return closeToast;
 };
 
 export default showToast;
