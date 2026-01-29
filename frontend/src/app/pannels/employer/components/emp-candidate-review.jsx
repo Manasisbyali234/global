@@ -23,6 +23,7 @@ function EmpCandidateReviewPage() {
     const [documentModal, setDocumentModal] = useState({ isOpen: false, url: '', title: '' });
     const [assessmentModal, setAssessmentModal] = useState({ isOpen: false, data: null });
     const [capturesModal, setCapturesModal] = useState({ isOpen: false, captures: [] });
+    const [descriptionModal, setDescriptionModal] = useState({ isOpen: false, description: '' });
     const autoSaveTimeoutRef = useRef(null);
 
     useEffect(() => {
@@ -121,20 +122,24 @@ function EmpCandidateReviewPage() {
         });
     };
 
-    const downloadDocument = (fileData, fileName) => {
-        if (!fileData) return;
+    const calculateExperience = (startDateStr, endDateStr, isCurrent) => {
+        if (!startDateStr) return "";
+        const start = new Date(startDateStr);
+        const end = isCurrent ? new Date() : (endDateStr ? new Date(endDateStr) : new Date());
         
-        if (fileData.startsWith('data:')) {
-            const link = document.createElement('a');
-            link.href = fileData;
-            link.download = fileName || 'document';
-            link.click();
-        } else {
-            const link = document.createElement('a');
-            link.href = `http://localhost:5000/${fileData}`;
-            link.download = fileName || 'document';
-            link.click();
+        let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+        if (months < 0) months = 0;
+        
+        const years = Math.floor(months / 12);
+        const remainingMonths = months % 12;
+        
+        let result = "";
+        if (years > 0) result += `${years} year${years > 1 ? 's' : ''}`;
+        if (remainingMonths > 0) {
+            if (result) result += " ";
+            result += `${remainingMonths} month${remainingMonths > 1 ? 's' : ''}`;
         }
+        return result || "0 months";
     };
 
     const viewDocument = (fileData, title = 'Document') => {
@@ -455,12 +460,6 @@ function EmpCandidateReviewPage() {
                                     {application.status.replace('_', ' ')}
                                 </span>
                             </div>
-                            <div className="stat">
-                                <span className="label">Profile Status</span>
-                                <span className={`value status ${candidate.isProfileComplete ? 'complete' : 'incomplete'}`}>
-                                    {candidate.isProfileComplete ? 'Complete' : `Incomplete ${candidate.profileCompletionPercentage || 0}%`}
-                                </span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -679,7 +678,7 @@ function EmpCandidateReviewPage() {
                                     <div className="info-field">
                                         <div className="field-icon"><i className="fas fa-user"></i></div>
                                         <div className="field-content">
-                                            <label>Full Name</label>
+                                            <label>First Name</label>
                                             <span>
                                                 {candidate.firstName ? 
                                                     `${candidate.firstName} ${candidate.middleName ? candidate.middleName + ' ' : ''}${candidate.lastName || ''}` : 
@@ -801,53 +800,72 @@ function EmpCandidateReviewPage() {
                                 <h5>No Education Information</h5>
                             </div>
                         ) : (
-                            <div className="education-timeline">
+                            <div className="education-list-professional">
                                 {[...candidate.education]
                                     .sort((a, b) => getEducationPriority(a) - getEducationPriority(b))
                                     .map((edu, index) => {
                                         const educationLevel = getEducationLevelLabel(edu, index);
                                     return (
-                                        <div key={index} className="education-item">
-                                            <div className="education-icon">
+                                        <div key={index} className="education-list-item">
+                                            <div className="edu-icon-box">
                                                 <i className="fas fa-graduation-cap"></i>
                                             </div>
-                                            <div className="education-content">
-                                                <div className="education-header">
+                                            <div className="edu-main-content">
+                                                <div className="edu-top-bar">
                                                     <h4>{educationLevel}</h4>
-                                                    <span className="year">{edu.passYear || 'N/A'}</span>
+                                                    <span className="edu-year-tag">{edu.passYear || 'N/A'}</span>
                                                 </div>
-                                                <div className="education-details">
-                                                    {edu.specialization && educationLevel !== '10th Pass / SSLC' && (
-                                                        <div className="detail-item">
-                                                            <label>Course:</label>
-                                                            <span>{edu.specialization}</span>
-                                                        </div>
-                                                    )}
-                                                    <div className="detail-item">
-                                                        <label>Institution:</label>
+                                                <div className="edu-grid-details">
+                                                    <div className="edu-info-group">
+                                                        <label>Institution</label>
                                                         <span>{edu.degreeName || 'Not provided'}</span>
                                                     </div>
+                                                    <div className="edu-info-group">
+                                                        <label>Course / Specialization</label>
+                                                        <span>{edu.courseName || edu.specialization || 'Not provided'}</span>
+                                                    </div>
                                                     {edu.collegeName && (
-                                                        <div className="detail-item">
-                                                            <label>Board/University:</label>
+                                                        <div className="edu-info-group">
+                                                            <label>Board/University</label>
                                                             <span>{edu.collegeName}</span>
                                                         </div>
                                                     )}
-                                                    <div className="detail-item">
-                                                        <label>Score:</label>
-                                                        <span>
+                                                    <div className="edu-info-group">
+                                                        <label>Score/Percentage</label>
+                                                        <span className="edu-score-value">
                                                             {edu.scoreValue || edu.percentage || 'Not provided'}
                                                             {edu.scoreType === 'percentage' || (!edu.scoreType && edu.percentage) ? '%' : ''}
+                                                            {edu.scoreType && edu.scoreType !== 'percentage' ? ` ${edu.scoreType.toUpperCase()}` : ''}
+                                                            {edu.cgpa && ` (CGPA: ${edu.cgpa})`}
+                                                            {edu.sgpa && ` (SGPA: ${edu.sgpa})`}
                                                         </span>
                                                     </div>
-                                                    {edu.marksheet && (
-                                                        <div className="document-actions mt-2">
-                                                            <button className="action-btn view" onClick={() => viewDocument(edu.marksheet, `${educationLevel} Marksheet`)}>
-                                                                <i className="fas fa-eye"></i> View Marksheet
-                                                            </button>
+                                                    {edu.registrationNumber && (
+                                                        <div className="edu-info-group">
+                                                            <label>Reg. No</label>
+                                                            <span>{edu.registrationNumber}</span>
+                                                        </div>
+                                                    )}
+                                                    {edu.state && (
+                                                        <div className="edu-info-group">
+                                                            <label>State</label>
+                                                            <span>{edu.state}</span>
+                                                        </div>
+                                                    )}
+                                                    {edu.grade && (
+                                                        <div className="edu-info-group">
+                                                            <label>Grade</label>
+                                                            <span>{edu.grade}</span>
                                                         </div>
                                                     )}
                                                 </div>
+                                                {edu.marksheet && (
+                                                    <div className="edu-footer-actions">
+                                                        <button className="view-marksheet-btn" onClick={() => viewDocument(edu.marksheet, `${educationLevel} Marksheet`)}>
+                                                            <i className="fas fa-eye"></i> View Marksheet
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     );
@@ -864,12 +882,41 @@ function EmpCandidateReviewPage() {
                         </div>
                         
                         <div className="experience-overview-header">
-                            {candidate.totalExperience && (
-                                <div className="experience-badge-container">
-                                    <i className="fas fa-hourglass-half"></i>
-                                    <p>
-                                        Total Experience: <span>{candidate.totalExperience}</span>
-                                    </p>
+                            {/* Employment History Table */}
+                            {(!candidate.employment || candidate.employment.length === 0) ? (
+                                <p className="no-data-text">No employment history provided.</p>
+                            ) : (
+                                <div className="table-responsive mt-4">
+                                    <table className="table table-bordered">
+                                        <thead className="table-light">
+                                            <tr>
+                                                <th>Organization Name</th>
+                                                <th>Designation</th>
+                                                <th>Years of Experience</th>
+                                                <th style={{ width: '120px' }} className="text-center">Job Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {[...candidate.employment].sort((a, b) => new Date(b.startDate || '1900-01-01') - new Date(a.startDate || '1900-01-01')).map((emp, index) => (
+                                                <tr key={index}>
+                                                    <td>{emp.organization}</td>
+                                                    <td>{emp.designation}</td>
+                                                    <td>{calculateExperience(emp.startDate, emp.endDate, emp.isCurrent)}</td>
+                                                    <td className="text-center">
+                                                        {emp.description ? (
+                                                            <button
+                                                                className="btn btn-sm btn-outline-info"
+                                                                title="View Description"
+                                                                onClick={() => setDescriptionModal({ isOpen: true, description: emp.description })}
+                                                            >
+                                                                <i className="fas fa-eye"></i>
+                                                            </button>
+                                                        ) : '—'}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             )}
 
@@ -984,9 +1031,6 @@ function EmpCandidateReviewPage() {
                                         <button className="action-btn view" onClick={() => viewDocument(candidate.resume, 'Resume')}>
                                             <i className="fas fa-eye"></i> View
                                         </button>
-                                        <button className="action-btn download" onClick={() => downloadDocument(candidate.resume, 'resume.pdf')}>
-                                            <i className="fas fa-download"></i> Download
-                                        </button>
                                     </div>
                                 </div>
                             )}
@@ -1004,9 +1048,6 @@ function EmpCandidateReviewPage() {
                                         <button className="action-btn view" onClick={() => viewDocument(candidate.experienceLetter, 'Experience Letter')}>
                                             <i className="fas fa-eye"></i> View
                                         </button>
-                                        <button className="action-btn download" onClick={() => downloadDocument(candidate.experienceLetter, 'experience_letter.pdf')}>
-                                            <i className="fas fa-download"></i> Download
-                                        </button>
                                     </div>
                                 </div>
                             )}
@@ -1023,9 +1064,6 @@ function EmpCandidateReviewPage() {
                                     <div className="document-actions">
                                         <button className="action-btn view" onClick={() => viewDocument(edu.marksheet, `${getEducationLevelLabel(edu, index)} Marksheet`)}>
                                             <i className="fas fa-eye"></i> View
-                                        </button>
-                                        <button className="action-btn download" onClick={() => downloadDocument(edu.marksheet, `marksheet_${index}.pdf`)}>
-                                            <i className="fas fa-download"></i> Download
                                         </button>
                                     </div>
                                 </div>
@@ -1138,9 +1176,6 @@ function EmpCandidateReviewPage() {
                         <div className="document-modal-header">
                             <h3>{documentModal.title}</h3>
                             <div className="modal-controls">
-                                <button className="modal-btn download" onClick={() => downloadDocument(documentModal.url, `${documentModal.title.replace(/\s+/g, '_').toLowerCase()}.pdf`)}>
-                                    <i className="fas fa-download"></i>
-                                </button>
                                 <button className="modal-btn close" onClick={closeDocumentModal}>
                                     <i className="fas fa-times"></i>
                                 </button>
@@ -1148,6 +1183,25 @@ function EmpCandidateReviewPage() {
                         </div>
                         <div className="document-modal-body">
                             <iframe src={documentModal.url} title={documentModal.title} />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Description Modal */}
+            {descriptionModal.isOpen && (
+                <div className="document-modal-overlay" onClick={() => setDescriptionModal({ isOpen: false, description: '' })}>
+                    <div className="document-modal-container" style={{ height: 'auto', maxHeight: '80%', maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+                        <div className="document-modal-header">
+                            <h3>Job Description</h3>
+                            <button className="modal-btn close" onClick={() => setDescriptionModal({ isOpen: false, description: '' })}>
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="document-modal-body" style={{ maxHeight: '70vh', overflowY: 'auto', padding: '20px' }}>
+                            <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', color: '#4b5563', fontSize: '15px' }}>
+                                {descriptionModal.description}
+                            </div>
                         </div>
                     </div>
                 </div>

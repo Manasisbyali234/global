@@ -1174,7 +1174,7 @@ function PlacementDashboardRedesigned() {
                         <div className="modal-body">
                             <h4 className="modal-section-title">Personal Information</h4>
                             <div className="form-group">
-                                <label>First Name *</label>
+                                <label>First Name <span className="required" style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
                                     value={editFormData.firstName || ''}
@@ -1183,7 +1183,7 @@ function PlacementDashboardRedesigned() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Last Name *</label>
+                                <label>Last Name <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
                                     value={editFormData.lastName || ''}
@@ -1192,7 +1192,7 @@ function PlacementDashboardRedesigned() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Phone Number *</label>
+                                <label>Phone Number <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="tel"
                                     value={editFormData.phone || ''}
@@ -1203,7 +1203,7 @@ function PlacementDashboardRedesigned() {
                             
                             <h4 className="modal-section-title">Placement Information</h4>
                             <div className="form-group">
-                                <label>College Name *</label>
+                                <label>College Name <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
                                     value={editFormData.collegeName || ''}
@@ -1212,7 +1212,7 @@ function PlacementDashboardRedesigned() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>College Address *</label>
+                                <label>College Address <span style={{color: 'red'}}>*</span></label>
                                 <textarea
                                     value={editFormData.collegeAddress || ''}
                                     onChange={(e) => {
@@ -1232,7 +1232,7 @@ function PlacementDashboardRedesigned() {
                                 </small>
                             </div>
                             <div className="form-group">
-                                <label>College Official Email *</label>
+                                <label>College Official Email <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="email"
                                     value={editFormData.collegeOfficialEmail || ''}
@@ -1241,7 +1241,7 @@ function PlacementDashboardRedesigned() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>College Official Phone *</label>
+                                <label>College Official Phone <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="tel"
                                     value={editFormData.collegeOfficialPhone || ''}
@@ -1382,7 +1382,7 @@ function PlacementDashboardRedesigned() {
                             )}
                             
                             <div className="form-group">
-                                <label>Course Name *</label>
+                                <label>Course Name <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
                                     value={resubmitCourseName}
@@ -1392,7 +1392,7 @@ function PlacementDashboardRedesigned() {
                             </div>
                             
                             <div className="form-group">
-                                <label>University *</label>
+                                <label>University <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
                                     value={resubmitUniversity}
@@ -1402,7 +1402,7 @@ function PlacementDashboardRedesigned() {
                             </div>
                             
                             <div className="form-group">
-                                <label>Batch *</label>
+                                <label>Batch <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
                                     value={resubmitBatch}
@@ -1412,7 +1412,7 @@ function PlacementDashboardRedesigned() {
                             </div>
                             
                             <div className="form-group">
-                                <label>Select Corrected File *</label>
+                                <label>Select Corrected File <span style={{color: 'red'}}>*</span></label>
                                 <div 
                                     className="file-upload-area"
                                     onClick={() => !resubmitting && document.getElementById('resubmitFileInput').click()}

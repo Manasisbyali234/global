@@ -41,23 +41,31 @@ function EmployersDetail1Page() {
         if (id) {
             fetchEmployerDetails();
             fetchReviews();
-            fetchSubmittedReviews();
         }
     }, [id]);
 
+    // Update submitted reviews when reviews or login status changes
+    useEffect(() => {
+        fetchSubmittedReviews();
+    }, [reviews, isLoggedIn]);
+
     const fetchSubmittedReviews = async () => {
         const email = localStorage.getItem('reviewerEmail');
-        if (!email) return;
         
         try {
-            const response = await fetch(`http://localhost:5000/api/public/employers/${id}/submitted-reviews?email=${email}`);
-            const data = await response.json();
-            if (data.success) {
-                setSubmittedReviews(data.reviews);
-                
+            if (email && isLoggedIn) {
+                // If user is logged in and has email, show their specific reviews
+                const response = await fetch(`http://localhost:5000/api/public/employers/${id}/submitted-reviews?email=${email}`);
+                const data = await response.json();
+                if (data.success) {
+                    setSubmittedReviews(data.reviews);
+                }
+            } else {
+                // If user is not logged in, show all approved reviews
+                setSubmittedReviews(reviews);
             }
         } catch (error) {
-            
+            console.error('Error fetching submitted reviews:', error);
         }
     };
 
@@ -118,8 +126,8 @@ function EmployersDetail1Page() {
             if (data.success) {
                 showSuccess('Review submitted successfully! Thank you for your feedback.');
                 localStorage.setItem('reviewerEmail', reviewForm.reviewerEmail);
-                // Refresh submitted reviews from database
-                await fetchSubmittedReviews();
+                // Refresh all reviews and then submitted reviews
+                await fetchReviews();
                 setReviewForm({
                     reviewerName: '',
                     reviewerEmail: '',
@@ -525,7 +533,7 @@ function EmployersDetail1Page() {
 											)}
 											
 											<div className="tab-pane fade" id="review-post" role="tabpanel">
-												<h4 className="twm-s-title">Your Submitted Reviews</h4>
+												<h4 className="twm-s-title">{isLoggedIn && localStorage.getItem('reviewerEmail') ? 'Your Submitted Reviews' : 'Company Reviews'}</h4>
 												{submittedReviews.length > 0 ? (
 													<div className="submitted-reviews-list">
 														{submittedReviews.map((review, index) => (
@@ -572,8 +580,14 @@ function EmployersDetail1Page() {
 													</div>
 												) : (
 													<div className="text-center p-4">
-														<p className="text-muted">You haven't submitted any reviews yet.</p>
-														<p>Go to the Reviews tab to submit your first review!</p>
+														{isLoggedIn && localStorage.getItem('reviewerEmail') ? (
+															<>
+																<p className="text-muted">You haven't submitted any reviews yet.</p>
+																<p>Go to the Add Reviews tab to submit your first review!</p>
+															</>
+														) : (
+															<p className="text-muted">No reviews available for this company yet.</p>
+														)}
 													</div>
 												)}
 											</div>

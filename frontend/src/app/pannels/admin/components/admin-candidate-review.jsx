@@ -43,22 +43,6 @@ function AdminCandidateReviewPage() {
         });
     };
 
-    const downloadDocument = (fileData, fileName) => {
-        if (!fileData) return;
-        
-        if (fileData.startsWith('data:')) {
-            const link = document.createElement('a');
-            link.href = fileData;
-            link.download = fileName || 'document';
-            link.click();
-        } else {
-            const link = document.createElement('a');
-            link.href = `http://localhost:5000/${fileData}`;
-            link.download = fileName || 'document';
-            link.click();
-        }
-    };
-
     const viewDocument = (fileData, title = 'Document') => {
         if (!fileData) return;
         
@@ -320,13 +304,6 @@ function AdminCandidateReviewPage() {
                     Company Details
                 </button>
                 <button 
-                    className={`tab-btn ${activeTab === 'locations' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('locations')}
-                >
-                    <i className="fas fa-map-marker-alt"></i>
-                    Work Locations
-                </button>
-                <button 
                     className={`tab-btn ${activeTab === 'employment' ? 'active' : ''}`}
                     onClick={() => setActiveTab('employment')}
                 >
@@ -348,12 +325,9 @@ function AdminCandidateReviewPage() {
                                             <i className="fas fa-user"></i>
                                         </div>
                                         <div className="field-content">
-                                            <label>Full Name</label>
+                                            <label>First Name</label>
                                             <span>
-                                                {candidate.firstName ? 
-                                                    `${candidate.firstName} ${candidate.middleName ? candidate.middleName + ' ' : ''}${candidate.lastName || ''}` : 
-                                                    (candidate.name || 'Not provided')
-                                                }
+                                                {candidate.firstName || (candidate.name ? candidate.name.split(' ')[0] : 'Not provided')}
                                             </span>
                                         </div>
                                     </div>
@@ -501,85 +475,73 @@ function AdminCandidateReviewPage() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="education-timeline">
+                            <div className="education-list-professional">
                                 {[...candidate.education]
                                     .sort((a, b) => getEducationPriority(a) - getEducationPriority(b))
                                     .map((edu, index) => {
                                         const educationLevel = getEducationLevelLabel(edu, index);
                                     
                                     return (
-                                        <div key={index} className="education-item">
-                                            <div className="education-icon">
+                                        <div key={index} className="education-list-item">
+                                            <div className="edu-icon-box">
                                                 <i className="fas fa-graduation-cap"></i>
                                             </div>
-                                            <div className="education-content">
-                                                <div className="education-header">
+                                            <div className="edu-main-content">
+                                                <div className="edu-top-bar">
                                                     <h4>{educationLevel}</h4>
-                                                    <span className="year">{edu.passYear || 'N/A'}</span>
+                                                    <span className="edu-year-tag">{edu.passYear || 'N/A'}</span>
                                                 </div>
-                                                <div className="education-details">
-                                                    {edu.specialization && educationLevel !== '10th Pass / SSLC' && (
-                                                        <div className="detail-item">
-                                                            <label>Course:</label>
-                                                            <span>{edu.specialization}</span>
-                                                        </div>
-                                                    )}
-                                                    <div className="detail-item">
-                                                        <label>Institution:</label>
+                                                <div className="edu-grid-details">
+                                                    <div className="edu-info-group">
+                                                        <label>Institution</label>
                                                         <span>{edu.degreeName || 'Not provided'}</span>
                                                     </div>
+                                                    <div className="edu-info-group">
+                                                        <label>Course / Specialization</label>
+                                                        <span>{edu.courseName || edu.specialization || 'Not provided'}</span>
+                                                    </div>
                                                     {edu.collegeName && (
-                                                        <div className="detail-item">
-                                                            <label>Board/University:</label>
+                                                        <div className="edu-info-group">
+                                                            <label>Board/University</label>
                                                             <span>{edu.collegeName}</span>
                                                         </div>
                                                     )}
-                                                    {edu.registrationNumber && (
-                                                        <div className="detail-item">
-                                                            <label>Reg. No:</label>
-                                                            <span>{edu.registrationNumber}</span>
-                                                        </div>
-                                                    )}
-                                                    {edu.state && (
-                                                        <div className="detail-item">
-                                                            <label>State:</label>
-                                                            <span>{edu.state}</span>
-                                                        </div>
-                                                    )}
-                                                    <div className="detail-item">
-                                                        <label>Score:</label>
-                                                        <span>
+                                                    <div className="edu-info-group">
+                                                        <label>Score/Percentage</label>
+                                                        <span className="edu-score-value">
                                                             {edu.scoreValue || edu.percentage || 'Not provided'}
                                                             {edu.scoreType === 'percentage' || (!edu.scoreType && edu.percentage) ? '%' : ''}
                                                             {edu.scoreType && edu.scoreType !== 'percentage' ? ` ${edu.scoreType.toUpperCase()}` : ''}
                                                             {edu.cgpa && ` (CGPA: ${edu.cgpa})`}
+                                                            {edu.sgpa && ` (SGPA: ${edu.sgpa})`}
                                                         </span>
                                                     </div>
+                                                    {edu.registrationNumber && (
+                                                        <div className="edu-info-group">
+                                                            <label>Reg. No</label>
+                                                            <span>{edu.registrationNumber}</span>
+                                                        </div>
+                                                    )}
+                                                    {edu.state && (
+                                                        <div className="edu-info-group">
+                                                            <label>State</label>
+                                                            <span>{edu.state}</span>
+                                                        </div>
+                                                    )}
                                                     {edu.grade && (
-                                                        <div className="detail-item">
-                                                            <label>Result/Grade:</label>
+                                                        <div className="edu-info-group">
+                                                            <label>Grade</label>
                                                             <span>{edu.grade}</span>
                                                         </div>
                                                     )}
-                                                    {edu.marksheet && (
-                                                        <div className="document-actions">
-                                                            <button
-                                                                className="action-btn view"
-                                                                onClick={() => viewDocument(edu.marksheet, `${educationLevel} Marksheet`)}
-                                                            >
-                                                                <i className="fas fa-eye"></i>
-                                                                View Marksheet
-                                                            </button>
-                                                            <button
-                                                                className="action-btn download"
-                                                                onClick={() => downloadDocument(edu.marksheet, `marksheet_${educationLevel.replace(' ', '_').toLowerCase()}.pdf`)}
-                                                            >
-                                                                <i className="fas fa-download"></i>
-                                                                Download
-                                                            </button>
-                                                        </div>
-                                                    )}
                                                 </div>
+                                                {edu.marksheet && (
+                                                    <div className="edu-footer-actions">
+                                                        <button className="view-marksheet-btn" onClick={() => viewDocument(edu.marksheet, `${educationLevel} Marksheet`)}>
+                                                            <i className="fas fa-eye"></i> View Marksheet
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     );
@@ -676,13 +638,6 @@ function AdminCandidateReviewPage() {
                                                 <i className="fas fa-eye"></i>
                                                 View
                                             </button>
-                                            <button
-                                                className="action-btn download"
-                                                onClick={() => downloadDocument(candidate.resume, 'resume.pdf')}
-                                            >
-                                                <i className="fas fa-download"></i>
-                                                Download
-                                            </button>
                                         </div>
                                     </div>
                                 )}
@@ -708,13 +663,6 @@ function AdminCandidateReviewPage() {
                                                 >
                                                     <i className="fas fa-eye"></i>
                                                     View
-                                                </button>
-                                                <button
-                                                    className="action-btn download"
-                                                    onClick={() => downloadDocument(edu.marksheet, `marksheet_${eduLevelLabel.replace(/\s+/g, '_').toLowerCase()}.pdf`)}
-                                                >
-                                                    <i className="fas fa-download"></i>
-                                                    Download
                                                 </button>
                                             </div>
                                         </div>
@@ -790,40 +738,6 @@ function AdminCandidateReviewPage() {
                     </div>
                 )}
 
-                {/* Work Locations Tab */}
-                {activeTab === 'locations' && (
-                    <div className="tab-panel locations-info">
-                        <div className="section-header">
-                            <i className="fas fa-map-marker-alt"></i>
-                            <h4>Preferred Work Locations</h4>
-                        </div>
-                        
-                        {candidate.jobPreferences?.preferredLocations && candidate.jobPreferences.preferredLocations.length > 0 ? (
-                            <div className="locations-grid">
-                                {candidate.jobPreferences.preferredLocations.map((location, index) => (
-                                    <div key={index} className="location-card">
-                                        <div className="location-icon">
-                                            <i className="fas fa-map-marker-alt"></i>
-                                        </div>
-                                        <div className="location-info">
-                                            <h5>{location}</h5>
-                                            <p>Preferred work location</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="no-applications">
-                                <div className="no-data-content">
-                                    <i className="fas fa-map-marker-alt"></i>
-                                    <h5>No Preferred Locations</h5>
-                                    <p>This candidate hasn't specified their preferred work locations yet.</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
                 {/* Employment Tab */}
                 {activeTab === 'employment' && (
                     <div className="tab-panel employment-info">
@@ -833,10 +747,10 @@ function AdminCandidateReviewPage() {
                         </div>
                         
                         {candidate.totalExperience && (
-                            <div style={{background: '#f8f9fa', padding: '14px', borderRadius: '6px', border: '1px solid #e9ecef', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px'}}>
-                                <i className="fas fa-hourglass-half" style={{color: '#FF6A00', fontSize: '16px'}}></i>
-                                <p style={{margin: 0, fontSize: '16px', fontWeight: '600', color: '#2c3e50'}}>
-                                    Total Experience: <span style={{color: '#FF6A00'}}>{candidate.totalExperience}</span>
+                            <div className="total-experience-badge">
+                                <i className="fas fa-hourglass-half"></i>
+                                <p>
+                                    Total Experience: <span>{candidate.totalExperience}</span>
                                 </p>
                             </div>
                         )}
@@ -856,38 +770,32 @@ function AdminCandidateReviewPage() {
                                                     {emp.endDate ? formatDate(emp.endDate) : emp.isCurrent || emp.isCurrentJob ? 'Present' : 'End Date'}
                                                 </span>
                                             </div>
-                                            <div className="employment-details">
-                                                <div className="detail-item">
-                                                    <label>Company:</label>
+                                            <div className="employment-grid-details">
+                                                <div className="employment-info-group">
+                                                    <label>Company</label>
                                                     <span>{emp.organization || emp.companyName || 'Not provided'}</span>
                                                 </div>
-                                                {emp.location && (
-                                                    <div className="detail-item">
-                                                        <label>Location:</label>
-                                                        <span>{emp.location}</span>
-                                                    </div>
-                                                )}
                                                 {emp.workType && (
-                                                    <div className="detail-item">
-                                                        <label>Work Type:</label>
+                                                    <div className="employment-info-group">
+                                                        <label>Work Type</label>
                                                         <span>{emp.workType}</span>
                                                     </div>
                                                 )}
                                                 {emp.presentCTC && (
-                                                    <div className="detail-item">
-                                                        <label>Current CTC:</label>
+                                                    <div className="employment-info-group">
+                                                        <label>Current CTC</label>
                                                         <span>₹{emp.presentCTC} LPA</span>
                                                     </div>
                                                 )}
                                                 {emp.expectedCTC && (
-                                                    <div className="detail-item">
-                                                        <label>Expected CTC:</label>
+                                                    <div className="employment-info-group">
+                                                        <label>Expected CTC</label>
                                                         <span>₹{emp.expectedCTC} LPA</span>
                                                     </div>
                                                 )}
                                                 {emp.description && (
-                                                    <div className="detail-item">
-                                                        <label>Description:</label>
+                                                    <div className="employment-info-group full-width">
+                                                        <label>Description</label>
                                                         <span>{emp.description}</span>
                                                     </div>
                                                 )}

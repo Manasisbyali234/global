@@ -66,33 +66,6 @@ function PlacementDetails() {
         }
     };
 
-    const handleDownload = async () => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/download`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                }
-            });
-            
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = placement.fileName || 'student_data.xlsx';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-            } else {
-                showError('Failed to download file');
-            }
-        } catch (error) {
-            showError('Error downloading file');
-            
-        }
-    };
-
     // Removed global view data functionality - only file-specific viewing is allowed
 
     const handleApprove = async () => {
@@ -598,26 +571,7 @@ function PlacementDetails() {
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
                                     {placement.idCard ? (
                                         <>
-                                            <i 
-                                                className="fa fa-download me-2" 
-                                                onClick={() => {
-                                                    fetch(`http://localhost:5000/api/admin/placements/${id}/download-id-card`, {
-                                                        headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-                                                    }).then(response => response.blob())
-                                                    .then(blob => {
-                                                        const url = window.URL.createObjectURL(blob);
-                                                        const a = document.createElement('a');
-                                                        a.href = url;
-                                                        a.download = `${placement.name.replace(/\s+/g, '_')}_ID_Card`;
-                                                        document.body.appendChild(a);
-                                                        a.click();
-                                                        window.URL.revokeObjectURL(url);
-                                                        document.body.removeChild(a);
-                                                    }).catch(() => alert('Failed to download ID card'));
-                                                }}
-                                                style={{cursor: 'pointer', color: '#007bff'}}
-                                                title="Download ID Card"
-                                            ></i>
+                                            <i className="fa fa-id-card me-2"></i>
                                             Uploaded
                                         </>
                                     ) : (
@@ -1185,7 +1139,7 @@ function PlacementDetails() {
                         </div>
                         <div className="alert alert-info mb-3" style={{borderRadius: '8px', fontSize: '0.9rem'}}>
                             <i className="fa fa-info-circle me-2"></i>
-                            <strong>Excel Format Required:</strong> Files must contain these 8 columns: ID, Candidate Name, College Name, Email, Phone, Course, Password, Credits Assigned. Use "Credits" to assign credits per file and "View" to see student records.
+                            <strong>Excel Format Required:</strong> Files must contain these 4 columns: ID, Candidate Name,  Email, Phone to assign credits per file and "View" to see student records.
                         </div>
 
                     </div>

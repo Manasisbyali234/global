@@ -143,7 +143,7 @@ function PlacementNotificationsRedesigned() {
                                     className="view-all-btn"
                                     onClick={() => setShowAll(!showAll)}
                                 >
-                                    {showAll ? 'Show Less' : `View All (${notifications.length})`}
+                                    {showAll ? 'Show Less' : 'View All'}
                                 </button>
                                 <button 
                                     className="mark-all-read-btn"

@@ -78,6 +78,7 @@
 
 .title-location {
     flex: 1;
+    min-width: 0;
 }
 
 .card-job-title {
@@ -86,6 +87,9 @@
     color: #111827;
     margin: 0 0 4px 0;
     line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .card-location {
@@ -93,8 +97,10 @@
     color: #6b7280;
     margin: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
+    flex-wrap: wrap;
+    line-height: 1.4;
 }
 
 .card-location i {

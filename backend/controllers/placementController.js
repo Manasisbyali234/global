@@ -262,13 +262,13 @@ exports.uploadStudentData = async (req, res) => {
     if (duplicateEmails.length > 0 || duplicateIds.length > 0 || existingEmails.length > 0) {
       let message = '';
       if (duplicateEmails.length > 0) {
-        message += `Duplicate emails in file: ${duplicateEmails.slice(0, 5).join(', ')}${duplicateEmails.length > 5 ? ` and ${duplicateEmails.length - 5} more` : ''}. `;
+        message += `Duplicate emails found in file: ${duplicateEmails.slice(0, 3).join(', ')}${duplicateEmails.length > 3 ? ` and ${duplicateEmails.length - 3} more` : ''}. `;
       }
       if (duplicateIds.length > 0) {
-        message += `Duplicate IDs in file: ${duplicateIds.slice(0, 5).join(', ')}${duplicateIds.length > 5 ? ` and ${duplicateIds.length - 5} more` : ''}. `;
+        message += `Duplicate IDs found in file: ${duplicateIds.slice(0, 3).join(', ')}${duplicateIds.length > 3 ? ` and ${duplicateIds.length - 3} more` : ''}. `;
       }
       if (existingEmails.length > 0) {
-        message += `Emails already registered on platform: ${existingEmails.slice(0, 5).join(', ')}${existingEmails.length > 5 ? ` and ${existingEmails.length - 5} more` : ''}. `;
+        message += `Emails already registered on platform: ${existingEmails.slice(0, 3).join(', ')}${existingEmails.length > 3 ? ` and ${existingEmails.length - 3} more` : ''}. `;
       }
       message += 'Please fix these issues and upload again.';
       
@@ -1235,13 +1235,13 @@ exports.resubmitFile = async (req, res) => {
     if (duplicateEmails.length > 0 || duplicateIds.length > 0 || existingEmails.length > 0) {
       let message = '';
       if (duplicateEmails.length > 0) {
-        message += `Duplicate emails in file: ${duplicateEmails.slice(0, 5).join(', ')}${duplicateEmails.length > 5 ? ` and ${duplicateEmails.length - 5} more` : ''}. `;
+        message += `Duplicate emails found in file: ${duplicateEmails.slice(0, 3).join(', ')}${duplicateEmails.length > 3 ? ` and ${duplicateEmails.length - 3} more` : ''}. `;
       }
       if (duplicateIds.length > 0) {
-        message += `Duplicate IDs in file: ${duplicateIds.slice(0, 5).join(', ')}${duplicateIds.length > 5 ? ` and ${duplicateIds.length - 5} more` : ''}. `;
+        message += `Duplicate IDs found in file: ${duplicateIds.slice(0, 3).join(', ')}${duplicateIds.length > 3 ? ` and ${duplicateIds.length - 3} more` : ''}. `;
       }
       if (existingEmails.length > 0) {
-        message += `Emails already registered: ${existingEmails.slice(0, 5).join(', ')}${existingEmails.length > 5 ? ` and ${existingEmails.length - 5} more` : ''}. `;
+        message += `Emails already registered on platform: ${existingEmails.slice(0, 3).join(', ')}${existingEmails.length > 3 ? ` and ${existingEmails.length - 3} more` : ''}. `;
       }
       message += 'Please fix these issues and resubmit.';
       

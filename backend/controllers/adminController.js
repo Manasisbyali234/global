@@ -1245,15 +1245,28 @@ exports.getFileData = async (req, res) => {
       return res.json({ success: true, students: [] });
     }
     
-    const students = jsonData.map(row => ({
-      id: row.ID || row.id || row.Id || '',
-      name: row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['full name'] || row['FULL NAME'] || row['Student Name'] || row['student name'] || row['STUDENT NAME'] || '',
-      collegeName: row['College Name'] || row['college name'] || row['COLLEGE NAME'] || row.College || row.college || row.COLLEGE || '',
-      email: row.Email || row.email || row.EMAIL || '',
-      phone: row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
-      course: row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || 'Not Specified',
-      password: row.Password || row.password || row.PASSWORD || '',
-      credits: parseInt(row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || file.credits || 0)
+    const students = await Promise.all(jsonData.map(async row => {
+      const email = row.Email || row.email || row.EMAIL || '';
+      let candidateId = null;
+      
+      if (email) {
+        const candidate = await Candidate.findOne({ email: email.toLowerCase() });
+        if (candidate) {
+          candidateId = candidate._id;
+        }
+      }
+
+      return {
+        id: row.ID || row.id || row.Id || '',
+        name: row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['full name'] || row['FULL NAME'] || row['Student Name'] || row['student name'] || row['STUDENT NAME'] || '',
+        collegeName: row['College Name'] || row['college name'] || row['COLLEGE NAME'] || row.College || row.college || row.COLLEGE || '',
+        email: email,
+        phone: row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
+        course: row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || 'Not Specified',
+        password: row.Password || row.password || row.PASSWORD || '',
+        credits: parseInt(row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || file.credits || 0),
+        candidateId: candidateId
+      };
     }));
     
     res.json({ success: true, students });

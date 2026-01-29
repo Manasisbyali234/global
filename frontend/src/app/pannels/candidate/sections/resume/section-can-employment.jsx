@@ -6,6 +6,7 @@ import './employment-card-styles.css';
 
 function SectionCanEmployment({ profile }) {
     const modalId = 'EmploymentModal';
+    const descModalId = 'DescriptionModal';
     const [formData, setFormData] = useState(() => {
         const saved = localStorage.getItem('employmentFormData');
         return saved ? JSON.parse(saved) : {
@@ -27,6 +28,8 @@ function SectionCanEmployment({ profile }) {
     const [employment, setEmployment] = useState([]);
     const [errors, setErrors] = useState({});
     const [editingIndex, setEditingIndex] = useState(null);
+    const [selectedDescription, setSelectedDescription] = useState('');
+    const [showDescriptionModal, setShowDescriptionModal] = useState(false);
 
     const calculateTotalExperienceFromEmployment = (employmentList = []) => {
         if (!Array.isArray(employmentList) || employmentList.length === 0) {
@@ -609,8 +612,8 @@ function SectionCanEmployment({ profile }) {
                                             <th>Organization Name</th>
                                             <th>Designation</th>
                                             <th>Years of Experience</th>
-                                            <th>Job Description</th>
-                                            <th style={{ width: '100px' }}>Actions</th>
+                                            <th style={{ width: '120px' }} className="text-center">Job Description</th>
+                                            <th style={{ width: '100px' }} className="text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -619,9 +622,21 @@ function SectionCanEmployment({ profile }) {
                                                 <td>{emp.organization}</td>
                                                 <td>{emp.designation}</td>
                                                 <td>{calculateExperience(emp.startDate, emp.endDate, emp.isCurrent)}</td>
-                                                <td>{emp.description || ''}</td>
+                                                <td className="text-center">
+                                                    {emp.description ? (
+                                                        <button
+                                                            className="btn btn-sm btn-outline-info"
+                                                            title="View Description"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target={`#${descModalId}`}
+                                                            onClick={() => setSelectedDescription(emp.description)}
+                                                        >
+                                                            <i className="fa fa-eye"></i>
+                                                        </button>
+                                                    ) : '—'}
+                                                </td>
                                                 <td>
-                                                    <div className="d-flex gap-2">
+                                                    <div className="d-flex gap-2 justify-content-center">
                                                         <button
                                                             onClick={() => {
                                                                 handleEdit(index);
@@ -707,243 +722,271 @@ function SectionCanEmployment({ profile }) {
             </div>
 
             {createPortal(
-                <div className="modal fade twm-saved-jobs-view" id={modalId} tabIndex={-1}>
-                    <div className="modal-dialog modal-dialog-centered" style={{maxWidth: '500px'}}>
-                        <div className="modal-content">
-                            <div style={formStyles.modalHeader}>
-                                <h2 style={formStyles.modalTitle}>{editingIndex !== null ? 'Edit Employment Details' : 'Add Employment Details'}</h2>
-                                <button type="button" style={formStyles.closeButton} data-bs-dismiss="modal" aria-label="Close">×</button>
-                            </div>
-
-                            <div style={{...formStyles.container, paddingBottom: '80px'}}>
-                                {/* Total Experience */}
-                                <div style={formStyles.fieldGroup}>
-                                    <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                        Total Experience
-                                        <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                    </label>
-                                    <div style={formStyles.inputWrapper}>
-                                        <i className="fa fa-clock" style={formStyles.icon}></i>
-                                        <input
-                                            type="text"
-                                            placeholder="Auto-calculated from employment"
-                                            value={totalExperience}
-                                            readOnly
-                                            style={{...formStyles.input, ...formStyles.inputWithIcon, backgroundColor: '#f8f9fa', cursor: 'not-allowed', ...(errors.totalExperience && formStyles.inputError)}}
-                                            title="This value is automatically calculated based on your employment history"
-                                        />
-                                    </div>
-                                    {errors.totalExperience && <div style={formStyles.error}>{errors.totalExperience}</div>}
+                <Fragment>
+                    <div className="modal fade twm-saved-jobs-view" id={modalId} tabIndex={-1}>
+                        <div className="modal-dialog modal-dialog-centered" style={{maxWidth: '500px'}}>
+                            <div className="modal-content">
+                                <div style={formStyles.modalHeader}>
+                                    <h2 style={formStyles.modalTitle}>{editingIndex !== null ? 'Edit Employment Details' : 'Add Employment Details'}</h2>
+                                    <button type="button" style={formStyles.closeButton} data-bs-dismiss="modal" aria-label="Close">×</button>
                                 </div>
 
-                                {/* Designation */}
-                                <div style={formStyles.fieldGroup}>
-                                    <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                        Your Designation
-                                        <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                    </label>
-                                    <div style={formStyles.inputWrapper}>
-                                        <i className="fa fa-address-card" style={formStyles.icon}></i>
-                                        <input
-                                            type="text"
-                                            placeholder="Enter Your Designation"
-                                            value={formData.designation}
-                                            onChange={(e) => handleInputChange('designation', e.target.value)}
-                                            style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.designation && formStyles.inputError)}}
-                                        />
-                                    </div>
-                                    {errors.designation && <div style={formStyles.error}>{errors.designation}</div>}
-                                </div>
-
-                                {/* Organization */}
-                                <div style={formStyles.fieldGroup}>
-                                    <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                        Your Organization
-                                        <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                    </label>
-                                    <div style={formStyles.inputWrapper}>
-                                        <i className="fa fa-building" style={formStyles.icon}></i>
-                                        <input
-                                            type="text"
-                                            placeholder="Enter Your Organization"
-                                            value={formData.organization}
-                                            onChange={(e) => handleInputChange('organization', e.target.value)}
-                                            style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.organization && formStyles.inputError)}}
-                                        />
-                                    </div>
-                                    {errors.organization && <div style={formStyles.error}>{errors.organization}</div>}
-                                </div>
-
-                                {/* Current Company */}
-                                <div style={formStyles.fieldGroup}>
-                                    <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                        Is this your current company?
-                                        <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                    </label>
-                                    <div style={formStyles.radioGroup}>
-                                        <div style={formStyles.radioOption}>
-                                            <input
-                                                type="radio"
-                                                id="current_yes"
-                                                name="isCurrent"
-                                                checked={formData.isCurrent}
-                                                onChange={() => handleInputChange('isCurrent', true)}
-                                                style={formStyles.radioInput}
-                                            />
-                                            <label htmlFor="current_yes" style={formStyles.radioLabel}>Yes</label>
-                                        </div>
-                                        <div style={formStyles.radioOption}>
-                                            <input
-                                                type="radio"
-                                                id="current_no"
-                                                name="isCurrent"
-                                                checked={!formData.isCurrent}
-                                                onChange={() => handleInputChange('isCurrent', false)}
-                                                style={formStyles.radioInput}
-                                            />
-                                            <label htmlFor="current_no" style={formStyles.radioLabel}>No</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Date Fields */}
-                                <div style={formStyles.twoColumnGrid}>
+                                <div style={{...formStyles.container, paddingBottom: '80px'}}>
+                                    {/* Total Experience */}
                                     <div style={formStyles.fieldGroup}>
                                         <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                            Started Working From
+                                            Total Experience
                                             <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
                                         </label>
                                         <div style={formStyles.inputWrapper}>
-                                            <i className="far fa-calendar" style={formStyles.icon}></i>
+                                            <i className="fa fa-clock" style={formStyles.icon}></i>
                                             <input
-                                                type="date"
-                                                value={formData.startDate}
-                                                onChange={(e) => handleInputChange('startDate', e.target.value)}
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.startDate && formStyles.inputError)}}
+                                                type="text"
+                                                placeholder="Auto-calculated from employment"
+                                                value={totalExperience}
+                                                readOnly
+                                                style={{...formStyles.input, ...formStyles.inputWithIcon, backgroundColor: '#f8f9fa', cursor: 'not-allowed', ...(errors.totalExperience && formStyles.inputError)}}
+                                                title="This value is automatically calculated based on your employment history"
                                             />
                                         </div>
-                                        {errors.startDate && <div style={formStyles.error}>{errors.startDate}</div>}
+                                        {errors.totalExperience && <div style={formStyles.error}>{errors.totalExperience}</div>}
                                     </div>
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={formStyles.label}>Worked Till</label>
-                                        <div style={formStyles.inputWrapper}>
-                                            <i className="far fa-calendar" style={formStyles.icon}></i>
-                                            <input
-                                                type="date"
-                                                value={formData.endDate}
-                                                onChange={(e) => handleInputChange('endDate', e.target.value)}
-                                                disabled={formData.isCurrent}
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.endDate && formStyles.inputError)}}
-                                            />
-                                        </div>
-                                        {errors.endDate && <div style={formStyles.error}>{errors.endDate}</div>}
-                                    </div>
-                                </div>
 
-                                {/* CTC Fields */}
-                                <div style={formStyles.twoColumnGrid}>
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={formStyles.label}>Present CTC (LPA)</label>
-                                        <div style={{...formStyles.inputWrapper, position: 'relative'}}>
-                                            <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
-                                            <input
-                                                type="number"
-                                                placeholder="e.g., 5.5"
-                                                value={formData.presentCTC}
-                                                onChange={(e) => handleInputChange('presentCTC', e.target.value)}
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon, paddingRight: '45px', ...(errors.presentCTC && formStyles.inputError)}}
-                                                min="0"
-                                                step="0.1"
-                                            />
-                                            <span style={{position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px', pointerEvents: 'none'}}>LPA</span>
-                                        </div>
-                                        {errors.presentCTC && <div style={formStyles.error}>{errors.presentCTC}</div>}
-                                    </div>
+                                    {/* Designation */}
                                     <div style={formStyles.fieldGroup}>
                                         <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                            Expected CTC (LPA)
+                                            Your Designation
                                             <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
                                         </label>
-                                        <div style={{...formStyles.inputWrapper, position: 'relative'}}>
-                                            <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
+                                        <div style={formStyles.inputWrapper}>
+                                            <i className="fa fa-address-card" style={formStyles.icon}></i>
                                             <input
-                                                type="number"
-                                                placeholder="e.g., 7.0"
-                                                value={formData.expectedCTC}
-                                                onChange={(e) => handleInputChange('expectedCTC', e.target.value)}
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon, paddingRight: '45px', ...(errors.expectedCTC && formStyles.inputError)}}
-                                                min="0"
-                                                step="0.1"
+                                                type="text"
+                                                placeholder="Enter Your Designation"
+                                                value={formData.designation}
+                                                onChange={(e) => handleInputChange('designation', e.target.value)}
+                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.designation && formStyles.inputError)}}
                                             />
-                                            <span style={{position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px', pointerEvents: 'none'}}>LPA</span>
                                         </div>
-                                        {errors.expectedCTC && <div style={formStyles.error}>{errors.expectedCTC}</div>}
+                                        {errors.designation && <div style={formStyles.error}>{errors.designation}</div>}
+                                    </div>
+
+                                    {/* Organization */}
+                                    <div style={formStyles.fieldGroup}>
+                                        <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
+                                            Your Organization
+                                            <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
+                                        </label>
+                                        <div style={formStyles.inputWrapper}>
+                                            <i className="fa fa-building" style={formStyles.icon}></i>
+                                            <input
+                                                type="text"
+                                                placeholder="Enter Your Organization"
+                                                value={formData.organization}
+                                                onChange={(e) => handleInputChange('organization', e.target.value)}
+                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.organization && formStyles.inputError)}}
+                                            />
+                                        </div>
+                                        {errors.organization && <div style={formStyles.error}>{errors.organization}</div>}
+                                    </div>
+
+                                    {/* Current Company */}
+                                    <div style={formStyles.fieldGroup}>
+                                        <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
+                                            Is this your current company?
+                                            <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
+                                        </label>
+                                        <div style={formStyles.radioGroup}>
+                                            <div style={formStyles.radioOption}>
+                                                <input
+                                                    type="radio"
+                                                    id="current_yes"
+                                                    name="isCurrent"
+                                                    checked={formData.isCurrent}
+                                                    onChange={() => handleInputChange('isCurrent', true)}
+                                                    style={formStyles.radioInput}
+                                                />
+                                                <label htmlFor="current_yes" style={formStyles.radioLabel}>Yes</label>
+                                            </div>
+                                            <div style={formStyles.radioOption}>
+                                                <input
+                                                    type="radio"
+                                                    id="current_no"
+                                                    name="isCurrent"
+                                                    checked={!formData.isCurrent}
+                                                    onChange={() => handleInputChange('isCurrent', false)}
+                                                    style={formStyles.radioInput}
+                                                />
+                                                <label htmlFor="current_no" style={formStyles.radioLabel}>No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Date Fields */}
+                                    <div style={formStyles.twoColumnGrid}>
+                                        <div style={formStyles.fieldGroup}>
+                                            <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
+                                                Started Working From
+                                                <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
+                                            </label>
+                                            <div style={formStyles.inputWrapper}>
+                                                <i className="far fa-calendar" style={formStyles.icon}></i>
+                                                <input
+                                                    type="date"
+                                                    value={formData.startDate}
+                                                    onChange={(e) => handleInputChange('startDate', e.target.value)}
+                                                    style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.startDate && formStyles.inputError)}}
+                                                />
+                                            </div>
+                                            {errors.startDate && <div style={formStyles.error}>{errors.startDate}</div>}
+                                        </div>
+                                        <div style={formStyles.fieldGroup}>
+                                            <label style={formStyles.label}>Worked Till</label>
+                                            <div style={formStyles.inputWrapper}>
+                                                <i className="far fa-calendar" style={formStyles.icon}></i>
+                                                <input
+                                                    type="date"
+                                                    value={formData.endDate}
+                                                    onChange={(e) => handleInputChange('endDate', e.target.value)}
+                                                    disabled={formData.isCurrent}
+                                                    style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.endDate && formStyles.inputError)}}
+                                                />
+                                            </div>
+                                            {errors.endDate && <div style={formStyles.error}>{errors.endDate}</div>}
+                                        </div>
+                                    </div>
+
+                                    {/* CTC Fields */}
+                                    <div style={formStyles.twoColumnGrid}>
+                                        <div style={formStyles.fieldGroup}>
+                                            <label style={formStyles.label}>Present CTC (LPA)</label>
+                                            <div style={{...formStyles.inputWrapper, position: 'relative'}}>
+                                                <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
+                                                <input
+                                                    type="number"
+                                                    placeholder="e.g., 5.5"
+                                                    value={formData.presentCTC}
+                                                    onChange={(e) => handleInputChange('presentCTC', e.target.value)}
+                                                    style={{...formStyles.input, ...formStyles.inputWithIcon, paddingRight: '45px', ...(errors.presentCTC && formStyles.inputError)}}
+                                                    min="0"
+                                                    step="0.1"
+                                                />
+                                                <span style={{position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px', pointerEvents: 'none'}}>LPA</span>
+                                            </div>
+                                            {errors.presentCTC && <div style={formStyles.error}>{errors.presentCTC}</div>}
+                                        </div>
+                                        <div style={formStyles.fieldGroup}>
+                                            <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
+                                                Expected CTC (LPA)
+                                                <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
+                                            </label>
+                                            <div style={{...formStyles.inputWrapper, position: 'relative'}}>
+                                                <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
+                                                <input
+                                                    type="number"
+                                                    placeholder="e.g., 7.0"
+                                                    value={formData.expectedCTC}
+                                                    onChange={(e) => handleInputChange('expectedCTC', e.target.value)}
+                                                    style={{...formStyles.input, ...formStyles.inputWithIcon, paddingRight: '45px', ...(errors.expectedCTC && formStyles.inputError)}}
+                                                    min="0"
+                                                    step="0.1"
+                                                />
+                                                <span style={{position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px', pointerEvents: 'none'}}>LPA</span>
+                                            </div>
+                                            {errors.expectedCTC && <div style={formStyles.error}>{errors.expectedCTC}</div>}
+                                        </div>
+                                    </div>
+
+                                    {/* Notice Period */}
+                                    <div style={formStyles.fieldGroup}>
+                                        <label style={formStyles.label}>Notice Period</label>
+                                        <div style={formStyles.inputWrapper}>
+                                            <i className="fa fa-clock" style={formStyles.icon}></i>
+                                            <select
+                                                value={formData.noticePeriod}
+                                                onChange={(e) => handleInputChange('noticePeriod', e.target.value)}
+                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.noticePeriod && formStyles.inputError)}}
+                                            >
+                                                <option value="">Select Notice Period</option>
+                                                <option value="Immediate">Immediate</option>
+                                                <option value="15 days">15 days</option>
+                                                <option value="1 month">1 month</option>
+                                                <option value="2 months">2 months</option>
+                                                <option value="3 months">3 months</option>
+                                            </select>
+                                        </div>
+                                        {errors.noticePeriod && <div style={formStyles.error}>{errors.noticePeriod}</div>}
+                                    </div>
+
+                                    {/* Description */}
+                                    <div style={formStyles.fieldGroup}>
+                                        <label style={formStyles.label}>Describe your Job Profile</label>
+                                        <textarea
+                                            placeholder="Describe your Job"
+                                            value={formData.description}
+                                            onChange={(e) => handleInputChange('description', e.target.value)}
+                                            style={{...formStyles.textarea, ...(errors.description && formStyles.textareaError)}}
+                                        />
+                                        {errors.description && <div style={formStyles.error}>{errors.description}</div>}
+                                        <small style={{fontSize: '12px', color: '#999', marginTop: '4px'}}>Optional: {formData.description.length}/1000 characters</small>
                                     </div>
                                 </div>
 
-                                {/* Notice Period */}
-                                <div style={formStyles.fieldGroup}>
-                                    <label style={formStyles.label}>Notice Period</label>
-                                    <div style={formStyles.inputWrapper}>
-                                        <i className="fa fa-clock" style={formStyles.icon}></i>
-                                        <select
-                                            value={formData.noticePeriod}
-                                            onChange={(e) => handleInputChange('noticePeriod', e.target.value)}
-                                            style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.noticePeriod && formStyles.inputError)}}
-                                        >
-                                            <option value="">Select Notice Period</option>
-                                            <option value="Immediate">Immediate</option>
-                                            <option value="15 days">15 days</option>
-                                            <option value="1 month">1 month</option>
-                                            <option value="2 months">2 months</option>
-                                            <option value="3 months">3 months</option>
-                                        </select>
-                                    </div>
-                                    {errors.noticePeriod && <div style={formStyles.error}>{errors.noticePeriod}</div>}
+                                {/* Buttons */}
+                                <div style={formStyles.buttonGroup}>
+                                    <button
+                                        type="button"
+                                        data-bs-dismiss="modal"
+                                        style={{...formStyles.button, background: '#e0e0e0', color: '#333'}}
+                                    >
+                                        Close
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={clearForm}
+                                        style={{...formStyles.button, background: '#f5f5f5', color: '#333', border: '1px solid #ddd'}}
+                                    >
+                                        Clear
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleSave}
+                                        disabled={loading}
+                                        style={{...formStyles.button, background: '#007bff', color: 'white', opacity: loading ? 0.6 : 1}}
+                                    >
+                                        {loading ? 'Saving...' : 'Save'}
+                                    </button>
                                 </div>
-
-                                {/* Description */}
-                                <div style={formStyles.fieldGroup}>
-                                    <label style={formStyles.label}>Describe your Job Profile</label>
-                                    <textarea
-                                        placeholder="Describe your Job"
-                                        value={formData.description}
-                                        onChange={(e) => handleInputChange('description', e.target.value)}
-                                        style={{...formStyles.textarea, ...(errors.description && formStyles.textareaError)}}
-                                    />
-                                    {errors.description && <div style={formStyles.error}>{errors.description}</div>}
-                                    <small style={{fontSize: '12px', color: '#999', marginTop: '4px'}}>Optional: {formData.description.length}/1000 characters</small>
-                                </div>
-                            </div>
-
-                            {/* Buttons */}
-                            <div style={formStyles.buttonGroup}>
-                                <button
-                                    type="button"
-                                    data-bs-dismiss="modal"
-                                    style={{...formStyles.button, background: '#e0e0e0', color: '#333'}}
-                                >
-                                    Close
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={clearForm}
-                                    style={{...formStyles.button, background: '#f5f5f5', color: '#333', border: '1px solid #ddd'}}
-                                >
-                                    Clear
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleSave}
-                                    disabled={loading}
-                                    style={{...formStyles.button, background: '#007bff', color: 'white', opacity: loading ? 0.6 : 1}}
-                                >
-                                    {loading ? 'Saving...' : 'Save'}
-                                </button>
                             </div>
                         </div>
                     </div>
-                </div>,
+
+                    {/* Job Description Modal */}
+                    <div className="modal fade twm-saved-jobs-view" id={descModalId} tabIndex={-1}>
+                        <div className="modal-dialog modal-dialog-centered" style={{maxWidth: '600px'}}>
+                            <div className="modal-content">
+                                <div style={formStyles.modalHeader}>
+                                    <h2 style={formStyles.modalTitle}>Job Description</h2>
+                                    <button type="button" style={formStyles.closeButton} data-bs-dismiss="modal" aria-label="Close">×</button>
+                                </div>
+                                <div style={{padding: '20px', maxHeight: '400px', overflowY: 'auto'}}>
+                                    <p style={{whiteSpace: 'pre-wrap', fontSize: '14px', lineHeight: '1.6', color: '#333', margin: 0}}>
+                                        {selectedDescription || 'No description provided.'}
+                                    </p>
+                                </div>
+                                <div style={formStyles.buttonGroup}>
+                                    <button
+                                        type="button"
+                                        data-bs-dismiss="modal"
+                                        style={{...formStyles.button, background: '#007bff', color: 'white'}}
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Fragment>,
                 document.body
             )}
         </>
