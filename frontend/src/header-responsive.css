@@ -197,6 +197,8 @@
     border: 1px solid #FF7A00;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(255, 122, 0, 0.15);
+    background-color: #ffffff !important;
+    z-index: 9999 !important;
   }
 
   .header-nav-btn-section .dropdown-item {
