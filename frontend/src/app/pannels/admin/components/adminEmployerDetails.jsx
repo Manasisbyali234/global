@@ -498,13 +498,13 @@ function EmployerDetails() {
                 </div>
 
                 <div className="description-section" data-aos="fade-up" data-aos-delay="375">
-                    <h6><i className="fa fa-briefcase"></i>Why Join Us</h6>
-                    <div className="description-text" dangerouslySetInnerHTML={{ __html: profile.whyJoinUs || 'No information provided' }} />
+                    <h6><i className="fa fa-align-left"></i>About Company</h6>
+                    <div className="description-text" dangerouslySetInnerHTML={{ __html: profile.description || 'No description provided' }} />
                 </div>
 
                 <div className="description-section" data-aos="fade-up" data-aos-delay="400">
-                    <h6><i className="fa fa-align-left"></i>About Company</h6>
-                    <div className="description-text" dangerouslySetInnerHTML={{ __html: profile.description || 'No description provided' }} />
+                    <h6><i className="fa fa-briefcase"></i>Why Join Us</h6>
+                    <div className="description-text" dangerouslySetInnerHTML={{ __html: profile.whyJoinUs || 'No information provided' }} />
                 </div>
             </div>
 
