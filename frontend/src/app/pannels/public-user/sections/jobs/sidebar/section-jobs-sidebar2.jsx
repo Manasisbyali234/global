@@ -94,6 +94,16 @@ function SectionJobsSidebar2 ({ _config, job }) {
 										</div>
 									</div>
 								</li>
+
+								<li>
+									<div className="twm-s-info-inner">
+										<i className="fas fa-question-circle" />
+										<span className="twm-title">Backlogs Allowed</span>
+										<div className="twm-s-info-discription">
+											{job?.backlogsAllowed ? 'Yes' : 'No'}
+										</div>
+									</div>
+								</li>
 								{/* <li>
                                 <div className="twm-s-info-inner">
                                     <i className="fas fa-venus-mars" />
@@ -145,7 +155,23 @@ function SectionJobsSidebar2 ({ _config, job }) {
 										<i className="fas fa-bus" />
 										<span className="twm-title" style={{color: '#000'}}>Transportation</span>
 										<div className="twm-s-info-discription">
-											{job?.transportation?.twoWay ? 'Two Way' : job?.transportation?.oneWay ? 'One Way' : job?.transportation?.noCab ? 'No Cab' : 'Not specified'}
+											{job?.transportation ? (
+												[
+													job.transportation.oneWay && 'One-way Cab',
+													job.transportation.twoWay && 'Two-way Cab',
+													job.transportation.noCab && 'No Cab Facility'
+												].filter(Boolean).join(', ') || 'Not specified'
+											) : 'Not specified'}
+										</div>
+									</div>
+								</li>
+
+								<li>
+									<div className="twm-s-info-inner">
+										<i className="fas fa-history" />
+										<span className="twm-title" style={{color: '#000'}}>Work Shift</span>
+										<div className="twm-s-info-discription">
+											{job?.shift ? (job.shift.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')) : 'Not specified'}
 										</div>
 									</div>
 								</li>

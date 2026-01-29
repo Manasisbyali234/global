@@ -121,7 +121,9 @@ function EmpJobReviewPage() {
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Job Location</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.location}</p>
+                                    <p className="mb-0 text-muted">
+                                        {Array.isArray(jobDetails.location) ? jobDetails.location.join(', ') : (jobDetails.location || 'N/A')}
+                                    </p>
                                 </div>
 
                                 <div className="mt-2">
@@ -176,10 +178,13 @@ function EmpJobReviewPage() {
                                 <div className="mt-2">
                                     <h5 className="mb-1">Candidate Transportation Options</h5>
                                     <p className="mb-0 text-muted">
-                                        {jobDetails.transportation ? 
-                                            (jobDetails.transportation.oneWay ? 'One-way Cab' : 
-                                             jobDetails.transportation.twoWay ? 'Two-way Cab' : 
-                                             jobDetails.transportation.noCab ? 'No Cab Facility' : 'N/A') : 'N/A'}
+                                        {jobDetails.transportation ? (
+                                            [
+                                                jobDetails.transportation.oneWay && 'One-way Cab',
+                                                jobDetails.transportation.twoWay && 'Two-way Cab',
+                                                jobDetails.transportation.noCab && 'No Cab Facility'
+                                            ].filter(Boolean).join(', ') || 'N/A'
+                                        ) : 'N/A'}
                                     </p>
                                 </div>
                             </div>

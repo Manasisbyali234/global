@@ -680,11 +680,11 @@ function SectionCanEmployment({ profile }) {
                                             <>
                                                 <tr>
                                                     <td><strong>Current Company Name</strong></td>
-                                                    <td>{currentEmp?.organization || 'GAP'}</td>
+                                                    <td>{currentEmp?.organization || '—'}</td>
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Notice Period</strong></td>
-                                                    <td>{currentEmp?.noticePeriod || 'Immediate Joining'}</td>
+                                                    <td>{currentEmp?.noticePeriod || '—'}</td>
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Present CTC</strong></td>
@@ -692,7 +692,7 @@ function SectionCanEmployment({ profile }) {
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Expected CTC</strong></td>
-                                                    <td>{currentEmp?.expectedCTC ? `₹${currentEmp.expectedCTC} LPA` : '10,00,000'}</td>
+                                                    <td>{currentEmp?.expectedCTC ? `₹${currentEmp.expectedCTC} LPA` : '—'}</td>
                                                 </tr>
                                             </>
                                         );
@@ -702,34 +702,7 @@ function SectionCanEmployment({ profile }) {
                         </div>
                     </div>
 
-                    {/* Minimum Notice / Buyout Information */}
-                    <div className="m-b30">
-                        <h4 className="section-head-small m-b20">3. Minimum Notice / Buyout Information</h4>
-                        <div className="table-responsive">
-                            <table className="table table-bordered">
-                                <thead className="table-light">
-                                    <tr>
-                                        <th>Option</th>
-                                        <th>Amount/Days</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Minimum</strong></td>
-                                        <td>{employment.find(emp => emp.isCurrent)?.noticePeriod || '30 days'}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Buyout Amount</strong></td>
-                                        <td>80,000</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Total</strong></td>
-                                        <td>10,00,000</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 

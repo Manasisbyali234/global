@@ -9,6 +9,8 @@ import '../../../placement-rejection-styles.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../utils/popupNotification';
 import NotificationBell from '../../../components/NotificationBell';
 import JobZImage from '../../common/jobz-img';
+import YesNoPopup from '../../common/popups/popup-yes-no';
+import { popupType } from '../../../globals/constants';
 
 function PlacementDashboardRedesigned() {
     const { user, userType, isAuthenticated, loading: authLoading } = useAuth();
@@ -122,10 +124,17 @@ function PlacementDashboardRedesigned() {
                 const students = data.students || [];
                 console.log('Total students:', students.length);
                 console.log('Sample student data:', students[0]);
+                console.log('All course values from backend:', students.map(s => ({ name: s.name, course: s.course })));
                 console.log('Credits distribution:', students.map(s => ({ name: s.name, credits: s.credits })));
                 
-                setStudentData(students);
-                calculateStats(students);
+                // Fix course display issue - change "Not Specified" to "Not Provided"
+                const fixedStudents = students.map(student => ({
+                    ...student,
+                    course: student.course === 'Not Specified' ? 'Not Provided' : student.course
+                }));
+                
+                setStudentData(fixedStudents);
+                calculateStats(fixedStudents);
             }
         } catch (error) {
             console.error('Error fetching student data:', error);
@@ -136,7 +145,7 @@ function PlacementDashboardRedesigned() {
         const totalStudents = students.length;
         const totalCredits = students.reduce((sum, student) => sum + (parseInt(student.credits) || 0), 0);
         const avgCredits = totalStudents > 0 ? Math.round(totalCredits / totalStudents) : 0;
-        const courses = [...new Set(students.map(s => s.course).filter(c => c && c !== 'Not Specified'))];
+        const courses = [...new Set(students.map(s => s.course).filter(c => c && c !== 'Not Provided' && c !== 'Not Specified'))];
         const batches = [...new Set(students.map(s => s.batch).filter(b => b))];
         
         console.log('Calculating stats:', {
@@ -387,15 +396,24 @@ function PlacementDashboardRedesigned() {
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && data.fileData) {
+                    console.log('Raw file data sample:', data.fileData[0]); // Debug: see actual column names
+                    console.log('Available columns:', Object.keys(data.fileData[0] || {})); // Debug: list all columns
+                    
                     const cleanedData = data.fileData.map(row => {
+                        const courseValue = row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || row['Course Name'] || row['course name'] || row['COURSE NAME'] || row.Program || row.program || row.PROGRAM || row.Department || row.department || row.DEPARTMENT || row.Stream || row.stream || row.STREAM || 'Not Provided';
+                        console.log('Course mapping for row:', { originalRow: row, mappedCourse: courseValue }); // Debug course mapping
+                        
                         return {
                             name: row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['Student Name'] || '',
                             email: row.Email || row.email || row.EMAIL || '',
                             phone: row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
-                            course: row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || 'Not Specified',
+                            course: courseValue,
                             credits: row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || '0'
                         };
                     });
+                    console.log('Cleaned data sample:', cleanedData[0]); // Debug: see final mapped data
+                    console.log('Course distribution:', cleanedData.map(s => s.course)); // Debug: see all course values
+                    
                     setStudentData(cleanedData);
                     setViewingFileId(fileId);
                     setViewingFileName(fileName);
@@ -570,10 +588,8 @@ function PlacementDashboardRedesigned() {
                     </div>
                     <div 
                         className="nav-item logout"
-                        onClick={() => {
-                            localStorage.removeItem('placementToken');
-                            window.location.href = '/login';
-                        }}
+                        data-bs-toggle="modal" 
+                        data-bs-target="#logout-dash-profile"
                     >
                         <i className="fa fa-sign-out"></i>
                         <span>Logout</span>
@@ -813,7 +829,6 @@ function PlacementDashboardRedesigned() {
                                                         <th>Name</th>
                                                         <th>Email</th>
                                                         <th>Phone</th>
-                                                        <th>Course</th>
                                                         <th>Credits</th>
                                                     </tr>
                                                 </thead>
@@ -823,7 +838,6 @@ function PlacementDashboardRedesigned() {
                                                             <td>{student.name || '-'}</td>
                                                             <td>{student.email || '-'}</td>
                                                             <td>{student.phone || '-'}</td>
-                                                            <td>{student.course || 'Not Specified'}</td>
                                                             <td>
                                                                 <span className="credits-badge" title={`Available Credits: ${student.credits || 0}`}>
                                                                     {student.credits !== undefined && student.credits !== null ? student.credits : 0}
@@ -958,7 +972,7 @@ function PlacementDashboardRedesigned() {
 
                                                 {/* File Upload Area */}
                                                 <div className="upload-field">
-                                                    <label className="field-label">Student Data File *</label>
+                                                    <label className="field-label">Student Data File </label>
                                                     <div 
                                                         className="file-upload-area"
                                                         onClick={() => !uploadingFile && document.getElementById('fileInput').click()}
@@ -1476,6 +1490,8 @@ function PlacementDashboardRedesigned() {
                     </div>
                 </div>
             )}
+
+            <YesNoPopup id="logout-dash-profile" type={popupType.LOGOUT} msg={"Do you want to Logout your profile?"} />
         </div>
     );
 }

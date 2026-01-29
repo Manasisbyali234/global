@@ -1261,7 +1261,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     </div>
 
                                     <div className="col-md-4">
-                                        <label className="form-label required-field">State *</label>
+                                        <label className="form-label required-field">State </label>
                                         <select
                                             className={`form-select ${errors.state ? 'is-invalid' : ''}`}
                                             name="state"

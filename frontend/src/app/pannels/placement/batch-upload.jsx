@@ -491,7 +491,7 @@ function BatchUpload() {
                         </div>
                         <div className="modal-body">
                             <div className="upload-field">
-                                <label>Student Data File *</label>
+                                <label>Student Data File</label>
                                 <div 
                                     className="file-upload-area"
                                     onClick={() => document.getElementById('resubmitFileInput').click()}

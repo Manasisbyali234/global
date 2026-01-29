@@ -142,7 +142,7 @@ function CanPostedJobs() {
                                                 </h4>
                                                 <p className="twm-job-address">
                                                     <i className="feather-map-pin" />
-                                                    {job.location}
+                                                    {Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}
                                                 </p>
                                                 <div className="twm-job-self-mid">
                                                     <div className="twm-job-self-mid-left">

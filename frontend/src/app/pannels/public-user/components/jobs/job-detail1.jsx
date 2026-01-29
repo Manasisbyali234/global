@@ -526,9 +526,24 @@ function JobDetail1Page() {
                                         </div>
                                     </div>
 
+                                    <div style={{marginBottom: '20px'}}>
+                                        <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
+                                            <i className="feather-check-square" style={{marginRight: '10px', color: '#ff6b35'}}></i>
+                                            Requirements & Qualifications
+                                        </h4>
+                                        <ul className="description-list-2">
+                                            <li>
+                                                <strong>Education:</strong> {Array.isArray(job?.education) ? job.education.join(', ') : (job?.education || 'Not specified')}
+                                            </li>
+                                            <li>
+                                                <strong>Backlogs Allowed:</strong> {job?.backlogsAllowed ? 'Yes' : 'No'}
+                                            </li>
+                                        </ul>
+                                    </div>
+
                                     {job.employerId?.employerType === 'consultant' && job.employerProfile && (
                                         <>
-                                            <h4 className="twm-s-title">About the Consultancy:</h4>
+                                            <h4 className="twm-s-title">About the Hiring Company:</h4>
                                             <ul className="description-list-2">
                                                 <li><strong>Company:</strong> {job.employerId?.companyName || 'Consultant'}</li>
                                                 {job.employerProfile.description && (
