@@ -20,9 +20,11 @@ export const logout = () => {
     localStorage.removeItem('candidateToken');
     localStorage.removeItem('employerToken');
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('placementToken');
     localStorage.removeItem('candidateUser');
     localStorage.removeItem('employerUser');
     localStorage.removeItem('adminUser');
+    localStorage.removeItem('placementUser');
 };
 
 export const redirectToLogin = (navigate, from = null) => {

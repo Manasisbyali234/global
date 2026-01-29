@@ -115,7 +115,7 @@ function AdminEmployerJobs() {
                                                                     <h4>{job.title}</h4>
                                                                 </a>
                                                                 <p className="twm-bookmark-address">
-                                                                    <i className="feather-map-pin" />{job.location}
+                                                                    <i className="feather-map-pin" />{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}
                                                                 </p>
                                                                 <div className="twm-job-websites site-text-primary">
                                                                     {job.description?.substring(0, 100)}...
@@ -129,7 +129,7 @@ function AdminEmployerJobs() {
                                                         </div>
                                                     </td>
                                                     <td>{job.company || job.employerId?.companyName || 'N/A'}</td>
-                                                    <td>{job.location}</td>
+                                                    <td>{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}</td>
                                                     <td><div className="twm-job-post-duration">{formatDate(job.createdAt)}</div></td>
                                                     <td>
                                                         <span className={job.status === 'active' ? 'text-clr-green2' : 'text-muted'}>

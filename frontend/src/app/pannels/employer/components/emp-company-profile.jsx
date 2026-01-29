@@ -1334,19 +1334,6 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-12">
                                 <div className="form-group">
-                                    <label className="required-field"><Briefcase size={16} className="me-2" /> Why join us</label>
-                                    <RichTextEditor
-                                        value={formData.whyJoinUs}
-                                        onChange={(value) => handleInputChange('whyJoinUs', value)}
-                                        placeholder="Highlight the benefits of working with your company..."
-                                        className="form-control-editor"
-                                    />
-                                    <small className="text-muted mt-1" style={{color: '#000000 !important'}}>Use the toolbar above to format your text with bold, italic, lists, and alignment options.</small>
-                                </div>
-                            </div>
-
-                            <div className="col-md-12">
-                                <div className="form-group">
                                     <label className="required-field"><FileText size={16} className="me-2" /> About Company</label>
                                     <RichTextEditor
                                         value={formData.description || 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.'}
@@ -1355,6 +1342,19 @@ function EmpCompanyProfilePage() {
                                         className="form-control-editor"
                                     />
                                     <small className="text-muted mt-1">Use the toolbar above to format your company description with bold, italic, lists, and alignment options.</small>
+                                </div>
+                            </div>
+
+                            <div className="col-md-12">
+                                <div className="form-group">
+                                    <label className="required-field"><Briefcase size={16} className="me-2" /> Why join us</label>
+                                    <RichTextEditor
+                                        value={formData.whyJoinUs}
+                                        onChange={(value) => handleInputChange('whyJoinUs', value)}
+                                        placeholder="Highlight the benefits of working with your company..."
+                                        className="form-control-editor"
+                                    />
+                                    <small className="text-muted mt-1" style={{color: '#000000 !important'}}>Use the toolbar above to format your text with bold, italic, lists, and alignment options.</small>
                                 </div>
                             </div>
                         </div>
@@ -1419,7 +1419,19 @@ function EmpCompanyProfilePage() {
                                                     accept=".jpg,.jpeg,.png,.pdf"
                                                     onChange={(e) => handleAuthorizationLetterUpload(e, section.id)}
                                                 />
-                                                <small className="text-muted">Upload authorization letter for this company (JPG, PNG, PDF, max 5MB)</small>
+                                                {(() => {
+                                                    const uploadedLetter = formData.authorizationLetters?.find(doc => 
+                                                        section.companyName && doc.companyName === section.companyName
+                                                    );
+                                                    return uploadedLetter ? (
+                                                        <div className="mt-2">
+                                                            <p className="text-success mb-0">✓ Authorization Letter uploaded</p>
+                                                            {renderStatusBadge(uploadedLetter.status, uploadedLetter.reuploadedAt)}
+                                                        </div>
+                                                    ) : (
+                                                        <small className="text-muted">Upload authorization letter for this company (JPG, PNG, PDF, max 5MB)</small>
+                                                    );
+                                                })()}
                                             </div>
                                         </div>
                                     </div>

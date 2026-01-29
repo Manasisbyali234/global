@@ -161,7 +161,7 @@ router.put('/applications/:applicationId/review', employerController.saveIntervi
 router.get('/applications/:applicationId/interview-status', employerController.getInterviewProcessStatus);
 router.get('/applications/:applicationId', employerController.getApplicationDetails);
 router.put('/applications/:applicationId/status', [
-  body('status').isIn(['pending', 'shortlisted', 'interviewed', 'hired', 'rejected', 'not_attended', 'offer_shared']).withMessage('Invalid status')
+  body('status').isIn(['pending', 'shortlisted', 'interviewed', 'hired', 'rejected', 'not_attended', 'offer_shared', 'offer_sent']).withMessage('Invalid status')
 ], handleValidationErrors, employerController.updateApplicationStatus);
 
 // Messaging Routes

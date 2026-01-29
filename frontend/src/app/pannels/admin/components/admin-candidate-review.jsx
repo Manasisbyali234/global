@@ -482,13 +482,6 @@ function AdminCandidateReviewPage() {
                                 </div>
                                 <div className="info-row single-field">
                                     <div className="info-field full-width">
-                                        <div className="field-icon">
-                                            <i className="fas fa-envelope-open-text"></i>
-                                        </div>
-                                        <div className="field-content">
-                                            <label>Correspondence Address</label>
-                                            <span>{candidate.correspondenceAddress || 'Not provided'}</span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

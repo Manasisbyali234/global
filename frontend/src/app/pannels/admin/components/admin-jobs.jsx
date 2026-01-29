@@ -117,7 +117,7 @@ function AdminJobs() {
                                                     <span className={getJobTypeColor(job.jobType)}>{job.jobType}</span>
                                                 </div>
                                             </td>
-                                            <td>{job.location}</td>
+                                            <td>{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}</td>
                                             <td>{formatDate(job.createdAt)}</td>
                                             <td>
                                                 <span className={job.status === 'active' ? 'text-clr-green2' : 'text-muted'}>

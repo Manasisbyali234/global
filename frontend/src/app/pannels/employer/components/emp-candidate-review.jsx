@@ -649,7 +649,6 @@ function EmpCandidateReviewPage() {
                                             <button 
                                                 className={`${application.status === 'offer_sent' ? 'active' : ''}`}
                                                 onClick={() => updateApplicationStatus('offer_sent')}
-                                                disabled={!allProcessesCompleted()}
                                             >
                                                 <i className="fas fa-envelope"></i> Offer Letter Sent
                                             </button>
@@ -663,7 +662,7 @@ function EmpCandidateReviewPage() {
                                             )}
                                         </div>
                                         {!allProcessesCompleted() && (
-                                            <p className="warning-text">Complete all interview stages to enable actions.</p>
+                                            <p className="warning-text">Complete all interview stages to enable shortlist and hire actions.</p>
                                         )}
                                     </div>
                                 </div>
@@ -788,15 +787,7 @@ function EmpCandidateReviewPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="info-row single-field">
-                                    <div className="info-field full-width">
-                                        <div className="field-icon"><i className="fas fa-envelope-open-text"></i></div>
-                                        <div className="field-content">
-                                            <label>Correspondence Address</label>
-                                            <span>{candidate.correspondenceAddress || 'Not provided'}</span>
-                                        </div>
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
                     </div>

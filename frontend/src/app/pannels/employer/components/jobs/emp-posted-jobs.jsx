@@ -36,7 +36,7 @@ export default function EmpPostedJobs() {
         if (query) {
             next = next.filter(job => {
                 const title = (job.title || '').toLowerCase();
-                const location = (typeof job.location === 'string' ? job.location : '').toLowerCase();
+                const location = Array.isArray(job.location) ? job.location.join(' ').toLowerCase() : (typeof job.location === 'string' ? job.location : '').toLowerCase();
                 const companyName = (job.companyName || '').toLowerCase();
                 
                 // Search in title, location, and company name for all employer types
@@ -305,7 +305,7 @@ export default function EmpPostedJobs() {
 										</p>
 									)}
 													<p className="mb-2 fw-bold text-dark">
-										<MapPin size={16} className="me-1" style={{ color: '#fd7e14' }} /> {job.location}
+										<MapPin size={16} className="me-1" style={{ color: '#fd7e14' }} /> {Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}
 									</p>
 													<div className="d-flex flex-wrap gap-3 text-muted small fw-bold">
 														<span className="d-inline-flex align-items-center">Annual CTC:&nbsp;{formatCtc(job)}</span>
