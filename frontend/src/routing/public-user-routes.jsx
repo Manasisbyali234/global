@@ -23,6 +23,12 @@ const ContactUsPage = lazy(() => import("../app/pannels/public-user/components/p
 const UnderMaintenancePage = lazy(() => import("../app/pannels/public-user/components/pages/under-maintenance"));
 const ComingSoonPage = lazy(() => import("../app/pannels/public-user/components/pages/coming-soon"));
 const LoginPage = lazy(() => import("../app/pannels/public-user/components/pages/login"));
+const LoginCandidatePage = lazy(() => import("../app/pannels/public-user/components/pages/auth/LoginCandidate"));
+const LoginEmployerPage = lazy(() => import("../app/pannels/public-user/components/pages/auth/LoginEmployer"));
+const LoginPlacementPage = lazy(() => import("../app/pannels/public-user/components/pages/auth/LoginPlacement"));
+const SignupCandidatePage = lazy(() => import("../app/pannels/public-user/components/pages/auth/SignupCandidate"));
+const SignupEmployerPage = lazy(() => import("../app/pannels/public-user/components/pages/auth/SignupEmployer"));
+const SignupPlacementPage = lazy(() => import("../app/pannels/public-user/components/pages/auth/SignupPlacement"));
 const IconsPage = lazy(() => import("../app/pannels/public-user/components/pages/icons"));
 const CandidateGridPage = lazy(() => import("../app/pannels/public-user/components/candidates/can-grid"));
 const CandidateListPage = lazy(() => import("../app/pannels/public-user/components/candidates/can-list"));
@@ -69,6 +75,12 @@ function PublicUserRoutes() {
             <Route path={publicUser.pages.MAINTENANCE} element={<UnderMaintenancePage />} />
             <Route path={publicUser.pages.COMING} element={<ComingSoonPage />} />
             <Route path={publicUser.pages.LOGIN} element={<LoginPage />} />
+            <Route path={publicUser.pages.LOGIN_CANDIDATE} element={<LoginCandidatePage />} />
+            <Route path={publicUser.pages.LOGIN_EMPLOYER} element={<LoginEmployerPage />} />
+            <Route path={publicUser.pages.LOGIN_PLACEMENT} element={<LoginPlacementPage />} />
+            <Route path={publicUser.pages.SIGNUP_CANDIDATE} element={<SignupCandidatePage />} />
+            <Route path={publicUser.pages.SIGNUP_EMPLOYER} element={<SignupEmployerPage />} />
+            <Route path={publicUser.pages.SIGNUP_PLACEMENT} element={<SignupPlacementPage />} />
             <Route path={publicUser.pages.ADMIN_LOGIN} element={<AdminLogin />} />
             <Route path={publicUser.pages.SUB_ADMIN_LOGIN} element={<SubAdminLogin />} />
             <Route path={publicUser.pages.FORGOT} element={<ForgotPassword/>} />

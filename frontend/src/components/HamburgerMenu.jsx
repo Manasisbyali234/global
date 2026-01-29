@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { publicUser } from '../globals/route-names';
 import './HamburgerMenu.css';
 
 const HamburgerMenu = ({ isOpen, onToggle, onClose }) => {
@@ -82,22 +83,22 @@ const HamburgerMenu = ({ isOpen, onToggle, onClose }) => {
 
         {!isAuthenticated() && (
           <div className="auth-section">
-            <button 
-              className="auth-btn sign-up" 
-              data-bs-toggle="modal" 
-              data-bs-target="#sign_up_popup" 
-              onClick={onClose}
-            >
-              Sign Up
-            </button>
-            <button 
-              className="auth-btn sign-in" 
-              data-bs-toggle="modal" 
-              data-bs-target="#sign_up_popup2" 
-              onClick={onClose}
-            >
-              Sign In
-            </button>
+            <div className="auth-group">
+              <span className="auth-label">Sign Up</span>
+              <div className="auth-links">
+                <NavLink to={publicUser.pages.SIGNUP_CANDIDATE} className="auth-link" onClick={onClose}>Candidate</NavLink>
+                <NavLink to={publicUser.pages.SIGNUP_EMPLOYER} className="auth-link" onClick={onClose}>Employer</NavLink>
+                <NavLink to={publicUser.pages.SIGNUP_PLACEMENT} className="auth-link" onClick={onClose}>Placement</NavLink>
+              </div>
+            </div>
+            <div className="auth-group mt-3">
+              <span className="auth-label">Sign In</span>
+              <div className="auth-links">
+                <NavLink to={publicUser.pages.LOGIN_CANDIDATE} className="auth-link" onClick={onClose}>Candidate</NavLink>
+                <NavLink to={publicUser.pages.LOGIN_EMPLOYER} className="auth-link" onClick={onClose}>Employer</NavLink>
+                <NavLink to={publicUser.pages.LOGIN_PLACEMENT} className="auth-link" onClick={onClose}>Placement</NavLink>
+              </div>
+            </div>
           </div>
         )}
       </nav>
