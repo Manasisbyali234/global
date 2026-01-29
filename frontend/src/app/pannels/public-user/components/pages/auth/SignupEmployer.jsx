@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { publicUser } from "../../../../../../globals/route-names";
-import { handlePhoneInputChange } from "../../../../../../utils/phoneValidation";
+import { handlePhoneInputChange, validatePhoneOnBlur } from "../../../../../../utils/phoneValidation";
 import { showSuccess, showError } from "../../../../../../utils/popupNotification";
 import TermsModal from "../../../../../../components/TermsModal";
 import JobZImage from "../../../../../common/jobz-img";
@@ -63,10 +63,48 @@ function SignupEmployer() {
         }
     };
 
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        if (name === 'mobile') {
+            validatePhoneOnBlur(value, setFieldErrors, name, true);
+        } else {
+            validateField(name, value);
+        }
+    };
+
+    const validateAllFields = () => {
+        const errors = {};
+        
+        if (!employerData.name || !employerData.name.trim()) {
+            errors.name = 'Company Name is required';
+        } else if (employerData.name.trim().length < 2) {
+            errors.name = 'Name must be at least 2 characters long';
+        }
+        
+        if (!employerData.email || !employerData.email.trim()) {
+            errors.email = 'Email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employerData.email.trim())) {
+            errors.email = 'Please enter a valid email address';
+        }
+        
+        if (!employerData.mobile || !employerData.mobile.trim()) {
+            errors.mobile = 'Mobile number is required';
+        } else if (!/^\d{10,15}$/.test(employerData.mobile.replace(/[\s\-\(\)\+]/g, ''))) {
+            errors.mobile = 'Phone number must be at least 10 digits';
+        }
+        
+        if (!employerData.employerCategory) {
+            errors.employerCategory = 'Please select a category';
+        }
+        
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (Object.keys(fieldErrors).length > 0 || !employerData.employerCategory) {
+        if (!validateAllFields()) {
             showError('Please complete all required fields correctly.');
             return;
         }
@@ -116,14 +154,12 @@ function SignupEmployer() {
     return (
         <div className="auth-page-wrapper">
             <div className="main-card">
-                {/* Left Side (Image Section) */}
                 <div className="left-section">
                     <div className="image-wrapper">
                         <img src="assets/images/background/image.png" alt="Employer Signup" />
                     </div>
                 </div>
 
-                {/* Right Side (Form Section) */}
                 <div className="right-section">
                     <NavLink to={publicUser.INITIAL} className="auth-logo">
                         <JobZImage src="images/logo-dark.png" alt="Logo" />
@@ -141,7 +177,8 @@ function SignupEmployer() {
                                 className={`auth-input ${fieldErrors.name ? 'is-invalid' : ''}`} 
                                 placeholder="Company Name" 
                                 value={employerData.name} 
-                                onChange={handleChange} 
+                                onChange={handleChange}
+                                onBlur={handleBlur} 
                             />
                             {fieldErrors.name && <div className="invalid-feedback">{fieldErrors.name}</div>}
                         </div>
@@ -154,24 +191,26 @@ function SignupEmployer() {
                                 className={`auth-input ${fieldErrors.email ? 'is-invalid' : ''}`} 
                                 placeholder="Official Email Address" 
                                 value={employerData.email} 
-                                onChange={handleChange} 
+                                onChange={handleChange}
+                                onBlur={handleBlur} 
                             />
                             {fieldErrors.email && <div className="invalid-feedback">{fieldErrors.email}</div>}
                         </div>
 
                         <div className="auth-form-group">
-                            <div className="input-group">
-                                <span className="input-group-text" style={{ borderRadius: '8px 0 0 8px', borderRight: 'none' }}>{employerData.countryCode}</span>
+                            <div style={{ position: 'relative' }}>
                                 <input 
                                     name="mobile" 
                                     type="text" 
                                     required 
                                     className={`auth-input ${fieldErrors.mobile ? 'is-invalid' : ''}`} 
-                                    style={{ borderRadius: '0 8px 8px 0' }}
+                                    style={{ paddingLeft: '50px' }}
                                     placeholder="Mobile Number" 
                                     value={employerData.mobile} 
-                                    onChange={handleChange} 
+                                    onChange={handleChange}
+                                    onBlur={handleBlur} 
                                 />
+                                <span style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none' }}>{employerData.countryCode}</span>
                             </div>
                             {fieldErrors.mobile && <div className="invalid-feedback d-block">{fieldErrors.mobile}</div>}
                         </div>
@@ -181,7 +220,8 @@ function SignupEmployer() {
                                 name="employerCategory" 
                                 className={`auth-input ${fieldErrors.employerCategory ? 'is-invalid' : ''}`} 
                                 value={employerData.employerCategory} 
-                                onChange={handleChange} 
+                                onChange={handleChange}
+                                onBlur={handleBlur} 
                                 required
                             >
                                 <option value="">Select Employer Category*</option>
@@ -189,15 +229,6 @@ function SignupEmployer() {
                                 <option value="consultancy">Consultancy</option>
                             </select>
                             {fieldErrors.employerCategory && <div className="invalid-feedback">{fieldErrors.employerCategory}</div>}
-                        </div>
-
-                        <div className="auth-form-group">
-                            <div className="form-check">
-                                <input type="checkbox" className="form-check-input" id="terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
-                                <label className="form-check-label" htmlFor="terms" style={{ fontSize: '13px' }}>
-                                    I agree to the <span onClick={() => setShowTermsModal(true)} style={{color: '#0F172A', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline'}}>Terms and Conditions</span>
-                                </label>
-                            </div>
                         </div>
 
                         <button type="submit" className="login-btn" disabled={loading}>
@@ -210,7 +241,7 @@ function SignupEmployer() {
                     </form>
                 </div>
             </div>
-            <TermsModal show={showTermsModal} onHide={() => setShowTermsModal(false)} onAccept={handleTermsAccept} role="employer" />
+            <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} onAccept={handleTermsAccept} role="employer" />
         </div>
     );
 }
