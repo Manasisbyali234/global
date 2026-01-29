@@ -234,7 +234,8 @@ function AdminSupportTickets() {
                         return;
                     }
                     
-                    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/support-tickets/${ticketId}`, {
+                    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                    const response = await fetch(`${apiUrl}/api/admin/support-tickets/${ticketId}`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -242,14 +243,21 @@ function AdminSupportTickets() {
                         }
                     });
 
-                    const result = await response.json();
+                    let result;
+                    try {
+                        result = await response.json();
+                    } catch (parseError) {
+                        console.error('Failed to parse response:', parseError);
+                        showError('Server returned invalid response. Please try again.');
+                        return;
+                    }
                     
                     if (response.ok && result.success) {
                         await fetchSupportTickets();
                         showSuccess('Support ticket deleted successfully');
                     } else {
-                        console.error('Delete failed:', result);
-                        showError(result.message || 'Failed to delete support ticket');
+                        console.error('Delete failed - Status:', response.status, 'Result:', result);
+                        showError(result.message || `Delete failed with status ${response.status}`);
                     }
                 } catch (error) {
                     console.error('Error deleting support ticket:', error);
