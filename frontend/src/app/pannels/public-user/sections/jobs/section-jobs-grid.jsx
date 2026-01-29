@@ -232,11 +232,29 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                             </div>
                             <div className="job-info">
                                 <h4 className="job-title">{job.title}</h4>
-                                <div className="job-location" title={Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}>
+                                <div className="job-location">
                                     <i className="feather-map-pin" />
-                                    {Array.isArray(job.location) ? 
-                                        job.location.slice(0, 2).join(', ') : 
-                                        (job.location || 'Location not specified')
+                                    {(() => {
+                                        if (Array.isArray(job.location)) {
+                                            const locations = job.location.filter(loc => loc && loc.trim());
+                                            if (locations.length <= 1) {
+                                                return locations.join(', ');
+                                            } else {
+                                                return (
+                                                    <>
+                                                        {locations[0]}
+                                                        <span 
+                                                            className="location-more" 
+                                                            title={locations.slice(1).join(', ')}
+                                                        >
+                                                            {' '}+{locations.length - 1} more
+                                                        </span>
+                                                    </>
+                                                );
+                                            }
+                                        }
+                                        return job.location || 'Location not specified';
+                                    })()
                                     }
                                 </div>
                             </div>
