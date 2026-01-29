@@ -321,6 +321,7 @@ function LoginPage() {
                                             </form>
                                         </div>
                                         <div className="text-center mt-3">
+                                            <p className="mb-3">Don't have an account? <NavLink to={publicUser.pages.SIGNUP_CANDIDATE} className="site-text-primary">Sign Up</NavLink></p>
                                             <NavLink to={publicUser.INITIAL} className="btn btn-outline-secondary" style={{padding: '8px 20px', borderRadius: '8px', textDecoration: 'none'}}>
                                                 <i className="fas fa-home me-2" style={{color: '#FF6A00'}}></i>Back to Home
                                             </NavLink>

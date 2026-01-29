@@ -119,34 +119,28 @@ const Header1 = memo(function Header1({ _config }) {
                                                 </a>
                                                 <ul className="dropdown-menu dropdown-menu-end">
                                                     <li>
-                                                        <a 
+                                                        <NavLink 
                                                             className="dropdown-item" 
-                                                            data-bs-toggle="modal" 
-                                                            href="#sign_up_popup" 
-                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup', tab: 'candidate' } }))}
+                                                            to={publicUser.pages.SIGNUP_CANDIDATE}
                                                         >
                                                             Candidate
-                                                        </a>
+                                                        </NavLink>
                                                     </li>
                                                     <li>
-                                                        <a 
+                                                        <NavLink 
                                                             className="dropdown-item" 
-                                                            data-bs-toggle="modal" 
-                                                            href="#sign_up_popup" 
-                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup', tab: 'employer' } }))}
+                                                            to={publicUser.pages.SIGNUP_EMPLOYER}
                                                         >
                                                             Employer
-                                                        </a>
+                                                        </NavLink>
                                                     </li>
                                                     <li>
-                                                        <a 
+                                                        <NavLink 
                                                             className="dropdown-item" 
-                                                            data-bs-toggle="modal" 
-                                                            href="#sign_up_popup" 
-                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup', tab: 'placement' } }))}
+                                                            to={publicUser.pages.SIGNUP_PLACEMENT}
                                                         >
                                                             Placement Officer
-                                                        </a>
+                                                        </NavLink>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -163,34 +157,28 @@ const Header1 = memo(function Header1({ _config }) {
                                                 </a>
                                                 <ul className="dropdown-menu dropdown-menu-end">
                                                     <li>
-                                                        <a 
+                                                        <NavLink 
                                                             className="dropdown-item" 
-                                                            data-bs-toggle="modal" 
-                                                            href="#sign_up_popup2" 
-                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup2', tab: 'candidate' } }))}
+                                                            to={publicUser.pages.LOGIN_CANDIDATE}
                                                         >
                                                             Candidate
-                                                        </a>
+                                                        </NavLink>
                                                     </li>
                                                     <li>
-                                                        <a 
+                                                        <NavLink 
                                                             className="dropdown-item" 
-                                                            data-bs-toggle="modal" 
-                                                            href="#sign_up_popup2" 
-                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup2', tab: 'employer' } }))}
+                                                            to={publicUser.pages.LOGIN_EMPLOYER}
                                                         >
                                                             Employer
-                                                        </a>
+                                                        </NavLink>
                                                     </li>
                                                     <li>
-                                                        <a 
+                                                        <NavLink 
                                                             className="dropdown-item" 
-                                                            data-bs-toggle="modal" 
-                                                            href="#sign_up_popup2" 
-                                                            onClick={() => window.dispatchEvent(new CustomEvent('setModalTab', { detail: { modalId: 'sign_up_popup2', tab: 'placement' } }))}
+                                                            to={publicUser.pages.LOGIN_PLACEMENT}
                                                         >
                                                             Placement Officer
-                                                        </a>
+                                                        </NavLink>
                                                     </li>
                                                 </ul>
                                             </div>

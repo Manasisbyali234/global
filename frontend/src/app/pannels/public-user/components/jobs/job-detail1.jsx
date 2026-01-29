@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { publicUser } from "../../../../../globals/route-names";
 import { loadScript } from "../../../../../globals/constants";
 import JobZImage from "../../../../common/jobz-img";
 import ApplyJobPopup from "../../../../common/popups/popup-apply-job";
@@ -347,6 +348,8 @@ function JobDetail1Page() {
         if (isEnded) return;
         if (!isLoggedIn) {
             showWarning('Please login first to apply for jobs!');
+            localStorage.setItem('redirectAfterLogin', window.location.pathname);
+            navigate(publicUser.pages.LOGIN_CANDIDATE);
             return;
         } else if (hasApplied) {
             showInfo('You have already applied for this job!');

@@ -15,7 +15,7 @@ function CreateAssessmentPage() {
     const fetchAssessments = async () => {
         try {
             const token = localStorage.getItem('employerToken');
-            const response = await fetch('https://taleglobal.net/api/employer/assessments', {
+            const response = await fetch('/api/employer/assessments', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -34,7 +34,7 @@ function CreateAssessmentPage() {
     const handleCreateAssessment = async (assessmentData) => {
         try {
             const token = localStorage.getItem('employerToken');
-            const response = await fetch('https://taleglobal.net/api/employer/assessments', {
+            const response = await fetch('/api/employer/assessments', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

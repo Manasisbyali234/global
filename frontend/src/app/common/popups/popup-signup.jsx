@@ -38,17 +38,6 @@ function SignUpPopup() {
     const [termsAccepted, setTermsAccepted] = useState({ candidate: false, employer: false, placement: false });
 
     useEffect(() => {
-        const handleSetTab = (e) => {
-            if (e.detail.modalId === 'sign_up_popup') {
-                setCurrentRole(e.detail.tab);
-            }
-        };
-
-        window.addEventListener('setModalTab', handleSetTab);
-        return () => window.removeEventListener('setModalTab', handleSetTab);
-    }, []);
-
-    useEffect(() => {
         setCandidateData({ username: '', email: '', mobile: '', countryCode: '+91' });
         setEmployerData({ name: '', email: '', mobile: '', employerCategory: '', countryCode: '+91' });
         setPlacementData({ name: '', email: '', phone: '', collegeName: '', countryCode: '+91' });

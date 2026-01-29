@@ -1,7 +1,5 @@
 
 import { useLocation } from "react-router-dom";
-import SignUpPopup from "../app/common/popups/popup-signup";
-import SignInPopup from "../app/common/popups/popup-signin";
 import PublicUserRoutes from "../routing/public-user-routes";
 import InnerPageBanner from "../app/common/inner-page-banner";
 import { showBanner, setBanner } from "../globals/banner-data";
@@ -33,10 +31,6 @@ function PublicUserLayout() {
                     showFooter(currentpath) &&
                     setFooterType(currentpath)
                 }
-
-                <SignUpPopup />
-                <SignInPopup />
-                {/* <ForgotPassword/> */}
             </div>
         </>
     )

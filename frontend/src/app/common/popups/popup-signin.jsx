@@ -23,17 +23,6 @@ function SignInPopup() {
     const [activeTab, setActiveTab] = useState('candidate');
 
     useEffect(() => {
-        const handleSetTab = (e) => {
-            if (e.detail.modalId === 'sign_up_popup2') {
-                setActiveTab(e.detail.tab);
-            }
-        };
-
-        window.addEventListener('setModalTab', handleSetTab);
-        return () => window.removeEventListener('setModalTab', handleSetTab);
-    }, []);
-
-    useEffect(() => {
         setCanUsername('');
         setCanPassword('');
         setEmpUsername('');
