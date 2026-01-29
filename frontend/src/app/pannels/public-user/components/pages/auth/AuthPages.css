@@ -2,11 +2,11 @@
   background-color: #EAF6F1;
   min-height: calc(100vh - 150px);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: 0 20px 20px 20px;
+  padding: 10px;
   font-family: 'Public Sans', sans-serif;
-  margin-top: -180px;
+  margin-top: -200px;
 }
 
 .main-card {
