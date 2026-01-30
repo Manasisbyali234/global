@@ -1,0 +1,225 @@
+/* Mobile Table Overflow Fix - Additional Rules */
+
+/* Ensure all containers respect viewport width */
+* {
+    box-sizing: border-box;
+}
+
+/* Mobile-specific container fixes */
+@media (max-width: 768px) {
+    /* Prevent horizontal overflow on mobile */
+    body {
+        overflow-x: hidden !important;
+    }
+    
+    /* Container width constraints */
+    .container,
+    .container-fluid {
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+    
+    /* Panel and card constraints */
+    .panel,
+    .card {
+        max-width: 100% !important;
+        overflow: hidden !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    .panel-body,
+    .card-body {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* Table wrapper mobile fixes */
+    .table-responsive,
+    .education-table-wrapper {
+        margin-left: -15px !important;
+        margin-right: -15px !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-radius: 0 !important;
+        width: calc(100% + 30px) !important;
+        max-width: calc(100vw - 30px) !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Table mobile adjustments */
+    .table-responsive table,
+    .education-table-wrapper table {
+        min-width: 600px !important;
+        font-size: 11px !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .table-responsive th,
+    .table-responsive td,
+    .education-table-wrapper th,
+    .education-table-wrapper td {
+        padding: 6px 4px !important;
+        font-size: 10px !important;
+        white-space: nowrap !important;
+        max-width: 120px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* Button adjustments for mobile tables */
+    .table .btn {
+        padding: 4px 6px !important;
+        font-size: 9px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+    }
+    
+    .table .btn i {
+        font-size: 9px !important;
+    }
+    
+    /* Badge adjustments */
+    .table .badge {
+        font-size: 8px !important;
+        padding: 2px 4px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Extra small screens */
+    .container,
+    .container-fluid {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+    
+    .panel-body,
+    .card-body {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+    
+    .table-responsive,
+    .education-table-wrapper {
+        margin-left: -10px !important;
+        margin-right: -10px !important;
+        width: calc(100% + 20px) !important;
+        max-width: calc(100vw - 20px) !important;
+    }
+    
+    .table-responsive table,
+    .education-table-wrapper table {
+        min-width: 550px !important;
+        font-size: 10px !important;
+    }
+    
+    .table-responsive th,
+    .table-responsive td,
+    .education-table-wrapper th,
+    .education-table-wrapper td {
+        padding: 4px 3px !important;
+        font-size: 9px !important;
+        max-width: 100px !important;
+    }
+    
+    .table .btn {
+        padding: 3px 4px !important;
+        font-size: 8px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+    }
+    
+    .table .btn i {
+        font-size: 8px !important;
+    }
+    
+    .table .badge {
+        font-size: 7px !important;
+        padding: 1px 3px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Very small screens */
+    .table-responsive table,
+    .education-table-wrapper table {
+        min-width: 500px !important;
+        font-size: 9px !important;
+    }
+    
+    .table-responsive th,
+    .table-responsive td,
+    .education-table-wrapper th,
+    .education-table-wrapper td {
+        padding: 3px 2px !important;
+        font-size: 8px !important;
+        max-width: 80px !important;
+    }
+    
+    .table .btn {
+        padding: 2px 3px !important;
+        font-size: 7px !important;
+        min-width: 20px !important;
+        min-height: 20px !important;
+    }
+    
+    .table .btn i {
+        font-size: 7px !important;
+    }
+}
+
+/* Scrollbar styling for mobile */
+@media (max-width: 768px) {
+    .table-responsive::-webkit-scrollbar,
+    .education-table-wrapper::-webkit-scrollbar {
+        height: 6px !important;
+    }
+    
+    .table-responsive::-webkit-scrollbar-track,
+    .education-table-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1 !important;
+        border-radius: 3px !important;
+    }
+    
+    .table-responsive::-webkit-scrollbar-thumb,
+    .education-table-wrapper::-webkit-scrollbar-thumb {
+        background: #c1c1c1 !important;
+        border-radius: 3px !important;
+    }
+    
+    .table-responsive::-webkit-scrollbar-thumb:hover,
+    .education-table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8 !important;
+    }
+}
+
+/* Prevent table content from breaking layout */
+.table td,
+.table th {
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+}
+
+/* Ensure action buttons stay visible */
+.table td:last-child,
+.table th:last-child {
+    position: sticky !important;
+    right: 0 !important;
+    background: white !important;
+    z-index: 1 !important;
+    box-shadow: -2px 0 4px rgba(0,0,0,0.1) !important;
+}
+
+@media (max-width: 768px) {
+    .table td:last-child,
+    .table th:last-child {
+        min-width: 80px !important;
+        max-width: 80px !important;
+    }
+}

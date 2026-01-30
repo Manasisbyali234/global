@@ -336,6 +336,24 @@ export const api = {
     }).then((res) => res.json());
   },
 
+  getEmployerProfileCompletion: () => {
+    return fetch(`${API_BASE_URL}/employer/profile/completion`, {
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
+  getRecentEmployerActivity: () => {
+    return fetch(`${API_BASE_URL}/employer/recent-activity`, {
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
+  getEmployerNotifications: () => {
+    return fetch(`${API_BASE_URL}/employer/notifications`, {
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
   postJob: (jobData) => {
     return fetch(`${API_BASE_URL}/employer/jobs`, {
       method: 'POST',
@@ -373,6 +391,19 @@ export const api = {
 
   getJobApplications: (jobId) => {
     return fetch(`${API_BASE_URL}/employer/jobs/${jobId}/applications`, {
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
+  getAllEmployerApplications: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return fetch(`${API_BASE_URL}/employer/applications?${queryString}`, {
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
+  getConsultantCompanies: () => {
+    return fetch(`${API_BASE_URL}/employer/consultant/companies`, {
       headers: getAuthHeaders('employer'),
     }).then((res) => res.json());
   },
