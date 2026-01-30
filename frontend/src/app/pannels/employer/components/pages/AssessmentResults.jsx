@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ResponsiveTable from '../../../../../components/ResponsiveTable';
 import '../emp-dashboard.css';
-import '../../../../../captured-images-modal-fix.css';
 
 export default function AssessmentResults() {
   const { assessmentId } = useParams();
@@ -12,22 +11,6 @@ export default function AssessmentResults() {
   const [assessment, setAssessment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [showCapturesModal, setShowCapturesModal] = useState(false);
-  const [selectedCaptures, setSelectedCaptures] = useState([]);
-
-  useEffect(() => {
-    if (showCapturesModal) {
-      document.body.style.overflow = 'hidden';
-      document.body.classList.add('modal-open-fix');
-    } else {
-      document.body.style.overflow = 'unset';
-      document.body.classList.remove('modal-open-fix');
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-      document.body.classList.remove('modal-open-fix');
-    };
-  }, [showCapturesModal]);
 
   useEffect(() => {
     fetchResults();
@@ -200,14 +183,7 @@ export default function AssessmentResults() {
                       <i className="fa fa-exclamation-triangle me-2" style={{color: '#ff6b35'}}></i>
                       Violations
                     </th>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
-                      <i className="fa fa-file-text me-2" style={{color: '#ff6b35'}}></i>
-                      Answers
-                    </th>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
-                      <i className="fa fa-camera me-2" style={{color: '#ff6b35'}}></i>
-                      Captures
-                    </th>
+
                     <th style={{ padding: '16px 12px', textAlign: 'center', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                       <i className="fa fa-eye me-2" style={{color: '#ff6b35'}}></i>
                       Actions
@@ -292,61 +268,7 @@ export default function AssessmentResults() {
                           )}
                         </div>
                       </td>
-                      <td style={{ padding: '1rem' }}>
-                        <button 
-                          style={{
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '0.5rem',
-                            fontSize: '0.875rem',
-                            fontWeight: '500',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onClick={() => navigate(`/employer/view-answers/${result._id}`)}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#2563eb';
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#3b82f6';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                          }}
-                        >
-                          View Answers
-                        </button>
-                      </td>
-                      <td style={{ padding: '1rem' }}>
-                        <button 
-                          style={{
-                            background: '#8b5cf6',
-                            color: 'white',
-                            border: 'none',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '0.5rem',
-                            fontSize: '0.875rem',
-                            fontWeight: '500',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onClick={() => {
-                            setSelectedCaptures(result.captures || []);
-                            setShowCapturesModal(true);
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#7c3aed';
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#8b5cf6';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                          }}
-                        >
-                          View ({result.captures?.length || 0})
-                        </button>
-                      </td>
+
                       <td style={{ padding: '1rem' }}>
                         {result.applicationId || (result.candidateId && result.jobId) ? (
                           <button 
@@ -420,92 +342,6 @@ export default function AssessmentResults() {
         </div>
       </div>
 
-      {/* Captures Modal */}
-      {showCapturesModal && (
-        <div className="captured-images-modal-overlay">
-          <div className="captured-images-modal-content">
-            <div className="captured-images-modal-header">
-              <h3>Captured Images ({selectedCaptures.length})</h3>
-              <button
-                className="captured-images-modal-close"
-                onClick={() => setShowCapturesModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            {selectedCaptures.length === 0 ? (
-              <p className="no-captures-message">No captures available</p>
-            ) : (
-              <div className="captured-images-grid">
-                {selectedCaptures.map((capture, index) => {
-                  const imagePath = typeof capture === 'string' ? capture : (capture?.path || capture?.url || capture?.data || '');
-                  
-                  if (!imagePath) {
-                    return (
-                      <div key={index} className="captured-image-item">
-                        <div className="captured-image-container">
-                          <div style={{ 
-                            height: '200px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: '#f9fafb',
-                            color: '#6b7280'
-                          }}>
-                            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📷</div>
-                            <div>No image available</div>
-                          </div>
-                        </div>
-                        <div className="captured-image-label">
-                          <small>Capture {index + 1}</small>
-                        </div>
-                      </div>
-                    );
-                  }
-                  
-                  // Handle Base64 data or file paths
-                  let imageUrl;
-                  if (imagePath.startsWith('data:image/')) {
-                    // Base64 image data
-                    imageUrl = imagePath;
-                  } else if (imagePath.startsWith('http')) {
-                    // Full URL
-                    imageUrl = imagePath;
-                  } else {
-                    // File path - construct URL
-                    imageUrl = `${process.env.REACT_APP_API_URL || 'https://taleglobal.net'}${imagePath}`;
-                  }
-                  
-                  return (
-                    <div key={index} className="captured-image-item">
-                      <div className="captured-image-container">
-                        <img 
-                          src={imageUrl}
-                          alt={`Capture ${index + 1}`}
-                          className="captured-image"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                        <div className="captured-image-error">
-                          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📷</div>
-                          <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>Image Not Available</div>
-                          <div style={{ fontSize: '0.75rem', color: '#7f1d1d' }}>Failed to load image</div>
-                        </div>
-                      </div>
-                      <div className="captured-image-label">
-                        <small>Capture {index + 1}</small>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

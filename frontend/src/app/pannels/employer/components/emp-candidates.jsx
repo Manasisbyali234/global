@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import JobZImage from "../../../common/jobz-img";
 import { ArrowLeft, ListChecks, Eye, Search } from "lucide-react";
+import { api } from "../../../../utils/api";
 import './emp-candidates.css';
 
 function EmpCandidatesPage() {
@@ -27,12 +28,7 @@ function EmpCandidatesPage() {
   useEffect(() => {
     if (!jobId) {
       // Only fetch companies when not viewing specific job
-      if (employerType === "consultant") {
-        fetchConsultantCompanies();
-      } else {
-        // For regular companies, fetch all unique company names from their jobs
-        fetchConsultantCompanies(); // This will get company names from jobs
-      }
+      fetchConsultantCompanies();
     }
   }, [employerType, jobId]);
 
@@ -42,75 +38,45 @@ function EmpCandidatesPage() {
 
   const fetchEmployerType = async () => {
     try {
-      const token = localStorage.getItem("employerToken");
-      const response = await fetch("http://localhost:5000/api/employer/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
+      const data = await api.getEmployerProfile();
       if (data.success && data.profile?.employerId) {
         setEmployerType(data.profile.employerId.employerType || "company");
       }
     } catch (error) {
-      
+      console.error("Error fetching employer type:", error);
     }
   };
 
   const fetchConsultantCompanies = async () => {
     try {
-      const token = localStorage.getItem("employerToken");
-      const response = await fetch(
-        "http://localhost:5000/api/employer/consultant/companies",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await response.json();
+      const data = await api.getConsultantCompanies();
       if (data.success) {
         setCompanies(data.companies || []);
       }
     } catch (error) {
-      
+      console.error("Error fetching consultant companies:", error);
     }
   };
 
   const fetchApplications = async () => {
     try {
-      const token = localStorage.getItem("employerToken");
-      if (!token) {
-        console.error('No employer token found');
-        setLoading(false);
-        return;
-      }
-
-      let url;
+      setLoading(true);
+      let data;
       if (jobId) {
-        // Fetch applications for specific job
-        url = `http://localhost:5000/api/employer/jobs/${jobId}/applications`;
+        data = await api.getJobApplications(jobId);
       } else {
-        // Fetch all applications
-        url = "http://localhost:5000/api/employer/applications";
+        const params = {};
         if (selectedCompany && selectedCompany.trim() !== "") {
-          url += `?companyName=${encodeURIComponent(selectedCompany)}`;
+          params.companyName = selectedCompany;
         }
+        data = await api.getAllEmployerApplications(params);
       }
 
-      console.log('Fetching applications from:', url);
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      console.log('Response status:', response.status);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Applications data:', data);
+      if (data.success) {
         setApplications(data.applications || []);
         if (data.job) {
           setCurrentJob(data.job);
         }
-      } else {
-        console.error('Failed to fetch applications:', response.status, response.statusText);
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Error details:', errorData);
       }
     } catch (error) {
       console.error('Error fetching applications:', error);

@@ -65,25 +65,69 @@ function CreateAssessmentPage() {
             <div className="panel panel-default">
                 <div className="panel-heading wt-panel-heading p-a20">
                     <div className="d-flex justify-content-between align-items-center">
-                        <h4 className="panel-tittle m-a0">
+                        <h4 className="panel-title m-a0">
                             <i className="fa fa-plus-circle" /> Assessment Management
                         </h4>
                         <button
                             className="btn btn-primary"
                             onClick={() => {
                                 const securityMessage = (
-                                    <div style={{ textAlign: 'left', lineHeight: '1.6' }}>
-                                        <h6 style={{ marginBottom: '15px', color: '#2563eb', textAlign: 'center' }}>End-to-end encryption keeps your assessments secure between you and the candidates you choose</h6>
-                                        <div style={{ fontSize: '14px' }}>
-                                            <div style={{ marginBottom: '8px' }}>🚫 Not even Tale-Global can read or copy the content</div>
-                                            <div style={{ marginBottom: '8px' }}>👥 No one outside can read, copy, or share them</div>
-                                            <div style={{ marginBottom: '8px' }}>❓ Questions and answers are protected</div>
-                                            <div style={{ marginBottom: '8px' }}>🔐 Assessment content is encrypted</div>
-                                            <div style={{ marginBottom: '8px' }}>🛡️ Candidate responses are secure</div>
-                                            <div style={{ marginBottom: '8px' }}>📊 Results and evaluations are private</div>
-                                            <div style={{ marginBottom: '8px' }}>🔒 All assessment data is protected</div>
-                                            <div style={{ marginBottom: '8px' }}>✅ Agree to terms and conditions or not</div>
-                                            <div style={{ marginBottom: '8px' }}>📋 Agree to terms and conditions or not</div>
+                                    <div style={{ textAlign: 'left', lineHeight: '1.6', padding: '5px' }}>
+                                        <h5 style={{ marginBottom: '15px', color: '#2563eb', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <i className="fa fa-shield" style={{ fontSize: '1.2em' }} />
+                                            Security & Privacy Assurance
+                                        </h5>
+                                        <div style={{ fontSize: '14px', color: '#475569' }}>
+                                            <p style={{ fontWeight: '500', marginBottom: '12px', color: '#1e293b' }}>
+                                                End-to-end encryption keeps your assessments secure between you and the candidates you choose.
+                                            </p>
+                                            <div style={{ display: 'grid', gap: '8px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <i className="fa fa-lock" style={{ width: '16px', color: '#059669' }} />
+                                                    <span>Not even Tale-Global can read or copy the content</span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <i className="fa fa-users" style={{ width: '16px', color: '#059669' }} />
+                                                    <span>No one outside can read, copy, or share them</span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <i className="fa fa-check-circle" style={{ width: '16px', color: '#059669' }} />
+                                                    <span>Questions and answers are protected</span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <i className="fa fa-file-code-o" style={{ width: '16px', color: '#059669' }} />
+                                                    <span>Assessment content is encrypted</span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <i className="fa fa-shield" style={{ width: '16px', color: '#059669' }} />
+                                                    <span>Candidate responses are secure</span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <i className="fa fa-eye-slash" style={{ width: '16px', color: '#059669' }} />
+                                                    <span>Results and evaluations are private</span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <i className="fa fa-database" style={{ width: '16px', color: '#059669' }} />
+                                                    <span>All assessment data is protected</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style={{ 
+                                            marginTop: '15px', 
+                                            paddingTop: '12px', 
+                                            borderTop: '1px solid #e2e8f0',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '10px'
+                                        }}>
+                                            <input 
+                                                type="checkbox" 
+                                                id="terms-check" 
+                                                style={{ cursor: 'pointer', width: '16px', height: '16px' }} 
+                                            />
+                                            <label htmlFor="terms-check" style={{ margin: 0, cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>
+                                                Agree to terms and conditions or not
+                                            </label>
                                         </div>
                                     </div>
                                 );

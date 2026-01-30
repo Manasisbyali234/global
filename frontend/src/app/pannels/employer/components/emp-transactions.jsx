@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
 import { ListChecks, Search, Receipt, Download, Eye, X } from "lucide-react";
+import { api } from "../../../../utils/api";
 import "../../../../styles/print-receipt.css";
 
 function EmpTransactionsPage() {
@@ -22,18 +23,8 @@ function EmpTransactionsPage() {
 
     const fetchTransactions = async () => {
         try {
-            const token = localStorage.getItem("employerToken");
-            if (!token) {
-                setLoading(false);
-                return;
-            }
-
-            const response = await fetch("http://localhost:5000/api/payments/employer-transactions", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
+            const data = await api.getEmployerTransactions();
+            if (data.success) {
                 setTransactions(data.transactions || []);
             }
         } catch (error) {
@@ -46,13 +37,8 @@ function EmpTransactionsPage() {
     const fetchPaymentDetails = async (paymentId) => {
         setFetchingDetails(true);
         try {
-            const token = localStorage.getItem("employerToken");
-            const response = await fetch(`http://localhost:5000/api/payments/details/${paymentId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
+            const data = await api.getPaymentDetails(paymentId);
+            if (data.success) {
                 setPaymentDetails(data.payment);
             }
         } catch (error) {

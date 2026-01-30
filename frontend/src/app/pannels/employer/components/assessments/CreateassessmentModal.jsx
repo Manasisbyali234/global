@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import './CreateAssessmentModal.css';
+import './CreateassessmentModal.css';
 import { disableBodyScroll, enableBodyScroll } from "../../../../../utils/scrollUtils";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -60,6 +60,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					const response = await fetch('/api/employer/profile', {
 						headers: { 'Authorization': `Bearer ${token}` }
 					});
+					if (!response.ok) throw new Error('Failed to fetch profile');
 					const data = await response.json();
 					if (data.success && data.profile) {
 						setEmployerCategory(data.profile.employerCategory || '');
@@ -70,7 +71,6 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			}
 		};
 		
-		// Fetch approved companies for consultants
 		const fetchApprovedCompanies = async () => {
 			try {
 				const token = localStorage.getItem('employerToken');
@@ -78,6 +78,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					const response = await fetch('/api/employer/approved-authorization-companies', {
 						headers: { 'Authorization': `Bearer ${token}` }
 					});
+					if (!response.ok) throw new Error('Failed to fetch approved companies');
 					const data = await response.json();
 					if (data.success) {
 						setApprovedCompanies(data.companies || []);

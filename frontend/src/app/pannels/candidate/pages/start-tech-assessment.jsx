@@ -655,7 +655,7 @@ const StartAssessment = () => {
 				
 				// Redirect after 2 seconds
 				setTimeout(() => {
-					navigate("/candidate/assessment-result", {
+					navigate(`/candidate/assessment-result/${applicationId}`, {
 						state: {
 							result: submitResponse.result,
 							assessment: assessment

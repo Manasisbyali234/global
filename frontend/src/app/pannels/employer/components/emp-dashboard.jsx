@@ -3,6 +3,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import CountUp from "react-countup";
+import { api } from '../../../../utils/api';
 import './emp-dashboard.css';
 
 
@@ -41,95 +42,59 @@ function EmpDashboardPage() {
 
     const fetchDashboardData = async () => {
         try {
-            const token = localStorage.getItem('employerToken');
-            if (!token) {
-                
-                return;
-            }
-
-            const [statsResponse, profileResponse, completionResponse, activityResponse, notificationResponse] = await Promise.all([
-                fetch('http://localhost:5000/api/employer/dashboard/stats', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }),
-                fetch('http://localhost:5000/api/employer/profile', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }),
-                fetch('http://localhost:5000/api/employer/profile/completion', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }),
-                fetch('http://localhost:5000/api/employer/recent-activity', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }),
-                fetch('http://localhost:5000/api/notifications/employer', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                })
+            const [statsData, profileData, completionData, activityData, notificationData] = await Promise.all([
+                api.getEmployerDashboard(),
+                api.getEmployerProfile(),
+                api.getEmployerProfileCompletion(),
+                api.getRecentEmployerActivity(),
+                api.getEmployerNotifications()
             ]);
 
-            if (statsResponse.ok) {
-                const statsData = await statsResponse.json();
-                if (statsData.success) {
-                    setStats({
-                        totalJobs: statsData.stats.totalJobs || 0,
-                        activeJobs: statsData.stats.activeJobs || 0,
-                        totalApplications: statsData.stats.totalApplications || 0,
-                        shortlisted: statsData.stats.shortlisted || 0
-                    });
-                }
-            }
-
-            if (profileResponse.ok) {
-                const profileData = await profileResponse.json();
-                if (profileData.success) {
-                    setEmployer({
-                        companyName: profileData.profile?.companyName || 'Company',
-                        logo: profileData.profile?.logo || null
-                    });
-                }
-            }
-
-            if (completionResponse.ok) {
-                const completionData = await completionResponse.json();
-                console.log('Profile completion data received:', completionData);
-                if (completionData.success) {
-                    setProfileCompletion({
-                        completion: completionData.completion || 0,
-                        missingFields: completionData.missingFields || [],
-                        message: completionData.message || '',
-                        isProfileComplete: completionData.isProfileComplete || false,
-                        canPostJobs: completionData.canPostJobs || false
-                    });
-                } else {
-                    console.error('Profile completion API error:', completionData.message);
-                    setProfileCompletion({
-                        completion: 0,
-                        missingFields: ['Unable to load profile data'],
-                        message: 'Error loading profile completion status'
-                    });
-                }
-            } else {
-                console.error('Profile completion API failed:', completionResponse.status);
-                setProfileCompletion({
-                    completion: 0,
-                    missingFields: ['API Error'],
-                    message: 'Failed to load profile completion status'
+            if (statsData.success) {
+                setStats({
+                    totalJobs: statsData.stats.totalJobs || 0,
+                    activeJobs: statsData.stats.activeJobs || 0,
+                    totalApplications: statsData.stats.totalApplications || 0,
+                    shortlisted: statsData.stats.shortlisted || 0
                 });
             }
 
-            if (activityResponse.ok) {
-                const activityData = await activityResponse.json();
-                if (activityData.success) {
-                    setRecentActivity(activityData.activities || []);
-                }
+            if (profileData.success) {
+                setEmployer({
+                    companyName: profileData.profile?.companyName || 'Company',
+                    logo: profileData.profile?.logo || null
+                });
             }
 
-            if (notificationResponse.ok) {
-                const notificationData = await notificationResponse.json();
-                if (notificationData.success) {
-                    setNotifications(notificationData.notifications || []);
-                }
+            if (completionData.success) {
+                setProfileCompletion({
+                    completion: completionData.completion || 0,
+                    missingFields: completionData.missingFields || [],
+                    message: completionData.message || '',
+                    isProfileComplete: completionData.isProfileComplete || false,
+                    canPostJobs: completionData.canPostJobs || false
+                });
+            } else {
+                setProfileCompletion({
+                    completion: 0,
+                    missingFields: ['Unable to load profile data'],
+                    message: 'Error loading profile completion status'
+                });
+            }
+
+            if (activityData.success) {
+                setRecentActivity(activityData.activities || []);
+            }
+
+            if (notificationData.success) {
+                setNotifications(notificationData.notifications || []);
             }
         } catch (error) {
-            
+            console.error('Error fetching dashboard data:', error);
+            setProfileCompletion(prev => ({
+                ...prev,
+                message: 'Failed to load profile completion status'
+            }));
         }
     };
 

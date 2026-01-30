@@ -908,8 +908,8 @@ export default function EmpPostJob({ onNext }) {
 				panel: 'Panel',
 				group: 'Group',
 				situational: 'Situational / Behavioral',
-				others: 'Others – Specify.',
-				assessment: 'MCQ/Aptitude/Assessment Schedule'
+				assessment: 'MCQ/Aptitude/Assessment Schedule',
+				others: 'Others – Specify.'
 			};
 
 			const roundName = roundNames[roundType] || roundType;
@@ -2703,14 +2703,84 @@ export default function EmpPostJob({ onNext }) {
 							}}
 						>
 							<option value="">-- Select Round Type --</option>
+							<option value="assessment">MCQ/Aptitude/Assessment</option>
 							<option value="oneOnOne">One – On – One</option>
 							<option value="panel">Panel</option>
 							<option value="group">Group</option>
 							<option value="technical">Technical</option>
 							<option value="situational">Situational / Behavioral</option>
 							<option value="others">Others – Specify.</option>
-							<option value="assessment">MCQ/Aptitude/Assessment</option>
 						</select>
+						
+						{/* Others Specify Text Input */}
+						{formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'others') && (
+							<div style={{marginTop: 12}}>
+								<label style={{...label, marginBottom: 8, fontSize: 14, fontWeight: 600, color: '#1f2937'}}>
+									<i className="fa fa-edit" style={{marginRight: 8, color: '#ff6b35'}}></i>
+									Specify Other Interview Round Type:
+								</label>
+								{formData.interviewRoundOrder
+									.filter(key => formData.interviewRoundTypes[key] === 'others')
+									.map((othersKey, index) => {
+										const stageNumber = formData.interviewRoundOrder.indexOf(othersKey) + 1;
+										return (
+											<div key={othersKey} style={{marginBottom: 12}}>
+												<div style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: 8,
+													marginBottom: 8
+												}}>
+													<span style={{
+														fontSize: 12,
+														fontWeight: 700,
+														color: '#fff',
+														background: '#ff6b35',
+														borderRadius: '50%',
+														width: '22px',
+														height: '22px',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center'
+													}}>
+														{stageNumber}
+													</span>
+													<span style={{fontSize: 14, fontWeight: 600, color: '#374151'}}>Stage {stageNumber} - Others:</span>
+												</div>
+												<input
+													style={{
+														...input,
+														borderColor: '#ff6b35',
+														background: '#fff5f2',
+														borderWidth: 2
+													}}
+													type="text"
+													placeholder="Please specify the interview round type (e.g., Coding Challenge, Portfolio Review, Case Study, etc.)"
+													value={formData.interviewRoundDetails[othersKey]?.customType || ''}
+													onChange={(e) => {
+														setFormData(prev => ({
+															...prev,
+															interviewRoundDetails: {
+																...prev.interviewRoundDetails,
+																[othersKey]: {
+																	...prev.interviewRoundDetails[othersKey],
+																	customType: e.target.value
+																}
+															}
+														}));
+													}}
+													required
+												/>
+												<small style={{color: '#ff6b35', fontSize: 12, marginTop: 4, display: 'block'}}>
+													<i className="fa fa-info-circle" style={{marginRight: 4}}></i>
+													Enter a custom name for this interview round type (required)
+												</small>
+											</div>
+										);
+									})}
+							</div>
+						)}
+						
 						<div style={{marginTop: 12}}>
 							<label style={{...label, marginBottom: 8, fontSize: 15, fontWeight: 600, color: '#1f2937'}}>
 								<i className="fa fa-list-ol" style={{marginRight: 8, color: '#ff6b35'}}></i>
@@ -2724,9 +2794,14 @@ export default function EmpPostJob({ onNext }) {
 									panel: 'Panel',
 									group: 'Group',
 									situational: 'Situational / Behavioral',
-									others: 'Others – Specify.',
-									assessment: 'MCQ/Aptitude/Assessment Schedule'
+									assessment: 'MCQ/Aptitude/Assessment Schedule',
+									others: 'Others – Specify.'
 								};
+								
+								// Get custom type for "others" rounds
+								const customType = roundType === 'others' ? formData.interviewRoundDetails[uniqueKey]?.customType : null;
+								const displayName = customType || roundNames[roundType];
+								
 								return (
 									<div key={uniqueKey} style={{
 										display: 'inline-flex',
@@ -2755,7 +2830,7 @@ export default function EmpPostJob({ onNext }) {
 										}}>
 											{index + 1}
 										</span>
-										<span style={{fontSize: 14, fontWeight: 600, color: '#ff6b35'}}>Stage {index + 1}: {roundNames[roundType]}</span>
+										<span style={{fontSize: 14, fontWeight: 600, color: '#ff6b35'}}>Stage {index + 1}: {displayName}</span>
 										<span 
 											style={{cursor: 'pointer', color: '#ef4444', fontWeight: 700, fontSize: 18, marginLeft: 4}}
 											onClick={() => {
@@ -3477,8 +3552,8 @@ export default function EmpPostJob({ onNext }) {
 										panel: 'Panel',
 										group: 'Group',
 										situational: 'Situational / Behavioral',
-										others: 'Others – Specify.',
-										assessment: 'Assessment'
+										assessment: 'Assessment',
+										others: 'Others – Specify.'
 									};
 									const stageNumber = formData.interviewRoundOrder.indexOf(uniqueKey) + 1;
 									return (
@@ -3710,8 +3785,8 @@ export default function EmpPostJob({ onNext }) {
 											panel: 'Panel',
 											group: 'Group',
 											situational: 'Situational / Behavioral',
-											others: 'Others – Specify.',
-											assessment: 'Assessment'
+											assessment: 'Assessment',
+											others: 'Others – Specify.'
 										};
 										
 										return (

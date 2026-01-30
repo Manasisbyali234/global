@@ -546,19 +546,28 @@ function CanStatusPage() {
 															<td className={`px-4 py-3 ${highlightCompanyPosition ? 'highlight-company-position' : ''}`} style={{transition: 'all 0.3s ease'}}>
 																<div className="d-flex align-items-center">
 																	<div className="me-3">
-																		<div className="rounded-circle d-flex align-items-center justify-content-center" style={{width: '45px', height: '45px', backgroundColor: '#fff3e0', border: '2px solid #ff6b35'}}>
-																			<i className="fa fa-building" style={{color: '#ff6b35', fontSize: '18px'}}></i>
+																		<div className="rounded-circle d-flex align-items-center justify-content-center" style={{width: '45px', height: '45px', backgroundColor: '#fff3e0', border: '2px solid #ff6b35', overflow: 'hidden'}}>
+																			{app.jobId?.companyLogo ? (
+																				<img src={app.jobId.companyLogo} alt="Company Logo" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+																			) : (
+																				<i className="fa fa-building" style={{color: '#ff6b35', fontSize: '18px'}}></i>
+																			)}
 																		</div>
 																	</div>
 																	<div>
 																		<a href={`/emp-detail/${app.employerId?._id}`} className="text-decoration-none">
-																			<h6 className="mb-1 fw-semibold text-dark hover-primary">
+																			<h6 className="mb-1 fw-semibold text-dark hover-primary" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px' }}>
 																				{app.employerId?.companyName || 'Company Name Not Available'}
+																				{app.jobId?.companyName && app.jobId.companyName !== app.employerId?.companyName && (
+																					<span className="badge bg-info bg-opacity-10 text-info border border-info ms-1" style={{ fontSize: '10px', padding: '2px 6px', fontWeight: '500', textTransform: 'none' }}>
+																						Hiring for: {app.jobId.companyName}
+																					</span>
+																				)}
 																			</h6>
 																		</a>
-																		<small className="text-muted">
+																		<small className="text-muted d-block mt-1">
 																			<i className="fas fa-map-marker-alt me-1"></i>
-																			{app.jobId?.location || 'Location Not Available'}
+																			{Array.isArray(app.jobId?.location) ? app.jobId.location.join(', ') : (app.jobId?.location || 'Location Not Available')}
 																		</small>
 																	</div>
 																</div>
@@ -916,7 +925,7 @@ function CanStatusPage() {
 
 														{/* Assessment Action Buttons */}
 														<div className="mt-3 pt-2 border-top d-flex gap-2 flex-wrap">
-															{(selectedApplication.assessmentStatus === 'expired' || getAssessmentWindowInfo(selectedApplication.jobId).isAfterEnd) && !(selectedApplication.assessmentStatus === 'completed' || selectedApplication.assessmentResult === 'pass' || selectedApplication.assessmentResult === 'fail') ? (
+															{(selectedApplication.assessmentStatus === 'expired' || getAssessmentWindowInfo(selectedApplication.jobId).isAfterEnd) && !(selectedApplication.assessmentStatus === 'completed' || selectedApplication.assessmentStatus === 'expired' || selectedApplication.assessmentResult === 'pass' || selectedApplication.assessmentResult === 'fail') ? (
 																<div>
 																	<button 
 																		className="btn btn-sm btn-danger"
@@ -931,7 +940,7 @@ function CanStatusPage() {
 																		The assessment window has ended. You can no longer take this assessment.
 																	</div>
 																</div>
-															) : (selectedApplication.assessmentStatus === 'completed' || selectedApplication.assessmentStatus === 'pass' || selectedApplication.assessmentResult === 'pass' || selectedApplication.assessmentResult === 'fail') ? (
+															) : (selectedApplication.assessmentStatus === 'completed' || selectedApplication.assessmentStatus === 'expired' || selectedApplication.assessmentStatus === 'pass' || selectedApplication.assessmentResult === 'pass' || selectedApplication.assessmentResult === 'fail') ? (
 																<button 
 																	className="btn btn-sm btn-success"
 																	onClick={() => {
@@ -1015,7 +1024,7 @@ function CanStatusPage() {
 																			{roundDetails.fromDate && <span><strong>From:</strong> {new Date(roundDetails.fromDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})}</span>}
 																			{roundDetails.fromDate && roundDetails.toDate && <span className="mx-2">-</span>}
 																			{roundDetails.toDate && <span><strong>To:</strong> {new Date(roundDetails.toDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})}</span>}
-																			{roundDetails.time && <div className="mt-1"><strong>Time (Daily):</strong> {formatInterviewTime(roundDetails.time, roundDetails.fromDate)} - This timing continues until {roundDetails.toDate ? new Date(roundDetails.toDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'}) : 'end date'}</div>}
+																			{roundDetails.time && <div className="mt-1"><strong>Time:</strong> {formatInterviewTime(roundDetails.time, roundDetails.fromDate)} - This timing continues until {roundDetails.toDate ? new Date(roundDetails.toDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'}) : 'end date'}</div>}
 																		</div>
 																	</div>
 																)}

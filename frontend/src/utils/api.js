@@ -651,32 +651,32 @@ export const api = {
   },
 
   getEmployerAssessments: () => {
-    return fetch(`${API_BASE_URL}/employer/assessments`, {
+    return safeFetch(`${API_BASE_URL}/employer/assessments`, {
       headers: getAuthHeaders('employer'),
-    }).then((res) => res.json());
+    }).then(handleApiResponse);
   },
 
   createEmployerAssessment: (assessmentData) => {
-    return fetch(`${API_BASE_URL}/employer/assessments`, {
+    return safeFetch(`${API_BASE_URL}/employer/assessments`, {
       method: 'POST',
       headers: getAuthHeaders('employer'),
       body: JSON.stringify(assessmentData),
-    }).then((res) => res.json());
+    }).then(handleApiResponse);
   },
 
   updateEmployerAssessment: (assessmentId, assessmentData) => {
-    return fetch(`${API_BASE_URL}/employer/assessments/${assessmentId}`, {
+    return safeFetch(`${API_BASE_URL}/employer/assessments/${assessmentId}`, {
       method: 'PUT',
       headers: getAuthHeaders('employer'),
       body: JSON.stringify(assessmentData),
-    }).then((res) => res.json());
+    }).then(handleApiResponse);
   },
 
   deleteEmployerAssessment: (assessmentId) => {
-    return fetch(`${API_BASE_URL}/employer/assessments/${assessmentId}`, {
+    return safeFetch(`${API_BASE_URL}/employer/assessments/${assessmentId}`, {
       method: 'DELETE',
       headers: getAuthHeaders('employer'),
-    }).then((res) => res.json());
+    }).then(handleApiResponse);
   },
 
   // Assessment APIs

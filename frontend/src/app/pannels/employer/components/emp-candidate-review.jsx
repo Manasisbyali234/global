@@ -21,7 +21,6 @@ function EmpCandidateReviewPage() {
     const [isSelected, setIsSelected] = useState(false);
     const [interviewRounds, setInterviewRounds] = useState([]);
     const [documentModal, setDocumentModal] = useState({ isOpen: false, url: '', title: '' });
-    const [assessmentModal, setAssessmentModal] = useState({ isOpen: false, data: null });
     const [capturesModal, setCapturesModal] = useState({ isOpen: false, captures: [] });
     const [descriptionModal, setDescriptionModal] = useState({ isOpen: false, description: '' });
     const autoSaveTimeoutRef = useRef(null);
@@ -90,6 +89,24 @@ function EmpCandidateReviewPage() {
                         status: p.status,
                         isCompleted: p.isCompleted,
                         result: p.result
+                    }));
+                } else if (data.application.jobId?.interviewRoundOrder && data.application.jobId.interviewRoundOrder.length > 0) {
+                    const roundNames = {
+                        oneOnOne: 'One – On – One',
+                        panel: 'Panel',
+                        group: 'Group',
+                        technical: 'Technical',
+                        situational: 'Situational / Behavioral',
+                        others: 'Others – Specify.',
+                        assessment: 'Assessment Schedule'
+                    };
+                    processes = data.application.jobId.interviewRoundOrder.map((round, index) => ({
+                        id: `initial-${round}-${index}`,
+                        name: roundNames[round] || round,
+                        type: round,
+                        status: 'pending',
+                        isCompleted: false,
+                        result: null
                     }));
                 }
                 
@@ -591,7 +608,11 @@ function EmpCandidateReviewPage() {
                                                 <button 
                                                     className="btn-view-answers"
                                                     onClick={() => {
-                                                        setAssessmentModal({ isOpen: true, data: application.assessmentAttempt });
+                                                        if (application.assessmentAttempt?._id) {
+                                                            navigate(`/employer/view-answers/${application.assessmentAttempt._id}`);
+                                                        } else {
+                                                            showError('Assessment attempt ID not found');
+                                                        }
                                                     }}
                                                 >
                                                     <i className="fas fa-file-alt"></i> View Answers
@@ -651,7 +672,7 @@ function EmpCandidateReviewPage() {
                                             >
                                                 <i className="fas fa-envelope"></i> Offer Letter Sent
                                             </button>
-                                            {application.status !== 'shortlisted' && (
+                                            {application.status !== 'shortlisted' && application.status !== 'hired' && (
                                                 <button 
                                                     className={`${application.status === 'rejected' ? 'active' : ''}`}
                                                     onClick={() => updateApplicationStatus('rejected')}
@@ -1101,67 +1122,6 @@ function EmpCandidateReviewPage() {
                                 <div className="no-captures">
                                     <i className="fas fa-camera"></i>
                                     <p>No captures available for this assessment</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Assessment Results Modal */}
-            {assessmentModal.isOpen && (
-                <div className="document-modal-overlay" onClick={() => setAssessmentModal({ isOpen: false, data: null })}>
-                    <div className="assessment-modal-container" onClick={e => e.stopPropagation()}>
-                        <div className="document-modal-header">
-                            <h3>Assessment Results</h3>
-                            <button className="modal-btn close" onClick={() => setAssessmentModal({ isOpen: false, data: null })}>
-                                <i className="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div className="assessment-modal-body">
-                            {assessmentModal.data && (
-                                <div className="assessment-details">
-                                    <div className="assessment-summary">
-                                        <div className="summary-stats">
-                                            <div className="stat">
-                                                <span className="label">Score</span>
-                                                <span className="value">{assessmentModal.data.score} / {assessmentModal.data.totalMarks}</span>
-                                            </div>
-                                            <div className="stat">
-                                                <span className="label">Percentage</span>
-                                                <span className="value">{assessmentModal.data.percentage?.toFixed(1)}%</span>
-                                            </div>
-                                            <div className="stat">
-                                                <span className="label">Result</span>
-                                                <span className={`value result ${assessmentModal.data.result?.toLowerCase()}`}>
-                                                    {assessmentModal.data.result}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {assessmentModal.data.answers && (
-                                        <div className="answers-section">
-                                            <h4>Answers</h4>
-                                            <div className="answers-list">
-                                                {assessmentModal.data.answers.map((answer, index) => (
-                                                    <div key={index} className="answer-item">
-                                                        <div className="question">
-                                                            <strong>Q{index + 1}:</strong> {answer.question}
-                                                        </div>
-                                                        <div className="answer">
-                                                            <strong>Answer:</strong> {answer.selectedAnswer || answer.answer}
-                                                        </div>
-                                                        <div className="correct">
-                                                            <strong>Correct:</strong> 
-                                                            <span className={answer.isCorrect ? 'correct' : 'incorrect'}>
-                                                                {answer.isCorrect ? 'Yes' : 'No'}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             )}
                         </div>

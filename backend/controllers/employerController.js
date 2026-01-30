@@ -827,6 +827,11 @@ exports.createJob = async (req, res) => {
           } else if (roundDetails.time) {
             roundDetails.time = normalizeTimeFormat(String(roundDetails.time));
           }
+          
+          // Store custom type for "Others" rounds
+          if (roundDetails.customType) {
+            roundDetails.customType = String(roundDetails.customType).trim();
+          }
         }
       });
     }
@@ -1140,6 +1145,11 @@ exports.updateJob = async (req, res) => {
             round.time = round.startTime;
           } else if (round.time) {
             round.time = normalizeTimeFormat(String(round.time));
+          }
+          
+          // Store custom type for "Others" rounds
+          if (round.customType) {
+            round.customType = String(round.customType).trim();
           }
         }
       });

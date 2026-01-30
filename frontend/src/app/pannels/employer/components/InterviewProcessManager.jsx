@@ -58,12 +58,10 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
       
       // Fetch interview process
       const data = await api.getEmployerInterviewProcess(applicationId);
-      if (data.interviewProcess) {
-        setInterviewProcess(data.interviewProcess);
-        setStages(data.interviewProcess.stages || []);
-      }
       
-      // Fetch application details including interview invite and candidate response
+      // Fetch application details including interview invite, candidate response and jobId
+      let jobRounds = [];
+      let jobRoundDetails = {};
       try {
         const appResponse = await fetch(`http://localhost:5000/api/employer/applications/${applicationId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -71,6 +69,12 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
         if (appResponse.ok) {
           const appData = await appResponse.json();
           if (appData.application) {
+            // Get job rounds for pre-population if needed
+            if (appData.application.jobId?.interviewRoundOrder) {
+              jobRounds = appData.application.jobId.interviewRoundOrder;
+              jobRoundDetails = appData.application.jobId.interviewRoundDetails || {};
+            }
+
             // Set interview invite details
             if (appData.application.interviewInvite) {
               setInterviewProcess(prev => ({
@@ -86,6 +90,30 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
         }
       } catch (err) {
         console.error('Error fetching application details:', err);
+      }
+
+      if (data.interviewProcess) {
+        setInterviewProcess(data.interviewProcess);
+        setStages(data.interviewProcess.stages || []);
+      } else if (jobRounds.length > 0) {
+        // Pre-populate stages from job rounds if no process exists yet
+        const initialStages = jobRounds.map((roundType, index) => {
+          const details = jobRoundDetails[roundType] || {};
+          const stageType = stageTypes.find(t => t.value === roundType);
+          return {
+            stageType: roundType,
+            stageName: stageType ? stageType.label : roundType,
+            stageOrder: index + 1,
+            status: 'pending',
+            fromDate: details.fromDate || '',
+            toDate: details.toDate || '',
+            scheduledTime: details.time || '',
+            location: details.location || '',
+            description: details.description || '',
+            assessmentId: null
+          };
+        });
+        setStages(initialStages);
       }
     } catch (error) {
       console.error('Error fetching interview process:', error);
@@ -564,282 +592,7 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
           </div>
         )}
 
-        {stages.length > 0 && (
-          <div className="row g-4">
-            {stages.map((stage, index) => (
-              <div key={index} className="col-12">
-                <div className="border rounded-3 p-4" style={{ backgroundColor: '#fafafa', borderColor: '#e9ecef' }}>
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h6 className="mb-0 fw-bold" style={{ color: '#2c3e50' }}>
-                      <span className="badge me-2" style={{ backgroundColor: '#ff6600', color: 'white' }}>
-                        {stage.stageOrder}
-                      </span>
-                      {stageTypes.find(type => type.value === stage.stageType)?.icon} {stage.stageName}
-                    </h6>
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => removeStage(index)}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-
-                  <div className="row g-3">
-                    {/* Stage Type Selection */}
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Interview Round Type</label>
-                      <select
-                        className="form-select"
-                        value={stage.stageType}
-                        onChange={(e) => updateStage(index, 'stageType', e.target.value)}
-                        style={{ borderColor: '#ff6600' }}
-                      >
-                        {stageTypes.map(type => (
-                          <option key={type.value} value={type.value}>
-                            {type.icon} {type.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Custom Stage Name */}
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Stage Name</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={stage.stageName}
-                        onChange={(e) => updateStage(index, 'stageName', e.target.value)}
-                        style={{ borderColor: '#ff6600' }}
-                      />
-                    </div>
-
-                    {/* Assessment Schedule - Show when Assessment is selected */}
-                    {stage.stageType === 'assessment' && (
-                      <>
-                        <div className="col-12">
-                          <div className="alert alert-info" style={{ backgroundColor: '#e3f2fd', borderColor: '#2196f3', color: '#1976d2' }}>
-                            <strong>Assessment Schedule:</strong> Configure the date range when candidates can take the assessment.
-                          </div>
-                        </div>
-                        
-                        <div className="col-12">
-                          <label className="form-label fw-semibold">Select Assessment * (Round {stage.stageOrder})</label>
-                          <select
-                            className="form-select"
-                            value={stage.assessmentId || ''}
-                            onChange={(e) => updateStage(index, 'assessmentId', e.target.value)}
-                            style={{ borderColor: '#ff6600' }}
-                          >
-                            <option value="">-- Select Assessment --</option>
-                            {assessments.map(assessment => {
-                              const isUsed = stages.some((s, idx) => 
-                                idx !== index && s.stageType === 'assessment' && s.assessmentId === assessment._id
-                              );
-                              return (
-                                <option 
-                                  key={assessment._id} 
-                                  value={assessment._id}
-                                  disabled={isUsed}
-                                >
-                                  {assessment.title} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min) {isUsed ? '(Already assigned)' : ''}
-                                </option>
-                              );
-                            })}
-                          </select>
-                          {!stage.assessmentId && (
-                            <small className="text-danger">Please select an assessment for this round</small>
-                          )}
-                          {assessments.length === 0 && (
-                            <small className="text-warning d-block mt-1">No assessments available. Please create assessments first.</small>
-                          )}
-                        </div>
-                        
-                        <div className="col-md-6">
-                          <label className="form-label fw-semibold d-flex align-items-center gap-2">
-                            <Calendar size={16} style={{ color: '#ff6600' }} />
-                            From Date
-                          </label>
-                          <input
-                            type="date"
-                            className="form-control"
-                            value={formatDate(stage.fromDate)}
-                            onChange={(e) => updateStage(index, 'fromDate', e.target.value)}
-                            style={{ borderColor: '#ff6600' }}
-                          />
-                        </div>
-
-                        <div className="col-md-6">
-                          <label className="form-label fw-semibold d-flex align-items-center gap-2">
-                            <Calendar size={16} style={{ color: '#ff6600' }} />
-                            To Date
-                          </label>
-                          <input
-                            type="date"
-                            className="form-control"
-                            value={formatDate(stage.toDate)}
-                            onChange={(e) => updateStage(index, 'toDate', e.target.value)}
-                            style={{ borderColor: '#ff6600' }}
-                            min={formatDate(stage.fromDate)}
-                          />
-                        </div>
-                      </>
-                    )}
-
-                    {/* Interview Schedule - Show for other types */}
-                    {stage.stageType !== 'assessment' && (
-                      <>
-                        <div className="col-md-4">
-                          <label className="form-label fw-semibold d-flex align-items-center gap-2">
-                            <Calendar size={16} style={{ color: '#ff6600' }} />
-                            Interview Date
-                          </label>
-                          <input
-                            type="date"
-                            className="form-control"
-                            value={formatDate(stage.scheduledDate)}
-                            onChange={(e) => updateStage(index, 'scheduledDate', e.target.value)}
-                            style={{ borderColor: '#ff6600' }}
-                          />
-                        </div>
-
-                        <div className="col-md-4">
-                          <label className="form-label fw-semibold d-flex align-items-center gap-2">
-                            <Clock size={16} style={{ color: '#ff6600' }} />
-                            Time
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="e.g. 10:00 AM"
-                            value={stage.scheduledTime || ''}
-                            onChange={(e) => updateStage(index, 'scheduledTime', e.target.value)}
-                            style={{ borderColor: '#ff6600' }}
-                          />
-                        </div>
-
-                        <div className="col-md-4">
-                          <label className="form-label fw-semibold">Location/Mode</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="e.g., Office, Online, Phone"
-                            value={stage.location || ''}
-                            onChange={(e) => updateStage(index, 'location', e.target.value)}
-                            style={{ borderColor: '#ff6600' }}
-                          />
-                        </div>
-                      </>
-                    )}
-
-                    {/* Interviewer Details */}
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Interviewer Name</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Enter interviewer name"
-                        value={stage.interviewerName || ''}
-                        onChange={(e) => updateStage(index, 'interviewerName', e.target.value)}
-                        style={{ borderColor: '#ff6600' }}
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Interviewer Email</label>
-                      <input
-                        type="email"
-                        className="form-control"
-                        placeholder="Enter interviewer email"
-                        value={stage.interviewerEmail || ''}
-                        onChange={(e) => updateStage(index, 'interviewerEmail', e.target.value)}
-                        style={{ borderColor: '#ff6600' }}
-                      />
-                    </div>
-
-                    {/* Meeting Link */}
-                    <div className="col-12">
-                      <label className="form-label fw-semibold">Meeting Link (Optional)</label>
-                      <input
-                        type="url"
-                        className="form-control"
-                        placeholder="https://meet.google.com/... or https://zoom.us/..."
-                        value={stage.meetingLink || ''}
-                        onChange={(e) => updateStage(index, 'meetingLink', e.target.value)}
-                        style={{ borderColor: '#ff6600' }}
-                      />
-                    </div>
-
-                    {/* Instructions */}
-                    <div className="col-12">
-                      <label className="form-label fw-semibold">Instructions for Candidate</label>
-                      <textarea
-                        className="form-control"
-                        rows="3"
-                        placeholder="Enter any specific instructions for the candidate..."
-                        value={stage.instructions || ''}
-                        onChange={(e) => updateStage(index, 'instructions', e.target.value)}
-                        style={{ borderColor: '#ff6600' }}
-                      />
-                    </div>
-
-                    {/* Status */}
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Status</label>
-                      <select
-                        className="form-select"
-                        value={stage.status}
-                        onChange={(e) => updateStage(index, 'status', e.target.value)}
-                        style={{ borderColor: '#ff6600' }}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="scheduled">Scheduled</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="completed">Completed</option>
-                        <option value="passed">Passed</option>
-                        <option value="failed">Failed</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {stages.length > 0 && (
-          <div className="mt-4 d-flex justify-content-between align-items-center">
-            <button
-              className="btn"
-              style={{ backgroundColor: '#28a745', color: 'white', border: 'none' }}
-              onClick={addStage}
-            >
-              <Plus size={16} className="me-2" />
-              Add Another Stage
-            </button>
-            <button
-              className="btn btn-lg px-4"
-              style={{ backgroundColor: '#ff6600', color: 'white', border: 'none' }}
-              onClick={saveInterviewProcess}
-              disabled={saving}
-            >
-              {saving ? (
-                <>
-                  <div className="spinner-border spinner-border-sm me-2" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save size={16} className="me-2" />
-                  Save Interview Process
-                </>
-              )}
-            </button>
-          </div>
-        )}
+        {/* Stages list and Add button removed as per request */}
       </div>
     </div>
   );

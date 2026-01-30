@@ -406,7 +406,7 @@ function CanSupport() {
                                 <div className="row">
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
-                                            <label>Name</label>
+                                            <label>Name<span style={{ color: 'red' }}>*</span></label>
                                             <input 
                                                 name="name" 
                                                 type="text" 
@@ -422,7 +422,7 @@ function CanSupport() {
                                     
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
-                                            <label>Email</label>
+                                            <label>Email<span style={{ color: 'red' }}>*</span></label>
                                             <input 
                                                 name="email" 
                                                 type="email" 
@@ -439,7 +439,7 @@ function CanSupport() {
                                     
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
-                                            <label>Send To</label>
+                                            <label>Send To<span style={{ color: 'red' }}>*</span></label>
                                             <select 
                                                 name="receiverRole" 
                                                 className="form-control"

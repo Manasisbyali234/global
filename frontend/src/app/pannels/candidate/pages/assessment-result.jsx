@@ -190,6 +190,7 @@ const AssessmentResults = () => {
 	const score = result?.score || 0;
 	const totalMarks = result?.totalMarks || 0;
 	const resultStatus = result?.result || 'pending';
+	const status = result?.status || 'completed';
 
 	// Calculate incorrect answers
 	const incorrectAnswers = totalQuestions - correctAnswers;
@@ -334,6 +335,28 @@ const AssessmentResults = () => {
 						{assessment?.title || "Technical Assessment"}
 					</p>
 				</div>
+
+				{status === 'expired' && (
+					<div 
+						style={{ 
+							background: "#fff3f3", 
+							borderLeft: "5px solid #dc3545", 
+							padding: "15px 20px", 
+							borderRadius: "8px", 
+							marginBottom: "20px",
+							display: "flex",
+							alignItems: "center",
+							gap: "15px",
+							boxShadow: "0px 2px 5px rgba(0,0,0,0.05)"
+						}}
+					>
+						<i className="fa fa-clock-o" style={{ fontSize: "24px", color: "#dc3545" }}></i>
+						<div>
+							<strong style={{ display: "block", color: "#dc3545", marginBottom: "2px" }}>Time Expired</strong>
+							<span style={{ fontSize: "14px", color: "#666" }}>This assessment was automatically submitted because the time limit was reached.</span>
+						</div>
+					</div>
+				)}
 
 				{/* Results Cards */}
 				<div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>

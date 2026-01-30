@@ -32,7 +32,7 @@ const AssessmentAttemptSchema = new mongoose.Schema({
   termsAccepted: { type: Boolean, default: false },
   termsAcceptedAt: { type: Date },
   violations: [{
-    type: { type: String, enum: ['tab_switch', 'window_minimize', 'copy_paste', 'right_click'] },
+    type: { type: String, enum: ['tab_switch', 'window_minimize', 'window_blur', 'copy_paste', 'copy_attempt', 'right_click', 'time_expired'] },
     timestamp: { type: Date },
     details: { type: String }
   }],

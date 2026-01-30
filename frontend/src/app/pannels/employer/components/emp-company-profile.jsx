@@ -55,9 +55,11 @@ function EmpCompanyProfilePage() {
         officialMobile: '',
         officialMobileCountryCode: '+91',
         companyType: '',
+        customCompanyType: '',
         cin: '',
         gstNumber: '',
         industrySector: '',
+        customIndustrySector: '',
         panNumber: '',
         agreeTerms: '',
 
@@ -276,6 +278,20 @@ function EmpCompanyProfilePage() {
                 if (profileData.teamSize && !predefinedSizes.includes(profileData.teamSize)) {
                     profileData.customTeamSize = profileData.teamSize;
                     profileData.teamSize = 'custom';
+                }
+
+                // Handle industry sector - if it's not a predefined option, set it as others-specify
+                const predefinedIndustries = ['it', 'non-it', 'education', 'finance', 'healthcare', 'manufacturing'];
+                if (profileData.industrySector && !predefinedIndustries.includes(profileData.industrySector)) {
+                    profileData.customIndustrySector = profileData.industrySector;
+                    profileData.industrySector = 'others-specify';
+                }
+
+                // Handle company type - if it's not a predefined option, set it as Others - Specify
+                const predefinedCompanyTypes = ['Private Limited', 'LLP', 'Partnership', 'Proprietorship', 'Government', 'NGO', 'Startup'];
+                if (profileData.companyType && !predefinedCompanyTypes.includes(profileData.companyType)) {
+                    profileData.customCompanyType = profileData.companyType;
+                    profileData.companyType = 'Others - Specify';
                 }
 
                 setFormData(prev => ({ ...prev, ...profileData }));
@@ -938,6 +954,16 @@ function EmpCompanyProfilePage() {
                 profileData.teamSize = formData.customTeamSize;
             }
 
+            // Handle custom industry sector
+            if (formData.industrySector === 'others-specify' && formData.customIndustrySector) {
+                profileData.industrySector = formData.customIndustrySector;
+            }
+
+            // Handle custom company type
+            if (formData.companyType === 'Others - Specify' && formData.customCompanyType) {
+                profileData.companyType = formData.customCompanyType;
+            }
+
             // Combine country codes with phone numbers
             profileData.phone = formData.phoneCountryCode + formData.phone;
             profileData.officialMobile = formData.officialMobileCountryCode + formData.officialMobile;
@@ -959,6 +985,8 @@ function EmpCompanyProfilePage() {
             delete profileData.authorizationLetters;
             delete profileData.gallery;
             delete profileData.customTeamSize; // Remove UI-only field
+            delete profileData.customIndustrySector; // Remove UI-only field
+            delete profileData.customCompanyType; // Remove UI-only field
             
             // Log the data being sent (for debugging)
             console.log('Sending profile data:', {
@@ -1675,8 +1703,17 @@ function EmpCompanyProfilePage() {
                                         <option value="Government">Government</option>
                                         <option value="NGO">NGO</option>
                                         <option value="Startup">Startup</option>
-                                        <option value="Others">Others</option>
+                                        <option value="Others - Specify">Others - Specify</option>
                                     </select>
+                                    {formData.companyType === 'Others - Specify' && (
+                                        <input
+                                            className="form-control mt-2"
+                                            type="text"
+                                            value={formData.customCompanyType || ''}
+                                            onChange={(e) => handleInputChange('customCompanyType', e.target.value)}
+                                            placeholder="Please specify your company type"
+                                        />
+                                    )}
                                 </div>
                             </div>
 
@@ -1773,8 +1810,17 @@ function EmpCompanyProfilePage() {
                                         <option value="finance">Finance</option>
                                         <option value="healthcare">Healthcare</option>
                                         <option value="manufacturing">Manufacturing</option>
-                                        <option value="other">Other</option>
+                                        <option value="others-specify">Others - Specify</option>
                                     </select>
+                                    {formData.industrySector === 'others-specify' && (
+                                        <input
+                                            className="form-control mt-2"
+                                            type="text"
+                                            value={formData.customIndustrySector || ''}
+                                            onChange={(e) => handleInputChange('customIndustrySector', e.target.value)}
+                                            placeholder="Please specify your industry sector"
+                                        />
+                                    )}
                                 </div>
                             </div>
 

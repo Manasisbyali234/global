@@ -792,7 +792,7 @@ exports.submitAssessment = async (req, res) => {
     
     // Update application with assessment results
     const updateData = {
-      assessmentStatus: 'completed',
+      assessmentStatus: attempt.status,
       assessmentScore: score,
       assessmentPercentage: attempt.percentage,
       assessmentResult: result,
@@ -841,7 +841,7 @@ exports.getAssessmentResult = async (req, res) => {
     const attempt = await AssessmentAttempt.findOne({
       _id: req.params.attemptId,
       candidateId: req.user._id,
-      status: 'completed'
+      status: { $in: ['completed', 'expired'] }
     }).populate('assessmentId');
     
     if (!attempt) {
@@ -855,6 +855,7 @@ exports.getAssessmentResult = async (req, res) => {
         totalMarks: attempt.totalMarks,
         percentage: attempt.percentage,
         result: attempt.result,
+        status: attempt.status,
         correctAnswers: attempt.answers.filter(a => {
           const question = attempt.assessmentId.questions[a.questionIndex];
           if (!question) return false;
@@ -1043,7 +1044,7 @@ exports.getAssessmentResultByApplication = async (req, res) => {
     const attempt = await AssessmentAttempt.findOne({
       applicationId,
       candidateId,
-      status: 'completed'
+      status: { $in: ['completed', 'expired'] }
     }).populate('assessmentId');
     
     if (!attempt) {
@@ -1063,9 +1064,17 @@ exports.getAssessmentResultByApplication = async (req, res) => {
           totalMarks: attempt.totalMarks,
           percentage: attempt.percentage,
           result: attempt.result,
+          status: attempt.status,
           correctAnswers: attempt.answers.filter(a => {
             const question = attempt.assessmentId.questions[a.questionIndex];
-            return question && parseInt(a.selectedAnswer) === parseInt(question.correctAnswer);
+            if (!question) return false;
+
+            if (question.type === 'mcq' || question.type === 'visual-mcq') {
+              return !isNaN(parseInt(a.selectedAnswer)) && parseInt(a.selectedAnswer) === parseInt(question.correctAnswer);
+            } else if (question.type === 'subjective' || question.type === 'image' || question.type === 'upload') {
+              return (a.textAnswer && a.textAnswer.trim()) || a.uploadedFile;
+            }
+            return false;
           }).length,
           totalQuestions: attempt.assessmentId.totalQuestions,
           violations: attempt.violations
