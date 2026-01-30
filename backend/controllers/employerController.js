@@ -1538,7 +1538,14 @@ exports.getEmployerApplications = async (req, res) => {
 
     const applicationsWithProfiles = await Promise.all(
       applications.map(async (application) => {
-        if (!application.candidateId) return null;
+        // Handle guest applications that don't have candidateId
+        if (!application.candidateId) {
+          return {
+            ...application.toObject(),
+            candidateId: null
+          };
+        }
+        
         const candidateProfile = await CandidateProfile.findOne({ candidateId: application.candidateId._id });
         return {
           ...application.toObject(),
@@ -1552,6 +1559,7 @@ exports.getEmployerApplications = async (req, res) => {
 
     res.json({ success: true, applications: applicationsWithProfiles.filter(app => app !== null) });
   } catch (error) {
+    console.error('Get employer applications error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -1575,6 +1583,14 @@ exports.getJobApplications = async (req, res) => {
     // Add profile pictures to applications
     const applicationsWithProfiles = await Promise.all(
       applications.map(async (application) => {
+        // Handle guest applications that don't have candidateId
+        if (!application.candidateId) {
+          return {
+            ...application.toObject(),
+            candidateId: null
+          };
+        }
+        
         const candidateProfile = await CandidateProfile.findOne({ candidateId: application.candidateId._id });
         return {
           ...application.toObject(),
@@ -1588,6 +1604,7 @@ exports.getJobApplications = async (req, res) => {
 
     res.json({ success: true, applications: applicationsWithProfiles, job });
   } catch (error) {
+    console.error('Get job applications error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -1608,6 +1625,17 @@ exports.getApplicationDetails = async (req, res) => {
 
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    // Handle guest applications that don't have candidateId
+    if (!application.candidateId) {
+      const responseApplication = {
+        ...application.toObject(),
+        candidateId: null,
+        assessmentAttempt: null,
+        interviewProcess: null
+      };
+      return res.json({ success: true, application: responseApplication });
     }
 
     // Get candidate profile data with job preferences
@@ -1653,6 +1681,7 @@ exports.getApplicationDetails = async (req, res) => {
 
     res.json({ success: true, application: responseApplication });
   } catch (error) {
+    console.error('Get application details error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
