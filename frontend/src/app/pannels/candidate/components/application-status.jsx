@@ -567,7 +567,17 @@ function CanStatusPage() {
 																		</a>
 																		<small className="text-muted d-block mt-1">
 																			<i className="fas fa-map-marker-alt me-1"></i>
-																			{Array.isArray(app.jobId?.location) ? app.jobId.location.join(', ') : (app.jobId?.location || 'Location Not Available')}
+																			{(() => {
+																				const locations = app.jobId?.location;
+																				if (Array.isArray(locations)) {
+																					if (locations.length === 1) {
+																						return locations[0];
+																					} else if (locations.length > 1) {
+																						return `${locations[0]} +${locations.length - 1} more`;
+																					}
+																				}
+																				return locations || 'Location Not Available';
+																			})()}
 																		</small>
 																	</div>
 																</div>
@@ -803,7 +813,17 @@ function CanStatusPage() {
 											<strong>Position:</strong> {selectedApplication.jobId?.title || 'N/A'}
 										</div>
 										<div className="col-md-6 mb-2">
-											<strong>Location:</strong> {selectedApplication.jobId?.location || 'N/A'}
+											<strong>Location:</strong> {(() => {
+												const locations = selectedApplication.jobId?.location;
+												if (Array.isArray(locations)) {
+													if (locations.length === 1) {
+														return locations[0];
+													} else if (locations.length > 1) {
+														return `${locations[0]} +${locations.length - 1} more`;
+													}
+												}
+												return locations || 'N/A';
+											})()}
 										</div>
 										<div className="col-md-6 mb-2">
 											<strong>Applied Date:</strong> {new Date(selectedApplication.createdAt || selectedApplication.appliedAt).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})}

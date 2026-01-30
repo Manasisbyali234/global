@@ -913,59 +913,6 @@ function EmployerDetails() {
                 </div>
             </div>
 
-            {/* Posted Jobs Section */}
-            <div className="documents-section" data-aos="fade-up" data-aos-delay="350">
-                <h4 className="profile-section-title">
-                    <i className="fa fa-briefcase"></i>
-                    Posted Jobs
-                </h4>
-                <div className="job-count-container">
-                    <div className="job-count-card">
-                        <div className="job-count-info">
-                            <div className="job-count-number">
-                                {jobsLoading ? (
-                                    <div className="loading-spinner-small"></div>
-                                ) : (
-                                    <span className="count-value">{jobCount || 0}</span>
-                                )}
-                            </div>
-                            <div className="job-count-label">
-                                <i className="fa fa-briefcase me-2"></i>
-                                Total Jobs Posted
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Company Gallery Section */}
-            {profile.gallery && profile.gallery.length > 0 && (
-                <div className="documents-section" data-aos="fade-up" data-aos-delay="400">
-                    <h4 className="profile-section-title">
-                        <i className="fa fa-images"></i>
-                        Company Gallery
-                    </h4>
-                    <div className="gallery-preview mt-3">
-                        <div className="gallery-container">
-                            {profile.gallery.map((image, index) => (
-                                <div key={image._id || index} className="gallery-item">
-                                    <img 
-                                        src={image.url} 
-                                        alt={`Gallery ${index + 1}`}
-                                        className="gallery-image"
-                                        onClick={() => {
-                                            setCurrentImage(image.url);
-                                            setCurrentImageType('image');
-                                            setShowImageModal(true);
-                                        }}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Multiple Authorization Letters Section */}
             {profile.authorizationLetters && profile.authorizationLetters.length > 0 && (
                 <div className="documents-section" data-aos="fade-up" data-aos-delay="450">
@@ -1091,6 +1038,59 @@ function EmployerDetails() {
                 </div>
             )}
             
+            {/* Posted Jobs Section */}
+            <div className="documents-section" data-aos="fade-up" data-aos-delay="350">
+                <h4 className="profile-section-title">
+                    <i className="fa fa-briefcase"></i>
+                    Posted Jobs
+                </h4>
+                <div className="job-count-container">
+                    <div className="job-count-card">
+                        <div className="job-count-info">
+                            <div className="job-count-number">
+                                {jobsLoading ? (
+                                    <div className="loading-spinner-small"></div>
+                                ) : (
+                                    <span className="count-value">{jobCount || 0}</span>
+                                )}
+                            </div>
+                            <div className="job-count-label">
+                                <i className="fa fa-briefcase me-2"></i>
+                                Total Jobs Posted
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Company Gallery Section */}
+            {profile.gallery && profile.gallery.length > 0 && (
+                <div className="documents-section" data-aos="fade-up" data-aos-delay="400">
+                    <h4 className="profile-section-title">
+                        <i className="fa fa-images"></i>
+                        Company Gallery
+                    </h4>
+                    <div className="gallery-preview mt-3">
+                        <div className="gallery-container">
+                            {profile.gallery.map((image, index) => (
+                                <div key={image._id || index} className="gallery-item">
+                                    <img 
+                                        src={image.url} 
+                                        alt={`Gallery ${index + 1}`}
+                                        className="gallery-image"
+                                        onClick={() => {
+                                            setCurrentImage(image.url);
+                                            setCurrentImageType('image');
+                                            setShowImageModal(true);
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Image Modal */}
             {showImageModal && (
                 <div className="image-modal" onClick={() => setShowImageModal(false)}>

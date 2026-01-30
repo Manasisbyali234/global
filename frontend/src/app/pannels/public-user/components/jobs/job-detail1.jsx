@@ -199,7 +199,7 @@ function JobDetail1Page() {
             const profileData = await profileResponse.json();
             
             if (!profileData.success || !profileData.profile?.resume) {
-                showWarning('Please upload your resume before applying for jobs.');
+                showWarning('Please Fill All the Details before applying for jobs.');
                 navigate('/candidate/my-resume');
                 return;
             }
@@ -445,13 +445,13 @@ function JobDetail1Page() {
                                                                 <div style={{fontSize: '14px', color: '#6c757d', marginTop: '5px'}}>
                                                                     <strong>Net Monthly: </strong>
                                                                     {typeof job.salary === 'string' || typeof job.salary === 'number' ? 
-                                                                        `₹${Math.round((Number(job.salary) * 0.8) / 12).toLocaleString()}` : 
+                                                                        `₹${Math.round(Number(job.salary) / 12).toLocaleString()}` : 
                                                                         (job.minSalary && job.maxSalary) ? 
-                                                                            `₹${Math.round((Number(job.minSalary) * 0.8) / 12).toLocaleString()} - ₹${Math.round((Number(job.maxSalary) * 0.8) / 12).toLocaleString()}` :
+                                                                            `₹${Math.round(Number(job.minSalary) / 12).toLocaleString()} - ₹${Math.round(Number(job.maxSalary) / 12).toLocaleString()}` :
                                                                         job.minSalary ? 
-                                                                            `₹${Math.round((Number(job.minSalary) * 0.8) / 12).toLocaleString()}+` :
-                                                                            `₹${Math.round((Number(job.maxSalary) * 0.8) / 12).toLocaleString()}`
-                                                                    } (approx.)
+                                                                            `₹${Math.round(Number(job.minSalary) / 12).toLocaleString()}+` :
+                                                                            `₹${Math.round(Number(job.maxSalary) / 12).toLocaleString()}`
+                                                                    }
                                                                 </div>
                                                             )}
                                                         </div>
@@ -536,7 +536,26 @@ function JobDetail1Page() {
                                         </h4>
                                         <ul className="description-list-2">
                                             <li>
-                                                <strong>Education:</strong> {Array.isArray(job?.education) ? job.education.join(', ') : (job?.education || 'Not specified')}
+                                                <strong>Education:</strong> 
+                                                {Array.isArray(job?.education) && job.education.length > 0 
+                                                    ? job.education.map((edu, index) => (
+                                                        <span key={index} style={{
+                                                            display: 'inline-block',
+                                                            background: '#e8f4fd',
+                                                            color: '#2980b9',
+                                                            padding: '4px 8px',
+                                                            borderRadius: '12px',
+                                                            fontSize: '13px',
+                                                            fontWeight: '500',
+                                                            border: '1px solid #bde0ff',
+                                                            marginRight: '6px',
+                                                            marginBottom: '4px'
+                                                        }}>
+                                                            {edu}
+                                                        </span>
+                                                    ))
+                                                    : (job?.education || 'Not specified')
+                                                }
                                             </li>
                                             <li>
                                                 <strong>Backlogs Allowed:</strong> {job?.backlogsAllowed ? 'Yes' : 'No'}

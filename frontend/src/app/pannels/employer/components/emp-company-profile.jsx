@@ -355,6 +355,42 @@ function EmpCompanyProfilePage() {
             value = value.toUpperCase();
         }
         
+        // Phone number duplicate validation
+        const phoneFields = ['phone', 'officialMobile', 'contactMobile', 'alternateContact'];
+        if (phoneFields.includes(field) && value.length >= 10) {
+            const currentPhoneNumbers = {
+                phone: formData.phoneCountryCode + formData.phone,
+                officialMobile: formData.officialMobileCountryCode + formData.officialMobile,
+                contactMobile: formData.contactMobileCountryCode + formData.contactMobile,
+                alternateContact: formData.alternateContactCountryCode + formData.alternateContact
+            };
+            
+            // Get the country code for the current field
+            const currentCountryCode = field === 'phone' ? formData.phoneCountryCode :
+                                    field === 'officialMobile' ? formData.officialMobileCountryCode :
+                                    field === 'contactMobile' ? formData.contactMobileCountryCode :
+                                    formData.alternateContactCountryCode;
+            
+            const newFullNumber = currentCountryCode + value;
+            
+            // Check for duplicates
+            const duplicateField = Object.keys(currentPhoneNumbers).find(key => 
+                key !== field && currentPhoneNumbers[key] === newFullNumber && currentPhoneNumbers[key].length > 3
+            );
+            
+            if (duplicateField) {
+                const sectionNames = {
+                    phone: 'Basic Information section',
+                    officialMobile: 'Company Details section',
+                    contactMobile: 'Primary Contact Person section',
+                    alternateContact: 'Primary Contact Person section'
+                };
+                
+                showError(`This mobile number is already used in ${sectionNames[duplicateField]}.`);
+                return; // Don't update the field if duplicate found
+            }
+        }
+        
         setFormData(prev => ({ ...prev, [field]: value }));
         
         // Fetch city when pincode is entered
@@ -1206,9 +1242,11 @@ function EmpCompanyProfilePage() {
                                         className="form-control"
                                         type="text"
                                         value={formData.companyName}
-                                        onChange={(e) => handleInputChange('companyName', e.target.value)}
                                         placeholder="Enter company name"
+                                        disabled
+                                        style={{backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', color: '#495057'}}
                                     />
+                                    <small className="text-muted">This field cannot be edited after registration</small>
                                 </div>
                             </div>
 
@@ -1453,7 +1491,7 @@ function EmpCompanyProfilePage() {
                                                     );
                                                     return uploadedLetter ? (
                                                         <div className="mt-2">
-                                                            <p className="text-success mb-0">✓ Authorization Letter uploaded</p>
+                                                            <p className="text-success mb-1">✓ {uploadedLetter.fileName} - Uploaded</p>
                                                             {renderStatusBadge(uploadedLetter.status, uploadedLetter.reuploadedAt)}
                                                         </div>
                                                     ) : (

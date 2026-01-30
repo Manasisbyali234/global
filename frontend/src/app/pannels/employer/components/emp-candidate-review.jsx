@@ -309,6 +309,17 @@ function EmpCandidateReviewPage() {
         setProcessRemarks(prev => ({ ...prev, [processId]: remark }));
     };
 
+    const cleanProcessName = (name) => {
+        if (!name) return name;
+        // Remove assessment_ followed by numbers
+        let cleanName = name.replace(/assessment_\d+/gi, 'Assessment');
+        // Remove any trailing underscore followed by numbers (like technical_1769770751285)
+        cleanName = cleanName.replace(/_\d+$/g, '');
+        // Capitalize first letter of each word
+        cleanName = cleanName.replace(/\b\w/g, l => l.toUpperCase());
+        return cleanName;
+    };
+
     const educationLevelLabels = {
         '10th_pass': '10th Pass / SSLC',
         '12th_pass': '12th Pass / PUC / Higher Secondary',
@@ -549,7 +560,7 @@ function EmpCandidateReviewPage() {
                                                                 checked={process.isCompleted}
                                                                 onChange={(e) => updateProcessCompletion(process.id, e.target.checked)}
                                                             />
-                                                            <h6>{process.name}</h6>
+                                                            <h6>{cleanProcessName(process.name)}</h6>
                                                             <span className={`status-badge ${process.status || 'pending'}`}>
                                                                 {(process.status || 'pending').replace('_', ' ')}
                                                             </span>

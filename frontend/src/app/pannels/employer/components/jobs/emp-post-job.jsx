@@ -366,7 +366,7 @@ export default function EmpPostJob({ onNext }) {
 		if (ctcValue && String(ctcValue).trim()) {
 			localStorage.setItem('draft_ctc', ctcValue);
 			
-			// Auto-calculate net salary (approximately 75-80% of CTC)
+			// Auto-calculate net salary (CTC divided by 12 months)
 			const calculateNetSalary = (ctc) => {
 				const ctcStr = String(ctc).trim();
 				if (!ctcStr) return '';
@@ -378,8 +378,8 @@ export default function EmpPostJob({ onNext }) {
 						const minCTC = parseFloat(parts[0].replace(/[^0-9.]/g, ''));
 						const maxCTC = parseFloat(parts[1].replace(/[^0-9.]/g, ''));
 						if (!isNaN(minCTC) && !isNaN(maxCTC)) {
-							const minNet = Math.round((minCTC * 100000 * 0.77) / 12);
-							const maxNet = Math.round((maxCTC * 100000 * 0.77) / 12);
+							const minNet = Math.round((minCTC * 100000) / 12);
+							const maxNet = Math.round((maxCTC * 100000) / 12);
 							return `${minNet}-${maxNet}`;
 						}
 					}
@@ -387,7 +387,7 @@ export default function EmpPostJob({ onNext }) {
 					// Handle single value (e.g., "8" or "8 L.P.A")
 					const ctcNum = parseFloat(ctcStr.replace(/[^0-9.]/g, ''));
 					if (!isNaN(ctcNum)) {
-						const monthlyNet = Math.round((ctcNum * 100000 * 0.77) / 12);
+						const monthlyNet = Math.round((ctcNum * 100000) / 12);
 						return monthlyNet.toString();
 					}
 				}
@@ -2036,7 +2036,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Auto-calculated as ~77% of CTC (monthly take-home). You can edit if needed.
+							Auto-calculated as CTC divided by 12 months. You can edit if needed.
 						</small>
 					</div>
 

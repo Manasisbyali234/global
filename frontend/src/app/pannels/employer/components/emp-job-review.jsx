@@ -212,7 +212,11 @@ function EmpJobReviewPage() {
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Required Educational Background</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.education || 'N/A'}</p>
+                                    <p className="mb-0 text-muted">
+                                        {Array.isArray(jobDetails.education) && jobDetails.education.length > 0 
+                                            ? jobDetails.education.join(', ') 
+                                            : (jobDetails.education || 'N/A')}
+                                    </p>
                                 </div>
 
                                 <div className="mt-2">
