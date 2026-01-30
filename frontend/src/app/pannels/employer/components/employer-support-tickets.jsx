@@ -377,7 +377,7 @@ function EmployerSupportTickets() {
                                                     <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
                                                     <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
                                                     <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Created</th>
-                                                    <th className="text-end" style={{width: '18%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Actions</th>
+                                                    <th className="text-center" style={{width: '18%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -407,7 +407,7 @@ function EmployerSupportTickets() {
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={formatDate(ticket.createdAt)}>
                                                             <div className="ticket-date">{formatDate(ticket.createdAt)}</div>
                                                         </td>
-                                                        <td style={{overflow: 'visible'}}>
+                                                        <td className="text-center" style={{overflow: 'visible'}}>
                                                             <div className="action-buttons">
                                                                 <Button
                                                                     variant="light"

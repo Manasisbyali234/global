@@ -9,8 +9,8 @@ function AdminAddCandidate() {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
+        name: '',
+        mobileNumber: '',
         email: '',
         collegeName: '',
         credits: 0
@@ -35,22 +35,20 @@ function AdminAddCandidate() {
     const validateForm = () => {
         const newErrors = {};
         
-        // First Name validation
-        if (!formData.firstName.trim()) {
-            newErrors.firstName = 'First name is required';
-        } else if (formData.firstName.trim().length < 2) {
-            newErrors.firstName = 'First name must be at least 2 characters';
-        } else if (!/^[a-zA-Z\s]+$/.test(formData.firstName)) {
-            newErrors.firstName = 'First name can only contain letters';
+        // Name validation
+        if (!formData.name.trim()) {
+            newErrors.name = 'Name is required';
+        } else if (formData.name.trim().length < 2) {
+            newErrors.name = 'Name must be at least 2 characters';
+        } else if (!/^[a-zA-Z\s]+$/.test(formData.name)) {
+            newErrors.name = 'Name can only contain letters';
         }
         
-        // Last Name validation
-        if (!formData.lastName.trim()) {
-            newErrors.lastName = 'Last name is required';
-        } else if (formData.lastName.trim().length < 2) {
-            newErrors.lastName = 'Last name must be at least 2 characters';
-        } else if (!/^[a-zA-Z\s]+$/.test(formData.lastName)) {
-            newErrors.lastName = 'Last name can only contain letters';
+        // Mobile Number validation
+        if (!formData.mobileNumber.trim()) {
+            newErrors.mobileNumber = 'Mobile number is required';
+        } else if (!/^[6-9]\d{9}$/.test(formData.mobileNumber)) {
+            newErrors.mobileNumber = 'Please enter a valid 10-digit mobile number';
         }
         
         // Email validation
@@ -62,11 +60,7 @@ function AdminAddCandidate() {
         
         
         // College Name validation
-        if (!formData.collegeName.trim()) {
-            newErrors.collegeName = 'College name is required';
-        } else if (formData.collegeName.trim().length < 3) {
-            newErrors.collegeName = 'College name must be at least 3 characters';
-        }
+        // College name is optional - no validation needed
         
         // Credits validation
         if (formData.credits < 0) {
@@ -94,8 +88,8 @@ function AdminAddCandidate() {
             if (response.success) {
                 showSuccess('Candidate created successfully! Welcome email sent with login credentials.');
                 setFormData({
-                    firstName: '',
-                    lastName: '',
+                    name: '',
+                    mobileNumber: '',
                     email: '',
                     collegeName: '',
                     credits: 0
@@ -129,33 +123,33 @@ function AdminAddCandidate() {
                     <form onSubmit={handleSubmit}>
                         <div className="row">
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">First Name <span style={{color: 'red'}}>*</span></label>
+                                <label className="form-label">Name <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
-                                    name="firstName"
-                                    className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
-                                    value={formData.firstName}
+                                    name="name"
+                                    className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                                    value={formData.name}
                                     onChange={handleChange}
-                                    placeholder="Enter first name"
+                                    placeholder="Enter full name"
                                 />
-                                {errors.firstName && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.firstName}</div>}
+                                {errors.name && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.name}</div>}
                             </div>
 
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Last Name <span style={{color: 'red'}}>*</span></label>
+                                <label className="form-label">Mobile number <span style={{color: 'red'}}>*</span></label>
                                 <input
-                                    type="text"
-                                    name="lastName"
-                                    className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
-                                    value={formData.lastName}
+                                    type="tel"
+                                    name="mobileNumber"
+                                    className={`form-control ${errors.mobileNumber ? 'is-invalid' : ''}`}
+                                    value={formData.mobileNumber}
                                     onChange={handleChange}
-                                    placeholder="Enter last name"
+                                    placeholder="Enter 10-digit mobile number"
                                 />
-                                {errors.lastName && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.lastName}</div>}
+                                {errors.mobileNumber && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.mobileNumber}</div>}
                             </div>
 
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Email ID <span style={{color: 'red'}}>*</span></label>
+                                <label className="form-label">Email id <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="email"
                                     name="email"
@@ -168,20 +162,7 @@ function AdminAddCandidate() {
                             </div>
 
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">College Name <span style={{color: 'red'}}>*</span></label>
-                                <input
-                                    type="text"
-                                    name="collegeName"
-                                    className={`form-control ${errors.collegeName ? 'is-invalid' : ''}`}
-                                    value={formData.collegeName}
-                                    onChange={handleChange}
-                                    placeholder="Enter college name"
-                                />
-                                {errors.collegeName && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.collegeName}</div>}
-                            </div>
-
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Credits</label>
+                                <label className="form-label">Credits <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="number"
                                     name="credits"
@@ -192,6 +173,21 @@ function AdminAddCandidate() {
                                 />
                                 {errors.credits && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.credits}</div>}
                             </div>
+
+                            <div className="col-md-6 mb-3">
+                                <label className="form-label">College name (optional)</label>
+                                <input
+                                    type="text"
+                                    name="collegeName"
+                                    className={`form-control ${errors.collegeName ? 'is-invalid' : ''}`}
+                                    value={formData.collegeName}
+                                    onChange={handleChange}
+                                    placeholder="Enter college name (optional)"
+                                />
+                                {errors.collegeName && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.collegeName}</div>}
+                            </div>
+
+
                         </div>
 
                         <div className="mt-4" style={{display: 'flex', gap: '10px'}}>

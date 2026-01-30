@@ -50,10 +50,10 @@ router.get('/candidates', adminController.getAllCandidates);
 router.get('/candidates/registered', adminController.getRegisteredCandidates);
 router.get('/candidates/:candidateId', adminController.getCandidateDetails);
 router.post('/candidates/create', [
-  body('firstName').notEmpty().withMessage('First name is required'),
-  body('lastName').notEmpty().withMessage('Last name is required'),
+  body('name').notEmpty().withMessage('Name is required'),
+  body('mobileNumber').notEmpty().withMessage('Mobile number is required'),
   body('email').isEmail().withMessage('Valid email is required'),
-  body('collegeName').notEmpty().withMessage('College name is required')
+  body('credits').isNumeric().withMessage('Credits must be a number')
 ], handleValidationErrors, adminController.createCandidate);
 router.delete('/candidates/:id', adminController.deleteCandidate);
 router.put('/candidates/:candidateId/credits', adminController.updateCandidateCredits);

@@ -93,44 +93,52 @@ export default function AssessmentResults() {
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' 
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <button
-                onClick={() => navigate('/employer/create-assessment')}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '0.25rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '50%',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                <i className="fa fa-arrow-left" style={{ fontSize: '1.125rem', color: '#ff6b35' }}></i>
-              </button>
-              <div>
-                <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827', margin: '0 0 0.5rem 0' }}>
-                  {assessment?.title} - Results
-                </h2>
-                {assessment?.designation && (
-                  <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: '0.875rem' }}>
-                    <span style={{ fontWeight: '500' }}>Designation:</span> {assessment.designation}
-                  </p>
-                )}
-                {assessment?.companyName && (
-                  <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: '0.875rem' }}>
-                    <span style={{ fontWeight: '500' }}>Company:</span> {assessment.companyName}
-                  </p>
-                )}
-                <p style={{ color: '#6b7280', margin: 0, fontSize: '1rem' }}>
-                  {results.length} participants completed this assessment
+            <div>
+              <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827', margin: '0 0 0.5rem 0' }}>
+                {assessment?.title} - Results
+              </h2>
+              {assessment?.designation && (
+                <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: '0.875rem' }}>
+                  <span style={{ fontWeight: '500' }}>Designation:</span> {assessment.designation}
                 </p>
-              </div>
+              )}
+              {assessment?.companyName && (
+                <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: '0.875rem' }}>
+                  <span style={{ fontWeight: '500' }}>Company:</span> {assessment.companyName}
+                </p>
+              )}
+              <p style={{ color: '#6b7280', margin: 0, fontSize: '1rem' }}>
+                {results.length} participants completed this assessment
+              </p>
             </div>
+            <button
+              onClick={() => navigate('/employer/create-assessment')}
+              style={{
+                background: '#ff6b35',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '0.75rem 1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#ea580c';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#ff6b35';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <i className="fa fa-arrow-left" style={{ fontSize: '0.875rem' }}></i>
+              Back to Assessment
+            </button>
           </div>
         </div>
       </div>

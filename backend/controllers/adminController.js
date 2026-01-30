@@ -1537,12 +1537,20 @@ exports.getCandidatesForCredits = async (req, res) => {
 
 exports.createCandidate = async (req, res) => {
   try {
-    const { firstName, lastName, email, collegeName, credits } = req.body;
+    const { name, mobileNumber, email, credits, collegeName } = req.body;
     
-    if (!firstName || !lastName || !email || !collegeName) {
+    if (!name || !mobileNumber || !email) {
       return res.status(400).json({ 
         success: false, 
-        message: 'First name, last name, email, and college name are required' 
+        message: 'Name, mobile number, and email are required' 
+      });
+    }
+    
+    // Validate mobile number format (10 digits starting with 6-9)
+    if (!/^[6-9]\d{9}$/.test(mobileNumber)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please enter a valid 10-digit mobile number' 
       });
     }
     
@@ -1551,12 +1559,12 @@ exports.createCandidate = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
     
-    const fullName = `${firstName.trim()} ${lastName.trim()}`;
     const finalCredits = Math.max(0, Math.min(10000, parseInt(credits) || 0));
     
     const candidate = await Candidate.create({
-      name: fullName,
+      name: name.trim(),
       email: email.toLowerCase().trim(),
+      phone: mobileNumber.trim(),
       registrationMethod: 'admin',
       credits: finalCredits,
       isVerified: false,
@@ -1565,7 +1573,7 @@ exports.createCandidate = async (req, res) => {
     
     await CandidateProfile.create({ 
       candidateId: candidate._id,
-      collegeName: collegeName.trim()
+      ...(collegeName && collegeName.trim() && { collegeName: collegeName.trim() })
     });
     
     try {
@@ -1586,6 +1594,7 @@ exports.createCandidate = async (req, res) => {
         id: candidate._id,
         name: candidate.name,
         email: candidate.email,
+        phone: candidate.phone,
         credits: candidate.credits
       }
     });
