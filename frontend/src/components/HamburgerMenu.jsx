@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { publicUser } from '../globals/route-names';
@@ -6,6 +6,7 @@ import './HamburgerMenu.css';
 
 const HamburgerMenu = ({ isOpen, onToggle, onClose }) => {
   const { isAuthenticated } = useAuth();
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
 
   // Manage body scroll when menu is open (especially important for iPhone)
   useEffect(() => {
@@ -13,6 +14,7 @@ const HamburgerMenu = ({ isOpen, onToggle, onClose }) => {
       document.body.classList.add('hamburger-open');
     } else {
       document.body.classList.remove('hamburger-open');
+      setActiveSubmenu(null); // Reset submenus when main menu closes
     }
 
     // Cleanup on unmount
@@ -20,6 +22,10 @@ const HamburgerMenu = ({ isOpen, onToggle, onClose }) => {
       document.body.classList.remove('hamburger-open');
     };
   }, [isOpen]);
+
+  const toggleSubmenu = (name) => {
+    setActiveSubmenu(activeSubmenu === name ? null : name);
+  };
 
   return (
     <>
@@ -83,20 +89,37 @@ const HamburgerMenu = ({ isOpen, onToggle, onClose }) => {
 
         {!isAuthenticated() && (
           <div className="auth-section">
-            <div className="auth-group">
-              <span className="auth-label">Sign Up</span>
-              <div className="auth-links">
-                <NavLink to={publicUser.pages.SIGNUP_CANDIDATE} className="auth-link" onClick={onClose}>Candidate</NavLink>
-                <NavLink to={publicUser.pages.SIGNUP_EMPLOYER} className="auth-link" onClick={onClose}>Employer</NavLink>
-                <NavLink to={publicUser.pages.SIGNUP_PLACEMENT} className="auth-link" onClick={onClose}>Placement</NavLink>
+            <div className={`auth-group-accordion ${activeSubmenu === 'signup' ? 'active' : ''}`}>
+              <button 
+                className="auth-accordion-trigger"
+                onClick={() => toggleSubmenu('signup')}
+              >
+                <span>SIGN UP</span>
+                <i className={`feather-chevron-down arrow-icon ${activeSubmenu === 'signup' ? 'rotate' : ''}`}></i>
+              </button>
+              <div className="auth-accordion-content">
+                <div className="auth-links">
+                  <NavLink to={publicUser.pages.SIGNUP_CANDIDATE} className="auth-link" onClick={onClose}>Candidate</NavLink>
+                  <NavLink to={publicUser.pages.SIGNUP_EMPLOYER} className="auth-link" onClick={onClose}>Employer</NavLink>
+                  <NavLink to={publicUser.pages.SIGNUP_PLACEMENT} className="auth-link" onClick={onClose}>Placement</NavLink>
+                </div>
               </div>
             </div>
-            <div className="auth-group mt-3">
-              <span className="auth-label">Sign In</span>
-              <div className="auth-links">
-                <NavLink to={publicUser.pages.LOGIN_CANDIDATE} className="auth-link" onClick={onClose}>Candidate</NavLink>
-                <NavLink to={publicUser.pages.LOGIN_EMPLOYER} className="auth-link" onClick={onClose}>Employer</NavLink>
-                <NavLink to={publicUser.pages.LOGIN_PLACEMENT} className="auth-link" onClick={onClose}>Placement</NavLink>
+
+            <div className={`auth-group-accordion ${activeSubmenu === 'signin' ? 'active' : ''}`}>
+              <button 
+                className="auth-accordion-trigger"
+                onClick={() => toggleSubmenu('signin')}
+              >
+                <span>LOGIN</span>
+                <i className={`feather-chevron-down arrow-icon ${activeSubmenu === 'signin' ? 'rotate' : ''}`}></i>
+              </button>
+              <div className="auth-accordion-content">
+                <div className="auth-links">
+                  <NavLink to={publicUser.pages.LOGIN_CANDIDATE} className="auth-link" onClick={onClose}>Candidate</NavLink>
+                  <NavLink to={publicUser.pages.LOGIN_EMPLOYER} className="auth-link" onClick={onClose}>Employer</NavLink>
+                  <NavLink to={publicUser.pages.LOGIN_PLACEMENT} className="auth-link" onClick={onClose}>Placement</NavLink>
+                </div>
               </div>
             </div>
           </div>

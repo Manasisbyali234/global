@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import SearchBar from "../../../../components/SearchBar";
 
-import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
 const API_BASE_URL = 'http://localhost:5000/api';
 
 const passwordInputStyle = `
@@ -283,31 +283,32 @@ function AdminSubAdmin() {
     };
 
     const handleDelete = async (id) => {
-        showWarning('Click delete again to confirm sub admin deletion');
-        return;
-    };
-    
-    const confirmDelete = async (id) => {
-        
-        try {
-            const token = localStorage.getItem('adminToken');
-            const response = await fetch(`${API_BASE_URL}/admin/sub-admins/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
+        showConfirmation(
+            'Are you sure you want to delete this sub admin? This action cannot be undone.',
+            async () => {
+                try {
+                    const token = localStorage.getItem('adminToken');
+                    const response = await fetch(`${API_BASE_URL}/admin/sub-admins/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        showSuccess('Sub Admin deleted successfully');
+                        fetchSubAdmins();
+                    } else {
+                        showError(data.message || 'Error deleting sub admin');
+                    }
+                } catch (error) {
+                    showError('Error deleting sub admin');
                 }
-            });
-            
-            const data = await response.json();
-            if (data.success) {
-                showSuccess('Sub Admin deleted successfully');
-                fetchSubAdmins();
-            } else {
-                showError(data.message || 'Error deleting sub admin');
-            }
-        } catch (error) {
-            showError('Error deleting sub admin');
-        }
+            },
+            () => {},
+            'warning'
+        );
     };
 
     useEffect(() => {

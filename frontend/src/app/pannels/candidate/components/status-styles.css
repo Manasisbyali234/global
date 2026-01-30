@@ -213,7 +213,7 @@
     padding: 4px 8px !important;
     border-radius: 6px !important;
     white-space: nowrap;
-    min-width: 60px !important;
+    min-width: fit-content !important;
     text-align: center;
     font-weight: 600;
     line-height: 1.2 !important;

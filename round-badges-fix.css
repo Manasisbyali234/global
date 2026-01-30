@@ -1,0 +1,52 @@
+/* Round Badges Text Truncation Fix */
+/* This file fixes the issue where Round Badges (question type dropdowns) text is cut off */
+
+/* Fix for question type dropdown in assessment creation modal */
+.position-fixed .bg-white.rounded-3 .form-select-sm {
+  width: auto !important;
+  min-width: 140px !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Ensure dropdown options are fully visible */
+.form-select option {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  padding: 8px 12px !important;
+  display: block !important;
+}
+
+/* Fix for mobile devices */
+@media (max-width: 768px) {
+  .position-fixed .d-flex.justify-content-between .d-flex.gap-2 select {
+    width: 100% !important;
+    min-width: auto !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+}
+
+/* Additional fix for any conflicting styles */
+.twm-right-section-panel .d-flex select,
+.twm-right-section-panel .form-select {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  width: auto !important;
+  min-width: fit-content !important;
+}
+
+/* Ensure proper display on all screen sizes */
+@media (max-width: 480px) {
+  .form-select-sm {
+    font-size: 14px !important;
+    padding: 6px 8px !important;
+    min-width: 120px !important;
+  }
+}

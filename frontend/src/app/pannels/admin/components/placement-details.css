@@ -385,3 +385,11 @@
     visibility: visible !important;
     opacity: 1 !important;
 }
+
+/* Reject File Button Background Badge - Same as Cancel button */
+.modal-footer .btn.btn-danger.reject-file-btn {
+    background-color: rgba(255, 122, 0, 0.08) !important;
+    color: #FF7A00 !important;
+    border: 1px solid #FF7A00 !important;
+    font-weight: 600 !important;
+}

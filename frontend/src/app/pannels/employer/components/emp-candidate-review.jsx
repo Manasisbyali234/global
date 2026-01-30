@@ -6,6 +6,7 @@ import './emp-candidate-review-active-button-fix.css';
 import './emp-candidate-review-back-button-mobile-fix.css';
 import './emp-candidate-review-profile-card-mobile-fix.css';
 import './emp-candidate-review-button-size-fix.css';
+import './emp-candidate-review-stage-text-mobile-fix.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
 
 function EmpCandidateReviewPage() {

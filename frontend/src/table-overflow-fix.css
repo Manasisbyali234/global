@@ -1,0 +1,165 @@
+/* Table Overflow Fix for Resume Page */
+
+/* Education Summary Table Fix */
+.education-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-width: 100% !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #888 #f1f1f1 !important;
+    padding: 2px !important;
+    background: white !important;
+    border-radius: 8px !important;
+    border: 1px solid #dee2e6 !important;
+    margin-bottom: 20px !important;
+}
+
+.education-table-wrapper table {
+    min-width: 800px !important;
+    width: 100% !important;
+    margin-bottom: 0 !important;
+    border-collapse: collapse !important;
+}
+
+.education-table-wrapper table th,
+.education-table-wrapper table td {
+    white-space: nowrap !important;
+    padding: 8px 12px !important;
+    border: 1px solid #dee2e6 !important;
+    vertical-align: middle !important;
+}
+
+.education-table-wrapper table thead th {
+    background: #f8f9fa !important;
+    font-weight: 600 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+}
+
+/* Employment History Table Fix */
+.table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    margin-bottom: 20px !important;
+}
+
+.table-responsive table {
+    min-width: 700px !important;
+    margin-bottom: 0 !important;
+}
+
+.table-responsive table th,
+.table-responsive table td {
+    white-space: nowrap !important;
+    padding: 10px 12px !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+/* Scrollbar styling */
+.education-table-wrapper::-webkit-scrollbar,
+.table-responsive::-webkit-scrollbar {
+    height: 12px !important;
+    width: 12px !important;
+}
+
+.education-table-wrapper::-webkit-scrollbar-track,
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1 !important;
+    border-radius: 6px !important;
+}
+
+.education-table-wrapper::-webkit-scrollbar-thumb,
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888 !important;
+    border-radius: 6px !important;
+}
+
+.education-table-wrapper::-webkit-scrollbar-thumb:hover,
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555 !important;
+}
+
+/* Mobile specific fixes */
+@media (max-width: 768px) {
+    .education-table-wrapper,
+    .table-responsive {
+        margin: 0 -15px 20px -15px !important;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+    }
+    
+    .education-table-wrapper table,
+    .table-responsive table {
+        min-width: 900px !important;
+        font-size: 12px !important;
+    }
+    
+    .education-table-wrapper table th,
+    .education-table-wrapper table td,
+    .table-responsive table th,
+    .table-responsive table td {
+        padding: 6px 8px !important;
+        font-size: 11px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .education-table-wrapper,
+    .table-responsive {
+        margin: 0 -20px 20px -20px !important;
+    }
+    
+    .education-table-wrapper table,
+    .table-responsive table {
+        min-width: 850px !important;
+        font-size: 11px !important;
+    }
+    
+    .education-table-wrapper table th,
+    .education-table-wrapper table td,
+    .table-responsive table th,
+    .table-responsive table td {
+        padding: 4px 6px !important;
+        font-size: 10px !important;
+    }
+}
+
+/* Panel body overflow fix */
+.panel-body {
+    overflow: visible !important;
+}
+
+.twm-panel-inner {
+    overflow: visible !important;
+}
+
+/* Ensure cards don't clip table content */
+.panel {
+    overflow: visible !important;
+}
+
+.card {
+    overflow: visible !important;
+}
+
+/* Action buttons in tables - make them smaller on mobile */
+@media (max-width: 768px) {
+    .table .btn {
+        padding: 2px 6px !important;
+        font-size: 10px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+    }
+    
+    .table .btn i {
+        font-size: 10px !important;
+    }
+    
+    .table .d-flex {
+        gap: 2px !important;
+    }
+}

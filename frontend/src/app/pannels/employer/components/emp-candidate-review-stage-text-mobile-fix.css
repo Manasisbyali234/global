@@ -1,0 +1,38 @@
+/* Mobile Stage Tracking Text Auto-Scale Fix */
+
+@media (max-width: 767px) {
+  /* Process item header text - auto scale and prevent wrapping */
+  .candidate-review-container .process-header h6 {
+    font-size: clamp(0.75rem, 4vw, 1.1rem) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Stage name text in interview manager */
+  .interview-manager-container .process-item h6,
+  .interview-manager-container .stage-name {
+    font-size: clamp(0.7rem, 3.5vw, 1rem) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* Manual tracking process names */
+  .processes-grid .process-item .process-header h6 {
+    font-size: clamp(0.75rem, 4vw, 1.1rem) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .candidate-review-container .process-header h6 {
+    font-size: clamp(0.7rem, 3.8vw, 1rem) !important;
+  }
+}

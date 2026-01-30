@@ -21,9 +21,9 @@
     padding: 0.4rem 0.75rem !important;
     border-radius: 15px !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 90px !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: fit-content !important;
     min-height: 28px !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -101,7 +101,7 @@
   .emp-candidate-review-page .badge.text-capitalize.fs-6.px-4.py-2.rounded-pill {
     font-size: 0.7rem !important;
     padding: 0.35rem 0.6rem !important;
-    max-width: 80px !important;
+    max-width: fit-content !important;
     min-height: 26px !important;
   }
 }
@@ -112,7 +112,7 @@
   .emp-candidate-review-page .badge.text-capitalize.fs-6.px-4.py-2.rounded-pill {
     font-size: 0.8rem !important;
     padding: 0.45rem 0.8rem !important;
-    max-width: 110px !important;
+    max-width: fit-content !important;
     min-height: 30px !important;
   }
 }
@@ -125,7 +125,7 @@
 
   .emp-candidate-review-page .d-flex.justify-content-between.align-items-center .d-flex.gap-2 {
     overflow: hidden !important;
-    max-width: 50% !important;
+    max-width: 70% !important;
   }
 }
 
@@ -134,13 +134,15 @@
   font-size: 0.75rem !important;
   padding: 0.4rem 0.75rem !important;
   white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  max-width: fit-content !important;
 }
 
 @media (max-width: 575px) {
   .emp-candidate-review-page .row.mb-4 .col-12 .d-flex.justify-content-between .d-flex.gap-2 .badge {
     font-size: 0.7rem !important;
     padding: 0.35rem 0.6rem !important;
+    max-width: fit-content !important;
   }
 }

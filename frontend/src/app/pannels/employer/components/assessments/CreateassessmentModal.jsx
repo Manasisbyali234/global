@@ -613,7 +613,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 										className="form-select form-select-sm"
 										value={q.type}
 										onChange={(e) => handleQuestionChange(qIndex, "type", e.target.value)}
-										style={{ width: "120px", fontSize: "12px" }}
+										style={{ minWidth: "140px", fontSize: "12px", whiteSpace: "nowrap" }}
 									>
 										<option value="mcq">MCQ</option>
 										<option value="visual-mcq">Visual MCQs</option>
