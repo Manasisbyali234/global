@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { api } from "../../../../../utils/api";
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 import './employment-card-styles.css';
+import '../../../../../resume-table-overflow-fix.css';
 
 function SectionCanEmployment({ profile }) {
     const modalId = 'EmploymentModal';

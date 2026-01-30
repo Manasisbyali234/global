@@ -1,0 +1,120 @@
+/* Employer Detail Page Comprehensive Responsiveness Fix */
+
+/* 1. Main Container Padding Reset */
+@media (min-width: 1201px) {
+    .section-full.emp-detail {
+        padding-left: 80px !important;
+        padding-right: 80px !important;
+    }
+}
+
+@media (max-width: 1200px) {
+    .section-full.emp-detail {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+
+@media (max-width: 991px) {
+    .section-full.emp-detail {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        padding-top: 80px !important; /* Reduce top padding on mobile */
+    }
+    
+    .section-full .container {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+}
+
+/* 2. Review Card Responsiveness */
+.submitted-reviews-list .card {
+    transition: all 0.3s ease !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+@media (max-width: 768px) {
+    .submitted-reviews-list .card-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        padding: 15px !important;
+    }
+    
+    .submitted-reviews-list .card-body {
+        padding: 15px !important;
+    }
+    
+    .submitted-reviews-list .card-header .badge {
+        align-self: flex-start !important;
+    }
+}
+
+/* 3. Word Wrap & Overflow Protection */
+.card, .card-body, .twm-job-title, .twm-job-address, p, span, div {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+}
+
+/* 4. Gallery Responsiveness */
+.gallery-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 15px !important;
+}
+
+@media (max-width: 480px) {
+    .gallery-container {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+        gap: 10px !important;
+    }
+    
+    .gallery-item {
+        width: 100% !important;
+        height: 120px !important;
+    }
+}
+
+/* 5. Header Content Scaling */
+@media (max-width: 768px) {
+    .twm-job-title {
+        font-size: 22px !important;
+    }
+    
+    .twm-mid-content .twm-media {
+        width: 60px !important;
+        height: 60px !important;
+        margin-top: -30px !important; /* Adjust if logo overlaps background too much */
+    }
+}
+
+@media (max-width: 480px) {
+    .twm-job-title {
+        font-size: 18px !important;
+    }
+    
+    .hiring-type-badge .badge {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+    }
+}
+
+/* 6. Sidebar Mobile Fix */
+@media (max-width: 991px) {
+    .rightSidebar {
+        margin-top: 30px !important;
+    }
+}
+
+/* 7. Image Modal Responsiveness */
+.image-modal-content {
+    max-width: 95vw !important;
+    max-height: 95vh !important;
+}
+
+.image-modal-content img {
+    max-height: 80vh !important;
+}

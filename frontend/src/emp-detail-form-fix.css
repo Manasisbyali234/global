@@ -1,0 +1,72 @@
+/* Employee Detail Form Input Alignment Fix */
+
+/* Form Controls Mobile Fix */
+@media (max-width: 768px) {
+    .review-form .form-control {
+        width: 100% !important;
+        padding: 12px 15px !important;
+        font-size: 16px !important;
+        line-height: 1.5 !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 6px !important;
+        box-sizing: border-box !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .review-form .form-label {
+        display: block !important;
+        margin-bottom: 8px !important;
+        font-weight: 600 !important;
+        color: #495057 !important;
+    }
+    
+    .review-form .mb-3 {
+        margin-bottom: 20px !important;
+        width: 100% !important;
+    }
+    
+    .review-form textarea.form-control {
+        resize: vertical !important;
+        min-height: 100px !important;
+    }
+    
+    .review-form input[type="file"] {
+        padding: 8px !important;
+    }
+    
+    .rating-input {
+        margin: 10px 0 !important;
+    }
+    
+    .star {
+        font-size: 24px !important;
+        margin-right: 4px !important;
+    }
+}
+
+/* Remove URL from display */
+.emp-detail .container {
+    position: relative;
+}
+
+.emp-detail .container::before {
+    content: none !important;
+}
+
+/* Card alignment fix */
+@media (max-width: 768px) {
+    .submitted-reviews-list .card {
+        margin-bottom: 15px !important;
+        border-radius: 8px !important;
+    }
+    
+    .submitted-reviews-list .card-header {
+        padding: 12px 15px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+    
+    .submitted-reviews-list .card-body {
+        padding: 15px !important;
+    }
+}

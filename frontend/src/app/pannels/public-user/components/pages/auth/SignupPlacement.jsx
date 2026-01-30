@@ -84,6 +84,10 @@ function SignupPlacement() {
             return;
         }
 
+        if (!termsAccepted) {
+            setShowTermsModal(true);
+            return;
+        }
 
         setLoading(true);
         try {
@@ -206,7 +210,7 @@ function SignupPlacement() {
                     </form>
                 </div>
             </div>
-            <TermsModal show={showTermsModal} onHide={() => setShowTermsModal(false)} onAccept={handleTermsAccept} role="placement" />
+            <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} onAccept={handleTermsAccept} role="placement" />
         </div>
     );
 }

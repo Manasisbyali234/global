@@ -17,6 +17,7 @@ import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
 import { initializeAllModals } from "../../../../utils/modalUtils";
 import "./resume-styles.css";
+import "../../../../table-overflow-fix.css";
 
 function CanMyResumePage() {
     const [profile, setProfile] = useState(null);

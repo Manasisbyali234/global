@@ -1,0 +1,192 @@
+/* Interview Type Badge Mobile Fix - Updated */
+/* Fixes the issue where interview type badges like "Case Study Round", "Situational / Behavioral" are cut off on mobile */
+
+/* Target the specific interview round type dropdown in InterviewProcessManager */
+.card .card-body .row .col-md-6 select.form-select,
+.interview-manager-container select.form-select,
+.border.rounded-3 .row .col-md-6 select.form-select {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  min-width: fit-content !important;
+  width: auto !important;
+  max-width: none !important;
+}
+
+/* Ensure dropdown options are fully visible and auto-fit to text */
+.card .card-body .row .col-md-6 select.form-select option,
+.interview-manager-container select.form-select option,
+.border.rounded-3 .row .col-md-6 select.form-select option {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  padding: 8px 12px !important;
+  display: block !important;
+  width: auto !important;
+  min-width: fit-content !important;
+}
+
+/* Mobile specific fixes - Auto-fit to content */
+@media (max-width: 768px) {
+  /* Interview round type dropdown */
+  .card .card-body .row .col-md-6 select.form-select,
+  .interview-manager-container select.form-select,
+  .border.rounded-3 .row .col-md-6 select.form-select {
+    width: 100% !important;
+    min-width: auto !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+    word-wrap: normal !important;
+    word-break: keep-all !important;
+    hyphens: none !important;
+  }
+  
+  /* Ensure the select container doesn't constrain the dropdown */
+  .card .card-body .row .col-md-6,
+  .interview-manager-container .col-md-6,
+  .border.rounded-3 .row .col-md-6 {
+    overflow: visible !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+  }
+  
+  /* Force dropdown options to not wrap text */
+  .card .card-body .row .col-md-6 select.form-select option,
+  .interview-manager-container select.form-select option,
+  .border.rounded-3 .row .col-md-6 select.form-select option {
+    white-space: nowrap !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+    hyphens: none !important;
+    text-overflow: clip !important;
+    overflow: visible !important;
+    width: auto !important;
+    min-width: fit-content !important;
+    max-width: none !important;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .card .card-body .row .col-md-6 select.form-select,
+  .interview-manager-container select.form-select,
+  .border.rounded-3 .row .col-md-6 select.form-select {
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+    min-height: 38px !important;
+    white-space: nowrap !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+  }
+}
+
+/* Fix for any badge-like elements that might be truncated */
+.interview-type-badge,
+.stage-type-badge,
+.round-type-badge,
+.badge {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  min-width: fit-content !important;
+  width: auto !important;
+  max-width: none !important;
+  display: inline-block !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  word-wrap: normal !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+  hyphens: none !important;
+}
+
+/* Mobile badge fixes */
+@media (max-width: 768px) {
+  .interview-type-badge,
+  .stage-type-badge,
+  .round-type-badge,
+  .badge {
+    font-size: 12px !important;
+    padding: 3px 6px !important;
+    word-break: keep-all !important;
+    hyphens: none !important;
+    white-space: nowrap !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+  }
+}
+
+/* Specific fix for long text badges */
+.badge-long-text,
+.badge[data-text*="Case Study"],
+.badge[data-text*="Situational"],
+.badge[data-text*="Behavioral"],
+select option[value*="situational"],
+select option[value*="others"] {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  min-width: fit-content !important;
+  width: auto !important;
+  max-width: none !important;
+  word-wrap: normal !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+  hyphens: none !important;
+}
+
+/* Container overflow fixes */
+.interview-process-container,
+.interview-manager-container,
+.card-body {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
+
+@media (max-width: 768px) {
+  .interview-process-container,
+  .interview-manager-container,
+  .card-body {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    padding-bottom: 10px !important;
+  }
+  
+  /* Prevent text wrapping in all elements that might contain interview type text */
+  .d-flex.gap-1,
+  .twm-right-section-panel .d-flex,
+  .twm-right-section-panel * {
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+    hyphens: none !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Override any existing text wrapping rules for mobile */
+@media (max-width: 768px) {
+  .twm-right-section-panel * {
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+    hyphens: none !important;
+  }
+  
+  .d-flex.gap-1 {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+  }
+  
+  .twm-right-section-panel .d-flex {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+  }
+}

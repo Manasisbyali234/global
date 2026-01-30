@@ -1560,7 +1560,7 @@ function PlacementDetails() {
                                 </button>
                                 <button 
                                     type="button" 
-                                    className="btn btn-danger" 
+                                    className="btn btn-danger reject-file-btn" 
                                     onClick={confirmFileRejection}
                                     disabled={!rejectionReason.trim() || processingFiles[rejectingFile?.id]}
                                 >

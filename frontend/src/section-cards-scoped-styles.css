@@ -1,0 +1,201 @@
+/* ============================================================================
+ * SECTION CARDS SCOPED STYLES
+ * ============================================================================
+ * All styles are scoped to only apply within .section-cards containers
+ * ============================================================================ */
+
+/* Core element styles scoped to section cards */
+.section-cards *:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *) {
+    color-scheme: light only !important;
+}
+
+.section-cards .twm-right-section-panel *:hover {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+}
+
+.section-cards .panel:hover *, 
+.section-cards .card:hover * {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+}
+
+/* Mobile responsive text handling within section cards */
+@media (max-width: 768px) {
+    .section-cards .panel-body p, 
+    .section-cards .panel-body span, 
+    .section-cards .panel-body div, 
+    .section-cards .panel-body h1, 
+    .section-cards .panel-body h2, 
+    .section-cards .panel-body h3, 
+    .section-cards .panel-body h4, 
+    .section-cards .panel-body h5, 
+    .section-cards .panel-body h6 {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto !important;
+        -webkit-hyphens: auto !important;
+        -ms-hyphens: auto !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+    }
+}
+
+.section-cards .m-b30 {
+    margin-bottom: 30px !important;
+}
+
+@media (max-width: 768px) {
+    .section-cards .twm-right-section-panel * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+}
+
+/* Cursor styles within section cards */
+.section-cards *:not(.simulator) {
+    cursor: url(chrome-extension://ckejmhbmlajgoklhgbapkiccekfoccmk/assets/pictos/cursor.png) 17 17, pointer !important;
+}
+
+/* Mobile text selection and word breaking within section cards */
+@media (max-width: 768px) and (-webkit-min-device-pixel-ratio: 1) {
+    .section-cards p, 
+    .section-cards span, 
+    .section-cards div, 
+    .section-cards h1, 
+    .section-cards h2, 
+    .section-cards h3, 
+    .section-cards h4, 
+    .section-cards h5, 
+    .section-cards h6 {
+        -webkit-user-select: text !important;
+        user-select: text !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .section-cards p, 
+    .section-cards span, 
+    .section-cards div {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+}
+
+@media (max-width: 991px) {
+    .section-cards p, 
+    .section-cards span, 
+    .section-cards div {
+        -webkit-user-select: text !important;
+        user-select: text !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-cards p, 
+    .section-cards span, 
+    .section-cards div {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+}
+
+/* Font rendering within section cards */
+@media (max-width: 768px) and (-webkit-min-device-pixel-ratio: 1) {
+    .section-cards * {
+        -webkit-text-size-adjust: 100% !important;
+        -webkit-font-smoothing: antialiased !important;
+        text-rendering: optimizeLegibility !important;
+    }
+}
+
+.section-cards * {
+    color-scheme: light only !important;
+}
+
+/* Reduced motion preferences within section cards */
+@media (prefers-reduced-motion: reduce) {
+    .section-cards *, 
+    .section-cards *::before, 
+    .section-cards *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Touch interactions within section cards */
+@media (max-width: 768px) {
+    .section-cards * {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Box sizing within section cards */
+.section-cards * {
+    box-sizing: border-box;
+}
+
+/* Animation and transition overrides within section cards */
+.section-cards * {
+    animation: none !important;
+    transition: none !important;
+}
+
+.section-cards *, 
+.section-cards ::after, 
+.section-cards ::before {
+    box-sizing: border-box;
+}
+
+/* Touch scrolling within section cards */
+.section-cards * {
+    -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
+}
+
+/* Scrollbar styling within section cards */
+.section-cards * {
+    scrollbar-width: none !important;
+}
+
+/* Panel body styling within section cards */
+@media (max-width: 768px) {
+    .section-cards .panel-body.wt-panel-body, 
+    .section-cards .panel-body {
+        padding: 12px !important;
+        overflow: visible !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto !important;
+        -webkit-hyphens: auto !important;
+        -ms-hyphens: auto !important;
+    }
+}
+
+/* ============================================================================
+ * ADDITIONAL SECTION CARDS SPECIFIC STYLES
+ * ============================================================================ */
+
+.section-cards {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+.section-cards * {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+/* ============================================================================
+ * END OF SECTION CARDS SCOPED STYLES
+ * ============================================================================ */

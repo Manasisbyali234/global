@@ -215,20 +215,20 @@
   .emp-candidate-review-page .card-body .badge {
     padding: 0.4rem 0.8rem !important;
     font-size: 0.8rem !important;
-    max-width: 120px !important;
+    max-width: fit-content !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
     box-sizing: border-box !important;
   }
   
   .emp-candidate-review-page .card-body .d-flex.align-items-start.justify-content-between .badge {
-    max-width: 120px !important;
+    max-width: fit-content !important;
     font-size: 0.8rem !important;
     padding: 0.4rem 0.8rem !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
   }
 
   /* Assigned Interview Processes Header - Mobile Fix */
@@ -378,8 +378,8 @@
     vertical-align: middle !important;
     line-height: 1.2 !important;
     max-width: calc(100vw - 4rem) !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
   }
 
   /* Specific targeting for work location badges */

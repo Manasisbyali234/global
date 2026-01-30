@@ -1,0 +1,233 @@
+/* Employee Detail Review Form Mobile Alignment Fix */
+
+/* Review Form Container Mobile Fix */
+@media (max-width: 768px) {
+    /* Review form container */
+    .tab-pane#reviews {
+        padding: 15px 10px !important;
+    }
+    
+    .tab-pane#reviews .row {
+        margin: 0 !important;
+    }
+    
+    .tab-pane#reviews .col-md-8 {
+        padding: 0 !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+    
+    /* Review form styling */
+    .review-form {
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Form groups */
+    .review-form .mb-3 {
+        margin-bottom: 20px !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    /* Form labels */
+    .review-form .form-label {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 8px !important;
+        font-weight: 600 !important;
+        color: #495057 !important;
+        font-size: 14px !important;
+        text-align: left !important;
+    }
+    
+    /* Form controls */
+    .review-form .form-control {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 12px 15px !important;
+        font-size: 16px !important;
+        line-height: 1.5 !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 6px !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        display: block !important;
+        background-color: #fff !important;
+    }
+    
+    /* Textarea specific */
+    .review-form textarea.form-control {
+        resize: vertical !important;
+        min-height: 120px !important;
+        font-family: inherit !important;
+    }
+    
+    /* File input */
+    .review-form input[type="file"] {
+        padding: 8px 12px !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 6px !important;
+        background-color: #fff !important;
+    }
+    
+    /* Rating input container */
+    .rating-input {
+        margin: 10px 0 !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+    
+    /* Star rating */
+    .star {
+        font-size: 24px !important;
+        margin-right: 4px !important;
+        cursor: pointer !important;
+    }
+    
+    .star.interactive:hover {
+        transform: scale(1.1) !important;
+    }
+    
+    /* Submit button */
+    .review-form .site-button {
+        width: 100% !important;
+        padding: 12px 20px !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        margin-top: 10px !important;
+        text-align: center !important;
+    }
+    
+    /* Image preview */
+    .review-form .mt-2 img {
+        max-width: 120px !important;
+        height: 120px !important;
+        object-fit: cover !important;
+        border-radius: 8px !important;
+        border: 2px solid #dee2e6 !important;
+    }
+}
+
+/* Review Posted Tab Mobile Fix */
+@media (max-width: 768px) {
+    .tab-pane#review-post {
+        padding: 15px 10px !important;
+    }
+    
+    .submitted-reviews-list {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    .submitted-reviews-list .card {
+        margin-bottom: 20px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        border: 1px solid #e9ecef !important;
+    }
+    
+    .submitted-reviews-list .card-header {
+        padding: 15px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+    
+    .submitted-reviews-list .card-header .d-flex {
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-direction: row !important;
+    }
+    
+    .submitted-reviews-list .card-body {
+        padding: 15px !important;
+    }
+    
+    .submitted-reviews-list .card-body h6 {
+        font-size: 14px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .submitted-reviews-list .card-body p {
+        font-size: 14px !important;
+        line-height: 1.6 !important;
+        margin-bottom: 0 !important;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 576px) {
+    .tab-pane#reviews {
+        padding: 10px 5px !important;
+    }
+    
+    .review-form .form-control {
+        font-size: 16px !important; /* Prevent zoom on iOS */
+        padding: 10px 12px !important;
+    }
+    
+    .review-form .site-button {
+        padding: 10px 16px !important;
+        font-size: 14px !important;
+    }
+    
+    .star {
+        font-size: 20px !important;
+        margin-right: 3px !important;
+    }
+}
+
+/* Focus states for better mobile UX */
+@media (max-width: 768px) {
+    .review-form .form-control:focus {
+        border-color: #fd7e14 !important;
+        box-shadow: 0 0 0 0.2rem rgba(253, 126, 20, 0.25) !important;
+        outline: none !important;
+    }
+    
+    .review-form .site-button:focus {
+        box-shadow: 0 0 0 0.2rem rgba(253, 126, 20, 0.25) !important;
+        outline: none !important;
+    }
+}
+
+/* Remove any conflicting styles */
+@media (max-width: 768px) {
+    .review-form * {
+        box-sizing: border-box !important;
+    }
+    
+    .review-form .row,
+    .review-form .col-* {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Hide any URL display elements */
+.emp-detail *::before,
+.emp-detail *::after {
+    content: none !important;
+}
+
+/* Ensure no URL content is displayed */
+@media print {
+    .emp-detail *::before,
+    .emp-detail *::after {
+        content: none !important;
+    }
+}
+
+/* Remove any unwanted URL display */
+.emp-detail .container::before,
+.emp-detail .section-content::before,
+.emp-detail .cabdidate-de-info::before {
+    content: none !important;
+    display: none !important;
+}

@@ -65,6 +65,10 @@ function SignupCandidate() {
             return;
         }
 
+        if (!termsAccepted) {
+            setShowTermsModal(true);
+            return;
+        }
 
         setLoading(true);
         try {
@@ -173,7 +177,7 @@ function SignupCandidate() {
                     </form>
                 </div>
             </div>
-            <TermsModal show={showTermsModal} onHide={() => setShowTermsModal(false)} onAccept={handleTermsAccept} role="candidate" />
+            <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} onAccept={handleTermsAccept} role="candidate" />
         </div>
     );
 }

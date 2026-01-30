@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { api } from '../../../../../utils/api';
 import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
 import SearchableSelect from '../../../../../components/SearchableSelect';
+import '../../../../../resume-table-overflow-fix.css';
 function SectionCanEducation({ profile, onUpdate }) {
     const [selectedEducationLevel, setSelectedEducationLevel] = useState('');
     const [educationEntries, setEducationEntries] = useState([]);
@@ -1486,59 +1487,14 @@ function SectionCanEducation({ profile, onUpdate }) {
                                 .twm-panel-inner {
                                     overflow: visible !important;
                                 }
-                                .education-table-wrapper {
-                                    overflow-x: auto !important;
-                                    -webkit-overflow-scrolling: touch !important;
-                                    max-width: 100% !important;
-                                    scrollbar-width: thin !important;
-                                    scrollbar-color: #888 #f1f1f1 !important;
-                                    padding: 2px 2px 2px 8px !important;
-                                    background: white !important;
-                                    border-radius: 8px !important;
+                                .panel {
+                                    overflow: visible !important;
                                 }
-                                .education-table-wrapper table {
-                                    border: 1px solid #dee2e6 !important;
-                                    background: white !important;
-                                }
-                                .education-table-wrapper table th,
-                                .education-table-wrapper table td {
-                                    border: 1px solid #dee2e6 !important;
-                                    background: white !important;
-                                    vertical-align: middle !important;
-                                }
-                                .education-table-wrapper table thead th {
-                                    background: #f8f9fa !important;
-                                    font-weight: 600 !important;
-                                    position: sticky !important;
-                                    top: 0 !important;
-                                    z-index: 10 !important;
-                                }
-                                .education-table-wrapper::-webkit-scrollbar {
-                                    height: 14px !important;
-                                    -webkit-appearance: none !important;
-                                    display: block !important;
-                                }
-                                .education-table-wrapper::-webkit-scrollbar-track {
-                                    background: #f1f1f1 !important;
-                                    border-radius: 4px !important;
-                                    display: block !important;
-                                }
-                                .education-table-wrapper::-webkit-scrollbar-thumb {
-                                    background: #888 !important;
-                                    border-radius: 4px !important;
-                                    display: block !important;
-                                    min-width: 50px !important;
-                                }
-                                @media (max-width: 768px) {
-                                    .education-table-wrapper {
-                                        padding-bottom: 5px !important;
-                                    }
-                                    .education-table-wrapper::-webkit-scrollbar {
-                                        height: 16px !important;
-                                    }
+                                .panel-body {
+                                    overflow: visible !important;
                                 }
                             `}</style>
-                            <div className="table-responsive education-table-wrapper" style={{border: '2px solid #dee2e6', borderRadius: '4px', marginBottom: '10px', marginLeft: '2px'}}>
+                            <div className="table-responsive education-table-wrapper" style={{border: '1px solid #dee2e6', borderRadius: '8px', marginBottom: '20px'}}>
                                 <table className="table table-bordered table-sm mb-0" style={{minWidth: '800px', fontSize: '14px', width: '100%'}}>
                                 <style>{`
                                     .table tbody tr:hover {
@@ -1604,13 +1560,19 @@ function SectionCanEducation({ profile, onUpdate }) {
                                                     )}
                                                 </td>
                                                 <td>
-                                                    <div className="d-flex gap-1 justify-content-center">
+                                                    <div className="d-flex gap-1 justify-content-center" style={{minWidth: '100px'}}>
                                                         <button
                                                             type="button"
                                                             className="site-button"
                                                             onClick={() => handleEditEntry(entry)}
                                                             title="Edit"
-                                                            style={{padding: '4px 8px', fontSize: '12px'}}
+                                                            style={{
+                                                                padding: '4px 8px', 
+                                                                fontSize: '12px',
+                                                                minWidth: '32px',
+                                                                minHeight: '32px',
+                                                                touchAction: 'manipulation'
+                                                            }}
                                                         >
                                                             <i className="fa fa-edit"></i>
                                                         </button>
@@ -1619,7 +1581,13 @@ function SectionCanEducation({ profile, onUpdate }) {
                                                             className="btn btn-danger"
                                                             onClick={() => handleDeleteEntry(entry.id)}
                                                             title="Delete"
-                                                            style={{padding: '4px 8px', fontSize: '12px'}}
+                                                            style={{
+                                                                padding: '4px 8px', 
+                                                                fontSize: '12px',
+                                                                minWidth: '32px',
+                                                                minHeight: '32px',
+                                                                touchAction: 'manipulation'
+                                                            }}
                                                         >
                                                             <i className="fa fa-trash"></i>
                                                         </button>
