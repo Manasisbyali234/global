@@ -808,40 +808,6 @@ export default function EmpPostJob({ onNext }) {
 				showWarning(`Note: ${value} is a public holiday (${holidayCheck.holidayInfo.name}). Consider selecting a different date.`);
 			}
 		}
-
-		// Auto-calculate Last Date of Application based on the earliest interview round date
-		if (field === 'fromDate' && value) {
-			setTimeout(() => {
-				// Get all interview round dates after the update
-				const allRoundDates = [];
-				formData.interviewRoundOrder.forEach(key => {
-					const details = key === roundType 
-						? { ...formData.interviewRoundDetails[key], fromDate: value }
-						: formData.interviewRoundDetails[key];
-					if (details?.fromDate) {
-						allRoundDates.push(new Date(details.fromDate));
-					}
-				});
-				
-				if (allRoundDates.length > 0) {
-					const earliestRoundDate = new Date(Math.min(...allRoundDates));
-					// Set last date of application to 1 day before the earliest interview round
-					const lastAppDate = new Date(earliestRoundDate);
-					lastAppDate.setDate(lastAppDate.getDate() - 1);
-					
-					// Only auto-update if it's not already set or if the new date is earlier
-					const currentLastAppDate = formData.lastDateOfApplication ? new Date(formData.lastDateOfApplication) : null;
-					if (!currentLastAppDate || lastAppDate < currentLastAppDate) {
-						const formattedDate = lastAppDate.toISOString().split('T')[0];
-						update({ 
-							lastDateOfApplication: formattedDate,
-							lastDateOfApplicationTime: '23:59'
-						});
-						showInfo(`Last Date of Application auto-updated to ${lastAppDate.toLocaleDateString()} at 11:59 PM (1 day before the earliest interview round)`);
-					}
-				}
-			}, 100); // Small delay to ensure state is updated
-		}
 	};
 
 	const handleLogoUpload = (e) => {
@@ -945,33 +911,6 @@ export default function EmpPostJob({ onNext }) {
 				errorMessages.push(`Please select End Time for Assessment ${index + 1}`);
 			}
 		});
-
-		// Validate Last Date of Application vs First Interview Round
-		if (formData.lastDateOfApplication) {
-			const allRoundDates = [];
-			
-			// Collect all interview round dates
-			formData.interviewRoundOrder.forEach(key => {
-				const details = formData.interviewRoundDetails[key];
-				if (details?.fromDate) {
-					allRoundDates.push(new Date(details.fromDate));
-				}
-			});
-			
-			if (allRoundDates.length > 0) {
-				const earliestRoundDate = new Date(Math.min(...allRoundDates));
-				const lastAppDate = new Date(formData.lastDateOfApplication);
-				
-				// Calculate difference in days
-				const timeDiff = earliestRoundDate.getTime() - lastAppDate.getTime();
-				const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-				
-				if (dayDiff < 1) {
-					newErrors.lastDateOfApplication = ['Last date of application must be at least 1 day before the first interview round'];
-					errorMessages.push(`Last date of application (${formData.lastDateOfApplication}) must be at least one day before the first interview round (${earliestRoundDate.toISOString().split('T')[0]})`);
-				}
-			}
-		}
 
 		// Validate Offer Letter Date vs Last Interview Round
 		if (formData.offerLetterDate) {
@@ -3902,31 +3841,6 @@ export default function EmpPostJob({ onNext }) {
 									}}
 									type="date"
 									min={new Date().toISOString().split('T')[0]}
-									max={(() => {
-										const allRoundDates = [];
-										formData.interviewRoundOrder.forEach(key => {
-											const details = formData.interviewRoundDetails[key];
-											if (details?.fromDate) {
-												const d = new Date(details.fromDate);
-												if (!isNaN(d.getTime())) {
-													allRoundDates.push(d);
-												}
-											}
-										});
-										if (allRoundDates.length > 0) {
-											const earliest = new Date(Math.min(...allRoundDates));
-											if (!isNaN(earliest.getTime())) {
-												// Subtract 1 day
-												earliest.setDate(earliest.getDate() - 1);
-												const maxDate = earliest.toISOString().split('T')[0];
-												const today = new Date().toISOString().split('T')[0];
-												// If maxDate would be before today, don't set a max so user can at least select today
-												// and let the manual validation show the error message
-												return maxDate < today ? undefined : maxDate;
-											}
-										}
-										return undefined;
-									})()}
 									value={formData.lastDateOfApplication || ''}
 									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
 									placeholder="DD/MM/YYYY"
@@ -3956,7 +3870,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Set the deadline for job applications
+							Manually set the deadline for job applications
 						</small>
 						<HolidayIndicator date={formData.lastDateOfApplication} />
 					</div>

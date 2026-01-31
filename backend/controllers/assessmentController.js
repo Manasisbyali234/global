@@ -8,6 +8,13 @@ exports.createAssessment = async (req, res) => {
   try {
     const { title, type, designation, description, instructions, timer, questions } = req.body;
     
+    console.log('Assessment creation request:', {
+      title,
+      type,
+      questionsCount: questions?.length,
+      questions: questions?.map((q, i) => ({ index: i, type: q.type, question: q.question?.substring(0, 50) }))
+    });
+    
     // Additional server-side validation
     if (!title || title.trim().length === 0) {
       return res.status(400).json({ success: false, message: 'Assessment type is required' });
@@ -31,6 +38,17 @@ exports.createAssessment = async (req, res) => {
       
       // Only validate options and correctAnswer for MCQ questions
       const questionType = question.type || 'mcq';
+      console.log(`Validating question ${i + 1} with type: ${questionType}`);
+      
+      // Validate question type is in allowed enum values
+      const allowedTypes = ['mcq', 'visual-mcq', 'questionary-image-mcq', 'subjective', 'upload', 'image'];
+      if (!allowedTypes.includes(questionType)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Question ${i + 1} has invalid type: ${questionType}. Allowed types: ${allowedTypes.join(', ')}` 
+        });
+      }
+      
       if (questionType === 'mcq' || questionType === 'visual-mcq' || questionType === 'questionary-image-mcq') {
         if (!question.options || question.options.length < 2) {
           return res.status(400).json({ 
@@ -163,6 +181,17 @@ exports.updateAssessment = async (req, res) => {
       }
       
       const questionType = question.type || 'mcq';
+      console.log(`Validating question ${i + 1} with type: ${questionType}`);
+      
+      // Validate question type is in allowed enum values
+      const allowedTypes = ['mcq', 'visual-mcq', 'questionary-image-mcq', 'subjective', 'upload', 'image'];
+      if (!allowedTypes.includes(questionType)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Question ${i + 1} has invalid type: ${questionType}. Allowed types: ${allowedTypes.join(', ')}` 
+        });
+      }
+      
       if (questionType === 'mcq' || questionType === 'visual-mcq' || questionType === 'questionary-image-mcq') {
         if (!question.options || question.options.length < 2) {
           return res.status(400).json({ 

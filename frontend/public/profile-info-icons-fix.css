@@ -1,0 +1,69 @@
+/* Profile Info Icons Fix */
+.twm-s-info-inner i {
+    color: #ff6b35 !important;
+    font-size: 16px !important;
+    min-width: 20px !important;
+    display: inline-block !important;
+    text-align: center !important;
+    margin-right: 10px !important;
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", "FontAwesome" !important;
+    font-weight: 900 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Fallback for missing Font Awesome icons */
+.twm-s-info-inner i:before {
+    content: attr(data-fallback) !important;
+}
+
+/* Ensure icons are visible even if Font Awesome fails to load */
+.twm-s-info-inner i.fas:before,
+.twm-s-info-inner i.fa:before {
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", "FontAwesome", sans-serif !important;
+    font-weight: 900 !important;
+}
+
+/* Specific icon fixes */
+.twm-s-info-inner i.fa-building:before { content: "\f1ad" !important; }
+.twm-s-info-inner i.fa-calendar-alt:before { content: "\f073" !important; }
+.twm-s-info-inner i.fa-phone:before { content: "\f095" !important; }
+.twm-s-info-inner i.fa-envelope:before { content: "\f0e0" !important; }
+.twm-s-info-inner i.fa-users:before { content: "\f0c0" !important; }
+.twm-s-info-inner i.fa-map-marker:before { content: "\f041" !important; }
+
+/* Alternative fallback using text symbols if Font Awesome completely fails */
+.twm-s-info-inner i.fa-building:after { content: "🏢"; }
+.twm-s-info-inner i.fa-calendar-alt:after { content: "📅"; }
+.twm-s-info-inner i.fa-phone:after { content: "📞"; }
+.twm-s-info-inner i.fa-envelope:after { content: "✉️"; }
+.twm-s-info-inner i.fa-users:after { content: "👥"; }
+.twm-s-info-inner i.fa-map-marker:after { content: "📍"; }
+
+/* Hide the after content when before content is working */
+.twm-s-info-inner i:before:not(:empty) + i:after {
+    display: none !important;
+}
+
+/* Profile info section styling improvements */
+.twm-s-info ul li {
+    margin-bottom: 15px !important;
+}
+
+.twm-s-info-inner {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+}
+
+.twm-title {
+    font-weight: 600 !important;
+    color: #333 !important;
+    margin-bottom: 5px !important;
+    display: block !important;
+}
+
+.twm-s-info-discription {
+    color: #666 !important;
+    line-height: 1.4 !important;
+}

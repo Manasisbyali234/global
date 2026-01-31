@@ -77,8 +77,8 @@ function SectionNotifications() {
 									</div>
 									<div className="notification-content" style={{ flex: 1, minWidth: 0 }}>
 										<h6 className="notification-title" style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', margin: '0 0 4px 0', wordWrap: 'break-word' }}>{notif.title}</h6>
-										<p className="notification-message" style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0', wordWrap: 'break-word', overflowWrap: 'break-word' }}>
-											{isMobile ? (notif.message.length > 80 ? notif.message.substring(0, 80) + '...' : notif.message) : (notif.message.length > 50 ? notif.message.substring(0, 50) + '...' : notif.message)}
+										<p className="notification-message" style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', lineHeight: '1.4' }}>
+											{notif.message}
 										</p>
 										<small style={{ fontSize: '10px', color: '#9ca3af' }}>
 											{new Date(notif.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
