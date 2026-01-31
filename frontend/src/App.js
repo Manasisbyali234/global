@@ -39,8 +39,6 @@ import "./android-hamburger-fix.css";
 import "./popup-scroll-fix.css";
 // ANDROID TEXT OVERFLOW FIX - Prevents text from overflowing cards on Android devices
 import "./android-text-overflow-fix.css";
-// EDUCATION SUMMARY MOBILE FIX - Fixes responsiveness of Education Summary card on mobile screens
-import "./education-summary-mobile-fix.css";
 
 
 function App() {

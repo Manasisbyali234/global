@@ -104,9 +104,9 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				updated[index].options = [];
 				updated[index].optionImages = [];
 				updated[index].correctAnswer = null;
-			} else if (value === "mcq" || value === "visual-mcq") {
+			} else if (value === "mcq" || value === "visual-mcq" || value === "questionary-image-mcq") {
 				updated[index].options = ["", "", "", ""];
-				updated[index].optionImages = value === "visual-mcq" ? ["", "", "", ""] : [];
+				updated[index].optionImages = (value === "visual-mcq" || value === "questionary-image-mcq") ? ["", "", "", ""] : [];
 				updated[index].correctAnswer = null;
 			}
 		}
@@ -137,7 +137,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				return;
 			}
 			
-			if ((lastQuestion.type === "mcq" || lastQuestion.type === "visual-mcq") && (lastQuestion.correctAnswer === null || lastQuestion.correctAnswer === undefined)) {
+			if ((lastQuestion.type === "mcq" || lastQuestion.type === "visual-mcq" || lastQuestion.type === "questionary-image-mcq") && (lastQuestion.correctAnswer === null || lastQuestion.correctAnswer === undefined)) {
 				showWarning("Please select answer before you create question");
 				return;
 			}
@@ -188,6 +188,12 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			if (data.success) {
 				const updated = [...questions];
 				updated[qIndex].optionImages[optIndex] = data.imageUrl;
+				
+				// For questionary-image-mcq, the image URL IS the option text
+				if (updated[qIndex].type === "questionary-image-mcq") {
+					updated[qIndex].options[optIndex] = data.imageUrl;
+				}
+				
 				setQuestions(updated);
 				showSuccess('Option image uploaded successfully');
 			} else {
@@ -267,7 +273,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				return;
 			}
 			
-			if (question.type === "mcq" || question.type === "visual-mcq") {
+			if (question.type === "mcq" || question.type === "visual-mcq" || question.type === "questionary-image-mcq") {
 				for (let j = 0; j < question.options.length; j++) {
 					if (!question.options[j].trim()) {
 						showWarning(`Please fill Option ${String.fromCharCode(65 + j)} for Question ${i + 1}`);
@@ -595,7 +601,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					}}>
 						<i className="fa fa-info-circle" style={{color: '#2196f3', fontSize: 14}}></i>
 						<small style={{color: '#1565c0', fontSize: 12, margin: 0}}>
-							Supports MCQ, Visual MCQs (with images), Subjective (text), and Upload Image questions
+							Supports MCQ, Visual MCQs, Questionary image MCQ, Subjective (text), and Upload Image questions
 						</small>
 					</div>
 
@@ -618,6 +624,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 									>
 										<option value="mcq">MCQ</option>
 										<option value="visual-mcq">Visual MCQs</option>
+										<option value="questionary-image-mcq">Questionary image MCQ</option>
 										<option value="subjective">Subjective</option>
 										<option value="upload">Upload File</option>
 										<option value="image">Upload Image</option>
@@ -642,7 +649,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								placeholder="Enter your question here..."
 								style={{ marginBottom: '1rem' }}
 							/>
-							{q.type === "mcq" || q.type === "visual-mcq" ? (
+							{q.type === "mcq" || q.type === "visual-mcq" || q.type === "questionary-image-mcq" ? (
 								<>
 									<div className="row mb-3">
 										{q.options.map((opt, optIndex) => (
@@ -666,17 +673,27 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 														appearance: "auto"
 													}}
 												/>
-												<input
-													type="text"
-													className="form-control"
-													placeholder={`Option ${String.fromCharCode(
-														65 + optIndex
-													)}`}
-													value={opt}
-													onChange={(e) =>
-														handleOptionChange(qIndex, optIndex, e.target.value)
-													}
-												/>
+												{q.type !== "questionary-image-mcq" ? (
+													<input
+														type="text"
+														className="form-control"
+														placeholder={`Option ${String.fromCharCode(
+															65 + optIndex
+														)}`}
+														value={opt}
+														onChange={(e) =>
+															handleOptionChange(qIndex, optIndex, e.target.value)
+														}
+													/>
+												) : (
+													<input
+														type="file"
+														className="form-control form-control-sm"
+														accept="image/*"
+														onChange={(e) => handleOptionImageUpload(qIndex, optIndex, e.target.files[0])}
+														style={{ fontSize: "12px" }}
+													/>
+												)}
 											</div>
 											{q.type === "visual-mcq" && (
 												<div className="mt-2">
@@ -687,27 +704,27 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 														onChange={(e) => handleOptionImageUpload(qIndex, optIndex, e.target.files[0])}
 														style={{ fontSize: "12px" }}
 													/>
-													{q.optionImages && q.optionImages[optIndex] && (
-														<div className="mt-1">
-															<img 
-																src={q.optionImages[optIndex]} 
-																alt={`Option ${String.fromCharCode(65 + optIndex)}`} 
-																style={{maxWidth: '80px', maxHeight: '60px', borderRadius: '4px'}} 
-															/>
-															<button
-																type="button"
-																className="btn btn-sm ms-1"
-																style={{backgroundColor: '#ff6600', color: 'white', border: 'none', fontSize: '10px', padding: '2px 6px'}}
-																onClick={() => {
-																	const updated = [...questions];
-																	updated[qIndex].optionImages[optIndex] = "";
-																	setQuestions(updated);
-																}}
-															>
-																Remove
-															</button>
-														</div>
-													)}
+												</div>
+											)}
+											{(q.type === "visual-mcq" || q.type === "questionary-image-mcq") && q.optionImages && q.optionImages[optIndex] && (
+												<div className="mt-1">
+													<img 
+														src={q.optionImages[optIndex]} 
+														alt={`Option ${String.fromCharCode(65 + optIndex)}`} 
+														style={{maxWidth: '80px', maxHeight: '60px', borderRadius: '4px'}} 
+													/>
+													<button
+														type="button"
+														className="btn btn-sm ms-1"
+														style={{backgroundColor: '#ff6600', color: 'white', border: 'none', fontSize: '10px', padding: '2px 6px'}}
+														onClick={() => {
+															const updated = [...questions];
+															updated[qIndex].optionImages[optIndex] = "";
+															setQuestions(updated);
+														}}
+													>
+														Remove
+													</button>
 												</div>
 											)}
 										</div>

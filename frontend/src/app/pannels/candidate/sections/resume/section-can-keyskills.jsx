@@ -391,7 +391,7 @@ function SectionCanKeySkills({ profile }) {
                                             padding: 6px 10px !important;
                                         }
                                         .skill-badge .skill-text {
-                                            max-width: calc(100vw - 110px);
+                                            max-width: calc(100% - 40px);
                                         }
                                         .skill-badge .btn-sm {
                                             width: 18px !important;

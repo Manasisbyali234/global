@@ -176,12 +176,12 @@ exports.updateProfile = async (req, res) => {
       updateData.googleMapsEmbed = req.body.googleMapsEmbed || '';
     }
     
-    // Ensure description and location always have default values if empty
+    // Ensure description and location always have default values ONLY if they are undefined or null
     if (req.body.hasOwnProperty('description')) {
-      updateData.description = req.body.description || 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.';
+      updateData.description = req.body.description !== undefined ? req.body.description : 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.';
     }
     if (req.body.hasOwnProperty('location')) {
-      updateData.location = req.body.location || 'Bangalore, India';
+      updateData.location = req.body.location !== undefined ? req.body.location : 'Bangalore, India';
     }
 
     // Verify that text fields are included in updateData
@@ -425,21 +425,55 @@ exports.uploadAuthorizationLetter = async (req, res) => {
 
     const { fileToBase64 } = require('../middlewares/upload');
     const documentBase64 = fileToBase64(req.file);
+    const companyName = req.body.companyName || '';
     
-    const newDocument = {
-      fileName: req.file.originalname,
-      fileData: documentBase64,
-      uploadedAt: new Date(),
-      companyName: req.body.companyName || ''
-    };
+    const profile = await EmployerProfile.findOne({ employerId: req.user._id });
+    
+    // Check if there's an existing rejected document for the same company
+    let existingDocIndex = -1;
+    if (profile && profile.authorizationLetters) {
+      existingDocIndex = profile.authorizationLetters.findIndex(
+        letter => letter.companyName === companyName && letter.status === 'rejected'
+      );
+    }
+    
+    if (existingDocIndex !== -1) {
+      // Replace the existing rejected document
+      const updatedDocument = {
+        fileName: req.file.originalname,
+        fileData: documentBase64,
+        uploadedAt: new Date(),
+        companyName: companyName,
+        status: 'pending',
+        isResubmitted: true
+      };
+      
+      const updatedProfile = await EmployerProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { $set: { [`authorizationLetters.${existingDocIndex}`]: updatedDocument } },
+        { new: true, upsert: true }
+      );
+      
+      res.json({ success: true, document: updatedDocument, profile: updatedProfile });
+    } else {
+      // Create new document
+      const newDocument = {
+        fileName: req.file.originalname,
+        fileData: documentBase64,
+        uploadedAt: new Date(),
+        companyName: companyName,
+        status: 'pending',
+        isResubmitted: false
+      };
 
-    const profile = await EmployerProfile.findOneAndUpdate(
-      { employerId: req.user._id },
-      { $push: { authorizationLetters: newDocument } },
-      { new: true, upsert: true }
-    );
+      const updatedProfile = await EmployerProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { $push: { authorizationLetters: newDocument } },
+        { new: true, upsert: true }
+      );
 
-    res.json({ success: true, document: newDocument, profile });
+      res.json({ success: true, document: newDocument, profile: updatedProfile });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

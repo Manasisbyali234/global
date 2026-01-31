@@ -948,16 +948,17 @@ function EmployerDetails() {
                                         <td>
                                             <span className={`status-badge ${
                                                 doc.status === 'approved' ? 'badge-approved' : 
+                                                doc.status === 'rejected' && doc.isResubmitted ? 'badge-pending' :
                                                 doc.status === 'rejected' ? 'badge-rejected' : 'badge-pending'
                                             }`}>
                                                 {doc.status !== 'approved' && (
                                                     <i className={`fa ${
-                                                        doc.status === 'rejected' ? 'fa-times' : 'fa-clock'
+                                                        doc.status === 'rejected' && !doc.isResubmitted ? 'fa-times' : 'fa-clock'
                                                     }`}></i>
                                                 )}
                                                 {doc.status === 'approved' ? 'Approved' : 
-                                                 doc.status === 'rejected' ? 'Rejected' : 
-                                                 doc.isResubmitted ? 'Resubmitted' : 'Pending'}
+                                                 doc.status === 'rejected' && doc.isResubmitted ? 'Resubmitted' :
+                                                 doc.status === 'rejected' ? 'Rejected' : 'Pending'}
                                             </span>
                                         </td>
                                         <td>
@@ -1012,18 +1013,35 @@ function EmployerDetails() {
                                                         </button>
                                                     </>
                                                 )}
-                                                {doc.status === 'rejected' && (
-                                                    <button 
-                                                        className="btn btn-outline-success btn-sm"
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            e.stopPropagation();
-                                                            handleApproveAuthorizationLetter(doc._id);
-                                                        }}
-                                                        title="Approve Authorization Letter"
-                                                    >
-                                                        <i className="fa fa-check"></i>
-                                                    </button>
+                                                {doc.status === 'rejected' && doc.isResubmitted && (
+                                                    <>
+                                                        <button 
+                                                            className="btn btn-outline-success btn-sm"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                handleApproveAuthorizationLetter(doc._id);
+                                                            }}
+                                                            style={{ marginRight: '5px' }}
+                                                            title="Approve Authorization Letter"
+                                                        >
+                                                            <i className="fa fa-check"></i>
+                                                        </button>
+                                                        <button 
+                                                            className="btn btn-outline-danger btn-sm"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                handleRejectAuthorizationLetter(doc._id);
+                                                            }}
+                                                            title="Reject Authorization Letter"
+                                                        >
+                                                            <i className="fa fa-times"></i>
+                                                        </button>
+                                                    </>
+                                                )}
+                                                {doc.status === 'rejected' && !doc.isResubmitted && (
+                                                    <span className="text-muted rejected-status-text">Awaiting resubmission</span>
                                                 )}
                                                 {doc.status === 'approved' && (
                                                     <span className="text-success ms-2">Verified</span>

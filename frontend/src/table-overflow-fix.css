@@ -1,64 +1,92 @@
-/* Table Overflow Fix for Resume Page */
+/* Table Overflow Fix for Resume Page - Mobile Optimized */
 
-/* Education Summary Table Fix */
-.education-table-wrapper {
+/* Global Panel Overflow Fix */
+.panel,
+.panel-body,
+.twm-panel-inner,
+.education-section-body {
+    overflow: visible !important;
+}
+
+/* Base Table Container Styles */
+.education-table-wrapper,
+.table-responsive {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
     max-width: 100% !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: #888 #f1f1f1 !important;
-    padding: 2px !important;
-    background: white !important;
-    border-radius: 8px !important;
+    width: 100% !important;
     border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
     margin-bottom: 20px !important;
+    background: white !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    position: relative !important;
 }
 
-.education-table-wrapper table {
+/* Base Table Styles */
+.education-table-wrapper table,
+.table-responsive table {
     min-width: 800px !important;
     width: 100% !important;
     margin-bottom: 0 !important;
     border-collapse: collapse !important;
+    font-size: 14px !important;
 }
 
+/* Base Cell Styles */
 .education-table-wrapper table th,
-.education-table-wrapper table td {
+.education-table-wrapper table td,
+.table-responsive table th,
+.table-responsive table td {
     white-space: nowrap !important;
-    padding: 8px 12px !important;
+    padding: 12px 8px !important;
     border: 1px solid #dee2e6 !important;
     vertical-align: middle !important;
+    text-align: left !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
-.education-table-wrapper table thead th {
+/* Header Styles */
+.education-table-wrapper table thead th,
+.table-responsive table thead th {
     background: #f8f9fa !important;
     font-weight: 600 !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 10 !important;
+    color: #495057 !important;
 }
 
-/* Employment History Table Fix */
-.table-responsive {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    border: 1px solid #dee2e6 !important;
-    border-radius: 8px !important;
-    margin-bottom: 20px !important;
+/* Action Buttons */
+.table .btn {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    min-width: 36px !important;
+    min-height: 32px !important;
+    border-radius: 4px !important;
+    margin: 1px !important;
 }
 
-.table-responsive table {
-    min-width: 700px !important;
-    margin-bottom: 0 !important;
+.table .btn i {
+    font-size: 12px !important;
 }
 
-.table-responsive table th,
-.table-responsive table td {
+.table .d-flex {
+    gap: 4px !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+}
+
+/* Badge Styling */
+.table .badge {
+    font-size: 10px !important;
+    padding: 4px 8px !important;
+    border-radius: 12px !important;
     white-space: nowrap !important;
-    padding: 10px 12px !important;
-    border: 1px solid #dee2e6 !important;
 }
 
-/* Scrollbar styling */
+/* Scrollbar Styling */
 .education-table-wrapper::-webkit-scrollbar,
 .table-responsive::-webkit-scrollbar {
     height: 12px !important;
@@ -73,20 +101,21 @@
 
 .education-table-wrapper::-webkit-scrollbar-thumb,
 .table-responsive::-webkit-scrollbar-thumb {
-    background: #888 !important;
+    background: #c1c1c1 !important;
     border-radius: 6px !important;
 }
 
 .education-table-wrapper::-webkit-scrollbar-thumb:hover,
 .table-responsive::-webkit-scrollbar-thumb:hover {
-    background: #555 !important;
+    background: #a8a8a8 !important;
 }
 
-/* Mobile specific fixes */
-@media (max-width: 768px) {
+/* Tablet Responsive (768px - 992px) */
+@media (max-width: 992px) {
     .education-table-wrapper,
     .table-responsive {
-        margin: 0 -15px 20px -15px !important;
+        margin-left: -15px !important;
+        margin-right: -15px !important;
         border-radius: 0 !important;
         border-left: none !important;
         border-right: none !important;
@@ -95,6 +124,32 @@
     .education-table-wrapper table,
     .table-responsive table {
         min-width: 900px !important;
+        font-size: 13px !important;
+    }
+    
+    .education-table-wrapper table th,
+    .education-table-wrapper table td,
+    .table-responsive table th,
+    .table-responsive table td {
+        padding: 10px 6px !important;
+        font-size: 12px !important;
+    }
+}
+
+/* Mobile Responsive (576px - 768px) */
+@media (max-width: 768px) {
+    .education-table-wrapper,
+    .table-responsive {
+        margin-left: -20px !important;
+        margin-right: -20px !important;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+    }
+    
+    .education-table-wrapper table,
+    .table-responsive table {
+        min-width: 1000px !important;
         font-size: 12px !important;
     }
     
@@ -102,54 +157,12 @@
     .education-table-wrapper table td,
     .table-responsive table th,
     .table-responsive table td {
-        padding: 6px 8px !important;
-        font-size: 11px !important;
-    }
-}
-
-@media (max-width: 576px) {
-    .education-table-wrapper,
-    .table-responsive {
-        margin: 0 -20px 20px -20px !important;
-    }
-    
-    .education-table-wrapper table,
-    .table-responsive table {
-        min-width: 850px !important;
+        padding: 8px 5px !important;
         font-size: 11px !important;
     }
     
-    .education-table-wrapper table th,
-    .education-table-wrapper table td,
-    .table-responsive table th,
-    .table-responsive table td {
-        padding: 4px 6px !important;
-        font-size: 10px !important;
-    }
-}
-
-/* Panel body overflow fix */
-.panel-body {
-    overflow: visible !important;
-}
-
-.twm-panel-inner {
-    overflow: visible !important;
-}
-
-/* Ensure cards don't clip table content */
-.panel {
-    overflow: visible !important;
-}
-
-.card {
-    overflow: visible !important;
-}
-
-/* Action buttons in tables - make them smaller on mobile */
-@media (max-width: 768px) {
     .table .btn {
-        padding: 2px 6px !important;
+        padding: 4px 6px !important;
         font-size: 10px !important;
         min-width: 28px !important;
         min-height: 28px !important;
@@ -162,4 +175,147 @@
     .table .d-flex {
         gap: 2px !important;
     }
+    
+    .table .badge {
+        font-size: 9px !important;
+        padding: 3px 6px !important;
+    }
+    
+    /* Adjust scrollbar for mobile */
+    .education-table-wrapper::-webkit-scrollbar,
+    .table-responsive::-webkit-scrollbar {
+        height: 8px !important;
+    }
+}
+
+/* Small Mobile Responsive (max 576px) */
+@media (max-width: 576px) {
+    .education-table-wrapper,
+    .table-responsive {
+        margin-left: -25px !important;
+        margin-right: -25px !important;
+    }
+    
+    .education-table-wrapper table,
+    .table-responsive table {
+        min-width: 1100px !important;
+        font-size: 11px !important;
+    }
+    
+    .education-table-wrapper table th,
+    .education-table-wrapper table td,
+    .table-responsive table th,
+    .table-responsive table td {
+        padding: 6px 4px !important;
+        font-size: 10px !important;
+    }
+    
+    .table .btn {
+        padding: 3px 5px !important;
+        font-size: 9px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+    }
+    
+    .table .btn i {
+        font-size: 9px !important;
+    }
+    
+    .table .badge {
+        font-size: 8px !important;
+        padding: 2px 4px !important;
+    }
+    
+    /* Smaller scrollbar for small mobile */
+    .education-table-wrapper::-webkit-scrollbar,
+    .table-responsive::-webkit-scrollbar {
+        height: 6px !important;
+    }
+}
+
+/* Extra Small Mobile (max 480px) */
+@media (max-width: 480px) {
+    .education-table-wrapper,
+    .table-responsive {
+        margin-left: -30px !important;
+        margin-right: -30px !important;
+    }
+    
+    .education-table-wrapper table,
+    .table-responsive table {
+        min-width: 1200px !important;
+        font-size: 10px !important;
+    }
+    
+    .education-table-wrapper table th,
+    .education-table-wrapper table td,
+    .table-responsive table th,
+    .table-responsive table td {
+        padding: 5px 3px !important;
+        font-size: 9px !important;
+    }
+}
+
+/* Mobile scroll hint */
+@media (max-width: 768px) {
+    .education-table-wrapper::after,
+    .table-responsive::after {
+        content: "← Scroll horizontally to view all columns →" !important;
+        display: block !important;
+        text-align: center !important;
+        font-size: 11px !important;
+        color: #666 !important;
+        padding: 8px !important;
+        background: #f8f9fa !important;
+        border-top: 1px solid #dee2e6 !important;
+        margin-top: -1px !important;
+    }
+}
+
+/* Hide scroll hint on larger screens */
+@media (min-width: 769px) {
+    .education-table-wrapper::after,
+    .table-responsive::after {
+        display: none !important;
+    }
+}
+
+/* Ensure container doesn't clip table */
+.twm-right-section-panel {
+    overflow: visible !important;
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 768px) {
+    /* Ensure page content doesn't get clipped */
+    .twm-right-section-panel {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+    
+    /* Adjust panel padding for mobile */
+    .panel-body.wt-panel-body.p-a20 {
+        padding: 15px 10px !important;
+    }
+    
+    /* Ensure table containers use full width */
+    .twm-panel-inner {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+/* Prevent table hover effects from breaking layout */
+.table tbody tr:hover {
+    background-color: transparent !important;
+}
+
+.table tbody tr:hover td {
+    background-color: transparent !important;
+}
+
+/* Text alignment fixes */
+.table td.text-center,
+.table th.text-center {
+    text-align: center !important;
 }

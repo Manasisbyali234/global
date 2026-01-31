@@ -17,7 +17,7 @@ import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
 import { initializeAllModals } from "../../../../utils/modalUtils";
 import "./resume-styles.css";
-import "../../../../table-overflow-fix.css";
+
 
 function CanMyResumePage() {
     const [profile, setProfile] = useState(null);
@@ -64,8 +64,8 @@ function CanMyResumePage() {
 			<>
 				<div className="twm-right-section-panel site-bg-gray">
 					{/* Resume Page Header */}
-					<div style={{ padding: '2rem 2rem 0 2rem' }}>
-						<div style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '2rem' }}>
+					<div className="resume-header-container">
+						<div className="resume-header-inner">
 							<div style={{ textAlign: 'center' }}>
 								<h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827', margin: '0 0 0.5rem 0' }}>
 									<i className="fa fa-file-text-o me-2" style={{color: '#f97316'}}></i>
@@ -80,7 +80,7 @@ function CanMyResumePage() {
 					</div>
 
 					{/* Resume Content */}
-					<div style={{ padding: '0 2rem 2rem 2rem' }}>
+					<div className="resume-content-container">
 						{loading ? (
 							<div className="text-center p-5">
 								<div className="d-flex flex-column align-items-center">
@@ -129,6 +129,10 @@ function CanMyResumePage() {
 
 									<div className="panel panel-default mb-4">
 										<SectionCanEducation profile={profile} />
+									</div>
+
+									<div className="panel panel-default mb-4">
+										<SectionCanITSkills profile={profile} />
 									</div>
 
 									<div className="panel panel-default mb-4">

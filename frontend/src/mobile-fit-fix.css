@@ -1,0 +1,38 @@
+/* Force Mobile Table Fit - Minimal Fix */
+
+@media (max-width: 768px) {
+    /* Force table to fit in container */
+    .education-table-wrapper table,
+    .table-responsive table {
+        min-width: 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+        font-size: 8px !important;
+    }
+    
+    /* Make all cells equal width and tiny */
+    .education-table-wrapper table th,
+    .education-table-wrapper table td,
+    .table-responsive table th,
+    .table-responsive table td {
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        padding: 2px !important;
+        font-size: 8px !important;
+        word-break: break-all !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
+    
+    /* Remove container overflow */
+    .education-table-wrapper,
+    .table-responsive {
+        overflow-x: visible !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+}

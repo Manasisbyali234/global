@@ -1,31 +1,9 @@
 /* Employer Detail Page Comprehensive Responsiveness Fix */
 
 /* 1. Main Container Padding Reset */
-@media (min-width: 1201px) {
-    .section-full.emp-detail {
-        padding-left: 80px !important;
-        padding-right: 80px !important;
-    }
-}
-
-@media (max-width: 1200px) {
-    .section-full.emp-detail {
-        padding-left: 20px !important;
-        padding-right: 20px !important;
-    }
-}
-
-@media (max-width: 991px) {
-    .section-full.emp-detail {
-        padding-left: 15px !important;
-        padding-right: 15px !important;
-        padding-top: 80px !important; /* Reduce top padding on mobile */
-    }
-    
-    .section-full .container {
-        padding-left: 15px !important;
-        padding-right: 15px !important;
-    }
+.section-full.emp-detail {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
 }
 
 /* 2. Review Card Responsiveness */

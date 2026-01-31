@@ -500,8 +500,12 @@ function PlacementDashboardRedesigned() {
         } catch (error) {
             console.error('Resubmit error:', error);
             const errorMessage = error.message || 'Resubmission failed. Please try again.';
-            // Remove HTTP status codes from error message
-            const cleanMessage = errorMessage.replace(/HTTP:\s*\d+\s*/gi, '').trim();
+            // Remove HTTP status codes and related error prefixes from error message
+            const cleanMessage = errorMessage
+                .replace(/HTTP\s*\d+/gi, '')
+                .replace(/\d{3}\s*-?\s*/g, '')
+                .replace(/^[:\s-]+|[:\s-]+$/g, '')
+                .trim();
             showError(cleanMessage || 'Resubmission failed. Please try again.');
         } finally {
             setResubmitting(false);

@@ -14,7 +14,7 @@ const AssessmentSchema = new mongoose.Schema({
   totalQuestions: { type: Number, required: true },
   questions: [{
     question: { type: String, required: true },
-    type: { type: String, enum: ['mcq', 'visual-mcq', 'subjective', 'upload', 'image'], default: 'mcq' },
+    type: { type: String, enum: ['mcq', 'visual-mcq', 'questionary-image-mcq', 'subjective', 'upload', 'image'], default: 'mcq' },
     options: [{ type: String }],
     optionImages: [{ type: String }],
     correctAnswer: { type: Number },

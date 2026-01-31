@@ -563,22 +563,44 @@ function JobDetail1Page() {
                                         </ul>
                                     </div>
 
-                                    {job.employerId?.employerType === 'consultant' && job.employerProfile && (
-                                        <>
-                                            <h4 className="twm-s-title">About the Hiring Company:</h4>
+                                    {job.employerProfile && (
+                                        <div style={{marginTop: '30px', marginBottom: '30px'}}>
+                                            <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
+                                                <i className="feather-info" style={{marginRight: '10px', color: '#f39c12'}}></i>
+                                                About {job.employerId?.employerType === 'consultant' ? 'Hiring Company' : 'Company'}
+                                            </h4>
+                                            
+                                            <div style={{marginBottom: '20px'}}>
+                                                <h5 style={{fontSize: '18px', fontWeight: '600', color: '#34495e', marginBottom: '10px'}}>
+                                                    {job.companyName || job.employerId?.companyName || 'Our Company'}
+                                                </h5>
+                                                <div style={{lineHeight: '1.8', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
+                                                    __html: (job.employerId?.employerType === 'consultant' && job.aboutCompany) 
+                                                        ? job.aboutCompany 
+                                                        : (job.employerProfile.description || 'No description available.')
+                                                }} />
+                                            </div>
+
+                                            {(job.employerId?.employerType === 'consultant' ? job.companyDescription : job.employerProfile.whyJoinUs) && (
+                                                <div style={{marginBottom: '20px'}}>
+                                                    <h5 style={{fontSize: '18px', fontWeight: '600', color: '#34495e', marginBottom: '10px'}}>Why Join Us</h5>
+                                                    <div style={{lineHeight: '1.8', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
+                                                        __html: (job.employerId?.employerType === 'consultant') 
+                                                            ? job.companyDescription 
+                                                            : job.employerProfile.whyJoinUs
+                                                    }} />
+                                                </div>
+                                            )}
+
                                             <ul className="description-list-2">
-                                                <li><strong>Company:</strong> {job.employerId?.companyName || 'Consultant'}</li>
-                                                {job.employerProfile.description && (
-                                                    <li><strong>Description:</strong> <div dangerouslySetInnerHTML={{__html: job.employerProfile.description}} /></li>
-                                                )}
                                                 {job.employerProfile.website && (
-                                                    <li><strong>Website:</strong> <a href={job.employerProfile.website} target="_blank" rel="noopener noreferrer">{job.employerProfile.website}</a></li>
+                                                    <li><strong>Website:</strong> <a href={job.employerProfile.website.startsWith('http') ? job.employerProfile.website : `https://${job.employerProfile.website}`} target="_blank" rel="noopener noreferrer">{job.employerProfile.website}</a></li>
                                                 )}
                                                 {job.employerProfile.location && (
                                                     <li><strong>Location:</strong> {job.employerProfile.location}</li>
                                                 )}
                                             </ul>
-                                        </>
+                                        </div>
                                     )}
 
 

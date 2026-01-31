@@ -1,0 +1,340 @@
+/* Mobile Table Responsive Fix - Comprehensive Solution */
+
+/* Reset conflicting styles */
+.education-table-wrapper,
+.table-responsive {
+    /* Clear all conflicting overflow rules */
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    max-height: none !important;
+    border-radius: 8px !important;
+    border: 1px solid #dee2e6 !important;
+    margin-bottom: 20px !important;
+    background: white !important;
+    position: relative !important;
+    width: 100% !important;
+    display: block !important;
+}
+
+/* Base table styles */
+.education-table-wrapper table,
+.table-responsive table {
+    width: 100% !important;
+    margin-bottom: 0 !important;
+    border-collapse: collapse !important;
+    table-layout: auto !important;
+    min-width: unset !important;
+}
+
+/* Base cell styles */
+.education-table-wrapper table th,
+.education-table-wrapper table td,
+.table-responsive table th,
+.table-responsive table td {
+    padding: 8px 6px !important;
+    border: 1px solid #dee2e6 !important;
+    vertical-align: middle !important;
+    text-align: left !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: auto !important;
+    white-space: normal !important;
+    max-width: none !important;
+}
+
+/* Header styles */
+.education-table-wrapper table thead th,
+.table-responsive table thead th {
+    background: #f8f9fa !important;
+    font-weight: 600 !important;
+    color: #495057 !important;
+    font-size: 12px !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    /* Container adjustments */
+    .education-table-wrapper,
+    .table-responsive {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 6px !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        -webkit-overflow-scrolling: touch !important;
+        max-height: none !important;
+    }
+    
+    /* Table adjustments */
+    .education-table-wrapper table,
+    .table-responsive table {
+        min-width: 800px !important;
+        font-size: 12px !important;
+    }
+    
+    /* Cell adjustments */
+    .education-table-wrapper table th,
+    .education-table-wrapper table td,
+    .table-responsive table th,
+    .table-responsive table td {
+        padding: 6px 4px !important;
+        font-size: 11px !important;
+        min-width: 60px !important;
+    }
+    
+    /* Specific column widths for mobile */
+    .education-table-wrapper table th:nth-child(1),
+    .education-table-wrapper table td:nth-child(1) {
+        min-width: 100px !important;
+        max-width: 120px !important;
+    }
+    
+    .education-table-wrapper table th:nth-child(2),
+    .education-table-wrapper table td:nth-child(2) {
+        min-width: 120px !important;
+        max-width: 140px !important;
+    }
+    
+    .education-table-wrapper table th:nth-child(3),
+    .education-table-wrapper table td:nth-child(3) {
+        min-width: 100px !important;
+        max-width: 120px !important;
+    }
+    
+    .education-table-wrapper table th:nth-child(4),
+    .education-table-wrapper table td:nth-child(4) {
+        min-width: 80px !important;
+        max-width: 100px !important;
+    }
+    
+    .education-table-wrapper table th:nth-child(5),
+    .education-table-wrapper table td:nth-child(5) {
+        min-width: 70px !important;
+        max-width: 90px !important;
+    }
+    
+    .education-table-wrapper table th:nth-child(6),
+    .education-table-wrapper table td:nth-child(6) {
+        min-width: 60px !important;
+        max-width: 80px !important;
+    }
+    
+    .education-table-wrapper table th:nth-child(7),
+    .education-table-wrapper table td:nth-child(7) {
+        min-width: 60px !important;
+        max-width: 80px !important;
+    }
+    
+    .education-table-wrapper table th:nth-child(8),
+    .education-table-wrapper table td:nth-child(8) {
+        min-width: 60px !important;
+        max-width: 80px !important;
+    }
+    
+    .education-table-wrapper table th:nth-child(9),
+    .education-table-wrapper table td:nth-child(9) {
+        min-width: 80px !important;
+        max-width: 100px !important;
+    }
+    
+    .education-table-wrapper table th:nth-child(10),
+    .education-table-wrapper table td:nth-child(10) {
+        min-width: 90px !important;
+        max-width: 110px !important;
+    }
+    
+    /* Action buttons in table */
+    .table .d-flex {
+        display: flex !important;
+        gap: 4px !important;
+        justify-content: center !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    .table .d-flex button {
+        padding: 2px 4px !important;
+        font-size: 10px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        border-radius: 4px !important;
+    }
+    
+    /* Badge adjustments */
+    .table .badge {
+        font-size: 9px !important;
+        padding: 2px 4px !important;
+        border-radius: 3px !important;
+    }
+    
+    /* Scroll hint */
+    .education-table-wrapper::after,
+    .table-responsive::after {
+        content: "← Swipe left/right to view more columns →" !important;
+        display: block !important;
+        text-align: center !important;
+        font-size: 10px !important;
+        color: #ff6a00 !important;
+        padding: 8px !important;
+        background: #fff8f0 !important;
+        border-top: 1px solid #ffe0b2 !important;
+        font-weight: 500 !important;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 480px) {
+    .education-table-wrapper,
+    .table-responsive {
+        border-radius: 4px !important;
+        margin-left: -5px !important;
+        margin-right: -5px !important;
+    }
+    
+    .education-table-wrapper table,
+    .table-responsive table {
+        min-width: 750px !important;
+        font-size: 11px !important;
+    }
+    
+    .education-table-wrapper table th,
+    .education-table-wrapper table td,
+    .table-responsive table th,
+    .table-responsive table td {
+        padding: 4px 3px !important;
+        font-size: 10px !important;
+    }
+    
+    .table .d-flex button {
+        padding: 1px 3px !important;
+        font-size: 9px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+    }
+    
+    .table .badge {
+        font-size: 8px !important;
+        padding: 1px 3px !important;
+    }
+}
+
+/* Panel body overflow fix */
+@media (max-width: 768px) {
+    .panel-body.wt-panel-body,
+    .panel-body {
+        overflow: visible !important;
+        padding: 12px 8px !important;
+    }
+    
+    .twm-panel-inner {
+        overflow: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .education-section-body {
+        overflow: visible !important;
+    }
+    
+    /* Ensure parent containers don't clip */
+    .panel,
+    .panel-default {
+        overflow: visible !important;
+    }
+}
+
+/* Touch-friendly scrolling */
+@media (max-width: 768px) {
+    .education-table-wrapper,
+    .table-responsive {
+        -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: smooth !important;
+    }
+    
+    /* Custom scrollbar for webkit browsers */
+    .education-table-wrapper::-webkit-scrollbar,
+    .table-responsive::-webkit-scrollbar {
+        height: 8px !important;
+    }
+    
+    .education-table-wrapper::-webkit-scrollbar-track,
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f1f1f1 !important;
+        border-radius: 4px !important;
+    }
+    
+    .education-table-wrapper::-webkit-scrollbar-thumb,
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #ff6b35 !important;
+        border-radius: 4px !important;
+    }
+    
+    .education-table-wrapper::-webkit-scrollbar-thumb:hover,
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #e55a2b !important;
+    }
+}
+
+/* Prevent body scroll when table is scrolling */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden !important;
+    }
+    
+    .container-fluid {
+        overflow-x: hidden !important;
+    }
+}
+
+/* Text wrapping improvements */
+@media (max-width: 768px) {
+    .education-table-wrapper table td,
+    .table-responsive table td {
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+        hyphens: auto !important;
+        -webkit-hyphens: auto !important;
+        -ms-hyphens: auto !important;
+    }
+    
+    /* Long text handling */
+    .education-table-wrapper table td:nth-child(1),
+    .education-table-wrapper table td:nth-child(2),
+    .education-table-wrapper table td:nth-child(3) {
+        line-height: 1.2 !important;
+        max-height: 40px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+    }
+}
+
+/* Focus and accessibility */
+@media (max-width: 768px) {
+    .table button:focus,
+    .table .btn:focus {
+        outline: 2px solid #007bff !important;
+        outline-offset: 1px !important;
+    }
+    
+    .table button:active,
+    .table .btn:active {
+        transform: scale(0.95) !important;
+    }
+}
+
+/* Loading and empty states */
+@media (max-width: 768px) {
+    .table-responsive .text-center {
+        padding: 20px 10px !important;
+    }
+    
+    .table-responsive .fa-spinner {
+        font-size: 1.5rem !important;
+    }
+}

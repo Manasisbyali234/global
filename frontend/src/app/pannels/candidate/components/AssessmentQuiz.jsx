@@ -313,7 +313,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
     const question = assessment.questions[currentQuestion];
     
     // Validate answers before proceeding
-    if ((question.type === 'mcq' || question.type === 'visual-mcq') && selectedAnswer === null) {
+    if ((question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && selectedAnswer === null) {
       alert('Please select an answer before proceeding to the next question.');
       return;
     }
@@ -344,7 +344,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
         const response = await axios.post('/api/candidate/assessments/answer', {
           attemptId,
           questionIndex: currentQuestion,
-          selectedAnswer: (question.type === 'mcq' || question.type === 'visual-mcq') ? selectedAnswer : null,
+          selectedAnswer: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') ? selectedAnswer : null,
           textAnswer: question.type === 'subjective' ? textAnswer : null,
           timeSpent: Date.now() - startTime
         }, {
@@ -397,7 +397,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
           const answerResponse = await axios.post('/api/candidate/assessments/answer', {
             attemptId,
             questionIndex: currentQuestion,
-            selectedAnswer: (question.type === 'mcq' || question.type === 'visual-mcq') ? selectedAnswer : null,
+            selectedAnswer: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') ? selectedAnswer : null,
             textAnswer: question.type === 'subjective' ? textAnswer : null,
             timeSpent: Date.now() - startTime
           }, {
@@ -507,7 +507,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
             </div>
           )}
           
-          {(question.type === 'mcq' || question.type === 'visual-mcq') && (
+          {(question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && (
             <div className="options">
               {question.options.map((option, index) => (
                 <div key={index} className="form-check mb-3 p-3 border rounded" style={{cursor: 'pointer'}}
@@ -524,8 +524,8 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
                     <div className="d-flex align-items-start">
                       <span className="me-2">{String.fromCharCode(65 + index)}.</span>
                       <div className="flex-grow-1">
-                        <div>{option}</div>
-                        {question.type === 'visual-mcq' && question.optionImages && question.optionImages[index] && (
+                        {question.type !== 'questionary-image-mcq' && <div>{option}</div>}
+                        {(question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && question.optionImages && question.optionImages[index] && (
                           <div className="mt-2">
                             <img 
                               src={question.optionImages[index]} 
@@ -686,7 +686,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
                 className="btn btn-primary"
                 onClick={handleNext}
                 disabled={
-                  ((question.type === 'mcq' || question.type === 'visual-mcq') && selectedAnswer === null) ||
+                  ((question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && selectedAnswer === null) ||
                   (question.type === 'subjective' && !textAnswer.trim() && !uploadedFile) ||
                   (question.type === 'upload' && !uploadedFile) ||
                   uploading

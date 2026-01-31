@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { api } from '../../../../../utils/api';
 import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
 import SearchableSelect from '../../../../../components/SearchableSelect';
-import '../../../../../resume-table-overflow-fix.css';
 function SectionCanEducation({ profile, onUpdate }) {
     const [selectedEducationLevel, setSelectedEducationLevel] = useState('');
     const [educationEntries, setEducationEntries] = useState([]);
@@ -1197,8 +1196,8 @@ function SectionCanEducation({ profile, onUpdate }) {
             <div className="panel-heading wt-panel-heading p-a20">
                 <h4 className="panel-tittle m-a0">Educational Qualification Details</h4>
             </div>
-            <div className="panel-body wt-panel-body p-a20 education-section-body" style={{overflow: 'visible', zIndex: 1000, position: 'relative'}}>
-                <div className="twm-panel-inner" style={{overflow: 'visible', position: 'relative', zIndex: 100}}>
+            <div className="panel-body wt-panel-body p-a20 education-section-body" style={{zIndex: 1000, position: 'relative'}}>
+                <div className="twm-panel-inner" style={{position: 'relative', zIndex: 100}}>
                     {/* Education Level Dropdown */}
                     <div className="mb-4" style={{ maxWidth: '300px', position: 'relative', zIndex: 1001 }}>
                         <label className="form-label fw-bold">Select Education Level</label>
@@ -1480,30 +1479,8 @@ function SectionCanEducation({ profile, onUpdate }) {
                     {educationEntries.length > 0 && (
                         <div className="mt-4">
                             <h5 className="mb-3">Education Summary</h5>
-                            <style>{`
-                                .education-section-body {
-                                    overflow: visible !important;
-                                }
-                                .twm-panel-inner {
-                                    overflow: visible !important;
-                                }
-                                .panel {
-                                    overflow: visible !important;
-                                }
-                                .panel-body {
-                                    overflow: visible !important;
-                                }
-                            `}</style>
                             <div className="table-responsive education-table-wrapper" style={{border: '1px solid #dee2e6', borderRadius: '8px', marginBottom: '20px'}}>
-                                <table className="table table-bordered table-sm mb-0" style={{minWidth: '800px', fontSize: '14px', width: '100%'}}>
-                                <style>{`
-                                    .table tbody tr:hover {
-                                        background-color: transparent !important;
-                                    }
-                                    .table tbody tr:hover td {
-                                        background-color: transparent !important;
-                                    }
-                                `}</style>
+                                <table className="table table-bordered table-sm mb-0" style={{fontSize: '14px', width: '100%'}}>
                                     <thead className="table-light">
                                         <tr>
                                             <th style={{minWidth: '120px', whiteSpace: 'nowrap'}}>Qualification</th>

@@ -15,6 +15,7 @@ import "../../../../../emp-detail-title-fix.css";
 import "../../../../../emp-detail-responsive-fix.css";
 import "../../../../../emp-detail-form-fix.css";
 import "../../../../../emp-detail-review-mobile-fix.css";
+import "../../../../../emp-detail-white-container.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 function EmployersDetail1Page() {
@@ -195,7 +196,7 @@ function EmployersDetail1Page() {
 
     return (
 			<>
-				<div className="section-full p-t120 p-b90 bg-white emp-detail">
+				<div className="section-full p-t120 p-b90 emp-detail">
 					<div className="container">
 						<div className="section-content">
 							<div className="row d-flex justify-content-center">
@@ -331,7 +332,9 @@ function EmployersDetail1Page() {
 											>
 												<h4 className="twm-s-title">About Company</h4>
 												<div dangerouslySetInnerHTML={{
-													__html: employer.description || employer.companyDescription || 'No company description available.'
+													__html: (employer.employerId?.employerType === 'consultant' && employer.companyDescription) 
+														? employer.companyDescription 
+														: (employer.description || 'No company description available.')
 												}} />
 
 												<h4 className="twm-s-title">Why Join Us</h4>

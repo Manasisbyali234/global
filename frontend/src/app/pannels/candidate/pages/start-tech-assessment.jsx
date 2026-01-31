@@ -998,8 +998,8 @@ const StartAssessment = () => {
 										style={{ marginRight: "10px", marginTop: "2px" }}
 									/>
 									<div style={{ flex: 1 }}>
-										<div>{String.fromCharCode(65 + idx)}. {option}</div>
-										{question.type === 'visual-mcq' && question.optionImages && question.optionImages[idx] && (
+										<div>{String.fromCharCode(65 + idx)}.{question.type !== 'questionary-image-mcq' && ` ${option}`}</div>
+										{(question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && question.optionImages && question.optionImages[idx] && (
 											<div style={{ marginTop: "8px" }}>
 												<img 
 													src={question.optionImages[idx]} 

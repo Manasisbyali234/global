@@ -1402,7 +1402,7 @@ function EmpCompanyProfilePage() {
                                 <div className="form-group">
                                     <label className="required-field"><FileText size={16} className="me-2" /> About Company</label>
                                     <RichTextEditor
-                                        value={formData.description || 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.'}
+                                        value={formData.description || ''}
                                         onChange={(value) => handleInputChange('description', value)}
                                         placeholder="Enter company description..."
                                         className="form-control-editor"
