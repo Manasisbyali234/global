@@ -8,6 +8,7 @@ const InterviewProcess = require('../models/InterviewProcess');
 const { createProfileCompletionNotification } = require('./notificationController');
 const { sendWelcomeEmail, sendJobApplicationConfirmationEmail } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
+const { sendSMS } = require('../utils/smsProvider');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -26,15 +27,22 @@ exports.registerCandidate = async (req, res) => {
     }
 
     // Create candidate without password - they will create it via email link
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
     const candidate = await Candidate.create({ 
       name, 
       email: email.trim(), // Preserve original email format, just trim whitespace
       phone,
       registrationMethod: 'email_signup',
       credits: 0,
-      status: 'pending'
+      status: 'pending',
+      phoneOTP: otp,
+      phoneOTPExpires: Date.now() + 10 * 60 * 1000 // 10 minutes
     });
     console.log('Candidate created:', candidate._id);
+    
+    // Send SMS OTP
+    await sendSMS(phone, otp, name);
     
     await CandidateProfile.create({ candidateId: candidate._id });
     console.log('Profile created for candidate');
@@ -50,7 +58,7 @@ exports.registerCandidate = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful! Please check your email to create your password.'
+      message: 'Registration successful! Please check your email to create your password and verify your mobile number via OTP sent to your phone.'
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -941,6 +949,30 @@ exports.verifyOTPAndResetPassword = async (req, res) => {
     await candidate.save();
 
     res.json({ success: true, message: 'Password reset successful' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.verifyMobileOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const candidate = await Candidate.findByEmail(email.trim());
+
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found' });
+    }
+
+    if (candidate.phoneOTP !== otp || (candidate.phoneOTPExpires && candidate.phoneOTPExpires < Date.now())) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    }
+
+    candidate.isPhoneVerified = true;
+    candidate.phoneOTP = undefined;
+    candidate.phoneOTPExpires = undefined;
+    await candidate.save();
+
+    res.json({ success: true, message: 'Mobile number verified successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

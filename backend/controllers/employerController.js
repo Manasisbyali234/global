@@ -11,6 +11,7 @@ const { createNotification } = require('./notificationController');
 const { sendWelcomeEmail } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { cacheInvalidation } = require('../utils/cacheInvalidation');
+const { sendSMS } = require('../utils/smsProvider');
 const { validateGSTFormat, fetchGSTInfo, mapGSTToProfile } = require('../utils/gstService');
 const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
 
@@ -32,15 +33,22 @@ exports.registerEmployer = async (req, res) => {
 
     const finalEmployerType = employerType || (employerCategory === 'consultancy' ? 'consultant' : 'company');
 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     // Create employer without password - they will create it via email link
     const employer = await Employer.create({ 
       name, 
       email: email.trim(), // Preserve original email format, just trim whitespace
       phone, 
       companyName,
-      employerType: finalEmployerType
+      employerType: finalEmployerType,
+      phoneOTP: otp,
+      phoneOTPExpires: Date.now() + 10 * 60 * 1000
     });
     
+    // Send SMS OTP
+    await sendSMS(phone, otp, name);
+
     await EmployerProfile.create({ 
       employerId: employer._id,
       employerCategory: employerCategory || finalEmployerType,
@@ -64,7 +72,7 @@ exports.registerEmployer = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful! Please check your email to create your password.'
+      message: 'Registration successful! Please check your email to create your password and verify your mobile number.'
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -2721,6 +2729,30 @@ exports.downloadSupportAttachment = async (req, res) => {
     });
   } catch (error) {
     console.error('Error downloading attachment:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.verifyMobileOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const employer = await Employer.findByEmail(email.trim());
+
+    if (!employer) {
+      return res.status(404).json({ success: false, message: 'Employer not found' });
+    }
+
+    if (employer.phoneOTP !== otp || (employer.phoneOTPExpires && employer.phoneOTPExpires < Date.now())) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    }
+
+    employer.isPhoneVerified = true;
+    employer.phoneOTP = undefined;
+    employer.phoneOTPExpires = undefined;
+    await employer.save();
+
+    res.json({ success: true, message: 'Mobile number verified successfully' });
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };

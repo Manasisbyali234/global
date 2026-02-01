@@ -216,6 +216,110 @@
   font-size: 13px;
 }
 
+/* OTP Modal Styles */
+.otp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.otp-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.otp-modal h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #0F172A;
+  font-size: 24px;
+}
+
+.otp-modal p {
+  color: #64748B;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.otp-input-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.otp-digit-input {
+  width: 45px;
+  height: 50px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 20px;
+  text-align: center;
+  font-weight: 700;
+  background-color: #F8FAFC;
+}
+
+.otp-digit-input:focus {
+  border-color: #0F172A;
+  outline: none;
+  background-color: white;
+}
+
+.otp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.verify-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #0F172A;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.verify-btn:hover {
+  background: #1e293b;
+}
+
+.cancel-btn {
+  background: transparent;
+  color: #64748B;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cancel-btn:hover {
+  color: #0F172A;
+}
+
 @media (max-width: 900px) {
   .auth-page-wrapper {
     margin-top: -140px;

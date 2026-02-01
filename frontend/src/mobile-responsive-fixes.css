@@ -863,3 +863,18 @@ button[type="submit"][style*="width"],
     page-break-inside: avoid;
   }
 }
+
+/* ============================================
+   FIX FOR POPUP CLOSE BUTTONS
+   ============================================ */
+/* Override the min-width/min-height set for touch targets on mobile */
+.popup-close-button,
+.btn-close,
+button.close,
+.modal-header .btn-close {
+  min-width: unset !important;
+  min-height: unset !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0.5rem !important; 
+}

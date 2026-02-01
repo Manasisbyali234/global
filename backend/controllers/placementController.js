@@ -6,6 +6,7 @@ const CandidateProfile = require('../models/CandidateProfile');
 const PlacementCandidate = require('../models/PlacementCandidate');
 const { createNotification } = require('./notificationController');
 const { sendWelcomeEmail, sendApprovalEmail, sendPlacementCandidateWelcomeEmail } = require('../utils/emailService');
+const { sendSMS } = require('../utils/smsProvider');
 const XLSX = require('xlsx');
 const { base64ToBuffer } = require('../utils/base64Helper');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
@@ -33,13 +34,20 @@ exports.registerPlacement = async (req, res) => {
         });
       }
 
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
       const placementData = { 
         name: name.trim(), 
         email: email.toLowerCase().trim(), 
         phone: phone.trim(), 
-        collegeName: collegeName.trim()
+        collegeName: collegeName.trim(),
+        phoneOTP: otp,
+        phoneOTPExpires: Date.now() + 10 * 60 * 1000
       };
       const placement = await Placement.create(placementData);
+      
+      // Send SMS OTP
+      await sendSMS(phone, otp, name);
       
       // Create notification for admin
       try {
@@ -65,7 +73,7 @@ exports.registerPlacement = async (req, res) => {
 
       return res.status(201).json({
         success: true,
-        message: 'Registration successful. Please check your email to create your password.'
+        message: 'Registration successful. Please check your email to create your password and verify your mobile number.'
       });
     }
 
@@ -77,14 +85,21 @@ exports.registerPlacement = async (req, res) => {
       });
     }
 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     const placementData = { 
       name: name.trim(), 
       email: email.toLowerCase().trim(), 
       password: password.trim(), 
       phone: phone.trim(), 
-      collegeName: collegeName.trim() 
+      collegeName: collegeName.trim(),
+      phoneOTP: otp,
+      phoneOTPExpires: Date.now() + 10 * 60 * 1000
     };
     const placement = await Placement.create(placementData);
+    
+    // Send SMS OTP
+    await sendSMS(phone, otp, name);
     
     // Create notification for admin
     try {
@@ -109,7 +124,7 @@ exports.registerPlacement = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful. Please wait for admin approval before you can sign in.',
+      message: 'Registration successful. Please verify your mobile number. Please wait for admin approval before you can sign in.',
       placement: {
         id: placement._id,
         name: placement.name,
@@ -1702,6 +1717,30 @@ exports.updatePasswordReset = async (req, res) => {
     res.json({ success: true, message: 'Password updated successfully' });
   } catch (error) {
     console.error('Password reset error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.verifyMobileOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const placement = await Placement.findByEmail(email.trim());
+
+    if (!placement) {
+      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+    }
+
+    if (placement.phoneOTP !== otp || (placement.phoneOTPExpires && placement.phoneOTPExpires < Date.now())) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    }
+
+    placement.isPhoneVerified = true;
+    placement.phoneOTP = undefined;
+    placement.phoneOTPExpires = undefined;
+    await placement.save();
+
+    res.json({ success: true, message: 'Mobile number verified successfully' });
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };

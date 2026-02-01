@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { publicUser } from "../../../../../../globals/route-names";
 import { handlePhoneInputChange } from "../../../../../../utils/phoneValidation";
 import { showSuccess, showError } from "../../../../../../utils/popupNotification";
@@ -8,6 +8,7 @@ import JobZImage from "../../../../../common/jobz-img";
 import "./AuthPages.css";
 
 function SignupPlacement() {
+    const navigate = useNavigate();
     const [placementData, setPlacementData] = useState({
         name: '',
         email: '',
@@ -20,6 +21,9 @@ function SignupPlacement() {
     const [fieldErrors, setFieldErrors] = useState({});
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [otp, setOtp] = useState('');
+    const [verifying, setVerifying] = useState(false);
 
     const validateField = (name, value) => {
         const errors = { ...fieldErrors };
@@ -65,6 +69,35 @@ function SignupPlacement() {
         }
     };
 
+    const registerPlacement = async () => {
+        setLoading(true);
+        try {
+            const apiUrl = process.env.REACT_APP_API_URL || '';
+            const response = await fetch(`${apiUrl}/api/placement/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: placementData.name,
+                    email: placementData.email,
+                    phone: placementData.countryCode + placementData.phone,
+                    collegeName: placementData.collegeName,
+                    sendWelcomeEmail: true
+                })
+            });
+            
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setShowOtpModal(true);
+            } else {
+                showError(data.message || 'Registration failed.');
+            }
+        } catch (error) {
+            showError('Network error. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -89,39 +122,48 @@ function SignupPlacement() {
             return;
         }
 
-        setLoading(true);
+        registerPlacement();
+    };
+
+    const handleOtpVerify = async (e) => {
+        e.preventDefault();
+        if (otp.length !== 6) {
+            showError('Please enter a valid 6-digit OTP');
+            return;
+        }
+
+        setVerifying(true);
         try {
             const apiUrl = process.env.REACT_APP_API_URL || '';
-            const response = await fetch(`${apiUrl}/api/placement/register`, {
+            const response = await fetch(`${apiUrl}/api/placement/verify-mobile`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: placementData.name,
                     email: placementData.email,
-                    phone: placementData.countryCode + placementData.phone,
-                    collegeName: placementData.collegeName,
-                    sendWelcomeEmail: true
+                    otp: otp
                 })
             });
-            
+
             const data = await response.json();
             if (response.ok && data.success) {
-                showSuccess('You have successfully signed up! Please check your registered email inbox to create your password.');
+                showSuccess('Mobile number verified successfully! Please check your registered email inbox to create your password.');
+                setShowOtpModal(false);
                 setPlacementData({ name: '', email: '', phone: '', collegeName: '', countryCode: '+91' });
-                setTermsAccepted(false);
+                navigate(publicUser.pages.LOGIN_PLACEMENT);
             } else {
-                showError(data.message || 'Registration failed.');
+                showError(data.message || 'Verification failed');
             }
         } catch (error) {
             showError('Network error. Please try again.');
         } finally {
-            setLoading(false);
+            setVerifying(false);
         }
     };
 
     const handleTermsAccept = () => {
         setTermsAccepted(true);
         setShowTermsModal(false);
+        registerPlacement();
     };
 
     return (
@@ -211,6 +253,39 @@ function SignupPlacement() {
                 </div>
             </div>
             <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} onAccept={handleTermsAccept} role="placement" />
+            
+            {showOtpModal && (
+                <div className="otp-modal-overlay">
+                    <div className="otp-modal">
+                        <h3>Verify Mobile Number</h3>
+                        <p>We have sent a 6-digit OTP to {placementData.phone}</p>
+                        
+                        <form onSubmit={handleOtpVerify}>
+                            <div className="otp-input-container">
+                                <input
+                                    type="text"
+                                    className="otp-digit-input"
+                                    maxLength="6"
+                                    style={{ width: '200px' }}
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
+                                    placeholder="Enter OTP"
+                                    autoFocus
+                                />
+                            </div>
+                            
+                            <div className="otp-actions">
+                                <button type="submit" className="verify-btn" disabled={verifying}>
+                                    {verifying ? 'Verifying...' : 'Verify & Proceed'}
+                                </button>
+                                <button type="button" className="cancel-btn" onClick={() => setShowOtpModal(false)} disabled={verifying}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
