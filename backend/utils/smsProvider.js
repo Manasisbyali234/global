@@ -29,7 +29,7 @@ const sendSMS = async (mobile, otp, name) => {
         template_id: process.env.TEMPLATE_ID,
         sid: process.env.SID,
         name: firstName,
-        otp: [otp]
+        otp: otp
       },
       {
         headers: {
