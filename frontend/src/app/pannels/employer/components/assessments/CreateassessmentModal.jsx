@@ -106,7 +106,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				updated[index].options = [];
 				updated[index].optionImages = [];
 				updated[index].correctAnswer = null;
-			} else if (value === "mcq" || value === "visual-mcq" || value === "questionary-image-mcq") {
+			} else if (value === "mcq" || value === "visual-mcq" || value === "questionary-image-mcq" || value === "image-mcq") {
 				updated[index].options = ["", "", "", ""];
 				updated[index].optionImages = (value === "visual-mcq" || value === "questionary-image-mcq") ? ["", "", "", ""] : [];
 				updated[index].correctAnswer = null;
@@ -132,22 +132,27 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		// Validate the last question before adding a new one
 		if (questions.length > 0) {
 			const lastQuestion = questions[questions.length - 1];
-			const questionText = lastQuestion.question.replace(/<[^>]*>/g, '').trim();
+			const questionText = (lastQuestion.question || "").replace(/<[^>]*>/g, '').trim();
 			
-			if (!questionText) {
+			if (!questionText && lastQuestion.type !== 'image-mcq') {
 				showWarning("Please write a question before adding a new one");
 				return;
 			}
 			
-			if ((lastQuestion.type === "mcq" || lastQuestion.type === "visual-mcq" || lastQuestion.type === "questionary-image-mcq") && (lastQuestion.correctAnswer === null || lastQuestion.correctAnswer === undefined)) {
-				showWarning("Please select answer before you create question");
+			if (lastQuestion.type === 'image-mcq' && !lastQuestion.imageUrl) {
+				showWarning("Please upload an image for the question before adding a new one");
+				return;
+			}
+			
+			if (["mcq", "visual-mcq", "questionary-image-mcq", "image-mcq"].includes(lastQuestion.type) && (lastQuestion.correctAnswer === null || lastQuestion.correctAnswer === undefined)) {
+				showWarning("Please select a correct answer before adding a new question");
 				return;
 			}
 		}
 		
 		setQuestions([
 			...questions,
-			{ question: "", type: "mcq", options: ["", "", "", ""], optionImages: ["", "", "", ""], correctAnswer: null, marks: 1, imageUrl: "" },
+			{ question: "", type: "mcq", options: ["", "", "", ""], optionImages: [], correctAnswer: null, marks: 1, imageUrl: "" },
 		]);
 	};
 
@@ -269,22 +274,27 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		for (let i = 0; i < questions.length; i++) {
 			const question = questions[i];
 			
-			const questionText = question.question.replace(/<[^>]*>/g, '').trim();
-			if (!questionText) {
+			const questionText = (question.question || "").replace(/<[^>]*>/g, '').trim();
+			if (!questionText && question.type !== 'image-mcq') {
 				showWarning(`Please enter text for Question ${i + 1}`);
 				return;
 			}
+
+			if (question.type === "image-mcq" && !question.imageUrl) {
+				showWarning(`Please upload an image for Question ${i + 1}`);
+				return;
+			}
 			
-			if (question.type === "mcq" || question.type === "visual-mcq" || question.type === "questionary-image-mcq") {
+			if (["mcq", "visual-mcq", "questionary-image-mcq", "image-mcq"].includes(question.type)) {
 				for (let j = 0; j < question.options.length; j++) {
-					if (!question.options[j].trim()) {
+					if (!question.options[j] || !question.options[j].trim()) {
 						showWarning(`Please fill Option ${String.fromCharCode(65 + j)} for Question ${i + 1}`);
 						return;
 					}
 				}
 				
 				if (question.correctAnswer === null || question.correctAnswer === undefined) {
-					showWarning(`Please select answer before you create question`);
+					showWarning(`Please select a correct answer for Question ${i + 1}`);
 					return;
 				}
 			}
@@ -296,13 +306,13 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		}
 		
 		onCreate({
-				id: editData?._id,
-				title,
-				type: title, // Use title as type since Type field is hidden
-				designation,
-				companyName,
-				timer: timeLimit,
-			description,
+			id: editData?._id,
+			title: title.trim(),
+			type: title.trim(),
+			designation: designation.trim(),
+			companyName: companyName.trim(),
+			timer: parseInt(timeLimit) || 30,
+			description: description.trim(),
 			questions,
 			status: isDraft ? 'draft' : 'published'
 		});
@@ -613,7 +623,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					}}>
 						<i className="fa fa-info-circle" style={{color: '#2196f3', fontSize: 14}}></i>
 						<small style={{color: '#1565c0', fontSize: 12, margin: 0}}>
-							Supports MCQ, Visual MCQs, Questionary image MCQ, Subjective (text), and Upload Image questions
+							Supports MCQ, Visual MCQs, Questionary image MCQ, Image MCQ, Subjective (text), and Upload Image questions
 						</small>
 					</div>
 
@@ -637,6 +647,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 										<option value="mcq">MCQ</option>
 										<option value="visual-mcq">Visual MCQs</option>
 										<option value="questionary-image-mcq">Questionary image MCQ</option>
+										<option value="image-mcq">Image MCQ</option>
 										<option value="subjective">Subjective</option>
 										<option value="upload">Upload File</option>
 										<option value="image">Upload Image</option>
@@ -652,16 +663,75 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 									</button>
 								</div>
 							</div>
-							<ReactQuill
-								theme="snow"
-								value={q.question || ''}
-								onChange={(value) => handleQuestionChange(qIndex, "question", value)}
-								modules={quillModules}
-								formats={quillFormats}
-								placeholder="Enter your question here..."
-								style={{ marginBottom: '1rem' }}
-							/>
-							{q.type === "mcq" || q.type === "visual-mcq" || q.type === "questionary-image-mcq" ? (
+							{q.type === 'image-mcq' ? (
+								<div className="mb-3">
+									<label className="form-label small text-muted mb-2 fw-semibold">
+										Upload Question Image <span style={{color: '#dc2626'}}>*</span>
+									</label>
+									<div 
+										style={{
+											border: '2px dashed #d1d5db',
+											borderRadius: '8px',
+											padding: '20px',
+											textAlign: 'center',
+											background: '#fff',
+											cursor: 'pointer',
+											transition: 'all 0.2s ease',
+											borderColor: q.imageUrl ? '#10b981' : '#dc2626'
+										}}
+										onClick={() => document.getElementById(`q-image-${qIndex}`).click()}
+									>
+										<input
+											id={`q-image-${qIndex}`}
+											type="file"
+											className="d-none"
+											accept="image/*"
+											onChange={(e) => handleImageUpload(qIndex, e.target.files[0])}
+										/>
+										{!q.imageUrl ? (
+											<div>
+												<i className="fa fa-cloud-upload" style={{ fontSize: '24px', color: '#6b7280', marginBottom: '8px' }}></i>
+												<p className="mb-0 small text-muted">Click to upload or drag and drop</p>
+												<p className="mb-0 extra-small text-muted" style={{ fontSize: '10px' }}>PNG, JPG or GIF (max. 5MB)</p>
+											</div>
+										) : (
+											<div className="position-relative d-inline-block">
+												<img src={q.imageUrl} alt="Question" style={{maxWidth: '100%', maxHeight: '180px', borderRadius: '4px'}} />
+												<div className="mt-2 small text-success">
+													<i className="fa fa-check-circle me-1"></i> Image Uploaded
+												</div>
+											</div>
+										)}
+									</div>
+									{q.imageUrl && (
+										<button
+											type="button"
+											className="btn btn-sm mt-2"
+											style={{color: '#dc2626', fontSize: '12px', padding: 0}}
+											onClick={(e) => { e.stopPropagation(); handleQuestionChange(qIndex, "imageUrl", ""); }}
+										>
+											<i className="fa fa-trash-o me-1"></i> Remove and re-upload
+										</button>
+									)}
+									{!q.imageUrl && (
+										<small style={{color: '#dc2626', fontSize: 11, marginTop: 4, display: 'block'}}>
+											<i className="fa fa-exclamation-circle me-1"></i>
+											Image is required for this question type
+										</small>
+									)}
+								</div>
+							) : (
+								<ReactQuill
+									theme="snow"
+									value={q.question || ''}
+									onChange={(value) => handleQuestionChange(qIndex, "question", value)}
+									modules={quillModules}
+									formats={quillFormats}
+									placeholder="Enter your question here..."
+									style={{ marginBottom: '1rem' }}
+								/>
+							)}
+							{q.type === "mcq" || q.type === "visual-mcq" || q.type === "questionary-image-mcq" || q.type === "image-mcq" ? (
 								<>
 									<div className="row mb-3">
 										{q.options.map((opt, optIndex) => (
@@ -763,28 +833,30 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								</div>
 							)}
 							
-							<div className="mb-3">
-								<label className="form-label small text-muted mb-1">Question Image (Optional)</label>
-								<input
-									type="file"
-									className="form-control"
-									accept="image/*"
-									onChange={(e) => handleImageUpload(qIndex, e.target.files[0])}
-								/>
-								{q.imageUrl && (
-									<div className="mt-2">
-										<img src={q.imageUrl} alt="Question" style={{maxWidth: '200px', maxHeight: '150px'}} />
-										<button
-											type="button"
-											className="btn btn-sm ms-2"
-											style={{backgroundColor: '#ff6600', color: 'white', border: 'none'}}
-											onClick={() => handleQuestionChange(qIndex, "imageUrl", "")}
-										>
-											Remove
-										</button>
-									</div>
-								)}
-							</div>
+							{q.type !== 'image-mcq' && (
+								<div className="mb-3">
+									<label className="form-label small text-muted mb-1">Question Image (Optional)</label>
+									<input
+										type="file"
+										className="form-control"
+										accept="image/*"
+										onChange={(e) => handleImageUpload(qIndex, e.target.files[0])}
+									/>
+									{q.imageUrl && (
+										<div className="mt-2">
+											<img src={q.imageUrl} alt="Question" style={{maxWidth: '200px', maxHeight: '150px'}} />
+											<button
+												type="button"
+												className="btn btn-sm ms-2"
+												style={{backgroundColor: '#ff6600', color: 'white', border: 'none'}}
+												onClick={() => handleQuestionChange(qIndex, "imageUrl", "")}
+											>
+												Remove
+											</button>
+										</div>
+									)}
+								</div>
+							)}
 							
 							<div className="row">
 								<div className="col-6">

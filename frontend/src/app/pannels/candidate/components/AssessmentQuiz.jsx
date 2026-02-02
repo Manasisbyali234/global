@@ -313,7 +313,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
     const question = assessment.questions[currentQuestion];
     
     // Validate answers before proceeding
-    if ((question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && selectedAnswer === null) {
+    if ((question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && selectedAnswer === null) {
       alert('Please select an answer before proceeding to the next question.');
       return;
     }
@@ -344,7 +344,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
         const response = await axios.post('/api/candidate/assessments/answer', {
           attemptId,
           questionIndex: currentQuestion,
-          selectedAnswer: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') ? selectedAnswer : null,
+          selectedAnswer: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') ? selectedAnswer : null,
           textAnswer: question.type === 'subjective' ? textAnswer : null,
           timeSpent: Date.now() - startTime
         }, {
@@ -397,7 +397,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
           const answerResponse = await axios.post('/api/candidate/assessments/answer', {
             attemptId,
             questionIndex: currentQuestion,
-            selectedAnswer: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') ? selectedAnswer : null,
+            selectedAnswer: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') ? selectedAnswer : null,
             textAnswer: question.type === 'subjective' ? textAnswer : null,
             timeSpent: Date.now() - startTime
           }, {
@@ -500,14 +500,16 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
           </div>
         </div>
         <div className="card-body">
-          <h6 className="mb-4">Q{currentQuestion + 1}. <span dangerouslySetInnerHTML={{ __html: question.question }} /></h6>
+          <h6 className="mb-4">
+            Q{currentQuestion + 1}. {question.question ? <span dangerouslySetInnerHTML={{ __html: question.question }} /> : 'Please refer to the image below:'}
+          </h6>
           {question.imageUrl && (
             <div className="mb-3">
               <img src={question.imageUrl} alt="Question" style={{maxWidth: '100%', maxHeight: '400px', borderRadius: '8px'}} />
             </div>
           )}
           
-          {(question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && (
+          {(question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && (
             <div className="options">
               {question.options.map((option, index) => (
                 <div key={index} className="form-check mb-3 p-3 border rounded" style={{cursor: 'pointer'}}
@@ -686,7 +688,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
                 className="btn btn-primary"
                 onClick={handleNext}
                 disabled={
-                  ((question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && selectedAnswer === null) ||
+                  ((question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && selectedAnswer === null) ||
                   (question.type === 'subjective' && !textAnswer.trim() && !uploadedFile) ||
                   (question.type === 'upload' && !uploadedFile) ||
                   uploading

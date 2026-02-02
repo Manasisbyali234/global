@@ -17,7 +17,7 @@ exports.createAssessment = async (req, res) => {
     
     // Additional server-side validation
     if (!title || title.trim().length === 0) {
-      return res.status(400).json({ success: false, message: 'Assessment type is required' });
+      return res.status(400).json({ success: false, message: 'Assessment title is required' });
     }
     
     if (!questions || questions.length === 0) {
@@ -27,29 +27,33 @@ exports.createAssessment = async (req, res) => {
     // Validate each question
     for (let i = 0; i < questions.length; i++) {
       const question = questions[i];
+      const questionType = question.type || 'mcq';
       
       const questionText = question.question ? question.question.replace(/<[^>]*>/g, '').trim() : '';
-      if (!questionText) {
+      if (!questionText && questionType !== 'image-mcq') {
         return res.status(400).json({ 
           success: false, 
           message: `Question ${i + 1} text is required` 
         });
       }
       
-      // Only validate options and correctAnswer for MCQ questions
-      const questionType = question.type || 'mcq';
-      console.log(`Validating question ${i + 1} with type: ${questionType}`);
-      
-      // Validate question type is in allowed enum values
-      const allowedTypes = ['mcq', 'visual-mcq', 'questionary-image-mcq', 'subjective', 'upload', 'image'];
-      if (!allowedTypes.includes(questionType)) {
+      if (questionType === 'image-mcq' && !question.imageUrl) {
         return res.status(400).json({ 
           success: false, 
-          message: `Question ${i + 1} has invalid type: ${questionType}. Allowed types: ${allowedTypes.join(', ')}` 
+          message: `Question ${i + 1} requires an image upload` 
         });
       }
       
-      if (questionType === 'mcq' || questionType === 'visual-mcq' || questionType === 'questionary-image-mcq') {
+      // Validate question type is in allowed enum values
+      const allowedTypes = ['mcq', 'visual-mcq', 'questionary-image-mcq', 'image-mcq', 'subjective', 'upload', 'image'];
+      if (!allowedTypes.includes(questionType)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Question ${i + 1} has invalid type: ${questionType}` 
+        });
+      }
+      
+      if (['mcq', 'visual-mcq', 'questionary-image-mcq', 'image-mcq'].includes(questionType)) {
         if (!question.options || question.options.length < 2) {
           return res.status(400).json({ 
             success: false, 
@@ -105,7 +109,7 @@ exports.createAssessment = async (req, res) => {
       timer: timer || 30,
       totalQuestions: questions.length,
       questions: questions.map(q => ({
-        question: q.question.trim(),
+        question: q.question ? q.question.trim() : '',
         type: q.type || 'mcq',
         options: (q.type === 'subjective' || q.type === 'upload' || q.type === 'image') ? [] : q.options.map(opt => opt.trim()),
         optionImages: ((q.type === 'visual-mcq' || q.type === 'questionary-image-mcq') && q.optionImages) ? q.optionImages : [],
@@ -161,7 +165,7 @@ exports.updateAssessment = async (req, res) => {
     
     // Additional server-side validation (same as create)
     if (!title || title.trim().length === 0) {
-      return res.status(400).json({ success: false, message: 'Assessment type is required' });
+      return res.status(400).json({ success: false, message: 'Assessment title is required' });
     }
     
     if (!questions || questions.length === 0) {
@@ -171,28 +175,33 @@ exports.updateAssessment = async (req, res) => {
     // Validate each question
     for (let i = 0; i < questions.length; i++) {
       const question = questions[i];
+      const questionType = question.type || 'mcq';
       
       const questionText = question.question ? question.question.replace(/<[^>]*>/g, '').trim() : '';
-      if (!questionText) {
+      if (!questionText && questionType !== 'image-mcq') {
         return res.status(400).json({ 
           success: false, 
           message: `Question ${i + 1} text is required` 
         });
       }
       
-      const questionType = question.type || 'mcq';
-      console.log(`Validating question ${i + 1} with type: ${questionType}`);
-      
-      // Validate question type is in allowed enum values
-      const allowedTypes = ['mcq', 'visual-mcq', 'questionary-image-mcq', 'subjective', 'upload', 'image'];
-      if (!allowedTypes.includes(questionType)) {
+      if (questionType === 'image-mcq' && !question.imageUrl) {
         return res.status(400).json({ 
           success: false, 
-          message: `Question ${i + 1} has invalid type: ${questionType}. Allowed types: ${allowedTypes.join(', ')}` 
+          message: `Question ${i + 1} requires an image upload` 
         });
       }
       
-      if (questionType === 'mcq' || questionType === 'visual-mcq' || questionType === 'questionary-image-mcq') {
+      // Validate question type is in allowed enum values
+      const allowedTypes = ['mcq', 'visual-mcq', 'questionary-image-mcq', 'image-mcq', 'subjective', 'upload', 'image'];
+      if (!allowedTypes.includes(questionType)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Question ${i + 1} has invalid type: ${questionType}` 
+        });
+      }
+      
+      if (['mcq', 'visual-mcq', 'questionary-image-mcq', 'image-mcq'].includes(questionType)) {
         if (!question.options || question.options.length < 2) {
           return res.status(400).json({ 
             success: false, 
@@ -236,7 +245,7 @@ exports.updateAssessment = async (req, res) => {
       timer: timer || 30,
       totalQuestions: questions.length,
       questions: questions.map(q => ({
-        question: q.question.trim(),
+        question: q.question ? q.question.trim() : '',
         type: q.type || 'mcq',
         options: (q.type === 'subjective' || q.type === 'upload' || q.type === 'image') ? [] : q.options.map(opt => opt.trim()),
         optionImages: ((q.type === 'visual-mcq' || q.type === 'questionary-image-mcq') && q.optionImages) ? q.optionImages : [],

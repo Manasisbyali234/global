@@ -219,7 +219,7 @@ export default function ViewAnswers() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {allAnswers.map((answer, index) => {
               const question = assessment.questions[answer.questionIndex];
-              const isCorrect = (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && parseInt(answer.selectedAnswer) === parseInt(question.correctAnswer);
+              const isCorrect = (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && parseInt(answer.selectedAnswer) === parseInt(question.correctAnswer);
               return (
                 <div 
                   key={index}
@@ -242,7 +242,7 @@ export default function ViewAnswers() {
                       Question {answer.questionIndex + 1}
                     </span>
                     <span style={{ 
-                      background: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') ? '#3b82f6' : 
+                      background: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') ? '#3b82f6' : 
                                  question.type === 'subjective' ? '#10b981' : 
                                  question.type === 'image' ? '#8b5cf6' : '#f59e0b', 
                       color: 'white', 
@@ -255,10 +255,11 @@ export default function ViewAnswers() {
                       {question.type === 'mcq' ? 'MCQ' : 
                        question.type === 'visual-mcq' ? 'Visual MCQ' :
                        question.type === 'questionary-image-mcq' ? 'Questionary image MCQ' :
+                       question.type === 'image-mcq' ? 'Image MCQ' :
                        question.type === 'subjective' ? 'Subjective' : 
                        question.type === 'image' ? 'Image Upload' : 'File Upload'}
                     </span>
-                    {(question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && (
+                    {(question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && (
                       <span style={{ 
                         background: isCorrect ? '#dcfce7' : '#fecaca', 
                         color: isCorrect ? '#166534' : '#991b1b', 
@@ -277,7 +278,7 @@ export default function ViewAnswers() {
                     color: '#111827', 
                     marginBottom: '1rem' 
                   }}>
-                    {question.question.replace(/<[^>]*>/g, '')}
+                    {question.question ? question.question.replace(/<[^>]*>/g, '') : 'Image-based question'}
                   </h3>
                   {question.imageUrl && (
                     <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>

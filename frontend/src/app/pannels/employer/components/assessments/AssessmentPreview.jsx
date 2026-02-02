@@ -104,7 +104,7 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                             <span style={{ marginRight: "10px" }}>{currentQuestionIndex + 1}.</span>
                             <div 
                                 style={{ display: "inline-block", verticalAlign: "top", width: "calc(100% - 40px)" }}
-                                dangerouslySetInnerHTML={{ __html: currentQuestion.question || "Untitled Question" }} 
+                                dangerouslySetInnerHTML={{ __html: currentQuestion.question || (currentQuestion.type === 'image-mcq' ? "Image-based question" : "Untitled Question") }} 
                             />
                         </div>
                         
