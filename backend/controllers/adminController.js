@@ -48,8 +48,12 @@ exports.loginAdmin = async (req, res) => {
       userType = 'sub-admin';
     }
     
-    if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid email' });
+    }
+
+    if (!(await user.comparePassword(password))) {
+      return res.status(401).json({ success: false, message: 'Invalid password' });
     }
 
     if (user.status !== 'active') {

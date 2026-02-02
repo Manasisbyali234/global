@@ -2,16 +2,19 @@ import { NavLink, useNavigate } from "react-router-dom";
 import JobZImage from "../../../../common/jobz-img";
 import { canRoute, candidate, empRoute, employer, publicUser, pages } from "../../../../../globals/route-names";
 import { useState, useEffect } from "react";
-import processLogin from "../../../../form-processing/login";
+import { useAuth } from "../../../../../contexts/AuthContext";
 import { formType, loadScript, publicUrlFor } from "../../../../../globals/constants";
 import CountUp from "react-countup";
 
 function AfterLoginPage() {
 
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [canusername, setCanUsername] = useState('guest');
     const [empusername, setEmpUsername] = useState('admin');
     const [password, setPassword] = useState('12345');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleCandidateLogin = (event) => {
         event.preventDefault();
@@ -23,40 +26,40 @@ function AfterLoginPage() {
         loginEmployer();
     }
 
-    const loginCandidate = () => {
-        processLogin(
+    const loginCandidate = async () => {
+        setLoading(true);
+        setError('');
+        const result = await login(
             {
-                type: formType.LOGIN_CANDIDATE,
-                username: canusername,
+                email: canusername,
                 password: password
             },
-            (valid) => {
-                if (valid) {
-                    moveToCandidate();
-                } else {
-                    // show error
-                    
-                }
-            }
+            'candidate'
         );
+        setLoading(false);
+        if (result.success) {
+            moveToCandidate();
+        } else {
+            setError(result.message || 'Invalid email or password');
+        }
     }
 
-    const loginEmployer = () => {
-        processLogin(
+    const loginEmployer = async () => {
+        setLoading(true);
+        setError('');
+        const result = await login(
             {
-                type: formType.LOGIN_EMPLOYER,
-                username: empusername,
+                email: empusername,
                 password: password
             },
-            (valid) => {
-                if (valid) {
-                    moveToEmployer();
-                } else {
-                    // show error
-                    
-                }
-            }
+            'employer'
         );
+        setLoading(false);
+        if (result.success) {
+            moveToEmployer();
+        } else {
+            setError(result.message || 'Invalid email or password');
+        }
     }
 
     const moveToCandidate = () => {
@@ -152,6 +155,11 @@ function AfterLoginPage() {
                                             <span className="log-reg-form-title">Log In</span>
                                         </div>
                                     </div>
+                                    {error && (
+                                        <div className="alert alert-danger" role="alert">
+                                            {error}
+                                        </div>
+                                    )}
                                     <div className="twm-tabs-style-2">
                                         <ul className="nav nav-tabs" id="myTab2" role="tablist">
                                             <li className="nav-item">
@@ -176,7 +184,9 @@ function AfterLoginPage() {
                                                     </div>
                                                     <div className="col-md-12">
                                                         <div className="form-group">
-                                                            <button type="submit" className="site-button">Log in</button>
+                                                            <button type="submit" className="site-button" disabled={loading}>
+                                                                {loading ? 'Logging in...' : 'Log in'}
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -195,7 +205,9 @@ function AfterLoginPage() {
                                                     </div>
                                                     <div className="col-md-12">
                                                         <div className="form-group">
-                                                            <button type="submit" className="site-button">Log in</button>
+                                                            <button type="submit" className="site-button" disabled={loading}>
+                                                                {loading ? 'Logging in...' : 'Log in'}
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>

@@ -73,7 +73,7 @@ exports.loginCandidate = async (req, res) => {
 
     const candidate = await Candidate.findByEmail(email.trim());
     if (!candidate) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid email' });
     }
 
     if (!candidate.password) {
@@ -83,7 +83,7 @@ exports.loginCandidate = async (req, res) => {
     const passwordMatch = await candidate.comparePassword(password);
     
     if (!passwordMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid password' });
     }
 
     if (candidate.status !== 'active') {

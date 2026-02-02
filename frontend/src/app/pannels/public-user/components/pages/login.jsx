@@ -117,7 +117,7 @@ function LoginPage() {
                     navigate('/employer/dashboard', { replace: true });
                 }
             } else {
-                setError(result.message || 'Invalid email or password');
+                setError(result.message || 'Login failed');
             }
         } catch (error) {
             setLoading(false);

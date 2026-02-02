@@ -376,14 +376,14 @@ exports.loginPlacement = async (req, res) => {
     console.log('Found placement:', !!placement);
     
     if (!placement) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid email' });
     }
 
     const isValid = await placement.comparePassword(password);
     console.log('Password valid:', isValid);
     
     if (!isValid) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid password' });
     }
 
     if (placement.status !== 'active') {
