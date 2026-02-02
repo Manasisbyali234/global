@@ -228,8 +228,30 @@ const assessmentController = require('../controllers/assessmentController');
 const assessmentBodyParser = express.json({ limit: '200mb', parameterLimit: 100000 });
 const assessmentUrlParser = express.urlencoded({ extended: true, limit: '200mb', parameterLimit: 100000 });
 
-router.post('/assessments/upload-question-image', uploadQuestionImage.single('image'), assessmentController.uploadQuestionImage);
-router.post('/assessments/upload-option-image', uploadQuestionImage.single('image'), assessmentController.uploadOptionImage);
+const handleUploadError = (error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ 
+        success: false, 
+        message: 'File too large. Maximum size is 50MB per image. Please compress your image and try again.' 
+      });
+    }
+    return res.status(400).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+  if (error) {
+    return res.status(400).json({ 
+      success: false, 
+      message: error.message || 'Upload failed' 
+    });
+  }
+  next();
+};
+
+router.post('/assessments/upload-question-image', uploadQuestionImage.single('image'), handleUploadError, assessmentController.uploadQuestionImage);
+router.post('/assessments/upload-option-image', uploadQuestionImage.single('image'), handleUploadError, assessmentController.uploadOptionImage);
 router.post('/assessments', assessmentBodyParser, assessmentController.createAssessment);
 router.get('/assessments', assessmentController.getAssessments);
 router.get('/assessments/:id', assessmentController.getAssessmentDetails);

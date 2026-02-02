@@ -184,6 +184,8 @@ app.use(limiter);
 
 // Skip body parsing for file uploads
 app.use('/api/employer/profile/gallery', (req, res, next) => next());
+app.use('/api/employer/assessments/upload-question-image', (req, res, next) => next());
+app.use('/api/employer/assessments/upload-option-image', (req, res, next) => next());
 
 // Body Parser Middleware with increased limits for file uploads
 app.use(express.json({ limit: '100mb', parameterLimit: 50000 }));
