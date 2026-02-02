@@ -4,6 +4,7 @@ import './CreateassessmentModal.css';
 import { disableBodyScroll, enableBodyScroll } from "../../../../../utils/scrollUtils";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import AssessmentPreview from "./AssessmentPreview";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 export default function CreateAssessmentModal({ onClose, onCreate, editData = null }) {
@@ -20,6 +21,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	);
 	const [isMinimized, setIsMinimized] = useState(false);
 	const [isMaximized, setIsMaximized] = useState(false);
+	const [showPreview, setShowPreview] = useState(false);
 
 	const quillModules = useMemo(() => ({
 		toolbar: [
@@ -336,7 +338,9 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				}}
 			>
 				<div className="p-3 d-flex justify-content-between align-items-center" style={{ borderBottom: isMinimized ? 'none' : '1px solid #e5e7eb' }}>
-					<h5 className="m-0 fw-bold">{editData ? 'Edit Assessment' : 'Create New Assessment'}</h5>
+					<h5 className="m-0 fw-bold">
+						{showPreview ? 'Previewing Assessment' : (editData ? 'Edit Assessment' : 'Create New Assessment')}
+					</h5>
 					<div className="d-flex gap-1">
 						<button
 							type="button"
@@ -399,6 +403,14 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				</div>
 
 				{!isMinimized && (
+					showPreview ? (
+						<div className="p-0 overflow-auto" style={{ flex: "1 1 auto", minHeight: 0 }}>
+							<AssessmentPreview 
+								assessment={{ title, timer: timeLimit, questions }} 
+								onBack={() => setShowPreview(false)} 
+							/>
+						</div>
+					) : (
 				<div
 					className="p-4 overflow-auto"
 					style={{ flex: "1 1 auto", minHeight: 0 }}
@@ -810,31 +822,51 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 						+ Add Question
 					</button>
 				</div>
-				)}
+				) )}
 
 				{!isMinimized && (
 				<div className="p-3 border-top d-flex justify-content-end gap-2">
-					<button
-						type="button"
-						className="btn btn-outline-secondary"
-						onClick={() => handleSubmit(true)}
-					>
-						Save as Draft
-					</button>
-					<button
-						type="button"
-						className="btn btn-secondary"
-						onClick={() => { enableBodyScroll(); onClose(); }}
-					>
-						Cancel
-					</button>
-					<button
-						type="button"
-						className="btn btn-primary"
-						onClick={() => handleSubmit(false)}
-					>
-						{editData ? 'Update Assessment' : 'Create Assessment'}
-					</button>
+					{!showPreview && (
+						<>
+							<button
+								type="button"
+								className="btn btn-outline-info"
+								onClick={() => setShowPreview(true)}
+							>
+								<i className="fa fa-eye me-1"></i> Preview
+							</button>
+							<button
+								type="button"
+								className="btn btn-outline-secondary"
+								onClick={() => handleSubmit(true)}
+							>
+								Save as Draft
+							</button>
+							<button
+								type="button"
+								className="btn btn-secondary"
+								onClick={() => { enableBodyScroll(); onClose(); }}
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								className="btn btn-primary"
+								onClick={() => handleSubmit(false)}
+							>
+								{editData ? 'Update Assessment' : 'Create Assessment'}
+							</button>
+						</>
+					)}
+					{showPreview && (
+						<button
+							type="button"
+							className="btn btn-secondary"
+							onClick={() => setShowPreview(false)}
+						>
+							Back to Editor
+						</button>
+					)}
 				</div>
 				)}
 			</div>

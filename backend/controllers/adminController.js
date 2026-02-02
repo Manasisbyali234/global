@@ -1823,6 +1823,7 @@ exports.approveAuthorizationLetter = async (req, res) => {
     profile.authorizationLetters[letterIndex].status = 'approved';
     profile.authorizationLetters[letterIndex].approvedAt = new Date();
     profile.authorizationLetters[letterIndex].approvedBy = req.user.id;
+    profile.authorizationLetters[letterIndex].isResubmitted = false; // Reset resubmitted flag
     
     await profile.save();
 
@@ -1868,6 +1869,7 @@ exports.rejectAuthorizationLetter = async (req, res) => {
     profile.authorizationLetters[letterIndex].status = 'rejected';
     profile.authorizationLetters[letterIndex].rejectedAt = new Date();
     profile.authorizationLetters[letterIndex].rejectedBy = req.user.id;
+    profile.authorizationLetters[letterIndex].isResubmitted = false; // Reset resubmitted flag
     
     await profile.save();
 

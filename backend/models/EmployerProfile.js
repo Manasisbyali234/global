@@ -46,6 +46,7 @@ const employerProfileSchema = new mongoose.Schema({
     fileData: { type: String }, // Base64 encoded document
     uploadedAt: { type: Date, default: Date.now },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    isResubmitted: { type: Boolean, default: false }, // Track if document was resubmitted after rejection
     approvedAt: { type: Date },
     rejectedAt: { type: Date },
     approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },

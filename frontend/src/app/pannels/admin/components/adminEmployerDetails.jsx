@@ -677,13 +677,7 @@ function EmployerDetails() {
                                             </>
                                         )}
                                         {profile.panCardImage && profile.panCardVerified === 'rejected' && (
-                                            <button 
-                                                className="btn btn-outline-success btn-sm"
-                                                onClick={() => updateDocumentStatus(id, 'panCardVerified', 'approved')}
-                                                title="Approve Document"
-                                            >
-                                                <i className="fa fa-check"></i>
-                                            </button>
+                                            <span className="text-muted">Awaiting resubmission</span>
                                         )}
                                         {profile.panCardImage && profile.panCardVerified === 'approved' && (
                                             <span className="text-success">Verified</span>
@@ -748,13 +742,7 @@ function EmployerDetails() {
                                             </>
                                         )}
                                         {profile.cinImage && profile.cinVerified === 'rejected' && (
-                                            <button 
-                                                className="btn btn-outline-success btn-sm"
-                                                onClick={() => updateDocumentStatus(id, 'cinVerified', 'approved')}
-                                                title="Approve Document"
-                                            >
-                                                <i className="fa fa-check"></i>
-                                            </button>
+                                            <span className="text-muted">Awaiting resubmission</span>
                                         )}
                                         {profile.cinImage && profile.cinVerified === 'approved' && (
                                             <span className="text-success">Verified</span>
@@ -819,13 +807,7 @@ function EmployerDetails() {
                                             </>
                                         )}
                                         {profile.gstImage && profile.gstVerified === 'rejected' && (
-                                            <button 
-                                                className="btn btn-outline-success btn-sm"
-                                                onClick={() => updateDocumentStatus(id, 'gstVerified', 'approved')}
-                                                title="Approve Document"
-                                            >
-                                                <i className="fa fa-check"></i>
-                                            </button>
+                                            <span className="text-muted">Awaiting resubmission</span>
                                         )}
                                         {profile.gstImage && profile.gstVerified === 'approved' && (
                                             <span className="text-success">Verified</span>
@@ -890,13 +872,7 @@ function EmployerDetails() {
                                             </>
                                         )}
                                         {profile.certificateOfIncorporation && profile.incorporationVerified === 'rejected' && (
-                                            <button 
-                                                className="btn btn-outline-success btn-sm"
-                                                onClick={() => updateDocumentStatus(id, 'incorporationVerified', 'approved')}
-                                                title="Approve Document"
-                                            >
-                                                <i className="fa fa-check"></i>
-                                            </button>
+                                            <span className="text-muted">Awaiting resubmission</span>
                                         )}
                                         {profile.certificateOfIncorporation && profile.incorporationVerified === 'approved' && (
                                             <span className="text-success">Verified</span>
@@ -986,34 +962,7 @@ function EmployerDetails() {
                                                 >
                                                     <i className="fa fa-eye"></i>
                                                 </button>
-                                                {doc.status === 'pending' && (
-                                                    <>
-                                                        <button 
-                                                            className="btn btn-outline-success btn-sm"
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                handleApproveAuthorizationLetter(doc._id);
-                                                            }}
-                                                            style={{ marginRight: '5px' }}
-                                                            title="Approve Authorization Letter"
-                                                        >
-                                                            <i className="fa fa-check"></i>
-                                                        </button>
-                                                        <button 
-                                                            className="btn btn-outline-danger btn-sm"
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                handleRejectAuthorizationLetter(doc._id);
-                                                            }}
-                                                            title="Reject Authorization Letter"
-                                                        >
-                                                            <i className="fa fa-times"></i>
-                                                        </button>
-                                                    </>
-                                                )}
-                                                {doc.status === 'rejected' && doc.isResubmitted && (
+                                                {(doc.status === 'pending' || (doc.status === 'rejected' && doc.isResubmitted)) && (
                                                     <>
                                                         <button 
                                                             className="btn btn-outline-success btn-sm"
