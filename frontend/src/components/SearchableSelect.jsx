@@ -154,7 +154,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
                     cursor: 'pointer', 
                     minHeight: '38px',
                     height: 'auto',
-                    padding: '6px 12px', 
+                    padding: '6px 36px 6px 12px', 
                     display: 'flex', 
                     alignItems: 'flex-start',
                     position: 'relative'

@@ -7,6 +7,10 @@ input {
     z-index: 1;
 }
 
+.form-select {
+    padding-right: 36px !important;
+}
+
 /* Dropdown and select elements should not overflow header */
 .form-select:focus,
 select:focus {
@@ -1126,6 +1130,9 @@ body.modal-open {
 
 /* Medium Mobile (992px and up) - Small tablets */
 @media (max-width: 992px) {
+    .form-select {
+        padding-right: 36px !important;
+    }
     /* Three column layout adjustments */
     .row .col-lg-4 {
         margin-bottom: 16px !important;
@@ -1314,6 +1321,10 @@ html, body {
     
     .panel-body {
         padding: 10px;
+    }
+
+    .form-select {
+        padding-right: 36px !important;
     }
 
     /* Ensure the table wrapper fits within the screen */

@@ -1246,7 +1246,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                         {errors.boardUniversityName && <div className="invalid-feedback">{errors.boardUniversityName}</div>}
                                     </div>
 
-                                    <div className="col-md-4">
+                                    <div className="col-md-6">
                                         <label className="form-label required-field">Enrollment Number</label>
                                         <input
                                             type="text"
@@ -1260,8 +1260,8 @@ function SectionCanEducation({ profile, onUpdate }) {
                                         {errors.registrationNumber && <div className="invalid-feedback">{errors.registrationNumber}</div>}
                                     </div>
 
-                                    <div className="col-md-4">
-                                        <label className="form-label required-field">State </label>
+                                    <div className="col-md-6">
+                                        <label className="form-label required-field">State</label>
                                         <select
                                             className={`form-select ${errors.state ? 'is-invalid' : ''}`}
                                             name="state"
@@ -1279,7 +1279,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                         {errors.state && <div className="invalid-feedback">{errors.state}</div>}
                                     </div>
 
-                                    <div className="col-md-4">
+                                    <div className="col-md-6">
                                         <label className="form-label required-field">Result</label>
                                         <select
                                             className={`form-select ${errors.result ? 'is-invalid' : ''}`}
