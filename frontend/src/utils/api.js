@@ -906,6 +906,33 @@ export const api = {
     });
   },
 
+  // Payment APIs
+  getEmployerTransactions: () => {
+    return fetch(`${API_BASE_URL}/payments/employer-transactions`, {
+      headers: getAuthHeaders('employer'),
+    }).then((res) => res.json());
+  },
+
+  getAllTransactions: () => {
+    return fetch(`${API_BASE_URL}/payments/all-transactions`, {
+      headers: getAuthHeaders('admin'),
+    }).then((res) => res.json());
+  },
+
+  getPaymentDetails: (paymentId) => {
+    const adminToken = localStorage.getItem('adminToken');
+    const employerToken = localStorage.getItem('employerToken');
+    const candidateToken = localStorage.getItem('candidateToken');
+    const token = adminToken || employerToken || candidateToken;
+
+    return fetch(`${API_BASE_URL}/payments/details/${paymentId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    }).then((res) => res.json());
+  },
+
   submitSupportTicket: (formData) => {
     return fetch(`${API_BASE_URL}/public/support`, {
       method: 'POST',

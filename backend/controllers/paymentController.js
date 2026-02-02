@@ -433,6 +433,20 @@ exports.getPaymentDetails = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Payment ID is required' });
     }
 
+    // Handle credit-based transactions
+    if (paymentId.startsWith('credit_')) {
+      return res.json({
+        success: true,
+        payment: {
+          id: paymentId,
+          method: 'credits',
+          amount: 0,
+          status: 'captured',
+          description: 'Payment made using platform credits'
+        }
+      });
+    }
+
     const razorpayInstance = getRazorpay();
     if (!razorpayInstance) {
       return res.status(500).json({ 

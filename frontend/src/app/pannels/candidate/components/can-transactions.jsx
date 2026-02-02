@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
 import { ListChecks, Search, Receipt, Download, Eye, X } from "lucide-react";
+import { api } from "../../../../utils/api";
 import "../../../../styles/print-receipt.css";
 
 function CanTransactionsPage() {
@@ -33,18 +34,8 @@ function CanTransactionsPage() {
 
     const fetchTransactions = async () => {
         try {
-            const token = localStorage.getItem("candidateToken");
-            if (!token) {
-                setLoading(false);
-                return;
-            }
-
-            const response = await fetch("http://localhost:5000/api/payments/candidate-transactions", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
+            const data = await api.getCandidateTransactions();
+            if (data.success) {
                 setTransactions(data.transactions || []);
             }
         } catch (error) {
@@ -57,19 +48,34 @@ function CanTransactionsPage() {
     const fetchPaymentDetails = async (paymentId) => {
         setFetchingDetails(true);
         try {
-            const token = localStorage.getItem("candidateToken");
-            const response = await fetch(`http://localhost:5000/api/payments/details/${paymentId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
+            const data = await api.getPaymentDetails(paymentId);
+            if (data.success) {
                 setPaymentDetails(data.payment);
             }
         } catch (error) {
             console.error('Error fetching payment details:', error);
         } finally {
             setFetchingDetails(false);
+        }
+    };
+
+    const getPaymentMethodInfo = (details) => {
+        if (!details) return "Online Payment";
+        
+        const method = details.method?.toLowerCase();
+        switch (method) {
+            case 'card':
+                return `Card (**** ${details.card?.last4 || ''})`;
+            case 'upi':
+                return `UPI (${details.vpa || 'Mobile App'})`;
+            case 'netbanking':
+                return `Netbanking (${details.bank || 'Bank Transfer'})`;
+            case 'wallet':
+                return `Wallet (${details.wallet || 'Digital Wallet'})`;
+            case 'credits':
+                return 'Platform Credits';
+            default:
+                return details.method ? details.method.toUpperCase() : "Online Payment";
         }
     };
 
@@ -239,77 +245,110 @@ function CanTransactionsPage() {
                                         <p className="mt-2 text-muted">Fetching Razorpay details...</p>
                                     </div>
                                 ) : (
-                                    <div id="invoice-content">
-                                        <div className="d-flex justify-content-between mb-4 align-items-center">
+                                    <div id="invoice-content" className="p-2">
+                                        <div className="d-flex justify-content-between mb-4 align-items-start border-bottom pb-4">
                                             <div>
-                                                <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '40px', marginBottom: '10px' }} />
-                                                <p className="text-muted small mb-0">Platform for Jobs & Assessments</p>
-                                                <p className="text-muted small mb-0"><strong>GST:</strong> 29ABCFG9123F1Z</p>
+                                                <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '45px', marginBottom: '15px' }} />
+                                                <div className="text-muted small">
+                                                    <p className="mb-1 fw-bold text-dark">TALEGLOBAL PLATFORM</p>
+                                                    <p className="mb-1">Whitefield, Bengaluru, Karnataka 560066</p>
+                                                    <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1Z</p>
+                                                    <p className="mb-0"><strong>Support:</strong> help@taleglobal.com</p>
+                                                </div>
                                             </div>
                                             <div className="text-end">
-                                                <h5 className="mb-0 text-primary">TRANSACTION RECEIPT</h5>
-                                                <p className="text-muted small mb-0">Date: {formatDate(selectedTransaction?.createdAt)}</p>
+                                                <h3 className="mb-2 text-primary fw-bold">PAYMENT RECEIPT</h3>
+                                                <div className="text-muted small">
+                                                    <p className="mb-1"><strong>Receipt No:</strong> REC-{selectedTransaction?.paymentId?.slice(-8).toUpperCase()}</p>
+                                                    <p className="mb-1"><strong>Date:</strong> {formatDate(selectedTransaction?.createdAt)}</p>
+                                                    <p className="mb-0"><strong>Status:</strong> <span className="badge bg-success text-uppercase">Paid</span></p>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <hr />
-
-                                        <div className="row mb-4">
-                                            <div className="col-md-6 mb-3">
-                                                <p className="text-muted small mb-2 fw-bold text-uppercase">Candidate Details</p>
-                                                <h6 className="mb-1">{selectedTransaction?.candidateId?.name || candidateInfo?.name}</h6>
-                                                <p className="text-muted small mb-1">{selectedTransaction?.candidateId?.email || candidateInfo?.email}</p>
+                                        <div className="row mb-5">
+                                            <div className="col-6">
+                                                <p className="text-muted small mb-2 fw-bold text-uppercase border-bottom pb-1">Billed To (Candidate)</p>
+                                                <h6 className="mb-1 fw-bold text-dark">{selectedTransaction?.candidateId?.name || candidateInfo?.name}</h6>
+                                                <p className="text-muted small mb-1"><i className="fa fa-envelope me-1"></i> {selectedTransaction?.candidateId?.email || candidateInfo?.email}</p>
                                                 {(selectedTransaction?.candidateId?.phone || candidateInfo?.phone) && (
-                                                    <p className="text-muted small mb-0">{selectedTransaction?.candidateId?.phone || candidateInfo?.phone}</p>
+                                                    <p className="text-muted small mb-0"><i className="fa fa-phone me-1"></i> {selectedTransaction?.candidateId?.phone || candidateInfo?.phone}</p>
                                                 )}
                                             </div>
-                                            <div className="col-md-6 mb-3">
-                                                <p className="text-muted small mb-2 fw-bold text-uppercase">Payment Information</p>
-                                                <p className="mb-1 small"><strong>Order ID:</strong> {selectedTransaction?.orderId}</p>
-                                                <p className="mb-1 small"><strong>Payment ID:</strong> {selectedTransaction?.paymentId}</p>
-                                                <p className="mb-1 small"><strong>Method:</strong> {paymentDetails?.method || 'Online'}</p>
-                                                <p className="mb-0 small"><strong>Status:</strong> <span className="text-success fw-bold text-uppercase">{selectedTransaction?.paymentStatus}</span></p>
+                                            <div className="col-6 text-end">
+                                                <p className="text-muted small mb-2 fw-bold text-uppercase border-bottom pb-1">Payment Info</p>
+                                                <div className="small">
+                                                    <div className="d-flex justify-content-end mb-1">
+                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Method:</span>
+                                                        <span className="text-dark fw-bold ms-2">{getPaymentMethodInfo(paymentDetails)}</span>
+                                                    </div>
+                                                    <div className="d-flex justify-content-end mb-1">
+                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Transaction ID:</span>
+                                                        <span className="text-dark fw-bold ms-2">{selectedTransaction?.paymentId}</span>
+                                                    </div>
+                                                    <div className="d-flex justify-content-end mb-0">
+                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Order ID:</span>
+                                                        <span className="text-dark fw-bold ms-2">{selectedTransaction?.orderId}</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div className="table-responsive mb-4">
-                                            <table className="table table-bordered">
-                                                <thead className="table-light">
+                                            <table className="table table-bordered align-middle">
+                                                <thead className="table-light text-uppercase small">
                                                     <tr>
-                                                        <th>Service Description</th>
-                                                        <th className="text-center">Qty</th>
-                                                        <th className="text-end">Amount</th>
+                                                        <th style={{ width: '60%' }}>Item Description</th>
+                                                        <th className="text-center">Applied</th>
+                                                        <th className="text-end">Price</th>
+                                                        <th className="text-end">Total</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
                                                         <td>
-                                                            <div className="fw-bold text-primary">Job Application Fee</div>
-                                                            <div className="small mt-1">
-                                                                <strong>Job:</strong> {selectedTransaction?.jobId?.title}<br />
-                                                                <strong>Company:</strong> {selectedTransaction?.employerId?.companyName}<br />
+                                                            <div className="fw-bold text-dark">Job Application Fee</div>
+                                                            <div className="text-muted small mt-1">
+                                                                <strong>Position:</strong> {selectedTransaction?.jobId?.title}<br />
+                                                                <strong>Employer:</strong> {selectedTransaction?.employerId?.companyName}<br />
                                                                 {selectedTransaction?.jobId?.jobCategory && (
-                                                                    <span><strong>Category:</strong> {selectedTransaction?.jobId?.jobCategory}<br /></span>
+                                                                    <span><strong>Category:</strong> {selectedTransaction?.jobId?.jobCategory}</span>
                                                                 )}
                                                             </div>
                                                         </td>
-                                                        <td className="text-center align-middle">1</td>
-                                                        <td className="text-end align-middle">₹{(selectedTransaction?.paymentAmount || 129).toFixed(2)}</td>
+                                                        <td className="text-center">1</td>
+                                                        <td className="text-end">₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</td>
+                                                        <td className="text-end fw-bold">₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
-                                                <tfoot>
-                                                    <tr className="table-light">
-                                                        <th colSpan="2" className="text-end">Total Amount Paid</th>
-                                                        <th className="text-end text-primary">₹{(selectedTransaction?.paymentAmount || 129).toFixed(2)}</th>
+                                                <tfoot className="table-light">
+                                                    <tr>
+                                                        <th colSpan="3" className="text-end small text-uppercase">Total Amount Paid</th>
+                                                        <th className="text-end text-primary fw-bold fs-5">₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
 
-                                        <div className="bg-light p-3 rounded border text-center">
-                                            <p className="mb-0 small text-muted">
-                                                This is a computer-generated receipt for the payment made via Razorpay on TaleGlobal platform.
-                                            </p>
+                                        <div className="row mt-5">
+                                            <div className="col-6">
+                                                <div className="p-3 rounded border bg-light">
+                                                    <p className="mb-0 small text-muted">
+                                                        <strong>Note:</strong> This is a computer-generated document and does not require a physical signature. Thank you for using TaleGlobal.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="col-6 text-end d-flex flex-column align-items-end justify-content-end">
+                                                <div style={{ width: '200px', borderTop: '1px solid #dee2e6', paddingTop: '10px' }}>
+                                                    <p className="mb-0 fw-bold small text-dark">Authorized Signatory</p>
+                                                    <p className="mb-0 small text-muted">TaleGlobal Platform</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="invoice-footer d-none d-print-block mt-5 pt-3 border-top text-center text-muted small">
+                                            <p className="mb-1">© {new Date().getFullYear()} TaleGlobal Platform. All rights reserved.</p>
+                                            <p className="mb-0">www.taleglobal.com | Whitefield, Bengaluru, Karnataka 560066</p>
                                         </div>
                                     </div>
                                 )}
