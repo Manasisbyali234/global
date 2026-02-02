@@ -144,7 +144,7 @@ exports.createPassword = async (req, res) => {
     const placement = await Placement.findByEmail(normalizedEmail);
 
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     if (placement.password) {
@@ -188,7 +188,7 @@ exports.uploadStudentData = async (req, res) => {
     // Check if placement officer has uploaded college logo
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
     
     if (!placement.logo) {
@@ -376,7 +376,7 @@ exports.loginPlacement = async (req, res) => {
     console.log('Found placement:', !!placement);
     
     if (!placement) {
-      return res.status(401).json({ success: false, message: 'Invalid email' });
+      return res.status(401).json({ success: false, message: 'no account found with this email address' });
     }
 
     const isValid = await placement.comparePassword(password);
@@ -417,7 +417,7 @@ exports.getPlacementData = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     if (!placement.studentData) {
@@ -470,7 +470,7 @@ exports.processPlacementApproval = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     console.log('Placement found:', placement.name);
@@ -674,7 +674,7 @@ exports.getFileData = async (req, res) => {
     
     const placement = await Placement.findById(actualPlacementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const file = placement.fileHistory.id(fileId);
@@ -742,7 +742,7 @@ exports.updateFileCredits = async (req, res) => {
     
     const placement = await Placement.findById(actualPlacementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const file = placement.fileHistory.id(fileId);
@@ -865,7 +865,7 @@ exports.processFileApproval = async (req, res) => {
     
     let placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const file = placement.fileHistory.id(fileId);
@@ -1114,7 +1114,7 @@ exports.rejectFile = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const file = placement.fileHistory.id(fileId);
@@ -1175,7 +1175,7 @@ exports.resubmitFile = async (req, res) => {
 
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const file = placement.fileHistory.id(fileId);
@@ -1325,7 +1325,7 @@ exports.viewFileData = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const file = placement.fileHistory.id(fileId);
@@ -1419,7 +1419,7 @@ exports.getPlacementDashboard = async (req, res) => {
     
     const placement = await Placement.findById(placementId).select('name collegeName fileHistory');
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
     
     // Count files by status
@@ -1461,7 +1461,7 @@ exports.getPlacementCandidates = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
     
     // Get all candidates created from this placement
@@ -1591,7 +1591,7 @@ exports.updateProfile = async (req, res) => {
     const existingPlacement = await Placement.findById(placementId);
     if (!existingPlacement) {
       console.log('Placement not found:', placementId);
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
     
     console.log('Found existing placement:', existingPlacement.name);
@@ -1645,7 +1645,7 @@ exports.sendOTP = async (req, res) => {
     const placement = await Placement.findByEmail(email.trim());
     
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -1707,7 +1707,7 @@ exports.updatePasswordReset = async (req, res) => {
 
     const placement = await Placement.findByEmail(email.trim());
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
     
     placement.password = newPassword;
@@ -1727,7 +1727,7 @@ exports.verifyMobileOTP = async (req, res) => {
     const placement = await Placement.findByEmail(email.trim());
 
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     if (placement.phoneOTP !== otp || (placement.phoneOTPExpires && placement.phoneOTPExpires < Date.now())) {

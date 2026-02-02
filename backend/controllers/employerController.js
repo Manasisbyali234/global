@@ -92,7 +92,7 @@ exports.loginEmployer = async (req, res) => {
 
     const employer = await Employer.findByEmail(email.trim());
     if (!employer) {
-      return res.status(401).json({ success: false, message: 'Invalid email' });
+      return res.status(401).json({ success: false, message: 'no account found with this email address' });
     }
 
     const isPasswordValid = await employer.comparePassword(password);
