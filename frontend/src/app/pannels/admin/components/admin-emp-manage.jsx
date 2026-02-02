@@ -322,7 +322,7 @@ function AdminEmployersAllRequest() {
                                                         const approvedDocs = docs.filter(doc => doc.uploaded && doc.status === 'approved');
                                                         const rejectedDocs = docs.filter(doc => doc.uploaded && doc.status === 'rejected');
                                                         const pendingDocs = docs.filter(doc => doc.uploaded && (doc.status === 'pending' || !doc.status));
-                                                        const reuploadedDocs = docs.filter(doc => doc.uploaded && doc.reuploadedAt);
+                                                        const reuploadedDocs = docs.filter(doc => doc.uploaded && doc.reuploadedAt && doc.status === 'rejected');
                                                         
                                                         if (uploadedDocs.length === 0) {
                                                             return <span style={{color: '#6b7280', fontSize: '0.8rem'}}>No documents</span>;

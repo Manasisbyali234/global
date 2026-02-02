@@ -407,7 +407,10 @@ exports.uploadDocument = async (req, res) => {
     if (documentStatusMap[fieldName]) {
       const { status, reuploadedAt } = documentStatusMap[fieldName];
       updateData[status] = 'pending';
-      updateData[reuploadedAt] = new Date();
+      // Only set reuploadedAt if the document was previously rejected
+      if (existingProfile && existingProfile[fieldName] && existingProfile[status] === 'rejected') {
+        updateData[reuploadedAt] = new Date();
+      }
     }
 
     const profile = await EmployerProfile.findOneAndUpdate(

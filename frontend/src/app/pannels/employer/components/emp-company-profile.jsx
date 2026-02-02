@@ -317,33 +317,37 @@ function EmpCompanyProfilePage() {
     };
 
     const renderStatusBadge = (status, reuploadedAt) => {
-        if (!status) return null;
+        if (!status || status === 'pending') return null;
         
-        let badgeClass = 'bg-secondary';
-        let statusText = status.charAt(0).toUpperCase() + status.slice(1);
+        let badgeClass, statusText;
         
-        switch (status) {
+        switch(status) {
             case 'approved':
                 badgeClass = 'bg-success';
+                statusText = 'Approved';
                 break;
             case 'rejected':
                 badgeClass = 'bg-danger';
-                break;
-            case 'pending':
-                badgeClass = 'bg-warning text-dark';
+                statusText = 'Rejected';
                 break;
             default:
-                break;
+                return null;
         }
         
         return (
-            <div className="d-flex align-items-center gap-2 mt-1">
+            <div className="mt-1">
                 <span className={`badge ${badgeClass}`}>{statusText}</span>
-                {reuploadedAt && (
-                    <small className="text-muted" style={{fontSize: '0.75rem'}}>
+                {status === 'rejected' && (
+                    <div className="text-warning mt-1" style={{fontSize: '0.75rem', fontWeight: '600'}}>
+                        <i className="fas fa-exclamation-triangle me-1"></i>
+                        Re-upload required
+                    </div>
+                )}
+                {reuploadedAt && status === 'rejected' && (
+                    <div className="text-muted mt-1" style={{fontSize: '0.75rem'}}>
                         <i className="fas fa-redo me-1"></i>
                         Re-uploaded: {new Date(reuploadedAt).toLocaleDateString()}
-                    </small>
+                    </div>
                 )}
             </div>
         );
