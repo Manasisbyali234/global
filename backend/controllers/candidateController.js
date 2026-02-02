@@ -73,7 +73,7 @@ exports.loginCandidate = async (req, res) => {
 
     const candidate = await Candidate.findByEmail(email.trim());
     if (!candidate) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'no account found with this email address' });
     }
 
     if (!candidate.password) {
@@ -83,7 +83,7 @@ exports.loginCandidate = async (req, res) => {
     const passwordMatch = await candidate.comparePassword(password);
     
     if (!passwordMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid password' });
     }
 
     if (candidate.status !== 'active') {
@@ -774,7 +774,7 @@ exports.createPassword = async (req, res) => {
 
     const candidate = await Candidate.findByEmail(email.trim());
     if (!candidate) {
-      return res.status(404).json({ success: false, message: 'Candidate not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     // For placement candidates, allow password reset instead of creation
@@ -810,7 +810,7 @@ exports.resetPassword = async (req, res) => {
     const candidate = await Candidate.findByEmail(email.trim());
     
     if (!candidate) {
-      return res.status(404).json({ success: false, message: 'Candidate not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const resetToken = require('crypto').randomBytes(32).toString('hex');
@@ -886,7 +886,7 @@ exports.updatePasswordReset = async (req, res) => {
 
     const candidate = await Candidate.findByEmail(email.trim());
     if (!candidate) {
-      return res.status(404).json({ success: false, message: 'Candidate not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
     
     // For placement candidates, change to signup method so password gets hashed
@@ -912,7 +912,7 @@ exports.sendOTP = async (req, res) => {
     const candidate = await Candidate.findByEmail(email.trim());
     
     if (!candidate) {
-      return res.status(404).json({ success: false, message: 'Candidate not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -960,7 +960,7 @@ exports.verifyMobileOTP = async (req, res) => {
     const candidate = await Candidate.findByEmail(email.trim());
 
     if (!candidate) {
-      return res.status(404).json({ success: false, message: 'Candidate not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     if (candidate.phoneOTP !== otp || (candidate.phoneOTPExpires && candidate.phoneOTPExpires < Date.now())) {
@@ -1292,7 +1292,7 @@ exports.getCandidateCompleteProfile = async (req, res) => {
       .populate('placementId', 'name collegeName');
     
     if (!candidate) {
-      return res.status(404).json({ success: false, message: 'Candidate not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const profile = await CandidateProfile.findOne({ candidateId: req.user._id });

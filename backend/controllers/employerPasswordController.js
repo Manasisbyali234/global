@@ -7,7 +7,7 @@ exports.createPassword = async (req, res) => {
     const employer = await Employer.findByEmail(email.trim());
 
     if (!employer) {
-      return res.status(404).json({ success: false, message: 'Employer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     if (employer.password) {
@@ -31,7 +31,7 @@ exports.resetPassword = async (req, res) => {
     const employer = await Employer.findByEmail(email.trim());
     
     if (!employer) {
-      return res.status(404).json({ success: false, message: 'Employer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const resetToken = require('crypto').randomBytes(32).toString('hex');
@@ -79,7 +79,7 @@ exports.sendOTP = async (req, res) => {
     const employer = await Employer.findByEmail(email.trim());
     
     if (!employer) {
-      return res.status(404).json({ success: false, message: 'Employer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -141,7 +141,7 @@ exports.updatePasswordReset = async (req, res) => {
 
     const employer = await Employer.findByEmail(email.trim());
     if (!employer) {
-      return res.status(404).json({ success: false, message: 'Employer not found' });
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
     }
     
     employer.password = newPassword;
