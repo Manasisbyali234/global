@@ -223,12 +223,17 @@ router.get('/interview-responses/:applicationId', employerController.getIntervie
 
 // Assessment Routes
 const assessmentController = require('../controllers/assessmentController');
+
+// Middleware for large assessment payloads
+const assessmentBodyParser = express.json({ limit: '200mb', parameterLimit: 100000 });
+const assessmentUrlParser = express.urlencoded({ extended: true, limit: '200mb', parameterLimit: 100000 });
+
 router.post('/assessments/upload-question-image', uploadQuestionImage.single('image'), assessmentController.uploadQuestionImage);
 router.post('/assessments/upload-option-image', uploadQuestionImage.single('image'), assessmentController.uploadOptionImage);
-router.post('/assessments', assessmentController.createAssessment);
+router.post('/assessments', assessmentBodyParser, assessmentController.createAssessment);
 router.get('/assessments', assessmentController.getAssessments);
 router.get('/assessments/:id', assessmentController.getAssessmentDetails);
-router.put('/assessments/:id', assessmentController.updateAssessment);
+router.put('/assessments/:id', assessmentBodyParser, assessmentController.updateAssessment);
 router.delete('/assessments/:id', assessmentController.deleteAssessment);
 router.get('/assessments/:id/results', assessmentController.getAssessmentResults);
 router.get('/assessment-attempts/:attemptId', assessmentController.getAttemptDetails);

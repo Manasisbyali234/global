@@ -34,20 +34,11 @@ const AssessmentPreview = ({ assessment, onBack }) => {
             <div style={{ maxWidth: "800px", margin: "0 auto" }}>
                 {/* Header for Preview */}
                 <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
                     marginBottom: '20px',
                     padding: '10px 0',
                     borderBottom: '1px solid #ddd'
                 }}>
                     <h4 style={{ margin: 0 }}>Candidate View Preview</h4>
-                    <button 
-                        onClick={onBack}
-                        className="btn btn-outline-secondary btn-sm"
-                    >
-                        Back to Editor
-                    </button>
                 </div>
 
                 {/* Title Bar */}
@@ -105,11 +96,16 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                         boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
                     }}>
                         <div style={{
-                            marginBottom: "10px",
+                            marginBottom: "15px",
                             fontSize: "16px",
                             fontWeight: "bold",
+                            lineHeight: "1.5"
                         }}>
-                            {currentQuestionIndex + 1}. {currentQuestion.question?.replace(/<[^>]*>/g, '') || "Untitled Question"}
+                            <span style={{ marginRight: "10px" }}>{currentQuestionIndex + 1}.</span>
+                            <div 
+                                style={{ display: "inline-block", verticalAlign: "top", width: "calc(100% - 40px)" }}
+                                dangerouslySetInnerHTML={{ __html: currentQuestion.question || "Untitled Question" }} 
+                            />
                         </div>
                         
                         {currentQuestion.imageUrl && (
