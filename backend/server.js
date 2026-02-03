@@ -10,6 +10,7 @@ const { connectDB } = require('./config/database');
 const errorHandler = require('./middlewares/errorHandler');
 const { initializeWebSocket } = require('./utils/websocket');
 const Application = require('./models/Application');
+const Job = require('./models/Job');
 const { sendAssessmentNotificationEmail } = require('./utils/emailService');
 
 // Import Routes
@@ -93,6 +94,48 @@ const startAssessmentNotificationScheduler = () => {
       }
     } catch (error) {
       console.error('Assessment notification scheduler error:', error);
+    } finally {
+      isRunning = false;
+    }
+  };
+
+  runCheck();
+  const interval = setInterval(runCheck, intervalMs);
+  if (interval.unref) {
+    interval.unref();
+  }
+};
+
+const startJobDeactivationScheduler = () => {
+  const intervalMs = 30 * 60 * 1000; // Run every 30 minutes
+  let isRunning = false;
+
+  const runCheck = async () => {
+    if (isRunning) {
+      return;
+    }
+    isRunning = true;
+    try {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      // Find active jobs where the application deadline has passed
+      // We use 'today' to ensure jobs stay active throughout their last date
+      const result = await Job.updateMany(
+        {
+          status: 'active',
+          lastDateOfApplication: { $lt: today }
+        },
+        { 
+          $set: { status: 'closed' } 
+        }
+      );
+
+      if (result.modifiedCount > 0) {
+        console.log(`[Job Scheduler] Auto-deactivated ${result.modifiedCount} jobs due to passed application deadline.`);
+      }
+    } catch (error) {
+      console.error('[Job Scheduler] Error:', error);
     } finally {
       isRunning = false;
     }
@@ -367,4 +410,5 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Tale Job Portal API running on port ${PORT}`);
   console.log('WebSocket server initialized for real-time updates');
   startAssessmentNotificationScheduler();
+  startJobDeactivationScheduler();
 });
