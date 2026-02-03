@@ -1319,9 +1319,25 @@ function EmpCompanyProfilePage() {
                                         className="form-control"
                                         type="text"
                                         value={formData.establishedSince}
-                                        onChange={(e) => handleInputChange('establishedSince', e.target.value)}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            // Allow only numbers and limit to 4 digits
+                                            if (/^\d{0,4}$/.test(value)) {
+                                                handleInputChange('establishedSince', value);
+                                                // Validate complete year (4 digits)
+                                                if (value.length === 4) {
+                                                    const year = parseInt(value);
+                                                    const currentYear = new Date().getFullYear();
+                                                    if (year < 1800 || year > currentYear) {
+                                                        showWarning(`Please enter a valid year between 1800 and ${currentYear}`);
+                                                    }
+                                                }
+                                            }
+                                        }}
                                         placeholder="2020"
+                                        maxLength="4"
                                     />
+                                    <small className="text-muted">Enter establishment year (1800-{new Date().getFullYear()})</small>
                                 </div>
                             </div>
 

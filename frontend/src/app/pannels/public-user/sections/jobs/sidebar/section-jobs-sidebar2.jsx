@@ -184,13 +184,13 @@ function SectionJobsSidebar2 ({ _config, job }) {
 											{job?.ctc && typeof job.ctc === 'object' && job.ctc.min > 0 && job.ctc.max > 0 ? (
 												job.ctc.min === job.ctc.max ? `₹${Math.floor(job.ctc.min/100000)}LPA` : `₹${Math.floor(job.ctc.min/100000)} - ${Math.floor(job.ctc.max/100000)} LPA`
 											) : 'Not specified'}
-											{job?.ctc && typeof job.ctc === 'object' && job.ctc.min > 0 && (
+											{job?.netSalary && (job.netSalary.min > 0 || job.netSalary.max > 0) && (
 												<div style={{fontSize: '12px', color: '#6c757d', marginTop: '3px'}}>
 													<strong>Net Monthly: </strong>
-													{job.ctc.min === job.ctc.max ? 
-														`₹${Math.round((job.ctc.min * 0.8) / 12).toLocaleString()}` : 
-														`₹${Math.round((job.ctc.min * 0.8) / 12).toLocaleString()} - ₹${Math.round((job.ctc.max * 0.8) / 12).toLocaleString()}`
-													} (approx.)
+													{job.netSalary.min === job.netSalary.max ? 
+														`₹${(job.netSalary.min/1000).toFixed(0)}K` : 
+														`₹${(job.netSalary.min/1000).toFixed(0)}K - ${(job.netSalary.max/1000).toFixed(0)}K`
+													}
 												</div>
 											)}
 										</div>
