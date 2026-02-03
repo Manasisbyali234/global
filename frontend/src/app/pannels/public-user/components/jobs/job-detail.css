@@ -839,3 +839,59 @@ img[loading="lazy"].loaded {
 .job-details-grid {
   contain: layout style paint;
 }
+
+/* Sidebar Job Information - Display titles and values on separate lines */
+.twm-s-info-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+.twm-s-info-inner .twm-title {
+  margin-bottom: 4px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+}
+
+.twm-s-info-inner .twm-s-info-discription {
+  margin-top: 0 !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+/* Sidebar Icons - Ensure visibility and proper positioning */
+.twm-s-info-inner i {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #ff9c00 !important;
+  font-size: 16px !important;
+  margin-right: 8px !important;
+  margin-bottom: 4px !important;
+  flex-shrink: 0 !important;
+}
+
+.twm-job-hilites2 li i {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #ff9c00 !important;
+  font-size: 16px !important;
+  margin-right: 8px !important;
+  flex-shrink: 0 !important;
+}
+/* Fix Sidebar Icons - Use absolute positioning */
+.twm-s-info-inner {
+  position: relative !important;
+  padding-left: 30px !important;
+}
+
+.twm-s-info-inner i {
+  position: absolute !important;
+  left: 0 !important;
+  top: 2px !important;
+  color: #ff9c00 !important;
+  font-size: 16px !important;
+  width: 20px !important;
+  text-align: center !important;
+}
