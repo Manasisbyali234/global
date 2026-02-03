@@ -317,7 +317,7 @@ function EmpCompanyProfilePage() {
     };
 
     const renderStatusBadge = (status, reuploadedAt) => {
-        if (!status || status === 'pending') return null;
+        if (!status) return null;
         
         let badgeClass, statusText;
         
@@ -329,6 +329,10 @@ function EmpCompanyProfilePage() {
             case 'rejected':
                 badgeClass = 'bg-danger';
                 statusText = 'Rejected';
+                break;
+            case 'pending':
+                badgeClass = 'bg-warning';
+                statusText = 'Pending';
                 break;
             default:
                 return null;
