@@ -397,6 +397,7 @@ function JobDetail1Page() {
                                                         {job.title}
                                                     </h4>
                                                     <p className="twm-job-company">
+                                                        <i className="feather-briefcase" style={{marginRight: '8px', color: '#ff9c00'}}></i>
                                                         <strong>Company: </strong>
                                                         {job.employerId?._id ? (
                                                             <span 
@@ -570,29 +571,27 @@ function JobDetail1Page() {
                                                 About {job.employerId?.employerType === 'consultant' ? 'Hiring Company' : 'Company'}
                                             </h4>
                                             
-                                            <div style={{marginBottom: '20px'}}>
-                                                <h5 style={{fontSize: '18px', fontWeight: '600', color: '#34495e', marginBottom: '10px'}}>
-                                                    {job.companyName || job.employerId?.companyName || 'Our Company'}
-                                                </h5>
-                                                <div style={{lineHeight: '1.8', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
-                                                    __html: (job.employerId?.employerType === 'consultant' && job.aboutCompany) 
-                                                        ? job.aboutCompany 
-                                                        : (job.employerProfile.description || 'No description available.')
-                                                }} />
-                                            </div>
-
-                                            {(job.employerId?.employerType === 'consultant' ? job.companyDescription : job.employerProfile.whyJoinUs) && (
-                                                <div style={{marginBottom: '20px'}}>
-                                                    <h5 style={{fontSize: '18px', fontWeight: '600', color: '#34495e', marginBottom: '10px'}}>Why Join Us</h5>
-                                                    <div style={{lineHeight: '1.8', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
-                                                        __html: (job.employerId?.employerType === 'consultant') 
-                                                            ? job.companyDescription 
-                                                            : job.employerProfile.whyJoinUs
-                                                    }} />
-                                                </div>
-                                            )}
-
                                             <ul className="description-list-2">
+                                                <li>
+                                                    <strong>About the company:</strong>
+                                                    <div style={{lineHeight: '1.8', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
+                                                        __html: (job.employerId?.employerType === 'consultant' && job.aboutCompany) 
+                                                            ? job.aboutCompany 
+                                                            : (job.employerProfile.description || 'No description available.')
+                                                    }} />
+                                                </li>
+
+                                                {(job.employerId?.employerType === 'consultant' ? job.companyDescription : job.employerProfile.whyJoinUs) && (
+                                                    <li>
+                                                        <strong>Why Join Us:</strong>
+                                                        <div style={{lineHeight: '1.8', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
+                                                            __html: (job.employerId?.employerType === 'consultant') 
+                                                                ? job.companyDescription 
+                                                                : job.employerProfile.whyJoinUs
+                                                        }} />
+                                                    </li>
+                                                )}
+
                                                 {job.employerProfile.website && (
                                                     <li><strong>Website:</strong> <a href={job.employerProfile.website.startsWith('http') ? job.employerProfile.website : `https://${job.employerProfile.website}`} target="_blank" rel="noopener noreferrer">{job.employerProfile.website}</a></li>
                                                 )}

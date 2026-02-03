@@ -32,13 +32,7 @@
 .twm-s-info-inner i.fa-users:before { content: "\f0c0" !important; }
 .twm-s-info-inner i.fa-map-marker:before { content: "\f041" !important; }
 
-/* Alternative fallback using text symbols if Font Awesome completely fails */
-.twm-s-info-inner i.fa-building:after { content: "🏢"; }
-.twm-s-info-inner i.fa-calendar-alt:after { content: "📅"; }
-.twm-s-info-inner i.fa-phone:after { content: "📞"; }
-.twm-s-info-inner i.fa-envelope:after { content: "✉️"; }
-.twm-s-info-inner i.fa-users:after { content: "👥"; }
-.twm-s-info-inner i.fa-map-marker:after { content: "📍"; }
+
 
 /* Hide the after content when before content is working */
 .twm-s-info-inner i:before:not(:empty) + i:after {
