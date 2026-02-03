@@ -15,12 +15,12 @@ function SectionJobsSidebar2 ({ _config, job }) {
 							
 							<ul className="twm-job-hilites">
 								<li>
-									<i className="fas fa-users" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
+									<i className="fa-solid fa-users" />
 									<span className="twm-title">{job?.vacancies || 'Not specified'} Vacancies</span>
 								</li>
 
 								<li>
-									<i className="fas fa-file-signature" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
+									<i className="fa-solid fa-file-signature" />
 									<span className="twm-title">{job?.applicationCount || 0} Applications{(typeof job?.applicationLimit === 'number' && job.applicationLimit > 0) ? ` / Limit: ${job.applicationLimit}` : ''}</span>
 								</li>
 							</ul>
@@ -28,7 +28,7 @@ function SectionJobsSidebar2 ({ _config, job }) {
 							<ul className="twm-job-hilites2">
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-calendar-plus" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
+										<i className="fa-solid fa-calendar-days" />
 										<span className="twm-title">Date Posted</span>
 										<div className="twm-s-info-discription">{formatDate(new Date())}</div>
 									</div>
@@ -36,7 +36,7 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-calendar-times" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
+										<i className="fa-solid fa-calendar-check" />
 										<span className="twm-title">Application Last Date</span>
 										<div className="twm-s-info-discription" style={{fontWeight: 'bold', color: 'red'}}>
 											{job?.lastDateOfApplication ? (
@@ -53,11 +53,9 @@ function SectionJobsSidebar2 ({ _config, job }) {
 									</div>
 								</li>
 
-
-
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-user-tie" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
+										<i className="fa-solid fa-user-tie" />
 										<span className="twm-title">Job Title</span>
 										<div className="twm-s-info-discription">{job?.title || 'Not specified'}</div>
 									</div>
@@ -65,7 +63,7 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-user-graduate" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
+										<i className="fa-solid fa-user-graduate" />
 										<span className="twm-title">Experience</span>
 										<div className="twm-s-info-discription">
 											{job?.experienceLevel === 'freshers' ? 'Freshers' :
@@ -83,7 +81,7 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-graduation-cap" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
+										<i className="fa-solid fa-graduation-cap" />
 										<span className="twm-title">Qualification</span>
 										<div className="twm-s-info-discription">
 											{Array.isArray(job?.education) ? job.education.join(', ') : (job?.education || 'Not specified')}
@@ -93,24 +91,18 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-exclamation-triangle" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
+										<i className="fa-solid fa-triangle-exclamation" />
 										<span className="twm-title">Backlogs Allowed</span>
 										<div className="twm-s-info-discription">
 											{job?.backlogsAllowed ? 'Yes' : 'No'}
 										</div>
 									</div>
 								</li>
-								{/* <li>
-                                <div className="twm-s-info-inner">
-                                    <i className="fas fa-venus-mars" />
-                                    <span className="twm-title">Gender</span>
-                                    <div className="twm-s-info-discription">Both</div>
-                                </div>
-                            </li> */}
+
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-tags" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
-										<span className="twm-title" style={{color: '#000'}}>Job Category</span>
+										<i className="fa-solid fa-tags" />
+										<span className="twm-title">Job Category</span>
 										<div className="twm-s-info-discription">
 											{job?.category || 'Not specified'}
 										</div>
@@ -119,17 +111,18 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-business-time" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
-										<span className="twm-title" style={{color: '#000'}}>Job Type</span>
+										<i className="fa-solid fa-business-time" />
+										<span className="twm-title">Job Type</span>
 										<div className="twm-s-info-discription">
 											{job?.jobType || 'Not specified'}
 										</div>
 									</div>
 								</li>
+
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-briefcase" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
-										<span className="twm-title" style={{color: '#000'}}>Type of Employment</span>
+										<i className="fa-solid fa-briefcase" />
+										<span className="twm-title">Type of Employment</span>
 										<div className="twm-s-info-discription">
 											{job?.typeOfEmployment ? job.typeOfEmployment.charAt(0).toUpperCase() + job.typeOfEmployment.slice(1) : 'Not specified'}
 										</div>
@@ -138,8 +131,8 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-home" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
-										<span className="twm-title" style={{color: '#000'}}>Work Mode</span>
+										<i className="fa-solid fa-house" />
+										<span className="twm-title">Work Mode</span>
 										<div className="twm-s-info-discription">
 											{job?.workMode ? (job.workMode.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')) : 'Not specified'}
 										</div>
@@ -148,8 +141,8 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-bus" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
-										<span className="twm-title" style={{color: '#000'}}>Transportation</span>
+										<i className="fa-solid fa-bus" />
+										<span className="twm-title">Transportation</span>
 										<div className="twm-s-info-discription">
 											{job?.transportation ? (
 												[
@@ -164,8 +157,8 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-clock" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
-										<span className="twm-title" style={{color: '#000'}}>Work Shift</span>
+										<i className="fa-solid fa-clock" />
+										<span className="twm-title">Work Shift</span>
 										<div className="twm-s-info-discription">
 											{job?.shift ? (job.shift.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')) : 'Not specified'}
 										</div>
@@ -174,19 +167,19 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fas fa-money-bill-wave" style={{display: 'inline-block', fontFamily: 'Font Awesome 6 Free, FontAwesome', fontWeight: 900, color: '#ff9c00', fontSize: '16px', marginRight: '8px', visibility: 'visible', opacity: 1}} />
+										<i className="fa-solid fa-money-bill-wave" />
 										<span className="twm-title">Offered Salary</span>
-											<div className="twm-s-info-discription">
+										<div className="twm-s-info-discription">
 											{job?.ctc && typeof job.ctc === 'object' && job.ctc.min > 0 && job.ctc.max > 0 ? (
 												job.ctc.min === job.ctc.max ? `₹${Math.floor(job.ctc.min/100000)}LPA` : `₹${Math.floor(job.ctc.min/100000)} - ${Math.floor(job.ctc.max/100000)} LPA`
 											) : 'Not specified'}
-											{job?.ctc && typeof job.ctc === 'object' && job.ctc.min > 0 && (
+											{job?.netSalary && (job.netSalary.min > 0 || job.netSalary.max > 0) && (
 												<div style={{fontSize: '12px', color: '#6c757d', marginTop: '3px'}}>
 													<strong>Net Monthly: </strong>
-													{job.ctc.min === job.ctc.max ? 
-														`₹${Math.round((job.ctc.min * 0.8) / 12).toLocaleString()}` : 
-														`₹${Math.round((job.ctc.min * 0.8) / 12).toLocaleString()} - ₹${Math.round((job.ctc.max * 0.8) / 12).toLocaleString()}`
-													} (approx.)
+													{job.netSalary.min === job.netSalary.max ? 
+														`₹${(job.netSalary.min/1000).toFixed(0)}K` : 
+														`₹${(job.netSalary.min/1000).toFixed(0)}K - ${(job.netSalary.max/1000).toFixed(0)}K`
+													}
 												</div>
 											)}
 										</div>

@@ -33,7 +33,7 @@ function SectionProfile({ employer }) {
                 <ul>
                     <li>
                         <div className="twm-s-info-inner">
-                            <i className="fas fa-building" style={iconStyle}>🏢</i>
+                            <i className="fas fa-building" style={iconStyle}></i>
                             <div>
                                 <span className="twm-title">Company Type</span>
                                 <div className="twm-s-info-discription">{(employer?.industrySector || employer?.companyType || 'Not specified').toUpperCase()}</div>
@@ -43,7 +43,7 @@ function SectionProfile({ employer }) {
 
                     <li>
                         <div className="twm-s-info-inner">
-                            <i className="fas fa-calendar-alt" style={iconStyle}>📅</i>
+                            <i className="fas fa-calendar-alt" style={iconStyle}></i>
                             <div>
                                 <span className="twm-title">Established Year</span>
                                 <div className="twm-s-info-discription">{employer?.establishedSince || 'Not specified'}</div>
@@ -63,7 +63,7 @@ function SectionProfile({ employer }) {
                         <>
                             <li>
                                 <div className="twm-s-info-inner">
-                                    <i className="fas fa-phone" style={iconStyle}>📞</i>
+                                    <i className="fas fa-phone" style={iconStyle}></i>
                                     <div>
                                         <span className="twm-title">Official Mobile Number</span>
                                         <div className="twm-s-info-discription">{employer?.officialMobile || employer?.phone || 'Not specified'}</div>
@@ -73,7 +73,7 @@ function SectionProfile({ employer }) {
 
                             <li>
                                 <div className="twm-s-info-inner">
-                                    <i className="fas fa-envelope" style={iconStyle}>✉️</i>
+                                    <i className="fas fa-envelope" style={iconStyle}></i>
                                     <div>
                                         <span className="twm-title">Official Email ID</span>
                                         <div className="twm-s-info-discription">{employer?.officialEmail || employer?.email || 'Not specified'}</div>
@@ -85,7 +85,7 @@ function SectionProfile({ employer }) {
 
                     <li>
                         <div className="twm-s-info-inner">
-                            <i className="fas fa-users" style={iconStyle}>👥</i>
+                            <i className="fas fa-users" style={iconStyle}></i>
                             <div>
                                 <span className="twm-title">Company Size</span>
                                 <div className="twm-s-info-discription">{employer?.teamSize || 'Not specified'}</div>
@@ -95,7 +95,7 @@ function SectionProfile({ employer }) {
 
                     <li>
                         <div className="twm-s-info-inner">
-                            <i className="fas fa-map-marker" style={iconStyle}>📍</i>
+                            <i className="fas fa-map-marker" style={iconStyle}></i>
                             <div>
                                 <span className="twm-title">Corporate Office Addres</span>
                                 <div className="twm-s-info-discription">{employer?.corporateAddress || 'Not specified'}</div>

@@ -397,6 +397,7 @@ function JobDetail1Page() {
                                                         {job.title}
                                                     </h4>
                                                     <p className="twm-job-company">
+                                                        <i className="feather-briefcase" style={{marginRight: '8px', color: '#ff9c00'}}></i>
                                                         <strong>Company: </strong>
                                                         {job.employerId?._id ? (
                                                             <span 
