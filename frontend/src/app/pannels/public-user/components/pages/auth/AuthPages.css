@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 40px;
+  padding: 20px 100px;
   font-family: 'Public Sans', sans-serif;
   margin-top: -200px;
 }
@@ -125,7 +125,7 @@
 }
 
 .auth-input {
-  width: 100%;
+  width: 80%;
   padding: 14px 18px;
   border-radius: 8px;
   border: 1px solid #E2E8F0;
@@ -163,7 +163,7 @@
 
 .password-toggle {
   position: absolute;
-  right: 15px;
+  right: calc(20% + 15px);
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
@@ -172,7 +172,7 @@
 }
 
 .login-btn {
-  width: 100%;
+  width: 80%;
   padding: 14px;
   border-radius: 25px;
   border: none;
@@ -218,6 +218,7 @@
   text-align: right;
   margin-bottom: 20px;
   font-size: 13px;
+  width: 80%;
 }
 
 /* OTP Modal Styles */
