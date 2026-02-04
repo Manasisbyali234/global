@@ -43,6 +43,10 @@ import "./android-text-overflow-fix.css";
 import "./condition-badge-mobile-fix.css";
 // GLOBAL TABLE RESPONSIVE FIX - Ensures all tables fit container with horizontal scroll
 import "./table-overflow-fix.css";
+// GIF ALIGNMENT REVERT - Fixes alignment issues caused by adding GIF logos
+import "./gif-alignment-revert.css";
+// HERO SECTION REVERT - Reverts Hero section layout to original appearance
+import "./hero-section-revert.css";
 
 
 function App() {

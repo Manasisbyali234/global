@@ -1,0 +1,251 @@
+/* ============================================================================
+ * GIF ALIGNMENT REVERT CSS
+ * ============================================================================
+ * This file reverts the alignment changes that occurred after adding GIF logos
+ * to the header and footer components.
+ * ============================================================================ */
+
+/* HEADER ALIGNMENT FIXES */
+
+/* Logo container alignment - ensure proper positioning */
+.logo-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  background: transparent !important;
+}
+
+.logo-header .logo-header-inner {
+  display: flex !important;
+  align-items: center !important;
+  background: transparent !important;
+}
+
+/* GIF logo specific styling */
+.logo-header img[src*="logo-skin-8.gif"] {
+  max-width: 180px !important;
+  height: auto !important;
+  max-height: 70px !important;
+  background: transparent !important;
+  object-fit: contain !important;
+}
+
+/* Main bar container alignment */
+.main-bar .container-fluid {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+}
+
+/* Navigation alignment */
+.header-nav.navbar-collapse {
+  display: flex !important;
+  justify-content: center !important;
+  flex: 1 !important;
+}
+
+.header-nav .nav.navbar-nav {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+}
+
+/* Right section alignment */
+.extra-nav.header-2-nav {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 15px !important;
+}
+
+/* FOOTER ALIGNMENT FIXES */
+
+/* Footer container alignment */
+.site-footer-new {
+  background: #F9FAFB !important;
+  padding: 64px 0 0 !important;
+}
+
+/* Footer logo alignment */
+.footer-brand {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+.logo-footer {
+  margin-bottom: 24px !important;
+}
+
+.logo-footer img[src*="logo-skin-8.gif"] {
+  height: 70px !important;
+  width: auto !important;
+  max-width: 200px !important;
+  background: transparent !important;
+  object-fit: contain !important;
+}
+
+/* Footer columns alignment */
+.site-footer-new .container .row {
+  align-items: flex-start !important;
+}
+
+.site-footer-new .col-lg-3,
+.site-footer-new .col-lg-2,
+.site-footer-new .col-lg-4,
+.site-footer-new .col-md-6 {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+/* Contact info alignment */
+.contact-info {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+.footer-contact-item {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  margin-bottom: 10px !important;
+  text-align: left !important;
+}
+
+/* Social links alignment */
+.social-links {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+}
+
+/* Footer bottom alignment */
+.footer-bottom-bar {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* MOBILE RESPONSIVE FIXES */
+
+@media (max-width: 1199px) {
+  /* Header mobile alignment */
+  .main-bar .container-fluid {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  
+  .logo-header {
+    flex: 0 0 auto !important;
+  }
+  
+  .extra-nav.header-2-nav {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    margin-left: auto !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Mobile header alignment */
+  .logo-header img[src*="logo-skin-8.gif"] {
+    max-width: 100px !important;
+    max-height: 40px !important;
+  }
+  
+  .main-bar .container-fluid {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  
+  /* Mobile footer alignment */
+  .site-footer-new {
+    padding: 40px 0 0 !important;
+  }
+  
+  .logo-footer img[src*="logo-skin-8.gif"] {
+    height: 50px !important;
+    max-width: 150px !important;
+  }
+  
+  .footer-contact-item {
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+  
+  .social-links {
+    justify-content: flex-start !important;
+  }
+  
+  .footer-bottom-bar {
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Small mobile fixes */
+  .logo-header img[src*="logo-skin-8.gif"] {
+    max-width: 80px !important;
+    max-height: 32px !important;
+  }
+  
+  .logo-footer img[src*="logo-skin-8.gif"] {
+    height: 40px !important;
+    max-width: 120px !important;
+  }
+}
+
+/* PREVENT LAYOUT SHIFTS */
+
+/* Ensure containers don't shift when GIF loads */
+.logo-header,
+.logo-footer {
+  min-height: 50px !important;
+}
+
+/* Prevent text reflow around images */
+.logo-header img,
+.logo-footer img {
+  display: block !important;
+  vertical-align: top !important;
+}
+
+/* OVERRIDE ANY CONFLICTING STYLES */
+
+/* Force proper alignment regardless of other CSS */
+.site-header .main-bar .container-fluid {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.site-footer-new .container {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+
+/* Ensure GIF backgrounds remain transparent */
+img[src*="logo-skin-8.gif"],
+img[src*="TaleGlobal-Logo.gif"] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Fix any flex issues */
+.header-nav.navbar-collapse,
+.extra-nav.header-2-nav {
+  flex-shrink: 0 !important;
+}
+
+.logo-header {
+  flex-shrink: 0 !important;
+}

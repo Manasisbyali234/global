@@ -498,7 +498,7 @@ function Home16Page() {
 
             {/* JOBS CATEGORIES SECTION START */}
             <div className="section-full p-t20 p-b20 twm-job-categories-hpage-6-area animate-on-scroll" style={{background: 'transparent !important', backgroundColor: 'transparent !important', paddingTop: 'clamp(5px, 1vw, 10px)', paddingBottom: 'clamp(5px, 1vw, 10px)'}}>
-                <Container style={{background: 'transparent !important', backgroundColor: 'transparent !important'}}>
+                <Container>
                 <div className="section-head center wt-small-separator-outer mb-3" style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                     <div className="wt-small-separator site-text-primary">
                         <div>Jobs by Categories</div>

@@ -1,3 +1,8 @@
+.logo-header img {
+  max-width: 120px !important;
+  height: auto !important;
+}
+
 /* Clean Header Responsive Styles */
 .nav-link-custom {
   color: #333 !important;
@@ -158,11 +163,11 @@
   }
   
   .logo-header {
-    max-width: 120px !important;
+    max-width: 100px !important;
   }
 
   .logo-header img {
-    max-height: 30px !important;
+    max-height: 28px !important;
     width: auto !important;
   }
   

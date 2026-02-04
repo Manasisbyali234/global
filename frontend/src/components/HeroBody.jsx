@@ -290,7 +290,8 @@ const HeroBody = ({ onSearch }) => {
       backgroundImage: "url('/assets/images/photo_2025-10-09_11-01-43.png')",
       backgroundSize: "cover",
       backgroundPosition: "center",
-      backgroundRepeat: "no-repeat"
+      backgroundRepeat: "no-repeat",
+      minHeight: "500px"
     }}>
       {/* Hero Section */}
       <div className="hero-content">
