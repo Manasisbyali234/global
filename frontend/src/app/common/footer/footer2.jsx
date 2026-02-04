@@ -53,7 +53,7 @@ function Footer2() {
                             <div className="col-lg-3 col-md-12">
                                 <div className="widget widget_about">
                                     <div className="logo-footer clearfix">
-                                        <NavLink to={publicUser.INITIAL}><JobZImage id="skin_footer_light_logo" src="images/skins-logo/logo-skin-8.png" alt="" /></NavLink>
+                                        <NavLink to={publicUser.INITIAL}><JobZImage id="skin_footer_light_logo" src="images/skins-logo/logo-skin-8.gif" alt="" /></NavLink>
                                     </div>
                                     <p>Many desktop publishing packages and web page editors now.</p>
                                     <ul className="ftr-list">

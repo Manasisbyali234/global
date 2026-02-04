@@ -1091,7 +1091,7 @@ input:focus:not(:focus-visible) {
 }
 
 /* Logo images */
-img[src*="logo-skin-8.png"] {
+img[src*="logo-skin-8.gif"] {
   background: transparent !important;
 }
 

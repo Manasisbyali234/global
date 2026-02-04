@@ -48,7 +48,7 @@ export function updateSkinStyle(skin, headerLogoLight, footerLogoLight) {
     var _skin_maintain_logo = document.getElementById("skin_maintain_logo");
     var _skin_header_inner_logo_12 = document.getElementById("skin_header_inner_logo_12");
     var _skin_header_inner_logo_15 = document.getElementById("skin_header_inner_logo_15");
-    const _logo = publicUrlFor('images/skins-logo/logo-skin-' + skin + '.png');
+    const _logo = skin == '8' ? publicUrlFor('images/skins-logo/logo-skin-8.gif') : publicUrlFor('images/skins-logo/logo-skin-' + skin + '.png');
     const _logo_light = publicUrlFor('images/logo-light-3.png');
     const _logo_white = publicUrlFor('images/logo-white.png');
 
