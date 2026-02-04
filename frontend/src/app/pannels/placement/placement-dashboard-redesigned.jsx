@@ -553,7 +553,7 @@ function PlacementDashboardRedesigned() {
             <div className={`sidebar ${isSidebarOpen ? 'active' : ''}`}>
                 <div className="sidebar-header">
                     <div className="logo" onClick={() => window.location.href = '/'} style={{cursor: 'pointer'}}>
-                        <JobZImage id="skin_header_logo" src="images/skins-logo/logo-skin-8.png" alt="Logo" style={{height: '40px', width: 'auto'}} />
+                        <JobZImage id="skin_header_logo" src="images/skins-logo/logo-skin-8.gif" alt="Logo" style={{height: '40px', width: 'auto'}} />
                     </div>
                     <button className="sidebar-close" onClick={() => setIsSidebarOpen(false)}>
                         <i className="fa fa-times"></i>

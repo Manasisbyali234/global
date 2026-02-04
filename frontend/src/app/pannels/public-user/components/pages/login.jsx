@@ -168,7 +168,7 @@ function LoginPage() {
                                         <div className="p-5 d-flex flex-column justify-content-center" style={{minHeight: '600px'}}>
                                             <div className="text-center mb-4">
                                                 <NavLink to={publicUser.HOME1}>
-                                                    <JobZImage src="images/skins-logo/logo-skin-8.png" alt="" className="mb-3" style={{maxHeight: '45px'}} />
+                                                    <JobZImage src="images/skins-logo/logo-skin-8.gif" alt="" className="mb-3" style={{maxHeight: '45px'}} />
                                                 </NavLink>
                                                 <h3 className="fw-bold text-dark mb-2">Welcome Back</h3>
                                                 <p className="text-muted mb-0">Sign in to your account</p>

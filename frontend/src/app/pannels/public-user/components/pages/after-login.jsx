@@ -146,7 +146,7 @@ function AfterLoginPage() {
                             <div className="twm-log-reg-form-wrap">
                                 <div className="twm-log-reg-logo-head">
                                     <NavLink to={publicUser.HOME16}>
-                                        <JobZImage src="images/logo-skin-8.png" alt="" className="logo" />
+                                        <JobZImage src="images/logo-skin-8.gif" alt="" className="logo" />
                                     </NavLink>
                                 </div>
                                 <div className="twm-log-reg-inner">

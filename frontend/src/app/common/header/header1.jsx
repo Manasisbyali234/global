@@ -61,12 +61,12 @@ const Header1 = memo(function Header1({ _config }) {
                                         {
                                             _config.withBlackLogo
                                                 ?
-                                                <JobZImage src="images/skins-logo/logo-skin-8.png" alt="" />
+                                                <JobZImage src="images/skins-logo/logo-skin-8.gif" alt="" />
                                                 :
                                                 (
                                                     _config.withWhiteLogo
                                                         ?
-                                                        <JobZImage src="images/skins-logo/logo-skin-8.png" alt="" />
+                                                        <JobZImage src="images/skins-logo/logo-skin-8.gif" alt="" />
                                                         :
                                                         (
                                                             _config.withLightLogo ?
@@ -74,7 +74,7 @@ const Header1 = memo(function Header1({ _config }) {
                                                                     <JobZImage id="skin_header_logo_light" src="images/logo-light-3.png" alt="" className="default-scroll-show" />
                                                                     <JobZImage id="skin_header_logo" src="images/logo-dark.png" alt="" className="on-scroll-show" />
                                                                 </> :
-                                                                <JobZImage id="skin_header_logo" src="images/skins-logo/logo-skin-8.png" alt="" />
+                                                                <JobZImage id="skin_header_logo" src="images/skins-logo/logo-skin-8.gif" alt="" />
                                                         )
                                                 )
                                         }

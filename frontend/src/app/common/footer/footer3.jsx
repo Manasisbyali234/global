@@ -41,7 +41,7 @@ function Footer3 () {
 											<NavLink to={publicUser.INITIAL}>
 												<JobZImage
 													id="skin_footer_light_logo"
-													src="images/skins-logo/logo-skin-8.png"
+													src="images/skins-logo/logo-skin-8.gif"
 													alt=""
 												/>
 											</NavLink>

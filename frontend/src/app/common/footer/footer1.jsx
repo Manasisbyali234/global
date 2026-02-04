@@ -132,7 +132,7 @@ function Footer1() {
                                 <NavLink to={publicUser.INITIAL}>
                                     <JobZImage
                                         id="skin_footer_light_logo"
-                                        src="images/skins-logo/logo-skin-8.png"
+                                        src="images/skins-logo/logo-skin-8.gif"
                                         alt=""
                                         style={{ height: '70px', width: 'auto' }}
                                     />
