@@ -978,6 +978,30 @@ exports.verifyMobileOTP = async (req, res) => {
   }
 };
 
+exports.resendMobileOTP = async (req, res) => {
+  try {
+    const { email, phone } = req.body;
+    const candidate = await Candidate.findByEmail(email.trim());
+
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
+    }
+
+    // Generate new OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    candidate.phoneOTP = otp;
+    candidate.phoneOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await candidate.save();
+
+    // Send SMS OTP
+    await sendSMS(phone, otp, candidate.name);
+
+    res.json({ success: true, message: 'New OTP sent successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.getDashboard = async (req, res) => {
   try {
     const candidateId = req.user._id;

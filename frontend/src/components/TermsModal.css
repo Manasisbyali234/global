@@ -16,13 +16,19 @@
 .terms-modal {
     background: white;
     border-radius: 12px;
-    width: 100%;
-    max-width: 600px;
+    width: 55%;
+    max-width: 300px;
     height: 90vh;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Specific width adjustment for employer terms */
+.terms-modal[data-role="employer"],
+.terms-modal[data-role="employerProfile"] {
+    max-width: 450px;
 }
 
 .terms-modal-header {

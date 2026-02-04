@@ -1744,3 +1744,27 @@ exports.verifyMobileOTP = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.resendMobileOTP = async (req, res) => {
+  try {
+    const { email, phone } = req.body;
+    const placement = await Placement.findByEmail(email.trim());
+
+    if (!placement) {
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
+    }
+
+    // Generate new OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    placement.phoneOTP = otp;
+    placement.phoneOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await placement.save();
+
+    // Send SMS OTP
+    await sendSMS(phone, otp, placement.name);
+
+    res.json({ success: true, message: 'New OTP sent successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

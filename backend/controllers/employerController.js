@@ -2759,3 +2759,27 @@ exports.verifyMobileOTP = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.resendMobileOTP = async (req, res) => {
+  try {
+    const { email, phone } = req.body;
+    const employer = await Employer.findByEmail(email.trim());
+
+    if (!employer) {
+      return res.status(404).json({ success: false, message: 'Employer not found' });
+    }
+
+    // Generate new OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    employer.phoneOTP = otp;
+    employer.phoneOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await employer.save();
+
+    // Send SMS OTP
+    await sendSMS(phone, otp, employer.name);
+
+    res.json({ success: true, message: 'New OTP sent successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
