@@ -63,17 +63,9 @@ exports.registerPlacement = async (req, res) => {
         console.error('Failed to create registration notification:', notifError);
       }
 
-      // Send welcome email
-      try {
-        await sendWelcomeEmail(placement.email, placement.name, 'placement', placement.collegeName);
-      } catch (emailError) {
-        console.error('Welcome email failed for placement officer:', emailError);
-        return res.status(500).json({ success: false, message: 'Failed to send welcome email' });
-      }
-
       return res.status(201).json({
         success: true,
-        message: 'Registration successful. Please check your email to create your password and verify your mobile number.'
+        message: 'Registration successful. Please verify your mobile number via OTP sent to your phone.'
       });
     }
 
@@ -115,16 +107,9 @@ exports.registerPlacement = async (req, res) => {
       console.error('Failed to create registration notification:', notifError);
     }
 
-    // Send welcome email
-    try {
-      await sendWelcomeEmail(placement.email, placement.name, 'placement', placement.collegeName);
-    } catch (emailError) {
-      console.error('Welcome email failed for placement officer:', emailError);
-    }
-
     res.status(201).json({
       success: true,
-      message: 'Registration successful. Please verify your mobile number. Please wait for admin approval before you can sign in.',
+      message: 'Registration successful. Please verify your mobile number via OTP sent to your phone. Please wait for admin approval before you can sign in.',
       placement: {
         id: placement._id,
         name: placement.name,
@@ -1739,7 +1724,16 @@ exports.verifyMobileOTP = async (req, res) => {
     placement.phoneOTPExpires = undefined;
     await placement.save();
 
-    res.json({ success: true, message: 'Mobile number verified successfully' });
+    // Send welcome email with password creation link only after OTP verification
+    try {
+      await sendWelcomeEmail(placement.email, placement.name, 'placement', placement.collegeName);
+      console.log('Welcome email sent successfully to:', placement.email);
+    } catch (emailError) {
+      console.error('Welcome email failed:', emailError);
+      // Don't fail the verification if email fails, just log it
+    }
+
+    res.json({ success: true, message: 'Mobile number verified successfully! Please check your registered email inbox to create your password.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

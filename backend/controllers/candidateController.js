@@ -47,18 +47,9 @@ exports.registerCandidate = async (req, res) => {
     await CandidateProfile.create({ candidateId: candidate._id });
     console.log('Profile created for candidate');
 
-    // Send welcome email with password creation link
-    try {
-      await sendWelcomeEmail(email, name, 'candidate');
-      console.log('Welcome email sent successfully to:', email);
-    } catch (emailError) {
-      console.error('Welcome email failed:', emailError);
-      return res.status(500).json({ success: false, message: 'Failed to send welcome email. Please try again.' });
-    }
-
     res.status(201).json({
       success: true,
-      message: 'Registration successful! Please check your email to create your password and verify your mobile number via OTP sent to your phone.'
+      message: 'Registration successful! Please verify your mobile number via OTP sent to your phone.'
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -972,7 +963,16 @@ exports.verifyMobileOTP = async (req, res) => {
     candidate.phoneOTPExpires = undefined;
     await candidate.save();
 
-    res.json({ success: true, message: 'Mobile number verified successfully' });
+    // Send welcome email with password creation link only after OTP verification
+    try {
+      await sendWelcomeEmail(candidate.email, candidate.name, 'candidate');
+      console.log('Welcome email sent successfully to:', candidate.email);
+    } catch (emailError) {
+      console.error('Welcome email failed:', emailError);
+      // Don't fail the verification if email fails, just log it
+    }
+
+    res.json({ success: true, message: 'Mobile number verified successfully! Please check your registered email inbox to create your password.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

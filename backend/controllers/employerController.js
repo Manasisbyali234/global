@@ -61,18 +61,9 @@ exports.registerEmployer = async (req, res) => {
     
     await Subscription.create({ employerId: employer._id });
 
-    // Send welcome email with password creation link
-    try {
-      await sendWelcomeEmail(email, companyName, finalEmployerType);
-      console.log('Welcome email sent to:', email);
-    } catch (emailError) {
-      console.error('Welcome email failed:', emailError);
-      return res.status(500).json({ success: false, message: 'Failed to send welcome email. Please try again.' });
-    }
-
     res.status(201).json({
       success: true,
-      message: 'Registration successful! Please check your email to create your password and verify your mobile number.'
+      message: 'Registration successful! Please verify your mobile number via OTP sent to your phone.'
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -2754,7 +2745,16 @@ exports.verifyMobileOTP = async (req, res) => {
     employer.phoneOTPExpires = undefined;
     await employer.save();
 
-    res.json({ success: true, message: 'Mobile number verified successfully' });
+    // Send welcome email with password creation link only after OTP verification
+    try {
+      await sendWelcomeEmail(employer.email, employer.companyName || employer.name, employer.employerType);
+      console.log('Welcome email sent successfully to:', employer.email);
+    } catch (emailError) {
+      console.error('Welcome email failed:', emailError);
+      // Don't fail the verification if email fails, just log it
+    }
+
+    res.json({ success: true, message: 'Mobile number verified successfully! Please check your registered email inbox to create your password.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
