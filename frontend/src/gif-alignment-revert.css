@@ -13,6 +13,7 @@
   align-items: center !important;
   justify-content: flex-start !important;
   background: transparent !important;
+  margin-left: 40px !important;
 }
 
 .logo-header .logo-header-inner {
@@ -23,9 +24,9 @@
 
 /* GIF logo specific styling */
 .logo-header img[src*="logo-skin-8.gif"] {
-  max-width: 180px !important;
+  max-width: 200px !important;
   height: auto !important;
-  max-height: 70px !important;
+  max-height: 80px !important;
   background: transparent !important;
   object-fit: contain !important;
 }
@@ -81,9 +82,9 @@
 }
 
 .logo-footer img[src*="logo-skin-8.gif"] {
-  height: 70px !important;
+  height: 90px !important;
   width: auto !important;
-  max-width: 200px !important;
+  max-width: 250px !important;
   background: transparent !important;
   object-fit: contain !important;
 }
