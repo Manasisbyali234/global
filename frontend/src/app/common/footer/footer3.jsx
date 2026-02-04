@@ -106,13 +106,13 @@ function Footer3 () {
 												<h3 className="widget-title">Helpful Links</h3>
 												<ul>
 													<li>
-														<NavLink to={publicUser.blog.GRID1}>
+														<NavLink to={publicUser.pages.LOGIN_CANDIDATE}>
 															Candidate Dashboard
 														</NavLink>
 													</li>
 
 													<li>
-														<NavLink to={publicUser.pages.CONTACT}>
+														<NavLink to={publicUser.pages.LOGIN_EMPLOYER}>
 															Employers Dashboard
 														</NavLink>
 													</li>

@@ -170,8 +170,9 @@ function Footer1() {
                     <Col lg={3} md={6}>
                         <h4 className="footer-col-title">Helpful Links</h4>
                         <ul className="footer-link-list">
-                            <li><NavLink to={publicUser.pages.LOGIN}>Candidate Dashboard</NavLink></li>
-                            <li><NavLink to={publicUser.pages.LOGIN}>Employers Dashboard</NavLink></li>
+                            <li><NavLink to={publicUser.pages.LOGIN_CANDIDATE}>Candidate Dashboard</NavLink></li>
+                            <li><NavLink to={publicUser.pages.LOGIN_EMPLOYER}>Employers Dashboard</NavLink></li>
+                            <li><NavLink to={publicUser.pages.LOGIN_PLACEMENT}>Placement Dashboard</NavLink></li>
                             <li><NavLink to={publicUser.pages.TERMS}>Terms & Conditions</NavLink></li>
                             <li><NavLink to={publicUser.pages.PRIVACY}>Privacy Policy</NavLink></li>
                         </ul>
