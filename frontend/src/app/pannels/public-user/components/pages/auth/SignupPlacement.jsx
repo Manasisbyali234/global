@@ -168,7 +168,8 @@ function SignupPlacement() {
 
     return (
         <div className="auth-page-wrapper">
-            <div className="main-card">
+            <div className="container">
+                <div className="main-card">
                 {/* Left Side (Image Section) */}
                 <div className="left-section">
                     <div className="image-wrapper">
@@ -251,6 +252,7 @@ function SignupPlacement() {
                         </p>
                     </form>
                 </div>
+            </div>
             </div>
             <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} onAccept={handleTermsAccept} role="placement" />
             

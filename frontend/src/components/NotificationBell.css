@@ -43,6 +43,8 @@
 
 .notification-dropdown {
   animation: dropdown-fade-in 0.3s ease-out;
+  min-width: 320px !important;
+  width: auto !important;
 }
 
 .notification-dropdown.closing {

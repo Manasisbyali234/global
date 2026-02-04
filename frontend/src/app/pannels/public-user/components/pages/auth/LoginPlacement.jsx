@@ -57,7 +57,8 @@ function LoginPlacement() {
 
     return (
         <div className="auth-page-wrapper">
-            <div className="main-card">
+            <div className="container">
+                <div className="main-card">
                 {/* Left Side (Image Section) */}
                 <div className="left-section">
                     <div className="image-wrapper">
@@ -126,6 +127,7 @@ function LoginPlacement() {
                         </p>
                     </form>
                 </div>
+            </div>
             </div>
         </div>
     );

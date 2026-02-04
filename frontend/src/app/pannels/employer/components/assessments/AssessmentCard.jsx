@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import './create-assessment.css';
 
 export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 	const navigate = useNavigate();
@@ -13,7 +14,7 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 	};
 
 	return (
-		<div className="card h-100 shadow-sm">
+	<div className="card h-100 shadow-sm assessment-card">
 			<div className="card-body">
 				{/* Serial Number - First */}
 				<div className="mb-2">
@@ -25,8 +26,19 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 				{/* Designation - Second */}
 				{data.designation && (
 					<div className="mb-2">
-						<h6 className="fw-bold mb-1" style={{fontSize: '14px'}}>
-							<span style={{color: '#8B7355'}}>Designation:</span> <span className="text-primary">{data.designation}</span>
+						<h6 className="fw-bold mb-1" style={{
+							fontSize: '14px',
+							wordWrap: 'break-word',
+							overflowWrap: 'break-word',
+							wordBreak: 'break-word',
+							whiteSpace: 'normal'
+						}}>
+							<span style={{color: '#8B7355'}}>Designation:</span> <span className="text-primary" style={{
+								wordWrap: 'break-word',
+								overflowWrap: 'break-word',
+								wordBreak: 'break-word',
+								whiteSpace: 'normal'
+							}}>{data.designation}</span>
 						</h6>
 					</div>
 				)}
@@ -42,7 +54,12 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 				
 				{/* Assessment Title - Fourth */}
 				<div className="d-flex justify-content-between align-items-start mb-2">
-					<h5 className="card-title mb-0">{data.title}</h5>
+					<h5 className="card-title mb-0" style={{
+						wordWrap: 'break-word',
+						overflowWrap: 'break-word',
+						wordBreak: 'break-all',
+						whiteSpace: 'normal'
+					}}>{data.title}</h5>
 					<div className="d-flex flex-column align-items-end gap-1">
 						<span className="btn btn-sm btn-outline-primary" style={{pointerEvents: 'none', cursor: 'default', fontSize: '10px', padding: '1px 6px', lineHeight: '1.2'}}>
 							{data.type}
@@ -58,7 +75,12 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					</small>
 				</div>
 				{data.description && (
-					<p className="card-text text-muted small">{data.description}</p>
+					<p className="card-text text-muted small" style={{
+						wordWrap: 'break-word',
+						overflowWrap: 'break-word',
+						wordBreak: 'break-all',
+						whiteSpace: 'normal'
+					}}>{data.description}</p>
 				)}
 				<div className="d-flex gap-3 mb-3">
 					<small className="text-muted">
