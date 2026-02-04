@@ -122,7 +122,7 @@ const TermsModal = ({ isOpen, onClose, onAccept, role = 'candidate' }) => {
 
     const modalContent = (
         <div className="terms-modal-overlay">
-            <div className="terms-modal">
+            <div className="terms-modal" data-role={role}>
                 <div className="terms-modal-header">
                     <h2>{content.title}</h2>
                     <button className="terms-close-btn" onClick={onClose}>&times;</button>

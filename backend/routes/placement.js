@@ -56,6 +56,11 @@ router.post('/verify-mobile', [
   body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits')
 ], handleValidationErrors, placementController.verifyMobileOTP);
 
+router.post('/resend-otp', [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('phone').notEmpty().withMessage('Phone number is required')
+], handleValidationErrors, placementController.resendMobileOTP);
+
 router.post('/password/update-reset', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('newPassword')

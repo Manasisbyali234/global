@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { publicUser } from "../../../../../../globals/route-names";
 import { handlePhoneInputChange } from "../../../../../../utils/phoneValidation";
@@ -23,6 +23,12 @@ function SignupCandidate() {
     const [showOtpModal, setShowOtpModal] = useState(false);
     const [otp, setOtp] = useState('');
     const [verifying, setVerifying] = useState(false);
+    const [otpExpired, setOtpExpired] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
+    const [canResend, setCanResend] = useState(true);
+    const [resending, setResending] = useState(false);
+    const timerRef = useRef(null);
+    const otpGeneratedTime = useRef(null);
 
     const validateField = (name, value) => {
         const errors = { ...fieldErrors };
@@ -61,6 +67,27 @@ function SignupCandidate() {
         }
     };
 
+    const startOtpTimer = () => {
+        setTimeLeft(300);
+        setOtpExpired(false);
+        otpGeneratedTime.current = Date.now();
+        
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+        }
+        
+        timerRef.current = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    setOtpExpired(true);
+                    clearInterval(timerRef.current);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
     const registerCandidate = async () => {
         setLoading(true);
         try {
@@ -79,6 +106,7 @@ function SignupCandidate() {
             const data = await response.json();
             if (response.ok && data.success) {
                 setShowOtpModal(true);
+                startOtpTimer();
                 // Don't clear data yet, we need email for OTP verification
             } else {
                 showError(data.message || 'Registration failed.');
@@ -113,6 +141,11 @@ function SignupCandidate() {
             return;
         }
 
+        if (otpExpired) {
+            showError('OTP has expired. Please request a new one.');
+            return;
+        }
+
         setVerifying(true);
         try {
             const apiUrl = process.env.REACT_APP_API_URL || '';
@@ -127,6 +160,7 @@ function SignupCandidate() {
 
             const data = await response.json();
             if (response.ok && data.success) {
+                clearInterval(timerRef.current);
                 showSuccess('Mobile number verified successfully! Please check your registered email inbox to create your password.');
                 setShowOtpModal(false);
                 setCandidateData({ username: '', email: '', mobile: '', countryCode: '+91' });
@@ -140,6 +174,48 @@ function SignupCandidate() {
             setVerifying(false);
         }
     };
+
+    const handleResendOtp = async () => {
+        setResending(true);
+        try {
+            const apiUrl = process.env.REACT_APP_API_URL || '';
+            const response = await fetch(`${apiUrl}/api/candidate/resend-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: candidateData.email,
+                    phone: candidateData.countryCode + candidateData.mobile
+                })
+            });
+            
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setOtp('');
+                startOtpTimer();
+                showSuccess('New OTP sent successfully!');
+            } else {
+                showError(data.message || 'Failed to resend OTP');
+            }
+        } catch (error) {
+            showError('Network error. Please try again.');
+        } finally {
+            setResending(false);
+        }
+    };
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+            }
+        };
+    }, []);
 
     const handleTermsAccept = () => {
         setTermsAccepted(true);
@@ -230,6 +306,14 @@ function SignupCandidate() {
                         <h3>Verify Mobile Number</h3>
                         <p>We have sent a 6-digit OTP to {candidateData.mobile}</p>
                         
+                        <div className="otp-timer">
+                            {!otpExpired ? (
+                                <p className="timer-text">OTP expires in: <span className="timer-countdown">{formatTime(timeLeft)}</span></p>
+                            ) : (
+                                <p className="expired-text">OTP has expired</p>
+                            )}
+                        </div>
+                        
                         <form onSubmit={handleOtpVerify}>
                             <div className="otp-input-container">
                                 <input
@@ -245,10 +329,18 @@ function SignupCandidate() {
                             </div>
                             
                             <div className="otp-actions">
-                                <button type="submit" className="verify-btn" disabled={verifying}>
+                                <button type="submit" className="verify-btn" disabled={verifying || otpExpired}>
                                     {verifying ? 'Verifying...' : 'Verify & Proceed'}
                                 </button>
-                                <button type="button" className="cancel-btn" onClick={() => setShowOtpModal(false)} disabled={verifying}>
+                                
+                                <button type="button" className="resend-btn" onClick={handleResendOtp} disabled={resending}>
+                                    {resending ? 'Resending...' : 'Resend OTP'}
+                                </button>
+                                
+                                <button type="button" className="cancel-btn" onClick={() => {
+                                    clearInterval(timerRef.current);
+                                    setShowOtpModal(false);
+                                }} disabled={verifying}>
                                     Cancel
                                 </button>
                             </div>
