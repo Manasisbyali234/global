@@ -179,12 +179,21 @@ html body div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="back
 }
 
 @media (max-width: 767px) {
+  /* Standardize Container Padding for Consistency - Reduced further to 8px */
+  .container, .container-fluid {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   /* Full width sections */
   .section-full {
-    margin-left: -10px;
-    margin-right: -10px;
-    padding-left: 10px;
-    padding-right: 10px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
   }
 
   /* Center Top Recruiters title on mobile */
@@ -249,12 +258,6 @@ html body div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="back
 }
 
 @media (max-width: 576px) {
-  /* Extra padding reduction */
-  .container, .container-fluid {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
   /* Keep category cards horizontal */
   .category-cards-container {
     flex-direction: row !important;
@@ -309,12 +312,6 @@ html body div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="back
 }
 
 @media (max-width: 480px) {
-  /* Minimal padding */
-  .container, .container-fluid {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-
   /* Mobile categories grid - 2 columns */
   .mobile-categories > div[style*="display: grid"] {
     grid-template-columns: repeat(2, 1fr) !important;
@@ -350,12 +347,6 @@ html body div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="back
 }
 
 @media (max-width: 360px) {
-  /* Ultra-compact layout */
-  .container, .container-fluid {
-    padding-left: 6px;
-    padding-right: 6px;
-  }
-
   /* Mobile categories grid - 2 columns */
   .mobile-categories > div[style*="display: grid"] {
     grid-template-columns: repeat(2, 1fr) !important;

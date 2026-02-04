@@ -158,6 +158,10 @@
 
 @media (max-width: 767px) {
   /* Mobile header alignment */
+  .logo-header {
+    margin-left: 0 !important;
+  }
+  
   .logo-header img[src*="logo-skin-8.gif"] {
     max-width: 100px !important;
     max-height: 40px !important;

@@ -23,12 +23,12 @@
   .category-cards-container {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    padding: 0 10px;
+    padding: 0;
     margin-bottom: 20px;
   }
 
   .category-cards-second-row {
-    padding-left: 10px !important;
+    padding-left: 0 !important;
   }
 }
 
@@ -36,12 +36,12 @@
   .category-cards-container {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    padding: 0 8px;
+    padding: 0;
     margin-bottom: 15px;
   }
 
   .category-cards-second-row {
-    padding-left: 8px !important;
+    padding-left: 0 !important;
   }
 }
 
@@ -49,11 +49,11 @@
   .category-cards-container {
     grid-template-columns: repeat(2, 1fr);
     gap: 6px;
-    padding: 0 6px;
+    padding: 0;
   }
 
   .category-cards-second-row {
-    padding-left: 6px !important;
+    padding-left: 0 !important;
   }
 }
 
@@ -61,11 +61,11 @@
   .category-cards-container {
     grid-template-columns: repeat(2, 1fr);
     gap: 5px;
-    padding: 0 5px;
+    padding: 0;
   }
 
   .category-cards-second-row {
-    padding-left: 5px !important;
+    padding-left: 0 !important;
   }
 }
 

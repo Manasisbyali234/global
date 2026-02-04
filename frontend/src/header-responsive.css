@@ -1,5 +1,5 @@
 .logo-header img {
-  max-width: 120px !important;
+  max-width: 150px !important;
   height: auto !important;
 }
 
@@ -70,14 +70,30 @@
 }
 
 @media (max-width: 1199px) {
-  .header-nav.navbar-collapse { display: none !important; }
+  /* Hide main navigation on mobile */
+  .nav-animation.header-nav.navbar-collapse,
+  .header-nav.navbar-collapse,
+  .nav-animation.header-nav,
+  .nav.navbar-nav { 
+    display: none !important; 
+    visibility: hidden !important;
+  }
+  
+  /* Hide sign up/sign in buttons on mobile */
+  .header-nav-btn-section,
+  .twm-nav-btn-left,
+  .twm-nav-btn-right { 
+    display: none !important; 
+    visibility: hidden !important;
+  }
+  
+  /* Show hamburger menu on mobile */
   .hamburger-btn { 
     display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
   }
-  .header-nav-btn-section { display: none !important; }
   
   .main-bar .container,
   .main-bar .container-fluid {
@@ -145,6 +161,54 @@
   }
 }
 
+@media (max-width: 991px) {
+  /* Force hide navigation elements on tablets and mobile */
+  .nav-animation.header-nav.navbar-collapse,
+  .header-nav.navbar-collapse,
+  .nav-animation.header-nav,
+  .nav.navbar-nav,
+  .header-nav-btn-section,
+  .twm-nav-btn-left,
+  .twm-nav-btn-right { 
+    display: none !important; 
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+  
+  /* Ensure hamburger menu is visible */
+  .hamburger-btn { 
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Additional mobile-specific hiding */
+  .navbar-nav,
+  .nav-item,
+  .nav-link,
+  .dropdown,
+  .dropdown-menu { 
+    display: none !important; 
+  }
+  
+  /* Keep only essential header elements visible */
+  .logo-header,
+  .hamburger-btn,
+  .employer-nav-menu { 
+    display: flex !important; 
+  }
+  
+  /* Override logo size with maximum specificity */
+  html body .logo-header img[src*="logo-skin-8.gif"],
+  html body .logo-header-inner img[src*="logo-skin-8.gif"] {
+    max-width: 120px !important;
+    max-height: 45px !important;
+  }
+}
+
 @media (max-width: 480px) {
   .extra-nav.header-2-nav {
     gap: 12px !important;
@@ -163,12 +227,20 @@
   }
   
   .logo-header {
-    max-width: 100px !important;
+    max-width: 150px !important;
   }
 
   .logo-header img {
-    max-height: 28px !important;
+    max-height: 40px !important;
+    max-width: 140px !important;
     width: auto !important;
+  }
+  
+  /* Override specific logo rules */
+  html body .logo-header img[src*="logo-skin-8.gif"],
+  html body .logo-header-inner img[src*="logo-skin-8.gif"] {
+    max-width: 100px !important;
+    max-height: 40px !important;
   }
   
   .dashboard-link .btn i {

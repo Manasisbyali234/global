@@ -10,6 +10,14 @@
     float: none !important;
 }
 
+@media (max-width: 767px) {
+    .home-page-alignment .container,
+    .home-page-alignment .container-fluid {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+}
+
 /* Specific section fixes for index16.jsx */
 .home-page-alignment .section-full {
     width: 100% !important;
@@ -97,10 +105,25 @@
     margin-right: -15px !important;
 }
 
+@media (max-width: 767px) {
+    .home-page-alignment .row {
+        margin-left: -5px !important;
+        margin-right: -5px !important;
+    }
+}
+
 .home-page-alignment .col, 
 .home-page-alignment [class*="col-"] {
     padding-left: 15px !important;
     padding-right: 15px !important;
+}
+
+@media (max-width: 767px) {
+    .home-page-alignment .col, 
+    .home-page-alignment [class*="col-"] {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
 }
 
 /* Specific fix for the flex containers that have title and browse button */
