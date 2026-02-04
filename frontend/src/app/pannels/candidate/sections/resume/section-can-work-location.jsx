@@ -293,17 +293,18 @@ function SectionCanWorkLocation({ profile, onUpdate }) {
                                             </div>
                                             <div className="d-flex flex-wrap gap-2">
                                                 {Array.isArray(workLocationData.preferredLocations) && workLocationData.preferredLocations.map((location, index) => (
-                                                    <span key={index} className="d-inline-flex align-items-center" style={{
+                                                    <span key={index} className="d-inline-flex align-items-center skill-badge" style={{
                                                         backgroundColor: '#f8f9fa',
                                                         border: '2px solid #007bff',
                                                         borderRadius: '25px',
                                                         padding: '8px 16px',
                                                         fontSize: '0.9em',
                                                         fontWeight: '500',
-                                                        color: '#0056b3'
+                                                        color: '#0056b3',
+                                                        maxWidth: '100%'
                                                     }}>
-                                                        <i className="fa fa-map-marker me-2" style={{ fontSize: '0.8em' }}></i>
-                                                        {location}
+                                                        <i className="fa fa-map-marker me-2" style={{ fontSize: '0.8em', flexShrink: 0 }}></i>
+                                                        <span className="skill-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{location}</span>
                                                     </span>
                                                 ))}
                                             </div>

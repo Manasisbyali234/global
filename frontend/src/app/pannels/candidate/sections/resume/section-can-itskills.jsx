@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import '../../../../../resume-table-overflow-fix.css';
 
 function SectionCanITSkills() {
     const modalRef = useRef(null);

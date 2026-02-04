@@ -6,6 +6,7 @@ import { api } from "../../../../utils/api";
 import { pubRoute, publicUser } from "../../../../globals/route-names";
 import PopupInterviewRoundDetails from "../../../common/popups/popup-interview-round-details";
 import "./status-styles.css";
+import "../../../../table-overflow-fix.css";
 
 function CanStatusPage() {
 	const navigate = useNavigate();

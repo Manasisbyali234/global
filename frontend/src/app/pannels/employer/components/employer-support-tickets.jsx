@@ -367,7 +367,7 @@ function EmployerSupportTickets() {
                                         <p>Candidate support requests will appear here.</p>
                                     </div>
                                 ) : (
-                                    <div className="table-container">
+                                    <div className="table-responsive">
                                         <table className="table tickets-table" style={{tableLayout: 'fixed', width: '100%'}}>
                                             <thead>
                                                 <tr>

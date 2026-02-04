@@ -39,6 +39,10 @@ import "./android-hamburger-fix.css";
 import "./popup-scroll-fix.css";
 // ANDROID TEXT OVERFLOW FIX - Prevents text from overflowing cards on Android devices
 import "./android-text-overflow-fix.css";
+// CONDITION BADGE MOBILE FIX - Fixes condition badge text overflow on mobile screens
+import "./condition-badge-mobile-fix.css";
+// GLOBAL TABLE RESPONSIVE FIX - Ensures all tables fit container with horizontal scroll
+import "./table-overflow-fix.css";
 
 
 function App() {

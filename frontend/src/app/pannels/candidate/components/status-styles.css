@@ -374,84 +374,85 @@ td .text-success {
     font-weight: 600 !important;
 }
 
+.status-page-header-container {
+    padding: 2rem 2rem 0 2rem;
+}
+
+.status-page-header-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.status-page-content-container {
+    padding: 0 2rem 2rem 2rem;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .twm-right-section-panel {
         padding: 0 !important;
         margin: 0 !important;
     }
-    
-    .twm-right-section-panel > div:first-child {
+
+    .status-page-header-container {
         padding: 1rem 0.5rem 0 0.5rem !important;
     }
     
-    .twm-right-section-panel > div:last-child {
-        padding: 0 0.5rem 1rem 0.5rem !important;
+    .status-page-header-card {
+        padding: 1rem !important;
+        margin-bottom: 1rem !important;
+        border-radius: 8px !important;
     }
-    
-    .table-responsive {
-        -webkit-overflow-scrolling: touch;
-        max-height: 60vh;
-        overflow-x: auto !important;
-        overflow-y: auto;
-        width: 100%;
-        margin: 0;
-        border-radius: 0;
-        display: block;
-    }
-    
-    .card-shadow .card-body {
-        width: 100% !important;
-        overflow: visible !important;
+
+    .status-page-content-container {
         padding: 0 !important;
         margin: 0 !important;
     }
-    
+
+    .status-page-content-container .card-body {
+        padding: 0 !important;
+    }
+
+    .twm-pro-view-chart-wrap,
+    .twm-pro-view-chart-wrap > div {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .card, .card-shadow {
+        margin: 0 !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+        max-height: 70vh;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        display: block !important;
+    }
+
     .table {
-        min-width: 1000px;
-        width: 100%;
+        min-width: 100% !important;
+        width: 100% !important;
         margin-bottom: 0;
+        table-layout: auto !important;
     }
-    
-    .table thead th {
-        white-space: nowrap;
-        min-width: auto;
-    }
-    
-    .table tbody td {
-        white-space: normal !important;
-        min-width: auto;
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-    }
-    
-    .table thead th {
-        padding: 12px 8px;
-        font-size: 12px;
-    }
-    
-    .table tbody td {
-        padding: 12px 8px;
-    }
-    
-    .table tbody td:nth-child(2) h6,
-    .table tbody td:nth-child(3) span {
-        max-width: none !important;
-        white-space: normal !important;
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-        overflow: visible !important;
-    }
-    
-    .interview-round-item {
-        min-width: 70px;
-    }
-    
-    .interview-progress-wrapper {
-        gap: 4px;
-    }
-    
-    /* Fix icon alignment on mobile */
+
+    /* Keep icons aligned */
     .rounded-circle {
         width: 35px !important;
         height: 35px !important;
@@ -483,33 +484,6 @@ td .text-success {
         position: static !important;
         background-color: transparent !important;
         border-left: none !important;
-    }
-
-    /* Maintain correct background for last cell when row is hovered or highlighted */
-    .table tbody tr:hover td:last-child {
-        background-color: transparent !important;
-    }
-
-    .table tbody tr.highlight-shortlisted td:last-child {
-        background-color: transparent !important;
-        border-left: none !important;
-    }
-    
-    /* Android-specific text overflow fixes */
-    .panel-body,
-    .card-body {
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-        hyphens: auto !important;
-        -webkit-hyphens: auto !important;
-    }
-    
-    /* Force text wrapping on Android */
-    .table td *,
-    .table th * {
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-        white-space: normal !important;
     }
 }
 

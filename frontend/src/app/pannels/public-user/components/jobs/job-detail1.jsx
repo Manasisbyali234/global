@@ -538,28 +538,31 @@ function JobDetail1Page() {
                                         <ul className="description-list-2">
                                             <li>
                                                 <strong>Education:</strong> 
-                                                {Array.isArray(job?.education) && job.education.length > 0 
-                                                    ? job.education.map((edu, index) => (
-                                                        <span key={index} style={{
-                                                            display: 'inline-block',
-                                                            background: '#e8f4fd',
-                                                            color: '#2980b9',
-                                                            padding: '4px 8px',
-                                                            borderRadius: '12px',
-                                                            fontSize: '13px',
-                                                            fontWeight: '500',
-                                                            border: '1px solid #bde0ff',
-                                                            marginRight: '6px',
-                                                            marginBottom: '4px'
-                                                        }}>
-                                                            {edu}
-                                                        </span>
-                                                    ))
-                                                    : (job?.education || 'Not specified')
-                                                }
+                                                <div style={{display: 'flex', flexWrap: 'wrap', gap: '4px', flex: '1'}}>
+                                                    {Array.isArray(job?.education) && job.education.length > 0 
+                                                        ? job.education.map((edu, index) => (
+                                                            <span key={index} style={{
+                                                                display: 'inline-block',
+                                                                background: '#e8f4fd',
+                                                                color: '#2980b9',
+                                                                padding: '4px 8px',
+                                                                borderRadius: '12px',
+                                                                fontSize: '13px',
+                                                                fontWeight: '500',
+                                                                border: '1px solid #bde0ff',
+                                                                marginRight: '6px',
+                                                                marginBottom: '4px'
+                                                            }}>
+                                                                {edu}
+                                                            </span>
+                                                        ))
+                                                        : (job?.education || 'Not specified')
+                                                    }
+                                                </div>
                                             </li>
                                             <li>
-                                                <strong>Backlogs Allowed:</strong> {job?.backlogsAllowed ? 'Yes' : 'No'}
+                                                <strong>Backlogs Allowed:</strong> 
+                                                <span style={{flex: '1'}}>{job?.backlogsAllowed ? 'Yes' : 'No'}</span>
                                             </li>
                                         </ul>
                                     </div>

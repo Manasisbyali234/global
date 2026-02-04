@@ -161,7 +161,7 @@ function StudentDirectory() {
                     </div>
 
                     {/* Student Table */}
-                    <div className="table-container">
+                    <div className="table-responsive">
                         {loading ? (
                             <div className="loading-state">
                                 <div className="spinner"></div>

@@ -4,7 +4,6 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { debugAuth, testAPIConnection, testPlacementAuth } from '../../../utils/authDebug';
 import PlacementNotificationsRedesigned from './sections/PlacementNotificationsRedesigned';
 import './placement-dashboard-redesigned.css';
-import '../../../placement-mobile-fix.css';
 import '../../../placement-rejection-styles.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../utils/popupNotification';
 import NotificationBell from '../../../components/NotificationBell';
@@ -829,7 +828,7 @@ function PlacementDashboardRedesigned() {
                                         <div className="student-count">{studentData.length} Students</div>
                                     </div>
                                     {studentData.length > 0 ? (
-                                        <div className="students-table">
+                                        <div className="table-responsive">
                                             <table>
                                                 <thead>
                                                     <tr>
@@ -1054,7 +1053,7 @@ function PlacementDashboardRedesigned() {
                                             <h3>Upload History</h3>
                                             <div className="history-count">{placementData?.fileHistory?.length || 0} Files</div>
                                         </div>
-                                        <div className="upload-history-table">
+                                        <div className="upload-history-table table-responsive">
                                             {console.log('File history data:', placementData?.fileHistory)}
                                             <table>
                                                 <thead>

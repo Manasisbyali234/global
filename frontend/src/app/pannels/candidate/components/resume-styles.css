@@ -37,6 +37,79 @@ select:focus {
     z-index: 10;
 }
 
+/* Resume Page Layout Classes */
+.resume-page-header-container {
+    padding: 2rem 2rem 0 2rem;
+}
+
+.resume-page-header-inner {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.resume-page-title {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+}
+
+.resume-page-subtitle {
+    color: #6b7280;
+    margin: 0;
+}
+
+.resume-content-container {
+    padding: 0 2rem 2rem 2rem;
+}
+
+/* Responsive Padding for Resume Page */
+@media (max-width: 768px) {
+    .resume-page-header-container {
+        padding: 1rem 1rem 0 1rem;
+    }
+    
+    .resume-page-header-inner {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .resume-page-title {
+        font-size: 1.5rem !important;
+    }
+    
+    .resume-content-container {
+        padding: 0 1rem 1rem 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .resume-page-header-container {
+        padding: 0.5rem 0.5rem 0 0.5rem;
+    }
+    
+    .resume-page-header-inner {
+        padding: 1rem 0.5rem;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+    }
+    
+    .resume-page-title {
+        font-size: 1.25rem !important;
+    }
+    
+    .resume-page-subtitle {
+        font-size: 0.875rem;
+    }
+    
+    .resume-content-container {
+        padding: 0 0.5rem 0.5rem 0.5rem;
+    }
+}
+
 /* Resume Page Custom Styles */
 
 /* Resume page background to match dashboard */
@@ -686,7 +759,7 @@ body.modal-open {
         min-height: auto !important;
     }
 
-    /* Panel heading - Force horizontal alignment with higher specificity */
+    /* Panel heading - allow wrapping on mobile to prevent overlapping */
     .twm-right-section-panel .panel-heading.wt-panel-heading.d-flex,
     .twm-right-section-panel .panel-heading.d-flex,
     .panel-heading.wt-panel-heading.d-flex,
@@ -695,8 +768,8 @@ body.modal-open {
         flex-direction: row !important;
         justify-content: space-between !important;
         align-items: center !important;
-        flex-wrap: nowrap !important;
-        gap: 20px !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
     }
 
     /* Header adjustments */
@@ -705,7 +778,8 @@ body.modal-open {
         line-height: 1.3 !important;
         margin: 0 !important;
         flex: 1 !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
+        word-break: break-word !important;
     }
 
     .panel-heading .panel-tittle i {
@@ -716,7 +790,8 @@ body.modal-open {
     /* Edit button in header */
     .panel-heading .btn {
         flex-shrink: 0 !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
+        word-break: break-word !important;
         padding: 6px 12px !important;
         font-size: 13px !important;
         min-height: auto !important;
@@ -799,12 +874,28 @@ body.modal-open {
 
     .table {
         font-size: 13px !important;
-        min-width: 600px !important; /* Ensure horizontal scroll */
     }
 
     .table th, .table td {
         padding: 8px 6px !important;
-        white-space: nowrap !important;
+    }
+
+    /* Prevent flex containers inside tables from stacking vertically on mobile */
+    .table-responsive .d-flex,
+    .education-table-wrapper .d-flex,
+    .table .d-flex {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 4px !important;
+    }
+
+    /* Prevent buttons inside tables from taking full width on mobile */
+    .table .btn,
+    .table-responsive .btn,
+    .education-table-wrapper .btn {
+        width: auto !important;
+        min-width: 32px !important;
+        padding: 4px 8px !important;
     }
 
     /* Cards and panels */
@@ -828,7 +919,7 @@ body.modal-open {
     .badge.bg-light.skill-badge,
     span.badge.bg-light.skill-badge {
         width: auto !important;
-        max-width: 45% !important;
+        max-width: 100% !important;
         display: inline-flex !important;
         margin-right: 4px !important;
         margin-bottom: 4px !important;
@@ -837,7 +928,8 @@ body.modal-open {
         flex-direction: row !important;
         align-items: center !important;
         justify-content: flex-start !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
+        word-break: break-word !important;
         overflow: hidden !important;
         border-radius: 12px !important;
     }
@@ -845,10 +937,11 @@ body.modal-open {
     .d-flex.flex-wrap.gap-2.mt-2 .skill-badge .skill-text,
     .badge.bg-light.skill-badge .skill-text,
     span.badge.bg-light.skill-badge .skill-text {
-        max-width: 120px !important;
+        max-width: calc(100% - 20px) !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
+        word-break: break-word !important;
         flex: 1 1 auto !important;
         min-width: 0 !important;
     }
@@ -873,12 +966,13 @@ body.modal-open {
 
     /* Work location badges - Mobile responsive */
     .d-flex.flex-wrap.gap-2 span.d-inline-flex.align-items-center {
-        max-width: 45% !important;
+        max-width: 100% !important;
         font-size: 10px !important;
         padding: 4px 8px !important;
         margin-right: 4px !important;
         margin-bottom: 4px !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
+        word-break: break-word !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         border-radius: 12px !important;
@@ -892,14 +986,16 @@ body.modal-open {
     .form-select .d-flex.flex-wrap span,
     .d-flex.flex-wrap span[style*="border"],
     .d-flex.gap-1 span {
-        max-width: 45% !important;
+        max-width: 100% !important;
         font-size: 9px !important;
         padding: 2px 4px !important;
-        height: 18px !important;
+        height: auto !important;
+        min-height: 18px !important;
         margin-right: 2px !important;
         margin-bottom: 2px !important;
         border-radius: 8px !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
+        word-break: break-word !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         min-width: 30px !important;
@@ -1015,21 +1111,6 @@ body.modal-open {
         padding-bottom: 12px !important;
     }
 
-    /* Employment card content spacing */
-    .employment-card > div[style*="border-bottom"] {
-        padding-right: 120px !important;
-        text-indent: 0 !important;
-        padding-left: 0 !important;
-        margin-left: 0 !important;
-        position: relative !important;
-    }
-
-    .employment-card > div[style*="border-bottom"] * {
-        text-indent: 0 !important;
-        margin-left: 0 !important;
-        padding-left: 0 !important;
-    }
-
     /* Fix text alignment in employment cards */
     .employment-card h5,
     .employment-card h4,
@@ -1064,7 +1145,7 @@ body.modal-open {
 
 /* Large Mobile (768px and up) */
 @media (max-width: 768px) {
-    /* Panel heading - Force horizontal alignment */
+    /* Panel heading - Allow wrapping on mobile */
     .twm-right-section-panel .panel-heading.wt-panel-heading.d-flex,
     .twm-right-section-panel .panel-heading.d-flex,
     .panel-heading.wt-panel-heading.d-flex,
@@ -1073,7 +1154,7 @@ body.modal-open {
         flex-direction: row !important;
         justify-content: space-between !important;
         align-items: center !important;
-        flex-wrap: nowrap !important;
+        flex-wrap: wrap !important;
     }
 
     .panel-heading .panel-tittle {
@@ -1229,112 +1310,281 @@ body.modal-open {
 
 /* Resume Table Overflow Fix - Refined */
 
-/* 1. Prevent global horizontal scroll */
-html, body {
-    max-width: 100vw;
-    overflow-x: hidden;
+/* Condition Badge Mobile Text Overflow Fix - Specific to Resume Page */
+/* Fixes the issue where condition badge text overflows on mobile screens in candidate resume */
+
+/* Target condition badges specifically in resume page */
+.twm-right-section-panel .alert.alert-info,
+.resume-content-container .alert.alert-info,
+.panel-body .alert.alert-info,
+.badge[style*="background-color: rgb(227, 242, 253)"],
+.badge[style*="border-color: rgb(33, 150, 243)"],
+.badge[style*="color: rgb(25, 118, 210)"] {
+  /* Allow text wrapping on mobile */
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  hyphens: auto !important;
+  -webkit-hyphens: auto !important;
+  -ms-hyphens: auto !important;
+  
+  /* Ensure proper sizing */
+  max-width: 100% !important;
+  width: auto !important;
+  min-width: 0 !important;
+  
+  /* Maintain proper padding and spacing */
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  
+  /* Ensure visibility */
+  overflow: visible !important;
+  text-overflow: clip !important;
+  
+  /* Proper display */
+  display: inline-block !important;
+  vertical-align: top !important;
 }
 
-/* 2. Constrain the main content area */
+/* Mobile specific fixes for resume page */
+@media (max-width: 768px) {
+  .twm-right-section-panel .alert.alert-info,
+  .resume-content-container .alert.alert-info,
+  .panel-body .alert.alert-info,
+  .badge[style*="background-color: rgb(227, 242, 253)"],
+  .badge[style*="border-color: rgb(33, 150, 243)"],
+  .badge[style*="color: rgb(25, 118, 210)"] {
+    /* Force text wrapping on mobile */
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+    
+    /* Adjust sizing for mobile */
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+    line-height: 1.3 !important;
+    
+    /* Ensure full width utilization */
+    max-width: 100% !important;
+    width: auto !important;
+    min-width: 0 !important;
+    
+    /* Remove any constraints */
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+  
+  /* Override any conflicting rules from parent containers in resume page */
+  .twm-right-section-panel .panel-body .alert.alert-info,
+  .twm-right-section-panel .d-flex .alert.alert-info,
+  .resume-content-container .d-flex .alert.alert-info,
+  .panel-body .d-flex.gap-1 .alert.alert-info {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+  }
+}
+
+/* Extra small screens for resume page */
+@media (max-width: 480px) {
+  .twm-right-section-panel .alert.alert-info,
+  .resume-content-container .alert.alert-info,
+  .panel-body .alert.alert-info,
+  .badge[style*="background-color: rgb(227, 242, 253)"],
+  .badge[style*="border-color: rgb(33, 150, 243)"],
+  .badge[style*="color: rgb(25, 118, 210)"] {
+    font-size: 11px !important;
+    padding: 5px 8px !important;
+    line-height: 1.2 !important;
+  }
+}
+
+/* Specific fix for inline styled badges in resume page */
+div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="background-color: rgb(227, 242, 253)"] {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  hyphens: auto !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+@media (max-width: 768px) {
+  div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="background-color: rgb(227, 242, 253)"] {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="background-color: rgb(227, 242, 253)"] {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+}
+
+/* Resume Table Overflow Fix - Enhanced Container Control */
+
+/* 1. Prevent global horizontal scroll - Critical for containing tables */
+html, body {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. Constrain all main content containers to prevent expansion */
 .twm-right-section-panel {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden; /* Prevent this container from expanding */
-    box-sizing: border-box;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important; /* Critical: Prevent this container from expanding */
+    box-sizing: border-box !important;
+    position: relative !important;
 }
 
 .resume-content-container,
 .panel-body,
 .wt-panel-body,
 .twm-panel-inner {
-    max-width: 100%;
-    width: 100%;
-    box-sizing: border-box;
-    overflow-x: hidden; /* Prevent internal elements like rows with negative margins from causing scroll */
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important; /* Prevent internal elements from causing scroll */
+    position: relative !important;
 }
 
-/* 3. The Table Wrapper - This is where the scroll happens */
+/* 3. Row containers - Prevent negative margin overflow */
+.row {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.col-12, .col-md-6, .col-lg-4, .col-xl-3 {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+}
+
+/* 4. Table wrapper - Controlled scrolling zone */
 .table-responsive,
 .education-table-wrapper {
-    display: block;
-    width: 100%;
-    max-width: 100%; /* Ensure it fits in parent */
-    overflow-x: auto !important; /* Force scroll capability */
-    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
-    margin-bottom: 1rem;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important; /* Strict limit to parent width */
+    overflow-x: auto !important; /* Enable horizontal scrolling within this container */
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin-bottom: 1rem !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
     
-    /* Force scrollbars to be visible */
+    /* Ensure scrollbars are visible and functional */
     scrollbar-width: auto !important;
     -ms-overflow-style: auto !important;
 }
 
-/* Custom Scrollbar Styling for Webkit */
+/* 5. Enhanced scrollbar styling for better user experience */
 .table-responsive::-webkit-scrollbar,
 .education-table-wrapper::-webkit-scrollbar {
     display: block !important;
-    height: 8px; /* Horizontal scrollbar height */
-    width: 8px;
+    height: 14px !important; /* Larger horizontal scrollbar */
+    width: 14px !important;
 }
 
 .table-responsive::-webkit-scrollbar-track,
 .education-table-wrapper::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
+    background: #f8f9fa !important;
+    border-radius: 7px !important;
+    margin: 2px !important;
 }
 
 .table-responsive::-webkit-scrollbar-thumb,
 .education-table-wrapper::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
+    background: #ff6a00 !important;
+    border-radius: 7px !important;
+    border: 2px solid #f8f9fa !important;
+    min-height: 20px !important;
+    min-width: 20px !important;
 }
 
 .table-responsive::-webkit-scrollbar-thumb:hover,
 .education-table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+    background: #e55a00 !important;
 }
 
-/* 4. The Table itself - Ensure it takes up space but doesn't force parent expansion */
+.table-responsive::-webkit-scrollbar-corner,
+.education-table-wrapper::-webkit-scrollbar-corner {
+    background: #f8f9fa !important;
+}
+
+/* 6. Table sizing - Allow table to be wider than container but contained within wrapper */
 .table-responsive table,
 .education-table-wrapper table {
-    width: 100%;
-    max-width: none !important; /* Allow table to be wider than 100% of parent */
-    margin-bottom: 0;
+    width: 100% !important;
+    max-width: none !important; /* Allow table to be wider than parent for scrolling */
+    margin-bottom: 0 !important;
+    box-sizing: border-box !important;
 }
 
-/* Ensure table cells don't wrap awkwardly if we want them to hold shape */
-.table-responsive th,
-.table-responsive td,
-.education-table-wrapper th,
-.education-table-wrapper td {
-    white-space: nowrap; /* Keep content on one line to force scroll */
-    vertical-align: middle;
-}
-
-/* 5. Mobile Adjustments */
+/* 7. Mobile-specific adjustments for better table containment */
 @media (max-width: 768px) {
+    /* Remove side padding to maximize table space */
     .twm-right-section-panel {
-        padding-left: 0;
-        padding-right: 0;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
     
     .panel-body {
-        padding: 10px;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
     }
 
     .form-select {
         padding-right: 36px !important;
     }
 
-    /* Ensure the table wrapper fits within the screen */
+    /* Make table wrapper edge-to-edge on mobile for maximum space */
     .table-responsive,
     .education-table-wrapper {
-        max-width: 100%; /* Strict limit to parent width */
-        margin-left: 0;
-        margin-right: 0;
-        border-radius: 0; /* Remove radius on mobile for full width look */
-        border-left: none;
-        border-right: none;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        margin-left: -8px !important;
+        margin-right: -8px !important;
+        width: calc(100% + 16px) !important;
+        max-width: calc(100% + 16px) !important;
+    }
+    
+    /* Ensure scrollbar is always visible on mobile */
+    .table-responsive::-webkit-scrollbar,
+    .education-table-wrapper::-webkit-scrollbar {
+        height: 16px !important; /* Even larger on mobile for touch */
+    }
+}
+
+/* 8. Extra small screens - Maximum table space utilization */
+@media (max-width: 480px) {
+    .panel-body {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+    
+    .table-responsive,
+    .education-table-wrapper {
+        margin-left: -4px !important;
+        margin-right: -4px !important;
+        width: calc(100% + 8px) !important;
+        max-width: calc(100% + 8px) !important;
     }
 }

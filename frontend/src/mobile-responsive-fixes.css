@@ -1,5 +1,122 @@
 /* Mobile Responsive Fixes - All Devices */
 
+/* Condition Badge Mobile Text Overflow Fix - HIGHEST PRIORITY */
+/* Fixes the issue where condition badge text overflows on mobile screens */
+
+/* Target condition badges specifically with maximum specificity */
+html body .alert.alert-info,
+html body .badge[style*="background-color: rgb(227, 242, 253)"],
+html body .badge[style*="border-color: rgb(33, 150, 243)"],
+html body .badge[style*="color: rgb(25, 118, 210)"],
+html body div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="background-color: rgb(227, 242, 253)"] {
+  /* Force text wrapping on all screens */
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  hyphens: auto !important;
+  -webkit-hyphens: auto !important;
+  -ms-hyphens: auto !important;
+  
+  /* Ensure proper sizing */
+  max-width: 100% !important;
+  width: auto !important;
+  min-width: 0 !important;
+  
+  /* Maintain proper padding and spacing */
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  
+  /* Ensure visibility */
+  overflow: visible !important;
+  text-overflow: clip !important;
+  
+  /* Proper display */
+  display: inline-block !important;
+  vertical-align: top !important;
+}
+
+/* Mobile specific fixes with maximum specificity */
+@media (max-width: 768px) {
+  html body .alert.alert-info,
+  html body .badge[style*="background-color: rgb(227, 242, 253)"],
+  html body .badge[style*="border-color: rgb(33, 150, 243)"],
+  html body .badge[style*="color: rgb(25, 118, 210)"],
+  html body div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="background-color: rgb(227, 242, 253)"] {
+    /* Force text wrapping on mobile */
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+    
+    /* Adjust sizing for mobile */
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+    line-height: 1.3 !important;
+    
+    /* Ensure full width utilization */
+    max-width: 100% !important;
+    width: auto !important;
+    min-width: 0 !important;
+    
+    /* Remove any constraints */
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+  
+  /* Override any conflicting rules from parent containers */
+  html body .panel-body .alert.alert-info,
+  html body .twm-right-section-panel .alert.alert-info,
+  html body .d-flex .alert.alert-info,
+  html body .gap-1 .alert.alert-info,
+  html body .twm-right-section-panel .d-flex .alert.alert-info,
+  html body .twm-right-section-panel * .alert.alert-info {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  html body .alert.alert-info,
+  html body .badge[style*="background-color: rgb(227, 242, 253)"],
+  html body .badge[style*="border-color: rgb(33, 150, 243)"],
+  html body .badge[style*="color: rgb(25, 118, 210)"],
+  html body div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="background-color: rgb(227, 242, 253)"] {
+    font-size: 11px !important;
+    padding: 5px 8px !important;
+    line-height: 1.2 !important;
+  }
+}
+
+/* Override any global nowrap rules specifically for condition badges */
+@media (max-width: 768px) {
+  /* Force override of any parent container rules that prevent wrapping */
+  html body .twm-right-section-panel,
+  html body .d-flex.gap-1,
+  html body .panel-body {
+    overflow: visible !important;
+  }
+  
+  /* But specifically allow condition badges to wrap */
+  html body .twm-right-section-panel .alert.alert-info,
+  html body .d-flex.gap-1 .alert.alert-info,
+  html body .panel-body .alert.alert-info {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+  }
+}
+
+/* Mobile Responsive Fixes - All Devices */
+
 /* ============================================
    UNIVERSAL MOBILE FIXES
    ============================================ */

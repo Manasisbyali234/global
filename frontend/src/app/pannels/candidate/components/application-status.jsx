@@ -11,6 +11,7 @@ import { pubRoute, publicUser, canRoute, candidate } from "../../../../globals/r
 import CanPostedJobs from "./can-posted-jobs";
 import PopupInterviewRoundDetails from "../../../common/popups/popup-interview-round-details";
 import "./status-styles.css";
+import "../../../../table-overflow-fix.css";
 
 function CanStatusPage() {
 	const navigate = useNavigate();
@@ -415,8 +416,8 @@ function CanStatusPage() {
 		<>
 			<div className="twm-right-section-panel site-bg-gray">
 				{/* Status Page Header */}
-				<div style={{ padding: '2rem 2rem 0 2rem' }}>
-					<div style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '2rem' }}>
+				<div className="status-page-header-container">
+					<div className="status-page-header-card">
 						<div style={{ textAlign: 'center' }}>
 							<h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827', margin: '0 0 0.5rem 0' }}>
 								<i className="fa fa-clipboard-list me-2" style={{color: '#f97316'}}></i>
@@ -430,7 +431,7 @@ function CanStatusPage() {
 				</div>
 
 				{/* Status Content */}
-				<div style={{ padding: '0 2rem 2rem 2rem' }}>
+				<div className="status-page-content-container">
 
 					{/* Highlight notification */}
 					{highlightShortlisted && (

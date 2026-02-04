@@ -1,321 +1,229 @@
-/* Table Overflow Fix for Resume Page - Mobile Optimized */
+/* Global Table Responsive Fix - Comprehensive Solution to Prevent Container Overflow */
 
-/* Global Panel Overflow Fix */
-.panel,
-.panel-body,
-.twm-panel-inner,
-.education-section-body {
-    overflow: visible !important;
+/* 1. Prevent global horizontal scroll by constraining parent containers */
+html, body {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
 }
 
-/* Base Table Container Styles */
-.education-table-wrapper,
-.table-responsive {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
+/* 2. Constrain main content containers */
+.twm-right-section-panel,
+.resume-content-container,
+.panel-body,
+.wt-panel-body,
+.twm-panel-inner {
     max-width: 100% !important;
     width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important; /* Prevent these containers from expanding beyond viewport */
+}
+
+/* 3. Table wrapper - This is where controlled scrolling happens */
+.table-responsive,
+.education-table-wrapper {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important; /* Strict limit to parent width */
+    overflow-x: auto !important; /* Enable horizontal scrolling within this container */
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch !important;
     border: 1px solid #dee2e6 !important;
     border-radius: 8px !important;
     margin-bottom: 20px !important;
-    background: white !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-    position: relative !important;
-}
-
-/* Base Table Styles */
-.education-table-wrapper table,
-.table-responsive table {
-    min-width: 800px !important;
-    width: 100% !important;
-    margin-bottom: 0 !important;
-    border-collapse: collapse !important;
-    font-size: 14px !important;
-}
-
-/* Base Cell Styles */
-.education-table-wrapper table th,
-.education-table-wrapper table td,
-.table-responsive table th,
-.table-responsive table td {
-    white-space: nowrap !important;
-    padding: 12px 8px !important;
-    border: 1px solid #dee2e6 !important;
-    vertical-align: middle !important;
-    text-align: left !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-}
-
-/* Header Styles */
-.education-table-wrapper table thead th,
-.table-responsive table thead th {
-    background: #f8f9fa !important;
-    font-weight: 600 !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 10 !important;
-    color: #495057 !important;
-}
-
-/* Action Buttons */
-.table .btn {
-    padding: 6px 10px !important;
-    font-size: 12px !important;
-    min-width: 36px !important;
-    min-height: 32px !important;
-    border-radius: 4px !important;
-    margin: 1px !important;
-}
-
-.table .btn i {
-    font-size: 12px !important;
-}
-
-.table .d-flex {
-    gap: 4px !important;
-    justify-content: center !important;
-    flex-wrap: nowrap !important;
-}
-
-/* Badge Styling */
-.table .badge {
-    font-size: 10px !important;
-    padding: 4px 8px !important;
-    border-radius: 12px !important;
-    white-space: nowrap !important;
-}
-
-/* Scrollbar Styling */
-.education-table-wrapper::-webkit-scrollbar,
-.table-responsive::-webkit-scrollbar {
-    height: 12px !important;
-    width: 12px !important;
-}
-
-.education-table-wrapper::-webkit-scrollbar-track,
-.table-responsive::-webkit-scrollbar-track {
-    background: #f1f1f1 !important;
-    border-radius: 6px !important;
-}
-
-.education-table-wrapper::-webkit-scrollbar-thumb,
-.table-responsive::-webkit-scrollbar-thumb {
-    background: #c1c1c1 !important;
-    border-radius: 6px !important;
-}
-
-.education-table-wrapper::-webkit-scrollbar-thumb:hover,
-.table-responsive::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8 !important;
-}
-
-/* Tablet Responsive (768px - 992px) */
-@media (max-width: 992px) {
-    .education-table-wrapper,
-    .table-responsive {
-        margin-left: -15px !important;
-        margin-right: -15px !important;
-        border-radius: 0 !important;
-        border-left: none !important;
-        border-right: none !important;
-    }
+    background: #fff !important;
     
+    /* Ensure scrollbars are visible and functional */
+    scrollbar-width: auto !important;
+    -ms-overflow-style: auto !important;
+}
+
+/* 4. Table sizing - Allow table to be wider than container but contained within wrapper */
+.table-responsive table,
+.education-table-wrapper table,
+table.table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 0 !important;
+    background-color: transparent !important;
+}
+
+/* 5. Force minimum table width on smaller screens to maintain desktop layout */
+@media (max-width: 991px) {
+    .table-responsive table,
     .education-table-wrapper table,
-    .table-responsive table {
-        min-width: 900px !important;
+    table.table {
+        min-width: 900px !important; /* Force horizontal scroll to maintain desktop layout */
+    }
+}
+
+@media (max-width: 767px) {
+    .table-responsive table,
+    .education-table-wrapper table,
+    table.table {
+        min-width: 1000px !important; /* More width for smaller screens */
         font-size: 13px !important;
     }
-    
-    .education-table-wrapper table th,
-    .education-table-wrapper table td,
-    .table-responsive table th,
-    .table-responsive table td {
-        padding: 10px 6px !important;
-        font-size: 12px !important;
-    }
 }
 
-/* Mobile Responsive (576px - 768px) */
-@media (max-width: 768px) {
-    .education-table-wrapper,
-    .table-responsive {
-        margin-left: -20px !important;
-        margin-right: -20px !important;
-        border-radius: 0 !important;
-        border-left: none !important;
-        border-right: none !important;
-    }
-    
-    .education-table-wrapper table,
-    .table-responsive table {
-        min-width: 1000px !important;
-        font-size: 12px !important;
-    }
-    
-    .education-table-wrapper table th,
-    .education-table-wrapper table td,
-    .table-responsive table th,
-    .table-responsive table td {
-        padding: 8px 5px !important;
-        font-size: 11px !important;
-    }
-    
-    .table .btn {
-        padding: 4px 6px !important;
-        font-size: 10px !important;
-        min-width: 28px !important;
-        min-height: 28px !important;
-    }
-    
-    .table .btn i {
-        font-size: 10px !important;
-    }
-    
-    .table .d-flex {
-        gap: 2px !important;
-    }
-    
-    .table .badge {
-        font-size: 9px !important;
-        padding: 3px 6px !important;
-    }
-    
-    /* Adjust scrollbar for mobile */
-    .education-table-wrapper::-webkit-scrollbar,
-    .table-responsive::-webkit-scrollbar {
-        height: 8px !important;
-    }
+/* 6. Table cell styling - Prevent text wrapping to maintain desktop appearance */
+.table-responsive th,
+.table-responsive td,
+.education-table-wrapper th,
+.education-table-wrapper td,
+.table th,
+.table td {
+    padding: 12px 10px !important;
+    vertical-align: middle !important;
+    border: 1px solid #dee2e6 !important;
+    white-space: nowrap !important; /* Keep columns on one line for desktop look */
+    max-width: none !important;     /* Remove any clipping max-width */
+    overflow: visible !important;   /* Remove any clipping overflow */
+    text-overflow: clip !important; /* Remove ellipsis if we want full text */
+    height: auto !important;
 }
 
-/* Small Mobile Responsive (max 576px) */
-@media (max-width: 576px) {
-    .education-table-wrapper,
-    .table-responsive {
-        margin-left: -25px !important;
-        margin-right: -25px !important;
-    }
-    
-    .education-table-wrapper table,
-    .table-responsive table {
-        min-width: 1100px !important;
-        font-size: 11px !important;
-    }
-    
-    .education-table-wrapper table th,
-    .education-table-wrapper table td,
-    .table-responsive table th,
-    .table-responsive table td {
-        padding: 6px 4px !important;
-        font-size: 10px !important;
-    }
-    
-    .table .btn {
-        padding: 3px 5px !important;
-        font-size: 9px !important;
-        min-width: 24px !important;
-        min-height: 24px !important;
-    }
-    
-    .table .btn i {
-        font-size: 9px !important;
-    }
-    
-    .table .badge {
-        font-size: 8px !important;
-        padding: 2px 4px !important;
-    }
-    
-    /* Smaller scrollbar for small mobile */
-    .education-table-wrapper::-webkit-scrollbar,
-    .table-responsive::-webkit-scrollbar {
-        height: 6px !important;
-    }
+/* 7. Header styling */
+.table thead th {
+    background-color: #f8f9fa !important;
+    font-weight: 600 !important;
+    color: #333 !important;
 }
 
-/* Extra Small Mobile (max 480px) */
-@media (max-width: 480px) {
-    .education-table-wrapper,
-    .table-responsive {
-        margin-left: -30px !important;
-        margin-right: -30px !important;
-    }
-    
-    .education-table-wrapper table,
-    .table-responsive table {
-        min-width: 1200px !important;
-        font-size: 10px !important;
-    }
-    
-    .education-table-wrapper table th,
-    .education-table-wrapper table td,
-    .table-responsive table th,
-    .table-responsive table td {
-        padding: 5px 3px !important;
-        font-size: 9px !important;
-    }
+/* 8. Ensure first column is always visible */
+.table th:first-child,
+.table td:first-child {
+    display: table-cell !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
-/* Mobile scroll hint */
-@media (max-width: 768px) {
-    .education-table-wrapper::after,
-    .table-responsive::after {
+/* 9. Enhanced scrollbar styling for better visibility */
+.table-responsive::-webkit-scrollbar,
+.education-table-wrapper::-webkit-scrollbar {
+    height: 12px !important; /* Larger scrollbar for easier interaction */
+    width: 12px !important;
+    display: block !important;
+}
+
+.table-responsive::-webkit-scrollbar-track,
+.education-table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1 !important;
+    border-radius: 6px !important;
+    margin: 2px !important;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.education-table-wrapper::-webkit-scrollbar-thumb {
+    background: #ff6a00 !important;
+    border-radius: 6px !important;
+    border: 2px solid #f1f1f1 !important;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover,
+.education-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #e55a00 !important;
+}
+
+/* 10. Scroll hint for mobile users */
+@media (max-width: 991px) {
+    .table-responsive::after,
+    .education-table-wrapper::after {
         content: "← Scroll horizontally to view all columns →" !important;
         display: block !important;
         text-align: center !important;
-        font-size: 11px !important;
-        color: #666 !important;
-        padding: 8px !important;
-        background: #f8f9fa !important;
+        font-size: 12px !important;
+        color: #ff6a00 !important;
+        padding: 10px !important;
+        background: #fff8f0 !important;
         border-top: 1px solid #dee2e6 !important;
-        margin-top: -1px !important;
+        font-weight: 500 !important;
     }
 }
 
-/* Hide scroll hint on larger screens */
-@media (min-width: 769px) {
-    .education-table-wrapper::after,
-    .table-responsive::after {
-        display: none !important;
+/* 11. Maintain desktop layout for components inside tables */
+@media (max-width: 991px) {
+    .table-responsive .d-flex,
+    .education-table-wrapper .d-flex,
+    .table .d-flex,
+    table.table .d-flex {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        display: flex !important;
+        gap: 6px !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+    }
+
+    .table-responsive .btn,
+    .education-table-wrapper .btn,
+    .table .btn,
+    table.table .btn,
+    .table-responsive .site-button,
+    .education-table-wrapper .site-button,
+    .table .site-button {
+        width: auto !important;
+        min-width: 36px !important;
+        height: auto !important;
+        min-height: 32px !important;
+        padding: 4px 10px !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important; /* Prevent buttons from shrinking */
+    }
+
+    /* Prevent text wrapping in table headers and cells to maintain desktop structure */
+    .table-responsive th,
+    .table-responsive td,
+    .education-table-wrapper th,
+    .education-table-wrapper td,
+    .table th,
+    .table td {
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
     }
 }
 
-/* Ensure container doesn't clip table */
-.twm-right-section-panel {
-    overflow: visible !important;
-}
-
-/* Additional mobile optimizations */
+/* 12. Mobile-specific container adjustments */
 @media (max-width: 768px) {
-    /* Ensure page content doesn't get clipped */
+    /* Remove side padding on mobile to maximize table space */
     .twm-right-section-panel {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    .panel-body {
         padding-left: 10px !important;
         padding-right: 10px !important;
     }
     
-    /* Adjust panel padding for mobile */
-    .panel-body.wt-panel-body.p-a20 {
-        padding: 15px 10px !important;
+    /* Make table wrapper full width on mobile */
+    .table-responsive,
+    .education-table-wrapper {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        margin-left: -10px !important;
+        margin-right: -10px !important;
+        width: calc(100% + 20px) !important;
+        max-width: calc(100% + 20px) !important;
+    }
+}
+
+/* 13. Extra small screens */
+@media (max-width: 480px) {
+    .table-responsive table,
+    .education-table-wrapper table,
+    table.table {
+        min-width: 1100px !important; /* Even more width for very small screens */
+        font-size: 12px !important;
     }
     
-    /* Ensure table containers use full width */
-    .twm-panel-inner {
-        margin: 0 !important;
-        padding: 0 !important;
+    .table-responsive th,
+    .table-responsive td,
+    .education-table-wrapper th,
+    .education-table-wrapper td {
+        padding: 8px 6px !important;
     }
-}
-
-/* Prevent table hover effects from breaking layout */
-.table tbody tr:hover {
-    background-color: transparent !important;
-}
-
-.table tbody tr:hover td {
-    background-color: transparent !important;
-}
-
-/* Text alignment fixes */
-.table td.text-center,
-.table th.text-center {
-    text-align: center !important;
 }

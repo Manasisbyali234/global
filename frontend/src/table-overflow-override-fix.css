@@ -1,0 +1,120 @@
+/* Table Overflow Override Fix - High Specificity */
+/* This file overrides conflicting CSS rules that prevent proper table scrolling */
+
+/* Force table containers to have proper overflow behavior */
+.table-responsive,
+.education-table-wrapper,
+.twm-right-section-panel .table-responsive,
+.twm-right-section-panel .education-table-wrapper,
+.panel-body .table-responsive,
+.panel-body .education-table-wrapper {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    overflow: auto !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    display: block !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* Override conflicting overflow rules for table containers */
+@media (max-width: 768px) {
+    .table-responsive,
+    .education-table-wrapper,
+    .twm-right-section-panel .table-responsive,
+    .twm-right-section-panel .education-table-wrapper,
+    .panel-body .table-responsive,
+    .panel-body .education-table-wrapper {
+        overflow: auto !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+    }
+}
+
+/* Force table cells to not wrap text */
+.table-responsive th,
+.table-responsive td,
+.education-table-wrapper th,
+.education-table-wrapper td,
+.table-responsive table th,
+.table-responsive table td,
+.education-table-wrapper table th,
+.education-table-wrapper table td {
+    white-space: nowrap !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    -ms-hyphens: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+/* Override mobile text wrapping rules specifically for tables */
+@media (max-width: 768px) {
+    .table-responsive *,
+    .education-table-wrapper *,
+    .table-responsive th,
+    .table-responsive td,
+    .education-table-wrapper th,
+    .education-table-wrapper td,
+    .table-responsive table *,
+    .education-table-wrapper table * {
+        white-space: nowrap !important;
+        word-wrap: normal !important;
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+        hyphens: none !important;
+        -webkit-hyphens: none !important;
+        -ms-hyphens: none !important;
+    }
+}
+
+/* Force minimum table width to ensure horizontal scrolling */
+@media (max-width: 991px) {
+    .table-responsive table,
+    .education-table-wrapper table {
+        min-width: 900px !important;
+        width: 900px !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .table-responsive table,
+    .education-table-wrapper table {
+        min-width: 1000px !important;
+        width: 1000px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .table-responsive table,
+    .education-table-wrapper table {
+        min-width: 1100px !important;
+        width: 1100px !important;
+    }
+}
+
+/* Override the global max-width rule for table elements */
+.table-responsive table,
+.education-table-wrapper table,
+.table-responsive th,
+.table-responsive td,
+.education-table-wrapper th,
+.education-table-wrapper td {
+    max-width: none !important;
+}
+
+/* Ensure scrollbars are visible */
+.table-responsive::-webkit-scrollbar,
+.education-table-wrapper::-webkit-scrollbar {
+    height: 14px !important;
+    display: block !important;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.education-table-wrapper::-webkit-scrollbar-thumb {
+    background: #ff6a00 !important;
+    border-radius: 7px !important;
+}

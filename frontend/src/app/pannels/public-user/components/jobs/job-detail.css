@@ -356,6 +356,10 @@ a.site-text-primary:hover {
 
 /* Responsive design */
 @media (max-width: 768px) {
+    .section-full .container {
+        padding-left: 15px;
+    }
+
     .twm-job-title {
         font-size: 24px;
     }
@@ -376,6 +380,15 @@ a.site-text-primary:hover {
     
     .twm-mid-content {
         padding: 16px;
+    }
+
+    .description-list-2 li {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .description-list-2 li strong {
+        min-width: 100px;
     }
 }
 

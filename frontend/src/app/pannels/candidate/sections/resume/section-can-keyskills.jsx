@@ -217,7 +217,19 @@ function SectionCanKeySkills({ profile }) {
                                                     <span style={{fontSize: '12px', color: '#666', fontWeight: '500'}}>
                                                         {selectedSkills.length} of {predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())).length} selected
                                                     </span>
-                                                    <div style={{display: 'flex', gap: '8px'}}>
+                                                    <div className="dropdown-controls" style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+                                                        <style>{`
+                                                            @media (max-width: 480px) {
+                                                                .dropdown-controls {
+                                                                    flex-direction: column !important;
+                                                                    width: 100%;
+                                                                }
+                                                                .dropdown-controls button {
+                                                                    text-align: left !important;
+                                                                    padding: 5px 0 !important;
+                                                                }
+                                                            }
+                                                        `}</style>
                                                         <button
                                                             type="button"
                                                             onMouseDown={(e) => {
@@ -306,7 +318,7 @@ function SectionCanKeySkills({ profile }) {
                                     )}
                                 </div>
                             </div>
-                            <div className="col-12 col-md-6 d-flex align-items-end gap-2">
+                            <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-stretch align-items-md-end gap-2">
                                 <button 
                                     type="button"
                                     className="btn btn-outline-primary flex-fill"
@@ -348,7 +360,7 @@ function SectionCanKeySkills({ profile }) {
                                         autoFocus
                                     />
                                 </div>
-                                <div className="col-12 col-md-6 d-flex align-items-end" style={{gap: '10px'}}>
+                                <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-stretch align-items-md-end gap-2 mt-2 mt-md-0">
                                     <button 
                                         type="button"
                                         className="btn btn-outline-primary flex-fill"

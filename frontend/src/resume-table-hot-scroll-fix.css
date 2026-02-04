@@ -1,0 +1,305 @@
+/* Resume Table Hot Scroll Fix - Comprehensive Solution */
+/* This file specifically addresses the hot scrolling issue where tables overflow their containers */
+
+/* 1. Global container constraints to prevent page-level horizontal scroll */
+html {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+}
+
+body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. Main application containers - Strict width control */
+.twm-right-section-panel {
+    max-width: 100vw !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+}
+
+.resume-content-container {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* 3. Panel and content containers */
+.panel,
+.panel-body,
+.wt-panel-body,
+.twm-panel-inner {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* 4. Bootstrap row system - Prevent negative margin overflow */
+.row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.col-12,
+.col-md-6,
+.col-lg-4,
+.col-xl-3,
+[class*="col-"] {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 5. Table wrapper - The controlled scrolling zone */
+.table-responsive,
+.education-table-wrapper {
+    /* Container properties */
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    
+    /* Scrolling properties */
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch !important;
+    
+    /* Visual properties */
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    margin-bottom: 20px !important;
+    
+    /* Scrollbar visibility */
+    scrollbar-width: auto !important;
+    -ms-overflow-style: auto !important;
+}
+
+/* 6. Enhanced scrollbar styling for better UX */
+.table-responsive::-webkit-scrollbar,
+.education-table-wrapper::-webkit-scrollbar {
+    height: 12px !important;
+    width: 12px !important;
+    display: block !important;
+}
+
+.table-responsive::-webkit-scrollbar-track,
+.education-table-wrapper::-webkit-scrollbar-track {
+    background: #f8f9fa !important;
+    border-radius: 6px !important;
+    margin: 2px !important;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.education-table-wrapper::-webkit-scrollbar-thumb {
+    background: #ff6a00 !important;
+    border-radius: 6px !important;
+    border: 2px solid #f8f9fa !important;
+    min-height: 20px !important;
+    min-width: 20px !important;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover,
+.education-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #e55a00 !important;
+}
+
+.table-responsive::-webkit-scrollbar-corner,
+.education-table-wrapper::-webkit-scrollbar-corner {
+    background: #f8f9fa !important;
+}
+
+/* 7. Table sizing - Allow table to be wider than wrapper for horizontal scroll */
+.table-responsive table,
+.education-table-wrapper table {
+    width: 100% !important;
+    max-width: none !important; /* Allow table to exceed wrapper width */
+    margin-bottom: 0 !important;
+    border-collapse: collapse !important;
+    box-sizing: border-box !important;
+}
+
+/* 8. Force minimum table width on mobile to maintain desktop layout */
+@media (max-width: 991px) {
+    .table-responsive table,
+    .education-table-wrapper table {
+        min-width: 900px !important; /* Force horizontal scroll */
+    }
+}
+
+@media (max-width: 767px) {
+    .table-responsive table,
+    .education-table-wrapper table {
+        min-width: 1000px !important; /* More width for smaller screens */
+        font-size: 13px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .table-responsive table,
+    .education-table-wrapper table {
+        min-width: 1100px !important; /* Maximum width for very small screens */
+        font-size: 12px !important;
+    }
+}
+
+/* 9. Table cell styling - Prevent text wrapping */
+.table-responsive th,
+.table-responsive td,
+.education-table-wrapper th,
+.education-table-wrapper td {
+    padding: 12px 10px !important;
+    vertical-align: middle !important;
+    border: 1px solid #dee2e6 !important;
+    white-space: nowrap !important;
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* 10. Mobile-specific adjustments */
+@media (max-width: 768px) {
+    /* Reduce padding to maximize table space */
+    .twm-right-section-panel {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    .panel-body {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+    
+    /* Make table wrapper edge-to-edge for maximum space */
+    .table-responsive,
+    .education-table-wrapper {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        margin-left: -8px !important;
+        margin-right: -8px !important;
+        width: calc(100% + 16px) !important;
+        max-width: calc(100% + 16px) !important;
+    }
+    
+    /* Larger scrollbar for touch devices */
+    .table-responsive::-webkit-scrollbar,
+    .education-table-wrapper::-webkit-scrollbar {
+        height: 16px !important;
+    }
+    
+    /* Smaller table cell padding on mobile */
+    .table-responsive th,
+    .table-responsive td,
+    .education-table-wrapper th,
+    .education-table-wrapper td {
+        padding: 8px 6px !important;
+    }
+}
+
+/* 11. Extra small screens */
+@media (max-width: 480px) {
+    .panel-body {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+    
+    .table-responsive,
+    .education-table-wrapper {
+        margin-left: -4px !important;
+        margin-right: -4px !important;
+        width: calc(100% + 8px) !important;
+        max-width: calc(100% + 8px) !important;
+    }
+    
+    .table-responsive th,
+    .table-responsive td,
+    .education-table-wrapper th,
+    .education-table-wrapper td {
+        padding: 6px 4px !important;
+        font-size: 11px !important;
+    }
+}
+
+/* 12. Scroll hint for users */
+@media (max-width: 991px) {
+    .table-responsive::after,
+    .education-table-wrapper::after {
+        content: "← Scroll horizontally to view all columns →" !important;
+        display: block !important;
+        text-align: center !important;
+        font-size: 12px !important;
+        color: #ff6a00 !important;
+        padding: 10px !important;
+        background: #fff8f0 !important;
+        border-top: 1px solid #dee2e6 !important;
+        font-weight: 500 !important;
+        margin: 0 !important;
+    }
+}
+
+/* 13. Button and flex container fixes inside tables */
+@media (max-width: 991px) {
+    .table-responsive .d-flex,
+    .education-table-wrapper .d-flex {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 4px !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+    }
+    
+    .table-responsive .btn,
+    .education-table-wrapper .btn,
+    .table-responsive .site-button,
+    .education-table-wrapper .site-button {
+        width: auto !important;
+        min-width: 32px !important;
+        height: auto !important;
+        min-height: 28px !important;
+        padding: 4px 8px !important;
+        margin: 0 !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+/* 14. Prevent any other elements from causing horizontal scroll */
+* {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Exception for table elements that need to exceed container width */
+.table-responsive table,
+.education-table-wrapper table,
+.table-responsive th,
+.table-responsive td,
+.education-table-wrapper th,
+.education-table-wrapper td {
+    max-width: none !important;
+}
+
+/* 15. Debug helper - Remove in production */
+/*
+.table-responsive {
+    border: 2px solid red !important;
+}
+.table-responsive table {
+    border: 2px solid blue !important;
+}
+*/

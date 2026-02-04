@@ -293,6 +293,24 @@
     padding: 1.25rem !important;
   }
   
+  .can-dashboard .welcome-card-container h2,
+  .can-dashboard .welcome-card-container p,
+  .can-dashboard .welcome-card-container span,
+  .can-dashboard .dashboard-card-2 *,
+  .can-dashboard .notification-item *,
+  .can-dashboard .job-recommendation-card *,
+  .can-dashboard .bg-white.p-4.rounded.shadow-sm *,
+  .can-dashboard .bg-white.p-4.rounded.shadow-sm h4,
+  .can-dashboard .bg-white.p-4.rounded.shadow-sm p {
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  .can-dashboard .bg-white.p-4.rounded.shadow-sm .d-flex {
+    flex-wrap: wrap !important;
+  }
+
   .can-dashboard .welcome-card-container h2 {
     font-size: 1.5rem !important;
   }
@@ -351,6 +369,24 @@
     gap: 0.75rem !important;
   }
   
+  .can-dashboard .welcome-card-container h2,
+  .can-dashboard .welcome-card-container p,
+  .can-dashboard .welcome-card-container span,
+  .can-dashboard .dashboard-card-2 *,
+  .can-dashboard .notification-item *,
+  .can-dashboard .job-recommendation-card *,
+  .can-dashboard .bg-white.p-4.rounded.shadow-sm *,
+  .can-dashboard .bg-white.p-4.rounded.shadow-sm h4,
+  .can-dashboard .bg-white.p-4.rounded.shadow-sm p {
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  .can-dashboard .bg-white.p-4.rounded.shadow-sm .d-flex {
+    flex-wrap: wrap !important;
+  }
+
   .can-dashboard .welcome-card-container h2 {
     font-size: 1.25rem !important;
     font-weight: 700 !important;

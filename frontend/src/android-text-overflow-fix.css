@@ -46,7 +46,6 @@
   .table th {
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
-    white-space: normal !important;
     overflow: visible !important;
   }
   
@@ -54,7 +53,6 @@
   .table tbody td:nth-child(2) h6,
   .table tbody td:nth-child(2) small,
   .table tbody td:nth-child(3) span {
-    white-space: normal !important;
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
     max-width: none !important;
@@ -63,7 +61,6 @@
   
   /* Interview round items */
   .interview-round-item .round-name {
-    white-space: normal !important;
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
     text-align: center !important;
