@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CreateAssessmentModal from './CreateAssessmentModal';
 import { showInfo } from '../../../../../utils/popupNotification';
+import './mobile-text-fix.css';
 
 function CreateAssessmentPage() {
     const [assessments, setAssessments] = useState([]);
@@ -156,7 +157,7 @@ function CreateAssessmentPage() {
                     <div className="row">
                         {filteredAssessments.map((assessment) => (
                             <div className="col-lg-6" key={assessment._id}>
-                                <div className="card mb-4">
+                                <div className="card mb-4 assessment-card">
                                     <div className="card-body">
                                         <h6 className="card-title">{assessment.title}</h6>
                                         <p className="text-muted">{assessment.designation}</p>

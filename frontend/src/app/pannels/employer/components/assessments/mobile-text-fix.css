@@ -1,0 +1,15 @@
+/* Mobile text wrapping fix - highest priority */
+@media (max-width: 768px) {
+  .assessment-card .card-title,
+  .assessment-card .card-text,
+  .assessment-card .text-muted {
+    word-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-all !important;
+    white-space: pre-wrap !important;
+    hyphens: auto !important;
+    max-width: calc(100% - 20px) !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}

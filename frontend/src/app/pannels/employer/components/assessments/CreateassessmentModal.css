@@ -166,6 +166,24 @@
   max-width: none !important;
 }
 
+/* General button text wrapping fix */
+.position-fixed .btn {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  text-align: center !important;
+  line-height: 1.3 !important;
+}
+
+/* Specific fix for modal footer buttons */
+.position-fixed .border-top .btn {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  text-align: center !important;
+  hyphens: auto !important;
+}
+
 /* Fix MCQ dropdown width on desktop */
 .position-fixed .bg-white.rounded-3 .form-select-sm {
   width: 140px !important;
@@ -184,6 +202,31 @@
 /* Datalist styling */
 input[list] {
   position: relative;
+}
+
+/* Override global conflicting styles for modal form fields */
+@media (max-width: 768px) {
+  .position-fixed .bg-white.rounded-3,
+  .position-fixed .bg-white.rounded-3 *,
+  .position-fixed .form-control,
+  .position-fixed .form-select,
+  .position-fixed .form-label,
+  .position-fixed small,
+  .position-fixed p,
+  .position-fixed span,
+  .position-fixed div {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+    hyphens: auto !important;
+  }
+
+  .position-fixed .d-flex.gap-1,
+  .position-fixed .d-flex.gap-2 {
+    white-space: normal !important;
+    flex-wrap: wrap !important;
+  }
 }
 
 /* Mobile Responsive Styles for Create Assessment Modal */
@@ -214,6 +257,9 @@ input[list] {
 
   .position-fixed .bg-white.rounded-3 h5 {
     font-size: 1.1rem !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
   }
 
   /* Hide minimize, maximize, and close buttons on mobile */
@@ -238,10 +284,44 @@ input[list] {
     padding: 1rem !important;
   }
 
-  /* Form inputs */
+  /* Form inputs - Fix for Designation and Description fields */
   .position-fixed .form-control,
   .position-fixed .form-select {
     font-size: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Specific fixes for text inputs and textareas */
+  .position-fixed .form-control[type="text"],
+  .position-fixed textarea.form-control {
+    resize: vertical !important;
+    min-height: 44px !important;
+    line-height: 1.4 !important;
+    padding: 12px !important;
+  }
+
+  /* Form labels */
+  .position-fixed .form-label {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  /* Small validation text */
+  .position-fixed small {
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
   }
 
   /* React Quill on mobile */
@@ -308,7 +388,11 @@ input[list] {
     margin: 0 !important;
     padding: 0.5rem 0.25rem !important;
     font-size: 0.75rem !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    text-align: center !important;
+    line-height: 1.2 !important;
   }
 }
 
@@ -316,10 +400,16 @@ input[list] {
   /* Smaller text for very small screens */
   .position-fixed .bg-white.rounded-3 h5 {
     font-size: 1rem !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
   }
 
   .position-fixed .form-label {
     font-size: 0.875rem !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
   }
 
   /* Reduce padding further */
@@ -331,6 +421,28 @@ input[list] {
     padding: 0.75rem !important;
   }
 
+  /* Enhanced form controls for very small screens */
+  .position-fixed .form-control[type="text"],
+  .position-fixed textarea.form-control {
+    font-size: 14px !important;
+    min-height: 40px !important;
+    padding: 10px !important;
+  }
+
+  /* Textarea specific adjustments */
+  .position-fixed textarea.form-control {
+    min-height: 80px !important;
+    resize: vertical !important;
+  }
+
+  /* Placeholder text adjustments */
+  .position-fixed .form-control::placeholder {
+    font-size: 13px !important;
+    color: #6c757d !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
   /* Even smaller buttons on very small screens */
   .position-fixed .border-top.d-flex {
     padding: 0.4rem !important;
@@ -340,5 +452,16 @@ input[list] {
   .position-fixed .border-top.d-flex .btn {
     font-size: 0.65rem !important;
     padding: 0.4rem 0.15rem !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    text-align: center !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Datalist options on mobile */
+  .position-fixed datalist option {
+    font-size: 14px !important;
+    padding: 8px !important;
   }
 }

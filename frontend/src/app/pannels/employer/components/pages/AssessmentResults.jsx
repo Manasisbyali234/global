@@ -94,7 +94,17 @@ export default function AssessmentResults() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827', margin: '0 0 0.5rem 0' }}>
+              <h2 style={{ 
+                fontSize: isMobile ? '1.5rem' : '1.875rem', 
+                fontWeight: 'bold', 
+                color: '#111827', 
+                margin: '0 0 0.5rem 0',
+                wordWrap: 'break-word',
+                overflowWrap: 'break-word',
+                wordBreak: 'break-word',
+                whiteSpace: 'normal',
+                lineHeight: '1.3'
+              }}>
                 {assessment?.title} - Results
               </h2>
               {assessment?.designation && (
