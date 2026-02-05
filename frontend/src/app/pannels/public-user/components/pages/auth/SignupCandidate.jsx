@@ -272,18 +272,18 @@ function SignupCandidate() {
                         </div>
 
                         <div className="auth-form-group">
-                            <div style={{ position: 'relative' }}>
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{candidateData.countryCode}</span>
                                 <input 
                                     name="mobile" 
                                     type="text" 
                                     required 
                                     className={`auth-input ${fieldErrors.mobile ? 'is-invalid' : ''}`} 
-                                    style={{ paddingLeft: '50px' }}
+                                    style={{ paddingLeft: '55px' }}
                                     placeholder="Mobile Number" 
                                     value={candidateData.mobile} 
                                     onChange={handleChange} 
                                 />
-                                <span style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none' }}>{candidateData.countryCode}</span>
                             </div>
                             {fieldErrors.mobile && <div className="invalid-feedback d-block">{fieldErrors.mobile}</div>}
                         </div>

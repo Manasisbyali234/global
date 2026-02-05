@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { api } from "../../../../../utils/api";
-import CountryCodeSelector from "../../../../../components/CountryCodeSelector";
 import TermsModal from "../../../../../components/TermsModal";
+import '../../../../../remove-profile-hover-effects.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 import { fetchLocationFromPincode } from '../../../../../utils/pincodeService';
 const indianCities = [
@@ -584,19 +584,8 @@ function SectionCandicateBasicInfo() {
                         </div>
                         <div className="col-md-4 mb-3">
                             <label className="form-label"><i className="fa fa-phone me-2" style={{color: '#ff6b35'}}></i>Mobile Number <span style={{color: 'red'}}>*</span></label>
-                            <div style={{position: 'relative'}}>
-                                <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10, display: 'flex', alignItems: 'center', paddingLeft: '5px'}}>
-                                    <CountryCodeSelector
-                                        value={formData.phoneCountryCode}
-                                        onChange={(value) => {
-                                            setFormData(prev => ({ ...prev, phoneCountryCode: value }));
-                                            if (touched.phone) {
-                                                validateField('phone', formData.phone);
-                                            }
-                                        }}
-                                        height="40px"
-                                    />
-                                </div>
+                            <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+                                <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.phoneCountryCode}</span>
                                 <input
                                     className={`form-control phone-input-field ${errors.phone ? 'is-invalid' : ''}`}
                                     type="tel"
@@ -614,7 +603,7 @@ function SectionCandicateBasicInfo() {
                                     minLength="10"
                                     maxLength="15"
                                     required
-                                    style={{ paddingLeft: '80px', height: '50px', borderRadius: '0 8px 8px 0', borderLeft: 'none' }}
+                                    style={{ paddingLeft: '55px', height: '50px' }}
                                 />
                             </div>
                             {errors.phone && <div className="invalid-feedback d-block">{errors.phone}</div>}

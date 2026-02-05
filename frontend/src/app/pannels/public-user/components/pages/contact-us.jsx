@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { validatePhoneNumber } from '../../../../../utils/phoneValidation';
-import CountryCodeSelector from '../../../../../components/CountryCodeSelector';
 import '../../../../../contact-us-styles.css';
+import '../../../../../remove-profile-hover-effects.css';
 
 function ContactUsPage() {
     const [formData, setFormData] = useState({
@@ -141,36 +141,21 @@ function ContactUsPage() {
                                                         {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                                                     </div>
                                                 </div>
-                                                <div className="col-lg-6 col-md-6">
+                                                <div className="col-lg-12 col-md-12">
                                                     <div className="form-group mb-3">
-                                                        <select 
-                                                            name="phoneCountryCode"
-                                                            className="form-control"
-                                                            value={formData.phoneCountryCode}
-                                                            onChange={handleChange}
-                                                        >
-                                                            <option value="+91">+91 (India)</option>
-                                                            <option value="+1">+1 (USA/Canada)</option>
-                                                            <option value="+44">+44 (UK)</option>
-                                                            <option value="+61">+61 (Australia)</option>
-                                                            <option value="+33">+33 (France)</option>
-                                                            <option value="+49">+49 (Germany)</option>
-                                                            <option value="+81">+81 (Japan)</option>
-                                                            <option value="+86">+86 (China)</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div className="col-lg-6 col-md-6">
-                                                    <div className="form-group mb-3">
-                                                        <input 
-                                                            name="phone" 
-                                                            type="tel" 
-                                                            className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-                                                            placeholder="Phone Number" 
-                                                            value={formData.phone}
-                                                            onChange={handleChange}
-                                                        />
-                                                        {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
+                                                        <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+                                                            <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.phoneCountryCode}</span>
+                                                            <input 
+                                                                name="phone" 
+                                                                type="tel" 
+                                                                className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
+                                                                placeholder="Phone Number" 
+                                                                value={formData.phone}
+                                                                onChange={handleChange}
+                                                                style={{ paddingLeft: '55px', height: '50px' }}
+                                                            />
+                                                            {errors.phone && <div className="invalid-feedback d-block">{errors.phone}</div>}
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div className="col-lg-6 col-md-6">

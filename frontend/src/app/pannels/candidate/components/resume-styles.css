@@ -17,7 +17,22 @@ select:focus {
     z-index: 100 !important;
 }
 
-/* Education section specific z-index fixes */
+/* Allow dropdowns to be visible outside panels in the resume page */
+.resume-content-container .panel,
+.resume-content-container .panel-body,
+.resume-content-container .wt-panel-body,
+.resume-content-container .twm-panel-inner {
+    overflow: visible !important;
+    position: relative;
+}
+
+/* Education section specific z-index and overflow fixes */
+.education-panel-container,
+.education-section-body,
+.education-section-body .twm-panel-inner {
+    z-index: 1000;
+}
+
 .education-section-body .form-select,
 .education-section-body select,
 .education-section-body .form-control {

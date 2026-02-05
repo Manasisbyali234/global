@@ -1,7 +1,6 @@
 import { Briefcase, Building, Calendar, FileText, Globe, Hash, IdCard, Image as ImageIcon, Mail, MapPin, Phone, Upload, User as UserIcon, Users as UsersIcon, Images, Edit3 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { loadScript } from "../../../../globals/constants";
-import CountryCodeSelector from "../../../../components/CountryCodeSelector";
 import { validateForm, safeApiCall, getErrorMessage, getFieldLabel } from "../../../../utils/errorHandler";
 import RichTextEditor from "../../../../components/RichTextEditor";
 import TermsModal from '../../../../components/TermsModal';
@@ -1261,14 +1260,8 @@ function EmpCompanyProfilePage() {
                             <div className="col-xl-4 col-lg-12 col-md-12">
                                 <div className="form-group">
                                     <label className="required-field"><Phone size={16} className="me-2" /> Phone</label>
-                                    <div style={{position: 'relative'}}>
-                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10, display: 'flex', alignItems: 'center', paddingLeft: '5px'}}>
-                                            <CountryCodeSelector
-                                                value={formData.phoneCountryCode}
-                                                onChange={(value) => handleInputChange('phoneCountryCode', value)}
-                                                height="40px"
-                                            />
-                                        </div>
+                                    <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+                                        <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.phoneCountryCode}</span>
                                         <input
                                             className="form-control"
                                             type="text"
@@ -1280,7 +1273,7 @@ function EmpCompanyProfilePage() {
                                             placeholder="9087654321"
                                             minLength="10"
                                             maxLength="15"
-                                            style={{ paddingLeft: '130px', height: '50px' }}
+                                            style={{ paddingLeft: '55px', height: '50px' }}
                                         />
                                     </div>
                                 </div>
@@ -1724,14 +1717,8 @@ function EmpCompanyProfilePage() {
                             <div className="col-md-6">
                                 <div className="form-group">
                                     <label className="required-field"><Phone size={16} className="me-2" /> Official Mobile Number</label>
-                                    <div style={{position: 'relative'}}>
-                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10, display: 'flex', alignItems: 'center', paddingLeft: '5px'}}>
-                                            <CountryCodeSelector
-                                                value={formData.officialMobileCountryCode}
-                                                onChange={(value) => handleInputChange('officialMobileCountryCode', value)}
-                                                height="40px"
-                                            />
-                                        </div>
+                                    <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+                                        <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.officialMobileCountryCode}</span>
                                         <input
                                             className="form-control"
                                             type="text"
@@ -1743,7 +1730,7 @@ function EmpCompanyProfilePage() {
                                             placeholder="9876543210"
                                             minLength="10"
                                             maxLength="15"
-                                            style={{ paddingLeft: '130px', height: '50px' }}
+                                            style={{ paddingLeft: '55px', height: '50px' }}
                                         />
                                     </div>
                                 </div>
@@ -2165,14 +2152,8 @@ function EmpCompanyProfilePage() {
                             <div className="col-lg-4 col-md-6">
                                 <div className="form-group" style={{overflow: 'visible'}}>
                                     <label className="required-field"><Phone size={16} className="me-2" /> Mobile Number</label>
-                                    <div style={{position: 'relative'}}>
-                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 10, display: 'flex', alignItems: 'center', paddingLeft: '5px'}}>
-                                            <CountryCodeSelector
-                                                value={formData.contactMobileCountryCode}
-                                                onChange={(value) => handleInputChange('contactMobileCountryCode', value)}
-                                                height="40px"
-                                            />
-                                        </div>
+                                    <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+                                        <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.contactMobileCountryCode}</span>
                                         <input
                                             className="form-control"
                                             type="tel"
@@ -2184,7 +2165,7 @@ function EmpCompanyProfilePage() {
                                             placeholder="9876543210"
                                             minLength="10"
                                             maxLength="15"
-                                            style={{ paddingLeft: '130px', height: '50px' }}
+                                            style={{ paddingLeft: '55px', height: '50px' }}
                                         />
                                     </div>
                                 </div>
@@ -2227,14 +2208,8 @@ function EmpCompanyProfilePage() {
                             <div className="col-lg-4 col-md-6">
                                 <div className="form-group" style={{overflow: 'visible'}}>
                                     <label><Phone size={16} className="me-2" /> Alternate Contact (Optional)</label>
-                                    <div style={{position: 'relative'}}>
-                                        <div style={{position: 'absolute', left: '0', top: '0', bottom: '0', zIndex: 5, display: 'flex', alignItems: 'center', paddingLeft: '5px'}}>
-                                            <CountryCodeSelector
-                                                value={formData.alternateContactCountryCode}
-                                                onChange={(value) => handleInputChange('alternateContactCountryCode', value)}
-                                                height="40px"
-                                            />
-                                        </div>
+                                    <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+                                        <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.alternateContactCountryCode}</span>
                                         <input
                                             className="form-control"
                                             type="tel"
@@ -2246,7 +2221,7 @@ function EmpCompanyProfilePage() {
                                             placeholder="9876543210"
                                             minLength="10"
                                             maxLength="15"
-                                            style={{ paddingLeft: '130px', height: '50px' }}
+                                            style={{ paddingLeft: '55px', height: '50px' }}
                                         />
                                     </div>
                                 </div>

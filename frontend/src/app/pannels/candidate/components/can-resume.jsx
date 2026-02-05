@@ -15,10 +15,10 @@ import SectionCanResumeHeadline from "../sections/resume/section-can-resume-head
 import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
 import { initializeAllModals } from "../../../../utils/modalUtils";
-import "./resume-styles.css";
 import "../../../../table-overflow-fix.css";
 import "../../../../resume-table-hot-scroll-fix.css";
 import "../../../../table-overflow-override-fix.css";
+import "./resume-styles.css";
 
 
 function CanMyResumePage() {
@@ -129,7 +129,7 @@ function CanMyResumePage() {
 										<SectionCanPersonalDetail profile={profile} />
 									</div>
 
-									<div className="panel panel-default mb-4">
+									<div className="panel panel-default mb-4 education-panel-container">
 										<SectionCanEducation profile={profile} />
 									</div>
 
