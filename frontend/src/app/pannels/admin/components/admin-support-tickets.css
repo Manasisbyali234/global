@@ -299,16 +299,24 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .user-name {
   font-weight: 600;
   color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .user-email {
   color: #64748b;
   font-size: 0.83rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .category-badge {
