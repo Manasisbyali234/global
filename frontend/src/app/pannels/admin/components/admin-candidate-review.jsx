@@ -333,11 +333,35 @@ function AdminCandidateReviewPage() {
                                     </div>
                                     <div className="info-field">
                                         <div className="field-icon">
+                                            <i className="fas fa-user"></i>
+                                        </div>
+                                        <div className="field-content">
+                                            <label>Last Name</label>
+                                            <span>
+                                                {candidate.lastName || (candidate.name && candidate.name.split(' ').length > 1 ? candidate.name.split(' ').slice(1).join(' ') : 'Not provided')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="info-row">
+                                    <div className="info-field">
+                                        <div className="field-icon">
                                             <i className="fas fa-envelope"></i>
                                         </div>
                                         <div className="field-content">
                                             <label>Email Address</label>
                                             <span>{candidate.email || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="info-field">
+                                        <div className="field-icon">
+                                            <i className="fas fa-user"></i>
+                                        </div>
+                                        <div className="field-content">
+                                            <label>Middle Name</label>
+                                            <span>
+                                                {candidate.middleName || 'Not provided'}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -454,10 +478,7 @@ function AdminCandidateReviewPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="info-row single-field">
-                                    <div className="info-field full-width">
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
                     </div>

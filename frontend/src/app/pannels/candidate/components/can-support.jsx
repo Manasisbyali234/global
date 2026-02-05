@@ -455,7 +455,7 @@ function CanSupport() {
                                     {formData.receiverRole === 'employer' && (
                                         <div className="col-xl-6 col-lg-6 col-md-12">
                                             <div className="form-group">
-                                                <label>Select Employer</label>
+                                                <label>Select Employer <span style={{ color: 'red' }}>*</span></label>
                                                 <select 
                                                     name="receiverId" 
                                                     className={`form-control ${errors.receiverId ? 'is-invalid' : ''}`}

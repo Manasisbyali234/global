@@ -1721,7 +1721,9 @@ exports.getApplicationDetails = async (req, res) => {
       currentCTC: currentEmployment?.presentCTC,
       expectedCTC: currentEmployment?.expectedCTC || candidateProfileObj.expectedSalary,
       noticePeriod: candidateProfileObj.jobPreferences?.noticePeriod,
-      preferredLocations: candidateProfileObj.jobPreferences?.preferredLocations
+      preferredLocations: candidateProfileObj.jobPreferences?.preferredLocations,
+      // Ensure dateOfBirth is properly set from profile
+      dateOfBirth: candidateProfileObj.dateOfBirth || null
     };
 
     const responseApplication = {

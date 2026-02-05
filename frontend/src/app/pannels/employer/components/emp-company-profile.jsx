@@ -2105,7 +2105,7 @@ function EmpCompanyProfilePage() {
                                         type="text"
                                         value={formData.contactFullName}
                                         onChange={(e) => handleInputChange('contactFullName', e.target.value)}
-                                        placeholder="Enter Full Name"
+                                        placeholder="Enter First Name"
                                     />
                                 </div>
                             </div>
