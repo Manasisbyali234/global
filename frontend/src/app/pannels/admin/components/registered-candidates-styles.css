@@ -185,7 +185,6 @@
 }
 
 .candidates-table thead th:first-child {
-    background: #FDC360 !important;
     font-weight: 600 !important;
     position: static !important;
     left: auto !important;
