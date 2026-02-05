@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import SearchBar from "../../../../components/SearchBar";
+import './admin-sub-admin-permission-cards-fix.css';
 
 import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
 const API_BASE_URL = 'http://localhost:5000/api';
@@ -567,7 +568,7 @@ function AdminSubAdmin() {
                                             )}
                                         </div>
 
-                                        <div className="col-12 mt-4">
+                                        <div className="col-12 mt-4 admin-sub-admin-permissions">
                                             <label className="form-label fw-semibold text-dark mb-3">Permissions *</label>
                                             {validationErrors.permissions && (
                                                 <div className="alert alert-danger py-2 mb-3">

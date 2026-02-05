@@ -1,0 +1,35 @@
+/* Remove scroll behavior for Permission Cards in Sub Admin form */
+.admin-sub-admin-permissions .row {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+}
+
+.admin-sub-admin-permissions .col-md-4 {
+    overflow: visible !important;
+}
+
+.admin-sub-admin-permissions .card {
+    overflow: visible !important;
+}
+
+.admin-sub-admin-permissions .card-body {
+    overflow: visible !important;
+}
+
+/* Ensure the permission cards container doesn't have scroll */
+.admin-sub-admin-permissions {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+}
+
+/* Remove any potential scrollbar from the permission section */
+.admin-sub-admin-permissions::-webkit-scrollbar {
+    display: none !important;
+}
+
+.admin-sub-admin-permissions {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
