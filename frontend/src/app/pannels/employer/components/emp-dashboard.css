@@ -549,7 +549,7 @@
   }
 
   /* Force all content to fit screen */
-  .emp-dashboard *:not(.modal):not(.modal-dialog):not(.modal-content):not(.modal-body):not(.popup-overlay):not(.popup-box) {
+  .emp-dashboard *:not(.modal):not(.modal-dialog):not(.modal-content):not(.modal-body):not(.popup-overlay):not(.popup-box):not(.container):not(.container-fluid) {
     max-width: 100% !important;
     box-sizing: border-box !important;
   }

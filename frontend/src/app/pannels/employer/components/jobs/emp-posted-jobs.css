@@ -99,7 +99,7 @@
     overflow-x: hidden !important;
   }
 
-  .emp-posted-jobs-page *:not(.modal):not(.modal-dialog):not(.modal-content):not(.modal-body):not(.popup-overlay):not(.popup-box) {
+  .emp-posted-jobs-page *:not(.modal):not(.modal-dialog):not(.modal-content):not(.modal-body):not(.popup-overlay):not(.popup-box):not(.container):not(.container-fluid) {
     max-width: 100% !important;
     box-sizing: border-box !important;
   }

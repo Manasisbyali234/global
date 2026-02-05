@@ -12186,7 +12186,7 @@ strong {
   margin-bottom: 16px;
 }
 .page-logo a img {
-  max-width: 130px;
+  max-width: 110px;
 }
 
 /*Admin Nav*/
@@ -25458,7 +25458,7 @@ color: #f56523 !important;
   height: 300px !important;
 }
 .page-logo a img {
-  max-width: 65% !important;
+  max-width: 90% !important;
 }
 .admin-nav ul > li.active > a .fa::before {
   color: white !important;

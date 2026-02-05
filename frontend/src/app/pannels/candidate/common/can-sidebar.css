@@ -257,7 +257,16 @@ html, body {
 
 /* Logo section in sidebar */
 #sidebar-admin-wraper .page-logo {
-  padding: 20px !important;
+  padding: 10px 10px 10px 20px !important;
   border-bottom: 1px solid #e5e7eb !important;
   background: #ffffff !important;
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+}
+
+#sidebar-admin-wraper .page-logo img {
+  max-height: 80px !important;
+  max-width: 240px !important;
+  object-fit: contain !important;
 }

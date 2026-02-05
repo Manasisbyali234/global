@@ -16,8 +16,8 @@
 .terms-modal {
     background: white;
     border-radius: 12px;
-    width: 55%;
-    max-width: 300px;
+    width: 90%;
+    max-width: 800px;
     height: 90vh;
     max-height: 90vh;
     display: flex;
@@ -28,7 +28,7 @@
 /* Specific width adjustment for employer terms */
 .terms-modal[data-role="employer"],
 .terms-modal[data-role="employerProfile"] {
-    max-width: 450px;
+    max-width: 900px;
 }
 
 .terms-modal-header {

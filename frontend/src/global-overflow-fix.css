@@ -1,8 +1,7 @@
 /* Global Overflow Fix - Prevent elements from overflowing layouts */
 
-*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box) {
+*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box):not(.container):not(.container-fluid):not(.terms-modal-overlay):not(.terms-modal) {
   box-sizing: border-box !important;
-  max-width: 100% !important;
 }
 
 /* Fix location overflow in job cards */

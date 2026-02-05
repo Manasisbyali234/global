@@ -71,7 +71,7 @@ body {
 
 
 
-*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box) {
+*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box):not(.container):not(.container-fluid):not(.terms-modal-overlay):not(.terms-modal) {
   color-scheme: light only !important;
 }
 

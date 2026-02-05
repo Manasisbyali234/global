@@ -279,8 +279,7 @@ body {
 }
 
 /* 14. Prevent any other elements from causing horizontal scroll */
-*:not(.modal):not(.modal-dialog):not(.modal-content):not(.modal-body):not(.popup-overlay):not(.popup-box) {
-    max-width: 100% !important;
+*:not(.modal):not(.modal-dialog):not(.modal-content):not(.modal-body):not(.popup-overlay):not(.popup-box):not(.container):not(.container-fluid):not(.terms-modal-overlay):not(.terms-modal) {
     box-sizing: border-box !important;
 }
 

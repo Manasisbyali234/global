@@ -5,7 +5,7 @@
  * ============================================================================ */
 
 /* Core element styles scoped to section cards */
-.section-cards *:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box) {
+.section-cards *:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box):not(.container):not(.container-fluid) {
     color-scheme: light only !important;
 }
 
@@ -189,7 +189,7 @@
     overflow-wrap: break-word !important;
 }
 
-.section-cards *:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box) {
+.section-cards *:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box):not(.container):not(.container-fluid) {
     max-width: 100% !important;
     overflow-x: hidden !important;
     word-wrap: break-word !important;

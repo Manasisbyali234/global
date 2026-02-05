@@ -26,15 +26,17 @@ nav#sidebar-admin-wraper.active,
 }
 
 #sidebar-admin-wraper .page-logo {
-    padding: 1.5rem;
-    text-align: center;
+    padding: 1rem 0.5rem 1rem 1.5rem;
+    text-align: left;
     border-bottom: 1px solid rgba(255,255,255,0.15);
     background: rgba(255,255,255,0.05);
 }
 
 #sidebar-admin-wraper .page-logo img {
-    max-height: 45px;
+    max-height: 80px;
+    max-width: 240px;
     filter: brightness(0) invert(1);
+    object-fit: contain;
 }
 
 #sidebar-admin-wraper .admin-nav {
