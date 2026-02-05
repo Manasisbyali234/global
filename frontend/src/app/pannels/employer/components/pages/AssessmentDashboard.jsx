@@ -4,6 +4,7 @@ import CreateAssessmentModal from "../assessments/CreateassessmentModal";
 import { api } from '../../../../../utils/api';
 import './assessment-dashboard.css';
 import '../../../../../assessment-modal-fix.css';
+import '../../../../../assessment-title-hide.css';
 
 import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
 export default function AssessmentDashboard() {

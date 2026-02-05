@@ -1,0 +1,30 @@
+/* Hide card titles in assessment cards - Ultimate override */
+.assessment-card * {
+    display: block !important;
+}
+
+.assessment-card .card-title,
+.assessment-card h5.card-title,
+.assessment-card .card-body h5,
+.assessment-card .card-body .card-title,
+.assessment-card h5,
+.assessment-card .h5,
+.assessment-card .card-body > h5:first-child,
+.assessment-card .card-body > .card-title,
+.assessment-card .card-body > h6:first-child,
+.assessment-card h6.card-title,
+.assessment-card .card-body h6,
+.assessment-card h6 {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    opacity: 0 !important;
+}
+
+.assessment-card .card-body > *:first-child {
+    display: none !important;
+}

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import CreateAssessmentModal from './CreateAssessmentModal';
-import { showInfo } from '../../../../../utils/popupNotification';
+import { showInfo, showSuccess, showError, showConfirmation } from '../../../../../utils/popupNotification';
 import './mobile-text-fix.css';
+import '../../../../../assessment-title-hide.css';
 
 function CreateAssessmentPage() {
     const [assessments, setAssessments] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [editingAssessment, setEditingAssessment] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredAssessments = assessments.filter(assessment => 
@@ -31,6 +33,36 @@ function CreateAssessmentPage() {
     useEffect(() => {
         fetchAssessments();
     }, []);
+
+    const handleDeleteAssessment = async (id) => {
+        showConfirmation(
+            'Are you sure you want to delete this assessment?',
+            async () => {
+                try {
+                    const token = localStorage.getItem('employerToken');
+                    const response = await fetch(`/api/employer/assessments/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        setAssessments(assessments.filter(a => a._id !== id));
+                        showSuccess('Assessment deleted successfully');
+                    } else {
+                        showError('Failed to delete assessment');
+                    }
+                } catch (error) {
+                    showError('Failed to delete assessment');
+                }
+            },
+            () => {},
+            'warning'
+        );
+    };
+
+    const handleEditAssessment = (assessment) => {
+        setEditingAssessment(assessment);
+        setShowModal(true);
+    };
 
     const handleCreateAssessment = async (assessmentData) => {
         try {
@@ -157,14 +189,34 @@ function CreateAssessmentPage() {
                     <div className="row">
                         {filteredAssessments.map((assessment) => (
                             <div className="col-lg-6" key={assessment._id}>
-                                <div className="card mb-4 assessment-card">
-                                    <div className="card-body">
-                                        <h6 className="card-title">{assessment.title}</h6>
-                                        <p className="text-muted">{assessment.designation}</p>
-                                        <p className="card-text">{assessment.description}</p>
-                                        <div className="d-flex justify-content-between">
-                                            <small>Questions: {assessment.questions?.length || 0}</small>
-                                            <small>Time: {assessment.timer || 0} min</small>
+                                <div className="card mb-4 assessment-card" style={{overflow: 'hidden'}}>
+                                    <div className="card-body" style={{position: 'relative'}}>
+                                        <style>{`.assessment-card .card-body > *:first-child { display: none !important; }`}</style>
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <p className="text-muted">{assessment.designation}</p>
+                                                <p className="card-text">{assessment.description}</p>
+                                                <div className="d-flex justify-content-between">
+                                                    <small>Questions: {assessment.questions?.length || 0}</small>
+                                                    <small>Time: {assessment.timer || 0} min</small>
+                                                </div>
+                                            </div>
+                                            <div className="d-flex flex-column gap-2">
+                                                <button 
+                                                    className="btn btn-sm btn-outline-secondary"
+                                                    onClick={() => handleEditAssessment(assessment)}
+                                                    title="Edit Assessment"
+                                                >
+                                                    <i className="fa fa-edit"></i>
+                                                </button>
+                                                <button 
+                                                    className="btn btn-sm btn-outline-danger"
+                                                    onClick={() => handleDeleteAssessment(assessment._id)}
+                                                    title="Delete Assessment"
+                                                >
+                                                    <i className="fa fa-trash"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -176,8 +228,12 @@ function CreateAssessmentPage() {
 
             {showModal && (
                 <CreateAssessmentModal
-                    onClose={() => setShowModal(false)}
+                    onClose={() => {
+                        setShowModal(false);
+                        setEditingAssessment(null);
+                    }}
                     onCreate={handleCreateAssessment}
+                    editData={editingAssessment}
                 />
             )}
         </>

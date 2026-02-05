@@ -54,17 +54,6 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 				
 				{/* Assessment Title - Fourth */}
 				<div className="d-flex justify-content-between align-items-start mb-2">
-					<h5 className="card-title mb-0" style={{
-						wordWrap: 'break-word',
-						overflowWrap: 'break-word',
-						wordBreak: 'break-all',
-						whiteSpace: 'normal'
-					}}>{data.title}</h5>
-					<div className="d-flex flex-column align-items-end gap-1">
-						<span className="btn btn-sm btn-outline-primary" style={{pointerEvents: 'none', cursor: 'default', fontSize: '10px', padding: '1px 6px', lineHeight: '1.2'}}>
-							{data.type}
-						</span>
-					</div>
 				</div>
 				
 				{/* Created Date */}
