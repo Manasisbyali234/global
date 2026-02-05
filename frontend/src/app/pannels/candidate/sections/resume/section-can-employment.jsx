@@ -13,8 +13,6 @@ function SectionCanEmployment({ profile }) {
             organization: '',
             isCurrent: false,
             hasWorkExperience: 'No',
-            startDate: '',
-            endDate: '',
             description: '',
             projectDetails: '',
             presentCTC: '',
@@ -104,7 +102,7 @@ function SectionCanEmployment({ profile }) {
     };
 
     const calculateExperience = (startDateStr, endDateStr, isCurrent) => {
-        if (!startDateStr) return "";
+        if (!startDateStr) return "—";
         const start = new Date(startDateStr);
         const end = isCurrent ? new Date() : (endDateStr ? new Date(endDateStr) : new Date());
         
@@ -129,8 +127,6 @@ function SectionCanEmployment({ profile }) {
             organization: '', 
             isCurrent: false, 
             hasWorkExperience: 'No',
-            startDate: '', 
-            endDate: '', 
             description: '', 
             projectDetails: '',
             presentCTC: '', 
@@ -146,20 +142,12 @@ function SectionCanEmployment({ profile }) {
 
     const handleEdit = (index) => {
         const emp = employment[index];
-        // Format dates for input fields (YYYY-MM-DD)
-        const formatDateForInput = (dateStr) => {
-            if (!dateStr) return '';
-            const date = new Date(dateStr);
-            return date.toISOString().split('T')[0];
-        };
         
         setFormData({
             designation: emp.designation || '',
             organization: emp.organization || '',
             isCurrent: emp.isCurrent || false,
             hasWorkExperience: emp.hasWorkExperience || (emp.presentCTC || emp.expectedCTC ? 'Yes' : 'No'),
-            startDate: formatDateForInput(emp.startDate),
-            endDate: formatDateForInput(emp.endDate),
             description: emp.description || '',
             projectDetails: emp.projectDetails || '',
             presentCTC: emp.presentCTC || '',
@@ -173,12 +161,7 @@ function SectionCanEmployment({ profile }) {
 
     useEffect(() => {
         if (profile?.employment) {
-            // Sort employment by start date (most recent first)
-            const sortedEmployment = [...profile.employment].sort((a, b) => {
-                const dateA = new Date(a.startDate || '1900-01-01');
-                const dateB = new Date(b.startDate || '1900-01-01');
-                return dateB - dateA;
-            });
+            const sortedEmployment = [...profile.employment];
             setEmployment(sortedEmployment);
             
             // Check if there's a manual total experience in any entry (prioritize current)
@@ -201,22 +184,9 @@ function SectionCanEmployment({ profile }) {
             return;
         }
 
-        let tempEmployment = [...employment];
-        if (formData.startDate) {
-            const currentEntry = {
-                startDate: formData.startDate,
-                endDate: formData.isCurrent ? null : formData.endDate,
-                isCurrent: formData.isCurrent
-            };
-            if (editingIndex !== null) {
-                tempEmployment[editingIndex] = currentEntry;
-            } else {
-                tempEmployment.push(currentEntry);
-            }
-        }
-        const calculatedExp = calculateTotalExperienceFromEmployment(tempEmployment);
+        const calculatedExp = calculateTotalExperienceFromEmployment(employment);
         setTotalExperience(calculatedExp);
-    }, [employment, formData.startDate, formData.endDate, formData.isCurrent, formData.totalExperienceManual, editingIndex]);
+    }, [employment, formData.isCurrent, formData.totalExperienceManual]);
 
     useEffect(() => {
         const modal = document.getElementById(modalId);
@@ -262,34 +232,6 @@ function SectionCanEmployment({ profile }) {
             newErrors.totalExperienceManual = 'Total Experience is required';
         }
 
-        if (!formData.startDate) {
-            newErrors.startDate = 'Start date is required';
-        } else {
-            const startDate = new Date(formData.startDate);
-            const today = new Date();
-            const minDate = new Date('1950-01-01');
-
-            if (startDate > today) {
-                newErrors.startDate = 'Start date cannot be in the future';
-            } else if (startDate < minDate) {
-                newErrors.startDate = 'Start date seems too old. Please check the year.';
-            }
-        }
-
-        if (!formData.isCurrent && !formData.endDate) {
-            newErrors.endDate = 'End date is required for past employment';
-        } else if (!formData.isCurrent && formData.endDate) {
-            const endDate = new Date(formData.endDate);
-            const startDate = new Date(formData.startDate);
-            const today = new Date();
-
-            if (endDate > today) {
-                newErrors.endDate = 'End date cannot be in the future';
-            } else if (startDate && endDate < startDate) {
-                newErrors.endDate = 'End date cannot be before start date';
-            }
-        }
-
         if (formData.description && formData.description.trim()) {
             if (formData.description.trim().length < 10) {
                 newErrors.description = 'Job description should be at least 10 characters long';
@@ -323,12 +265,7 @@ function SectionCanEmployment({ profile }) {
     const handleDelete = async (indexToDelete) => {
         try {
             const updatedEmployment = employment.filter((_, index) => index !== indexToDelete);
-            // Sort employment by start date (most recent first)
-            const sortedEmployment = [...updatedEmployment].sort((a, b) => {
-                const dateA = new Date(a.startDate || '1900-01-01');
-                const dateB = new Date(b.startDate || '1900-01-01');
-                return dateB - dateA;
-            });
+            const sortedEmployment = [...updatedEmployment];
             
             const calculatedExp = calculateTotalExperienceFromEmployment(sortedEmployment);
             const updateData = { 
@@ -392,8 +329,6 @@ function SectionCanEmployment({ profile }) {
                 organization: formData.organization.trim(),
                 isCurrent: Boolean(formData.isCurrent),
                 hasWorkExperience: formData.hasWorkExperience,
-                startDate: formData.startDate,
-                endDate: formData.isCurrent ? null : (formData.endDate || null),
                 description: formData.description ? formData.description.trim() : '',
                 projectDetails: formData.projectDetails ? formData.projectDetails.trim() : '',
                 presentCTC: formData.hasWorkExperience === 'Yes' ? (formData.presentCTC ? formData.presentCTC.trim() : '') : '',
@@ -411,12 +346,8 @@ function SectionCanEmployment({ profile }) {
                 // Add new employment at the beginning (most recent first)
                 newEmployment = [employmentEntry, ...employment];
             }
-            // Sort employment by start date (most recent first) before saving
-            const sortedEmployment = [...newEmployment].sort((a, b) => {
-                const dateA = new Date(a.startDate || '1900-01-01');
-                const dateB = new Date(b.startDate || '1900-01-01');
-                return dateB - dateA;
-            });
+            
+            const sortedEmployment = [...newEmployment];
 
             const calculatedExp = calculateTotalExperienceFromEmployment(sortedEmployment);
             const updateData = { 
@@ -903,40 +834,6 @@ function SectionCanEmployment({ profile }) {
                                                 />
                                                 <label htmlFor="current_no" style={formStyles.radioLabel}>No</label>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Date Fields */}
-                                    <div style={formStyles.twoColumnGrid}>
-                                        <div style={formStyles.fieldGroup}>
-                                            <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                                Started Working From
-                                                <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                            </label>
-                                            <div style={formStyles.inputWrapper}>
-                                                <i className="far fa-calendar" style={formStyles.icon}></i>
-                                                <input
-                                                    type="date"
-                                                    value={formData.startDate}
-                                                    onChange={(e) => handleInputChange('startDate', e.target.value)}
-                                                    style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.startDate && formStyles.inputError)}}
-                                                />
-                                            </div>
-                                            {errors.startDate && <div style={formStyles.error}>{errors.startDate}</div>}
-                                        </div>
-                                        <div style={formStyles.fieldGroup}>
-                                            <label style={formStyles.label}>Worked Till</label>
-                                            <div style={formStyles.inputWrapper}>
-                                                <i className="far fa-calendar" style={formStyles.icon}></i>
-                                                <input
-                                                    type="date"
-                                                    value={formData.endDate}
-                                                    onChange={(e) => handleInputChange('endDate', e.target.value)}
-                                                    disabled={formData.isCurrent}
-                                                    style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.endDate && formStyles.inputError)}}
-                                                />
-                                            </div>
-                                            {errors.endDate && <div style={formStyles.error}>{errors.endDate}</div>}
                                         </div>
                                     </div>
 
