@@ -24,7 +24,7 @@ exports.registerEmployer = async (req, res) => {
   try {
     console.log('=== EMPLOYER REGISTRATION ===');
     console.log('Request body:', JSON.stringify(req.body, null, 2));
-    const { name, email, password, phone, companyName, employerCategory, employerType, sendWelcomeEmail: shouldSendEmail } = req.body;
+    const { name, email, password, phone, companyName, employerCategory, employerType, sendWelcomeEmail: shouldSendEmail, skipOtpVerification } = req.body;
 
     const existingUser = await checkEmailExists(email);
     if (existingUser) {
@@ -33,21 +33,27 @@ exports.registerEmployer = async (req, res) => {
 
     const finalEmployerType = employerType || (employerCategory === 'consultancy' ? 'consultant' : 'company');
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
     // Create employer without password - they will create it via email link
-    const employer = await Employer.create({ 
+    const employerData = { 
       name, 
       email: email.trim(), // Preserve original email format, just trim whitespace
       phone, 
       companyName,
-      employerType: finalEmployerType,
-      phoneOTP: otp,
-      phoneOTPExpires: Date.now() + 10 * 60 * 1000
-    });
-    
-    // Send SMS OTP
-    await sendSMS(phone, otp, name);
+      employerType: finalEmployerType
+    };
+
+    // If OTP verification is skipped, mark phone as verified
+    if (skipOtpVerification) {
+      employerData.isPhoneVerified = true;
+    } else {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      employerData.phoneOTP = otp;
+      employerData.phoneOTPExpires = Date.now() + 10 * 60 * 1000;
+      // Send SMS OTP
+      await sendSMS(phone, otp, name);
+    }
+
+    const employer = await Employer.create(employerData);
 
     await EmployerProfile.create({ 
       employerId: employer._id,
@@ -61,9 +67,23 @@ exports.registerEmployer = async (req, res) => {
     
     await Subscription.create({ employerId: employer._id });
 
+    // If OTP verification is skipped, send welcome email immediately
+    if (skipOtpVerification) {
+      try {
+        await sendWelcomeEmail(employer.email, employer.companyName || employer.name, employer.employerType);
+        console.log('Welcome email sent successfully to:', employer.email);
+      } catch (emailError) {
+        console.error('Welcome email failed:', emailError);
+      }
+    }
+
+    const message = skipOtpVerification 
+      ? 'Registration successful! Please check your registered email inbox to create your password.'
+      : 'Registration successful! Please verify your mobile number via OTP sent to your phone.';
+
     res.status(201).json({
       success: true,
-      message: 'Registration successful! Please verify your mobile number via OTP sent to your phone.'
+      message
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

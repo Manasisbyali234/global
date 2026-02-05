@@ -71,7 +71,7 @@ body {
 
 
 
-*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *) {
+*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box) {
   color-scheme: light only !important;
 }
 
@@ -210,9 +210,22 @@ body {
 .modal-dialog {
   position: relative !important;
   width: auto !important;
+  max-width: 500px !important; /* Standard Bootstrap default */
   margin: 1.75rem auto !important;
   z-index: 1050 !important;
   pointer-events: auto !important;
+}
+
+/* Modal sizing variants */
+.modal-sm { max-width: 300px !important; }
+.modal-lg { max-width: 800px !important; }
+.modal-xl { max-width: 1140px !important; }
+
+@media (max-width: 576px) {
+  .modal-dialog {
+    max-width: 95% !important;
+    margin: 0.5rem auto !important;
+  }
 }
 
 .modal-content {

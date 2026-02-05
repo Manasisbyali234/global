@@ -99,15 +99,16 @@ function SignupCandidate() {
                     name: candidateData.username,
                     email: candidateData.email,
                     phone: candidateData.countryCode + candidateData.mobile,
-                    sendWelcomeEmail: true
+                    sendWelcomeEmail: true,
+                    skipOtpVerification: true
                 })
             });
             
             const data = await response.json();
             if (response.ok && data.success) {
-                setShowOtpModal(true);
-                startOtpTimer();
-                // Don't clear data yet, we need email for OTP verification
+                showSuccess('Registration successful! Please check your registered email inbox to create your password.');
+                setCandidateData({ username: '', email: '', mobile: '', countryCode: '+91' });
+                navigate(publicUser.pages.LOGIN_CANDIDATE);
             } else {
                 showError(data.message || 'Registration failed.');
             }
@@ -299,55 +300,6 @@ function SignupCandidate() {
             </div>
             </div>
             <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} onAccept={handleTermsAccept} role="candidate" />
-            
-            {showOtpModal && (
-                <div className="otp-modal-overlay">
-                    <div className="otp-modal">
-                        <h3>Verify Mobile Number</h3>
-                        <p>We have sent a 6-digit OTP to {candidateData.mobile}</p>
-                        
-                        <div className="otp-timer">
-                            {!otpExpired ? (
-                                <p className="timer-text">OTP expires in: <span className="timer-countdown">{formatTime(timeLeft)}</span></p>
-                            ) : (
-                                <p className="expired-text">OTP has expired</p>
-                            )}
-                        </div>
-                        
-                        <form onSubmit={handleOtpVerify}>
-                            <div className="otp-input-container">
-                                <input
-                                    type="text"
-                                    className="otp-digit-input"
-                                    maxLength="6"
-                                    style={{ width: '200px' }}
-                                    value={otp}
-                                    onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
-                                    placeholder="Enter OTP"
-                                    autoFocus
-                                />
-                            </div>
-                            
-                            <div className="otp-actions">
-                                <button type="submit" className="verify-btn" disabled={verifying || otpExpired}>
-                                    {verifying ? 'Verifying...' : 'Verify & Proceed'}
-                                </button>
-                                
-                                <button type="button" className="resend-btn" onClick={handleResendOtp} disabled={resending}>
-                                    {resending ? 'Resending...' : 'Resend OTP'}
-                                </button>
-                                
-                                <button type="button" className="cancel-btn" onClick={() => {
-                                    clearInterval(timerRef.current);
-                                    setShowOtpModal(false);
-                                }} disabled={verifying}>
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

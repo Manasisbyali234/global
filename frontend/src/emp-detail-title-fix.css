@@ -55,7 +55,7 @@ h4.twm-job-title {
 }
 
 /* Override any global color scheme that might be hiding text */
-*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *) .twm-job-title {
+*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box) .twm-job-title {
     color: #2c3e50 !important;
     display: block !important;
     visibility: visible !important;

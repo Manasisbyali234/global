@@ -17,8 +17,8 @@ const generateToken = (id, role) => {
 // Authentication Controllers
 exports.registerCandidate = async (req, res) => {
   try {
-    const { name, email, password, phone, sendWelcomeEmail: shouldSendWelcome } = req.body;
-    console.log('Registration attempt:', { name, email, phone, shouldSendWelcome });
+    const { name, email, password, phone, sendWelcomeEmail: shouldSendWelcome, skipOtpVerification } = req.body;
+    console.log('Registration attempt:', { name, email, phone, shouldSendWelcome, skipOtpVerification });
 
     const existingUser = await checkEmailExists(email);
     if (existingUser) {
@@ -27,29 +27,50 @@ exports.registerCandidate = async (req, res) => {
     }
 
     // Create candidate without password - they will create it via email link
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    const candidate = await Candidate.create({ 
+    const candidateData = { 
       name, 
       email: email.trim(), // Preserve original email format, just trim whitespace
       phone,
       registrationMethod: 'email_signup',
       credits: 0,
-      status: 'pending',
-      phoneOTP: otp,
-      phoneOTPExpires: Date.now() + 10 * 60 * 1000 // 10 minutes
-    });
-    console.log('Candidate created:', candidate._id);
+      status: 'pending'
+    };
+
+    // If OTP verification is skipped, mark phone as verified and set status to active
+    if (skipOtpVerification) {
+      candidateData.isPhoneVerified = true;
+      candidateData.status = 'active';
+    } else {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      candidateData.phoneOTP = otp;
+      candidateData.phoneOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+      // Send SMS OTP
+      await sendSMS(phone, otp, name);
+    }
     
-    // Send SMS OTP
-    await sendSMS(phone, otp, name);
+    const candidate = await Candidate.create(candidateData);
+    console.log('Candidate created:', candidate._id);
     
     await CandidateProfile.create({ candidateId: candidate._id });
     console.log('Profile created for candidate');
 
+    // If OTP verification is skipped, send welcome email immediately
+    if (skipOtpVerification) {
+      try {
+        await sendWelcomeEmail(candidate.email, candidate.name, 'candidate');
+        console.log('Welcome email sent successfully to:', candidate.email);
+      } catch (emailError) {
+        console.error('Welcome email failed:', emailError);
+      }
+    }
+
+    const message = skipOtpVerification 
+      ? 'Registration successful! Please check your registered email inbox to create your password.'
+      : 'Registration successful! Please verify your mobile number via OTP sent to your phone.';
+
     res.status(201).json({
       success: true,
-      message: 'Registration successful! Please verify your mobile number via OTP sent to your phone.'
+      message
     });
   } catch (error) {
     console.error('Registration error:', error);

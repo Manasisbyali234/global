@@ -18,7 +18,7 @@ const generateToken = (id, role) => {
 
 exports.registerPlacement = async (req, res) => {
   try {
-    const { name, email, password, phone, collegeName, collegeAddress, collegeOfficialEmail, collegeOfficialPhone, sendWelcomeEmail: shouldSendEmail } = req.body;
+    const { name, email, password, phone, collegeName, collegeAddress, collegeOfficialEmail, collegeOfficialPhone, sendWelcomeEmail: shouldSendEmail, skipOtpVerification } = req.body;
 
     const existingUser = await checkEmailExists(email);
     if (existingUser) {
@@ -34,20 +34,25 @@ exports.registerPlacement = async (req, res) => {
         });
       }
 
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
       const placementData = { 
         name: name.trim(), 
         email: email.toLowerCase().trim(), 
         phone: phone.trim(), 
-        collegeName: collegeName.trim(),
-        phoneOTP: otp,
-        phoneOTPExpires: Date.now() + 10 * 60 * 1000
+        collegeName: collegeName.trim()
       };
+
+      // If OTP verification is skipped, mark phone as verified
+      if (skipOtpVerification) {
+        placementData.isPhoneVerified = true;
+      } else {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        placementData.phoneOTP = otp;
+        placementData.phoneOTPExpires = Date.now() + 10 * 60 * 1000;
+        // Send SMS OTP
+        await sendSMS(phone, otp, name);
+      }
+
       const placement = await Placement.create(placementData);
-      
-      // Send SMS OTP
-      await sendSMS(phone, otp, name);
       
       // Create notification for admin
       try {
@@ -63,9 +68,23 @@ exports.registerPlacement = async (req, res) => {
         console.error('Failed to create registration notification:', notifError);
       }
 
+      // If OTP verification is skipped, send welcome email immediately
+      if (skipOtpVerification) {
+        try {
+          await sendWelcomeEmail(placement.email, placement.name, 'placement', placement.collegeName);
+          console.log('Welcome email sent successfully to:', placement.email);
+        } catch (emailError) {
+          console.error('Welcome email failed:', emailError);
+        }
+      }
+
+      const message = skipOtpVerification 
+        ? 'Registration successful! Please check your registered email inbox to create your password.'
+        : 'Registration successful. Please verify your mobile number via OTP sent to your phone.';
+
       return res.status(201).json({
         success: true,
-        message: 'Registration successful. Please verify your mobile number via OTP sent to your phone.'
+        message
       });
     }
 
@@ -77,21 +96,26 @@ exports.registerPlacement = async (req, res) => {
       });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
     const placementData = { 
       name: name.trim(), 
       email: email.toLowerCase().trim(), 
       password: password.trim(), 
       phone: phone.trim(), 
-      collegeName: collegeName.trim(),
-      phoneOTP: otp,
-      phoneOTPExpires: Date.now() + 10 * 60 * 1000
+      collegeName: collegeName.trim()
     };
+
+    // If OTP verification is skipped, mark phone as verified
+    if (skipOtpVerification) {
+      placementData.isPhoneVerified = true;
+    } else {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      placementData.phoneOTP = otp;
+      placementData.phoneOTPExpires = Date.now() + 10 * 60 * 1000;
+      // Send SMS OTP
+      await sendSMS(phone, otp, name);
+    }
+
     const placement = await Placement.create(placementData);
-    
-    // Send SMS OTP
-    await sendSMS(phone, otp, name);
     
     // Create notification for admin
     try {
@@ -107,9 +131,13 @@ exports.registerPlacement = async (req, res) => {
       console.error('Failed to create registration notification:', notifError);
     }
 
+    const message = skipOtpVerification 
+      ? 'Registration successful! Please wait for admin approval before you can sign in.'
+      : 'Registration successful. Please verify your mobile number via OTP sent to your phone. Please wait for admin approval before you can sign in.';
+
     res.status(201).json({
       success: true,
-      message: 'Registration successful. Please verify your mobile number via OTP sent to your phone. Please wait for admin approval before you can sign in.',
+      message,
       placement: {
         id: placement._id,
         name: placement.name,

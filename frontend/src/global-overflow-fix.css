@@ -1,6 +1,6 @@
 /* Global Overflow Fix - Prevent elements from overflowing layouts */
 
-*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *) {
+*:not(.modal):not(.modal *):not(.image-modal-content):not(.image-modal-content *):not(.popup-overlay):not(.popup-box) {
   box-sizing: border-box !important;
   max-width: 100% !important;
 }
