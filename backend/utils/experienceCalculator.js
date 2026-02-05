@@ -3,52 +3,14 @@ const calculateTotalExperienceFromEmployment = (employment = []) => {
     return '0 months';
   }
 
-  // Check if there's a manual total experience in any entry (prioritize current)
-  const currentEmp = employment.find(emp => emp.isCurrent);
-  const manualExp = currentEmp?.totalExperienceManual || employment[0]?.totalExperienceManual;
+  // Use the manual total experience from the first entry if available
+  const manualExp = employment[0]?.totalExperienceManual;
   
   if (manualExp) {
     return manualExp;
   }
 
-  let totalMonths = 0;
-
-  employment.forEach(emp => {
-    if (!emp.startDate) return;
-
-    const startDate = new Date(emp.startDate);
-    let endDate;
-
-    if (emp.isCurrent) {
-      endDate = new Date();
-    } else if (emp.endDate) {
-      endDate = new Date(emp.endDate);
-    } else {
-      return;
-    }
-
-    if (startDate > endDate) {
-      return;
-    }
-
-    const months = (endDate.getFullYear() - startDate.getFullYear()) * 12 +
-                   (endDate.getMonth() - startDate.getMonth());
-
-    totalMonths += Math.max(0, months);
-  });
-
-  const years = Math.floor(totalMonths / 12);
-  const months = totalMonths % 12;
-
-  if (years === 0 && months === 0) {
-    return '0 months';
-  } else if (years === 0) {
-    return `${months} month${months > 1 ? 's' : ''}`;
-  } else if (months === 0) {
-    return `${years} year${years > 1 ? 's' : ''}`;
-  } else {
-    return `${years} year${years > 1 ? 's' : ''} ${months} month${months > 1 ? 's' : ''}`;
-  }
+  return '0 months';
 };
 
 const getEmploymentSummary = (employment = []) => {
@@ -56,76 +18,18 @@ const getEmploymentSummary = (employment = []) => {
     return {
       currentEmployments: [],
       pastEmployments: [],
-      totalCurrentExperience: '0 months',
-      totalPastExperience: '0 months',
       totalExperience: '0 months'
     };
   }
 
-  const currentEmployments = employment.filter(emp => emp.isCurrent);
-  const pastEmployments = employment.filter(emp => !emp.isCurrent);
-
-  const currentExperienceMonths = calculateMonthsFromEmployment(currentEmployments);
-  const pastExperienceMonths = calculateMonthsFromEmployment(pastEmployments);
-  const totalMonths = currentExperienceMonths + pastExperienceMonths;
-
   return {
-    currentEmployments,
-    pastEmployments,
-    totalCurrentExperience: formatMonthsToYearsMonths(currentExperienceMonths),
-    totalPastExperience: formatMonthsToYearsMonths(pastExperienceMonths),
-    totalExperience: formatMonthsToYearsMonths(totalMonths)
+    currentEmployments: employment,
+    pastEmployments: [],
+    totalExperience: employment[0]?.totalExperienceManual || '0 months'
   };
-};
-
-const calculateMonthsFromEmployment = (employmentList = []) => {
-  let totalMonths = 0;
-
-  employmentList.forEach(emp => {
-    if (!emp.startDate) return;
-
-    const startDate = new Date(emp.startDate);
-    let endDate;
-
-    if (emp.isCurrent) {
-      endDate = new Date();
-    } else if (emp.endDate) {
-      endDate = new Date(emp.endDate);
-    } else {
-      return;
-    }
-
-    if (startDate > endDate) {
-      return;
-    }
-
-    const months = (endDate.getFullYear() - startDate.getFullYear()) * 12 +
-                   (endDate.getMonth() - startDate.getMonth());
-
-    totalMonths += Math.max(0, months);
-  });
-
-  return totalMonths;
-};
-
-const formatMonthsToYearsMonths = (totalMonths) => {
-  const years = Math.floor(totalMonths / 12);
-  const months = totalMonths % 12;
-
-  if (years === 0 && months === 0) {
-    return '0 months';
-  } else if (years === 0) {
-    return `${months} month${months > 1 ? 's' : ''}`;
-  } else if (months === 0) {
-    return `${years} year${years > 1 ? 's' : ''}`;
-  } else {
-    return `${years} year${years > 1 ? 's' : ''} ${months} month${months > 1 ? 's' : ''}`;
-  }
 };
 
 module.exports = {
   calculateTotalExperienceFromEmployment,
-  getEmploymentSummary,
-  calculateMonthsFromEmployment,
-  formatMonthsToYearsMonths
+  getEmploymentSummary
 };

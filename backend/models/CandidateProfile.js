@@ -51,10 +51,7 @@ const candidateProfileSchema = new mongoose.Schema({
     designation: String,
     organization: String,
     location: String,
-    isCurrent: { type: Boolean, default: false },
     hasWorkExperience: String,
-    startDate: Date,
-    endDate: Date,
     description: String,
     projectDetails: String,
     presentCTC: String,
@@ -62,7 +59,6 @@ const candidateProfileSchema = new mongoose.Schema({
     noticePeriod: String,
     totalExperienceManual: String
   }],
-  totalExperience: { type: String }, // Total years of experience
   skills: [String],
   expectedSalary: { type: Number },
   jobPreferences: {

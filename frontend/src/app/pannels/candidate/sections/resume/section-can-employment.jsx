@@ -11,18 +11,15 @@ function SectionCanEmployment({ profile }) {
         return saved ? JSON.parse(saved) : {
             designation: '',
             organization: '',
-            isCurrent: false,
+            totalExperienceManual: '',
             hasWorkExperience: 'No',
             description: '',
             projectDetails: '',
             presentCTC: '',
             expectedCTC: '',
             noticePeriod: '',
-            totalExperienceManual: ''
+            customNoticePeriod: ''
         };
-    });
-    const [totalExperience, setTotalExperience] = useState(() => {
-        return localStorage.getItem('totalExperience') || '';
     });
     const [loading, setLoading] = useState(false);
     const [employment, setEmployment] = useState([]);
@@ -31,108 +28,18 @@ function SectionCanEmployment({ profile }) {
     const [selectedDescription, setSelectedDescription] = useState('');
     const [showDescriptionModal, setShowDescriptionModal] = useState(false);
 
-    const calculateTotalExperienceFromEmployment = (employmentList = []) => {
-        if (!Array.isArray(employmentList) || employmentList.length === 0) {
-            return '0 months';
-        }
-
-        let totalMonths = 0;
-
-        employmentList.forEach(emp => {
-            if (!emp.startDate) return;
-
-            const startDate = new Date(emp.startDate);
-            let endDate;
-
-            if (emp.isCurrent) {
-                endDate = new Date();
-            } else if (emp.endDate) {
-                endDate = new Date(emp.endDate);
-            } else {
-                return;
-            }
-
-            if (startDate > endDate) {
-                return;
-            }
-
-            const months = (endDate.getFullYear() - startDate.getFullYear()) * 12 +
-                           (endDate.getMonth() - startDate.getMonth());
-
-            totalMonths += Math.max(0, months);
-        });
-
-        const years = Math.floor(totalMonths / 12);
-        const months = totalMonths % 12;
-
-        if (years === 0 && months === 0) {
-            return '0 months';
-        } else if (years === 0) {
-            return `${months} month${months > 1 ? 's' : ''}`;
-        } else if (months === 0) {
-            return `${years} year${years > 1 ? 's' : ''}`;
-        } else {
-            return `${years} year${years > 1 ? 's' : ''} ${months} month${months > 1 ? 's' : ''}`;
-        }
-    };
-
-    const calculateGap = (currentEmp, nextEmp) => {
-        if (!currentEmp.startDate || !nextEmp.endDate) return null;
-
-        const currentStart = new Date(currentEmp.startDate);
-        const nextEnd = new Date(nextEmp.endDate);
-
-        if (nextEnd >= currentStart) return null; // No gap or overlapping
-
-        const totalMonths = (currentStart.getFullYear() - nextEnd.getFullYear()) * 12 +
-                           (currentStart.getMonth() - nextEnd.getMonth());
-
-        if (totalMonths <= 0) return null;
-
-        const years = Math.floor(totalMonths / 12);
-        const months = totalMonths % 12;
-
-        if (years === 0) {
-            return `${months} month${months > 1 ? 's' : ''} gap`;
-        } else if (months === 0) {
-            return `${years} year${years > 1 ? 's' : ''} gap`;
-        } else {
-            return `${years} year${years > 1 ? 's' : ''} ${months} month${months > 1 ? 's' : ''} gap`;
-        }
-    };
-
-    const calculateExperience = (startDateStr, endDateStr, isCurrent) => {
-        if (!startDateStr) return "—";
-        const start = new Date(startDateStr);
-        const end = isCurrent ? new Date() : (endDateStr ? new Date(endDateStr) : new Date());
-        
-        let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-        if (months < 0) months = 0;
-        
-        const years = Math.floor(months / 12);
-        const remainingMonths = months % 12;
-        
-        let result = "";
-        if (years > 0) result += `${years} year${years > 1 ? 's' : ''}`;
-        if (remainingMonths > 0) {
-            if (result) result += " ";
-            result += `${remainingMonths} month${remainingMonths > 1 ? 's' : ''}`;
-        }
-        return result || "0 months";
-    };
-
     const clearForm = () => {
         const resetFormData = { 
             designation: '', 
             organization: '', 
-            isCurrent: false, 
+            totalExperienceManual: '', 
             hasWorkExperience: 'No',
             description: '', 
             projectDetails: '',
             presentCTC: '', 
             expectedCTC: '', 
             noticePeriod: '',
-            totalExperienceManual: ''
+            customNoticePeriod: ''
         };
         setFormData(resetFormData);
         localStorage.removeItem('employmentFormData');
@@ -143,17 +50,19 @@ function SectionCanEmployment({ profile }) {
     const handleEdit = (index) => {
         const emp = employment[index];
         
+        const isStandardNotice = ['30 Days', '40 Days', '60 Days', ''].includes(emp.noticePeriod || '');
+        
         setFormData({
             designation: emp.designation || '',
             organization: emp.organization || '',
-            isCurrent: emp.isCurrent || false,
+            totalExperienceManual: emp.totalExperienceManual || '',
             hasWorkExperience: emp.hasWorkExperience || (emp.presentCTC || emp.expectedCTC ? 'Yes' : 'No'),
             description: emp.description || '',
             projectDetails: emp.projectDetails || '',
             presentCTC: emp.presentCTC || '',
             expectedCTC: emp.expectedCTC || '',
-            noticePeriod: emp.noticePeriod || '',
-            totalExperienceManual: emp.totalExperienceManual || ''
+            noticePeriod: isStandardNotice ? (emp.noticePeriod || '') : 'Customized',
+            customNoticePeriod: isStandardNotice ? '' : (emp.noticePeriod || '')
         });
         setEditingIndex(index);
         setErrors({});
@@ -163,30 +72,8 @@ function SectionCanEmployment({ profile }) {
         if (profile?.employment) {
             const sortedEmployment = [...profile.employment];
             setEmployment(sortedEmployment);
-            
-            // Check if there's a manual total experience in any entry (prioritize current)
-            const currentEmp = sortedEmployment.find(emp => emp.isCurrent);
-            const manualExp = currentEmp?.totalExperienceManual || sortedEmployment[0]?.totalExperienceManual;
-            
-            if (manualExp) {
-                setTotalExperience(manualExp);
-            } else {
-                const calculatedExp = calculateTotalExperienceFromEmployment(sortedEmployment);
-                setTotalExperience(calculatedExp);
-            }
         }
     }, [profile]);
-
-    useEffect(() => {
-        // Update total experience whenever employment state OR form data changes (for live feedback)
-        if (formData.isCurrent && formData.totalExperienceManual) {
-            setTotalExperience(formData.totalExperienceManual);
-            return;
-        }
-
-        const calculatedExp = calculateTotalExperienceFromEmployment(employment);
-        setTotalExperience(calculatedExp);
-    }, [employment, formData.isCurrent, formData.totalExperienceManual]);
 
     useEffect(() => {
         const modal = document.getElementById(modalId);
@@ -228,10 +115,6 @@ function SectionCanEmployment({ profile }) {
             newErrors.designation = 'Designation cannot exceed 100 characters';
         }
 
-        if (!formData.totalExperienceManual || !formData.totalExperienceManual.trim()) {
-            newErrors.totalExperienceManual = 'Total Experience is required';
-        }
-
         if (formData.description && formData.description.trim()) {
             if (formData.description.trim().length < 10) {
                 newErrors.description = 'Job description should be at least 10 characters long';
@@ -258,6 +141,10 @@ function SectionCanEmployment({ profile }) {
             }
         }
 
+        if (formData.noticePeriod === 'Customized' && (!formData.customNoticePeriod || !formData.customNoticePeriod.trim())) {
+            newErrors.noticePeriod = 'Please enter your customized notice period';
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -265,18 +152,15 @@ function SectionCanEmployment({ profile }) {
     const handleDelete = async (indexToDelete) => {
         try {
             const updatedEmployment = employment.filter((_, index) => index !== indexToDelete);
-            const sortedEmployment = [...updatedEmployment];
             
-            const calculatedExp = calculateTotalExperienceFromEmployment(sortedEmployment);
             const updateData = { 
-                employment: sortedEmployment,
-                totalExperience: calculatedExp
+                employment: updatedEmployment
             };
             
             const response = await api.updateCandidateProfile(updateData);
             
             if (response && (response.success || response.candidate)) {
-                setEmployment(sortedEmployment);
+                setEmployment(updatedEmployment);
                 showSuccess('Employment deleted successfully!');
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
             } else {
@@ -327,14 +211,15 @@ function SectionCanEmployment({ profile }) {
             const employmentEntry = {
                 designation: formData.designation.trim(),
                 organization: formData.organization.trim(),
-                isCurrent: Boolean(formData.isCurrent),
+                totalExperienceManual: formData.totalExperienceManual ? formData.totalExperienceManual.trim() : '',
                 hasWorkExperience: formData.hasWorkExperience,
                 description: formData.description ? formData.description.trim() : '',
                 projectDetails: formData.projectDetails ? formData.projectDetails.trim() : '',
                 presentCTC: formData.hasWorkExperience === 'Yes' ? (formData.presentCTC ? formData.presentCTC.trim() : '') : '',
                 expectedCTC: formData.hasWorkExperience === 'Yes' ? (formData.expectedCTC ? formData.expectedCTC.trim() : '') : '',
-                noticePeriod: formData.noticePeriod ? formData.noticePeriod.trim() : '',
-                totalExperienceManual: formData.totalExperienceManual ? formData.totalExperienceManual.trim() : ''
+                noticePeriod: formData.noticePeriod === 'Customized' 
+                    ? (formData.customNoticePeriod ? formData.customNoticePeriod.trim() : 'Customized')
+                    : (formData.noticePeriod ? formData.noticePeriod.trim() : '')
             };
             
             let newEmployment;
@@ -347,37 +232,30 @@ function SectionCanEmployment({ profile }) {
                 newEmployment = [employmentEntry, ...employment];
             }
             
-            const sortedEmployment = [...newEmployment];
-
-            const calculatedExp = calculateTotalExperienceFromEmployment(sortedEmployment);
             const updateData = { 
-                employment: sortedEmployment,
-                totalExperience: calculatedExp
+                employment: newEmployment
             };
             
             const response = await api.updateCandidateProfile(updateData);
             
             if (response && (response.success || response.candidate)) {
-                setEmployment(sortedEmployment);
+                setEmployment(newEmployment);
                 const resetFormData = { 
                     designation: '', 
                     organization: '', 
-                    isCurrent: false, 
+                    totalExperienceManual: '', 
                     hasWorkExperience: 'No',
-                    startDate: '', 
-                    endDate: '', 
                     description: '', 
                     projectDetails: '',
                     presentCTC: '', 
                     expectedCTC: '', 
                     noticePeriod: '',
-                    totalExperienceManual: ''
+                    customNoticePeriod: ''
                 };
                 setFormData(resetFormData);
                 localStorage.removeItem('employmentFormData');
                 setErrors({});
                 setEditingIndex(null);
-                setTotalExperience(totalExperience || '');
                 showSuccess(editingIndex !== null ? 'Employment updated successfully!' : 'Employment added successfully!');
                 
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
@@ -568,12 +446,6 @@ function SectionCanEmployment({ profile }) {
             </div>
             <div className="panel-body wt-panel-body p-a20">
                 <div className="twm-panel-inner">
-                    <div style={{background: '#f8f9fa', padding: '14px', borderRadius: '6px', border: '1px solid #e9ecef', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px'}}>
-                        <i className="fa fa-hourglass-half" style={{color: '#FF6A00', fontSize: '16px'}}></i>
-                        <p style={{margin: 0, fontSize: '16px', fontWeight: '600', color: '#2c3e50'}}>
-                            Total Experience: <span style={{color: '#FF6A00'}}>{totalExperience || '0 months'}</span>
-                        </p>
-                    </div>
                     {employment.length > 0 ? (
                         <div className="m-b30">
                             <h4 className="section-head-small m-b20">1. Employment History / Experience</h4>
@@ -583,7 +455,6 @@ function SectionCanEmployment({ profile }) {
                                         <tr>
                                             <th>Organization Name</th>
                                             <th>Designation</th>
-                                            <th>Years of Experience</th>
                                             <th>Notice Period</th>
                                             <th style={{ width: '120px' }} className="text-center">Job Profile / Projects</th>
                                             <th style={{ width: '100px' }} className="text-center">Actions</th>
@@ -594,7 +465,6 @@ function SectionCanEmployment({ profile }) {
                                             <tr key={index}>
                                                 <td>{emp.organization}</td>
                                                 <td>{emp.designation}</td>
-                                                <td>{emp.totalExperienceManual || calculateExperience(emp.startDate, emp.endDate, emp.isCurrent)}</td>
                                                 <td>{emp.noticePeriod || '—'}</td>
                                                 <td className="text-center">
                                                     {(emp.description || emp.projectDetails) ? (
@@ -650,64 +520,6 @@ function SectionCanEmployment({ profile }) {
                             <p>No employment history found. Click the "+" button to add.</p>
                         </div>
                     )}
-
-                    {/* Current Company Details */}
-                    <div className="m-b30">
-                        <h4 className="section-head-small m-b20">2. Current Company Details</h4>
-                        <div className="table-responsive">
-                            <table className="table table-bordered">
-                                <thead className="table-light">
-                                    <tr>
-                                        <th>Field</th>
-                                        <th>Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {(() => {
-                                        const currentEmp = employment.find(emp => emp.isCurrent);
-                                        return (
-                                            <>
-                                                <tr>
-                                                    <td><strong>Current Company Name</strong></td>
-                                                    <td>{currentEmp?.organization || '—'}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>Designation</strong></td>
-                                                    <td>{currentEmp?.designation || '—'}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>Notice Period</strong></td>
-                                                    <td>{currentEmp?.noticePeriod || '—'}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>Total Experience in Company</strong></td>
-                                                    <td>{currentEmp?.totalExperienceManual || '—'}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>Notice Period</strong></td>
-                                                    <td>{currentEmp?.noticePeriod || '—'}</td>
-                                                </tr>
-                                                {currentEmp?.hasWorkExperience === 'Yes' && (
-                                                    <>
-                                                        <tr>
-                                                            <td><strong>Present CTC</strong></td>
-                                                            <td>{currentEmp?.presentCTC ? `₹${currentEmp.presentCTC} LPA` : '—'}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td><strong>Expected CTC</strong></td>
-                                                            <td>{currentEmp?.expectedCTC ? `₹${currentEmp.expectedCTC} LPA` : '—'}</td>
-                                                        </tr>
-                                                    </>
-                                                )}
-                                            </>
-                                        );
-                                    })()}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-
                 </div>
             </div>
 
@@ -764,19 +576,17 @@ function SectionCanEmployment({ profile }) {
                                     <div style={formStyles.fieldGroup}>
                                         <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
                                             Current Company Total Experience
-                                            <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
                                         </label>
                                         <div style={formStyles.inputWrapper}>
-                                            <i className="fa fa-history" style={formStyles.icon}></i>
+                                            <i className="fa fa-briefcase" style={formStyles.icon}></i>
                                             <input
                                                 type="text"
-                                                placeholder="e.g., 2 years 5 months"
+                                                placeholder="e.g., 2 Years 3 Months"
                                                 value={formData.totalExperienceManual}
                                                 onChange={(e) => handleInputChange('totalExperienceManual', e.target.value)}
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.totalExperienceManual && formStyles.inputError)}}
+                                                style={{...formStyles.input, ...formStyles.inputWithIcon}}
                                             />
                                         </div>
-                                        {errors.totalExperienceManual && <div style={formStyles.error}>{errors.totalExperienceManual}</div>}
                                     </div>
 
                                     {/* Work Experience Radio */}
@@ -804,35 +614,6 @@ function SectionCanEmployment({ profile }) {
                                                     style={formStyles.radioInput}
                                                 />
                                                 <label htmlFor="work_exp_no" style={formStyles.radioLabel}>No</label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Is Current Radio */}
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={formStyles.label}>Is this your current company?</label>
-                                        <div style={formStyles.radioGroup}>
-                                            <div style={formStyles.radioOption}>
-                                                <input
-                                                    type="radio"
-                                                    id="current_yes"
-                                                    name="isCurrent"
-                                                    checked={formData.isCurrent}
-                                                    onChange={() => handleInputChange('isCurrent', true)}
-                                                    style={formStyles.radioInput}
-                                                />
-                                                <label htmlFor="current_yes" style={formStyles.radioLabel}>Yes</label>
-                                            </div>
-                                            <div style={formStyles.radioOption}>
-                                                <input
-                                                    type="radio"
-                                                    id="current_no"
-                                                    name="isCurrent"
-                                                    checked={!formData.isCurrent}
-                                                    onChange={() => handleInputChange('isCurrent', false)}
-                                                    style={formStyles.radioInput}
-                                                />
-                                                <label htmlFor="current_no" style={formStyles.radioLabel}>No</label>
                                             </div>
                                         </div>
                                     </div>
@@ -897,6 +678,17 @@ function SectionCanEmployment({ profile }) {
                                                 <option value="Customized">Customized (user-defined)</option>
                                             </select>
                                         </div>
+                                        {formData.noticePeriod === 'Customized' && (
+                                            <div style={{marginTop: '10px'}}>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Enter customized notice period (e.g., 90 Days)"
+                                                    value={formData.customNoticePeriod}
+                                                    onChange={(e) => handleInputChange('customNoticePeriod', e.target.value)}
+                                                    style={formStyles.input}
+                                                />
+                                            </div>
+                                        )}
                                         {errors.noticePeriod && <div style={formStyles.error}>{errors.noticePeriod}</div>}
                                     </div>
 
