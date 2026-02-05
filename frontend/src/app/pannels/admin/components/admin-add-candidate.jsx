@@ -130,7 +130,7 @@ function AdminAddCandidate() {
                                     className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                                     value={formData.name}
                                     onChange={handleChange}
-                                    placeholder="Enter full name"
+                                    placeholder="Enter first name"
                                 />
                                 {errors.name && <div className="text-danger mt-1" style={{fontSize: '0.875rem'}}>{errors.name}</div>}
                             </div>

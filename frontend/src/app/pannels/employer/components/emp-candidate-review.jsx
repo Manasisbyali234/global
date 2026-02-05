@@ -132,12 +132,21 @@ function EmpCandidateReviewPage() {
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric'
-        });
+        if (!dateString) return 'Not provided';
+        try {
+            const date = new Date(dateString);
+            // Check if the date is valid
+            if (isNaN(date.getTime())) {
+                return 'Not provided';
+            }
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric'
+            });
+        } catch (error) {
+            return 'Not provided';
+        }
     };
 
     const calculateExperience = (startDateStr, endDateStr, isCurrent) => {
