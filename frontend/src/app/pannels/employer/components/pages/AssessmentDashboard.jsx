@@ -90,17 +90,23 @@ export default function AssessmentDashboard() {
 	};
 
 	const handleDeleteAssessment = async (id) => {
-		if (!window.confirm('Are you sure you want to delete this assessment?')) return;
-		try {
-			await api.deleteEmployerAssessment(id);
-			const updatedAssessments = assessments.filter(a => a._id !== id);
-			setAssessments(updatedAssessments);
-			setFilteredAssessments(updatedAssessments);
-			showSuccess('Assessment deleted successfully');
-		} catch (error) {
-			console.error('Error deleting assessment:', error);
-			showError('Failed to delete assessment');
-		}
+		showConfirmation(
+			'Are you sure you want to delete this assessment?',
+			async () => {
+				try {
+					await api.deleteEmployerAssessment(id);
+					const updatedAssessments = assessments.filter(a => a._id !== id);
+					setAssessments(updatedAssessments);
+					setFilteredAssessments(updatedAssessments);
+					showSuccess('Assessment deleted successfully');
+				} catch (error) {
+					console.error('Error deleting assessment:', error);
+					showError('Failed to delete assessment');
+				}
+			},
+			() => {},
+			'warning'
+		);
 	};
 
 	// Handle dropdown selection
