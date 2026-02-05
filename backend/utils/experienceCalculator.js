@@ -1,6 +1,14 @@
 const calculateTotalExperienceFromEmployment = (employment = []) => {
   if (!Array.isArray(employment) || employment.length === 0) {
-    return 0;
+    return '0 months';
+  }
+
+  // Check if there's a manual total experience in any entry (prioritize current)
+  const currentEmp = employment.find(emp => emp.isCurrent);
+  const manualExp = currentEmp?.totalExperienceManual || employment[0]?.totalExperienceManual;
+  
+  if (manualExp) {
+    return manualExp;
   }
 
   let totalMonths = 0;

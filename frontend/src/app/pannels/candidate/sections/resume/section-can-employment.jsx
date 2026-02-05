@@ -12,12 +12,15 @@ function SectionCanEmployment({ profile }) {
             designation: '',
             organization: '',
             isCurrent: false,
+            hasWorkExperience: 'No',
             startDate: '',
             endDate: '',
             description: '',
+            projectDetails: '',
             presentCTC: '',
             expectedCTC: '',
-            noticePeriod: ''
+            noticePeriod: '',
+            totalExperienceManual: ''
         };
     });
     const [totalExperience, setTotalExperience] = useState(() => {
@@ -121,7 +124,20 @@ function SectionCanEmployment({ profile }) {
     };
 
     const clearForm = () => {
-        const resetFormData = { designation: '', organization: '', isCurrent: false, startDate: '', endDate: '', description: '', presentCTC: '', expectedCTC: '', noticePeriod: '' };
+        const resetFormData = { 
+            designation: '', 
+            organization: '', 
+            isCurrent: false, 
+            hasWorkExperience: 'No',
+            startDate: '', 
+            endDate: '', 
+            description: '', 
+            projectDetails: '',
+            presentCTC: '', 
+            expectedCTC: '', 
+            noticePeriod: '',
+            totalExperienceManual: ''
+        };
         setFormData(resetFormData);
         localStorage.removeItem('employmentFormData');
         setErrors({});
@@ -141,12 +157,15 @@ function SectionCanEmployment({ profile }) {
             designation: emp.designation || '',
             organization: emp.organization || '',
             isCurrent: emp.isCurrent || false,
+            hasWorkExperience: emp.hasWorkExperience || (emp.presentCTC || emp.expectedCTC ? 'Yes' : 'No'),
             startDate: formatDateForInput(emp.startDate),
             endDate: formatDateForInput(emp.endDate),
             description: emp.description || '',
+            projectDetails: emp.projectDetails || '',
             presentCTC: emp.presentCTC || '',
             expectedCTC: emp.expectedCTC || '',
-            noticePeriod: emp.noticePeriod || ''
+            noticePeriod: emp.noticePeriod || '',
+            totalExperienceManual: emp.totalExperienceManual || ''
         });
         setEditingIndex(index);
         setErrors({});
@@ -162,15 +181,26 @@ function SectionCanEmployment({ profile }) {
             });
             setEmployment(sortedEmployment);
             
-            // Auto calculate total experience from the sorted employment list
-            const calculatedExp = calculateTotalExperienceFromEmployment(sortedEmployment);
-            setTotalExperience(calculatedExp);
-            localStorage.setItem('totalExperience', calculatedExp);
+            // Check if there's a manual total experience in any entry (prioritize current)
+            const currentEmp = sortedEmployment.find(emp => emp.isCurrent);
+            const manualExp = currentEmp?.totalExperienceManual || sortedEmployment[0]?.totalExperienceManual;
+            
+            if (manualExp) {
+                setTotalExperience(manualExp);
+            } else {
+                const calculatedExp = calculateTotalExperienceFromEmployment(sortedEmployment);
+                setTotalExperience(calculatedExp);
+            }
         }
     }, [profile]);
 
     useEffect(() => {
         // Update total experience whenever employment state OR form data changes (for live feedback)
+        if (formData.isCurrent && formData.totalExperienceManual) {
+            setTotalExperience(formData.totalExperienceManual);
+            return;
+        }
+
         let tempEmployment = [...employment];
         if (formData.startDate) {
             const currentEntry = {
@@ -186,7 +216,7 @@ function SectionCanEmployment({ profile }) {
         }
         const calculatedExp = calculateTotalExperienceFromEmployment(tempEmployment);
         setTotalExperience(calculatedExp);
-    }, [employment, formData.startDate, formData.endDate, formData.isCurrent, editingIndex]);
+    }, [employment, formData.startDate, formData.endDate, formData.isCurrent, formData.totalExperienceManual, editingIndex]);
 
     useEffect(() => {
         const modal = document.getElementById(modalId);
@@ -212,22 +242,24 @@ function SectionCanEmployment({ profile }) {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!formData.designation || !formData.designation.trim()) {
-            newErrors.designation = 'Designation is required';
-        } else if (formData.designation.trim().length < 2) {
-            newErrors.designation = 'Designation must be at least 2 characters long';
-        } else if (formData.designation.trim().length > 100) {
-            newErrors.designation = 'Designation cannot exceed 100 characters';
-        } else if (!/^[a-zA-Z0-9\s\-\.]+$/.test(formData.designation.trim())) {
-            newErrors.designation = 'Designation can only contain letters, numbers, spaces, hyphens, and periods';
-        }
-
         if (!formData.organization || !formData.organization.trim()) {
             newErrors.organization = 'Organization name is required';
         } else if (formData.organization.trim().length < 2) {
             newErrors.organization = 'Organization name must be at least 2 characters long';
         } else if (formData.organization.trim().length > 100) {
             newErrors.organization = 'Organization name cannot exceed 100 characters';
+        }
+
+        if (!formData.designation || !formData.designation.trim()) {
+            newErrors.designation = 'Designation is required';
+        } else if (formData.designation.trim().length < 2) {
+            newErrors.designation = 'Designation must be at least 2 characters long';
+        } else if (formData.designation.trim().length > 100) {
+            newErrors.designation = 'Designation cannot exceed 100 characters';
+        }
+
+        if (!formData.totalExperienceManual || !formData.totalExperienceManual.trim()) {
+            newErrors.totalExperienceManual = 'Total Experience is required';
         }
 
         if (!formData.startDate) {
@@ -266,27 +298,21 @@ function SectionCanEmployment({ profile }) {
             }
         }
 
-        if (!formData.workType) {
-            // workType validation removed - field no longer required
-        }
-
-        if (formData.presentCTC && formData.presentCTC.trim()) {
-            const ctcValue = parseFloat(formData.presentCTC.trim());
-            if (isNaN(ctcValue) || ctcValue < 0) {
-                newErrors.presentCTC = 'Present CTC must be a valid positive number';
-            } else if (ctcValue > 10000) {
-                newErrors.presentCTC = 'Present CTC seems too high. Please check the value.';
+        if (formData.hasWorkExperience === 'Yes') {
+            if (formData.presentCTC && formData.presentCTC.trim()) {
+                const ctcValue = parseFloat(formData.presentCTC.trim());
+                if (isNaN(ctcValue) || ctcValue < 0) {
+                    newErrors.presentCTC = 'Present CTC must be a valid positive number';
+                }
             }
-        }
 
-        if (!formData.expectedCTC || !formData.expectedCTC.trim()) {
-            newErrors.expectedCTC = 'Expected CTC is required';
-        } else {
-            const ctcValue = parseFloat(formData.expectedCTC.trim());
-            if (isNaN(ctcValue) || ctcValue < 0) {
-                newErrors.expectedCTC = 'Expected CTC must be a valid positive number';
-            } else if (ctcValue > 10000) {
-                newErrors.expectedCTC = 'Expected CTC seems too high. Please check the value.';
+            if (!formData.expectedCTC || !formData.expectedCTC.trim()) {
+                newErrors.expectedCTC = 'Expected CTC is required';
+            } else {
+                const ctcValue = parseFloat(formData.expectedCTC.trim());
+                if (isNaN(ctcValue) || ctcValue < 0) {
+                    newErrors.expectedCTC = 'Expected CTC must be a valid positive number';
+                }
             }
         }
 
@@ -365,12 +391,15 @@ function SectionCanEmployment({ profile }) {
                 designation: formData.designation.trim(),
                 organization: formData.organization.trim(),
                 isCurrent: Boolean(formData.isCurrent),
+                hasWorkExperience: formData.hasWorkExperience,
                 startDate: formData.startDate,
                 endDate: formData.isCurrent ? null : (formData.endDate || null),
                 description: formData.description ? formData.description.trim() : '',
-                presentCTC: formData.presentCTC ? formData.presentCTC.trim() : '',
-                expectedCTC: formData.expectedCTC ? formData.expectedCTC.trim() : '',
-                noticePeriod: formData.noticePeriod ? formData.noticePeriod.trim() : ''
+                projectDetails: formData.projectDetails ? formData.projectDetails.trim() : '',
+                presentCTC: formData.hasWorkExperience === 'Yes' ? (formData.presentCTC ? formData.presentCTC.trim() : '') : '',
+                expectedCTC: formData.hasWorkExperience === 'Yes' ? (formData.expectedCTC ? formData.expectedCTC.trim() : '') : '',
+                noticePeriod: formData.noticePeriod ? formData.noticePeriod.trim() : '',
+                totalExperienceManual: formData.totalExperienceManual ? formData.totalExperienceManual.trim() : ''
             };
             
             let newEmployment;
@@ -399,7 +428,20 @@ function SectionCanEmployment({ profile }) {
             
             if (response && (response.success || response.candidate)) {
                 setEmployment(sortedEmployment);
-                const resetFormData = { designation: '', organization: '', location: '', isCurrent: false, startDate: '', endDate: '', description: '', presentCTC: '', expectedCTC: '' };
+                const resetFormData = { 
+                    designation: '', 
+                    organization: '', 
+                    isCurrent: false, 
+                    hasWorkExperience: 'No',
+                    startDate: '', 
+                    endDate: '', 
+                    description: '', 
+                    projectDetails: '',
+                    presentCTC: '', 
+                    expectedCTC: '', 
+                    noticePeriod: '',
+                    totalExperienceManual: ''
+                };
                 setFormData(resetFormData);
                 localStorage.removeItem('employmentFormData');
                 setErrors({});
@@ -611,7 +653,8 @@ function SectionCanEmployment({ profile }) {
                                             <th>Organization Name</th>
                                             <th>Designation</th>
                                             <th>Years of Experience</th>
-                                            <th style={{ width: '120px' }} className="text-center">Job Description</th>
+                                            <th>Notice Period</th>
+                                            <th style={{ width: '120px' }} className="text-center">Job Profile / Projects</th>
                                             <th style={{ width: '100px' }} className="text-center">Actions</th>
                                         </tr>
                                     </thead>
@@ -620,15 +663,16 @@ function SectionCanEmployment({ profile }) {
                                             <tr key={index}>
                                                 <td>{emp.organization}</td>
                                                 <td>{emp.designation}</td>
-                                                <td>{calculateExperience(emp.startDate, emp.endDate, emp.isCurrent)}</td>
+                                                <td>{emp.totalExperienceManual || calculateExperience(emp.startDate, emp.endDate, emp.isCurrent)}</td>
+                                                <td>{emp.noticePeriod || '—'}</td>
                                                 <td className="text-center">
-                                                    {emp.description ? (
+                                                    {(emp.description || emp.projectDetails) ? (
                                                         <button
                                                             className="btn btn-sm btn-outline-info"
-                                                            title="View Description"
+                                                            title="View Details"
                                                             data-bs-toggle="modal"
                                                             data-bs-target={`#${descModalId}`}
-                                                            onClick={() => setSelectedDescription(emp.description)}
+                                                            onClick={() => setSelectedDescription(`JOB PROFILE:\n${emp.description || 'N/A'}\n\nPROJECT DETAILS:\n${emp.projectDetails || 'N/A'}`)}
                                                         >
                                                             <i className="fa fa-eye"></i>
                                                         </button>
@@ -697,17 +741,33 @@ function SectionCanEmployment({ profile }) {
                                                     <td>{currentEmp?.organization || '—'}</td>
                                                 </tr>
                                                 <tr>
+                                                    <td><strong>Designation</strong></td>
+                                                    <td>{currentEmp?.designation || '—'}</td>
+                                                </tr>
+                                                <tr>
                                                     <td><strong>Notice Period</strong></td>
                                                     <td>{currentEmp?.noticePeriod || '—'}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td><strong>Present CTC</strong></td>
-                                                    <td>{currentEmp?.presentCTC ? `₹${currentEmp.presentCTC} LPA` : '—'}</td>
+                                                    <td><strong>Total Experience in Company</strong></td>
+                                                    <td>{currentEmp?.totalExperienceManual || '—'}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td><strong>Expected CTC</strong></td>
-                                                    <td>{currentEmp?.expectedCTC ? `₹${currentEmp.expectedCTC} LPA` : '—'}</td>
+                                                    <td><strong>Notice Period</strong></td>
+                                                    <td>{currentEmp?.noticePeriod || '—'}</td>
                                                 </tr>
+                                                {currentEmp?.hasWorkExperience === 'Yes' && (
+                                                    <>
+                                                        <tr>
+                                                            <td><strong>Present CTC</strong></td>
+                                                            <td>{currentEmp?.presentCTC ? `₹${currentEmp.presentCTC} LPA` : '—'}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Expected CTC</strong></td>
+                                                            <td>{currentEmp?.expectedCTC ? `₹${currentEmp.expectedCTC} LPA` : '—'}</td>
+                                                        </tr>
+                                                    </>
+                                                )}
                                             </>
                                         );
                                     })()}
@@ -731,56 +791,17 @@ function SectionCanEmployment({ profile }) {
                                 </div>
 
                                 <div style={{...formStyles.container, paddingBottom: '80px'}}>
-                                    {/* Total Experience */}
+                                    {/* Organization Name */}
                                     <div style={formStyles.fieldGroup}>
                                         <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                            Total Experience
-                                            <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                        </label>
-                                        <div style={formStyles.inputWrapper}>
-                                            <i className="fa fa-clock" style={formStyles.icon}></i>
-                                            <input
-                                                type="text"
-                                                placeholder="Auto-calculated from employment"
-                                                value={totalExperience}
-                                                readOnly
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon, backgroundColor: '#f8f9fa', cursor: 'not-allowed', ...(errors.totalExperience && formStyles.inputError)}}
-                                                title="This value is automatically calculated based on your employment history"
-                                            />
-                                        </div>
-                                        {errors.totalExperience && <div style={formStyles.error}>{errors.totalExperience}</div>}
-                                    </div>
-
-                                    {/* Designation */}
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                            Your Designation
-                                            <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                        </label>
-                                        <div style={formStyles.inputWrapper}>
-                                            <i className="fa fa-address-card" style={formStyles.icon}></i>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter Your Designation"
-                                                value={formData.designation}
-                                                onChange={(e) => handleInputChange('designation', e.target.value)}
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.designation && formStyles.inputError)}}
-                                            />
-                                        </div>
-                                        {errors.designation && <div style={formStyles.error}>{errors.designation}</div>}
-                                    </div>
-
-                                    {/* Organization */}
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                            Your Organization
+                                            Organization Name
                                             <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
                                         </label>
                                         <div style={formStyles.inputWrapper}>
                                             <i className="fa fa-building" style={formStyles.icon}></i>
                                             <input
                                                 type="text"
-                                                placeholder="Enter Your Organization"
+                                                placeholder="e.g., Google"
                                                 value={formData.organization}
                                                 onChange={(e) => handleInputChange('organization', e.target.value)}
                                                 style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.organization && formStyles.inputError)}}
@@ -789,12 +810,76 @@ function SectionCanEmployment({ profile }) {
                                         {errors.organization && <div style={formStyles.error}>{errors.organization}</div>}
                                     </div>
 
-                                    {/* Current Company */}
+                                    {/* Designation */}
                                     <div style={formStyles.fieldGroup}>
                                         <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                            Is this your current company?
+                                            Designation
                                             <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
                                         </label>
+                                        <div style={formStyles.inputWrapper}>
+                                            <i className="fa fa-user-tie" style={formStyles.icon}></i>
+                                            <input
+                                                type="text"
+                                                placeholder="e.g., Software Engineer"
+                                                value={formData.designation}
+                                                onChange={(e) => handleInputChange('designation', e.target.value)}
+                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.designation && formStyles.inputError)}}
+                                            />
+                                        </div>
+                                        {errors.designation && <div style={formStyles.error}>{errors.designation}</div>}
+                                    </div>
+
+                                    {/* Total Experience */}
+                                    <div style={formStyles.fieldGroup}>
+                                        <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
+                                            Current Company Total Experience
+                                            <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
+                                        </label>
+                                        <div style={formStyles.inputWrapper}>
+                                            <i className="fa fa-history" style={formStyles.icon}></i>
+                                            <input
+                                                type="text"
+                                                placeholder="e.g., 2 years 5 months"
+                                                value={formData.totalExperienceManual}
+                                                onChange={(e) => handleInputChange('totalExperienceManual', e.target.value)}
+                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.totalExperienceManual && formStyles.inputError)}}
+                                            />
+                                        </div>
+                                        {errors.totalExperienceManual && <div style={formStyles.error}>{errors.totalExperienceManual}</div>}
+                                    </div>
+
+                                    {/* Work Experience Radio */}
+                                    <div style={formStyles.fieldGroup}>
+                                        <label style={formStyles.label}>Work Experience</label>
+                                        <div style={formStyles.radioGroup}>
+                                            <div style={formStyles.radioOption}>
+                                                <input
+                                                    type="radio"
+                                                    id="work_exp_yes"
+                                                    name="hasWorkExperience"
+                                                    checked={formData.hasWorkExperience === 'Yes'}
+                                                    onChange={() => handleInputChange('hasWorkExperience', 'Yes')}
+                                                    style={formStyles.radioInput}
+                                                />
+                                                <label htmlFor="work_exp_yes" style={formStyles.radioLabel}>Yes</label>
+                                            </div>
+                                            <div style={formStyles.radioOption}>
+                                                <input
+                                                    type="radio"
+                                                    id="work_exp_no"
+                                                    name="hasWorkExperience"
+                                                    checked={formData.hasWorkExperience === 'No'}
+                                                    onChange={() => handleInputChange('hasWorkExperience', 'No')}
+                                                    style={formStyles.radioInput}
+                                                />
+                                                <label htmlFor="work_exp_no" style={formStyles.radioLabel}>No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Is Current Radio */}
+                                    <div style={formStyles.fieldGroup}>
+                                        <label style={formStyles.label}>Is this your current company?</label>
                                         <div style={formStyles.radioGroup}>
                                             <div style={formStyles.radioOption}>
                                                 <input
@@ -855,46 +940,48 @@ function SectionCanEmployment({ profile }) {
                                         </div>
                                     </div>
 
-                                    {/* CTC Fields */}
-                                    <div style={formStyles.twoColumnGrid}>
-                                        <div style={formStyles.fieldGroup}>
-                                            <label style={formStyles.label}>Present CTC (LPA)</label>
-                                            <div style={{...formStyles.inputWrapper, position: 'relative'}}>
-                                                <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
-                                                <input
-                                                    type="number"
-                                                    placeholder="e.g., 5.5"
-                                                    value={formData.presentCTC}
-                                                    onChange={(e) => handleInputChange('presentCTC', e.target.value)}
-                                                    style={{...formStyles.input, ...formStyles.inputWithIcon, paddingRight: '45px', ...(errors.presentCTC && formStyles.inputError)}}
-                                                    min="0"
-                                                    step="0.1"
-                                                />
-                                                <span style={{position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px', pointerEvents: 'none'}}>LPA</span>
+                                    {/* CTC Fields - Only shown if Work Experience is Yes */}
+                                    {formData.hasWorkExperience === 'Yes' && (
+                                        <div style={formStyles.twoColumnGrid}>
+                                            <div style={formStyles.fieldGroup}>
+                                                <label style={formStyles.label}>Present CTC (LPA)</label>
+                                                <div style={{...formStyles.inputWrapper, position: 'relative'}}>
+                                                    <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
+                                                    <input
+                                                        type="number"
+                                                        placeholder="e.g., 5.5"
+                                                        value={formData.presentCTC}
+                                                        onChange={(e) => handleInputChange('presentCTC', e.target.value)}
+                                                        style={{...formStyles.input, ...formStyles.inputWithIcon, paddingRight: '45px', ...(errors.presentCTC && formStyles.inputError)}}
+                                                        min="0"
+                                                        step="0.1"
+                                                    />
+                                                    <span style={{position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px', pointerEvents: 'none'}}>LPA</span>
+                                                </div>
+                                                {errors.presentCTC && <div style={formStyles.error}>{errors.presentCTC}</div>}
                                             </div>
-                                            {errors.presentCTC && <div style={formStyles.error}>{errors.presentCTC}</div>}
-                                        </div>
-                                        <div style={formStyles.fieldGroup}>
-                                            <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                                Expected CTC (LPA)
-                                                <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                            </label>
-                                            <div style={{...formStyles.inputWrapper, position: 'relative'}}>
-                                                <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
-                                                <input
-                                                    type="number"
-                                                    placeholder="e.g., 7.0"
-                                                    value={formData.expectedCTC}
-                                                    onChange={(e) => handleInputChange('expectedCTC', e.target.value)}
-                                                    style={{...formStyles.input, ...formStyles.inputWithIcon, paddingRight: '45px', ...(errors.expectedCTC && formStyles.inputError)}}
-                                                    min="0"
-                                                    step="0.1"
-                                                />
-                                                <span style={{position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px', pointerEvents: 'none'}}>LPA</span>
+                                            <div style={formStyles.fieldGroup}>
+                                                <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
+                                                    Expected CTC (LPA)
+                                                    <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
+                                                </label>
+                                                <div style={{...formStyles.inputWrapper, position: 'relative'}}>
+                                                    <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
+                                                    <input
+                                                        type="number"
+                                                        placeholder="e.g., 7.0"
+                                                        value={formData.expectedCTC}
+                                                        onChange={(e) => handleInputChange('expectedCTC', e.target.value)}
+                                                        style={{...formStyles.input, ...formStyles.inputWithIcon, paddingRight: '45px', ...(errors.expectedCTC && formStyles.inputError)}}
+                                                        min="0"
+                                                        step="0.1"
+                                                    />
+                                                    <span style={{position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px', pointerEvents: 'none'}}>LPA</span>
+                                                </div>
+                                                {errors.expectedCTC && <div style={formStyles.error}>{errors.expectedCTC}</div>}
                                             </div>
-                                            {errors.expectedCTC && <div style={formStyles.error}>{errors.expectedCTC}</div>}
                                         </div>
-                                    </div>
+                                    )}
 
                                     {/* Notice Period */}
                                     <div style={formStyles.fieldGroup}>
@@ -907,11 +994,10 @@ function SectionCanEmployment({ profile }) {
                                                 style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.noticePeriod && formStyles.inputError)}}
                                             >
                                                 <option value="">Select Notice Period</option>
-                                                <option value="Immediate">Immediate</option>
-                                                <option value="15 days">15 days</option>
-                                                <option value="1 month">1 month</option>
-                                                <option value="2 months">2 months</option>
-                                                <option value="3 months">3 months</option>
+                                                <option value="30 Days">30 Days</option>
+                                                <option value="40 Days">40 Days</option>
+                                                <option value="60 Days">60 Days</option>
+                                                <option value="Customized">Customized (user-defined)</option>
                                             </select>
                                         </div>
                                         {errors.noticePeriod && <div style={formStyles.error}>{errors.noticePeriod}</div>}
@@ -928,6 +1014,18 @@ function SectionCanEmployment({ profile }) {
                                         />
                                         {errors.description && <div style={formStyles.error}>{errors.description}</div>}
                                         <small style={{fontSize: '12px', color: '#999', marginTop: '4px'}}>Optional: {formData.description.length}/1000 characters</small>
+                                    </div>
+
+                                    {/* Project Details */}
+                                    <div style={formStyles.fieldGroup}>
+                                        <label style={formStyles.label}>Project Details</label>
+                                        <textarea
+                                            placeholder="Enter Project Details"
+                                            value={formData.projectDetails}
+                                            onChange={(e) => handleInputChange('projectDetails', e.target.value)}
+                                            style={{...formStyles.textarea, ...(errors.projectDetails && formStyles.textareaError)}}
+                                        />
+                                        {errors.projectDetails && <div style={formStyles.error}>{errors.projectDetails}</div>}
                                     </div>
                                 </div>
 

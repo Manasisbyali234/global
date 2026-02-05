@@ -52,11 +52,15 @@ const candidateProfileSchema = new mongoose.Schema({
     organization: String,
     location: String,
     isCurrent: { type: Boolean, default: false },
+    hasWorkExperience: String,
     startDate: Date,
     endDate: Date,
     description: String,
+    projectDetails: String,
     presentCTC: String,
-    expectedCTC: String
+    expectedCTC: String,
+    noticePeriod: String,
+    totalExperienceManual: String
   }],
   totalExperience: { type: String }, // Total years of experience
   skills: [String],
@@ -66,7 +70,7 @@ const candidateProfileSchema = new mongoose.Schema({
     preferredLocations: [String],
     remoteWork: { type: Boolean, default: false },
     willingToRelocate: { type: Boolean, default: false },
-    noticePeriod: { type: String, enum: ['immediate', '15-days', '1-month', '2-months', '3-months', 'more-than-3-months'] }
+    noticePeriod: { type: String }
   }
 }, {
   timestamps: true
