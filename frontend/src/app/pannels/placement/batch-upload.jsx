@@ -343,14 +343,43 @@ function BatchUpload() {
 
                                     <div className="field-group">
                                         <label>University *</label>
-                                        <input
-                                            type="text"
+                                        <select
                                             value={university}
                                             onChange={(e) => setUniversity(e.target.value)}
-                                            placeholder="Enter university name"
-                                            maxLength="100"
                                             required
-                                        />
+                                        >
+                                            <option value="">Select University</option>
+                                            <option value="Indian Institute of Technology (IIT) Delhi">Indian Institute of Technology (IIT) Delhi</option>
+                                            <option value="Indian Institute of Technology (IIT) Bombay">Indian Institute of Technology (IIT) Bombay</option>
+                                            <option value="Indian Institute of Technology (IIT) Madras">Indian Institute of Technology (IIT) Madras</option>
+                                            <option value="Indian Institute of Technology (IIT) Kanpur">Indian Institute of Technology (IIT) Kanpur</option>
+                                            <option value="Indian Institute of Technology (IIT) Kharagpur">Indian Institute of Technology (IIT) Kharagpur</option>
+                                            <option value="Indian Institute of Technology (IIT) Roorkee">Indian Institute of Technology (IIT) Roorkee</option>
+                                            <option value="Indian Institute of Technology (IIT) Guwahati">Indian Institute of Technology (IIT) Guwahati</option>
+                                            <option value="Indian Institute of Technology (IIT) Hyderabad">Indian Institute of Technology (IIT) Hyderabad</option>
+                                            <option value="Indian Institute of Science (IISc) Bangalore">Indian Institute of Science (IISc) Bangalore</option>
+                                            <option value="National Institute of Technology (NIT) Trichy">National Institute of Technology (NIT) Trichy</option>
+                                            <option value="National Institute of Technology (NIT) Warangal">National Institute of Technology (NIT) Warangal</option>
+                                            <option value="National Institute of Technology (NIT) Surathkal">National Institute of Technology (NIT) Surathkal</option>
+                                            <option value="Delhi Technological University (DTU)">Delhi Technological University (DTU)</option>
+                                            <option value="Netaji Subhas University of Technology (NSUT)">Netaji Subhas University of Technology (NSUT)</option>
+                                            <option value="Birla Institute of Technology and Science (BITS) Pilani">Birla Institute of Technology and Science (BITS) Pilani</option>
+                                            <option value="Vellore Institute of Technology (VIT)">Vellore Institute of Technology (VIT)</option>
+                                            <option value="Manipal Institute of Technology">Manipal Institute of Technology</option>
+                                            <option value="SRM Institute of Science and Technology">SRM Institute of Science and Technology</option>
+                                            <option value="Amity University">Amity University</option>
+                                            <option value="Lovely Professional University (LPU)">Lovely Professional University (LPU)</option>
+                                            <option value="Chandigarh University">Chandigarh University</option>
+                                            <option value="Thapar Institute of Engineering and Technology">Thapar Institute of Engineering and Technology</option>
+                                            <option value="Jadavpur University">Jadavpur University</option>
+                                            <option value="Anna University">Anna University</option>
+                                            <option value="University of Delhi">University of Delhi</option>
+                                            <option value="Jawaharlal Nehru University (JNU)">Jawaharlal Nehru University (JNU)</option>
+                                            <option value="Banaras Hindu University (BHU)">Banaras Hindu University (BHU)</option>
+                                            <option value="Aligarh Muslim University (AMU)">Aligarh Muslim University (AMU)</option>
+                                            <option value="Jamia Millia Islamia">Jamia Millia Islamia</option>
+                                            <option value="Other">Other</option>
+                                        </select>
                                     </div>
 
                                     <div className="field-group">
@@ -528,14 +557,43 @@ function BatchUpload() {
 
                                 <div className="field-group">
                                     <label>University *</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={university}
                                         onChange={(e) => setUniversity(e.target.value)}
-                                        placeholder="Enter university name"
-                                        maxLength="100"
                                         required
-                                    />
+                                    >
+                                        <option value="">Select University</option>
+                                        <option value="Indian Institute of Technology (IIT) Delhi">Indian Institute of Technology (IIT) Delhi</option>
+                                        <option value="Indian Institute of Technology (IIT) Bombay">Indian Institute of Technology (IIT) Bombay</option>
+                                        <option value="Indian Institute of Technology (IIT) Madras">Indian Institute of Technology (IIT) Madras</option>
+                                        <option value="Indian Institute of Technology (IIT) Kanpur">Indian Institute of Technology (IIT) Kanpur</option>
+                                        <option value="Indian Institute of Technology (IIT) Kharagpur">Indian Institute of Technology (IIT) Kharagpur</option>
+                                        <option value="Indian Institute of Technology (IIT) Roorkee">Indian Institute of Technology (IIT) Roorkee</option>
+                                        <option value="Indian Institute of Technology (IIT) Guwahati">Indian Institute of Technology (IIT) Guwahati</option>
+                                        <option value="Indian Institute of Technology (IIT) Hyderabad">Indian Institute of Technology (IIT) Hyderabad</option>
+                                        <option value="Indian Institute of Science (IISc) Bangalore">Indian Institute of Science (IISc) Bangalore</option>
+                                        <option value="National Institute of Technology (NIT) Trichy">National Institute of Technology (NIT) Trichy</option>
+                                        <option value="National Institute of Technology (NIT) Warangal">National Institute of Technology (NIT) Warangal</option>
+                                        <option value="National Institute of Technology (NIT) Surathkal">National Institute of Technology (NIT) Surathkal</option>
+                                        <option value="Delhi Technological University (DTU)">Delhi Technological University (DTU)</option>
+                                        <option value="Netaji Subhas University of Technology (NSUT)">Netaji Subhas University of Technology (NSUT)</option>
+                                        <option value="Birla Institute of Technology and Science (BITS) Pilani">Birla Institute of Technology and Science (BITS) Pilani</option>
+                                        <option value="Vellore Institute of Technology (VIT)">Vellore Institute of Technology (VIT)</option>
+                                        <option value="Manipal Institute of Technology">Manipal Institute of Technology</option>
+                                        <option value="SRM Institute of Science and Technology">SRM Institute of Science and Technology</option>
+                                        <option value="Amity University">Amity University</option>
+                                        <option value="Lovely Professional University (LPU)">Lovely Professional University (LPU)</option>
+                                        <option value="Chandigarh University">Chandigarh University</option>
+                                        <option value="Thapar Institute of Engineering and Technology">Thapar Institute of Engineering and Technology</option>
+                                        <option value="Jadavpur University">Jadavpur University</option>
+                                        <option value="Anna University">Anna University</option>
+                                        <option value="University of Delhi">University of Delhi</option>
+                                        <option value="Jawaharlal Nehru University (JNU)">Jawaharlal Nehru University (JNU)</option>
+                                        <option value="Banaras Hindu University (BHU)">Banaras Hindu University (BHU)</option>
+                                        <option value="Aligarh Muslim University (AMU)">Aligarh Muslim University (AMU)</option>
+                                        <option value="Jamia Millia Islamia">Jamia Millia Islamia</option>
+                                        <option value="Other">Other</option>
+                                    </select>
                                 </div>
 
                                 <div className="field-group">

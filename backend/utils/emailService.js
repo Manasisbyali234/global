@@ -108,6 +108,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           
           <p>Thank you for registering as an Employer on TaleGlobal.</p>
           
+          <p>Please create password and login into your dashboard this </p>
           <p>To proceed with approval, please log in to your dashboard and complete your company profile by updating the required basic details and uploading the necessary documents.</p>
           
           <p>Once submitted, your profile will be reviewed by the TaleGlobal admin team.</p>
