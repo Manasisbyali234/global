@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { pubRoute, publicUser } from '../../../globals/route-names';
 import { validatePhoneNumber, handlePhoneInputChange, validatePhoneOnBlur } from '../../../utils/phoneValidation';
-import CountryCodeSelector from '../../../components/CountryCodeSelector';
+import '../../../remove-profile-hover-effects.css';
 
 function SignUpPopup() {
     const [candidateData, setCandidateData] = useState({
@@ -468,18 +468,13 @@ function SignUpPopup() {
 
 												<div className="col-lg-12">
 													<div className="form-group mb-4">
-														<div style={{ position: 'relative' }}>
-															<div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}>
-																<CountryCodeSelector
-																	value={candidateData.countryCode}
-																	onChange={(code) => setCandidateData(prev => ({ ...prev, countryCode: code }))}
-																/>
-															</div>
+														<div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+															<span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{candidateData.countryCode}</span>
 															<input
 																name="mobile"
 																type="tel"
 																className={`form-control ${fieldErrors.mobile ? 'is-invalid' : ''}`}
-																style={{ paddingLeft: '140px' }}
+																style={{ paddingLeft: '55px', height: '50px' }}
 																placeholder="Mobile No.*"
 																value={candidateData.mobile}
 																onChange={handleCandidateChange}
@@ -591,18 +586,13 @@ function SignUpPopup() {
 
 												<div className="col-lg-12">
 													<div className="form-group mb-4">
-														<div style={{ position: 'relative' }}>
-															<div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}>
-																<CountryCodeSelector
-																	value={employerData.countryCode}
-																	onChange={(code) => setEmployerData(prev => ({ ...prev, countryCode: code }))}
-																/>
-															</div>
+														<div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+															<span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{employerData.countryCode}</span>
 															<input
 																name="mobile"
 																type="tel"
 																className={`form-control ${fieldErrors.mobile ? 'is-invalid' : ''}`}
-																style={{ paddingLeft: '140px' }}
+																style={{ paddingLeft: '55px', height: '50px' }}
 																placeholder="Mobile No.*"
 																value={employerData.mobile}
 																onChange={handleEmployerChange}
@@ -697,18 +687,13 @@ function SignUpPopup() {
 
 												<div className="col-lg-12">
 													<div className="form-group mb-4">
-														<div style={{ position: 'relative' }}>
-															<div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}>
-																<CountryCodeSelector
-																	value={placementData.countryCode}
-																	onChange={(code) => setPlacementData(prev => ({ ...prev, countryCode: code }))}
-																/>
-															</div>
+														<div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+															<span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{placementData.countryCode}</span>
 															<input
 																name="phone"
 																type="tel"
 																className={`form-control ${fieldErrors.phone ? 'is-invalid' : ''}`}
-																style={{ paddingLeft: '140px' }}
+																style={{ paddingLeft: '55px', height: '50px' }}
 																placeholder="Phone Number*"
 																value={placementData.phone}
 																onChange={handlePlacementChange}

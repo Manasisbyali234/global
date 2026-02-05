@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './support.css';
-import CountryCodeSelector from '../../../../../components/CountryCodeSelector';
+import '../../../../../remove-profile-hover-effects.css';
 
 function SupportPage() {
     const [formData, setFormData] = useState({
@@ -339,15 +339,8 @@ function SupportPage() {
                                             
                                             <div className="col-lg-6 col-md-6">
                                                 <div className="form-group mb-3">
-                                                    <div className="input-group">
-                                                        <CountryCodeSelector
-                                                            value={formData.phoneCountryCode}
-                                                            onChange={(value) => {
-                                                                setFormData(prev => ({ ...prev, phoneCountryCode: value }));
-                                                            }}
-                                                            borderRadius="0.375rem 0 0 0.375rem"
-                                                            height="auto"
-                                                        />
+                                                    <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+                                                        <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.phoneCountryCode}</span>
                                                         <input
                                                             name="phone"
                                                             type="tel"
@@ -356,7 +349,7 @@ function SupportPage() {
                                                             value={formData.phone}
                                                             onChange={handleChange}
                                                             maxLength="15"
-                                                            style={{ borderRadius: '0 0.375rem 0.375rem 0' }}
+                                                            style={{ paddingLeft: '55px', height: '50px' }}
                                                         />
                                                     </div>
                                                 </div>

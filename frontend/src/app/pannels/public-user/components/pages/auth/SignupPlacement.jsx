@@ -292,18 +292,18 @@ function SignupPlacement() {
                         </div>
 
                         <div className="auth-form-group">
-                            <div style={{ position: 'relative' }}>
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{placementData.countryCode}</span>
                                 <input 
                                     name="phone" 
                                     type="text" 
                                     required 
                                     className={`auth-input ${fieldErrors.phone ? 'is-invalid' : ''}`} 
-                                    style={{ paddingLeft: '50px' }}
+                                    style={{ paddingLeft: '55px' }}
                                     placeholder="Mobile Number" 
                                     value={placementData.phone} 
                                     onChange={handleChange} 
                                 />
-                                <span style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none' }}>{placementData.countryCode}</span>
                             </div>
                             {fieldErrors.phone && <div className="invalid-feedback d-block">{fieldErrors.phone}</div>}
                         </div>
