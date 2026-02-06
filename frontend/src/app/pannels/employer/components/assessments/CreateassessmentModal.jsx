@@ -645,12 +645,12 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 										style={{ minWidth: "140px", fontSize: "12px", whiteSpace: "nowrap" }}
 									>
 										<option value="mcq">MCQ</option>
-										<option value="visual-mcq">Visual MCQs</option>
-										<option value="questionary-image-mcq">Questionary image MCQ</option>
-										<option value="image-mcq">Image MCQ</option>
 										<option value="subjective">Subjective</option>
 										<option value="upload">Upload File</option>
 										<option value="image">Upload Image</option>
+										<option value="questionary-image-mcq">Questions with Image</option>
+										<option value="visual-mcq">Options with Image</option>
+										<option value="image-mcq">Image MCQ</option>
 									</select>
 									<button
 										type="button"
