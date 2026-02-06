@@ -237,8 +237,24 @@ exports.updateProfile = async (req, res) => {
       console.log('Updating job preferences:', updateData.jobPreferences);
     }
     
-    // Handle employment array updates with auto-calculated experience
+    // Handle employment array updates with auto-calculated experience and field normalization
     if (updateData.employment && Array.isArray(updateData.employment)) {
+      updateData.employment = updateData.employment.map(emp => ({
+        ...emp,
+        organization: emp.organizationName || emp.organization || "",
+        organizationName: emp.organizationName || emp.organization || "",
+        designation: emp.designation || "",
+        isCurrentCompany: !!emp.isCurrentCompany,
+        yearsOfExperience: parseInt(emp.yearsOfExperience) || 0,
+        monthsOfExperience: parseInt(emp.monthsOfExperience) || 0,
+        presentCTC: emp.presentCTC ? String(emp.presentCTC).trim() : "",
+        expectedCTC: emp.expectedCTC ? String(emp.expectedCTC).trim() : "",
+        noticePeriod: emp.noticePeriod || "",
+        customNoticePeriod: emp.customNoticePeriod || "",
+        description: emp.description || "",
+        projectDetails: emp.projectDetails || ""
+      }));
+
       const { calculateTotalExperienceFromEmployment } = require('../utils/experienceCalculator');
       const calculatedExperience = calculateTotalExperienceFromEmployment(updateData.employment);
       updateData.totalExperience = calculatedExperience;

@@ -48,22 +48,23 @@ const candidateProfileSchema = new mongoose.Schema({
     current: { type: Boolean, default: false }
   }],
   employment: [{
-    designation: String,
-    organization: String,
-    organizationName: String, // Added for consistency with new requirements
-    location: String,
-    hasWorkExperience: String,
+    designation: { type: String },
+    organization: { type: String },
+    organizationName: { type: String },
+    location: { type: String },
+    hasWorkExperience: { type: String },
     isCurrentCompany: { type: Boolean, default: false },
-    yearsOfExperience: { type: Number, min: 0, max: 50 },
-    monthsOfExperience: { type: Number, min: 0, max: 11 },
-    description: String,
-    projectDetails: String,
-    presentCTC: String,
-    expectedCTC: String,
-    noticePeriod: String,
-    customNoticePeriod: String,
-    totalExperienceManual: String
+    yearsOfExperience: { type: Number, default: 0 },
+    monthsOfExperience: { type: Number, default: 0 },
+    description: { type: String },
+    projectDetails: { type: String },
+    presentCTC: { type: String },
+    expectedCTC: { type: String },
+    noticePeriod: { type: String },
+    customNoticePeriod: { type: String },
+    totalExperienceManual: { type: String }
   }],
+  totalExperience: { type: String },
   skills: [String],
   expectedSalary: { type: Number },
   jobPreferences: {

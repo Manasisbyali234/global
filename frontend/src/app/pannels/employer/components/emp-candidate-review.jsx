@@ -919,87 +919,81 @@ function EmpCandidateReviewPage() {
 
                 {activeTab === 'employment' && (
                     <div className="tab-panel employment-info">
-                        <div className="section-header">
+                        <div className="section-header d-flex justify-content-between align-items-center">
                             <h4><i className="fas fa-briefcase"></i> Employment History</h4>
+                            {candidate.totalExperience && (
+                                <div className="total-exp-badge">
+                                    <span className="text-muted">Total Experience:</span>
+                                    <span className="badge badge-info ml-2">{candidate.totalExperience}</span>
+                                </div>
+                            )}
                         </div>
                         
-                        <div className="employment-history-container">
+                        <div className="employment-history-container mt-4">
                             {(!candidate.employment || candidate.employment.length === 0) ? (
                                 <p className="no-data-text">No employment history provided.</p>
                             ) : (
-                                <div className="employment-cards-list mt-4">
-                                    {[...candidate.employment].sort((a, b) => {
-                                        if (a.isCurrentCompany) return -1;
-                                        if (b.isCurrentCompany) return 1;
-                                        return new Date(b.startDate || '1900-01-01') - new Date(a.startDate || '1900-01-01');
-                                    }).map((emp, index) => (
-                                        <div className="employment-card-item mb-4" key={index}>
-                                            <div className="employment-card-header d-flex justify-content-between align-items-center">
-                                                <div className="company-info-group">
-                                                    <h5 className="mb-1 text-primary">{emp.organizationName || emp.organization || 'Unknown Company'}</h5>
-                                                    <div className="designation-text text-muted font-weight-bold">{emp.designation}</div>
-                                                </div>
-                                                {emp.isCurrentCompany && <span className="badge badge-success px-3 py-2">Current Employer</span>}
-                                            </div>
-                                            
-                                            <div className="employment-card-details mt-3">
-                                                <div className="row">
-                                                    <div className="col-md-4 mb-2">
-                                                        <div className="detail-item">
-                                                            <label className="text-muted small mb-0 d-block">Experience Duration</label>
-                                                            <span className="font-weight-500">
-                                                                {emp.yearsOfExperience !== undefined ? 
-                                                                    `${emp.yearsOfExperience} years ${emp.monthsOfExperience || 0} months` : 
-                                                                    calculateExperience(emp.startDate, emp.endDate, emp.isCurrentCompany || emp.isCurrent)}
-                                                            </span>
+                                <div className="table-responsive">
+                                    <table className="table table-bordered custom-employment-table">
+                                        <thead className="table-light">
+                                            <tr>
+                                                <th>Organization ^& Designation</th>
+                                                <th>Experience</th>
+                                                <th>Compensation (Annual)</th>
+                                                <th>Notice Period</th>
+                                                <th className="text-center">Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {[...candidate.employment].sort((a, b) => {
+                                                if (a.isCurrentCompany) return -1;
+                                                if (b.isCurrentCompany) return 1;
+                                                return new Date(b.startDate || '1900-01-01') - new Date(a.startDate || '1900-01-01');
+                                            }).map((emp, index) => (
+                                                <tr key={index} className={emp.isCurrentCompany ? 'table-success-light' : ''}>
+                                                    <td>
+                                                        <div className="font-weight-bold text-primary">
+                                                            {emp.organizationName || emp.organization || 'N/A'}
                                                         </div>
-                                                    </div>
-                                                    {emp.isCurrentCompany && (
-                                                        <>
-                                                            <div className="col-md-4 mb-2">
-                                                                <div className="detail-item">
-                                                                    <label className="text-muted small mb-0 d-block">Present CTC (Annual)</label>
-                                                                    <span className="font-weight-500">{emp.presentCTC ? `₹ ${emp.presentCTC} LPA` : 'Not provided'}</span>
-                                                                </div>
+                                                        <div className="small text-muted">{emp.designation || 'N/A'}</div>
+                                                        {emp.isCurrentCompany && <span className="badge badge-success mt-1">Current</span>}
+                                                    </td>
+                                                    <td>
+                                                        {emp.yearsOfExperience !== undefined ? 
+                                                            `${emp.yearsOfExperience}y ${emp.monthsOfExperience || 0}m` : 
+                                                            calculateExperience(emp.startDate, emp.endDate, emp.isCurrentCompany)}
+                                                    </td>
+                                                    <td>
+                                                        {emp.isCurrentCompany ? (
+                                                            <div className="small">
+                                                                <div><span className="text-muted">Pres:</span> {emp.presentCTC ? `₹${emp.presentCTC} LPA` : '—'}</div>
+                                                                <div><span className="text-muted">Exp:</span> {emp.expectedCTC ? `₹${emp.expectedCTC} LPA` : '—'}</div>
                                                             </div>
-                                                            <div className="col-md-4 mb-2">
-                                                                <div className="detail-item">
-                                                                    <label className="text-muted small mb-0 d-block">Expected CTC (Annual)</label>
-                                                                    <span className="font-weight-500">{emp.expectedCTC ? `₹ ${emp.expectedCTC} LPA` : 'Not provided'}</span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="col-md-4 mb-2">
-                                                                <div className="detail-item">
-                                                                    <label className="text-muted small mb-0 d-block">Notice Period</label>
-                                                                    <span className="font-weight-500">
-                                                                        {emp.noticePeriod === 'Custom' ? emp.customNoticePeriod : (emp.noticePeriod || 'Not provided')}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                </div>
-
-                                                {emp.description && (
-                                                    <div className="mt-3 responsibilities-section">
-                                                        <label className="text-muted small mb-1 d-block">Key Responsibilities</label>
-                                                        <div className="responsibilities-text p-3 bg-light rounded" style={{ whiteSpace: 'pre-wrap' }}>
-                                                            {emp.description}
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {emp.projectDetails && (
-                                                    <div className="mt-3 projects-section">
-                                                        <label className="text-muted small mb-1 d-block">Project Details</label>
-                                                        <div className="projects-text p-3 bg-light rounded" style={{ whiteSpace: 'pre-wrap' }}>
-                                                            {emp.projectDetails}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
+                                                        ) : '—'}
+                                                    </td>
+                                                    <td>
+                                                        {emp.isCurrentCompany ? (
+                                                            emp.noticePeriod === 'Custom' ? emp.customNoticePeriod : (emp.noticePeriod || '—')
+                                                        ) : '—'}
+                                                    </td>
+                                                    <td className="text-center">
+                                                        {(emp.description || emp.projectDetails) ? (
+                                                            <button
+                                                                className="btn btn-sm btn-outline-info"
+                                                                title="View Details"
+                                                                onClick={() => {
+                                                                    const details = `KEY RESPONSIBILITIES:\n${emp.description || 'N/A'}\n\nPROJECT DETAILS:\n${emp.projectDetails || 'N/A'}`;
+                                                                    setDescriptionModal({ isOpen: true, description: details });
+                                                                }}
+                                                            >
+                                                                <i className="fas fa-eye"></i>
+                                                            </button>
+                                                        ) : '—'}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             )}
 

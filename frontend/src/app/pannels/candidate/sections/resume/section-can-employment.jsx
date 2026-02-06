@@ -55,7 +55,7 @@ const EmploymentCard = ({
                 <div className="row">
                     {/* Basic Company Information */}
                     <div className="col-md-6 mb-3">
-                        <label className="form-label">Company Name *</label>
+                        <label className="form-label">Company Name <span style={{color: 'red'}}>*</span></label>
                         <input 
                             type="text" 
                             className="form-control"
@@ -65,7 +65,7 @@ const EmploymentCard = ({
                         />
                     </div>
                     <div className="col-md-6 mb-3">
-                        <label className="form-label">Designation *</label>
+                        <label className="form-label">Designation <span style={{color: 'red'}}>*</span></label>
                         <input 
                             type="text" 
                             className="form-control"
@@ -92,7 +92,7 @@ const EmploymentCard = ({
 
                     {/* Experience Duration */}
                     <div className="col-md-6 mb-3">
-                        <label className="form-label">Years of Experience (0-50)</label>
+                        <label className="form-label">Years of Experience</label>
                         <input 
                             type="number" 
                             className="form-control"
@@ -103,7 +103,7 @@ const EmploymentCard = ({
                         />
                     </div>
                     <div className="col-md-6 mb-3">
-                        <label className="form-label">Months of Experience (0-11)</label>
+                        <label className="form-label">Months of Experience</label>
                         <input 
                             type="number" 
                             className="form-control"
@@ -142,7 +142,7 @@ const EmploymentCard = ({
                                 <div className="col-12 mb-3">
                                     <label className="form-label">Notice Period</label>
                                     <select 
-                                        className="form-select"
+                                        className="form-control wt-select-bar-2"
                                         value={emp.noticePeriod || ""}
                                         onChange={(e) => handleInputChange('noticePeriod', e.target.value)}
                                     >
@@ -170,7 +170,7 @@ const EmploymentCard = ({
 
                     {/* Key Responsibilities and Project Details - Now at the bottom */}
                     <div className="col-12 mb-3 mt-3">
-                        <label className="form-label">Key Responsibilities</label>
+                        <label className="form-label">Job Responsibilities</label>
                         <textarea 
                             className="form-control"
                             rows="3"

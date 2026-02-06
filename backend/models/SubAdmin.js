@@ -12,7 +12,7 @@ const subAdminSchema = new mongoose.Schema({
   password: { type: String, required: true },
   permissions: [{ 
     type: String, 
-    enum: ['employers', 'placement_officers', 'registered_candidates'],
+    enum: ['employers', 'placement_officers', 'registered_candidates', 'support_tickets', 'transactions'],
     required: true 
   }],
   role: { type: String, default: 'sub-admin' },

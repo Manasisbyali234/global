@@ -111,24 +111,25 @@ function CreateAssessmentPage() {
                                             Security & Privacy Assurance
                                         </h5>
                                         <div style={{ fontSize: '14px', color: '#475569' }}>
-                                            <p style={{ fontWeight: '500', marginBottom: '12px', color: '#1e293b' }}>
+                                            <p style={{ fontWeight: '500', marginBottom: '12px', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <i className="fa fa-lock" style={{ color: '#2563eb' }} />
                                                 End-to-end encryption keeps your assessments secure between you and the candidates you choose.
                                             </p>
                                             <div style={{ display: 'grid', gap: '8px' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    <i className="fa fa-lock" style={{ width: '16px', color: '#059669' }} />
+                                                    <i className="fa fa-eye-slash" style={{ width: '16px', color: '#059669' }} />
                                                     <span>Not even Tale-Global can read or copy the content</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    <i className="fa fa-users" style={{ width: '16px', color: '#059669' }} />
+                                                    <i className="fa fa-user-secret" style={{ width: '16px', color: '#059669' }} />
                                                     <span>No one outside can read, copy, or share them</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    <i className="fa fa-check-circle" style={{ width: '16px', color: '#059669' }} />
+                                                    <i className="fa fa-check-square-o" style={{ width: '16px', color: '#059669' }} />
                                                     <span>Questions and answers are protected</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    <i className="fa fa-file-code-o" style={{ width: '16px', color: '#059669' }} />
+                                                    <i className="fa fa-file-text-o" style={{ width: '16px', color: '#059669' }} />
                                                     <span>Assessment content is encrypted</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -136,7 +137,7 @@ function CreateAssessmentPage() {
                                                     <span>Candidate responses are secure</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    <i className="fa fa-eye-slash" style={{ width: '16px', color: '#059669' }} />
+                                                    <i className="fa fa-lock" style={{ width: '16px', color: '#059669' }} />
                                                     <span>Results and evaluations are private</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -150,17 +151,25 @@ function CreateAssessmentPage() {
                                             paddingTop: '12px', 
                                             borderTop: '1px solid #e2e8f0',
                                             display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '10px'
+                                            flexDirection: 'column',
+                                            gap: '8px'
                                         }}>
-                                            <input 
-                                                type="checkbox" 
-                                                id="terms-check" 
-                                                style={{ cursor: 'pointer', width: '16px', height: '16px' }} 
-                                            />
-                                            <label htmlFor="terms-check" style={{ margin: 0, cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>
-                                                Agree to terms and conditions or not
-                                            </label>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <i className="fa fa-file-text" style={{ color: '#64748b' }} />
+                                                <label htmlFor="terms-check" style={{ margin: 0, cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>
+                                                    Agree to terms and conditions or not
+                                                </label>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginLeft: '25px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                                                    <i className="fa fa-check-circle" style={{ color: '#059669' }} />
+                                                    <span style={{ fontSize: '13px' }}>Yes</span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                                                    <i className="fa fa-times-circle" style={{ color: '#dc2626' }} />
+                                                    <span style={{ fontSize: '13px' }}>No</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 );

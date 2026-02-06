@@ -212,19 +212,23 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                             </li>
                         )}
 
-                        <li className={setMenuActive(currentpath, adminRoute(admin.SUPPORT_TICKETS))}>
-                            <NavLink to={adminRoute(admin.SUPPORT_TICKETS)}>
-                                <i className="fa fa-headset" />
-                                <span className="admin-nav-text">Support Tickets</span>
-                            </NavLink>
-                        </li>
+                        {hasPermission('support_tickets') && (
+                            <li className={setMenuActive(currentpath, adminRoute(admin.SUPPORT_TICKETS))}>
+                                <NavLink to={adminRoute(admin.SUPPORT_TICKETS)}>
+                                    <i className="fa fa-headset" />
+                                    <span className="admin-nav-text">Support Tickets</span>
+                                </NavLink>
+                            </li>
+                        )}
 
-                        <li className={setMenuActive(currentpath, adminRoute(admin.TRANSACTIONS))}>
-                            <NavLink to={adminRoute(admin.TRANSACTIONS)}>
-                                <i className="fa fa-receipt" />
-                                <span className="admin-nav-text">Transactions</span>
-                            </NavLink>
-                        </li>
+                        {hasPermission('transactions') && (
+                            <li className={setMenuActive(currentpath, adminRoute(admin.TRANSACTIONS))}>
+                                <NavLink to={adminRoute(admin.TRANSACTIONS)}>
+                                    <i className="fa fa-receipt" />
+                                    <span className="admin-nav-text">Transactions</span>
+                                </NavLink>
+                            </li>
+                        )}
 
                         {!isSubAdmin && (
                             <li className={setMenuActive(currentpath, adminRoute(admin.SUB_ADMIN))}>
