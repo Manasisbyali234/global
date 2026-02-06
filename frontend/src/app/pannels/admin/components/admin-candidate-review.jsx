@@ -36,11 +36,38 @@ function AdminCandidateReviewPage() {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric'
-        });
+        if (!dateString) return 'Not provided';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Not provided';
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric'
+            });
+        } catch (error) {
+            return 'Not provided';
+        }
+    };
+
+    const calculateExperience = (startDateStr, endDateStr, isCurrent) => {
+        if (!startDateStr) return "";
+        const start = new Date(startDateStr);
+        const end = isCurrent ? new Date() : (endDateStr ? new Date(endDateStr) : new Date());
+        
+        let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+        if (months < 0) months = 0;
+        
+        const years = Math.floor(months / 12);
+        const remainingMonths = months % 12;
+        
+        let result = "";
+        if (years > 0) result += `${years} year${years > 1 ? 's' : ''}`;
+        if (remainingMonths > 0) {
+            if (result) result += " ";
+            result += `${remainingMonths} month${remainingMonths > 1 ? 's' : ''}`;
+        }
+        return result || "0 months";
     };
 
     const viewDocument = (fileData, title = 'Document') => {
@@ -489,84 +516,82 @@ function AdminCandidateReviewPage() {
                     <div className="tab-panel education-info">
                         {!candidate.education || candidate.education.length === 0 ? (
                             <div className="no-applications">
-                                <div className="no-data-content">
-                                    <i className="fas fa-graduation-cap"></i>
+                                <div className="no-data-content text-center py-5">
+                                    <i className="fas fa-graduation-cap fa-3x mb-3 text-muted"></i>
                                     <h5>No Education Information</h5>
                                     <p>This candidate hasn't provided their education details yet</p>
                                 </div>
                             </div>
                         ) : (
-                            <div className="education-list-professional">
-                                {[...candidate.education]
-                                    .sort((a, b) => getEducationPriority(a) - getEducationPriority(b))
-                                    .map((edu, index) => {
-                                        const educationLevel = getEducationLevelLabel(edu, index);
-                                    
-                                    return (
-                                        <div key={index} className="education-list-item">
-                                            <div className="edu-icon-box">
-                                                <i className="fas fa-graduation-cap"></i>
-                                            </div>
-                                            <div className="edu-main-content">
-                                                <div className="edu-top-bar">
-                                                    <h4>{educationLevel}</h4>
-                                                    <span className="edu-year-tag">{edu.passYear || 'N/A'}</span>
-                                                </div>
-                                                <div className="edu-grid-details">
-                                                    <div className="edu-info-group">
-                                                        <label>Institution</label>
-                                                        <span>{edu.degreeName || 'Not provided'}</span>
-                                                    </div>
-                                                    <div className="edu-info-group">
-                                                        <label>Course / Specialization</label>
-                                                        <span>{edu.courseName || edu.specialization || 'Not provided'}</span>
-                                                    </div>
-                                                    {edu.collegeName && (
-                                                        <div className="edu-info-group">
-                                                            <label>Board/University</label>
-                                                            <span>{edu.collegeName}</span>
-                                                        </div>
-                                                    )}
-                                                    <div className="edu-info-group">
-                                                        <label>Score/Percentage</label>
-                                                        <span className="edu-score-value">
-                                                            {edu.scoreValue || edu.percentage || 'Not provided'}
-                                                            {edu.scoreType === 'percentage' || (!edu.scoreType && edu.percentage) ? '%' : ''}
-                                                            {edu.scoreType && edu.scoreType !== 'percentage' ? ` ${edu.scoreType.toUpperCase()}` : ''}
-                                                            {edu.cgpa && ` (CGPA: ${edu.cgpa})`}
-                                                            {edu.sgpa && ` (SGPA: ${edu.sgpa})`}
-                                                        </span>
-                                                    </div>
-                                                    {edu.registrationNumber && (
-                                                        <div className="edu-info-group">
-                                                            <label>Reg. No</label>
-                                                            <span>{edu.registrationNumber}</span>
-                                                        </div>
-                                                    )}
-                                                    {edu.state && (
-                                                        <div className="edu-info-group">
-                                                            <label>State</label>
-                                                            <span>{edu.state}</span>
-                                                        </div>
-                                                    )}
-                                                    {edu.grade && (
-                                                        <div className="edu-info-group">
-                                                            <label>Grade</label>
-                                                            <span>{edu.grade}</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                {edu.marksheet && (
-                                                    <div className="edu-footer-actions">
-                                                        <button className="view-marksheet-btn" onClick={() => viewDocument(edu.marksheet, `${educationLevel} Marksheet`)}>
-                                                            <i className="fas fa-eye"></i> View Marksheet
+                            <div className="table-responsive education-table-wrapper" style={{border: '1px solid #dee2e6', borderRadius: '8px'}}>
+                                <table className="table table-bordered table-sm mb-0" style={{fontSize: '14px', width: '100%'}}>
+                                    <thead className="table-light">
+                                        <tr>
+                                            <th style={{minWidth: '120px', whiteSpace: 'nowrap'}}>Qualification</th>
+                                            <th style={{minWidth: '150px'}}>Institution</th>
+                                            <th style={{minWidth: '150px'}}>Degree / Board / Specialization</th>
+                                            <th style={{minWidth: '80px', whiteSpace: 'nowrap'}}>Enrollment No.</th>
+                                            <th style={{minWidth: '80px'}}>State</th>
+                                            <th style={{minWidth: '80px', whiteSpace: 'nowrap'}}>Year</th>
+                                            <th style={{minWidth: '80px', whiteSpace: 'nowrap'}}>Score</th>
+                                            <th style={{minWidth: '70px'}}>Result</th>
+                                            <th style={{minWidth: '100px', whiteSpace: 'nowrap'}}>Document</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {[...candidate.education]
+                                            .sort((a, b) => getEducationPriority(a) - getEducationPriority(b))
+                                            .map((edu, index) => (
+                                            <tr key={index}>
+                                                <td style={{fontWeight: '600', fontSize: '13px'}}>
+                                                    {getEducationLevelLabel(edu, index)}
+                                                </td>
+                                                <td style={{fontSize: '13px'}}>
+                                                    {edu.collegeName || '-'}
+                                                </td>
+                                                <td style={{fontSize: '13px'}}>
+                                                    <div>{edu.degreeName || '-'}</div>
+                                                    {(edu.courseName || edu.specialization) && 
+                                                        <div className="small text-muted">{edu.courseName || edu.specialization}</div>
+                                                    }
+                                                </td>
+                                                <td style={{fontSize: '13px'}}>
+                                                    {edu.registrationNumber || '-'}
+                                                </td>
+                                                <td style={{fontSize: '13px'}}>
+                                                    {edu.state || '-'}
+                                                </td>
+                                                <td style={{fontSize: '13px', textAlign: 'center'}}>
+                                                    {edu.passYear || '-'}
+                                                </td>
+                                                <td style={{fontSize: '13px', textAlign: 'center'}}>
+                                                    {edu.percentage && <div>{edu.percentage}%</div>}
+                                                    {edu.cgpa && <div className="small text-muted">CGPA: {edu.cgpa}</div>}
+                                                    {!edu.percentage && !edu.cgpa && (edu.scoreValue ? <div>{edu.scoreValue}{edu.scoreType === 'percentage' ? '%' : ''}</div> : '-')}
+                                                </td>
+                                                <td style={{textAlign: 'center'}}>
+                                                    <span className={`badge ${edu.grade === 'Passed' || edu.result === 'Passed' ? 'bg-success' : 'bg-danger'}`} style={{fontSize: '11px'}}>
+                                                        {edu.grade || edu.result || '-'}
+                                                    </span>
+                                                </td>
+                                                <td style={{fontSize: '12px', textAlign: 'center'}}>
+                                                    {edu.marksheet ? (
+                                                        <button 
+                                                            className="btn btn-sm btn-outline-primary" 
+                                                            onClick={() => viewDocument(edu.marksheet, `${getEducationLevelLabel(edu, index)} Marksheet`)}
+                                                            style={{padding: '2px 8px', fontSize: '11px'}}
+                                                        >
+                                                            <i className="fa fa-file-pdf-o me-1"></i>
+                                                            View
                                                         </button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                                    ) : (
+                                                        <span className="text-muted small">No Document</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </div>
@@ -762,73 +787,84 @@ function AdminCandidateReviewPage() {
                 {/* Employment Tab */}
                 {activeTab === 'employment' && (
                     <div className="tab-panel employment-info">
-                        <div className="section-header">
-                            <i className="fas fa-briefcase"></i>
-                            <h4>Employment History</h4>
+                        <div className="section-header d-flex justify-content-between align-items-center">
+                            <h4><i className="fas fa-briefcase"></i> Employment History</h4>
+                            {candidate.totalExperience && (
+                                <div className="total-exp-badge">
+                                    <span className="text-muted small">Total Experience:</span>
+                                    <span className="badge bg-info ms-2">{candidate.totalExperience}</span>
+                                </div>
+                            )}
                         </div>
                         
-                        {candidate.totalExperience && (
-                            <div className="total-experience-badge">
-                                <i className="fas fa-hourglass-half"></i>
-                                <p>
-                                    Total Experience: <span>{candidate.totalExperience}</span>
-                                </p>
-                            </div>
-                        )}
-                        
                         {candidate.employment && candidate.employment.length > 0 ? (
-                            <div className="employment-timeline">
-                                {candidate.employment.map((emp, index) => (
-                                    <div key={index} className="employment-item">
-                                        <div className="employment-icon">
-                                            <i className="fas fa-briefcase"></i>
-                                        </div>
-                                        <div className="employment-content">
-                                            <div className="employment-header">
-                                                <h4>{emp.designation || emp.jobTitle || 'Job Title'}</h4>
-                                                <span className="employment-duration">
-                                                    {emp.startDate ? formatDate(emp.startDate) : 'Start Date'} - 
-                                                    {emp.endDate ? formatDate(emp.endDate) : emp.isCurrent || emp.isCurrentJob ? 'Present' : 'End Date'}
-                                                </span>
-                                            </div>
-                                            <div className="employment-grid-details">
-                                                <div className="employment-info-group">
-                                                    <label>Company</label>
-                                                    <span>{emp.organization || emp.companyName || 'Not provided'}</span>
-                                                </div>
-                                                {emp.workType && (
-                                                    <div className="employment-info-group">
-                                                        <label>Work Type</label>
-                                                        <span>{emp.workType}</span>
+                            <div className="table-responsive mt-4">
+                                <table className="table table-bordered custom-employment-table">
+                                    <thead className="table-light">
+                                        <tr>
+                                            <th>Organization & Designation</th>
+                                            <th>Experience</th>
+                                            <th>Compensation (Annual)</th>
+                                            <th>Notice Period</th>
+                                            <th className="text-center">Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {[...candidate.employment].sort((a, b) => {
+                                            if (a.isCurrentCompany) return -1;
+                                            if (b.isCurrentCompany) return 1;
+                                            return new Date(b.startDate || '1900-01-01') - new Date(a.startDate || '1900-01-01');
+                                        }).map((emp, index) => (
+                                            <tr key={index} className={emp.isCurrentCompany ? 'table-success-light' : ''}>
+                                                <td>
+                                                    <div className="font-weight-bold text-primary">
+                                                        {emp.organizationName || emp.organization || 'N/A'}
                                                     </div>
-                                                )}
-                                                {emp.presentCTC && (
-                                                    <div className="employment-info-group">
-                                                        <label>Current CTC</label>
-                                                        <span>₹{emp.presentCTC} LPA</span>
+                                                    <div className="small text-muted">{emp.designation || 'N/A'}</div>
+                                                    {emp.isCurrentCompany && <span className="badge-current mt-1" style={{fontSize: '10px'}}>Current</span>}
+                                                </td>
+                                                <td style={{fontSize: '13px'}}>
+                                                    {emp.yearsOfExperience !== undefined ? 
+                                                        `${emp.yearsOfExperience}y ${emp.monthsOfExperience || 0}m` : 
+                                                        calculateExperience(emp.startDate, emp.endDate, emp.isCurrentCompany)}
+                                                </td>
+                                                <td>
+                                                    {emp.isCurrentCompany ? (
+                                                        <div className="small">
+                                                            <div><span className="text-muted">Pres:</span> {emp.presentCTC ? `₹${emp.presentCTC} LPA` : '—'}</div>
+                                                            <div><span className="text-muted">Exp:</span> {emp.expectedCTC ? `₹${emp.expectedCTC} LPA` : '—'}</div>
+                                                        </div>
+                                                    ) : '—'}
+                                                </td>
+                                                <td style={{fontSize: '13px'}}>
+                                                    {emp.isCurrentCompany ? (
+                                                        emp.noticePeriod === 'Custom' ? emp.customNoticePeriod : (emp.noticePeriod || '—')
+                                                    ) : '—'}
+                                                </td>
+                                                <td className="text-center">
+                                                    <div className="job-details-summary text-start">
+                                                        {emp.description && (
+                                                            <div className="mb-1">
+                                                                <strong>Role:</strong> <span className="text-muted small text-truncate-2">{emp.description}</span>
+                                                            </div>
+                                                        )}
+                                                        {emp.projectDetails && (
+                                                            <div>
+                                                                <strong>Projects:</strong> <span className="text-muted small text-truncate-2">{emp.projectDetails}</span>
+                                                            </div>
+                                                        )}
+                                                        {!emp.description && !emp.projectDetails && "—"}
                                                     </div>
-                                                )}
-                                                {emp.expectedCTC && (
-                                                    <div className="employment-info-group">
-                                                        <label>Expected CTC</label>
-                                                        <span>₹{emp.expectedCTC} LPA</span>
-                                                    </div>
-                                                )}
-                                                {emp.description && (
-                                                    <div className="employment-info-group full-width">
-                                                        <label>Description</label>
-                                                        <span>{emp.description}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         ) : (
                             <div className="no-applications">
-                                <div className="no-data-content">
-                                    <i className="fas fa-briefcase"></i>
+                                <div className="no-data-content text-center py-5">
+                                    <i className="fas fa-briefcase fa-3x mb-3 text-muted"></i>
                                     <h5>No Employment History</h5>
                                     <p>This candidate hasn't provided their employment history yet.</p>
                                 </div>

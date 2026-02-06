@@ -837,81 +837,80 @@ function EmpCandidateReviewPage() {
                 {activeTab === 'education' && (
                     <div className="tab-panel education-info">
                         {!candidate.education || candidate.education.length === 0 ? (
-                            <div className="no-data-content">
-                                <i className="fas fa-graduation-cap"></i>
+                            <div className="no-data-content text-center py-5">
+                                <i className="fas fa-graduation-cap fa-3x mb-3 text-muted"></i>
                                 <h5>No Education Information</h5>
                             </div>
                         ) : (
-                            <div className="education-list-professional">
-                                {[...candidate.education]
-                                    .sort((a, b) => getEducationPriority(a) - getEducationPriority(b))
-                                    .map((edu, index) => {
-                                        const educationLevel = getEducationLevelLabel(edu, index);
-                                    return (
-                                        <div key={index} className="education-list-item">
-                                            <div className="edu-icon-box">
-                                                <i className="fas fa-graduation-cap"></i>
-                                            </div>
-                                            <div className="edu-main-content">
-                                                <div className="edu-top-bar">
-                                                    <h4>{educationLevel}</h4>
-                                                    <span className="edu-year-tag">{edu.passYear || 'N/A'}</span>
-                                                </div>
-                                                <div className="edu-grid-details">
-                                                    <div className="edu-info-group">
-                                                        <label>Institution</label>
-                                                        <span>{edu.degreeName || 'Not provided'}</span>
-                                                    </div>
-                                                    <div className="edu-info-group">
-                                                        <label>Course / Specialization</label>
-                                                        <span>{edu.courseName || edu.specialization || 'Not provided'}</span>
-                                                    </div>
-                                                    {edu.collegeName && (
-                                                        <div className="edu-info-group">
-                                                            <label>Board/University</label>
-                                                            <span>{edu.collegeName}</span>
-                                                        </div>
-                                                    )}
-                                                    <div className="edu-info-group">
-                                                        <label>Score/Percentage</label>
-                                                        <span className="edu-score-value">
-                                                            {edu.scoreValue || edu.percentage || 'Not provided'}
-                                                            {edu.scoreType === 'percentage' || (!edu.scoreType && edu.percentage) ? '%' : ''}
-                                                            {edu.scoreType && edu.scoreType !== 'percentage' ? ` ${edu.scoreType.toUpperCase()}` : ''}
-                                                            {edu.cgpa && ` (CGPA: ${edu.cgpa})`}
-                                                            {edu.sgpa && ` (SGPA: ${edu.sgpa})`}
-                                                        </span>
-                                                    </div>
-                                                    {edu.registrationNumber && (
-                                                        <div className="edu-info-group">
-                                                            <label>Reg. No</label>
-                                                            <span>{edu.registrationNumber}</span>
-                                                        </div>
-                                                    )}
-                                                    {edu.state && (
-                                                        <div className="edu-info-group">
-                                                            <label>State</label>
-                                                            <span>{edu.state}</span>
-                                                        </div>
-                                                    )}
-                                                    {edu.grade && (
-                                                        <div className="edu-info-group">
-                                                            <label>Grade</label>
-                                                            <span>{edu.grade}</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                {edu.marksheet && (
-                                                    <div className="edu-footer-actions">
-                                                        <button className="view-marksheet-btn" onClick={() => viewDocument(edu.marksheet, `${educationLevel} Marksheet`)}>
-                                                            <i className="fas fa-eye"></i> View Marksheet
+                            <div className="table-responsive education-table-wrapper" style={{border: '1px solid #dee2e6', borderRadius: '8px'}}>
+                                <table className="table table-bordered table-sm mb-0" style={{fontSize: '14px', width: '100%'}}>
+                                    <thead className="table-light">
+                                        <tr>
+                                            <th style={{minWidth: '120px', whiteSpace: 'nowrap'}}>Qualification</th>
+                                            <th style={{minWidth: '150px'}}>Institution</th>
+                                            <th style={{minWidth: '150px'}}>Degree / Board / Specialization</th>
+                                            <th style={{minWidth: '80px', whiteSpace: 'nowrap'}}>Enrollment No.</th>
+                                            <th style={{minWidth: '80px'}}>State</th>
+                                            <th style={{minWidth: '80px', whiteSpace: 'nowrap'}}>Year</th>
+                                            <th style={{minWidth: '80px', whiteSpace: 'nowrap'}}>Score</th>
+                                            <th style={{minWidth: '70px'}}>Result</th>
+                                            <th style={{minWidth: '100px', whiteSpace: 'nowrap'}}>Document</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {[...candidate.education]
+                                            .sort((a, b) => getEducationPriority(a) - getEducationPriority(b))
+                                            .map((edu, index) => (
+                                            <tr key={index}>
+                                                <td style={{fontWeight: '600', fontSize: '13px'}}>
+                                                    {getEducationLevelLabel(edu, index)}
+                                                </td>
+                                                <td style={{fontSize: '13px'}}>
+                                                    {edu.collegeName || '-'}
+                                                </td>
+                                                <td style={{fontSize: '13px'}}>
+                                                    <div>{edu.degreeName || '-'}</div>
+                                                    {(edu.courseName || edu.specialization) && 
+                                                        <div className="small text-muted">{edu.courseName || edu.specialization}</div>
+                                                    }
+                                                </td>
+                                                <td style={{fontSize: '13px'}}>
+                                                    {edu.registrationNumber || '-'}
+                                                </td>
+                                                <td style={{fontSize: '13px'}}>
+                                                    {edu.state || '-'}
+                                                </td>
+                                                <td style={{fontSize: '13px', textAlign: 'center'}}>
+                                                    {edu.passYear || '-'}
+                                                </td>
+                                                <td style={{fontSize: '13px', textAlign: 'center'}}>
+                                                    {edu.percentage && <div>{edu.percentage}%</div>}
+                                                    {edu.cgpa && <div className="small text-muted">CGPA: {edu.cgpa}</div>}
+                                                    {!edu.percentage && !edu.cgpa && (edu.scoreValue ? <div>{edu.scoreValue}{edu.scoreType === 'percentage' ? '%' : ''}</div> : '-')}
+                                                </td>
+                                                <td style={{textAlign: 'center'}}>
+                                                    <span className={`badge ${edu.grade === 'Passed' || edu.result === 'Passed' ? 'bg-success' : 'bg-danger'}`} style={{fontSize: '11px'}}>
+                                                        {edu.grade || edu.result || '-'}
+                                                    </span>
+                                                </td>
+                                                <td style={{fontSize: '12px', textAlign: 'center'}}>
+                                                    {edu.marksheet ? (
+                                                        <button 
+                                                            className="btn btn-sm btn-outline-primary" 
+                                                            onClick={() => viewDocument(edu.marksheet, `${getEducationLevelLabel(edu, index)} Marksheet`)}
+                                                            style={{padding: '2px 8px', fontSize: '11px'}}
+                                                        >
+                                                            <i className="fa fa-file-pdf-o me-1"></i>
+                                                            View
                                                         </button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                                    ) : (
+                                                        <span className="text-muted small">No Document</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </div>
@@ -937,7 +936,7 @@ function EmpCandidateReviewPage() {
                                     <table className="table table-bordered custom-employment-table">
                                         <thead className="table-light">
                                             <tr>
-                                                <th>Organization ^& Designation</th>
+                                                <th>Organization & Designation</th>
                                                 <th>Experience</th>
                                                 <th>Compensation (Annual)</th>
                                                 <th>Notice Period</th>
@@ -956,7 +955,7 @@ function EmpCandidateReviewPage() {
                                                             {emp.organizationName || emp.organization || 'N/A'}
                                                         </div>
                                                         <div className="small text-muted">{emp.designation || 'N/A'}</div>
-                                                        {emp.isCurrentCompany && <span className="badge badge-success mt-1">Current</span>}
+                                                        {emp.isCurrentCompany && <span className="badge-current mt-1">Current</span>}
                                                     </td>
                                                     <td>
                                                         {emp.yearsOfExperience !== undefined ? 
@@ -977,18 +976,19 @@ function EmpCandidateReviewPage() {
                                                         ) : '—'}
                                                     </td>
                                                     <td className="text-center">
-                                                        {(emp.description || emp.projectDetails) ? (
-                                                            <button
-                                                                className="btn btn-sm btn-outline-info"
-                                                                title="View Details"
-                                                                onClick={() => {
-                                                                    const details = `KEY RESPONSIBILITIES:\n${emp.description || 'N/A'}\n\nPROJECT DETAILS:\n${emp.projectDetails || 'N/A'}`;
-                                                                    setDescriptionModal({ isOpen: true, description: details });
-                                                                }}
-                                                            >
-                                                                <i className="fas fa-eye"></i>
-                                                            </button>
-                                                        ) : '—'}
+                                                        <div className="job-details-summary text-left">
+                                                            {emp.description && (
+                                                                <div className="mb-1">
+                                                                    <strong>Role:</strong> <span className="text-muted small text-truncate-2">{emp.description}</span>
+                                                                </div>
+                                                            )}
+                                                            {emp.projectDetails && (
+                                                                <div>
+                                                                    <strong>Projects:</strong> <span className="text-muted small text-truncate-2">{emp.projectDetails}</span>
+                                                                </div>
+                                                            )}
+                                                            {!emp.description && !emp.projectDetails && "—"}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))}

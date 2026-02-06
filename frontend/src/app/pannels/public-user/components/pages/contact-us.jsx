@@ -144,7 +144,7 @@ function ContactUsPage() {
                                                 <div className="col-lg-12 col-md-12">
                                                     <div className="form-group mb-3">
                                                         <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
-                                                            <span style={{ position: 'absolute', left: '0', width: '55px', display: 'flex', justifyContent: 'center', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none', lineHeight: 'normal' }}>{formData.phoneCountryCode}</span>
+                                                            <span style={{ position: 'absolute', left: '12px', color: '#000', fontSize: '14px', zIndex: '10', pointerEvents: 'none' }}>{formData.phoneCountryCode}</span>
                                                             <input 
                                                                 name="phone" 
                                                                 type="tel" 
@@ -152,7 +152,7 @@ function ContactUsPage() {
                                                                 placeholder="Phone Number" 
                                                                 value={formData.phone}
                                                                 onChange={handleChange}
-                                                                style={{ paddingLeft: '55px', height: '50px' }}
+                                                                style={{ paddingLeft: '50px' }}
                                                             />
                                                             {errors.phone && <div className="invalid-feedback d-block">{errors.phone}</div>}
                                                         </div>

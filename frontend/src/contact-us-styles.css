@@ -132,6 +132,14 @@ html body .wt-bnr-inr {
     background-color: transparent !important;
 }
 
+.cons-contact-form input[name="phone"]::placeholder {
+    color: transparent !important;
+}
+
+.cons-contact-form input[name="phone"] {
+    padding-left: 50px !important;
+}
+
 .cons-contact-form .site-button {
     background-color: #FF6A00 !important;
     color: #ffffff !important;

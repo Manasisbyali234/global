@@ -248,7 +248,7 @@ function BatchUpload() {
     const getStatusText = (status) => {
         switch (status) {
             case 'processed':
-                return 'Processed';
+                return 'Approved';
             case 'approved':
                 return 'Approved';
             case 'rejected':

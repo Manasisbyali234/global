@@ -661,7 +661,7 @@ function CanStatusPage() {
 																			
 																			return (
 																				<div key={roundIndex} className="interview-round-item" style={{minWidth: '120px', padding: '4px', flexShrink: 0}}>
-																					<div className="round-name" style={{fontSize: '12px', fontWeight: '600', marginBottom: '4px'}}>{roundName}</div>
+																					<div className="round-name" style={{fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', color: '#232323'}}>{roundName}</div>
 																					<div style={{display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'center'}}>
 																						<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px', minWidth: 'fit-content', textAlign: 'center'}}>
 																							{roundStatus?.text || 'Pending'}

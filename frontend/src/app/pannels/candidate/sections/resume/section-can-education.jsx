@@ -8,17 +8,6 @@ function SectionCanEducation({ profile, onUpdate }) {
     const [editingEntry, setEditingEntry] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
-
-    // Additional state variables for the table-based education management
-    const [additionalRows, setAdditionalRows] = useState([]);
-    const [additionalEditMode, setAdditionalEditMode] = useState([]);
-    const [editMode, setEditMode] = useState({ tenth: false, diploma: false, degree: false });
-    const [educationData, setEducationData] = useState({
-        tenth: { schoolName: '', location: '', passoutYear: '', registrationNumber: '', state: '', specialization: '', percentage: '', cgpa: '', grade: '', marksheet: null, marksheetBase64: null },
-        diploma: { schoolName: '', location: '', passoutYear: '', registrationNumber: '', state: '', specialization: '', percentage: '', cgpa: '', grade: '', marksheet: null, marksheetBase64: null },
-        degree: { schoolName: '', location: '', passoutYear: '', registrationNumber: '', state: '', specialization: '', percentage: '', cgpa: '', grade: '', marksheet: null, marksheetBase64: null }
-    });
-    const [additionalErrors, setAdditionalErrors] = useState([]);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
     const indianStates = [
@@ -164,8 +153,8 @@ function SectionCanEducation({ profile, onUpdate }) {
                 return {
                     id: `edu_${index}_${Date.now()}`,
                     educationLevel: edu.educationLevel || 'degree',
-                    schoolCollegeName: edu.degreeName || '',
-                    boardUniversityName: edu.collegeName || '',
+                    schoolCollegeName: edu.collegeName || '',
+                    boardUniversityName: edu.degreeName || '',
                     registrationNumber: edu.registrationNumber || '',
                     state: edu.state || '',
                     result: edu.grade || (edu.percentage ? 'Passed' : ''),
@@ -182,81 +171,6 @@ function SectionCanEducation({ profile, onUpdate }) {
             });
             console.log('Loaded education entries from profile:', entries);
             setEducationEntries(entries);
-
-            // Initialize educationData for table-based management
-            const initialEducationData = {
-                tenth: { schoolName: '', location: '', passoutYear: '', registrationNumber: '', state: '', specialization: '', percentage: '', cgpa: '', grade: '', marksheet: null, marksheetBase64: null },
-                diploma: { schoolName: '', location: '', passoutYear: '', registrationNumber: '', state: '', specialization: '', percentage: '', cgpa: '', grade: '', marksheet: null, marksheetBase64: null },
-                degree: { schoolName: '', location: '', passoutYear: '', registrationNumber: '', state: '', specialization: '', percentage: '', cgpa: '', grade: '', marksheet: null, marksheetBase64: null }
-            };
-
-            // Map profile education data to the table structure
-            profile.education.forEach((edu, index) => {
-                if (index === 0) {
-                    initialEducationData.tenth = {
-                        schoolName: edu.degreeName || '',
-                        location: edu.collegeName || '',
-                        passoutYear: edu.passYear || '',
-                        registrationNumber: edu.registrationNumber || '',
-                        state: edu.state || '',
-                        specialization: edu.specialization || '',
-                        percentage: edu.percentage || '',
-                        cgpa: edu.cgpa || '',
-                        grade: edu.grade || '',
-                        marksheet: null,
-                        marksheetBase64: edu.marksheet || null
-                    };
-                } else if (index === 1) {
-                    initialEducationData.diploma = {
-                        schoolName: edu.degreeName || '',
-                        location: edu.collegeName || '',
-                        passoutYear: edu.passYear || '',
-                        registrationNumber: edu.registrationNumber || '',
-                        state: edu.state || '',
-                        specialization: edu.specialization || '',
-                        percentage: edu.percentage || '',
-                        cgpa: edu.cgpa || '',
-                        grade: edu.grade || '',
-                        marksheet: null,
-                        marksheetBase64: edu.marksheet || null
-                    };
-                } else if (index === 2) {
-                    initialEducationData.degree = {
-                        schoolName: edu.degreeName || '',
-                        location: edu.collegeName || '',
-                        passoutYear: edu.passYear || '',
-                        registrationNumber: edu.registrationNumber || '',
-                        state: edu.state || '',
-                        specialization: edu.specialization || '',
-                        percentage: edu.percentage || '',
-                        cgpa: edu.cgpa || '',
-                        grade: edu.grade || '',
-                        marksheet: null,
-                        marksheetBase64: edu.marksheet || null
-                    };
-                } else {
-                    // Additional rows beyond the main three
-                    const additionalRow = {
-                        id: Date.now() + index,
-                        educationType: 'Degree',
-                        schoolName: edu.degreeName || '',
-                        location: edu.collegeName || '',
-                        passoutYear: edu.passYear || '',
-                        registrationNumber: edu.registrationNumber || '',
-                        state: edu.state || '',
-                        specialization: edu.specialization || '',
-                        percentage: edu.percentage || '',
-                        cgpa: edu.cgpa || '',
-                        grade: edu.grade || '',
-                        marksheet: null,
-                        marksheetBase64: edu.marksheet || null
-                    };
-                    setAdditionalRows(prev => [...prev, additionalRow]);
-                    setAdditionalEditMode(prev => [...prev, false]);
-                }
-            });
-
-            setEducationData(initialEducationData);
         }
     }, [profile]);
 
@@ -274,64 +188,7 @@ function SectionCanEducation({ profile, onUpdate }) {
         return percentage >= 35 ? 'Passed' : 'Failed';
     };
 
-    const handleEducationChange = (level, field, value, index = null) => {
-        // Validate enrollment number for alphanumeric characters only
-        if (field === 'registrationNumber') {
-            const alphanumericRegex = /^[a-zA-Z0-9]*$/;
-            if (value && !alphanumericRegex.test(value)) {
-                if (index !== null) {
-                    const updatedAdditionalErrors = [...additionalErrors];
-                    if (!updatedAdditionalErrors[index]) {
-                        updatedAdditionalErrors[index] = {};
-                    }
-                    updatedAdditionalErrors[index][field] = 'Only alphabets and numbers are allowed';
-                    setAdditionalErrors(updatedAdditionalErrors);
-                } else {
-                    setErrors(prev => ({ ...prev, [`${level}_${field}`]: 'Only alphabets and numbers are allowed' }));
-                }
-                return;
-            }
-        }
 
-        if (index !== null) {
-            // Handle additional rows
-            const updatedRows = [...additionalRows];
-            updatedRows[index][field] = value;
-            
-            // Auto-calculate CGPA and result from percentage
-            if (field === 'percentage' && value) {
-                const percentageValue = parseFloat(value);
-                if (!isNaN(percentageValue) && percentageValue >= 0 && percentageValue <= 100) {
-                    const cgpa = convertPercentageToCGPA(percentageValue);
-                    const result = getResultFromPercentage(percentageValue);
-                    updatedRows[index].cgpa = cgpa.toString();
-                    updatedRows[index].grade = result;
-                }
-            }
-            
-            setAdditionalRows(updatedRows);
-        } else {
-            // Handle main education levels
-            const updatedData = { ...educationData };
-            updatedData[level][field] = value;
-            
-            // Auto-calculate CGPA and result from percentage
-            if (field === 'percentage' && value) {
-                const percentageValue = parseFloat(value);
-                if (!isNaN(percentageValue) && percentageValue >= 0 && percentageValue <= 100) {
-                    const cgpa = convertPercentageToCGPA(percentageValue);
-                    const result = getResultFromPercentage(percentageValue);
-                    updatedData[level].cgpa = cgpa.toString();
-                    updatedData[level].grade = result;
-                }
-            }
-            
-            setEducationData(updatedData);
-        }
-        
-        // Clear validation errors for this field
-        validateEducationField(level, field, value, index);
-    };
 
     const handleEducationLevelChange = (level) => {
         setSelectedEducationLevel(level);
@@ -643,8 +500,8 @@ function SectionCanEducation({ profile, onUpdate }) {
             // Convert to backend format
             const educationArray = sortedEntries.map(entry => ({
                 educationLevel: entry.educationLevel,
-                degreeName: entry.schoolCollegeName,
-                collegeName: entry.boardUniversityName,
+                degreeName: entry.boardUniversityName,
+                collegeName: entry.schoolCollegeName,
                 passYear: entry.yearOfPassing,
                 registrationNumber: entry.registrationNumber,
                 state: entry.state,
@@ -677,432 +534,7 @@ function SectionCanEducation({ profile, onUpdate }) {
         }
     };
 
-    const validateEducationField = (level, field, value, index = null) => {
-        const errors = {};
 
-        switch (field) {
-            case 'schoolName':
-                if (!value || !value.trim()) {
-                    errors[field] = 'School/College name is required';
-                } else if (value.trim().length < 2) {
-                    errors[field] = 'School/College name must be at least 2 characters';
-                }
-                break;
-            case 'location':
-                if (!value || !value.trim()) {
-                    errors[field] = 'Location is required';
-                } else if (value.trim().length < 2) {
-                    errors[field] = 'Location must be at least 2 characters';
-                }
-                break;
-            case 'registrationNumber':
-                if (value) {
-                    const alphanumericRegex = /^[a-zA-Z0-9]*$/;
-                    if (!alphanumericRegex.test(value)) {
-                        errors[field] = 'Only alphabets and numbers are allowed';
-                    }
-                }
-                break;
-            case 'passoutYear':
-                // No validation for passout year
-                break;
-            case 'percentage':
-                if (value) {
-                    const percentage = parseFloat(value);
-                    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
-                        errors[field] = 'Percentage must be between 0 and 100';
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-
-        // Set errors in appropriate state
-        if (index !== null) {
-            // Additional row error
-            const updatedAdditionalErrors = [...additionalErrors];
-            if (!updatedAdditionalErrors[index]) {
-                updatedAdditionalErrors[index] = {};
-            }
-            updatedAdditionalErrors[index][field] = errors[field] || null;
-            setAdditionalErrors(updatedAdditionalErrors);
-        } else {
-            // Main education level error
-            setErrors(prev => ({ ...prev, [`${level}_${field}`]: errors[field] || null }));
-        }
-
-        return !errors[field]; // Return true if valid, false if invalid
-    };
-
-    const addNewRow = () => {
-        const newRow = {
-            id: Date.now(),
-            educationType: 'Degree',
-            schoolName: '',
-            location: '',
-            passoutYear: '',
-            registrationNumber: '',
-            state: '',
-            specialization: '',
-            percentage: '',
-            cgpa: '',
-            grade: '',
-            marksheet: null,
-            marksheetBase64: null
-        };
-        setAdditionalRows([...additionalRows, newRow]);
-        setAdditionalEditMode([...additionalEditMode, true]);
-
-        // Scroll to the newly added row after a short delay to allow DOM update
-        setTimeout(() => {
-            const tableBody = document.querySelector('.table tbody');
-            if (tableBody) {
-                const lastRow = tableBody.lastElementChild;
-                if (lastRow) {
-                    lastRow.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }
-            }
-        }, 100);
-    };
-
-    const removeRow = (index) => {
-        const updatedRows = additionalRows.filter((_, i) => i !== index);
-        const updatedEditMode = additionalEditMode.filter((_, i) => i !== index);
-        setAdditionalRows(updatedRows);
-        setAdditionalEditMode(updatedEditMode);
-    };
-
-    const toggleEdit = async (level, index = null) => {
-        if (index !== null) {
-            const updatedEditMode = [...additionalEditMode];
-            if (updatedEditMode[index]) {
-                // Save individual row
-                const success = await handleIndividualSave(null, index);
-                if (success) {
-                    updatedEditMode[index] = false; // Switch to Edit mode after saving
-                }
-            } else {
-                updatedEditMode[index] = true; // Switch to Save mode for editing
-            }
-            setAdditionalEditMode(updatedEditMode);
-        } else {
-            if (editMode[level]) {
-                // Save individual row
-                const success = await handleIndividualSave(level);
-                if (success) {
-                    setEditMode(prev => ({ ...prev, [level]: false })); // Switch to Edit mode after saving
-                }
-            } else {
-                setEditMode(prev => ({ ...prev, [level]: true })); // Switch to Save mode for editing
-            }
-        }
-    };
-
-    const uploadMarksheet = async (file, level, index = null) => {
-        // File validation
-        if (!file) {
-            showWarning('Please select a file to upload.');
-            return;
-        }
-
-        // Check file type first
-        const allowedTypes = ['application/pdf'];
-        if (!allowedTypes.includes(file.type)) {
-            showError('Only PDF files are allowed.');
-            return;
-        }
-
-        // Check file size (50MB limit)
-        if (file.size > 50 * 1024 * 1024) {
-            showError('File size must be less than 50MB');
-            return;
-        }
-
-        try {
-            const formData = new FormData();
-            formData.append('marksheet', file);
-            
-            let educationIndex;
-            let educationDataToSend;
-            
-            if (index !== null) {
-                // Additional row
-                educationIndex = 3 + index; // After tenth, diploma, degree
-                educationDataToSend = additionalRows[index];
-            } else {
-                // Main education levels
-                if (level === 'tenth') educationIndex = 0;
-                else if (level === 'diploma') educationIndex = 1;
-                else if (level === 'degree') educationIndex = 2;
-                
-                educationDataToSend = {
-                    degreeName: educationData[level].schoolName,
-                    collegeName: educationData[level].location,
-                    passYear: educationData[level].passoutYear,
-                    percentage: educationData[level].percentage,
-                    cgpa: educationData[level].cgpa,
-                    grade: educationData[level].grade
-                };
-            }
-            
-            formData.append('educationIndex', educationIndex);
-            formData.append('educationData', JSON.stringify(educationDataToSend));
-            
-            const token = localStorage.getItem('candidateToken');
-            const response = await fetch('http://localhost:5000/api/candidate/education/marksheet', {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            });
-            
-            if (response.ok) {
-                const result = await response.json();
-                
-                // Update local state with the uploaded marksheet
-                if (index !== null) {
-                    const updatedRows = [...additionalRows];
-                    updatedRows[index].marksheetBase64 = result.marksheet;
-                    setAdditionalRows(updatedRows);
-                } else {
-                    const updatedData = { ...educationData };
-                    updatedData[level].marksheetBase64 = result.marksheet;
-                    setEducationData(updatedData);
-                }
-                
-                // Show success toast notification
-                showSuccess('Marksheet uploaded successfully!');
-            } else {
-                const errorData = await response.json().catch(() => ({}));
-                const errorMessage = errorData.message || `Upload failed with status: ${response.status}`;
-                showError(`Failed to upload marksheet: ${errorMessage}`);
-            }
-        } catch (error) {
-            console.error('Upload error:', error);
-            showError(`Error uploading marksheet: ${error.message || 'Network error. Please check your connection and try again.'}`);
-        }
-    };
-
-    const validateAllFields = () => {
-        let hasErrors = false;
-        const newErrors = {};
-        const newAdditionalErrors = [];
-
-        // Validate main education fields - all required for saving
-        ['tenth', 'diploma', 'degree'].forEach(level => {
-            // Check if any field has data for this level
-            const hasAnyData = educationData[level].schoolName || educationData[level].location || educationData[level].passoutYear || educationData[level].percentage;
-            
-            if (hasAnyData) {
-                // If any field has data, only school name and location are required
-                ['schoolName', 'location'].forEach(field => {
-                    const value = educationData[level][field];
-                    if (!value || !value.trim()) {
-                        const fieldNames = {schoolName: 'School/College name', location: 'Location'};
-                        const levelNames = {tenth: '10th School', diploma: 'Diploma/PUC', degree: 'Degree'};
-                        newErrors[`${level}_${field}`] = `${levelNames[level]} - ${fieldNames[field]} is required`;
-                        hasErrors = true;
-                    } else if (!validateEducationField(level, field, value)) {
-                        hasErrors = true;
-                    }
-                });
-            }
-
-
-
-            // Validate percentage if provided
-            if (educationData[level].percentage && !validateEducationField(level, 'percentage', educationData[level].percentage)) {
-                hasErrors = true;
-            }
-        });
-
-        // Validate additional rows - all required for saving if any field has data
-        additionalRows.forEach((row, index) => {
-            const rowErrors = {};
-            const hasAnyData = row.schoolName || row.location || row.passoutYear || row.percentage;
-            
-            if (hasAnyData) {
-                ['schoolName', 'location'].forEach(field => {
-                    if (!row[field] || !row[field].trim()) {
-                        const fieldNames = {schoolName: 'School/College name', location: 'Location'};
-                        rowErrors[field] = `Additional Education Row ${index + 1} - ${fieldNames[field]} is required`;
-                        hasErrors = true;
-                    } else if (!validateEducationField('additional', field, row[field], index)) {
-                        hasErrors = true;
-                    }
-                });
-                
-                const updatedAdditionalErrors = [...additionalErrors];
-                updatedAdditionalErrors[index] = rowErrors;
-                setAdditionalErrors(updatedAdditionalErrors);
-            }
-
-
-
-            if (row.percentage && !validateEducationField('additional', 'percentage', row.percentage, index)) {
-                hasErrors = true;
-            }
-
-            newAdditionalErrors.push(rowErrors);
-        });
-
-        // Set errors in state
-        setErrors(newErrors);
-        setAdditionalErrors(newAdditionalErrors);
-        
-        // Return validation result with errors
-        const allErrors = [];
-        Object.values(newErrors).forEach(error => {
-            if (error) allErrors.push(error);
-        });
-        newAdditionalErrors.forEach((rowErrors) => {
-            if (rowErrors) {
-                Object.values(rowErrors).forEach(error => {
-                    if (error) allErrors.push(error);
-                });
-            }
-        });
-        
-        return { isValid: !hasErrors, errors: allErrors };
-    };
-
-    const handleIndividualSave = async (level, index = null) => {
-        // Validate only the specific row
-        let hasErrors = false;
-        const newErrors = {};
-        const newAdditionalErrors = [...additionalErrors];
-
-        if (index !== null) {
-            // Validate additional row
-            const row = additionalRows[index];
-            const rowErrors = {};
-            const hasAnyData = row.schoolName || row.location || row.passoutYear || row.percentage;
-            
-            if (hasAnyData) {
-                ['schoolName', 'location'].forEach(field => {
-                    if (!row[field] || !row[field].trim()) {
-                        const fieldNames = {schoolName: 'School/College name', location: 'Location'};
-                        rowErrors[field] = `${fieldNames[field]} is required`;
-                        hasErrors = true;
-                    }
-                });
-            }
-            newAdditionalErrors[index] = rowErrors;
-            setAdditionalErrors(newAdditionalErrors);
-        } else {
-            // Validate main education level
-            const hasAnyData = educationData[level].schoolName || educationData[level].location || educationData[level].passoutYear || educationData[level].percentage;
-            
-            if (hasAnyData) {
-                ['schoolName', 'location', 'passoutYear'].forEach(field => {
-                    const value = educationData[level][field];
-                    if (!value || !value.trim()) {
-                        const fieldNames = {schoolName: 'School/College name', location: 'Location', passoutYear: 'Passout year'};
-                        newErrors[`${level}_${field}`] = `${fieldNames[field]} is required`;
-                        hasErrors = true;
-                    }
-                });
-            }
-            setErrors(newErrors);
-        }
-
-        if (hasErrors) {
-            const errorMessages = Object.values(newErrors).concat(newAdditionalErrors.flatMap(e => Object.values(e || {}))).filter(e => e).join(', ');
-            showError(errorMessages || 'Please correct the highlighted fields');
-            return false;
-        }
-
-        return true; // Individual validation passed
-    };
-
-    const handleSave = async () => {
-        // Validate all fields before saving
-        const validationResult = validateAllFields();
-        if (!validationResult.isValid) {
-            const errorMessages = validationResult.errors.join(', ');
-            showError(errorMessages || 'Please correct the highlighted fields');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            const token = localStorage.getItem('candidateToken');
-
-            const educationArray = [
-                {
-                    degreeName: educationData.tenth.schoolName?.trim(),
-                    collegeName: educationData.tenth.location?.trim(),
-                    passYear: educationData.tenth.passoutYear,
-                    registrationNumber: educationData.tenth.registrationNumber,
-                    state: educationData.tenth.state,
-                    specialization: educationData.tenth.specialization,
-                    percentage: educationData.tenth.percentage,
-                    cgpa: educationData.tenth.cgpa,
-                    grade: educationData.tenth.grade,
-                    marksheet: educationData.tenth.marksheetBase64
-                },
-                {
-                    degreeName: educationData.diploma.schoolName?.trim(),
-                    collegeName: educationData.diploma.location?.trim(),
-                    passYear: educationData.diploma.passoutYear,
-                    registrationNumber: educationData.diploma.registrationNumber,
-                    state: educationData.diploma.state,
-                    specialization: educationData.diploma.specialization,
-                    percentage: educationData.diploma.percentage,
-                    cgpa: educationData.diploma.cgpa,
-                    grade: educationData.diploma.grade,
-                    marksheet: educationData.diploma.marksheetBase64
-                },
-                {
-                    degreeName: educationData.degree.schoolName?.trim(),
-                    collegeName: educationData.degree.location?.trim(),
-                    passYear: educationData.degree.passoutYear,
-                    registrationNumber: educationData.degree.registrationNumber,
-                    state: educationData.degree.state,
-                    specialization: educationData.degree.specialization,
-                    percentage: educationData.degree.percentage,
-                    cgpa: educationData.degree.cgpa,
-                    grade: educationData.degree.grade,
-                    marksheet: educationData.degree.marksheetBase64
-                },
-                ...additionalRows.map(row => ({
-                    degreeName: row.schoolName?.trim(),
-                    collegeName: row.location?.trim(),
-                    passYear: row.passoutYear,
-                    registrationNumber: row.registrationNumber,
-                    state: row.state,
-                    specialization: row.specialization,
-                    percentage: row.percentage,
-                    cgpa: row.cgpa,
-                    grade: row.grade,
-                    marksheet: row.marksheetBase64
-                }))
-            ];
-
-            const response = await api.updateCandidateProfile({ education: educationArray });
-
-            if (response.success) {
-                // Set all rows to non-edit mode after successful save
-                setEditMode({ tenth: false, diploma: false, degree: false });
-                setAdditionalEditMode(additionalRows.map(() => false));
-                
-                window.dispatchEvent(new CustomEvent('profileUpdated'));
-                showSuccess('All education details saved successfully!');
-            } else {
-                const errorMessage = response.message || response.error || 'Failed to save education details. Please try again.';
-                showError(errorMessage);
-            }
-        } catch (error) {
-            showError('Failed to save education details. Please check your connection and try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const getEducationLevelLabel = (level) => {
         const levelMap = {
@@ -1332,7 +764,7 @@ function SectionCanEducation({ profile, onUpdate }) {
 
                                     {/* Course Name/Stream for 10th pass/SSLC */}
                                     {(selectedEducationLevel === '10th_pass' || selectedEducationLevel === 'sslc') && (
-                                        <div className="col-md-6">
+                                        <div className="col-md-6 course-name-wider">
                                             <label className="form-label required-field">Course Name / Stream</label>
                                             <select
                                                 className={`form-select ${errors.courseName ? 'is-invalid' : ''}`}
@@ -1484,8 +916,8 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     <thead className="table-light">
                                         <tr>
                                             <th style={{minWidth: '120px', whiteSpace: 'nowrap'}}>Qualification</th>
-                                            <th style={{minWidth: '150px'}}>Degree/Course/Board</th>
-                                            <th style={{minWidth: '120px'}}>Institution</th>
+                                            <th style={{minWidth: '150px'}}>Institution</th>
+                                            <th style={{minWidth: '150px'}}>Degree / Board / Specialization</th>
                                             <th style={{minWidth: '80px', whiteSpace: 'nowrap'}}>Enrollment No.</th>
                                             <th style={{minWidth: '80px'}}>State</th>
                                             <th style={{minWidth: '80px', whiteSpace: 'nowrap'}}>Year</th>
@@ -1502,26 +934,29 @@ function SectionCanEducation({ profile, onUpdate }) {
                                                     {getEducationLevelLabel(entry.educationLevel)}
                                                 </td>
                                                 <td style={{fontSize: '13px'}}>
-                                                    {entry.courseName || entry.schoolCollegeName}
+                                                    {entry.schoolCollegeName || '-'}
                                                 </td>
                                                 <td style={{fontSize: '13px'}}>
-                                                    {entry.boardUniversityName}
+                                                    <div>{entry.boardUniversityName}</div>
+                                                    {entry.courseName && <div className="small text-muted">{entry.courseName}</div>}
                                                 </td>
                                                 <td style={{fontSize: '13px'}}>
                                                     {entry.registrationNumber || '-'}
                                                 </td>
                                                 <td style={{fontSize: '13px'}}>
-                                                    {entry.state}
+                                                    {entry.state || '-'}
                                                 </td>
                                                 <td style={{fontSize: '13px', textAlign: 'center'}}>
                                                     {entry.yearOfPassing || '-'}
                                                 </td>
                                                 <td style={{fontSize: '13px', textAlign: 'center'}}>
-                                                    {entry.percentage || entry.cgpa}
+                                                    {entry.percentage && <div>{entry.percentage}%</div>}
+                                                    {entry.cgpa && <div className="small text-muted">CGPA: {entry.cgpa}</div>}
+                                                    {!entry.percentage && !entry.cgpa && '-'}
                                                 </td>
                                                 <td style={{textAlign: 'center'}}>
                                                     <span className={`badge ${entry.result === 'Passed' ? 'bg-success' : 'bg-danger'}`} style={{fontSize: '11px'}}>
-                                                        {entry.result}
+                                                        {entry.result || '-'}
                                                     </span>
                                                 </td>
                                                 <td style={{fontSize: '12px', textAlign: 'center'}}>
@@ -1627,6 +1062,10 @@ function SectionCanEducation({ profile, onUpdate }) {
                             0% { box-shadow: 0 0 0 0 rgba(255, 102, 0, 0.7); }
                             70% { box-shadow: 0 0 0 10px rgba(255, 102, 0, 0); }
                             100% { box-shadow: 0 0 0 0 rgba(255, 102, 0, 0); }
+                        }
+                        .course-name-wider .form-select {
+                            min-width: 350px !important;
+                            width: 350px !important;
                         }
                     `}</style>
                 </div>

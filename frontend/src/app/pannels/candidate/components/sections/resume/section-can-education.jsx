@@ -43,7 +43,7 @@ function SectionCanEducation({ profile }) {
     
     useEffect(() => {
         if (profile && profile.education) {
-            setEducationList(profile.education.map(edu => ({
+            const mappedEducation = profile.education.map(edu => ({
                 id: edu._id,
                 schoolName: edu.degreeName || '',
                 location: edu.collegeName || '',
@@ -52,7 +52,8 @@ function SectionCanEducation({ profile }) {
                 cgpa: edu.cgpa || '',
                 sgpa: edu.sgpa || '',
                 grade: edu.grade || ''
-            })));
+            }));
+            setEducationList(mappedEducation);
         }
     }, [profile]);
 
@@ -152,13 +153,13 @@ function SectionCanEducation({ profile }) {
             if (response.success) {
                 const newEducation = {
                     id: response.education._id || Date.now(),
-                    schoolName: response.education.degreeName,
-                    location: response.education.collegeName,
-                    passoutYear: response.education.passYear,
-                    percentage: response.education.percentage,
-                    cgpa: response.education.cgpa,
-                    sgpa: response.education.sgpa,
-                    grade: response.education.grade
+                    schoolName: response.education.degreeName || formData.schoolName,
+                    location: response.education.collegeName || formData.location,
+                    passoutYear: response.education.passYear || formData.passoutYear,
+                    percentage: response.education.percentage || formData.percentage,
+                    cgpa: response.education.cgpa || formData.cgpa,
+                    sgpa: response.education.sgpa || formData.sgpa,
+                    grade: response.education.grade || formData.grade
                 };
                 
                 setEducationList([...educationList, newEducation]);
@@ -238,13 +239,13 @@ function SectionCanEducation({ profile }) {
                             </div>
                             <div className="col-md-6">
                                 <div className="form-group mb-3" style={{position: 'relative'}} ref={dropdownRef}>
-                                    <label>Location</label>
+                                    <label>Board/Institution</label>
                                     <input 
                                         ref={locationInputRef}
                                         className="form-control" 
                                         name="locationSearch" 
                                         type="text" 
-                                        placeholder="Type to search location..." 
+                                        placeholder="Type board name (e.g., CBSE, ICSE, State Board)..." 
                                         value={locationSearch}
                                         onChange={handleLocationSearch}
                                         onFocus={() => setShowLocationDropdown(true)}
@@ -394,21 +395,33 @@ function SectionCanEducation({ profile }) {
                     </div>
                     {educationList.length > 0 && <hr />}
                     {educationList.map((education) => (
-                        <div key={education.id} className="education-item mb-3">
+                        <div key={education.id} className="education-item mb-3 p-3" style={{backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #e0e0e0'}}>
                             <div className="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <p><b>{education.schoolName}</b></p>
-                                    <p><i className="fa fa-map-marker text-primary me-1"></i>{education.location}</p>
-                                    <p>Passout Year: {education.passoutYear}</p>
-                                    <div className="row">
-                                        <div className="col-md-3"><small>Percentage: {education.percentage}%</small></div>
-                                        <div className="col-md-3"><small>CGPA: {education.cgpa}</small></div>
-                                        <div className="col-md-3"><small>SGPA: {education.sgpa}</small></div>
-                                        <div className="col-md-3"><small>Grade: {education.grade}</small></div>
+                                <div className="flex-grow-1">
+                                    <h5 className="mb-2"><b>{education.schoolName || 'Not provided'}</b></h5>
+                                    <p className="mb-2"><i className="fa fa-building text-primary me-2"></i><strong>Board/Institution:</strong> {education.location || 'Not provided'}</p>
+                                    <p className="mb-2"><i className="fa fa-calendar text-primary me-2"></i><strong>Passout Year:</strong> {education.passoutYear || 'Not provided'}</p>
+                                    <div className="row mt-2">
+                                        <div className="col-md-3 col-6 mb-2">
+                                            <small className="text-muted">Percentage:</small>
+                                            <div><strong>{education.percentage ? `${education.percentage}%` : 'N/A'}</strong></div>
+                                        </div>
+                                        <div className="col-md-3 col-6 mb-2">
+                                            <small className="text-muted">CGPA:</small>
+                                            <div><strong>{education.cgpa || 'N/A'}</strong></div>
+                                        </div>
+                                        <div className="col-md-3 col-6 mb-2">
+                                            <small className="text-muted">SGPA:</small>
+                                            <div><strong>{education.sgpa || 'N/A'}</strong></div>
+                                        </div>
+                                        <div className="col-md-3 col-6 mb-2">
+                                            <small className="text-muted">Grade:</small>
+                                            <div><strong>{education.grade || 'N/A'}</strong></div>
+                                        </div>
                                     </div>
                                 </div>
                                 <button 
-                                    className="btn btn-sm btn-outline-danger"
+                                    className="btn btn-sm btn-outline-danger ms-3"
                                     onClick={() => handleDelete(education.id)}
                                     title="Delete"
                                     disabled={loading}
@@ -416,7 +429,6 @@ function SectionCanEducation({ profile }) {
                                     <i className="fa fa-trash"></i>
                                 </button>
                             </div>
-                            <hr />
                         </div>
                     ))}
                 </div>

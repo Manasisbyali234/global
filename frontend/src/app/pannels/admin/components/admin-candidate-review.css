@@ -1037,6 +1037,46 @@
     margin-top: 20px;
 }
 
+.employment-history-table {
+    margin-bottom: 0;
+}
+
+.employment-table-admin thead th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 12px 15px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.employment-table-admin tbody td {
+    padding: 15px;
+    vertical-align: middle;
+    font-size: 13px;
+    color: #333;
+}
+
+.table-primary-light {
+    background-color: rgba(255, 122, 0, 0.03);
+}
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    max-height: 2.8em;
+}
+
+.job-details-summary {
+    max-width: 300px;
+}
+
 .total-experience-badge {
     background: #fff5ed;
     padding: 15px 20px;

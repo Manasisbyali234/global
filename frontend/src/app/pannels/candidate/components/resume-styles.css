@@ -1603,3 +1603,11 @@ html, body {
         max-width: calc(100% + 8px) !important;
     }
 }
+
+
+/* Increase width for Course Name/Stream field in 10th/SSLC education section */
+.education-section-body .col-md-8 .form-select,
+.education-section-body .col-md-8 select {
+    width: 100% !important;
+    min-width: 100% !important;
+}

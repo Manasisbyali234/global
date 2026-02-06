@@ -1335,6 +1335,42 @@
     font-weight: 600;
 }
 
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    max-height: 2.8em;
+}
+
+.job-details-summary {
+    max-width: 400px;
+}
+
+.table-success-light {
+    background-color: rgba(40, 167, 69, 0.05);
+}
+
+.custom-employment-table thead th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    padding: 15px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.custom-employment-table tbody td {
+    padding: 15px;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #333;
+}
+
 /* Mobile Responsiveness Enhancements */
 @media (max-width: 991px) {
     .candidate-review-header {

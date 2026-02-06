@@ -1255,7 +1255,7 @@ function PlacementDashboardRedesigned() {
                                                                         file.status === 'approved' ? 'status-info' : 
                                                                         file.status === 'rejected' ? 'status-danger' : 'status-warning'
                                                                     }`}>
-                                                                        {file.status || 'Pending'}
+                                                                        {file.status === 'processed' ? 'Approved' : file.status || 'Pending'}
                                                                     </span>
                                                                 </td>
                                                                 <td>
