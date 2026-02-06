@@ -981,8 +981,19 @@ exports.createJob = async (req, res) => {
     // Clear job-related caches immediately
     cacheInvalidation.clearJobCaches();
 
-    // Notifications are sent to candidates when they apply for jobs
-    // No need to create general notifications here
+    // Notify all candidates about new job posting (broadcast)
+    try {
+      await createNotification({
+        title: 'New Job Posted',
+        message: `${req.user.companyName} posted a new job: ${job.title} in ${job.location}`,
+        type: 'job_posted',
+        role: 'candidate',
+        // NO candidateId or relatedId - broadcasts to ALL candidates
+        createdBy: req.user._id
+      });
+    } catch (notifError) {
+      console.error('Job posted notification failed:', notifError);
+    }
 
     res.status(201).json({ success: true, job });
   } catch (error) {
@@ -1458,7 +1469,7 @@ exports.updateApplicationStatus = async (req, res) => {
         message: employerMessage,
         type: 'application_status_updated',
         role: 'employer',
-        relatedId: application._id,
+        relatedId: req.user._id,
         createdBy: req.user._id
       });
     } catch (notificationError) {

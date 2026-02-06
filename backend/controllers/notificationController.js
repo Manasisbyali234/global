@@ -52,6 +52,13 @@ exports.getNotificationsByRole = async (req, res) => {
           { role, relatedId: userId } // Also check relatedId for backward compatibility
         ]
       };
+    } else if (role === 'employer') {
+      query = {
+        $or: [
+          { role, relatedId: { $exists: false } }, // General notifications for all employers
+          { role, relatedId: userId } // Specific notifications for this employer
+        ]
+      };
     } else {
       query = {
         $or: [
@@ -128,6 +135,13 @@ exports.markAllAsRead = async (req, res) => {
         $or: [
           { role, placementId: { $exists: false }, isRead: false },
           { role, placementId: userId, isRead: false },
+          { role, relatedId: userId, isRead: false }
+        ]
+      };
+    } else if (role === 'employer') {
+      query = {
+        $or: [
+          { role, relatedId: { $exists: false }, isRead: false },
           { role, relatedId: userId, isRead: false }
         ]
       };

@@ -1097,30 +1097,23 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
         
         <p>Congratulations! 🎉</p>
         
-        <p>Your employer account has been approved by the TaleGlobal Admin Team.</p>
+        <p>Your TaleGlobal employer account has been successfully approved.</p>
         
-        <p>You can now:</p>
-        <ul style="line-height: 1.6;">
-          <li>Log in to your dashboard</li>
-          <li>Post job openings completely free of cost</li>
-          <li>Conduct interviews online</li>
-        </ul>
+        <p>You can now log in to your dashboard and post job openings completely free of cost.</p>
         
-        <p><strong>Important Terms & Conditions:</strong></p>
-        <ul style="line-height: 1.6;">
-          <li>No fee should be collected from candidates</li>
-          <li>Interviews must be conducted on time</li>
-          <li>Offline interviews are strictly not permitted</li>
-          <li>Job offers must be released as per the date mentioned in the job posting</li>
-        </ul>
+        <p><strong>Important Terms &amp; Conditions:</strong></p>
+        <p style="line-height: 1.6; margin-left: 0;">No fees should be collected from candidates at any stage<br>
+        Interviews must be conducted on time<br>
+        Only online interviews are permitted (no offline interviews)<br>
+        Offer letters must be released as per the date mentioned while posting the job</p>
         
-        <p>We look forward to supporting your hiring needs.</p>
-        <p>For queries, contact <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a>.</p>
+        <p>We look forward to a transparent and successful hiring experience with your organization.</p>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Best regards,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;"><a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
         </div>
       </div>
     </div>
