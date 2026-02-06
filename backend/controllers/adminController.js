@@ -1048,17 +1048,17 @@ exports.getCandidateDetails = async (req, res) => {
     const calculatedExperience = profile && profile.employment ? 
       calculateTotalExperienceFromEmployment(profile.employment) : '0 months';
     
-    const currentEmployment = profile?.employment?.find(emp => emp.isCurrent || emp.current);
+    const currentEmployment = profile?.employment?.find(emp => emp.isCurrentCompany || emp.isCurrent || emp.current);
     const currentExp = profile?.experience?.find(exp => exp.current || exp.isCurrent);
     
     const candidateWithProfile = {
       ...candidate.toObject(),
       ...profile,
-      currentCompany: currentEmployment?.organization || currentEmployment?.company || currentExp?.company || currentExp?.organization,
+      currentCompany: currentEmployment?.organizationName || currentEmployment?.organization || currentEmployment?.company || currentExp?.company || currentExp?.organization,
       currentLocation: currentEmployment?.location || profile?.location,
       currentCTC: currentEmployment?.presentCTC,
       expectedCTC: currentEmployment?.expectedCTC || profile?.expectedSalary,
-      noticePeriod: profile?.jobPreferences?.noticePeriod,
+      noticePeriod: currentEmployment?.noticePeriod || profile?.jobPreferences?.noticePeriod,
       preferredLocations: profile?.jobPreferences?.preferredLocations,
       // Override education with properly formatted data
       education: formattedEducation,

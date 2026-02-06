@@ -279,6 +279,9 @@
   font-weight: 600;
   color: #0f172a;
   margin-bottom: 0.35rem;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .new-badge {

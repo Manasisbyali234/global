@@ -248,30 +248,23 @@ exports.uploadStudentData = async (req, res) => {
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     
-    // Extract emails and IDs and check for duplicates
+    // Extract emails and IDs and check for duplicates WITHIN FILE ONLY
     const emails = [];
     const ids = [];
     const duplicateEmails = [];
     const duplicateIds = [];
-    const existingEmails = [];
     
     for (const row of jsonData) {
       const email = (row.Email || row.email || row.EMAIL || '').toString().trim().toLowerCase();
       const id = (row.ID || row.id || row.Id || '').toString().trim();
       
       if (email) {
-        // Check for duplicates within file
         if (emails.includes(email)) {
           if (!duplicateEmails.includes(email)) {
             duplicateEmails.push(email);
           }
         } else {
           emails.push(email);
-          // Check if email exists across platform
-          const existingUser = await checkEmailExists(email);
-          if (existingUser) {
-            existingEmails.push(email);
-          }
         }
       }
       
@@ -286,8 +279,8 @@ exports.uploadStudentData = async (req, res) => {
       }
     }
     
-    // If duplicates or existing emails found, return error
-    if (duplicateEmails.length > 0 || duplicateIds.length > 0 || existingEmails.length > 0) {
+    // Only check for duplicates within file, NOT existing emails (that check happens during approval)
+    if (duplicateEmails.length > 0 || duplicateIds.length > 0) {
       let message = '';
       if (duplicateEmails.length > 0) {
         message += `Duplicate emails found in file: ${duplicateEmails.slice(0, 3).join(', ')}${duplicateEmails.length > 3 ? ` and ${duplicateEmails.length - 3} more` : ''}. `;
@@ -295,17 +288,13 @@ exports.uploadStudentData = async (req, res) => {
       if (duplicateIds.length > 0) {
         message += `Duplicate IDs found in file: ${duplicateIds.slice(0, 3).join(', ')}${duplicateIds.length > 3 ? ` and ${duplicateIds.length - 3} more` : ''}. `;
       }
-      if (existingEmails.length > 0) {
-        message += `Emails already registered on platform: ${existingEmails.slice(0, 3).join(', ')}${existingEmails.length > 3 ? ` and ${existingEmails.length - 3} more` : ''}. `;
-      }
       message += 'Please fix these issues and upload again.';
       
       return res.status(400).json({ 
         success: false, 
         message: message,
         duplicateEmails: duplicateEmails,
-        duplicateIds: duplicateIds,
-        existingEmails: existingEmails
+        duplicateIds: duplicateIds
       });
     }
 
@@ -1229,7 +1218,6 @@ exports.resubmitFile = async (req, res) => {
     const ids = [];
     const duplicateEmails = [];
     const duplicateIds = [];
-    const existingEmails = [];
     
     for (const row of jsonData) {
       const email = (row.Email || row.email || row.EMAIL || '').toString().trim().toLowerCase();
@@ -1242,10 +1230,6 @@ exports.resubmitFile = async (req, res) => {
           }
         } else {
           emails.push(email);
-          const existingUser = await checkEmailExists(email);
-          if (existingUser) {
-            existingEmails.push(email);
-          }
         }
       }
       
@@ -1260,7 +1244,7 @@ exports.resubmitFile = async (req, res) => {
       }
     }
     
-    if (duplicateEmails.length > 0 || duplicateIds.length > 0 || existingEmails.length > 0) {
+    if (duplicateEmails.length > 0 || duplicateIds.length > 0) {
       let message = '';
       if (duplicateEmails.length > 0) {
         message += `Duplicate emails found in file: ${duplicateEmails.slice(0, 3).join(', ')}${duplicateEmails.length > 3 ? ` and ${duplicateEmails.length - 3} more` : ''}. `;
@@ -1268,17 +1252,13 @@ exports.resubmitFile = async (req, res) => {
       if (duplicateIds.length > 0) {
         message += `Duplicate IDs found in file: ${duplicateIds.slice(0, 3).join(', ')}${duplicateIds.length > 3 ? ` and ${duplicateIds.length - 3} more` : ''}. `;
       }
-      if (existingEmails.length > 0) {
-        message += `Emails already registered on platform: ${existingEmails.slice(0, 3).join(', ')}${existingEmails.length > 3 ? ` and ${existingEmails.length - 3} more` : ''}. `;
-      }
       message += 'Please fix these issues and resubmit.';
       
       return res.status(400).json({ 
         success: false, 
         message: message,
         duplicateEmails,
-        duplicateIds,
-        existingEmails
+        duplicateIds
       });
     }
 

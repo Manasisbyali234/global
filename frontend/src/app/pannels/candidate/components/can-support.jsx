@@ -364,7 +364,10 @@ function CanSupport() {
                         <div className="success-icon mb-3">
                             <i className="fa fa-check-circle" style={{fontSize: '4rem', color: '#28a745'}}></i>
                         </div>
-                        <p className="mb-4">Thank you for contacting our support team. We have received your ticket and will respond within 2 to 3 Working Days.</p>
+                        <p className="mb-4">
+                            Thank you for contacting our support team.<br />
+                            We have received your ticket and will respond within 3 days.
+                        </p>
                         <button 
                             onClick={() => setIsSubmitted(false)} 
                             className="site-button"

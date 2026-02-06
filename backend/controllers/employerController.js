@@ -1722,16 +1722,16 @@ exports.getApplicationDetails = async (req, res) => {
     
     // Merge candidate and profile data
     const candidateProfileObj = candidateProfile ? candidateProfile.toObject() : {};
-    const currentEmployment = candidateProfileObj.employment?.find(emp => emp.isCurrent || emp.current);
+    const currentEmployment = candidateProfileObj.employment?.find(emp => emp.isCurrentCompany || emp.isCurrent || emp.current);
     const currentExp = candidateProfileObj.experience?.find(exp => exp.current || exp.isCurrent);
     
     const candidateData = {
       ...application.candidateId.toObject(),
       ...candidateProfileObj,
-      currentCompany: currentEmployment?.organization || currentEmployment?.company || currentExp?.company || currentExp?.organization,
+      currentCompany: currentEmployment?.organizationName || currentEmployment?.organization || currentEmployment?.company || currentExp?.company || currentExp?.organization,
       currentCTC: currentEmployment?.presentCTC,
       expectedCTC: currentEmployment?.expectedCTC || candidateProfileObj.expectedSalary,
-      noticePeriod: candidateProfileObj.jobPreferences?.noticePeriod,
+      noticePeriod: currentEmployment?.noticePeriod || candidateProfileObj.jobPreferences?.noticePeriod,
       preferredLocations: candidateProfileObj.jobPreferences?.preferredLocations,
       // Ensure dateOfBirth is properly set from profile
       dateOfBirth: candidateProfileObj.dateOfBirth || null

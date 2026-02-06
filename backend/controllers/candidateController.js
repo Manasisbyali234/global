@@ -141,18 +141,18 @@ exports.getProfile = async (req, res) => {
     const profileCompletion = calculateProfileCompletion(profileData);
     const profileCompletionDetails = calculateProfileCompletionWithDetails(profileData);
 
-    const currentEmployment = profileData.employment?.find(emp => emp.isCurrent || emp.current);
+    const currentEmployment = profileData.employment?.find(emp => emp.isCurrentCompany || emp.isCurrent || emp.current);
     const currentExp = profileData.experience?.find(exp => exp.current || exp.isCurrent);
 
     res.json({
       success: true,
       profile: {
         ...profileData,
-        currentCompany: currentEmployment?.organization || currentEmployment?.company || currentExp?.company || currentExp?.organization,
+        currentCompany: currentEmployment?.organizationName || currentEmployment?.organization || currentEmployment?.company || currentExp?.company || currentExp?.organization,
         currentLocation: currentEmployment?.location || profileData.location,
         currentCTC: currentEmployment?.presentCTC,
         expectedCTC: currentEmployment?.expectedCTC || profileData.expectedSalary,
-        noticePeriod: profileData.jobPreferences?.noticePeriod,
+        noticePeriod: currentEmployment?.noticePeriod || profileData.jobPreferences?.noticePeriod,
         preferredLocations: profileData.jobPreferences?.preferredLocations,
         resumeFileName: profileData.resumeFileName || null,
         resumeMimeType: profileData.resumeMimeType || null,

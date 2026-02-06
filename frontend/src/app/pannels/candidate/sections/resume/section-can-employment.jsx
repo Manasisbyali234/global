@@ -1,781 +1,332 @@
-import React, { useEffect, useState, memo, Fragment } from "react";
-import { createPortal } from "react-dom";
+import React, { useEffect, useState, memo } from "react";
 import { api } from "../../../../../utils/api";
-import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
+import { showSuccess, showError } from '../../../../../utils/popupNotification';
+import "./employment-card-styles.css";
 
-function SectionCanEmployment({ profile }) {
-    const modalId = 'EmploymentModal';
-    const descModalId = 'DescriptionModal';
-    const [formData, setFormData] = useState(() => {
-        const saved = localStorage.getItem('employmentFormData');
-        return saved ? JSON.parse(saved) : {
-            designation: '',
-            organization: '',
-            totalExperienceManual: '',
-            hasWorkExperience: 'No',
-            description: '',
-            projectDetails: '',
-            presentCTC: '',
-            expectedCTC: '',
-            noticePeriod: '',
-            customNoticePeriod: ''
-        };
-    });
+const NOTICE_PERIOD_OPTIONS = [
+    "30 Days",
+    "40 Days",
+    "60 Days",
+    "Custom"
+];
+
+const EmploymentCard = ({ 
+    emp, 
+    index, 
+    isOnly, 
+    onUpdate, 
+    onDelete 
+}) => {
+    const [isOpen, setIsOpen] = useState(index === 0);
+
+    const handleInputChange = (field, value) => {
+        onUpdate(index, { ...emp, [field]: value });
+    };
+
+    return (
+        <div className={`employment-card ${isOpen ? 'open' : ''} mb-4`}>
+            <div className="employment-card-header" onClick={() => setIsOpen(!isOpen)} style={{ cursor: 'pointer' }}>
+                <div className="d-flex align-items-center">
+                    <h4 className="employment-card-title m-0">
+                        {index + 1}. {emp.organizationName || emp.organization || "Enter Company Name"}
+                        {emp.designation ? ` - ${emp.designation}` : ""}
+                        {emp.isCurrentCompany ? " (Current)" : ""}
+                    </h4>
+                </div>
+                <div className="d-flex align-items-center">
+                    {!isOnly && (
+                        <button 
+                            type="button"
+                            className="btn btn-link text-danger p-0 me-3 delete-btn" 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(index);
+                            }}
+                        >
+                            <i className="fa fa-trash-alt me-1"></i>
+                            Delete
+                        </button>
+                    )}
+                    <i className={`fa ${isOpen ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
+                </div>
+            </div>
+            
+            <div className="employment-card-body" style={{ display: isOpen ? 'block' : 'none', padding: '20px' }}>
+                <div className="row">
+                    {/* Basic Company Information */}
+                    <div className="col-md-6 mb-3">
+                        <label className="form-label">Company Name *</label>
+                        <input 
+                            type="text" 
+                            className="form-control"
+                            value={emp.organizationName || emp.organization || ""}
+                            onChange={(e) => handleInputChange('organizationName', e.target.value)}
+                            placeholder="e.g. Google"
+                        />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                        <label className="form-label">Designation *</label>
+                        <input 
+                            type="text" 
+                            className="form-control"
+                            value={emp.designation || ""}
+                            onChange={(e) => handleInputChange('designation', e.target.value)}
+                            placeholder="e.g. Software Engineer"
+                        />
+                    </div>
+
+                    <div className="col-12 mb-3">
+                        <div className="form-check">
+                            <input 
+                                className="form-check-input" 
+                                type="checkbox" 
+                                checked={emp.isCurrentCompany || false}
+                                onChange={(e) => handleInputChange('isCurrentCompany', e.target.checked)}
+                                id={`isCurrentCompany-${index}`}
+                            />
+                            <label className="form-check-label" htmlFor={`isCurrentCompany-${index}`}>
+                                This is my current company
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Experience Duration */}
+                    <div className="col-md-6 mb-3">
+                        <label className="form-label">Years of Experience (0-50)</label>
+                        <input 
+                            type="number" 
+                            className="form-control"
+                            min="0"
+                            max="50"
+                            value={emp.yearsOfExperience || 0}
+                            onChange={(e) => handleInputChange('yearsOfExperience', parseInt(e.target.value) || 0)}
+                        />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                        <label className="form-label">Months of Experience (0-11)</label>
+                        <input 
+                            type="number" 
+                            className="form-control"
+                            min="0"
+                            max="11"
+                            value={emp.monthsOfExperience || 0}
+                            onChange={(e) => handleInputChange('monthsOfExperience', parseInt(e.target.value) || 0)}
+                        />
+                    </div>
+
+                    {/* Compensation & Exit Details - Only for Current Company */}
+                    {emp.isCurrentCompany && (
+                        <div className="col-12 mt-2">
+                            <h5 className="mb-3 border-bottom pb-2">Compensation & Exit</h5>
+                            <div className="row">
+                                <div className="col-md-6 mb-3">
+                                    <label className="form-label">Present CTC (Annual)</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        value={emp.presentCTC || ""}
+                                        onChange={(e) => handleInputChange('presentCTC', e.target.value)}
+                                        placeholder="e.g. 75,000"
+                                    />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label className="form-label">Expected CTC</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        value={emp.expectedCTC || ""}
+                                        onChange={(e) => handleInputChange('expectedCTC', e.target.value)}
+                                        placeholder="e.g. 95,000"
+                                    />
+                                </div>
+                                <div className="col-12 mb-3">
+                                    <label className="form-label">Notice Period</label>
+                                    <select 
+                                        className="form-select"
+                                        value={emp.noticePeriod || ""}
+                                        onChange={(e) => handleInputChange('noticePeriod', e.target.value)}
+                                    >
+                                        <option value="">Select Notice Period</option>
+                                        {NOTICE_PERIOD_OPTIONS.map(opt => (
+                                            <option key={opt} value={opt}>{opt}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                {emp.noticePeriod === "Custom" && (
+                                    <div className="col-md-6 mb-3">
+                                        <label className="form-label">Custom Notice Period</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control"
+                                            value={emp.customNoticePeriod || ""}
+                                            onChange={(e) => handleInputChange('customNoticePeriod', e.target.value)}
+                                            placeholder="e.g. 45 Days"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Key Responsibilities and Project Details - Now at the bottom */}
+                    <div className="col-12 mb-3 mt-3">
+                        <label className="form-label">Key Responsibilities</label>
+                        <textarea 
+                            className="form-control"
+                            rows="3"
+                            value={emp.description || ""}
+                            onChange={(e) => handleInputChange('description', e.target.value)}
+                            placeholder="Describe your role and main responsibilities..."
+                        ></textarea>
+                    </div>
+
+                    <div className="col-12 mb-3">
+                        <label className="form-label">Project Details</label>
+                        <textarea 
+                            className="form-control"
+                            rows="3"
+                            value={emp.projectDetails || ""}
+                            onChange={(e) => handleInputChange('projectDetails', e.target.value)}
+                            placeholder="Mention key projects you worked on..."
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+function SectionCanEmployment({ profile, onUpdate }) {
+    const [employmentList, setEmploymentList] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [employment, setEmployment] = useState([]);
-    const [errors, setErrors] = useState({});
-    const [editingIndex, setEditingIndex] = useState(null);
-    const [selectedDescription, setSelectedDescription] = useState('');
-    const [showDescriptionModal, setShowDescriptionModal] = useState(false);
-
-    const clearForm = () => {
-        const resetFormData = { 
-            designation: '', 
-            organization: '', 
-            totalExperienceManual: '', 
-            hasWorkExperience: 'No',
-            description: '', 
-            projectDetails: '',
-            presentCTC: '', 
-            expectedCTC: '', 
-            noticePeriod: '',
-            customNoticePeriod: ''
-        };
-        setFormData(resetFormData);
-        localStorage.removeItem('employmentFormData');
-        setErrors({});
-        setEditingIndex(null);
-    };
-
-    const handleEdit = (index) => {
-        const emp = employment[index];
-        
-        const isStandardNotice = ['30 Days', '40 Days', '60 Days', ''].includes(emp.noticePeriod || '');
-        
-        setFormData({
-            designation: emp.designation || '',
-            organization: emp.organization || '',
-            totalExperienceManual: emp.totalExperienceManual || '',
-            hasWorkExperience: emp.hasWorkExperience || (emp.presentCTC || emp.expectedCTC ? 'Yes' : 'No'),
-            description: emp.description || '',
-            projectDetails: emp.projectDetails || '',
-            presentCTC: emp.presentCTC || '',
-            expectedCTC: emp.expectedCTC || '',
-            noticePeriod: isStandardNotice ? (emp.noticePeriod || '') : 'Customized',
-            customNoticePeriod: isStandardNotice ? '' : (emp.noticePeriod || '')
-        });
-        setEditingIndex(index);
-        setErrors({});
-    };
 
     useEffect(() => {
-        if (profile?.employment) {
-            const sortedEmployment = [...profile.employment];
-            setEmployment(sortedEmployment);
+        if (profile?.employment && profile.employment.length > 0) {
+            setEmploymentList(profile.employment);
+        } else {
+            setEmploymentList([{
+                organizationName: "",
+                designation: "",
+                isCurrentCompany: false,
+                yearsOfExperience: 0,
+                monthsOfExperience: 0,
+                presentCTC: "",
+                expectedCTC: "",
+                noticePeriod: "",
+                customNoticePeriod: "",
+                description: "",
+                projectDetails: ""
+            }]);
         }
     }, [profile]);
 
-    useEffect(() => {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            const handleModalHide = () => {
-                console.log('Modal closed - form data preserved in localStorage');
-            };
-            modal.addEventListener('hidden.bs.modal', handleModalHide);
-            return () => modal.removeEventListener('hidden.bs.modal', handleModalHide);
-        }
-    }, [modalId]);
+    const handleUpdate = (index, updatedEmp) => {
+        const newList = [...employmentList];
+        newList[index] = updatedEmp;
+        setEmploymentList(newList);
+    };
 
-    const handleInputChange = (field, value) => {
-        const newFormData = { ...formData, [field]: value };
-        setFormData(newFormData);
-        localStorage.setItem('employmentFormData', JSON.stringify(newFormData));
-
-        if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: null }));
+    const handleDelete = (index) => {
+        if (employmentList.length > 1) {
+            const newList = employmentList.filter((_, i) => i !== index);
+            setEmploymentList(newList);
         }
     };
 
-    const validateForm = () => {
-        const newErrors = {};
-
-        if (!formData.organization || !formData.organization.trim()) {
-            newErrors.organization = 'Organization name is required';
-        } else if (formData.organization.trim().length < 2) {
-            newErrors.organization = 'Organization name must be at least 2 characters long';
-        } else if (formData.organization.trim().length > 100) {
-            newErrors.organization = 'Organization name cannot exceed 100 characters';
-        }
-
-        if (!formData.designation || !formData.designation.trim()) {
-            newErrors.designation = 'Designation is required';
-        } else if (formData.designation.trim().length < 2) {
-            newErrors.designation = 'Designation must be at least 2 characters long';
-        } else if (formData.designation.trim().length > 100) {
-            newErrors.designation = 'Designation cannot exceed 100 characters';
-        }
-
-        if (formData.description && formData.description.trim()) {
-            if (formData.description.trim().length < 10) {
-                newErrors.description = 'Job description should be at least 10 characters long';
-            } else if (formData.description.trim().length > 1000) {
-                newErrors.description = 'Job description cannot exceed 1000 characters';
-            }
-        }
-
-        if (formData.hasWorkExperience === 'Yes') {
-            if (formData.presentCTC && formData.presentCTC.trim()) {
-                const ctcValue = parseFloat(formData.presentCTC.trim());
-                if (isNaN(ctcValue) || ctcValue < 0) {
-                    newErrors.presentCTC = 'Present CTC must be a valid positive number';
-                }
-            }
-
-            if (!formData.expectedCTC || !formData.expectedCTC.trim()) {
-                newErrors.expectedCTC = 'Expected CTC is required';
-            } else {
-                const ctcValue = parseFloat(formData.expectedCTC.trim());
-                if (isNaN(ctcValue) || ctcValue < 0) {
-                    newErrors.expectedCTC = 'Expected CTC must be a valid positive number';
-                }
-            }
-        }
-
-        if (formData.noticePeriod === 'Customized' && (!formData.customNoticePeriod || !formData.customNoticePeriod.trim())) {
-            newErrors.noticePeriod = 'Please enter your customized notice period';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleDelete = async (indexToDelete) => {
-        try {
-            const updatedEmployment = employment.filter((_, index) => index !== indexToDelete);
-            
-            const updateData = { 
-                employment: updatedEmployment
-            };
-            
-            const response = await api.updateCandidateProfile(updateData);
-            
-            if (response && (response.success || response.candidate)) {
-                setEmployment(updatedEmployment);
-                showSuccess('Employment deleted successfully!');
-                window.dispatchEvent(new CustomEvent('profileUpdated'));
-            } else {
-                const errorMsg = response?.message || response?.error || 'Unknown error occurred';
-                showError(`Failed to delete employment: ${errorMsg}`);
-            }
-        } catch (error) {
-            showError(`Failed to delete employment: ${error.message || 'Please check your connection and try again.'}`);
-        }
+    const handleAdd = () => {
+        setEmploymentList([...employmentList, {
+            organizationName: "",
+            designation: "",
+            isCurrentCompany: false,
+            yearsOfExperience: 0,
+            monthsOfExperience: 0,
+            presentCTC: "",
+            expectedCTC: "",
+            noticePeriod: "",
+            customNoticePeriod: "",
+            description: "",
+            projectDetails: ""
+        }]);
     };
 
     const handleSave = async () => {
-        if (!validateForm()) {
-            const errorMessages = Object.values(errors).filter(error => error);
-            if (errorMessages.length > 0) {
-                showPopup(errorMessages.join(', '), 'error', 4000);
+        for (let i = 0; i < employmentList.length; i++) {
+            const emp = employmentList[i];
+            if (!emp.organizationName && !emp.organization) {
+                showError(`Company Name is required for entry #${i + 1}`);
+                return;
             }
-            return;
+            if (!emp.designation) {
+                showError(`Designation is required for entry #${i + 1}`);
+                return;
+            }
         }
 
         setLoading(true);
         try {
-            try {
-                const testResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/candidate/profile`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('candidateToken')}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (!testResponse.ok) {
-                    const errorText = await testResponse.text();
-                    throw new Error(`API test failed: ${testResponse.status} - ${errorText}`);
-                }
-            } catch (testError) {
-                console.error('API connectivity test failed:', testError);
-                showError(`API connection failed: ${testError.message}. Please check if the backend server is running.`);
-                setLoading(false);
-                return;
-            }
-            
-            // Re-validate before saving
-            if (!validateForm()) {
-                setLoading(false);
-                return;
-            }
-            
-            const employmentEntry = {
-                designation: formData.designation.trim(),
-                organization: formData.organization.trim(),
-                totalExperienceManual: formData.totalExperienceManual ? formData.totalExperienceManual.trim() : '',
-                hasWorkExperience: formData.hasWorkExperience,
-                description: formData.description ? formData.description.trim() : '',
-                projectDetails: formData.projectDetails ? formData.projectDetails.trim() : '',
-                presentCTC: formData.hasWorkExperience === 'Yes' ? (formData.presentCTC ? formData.presentCTC.trim() : '') : '',
-                expectedCTC: formData.hasWorkExperience === 'Yes' ? (formData.expectedCTC ? formData.expectedCTC.trim() : '') : '',
-                noticePeriod: formData.noticePeriod === 'Customized' 
-                    ? (formData.customNoticePeriod ? formData.customNoticePeriod.trim() : 'Customized')
-                    : (formData.noticePeriod ? formData.noticePeriod.trim() : '')
-            };
-            
-            let newEmployment;
-            if (editingIndex !== null) {
-                // Update existing employment
-                newEmployment = [...employment];
-                newEmployment[editingIndex] = employmentEntry;
-            } else {
-                // Add new employment at the beginning (most recent first)
-                newEmployment = [employmentEntry, ...employment];
-            }
-            
             const updateData = { 
-                employment: newEmployment
+                employment: employmentList.map(emp => ({
+                    ...emp,
+                    organization: emp.organizationName || emp.organization
+                }))
             };
             
             const response = await api.updateCandidateProfile(updateData);
             
             if (response && (response.success || response.candidate)) {
-                setEmployment(newEmployment);
-                const resetFormData = { 
-                    designation: '', 
-                    organization: '', 
-                    totalExperienceManual: '', 
-                    hasWorkExperience: 'No',
-                    description: '', 
-                    projectDetails: '',
-                    presentCTC: '', 
-                    expectedCTC: '', 
-                    noticePeriod: '',
-                    customNoticePeriod: ''
-                };
-                setFormData(resetFormData);
-                localStorage.removeItem('employmentFormData');
-                setErrors({});
-                setEditingIndex(null);
-                showSuccess(editingIndex !== null ? 'Employment updated successfully!' : 'Employment added successfully!');
-                
+                showSuccess("Employment history saved successfully!");
+                if (onUpdate) onUpdate();
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
-                
-                setTimeout(() => {
-                    const modal = document.getElementById(modalId);
-                    if (modal) {
-                        if (window.bootstrap?.Modal) {
-                            const modalInstance = window.bootstrap.Modal.getInstance(modal) || new window.bootstrap.Modal(modal);
-                            modalInstance.hide();
-                        } else if (window.$ && window.$.fn.modal) {
-                            window.$(`#${modalId}`).modal('hide');
-                        } else {
-                            modal.style.display = 'none';
-                            modal.classList.remove('show');
-                            document.body.classList.remove('modal-open');
-                            const backdrop = document.querySelector('.modal-backdrop');
-                            if (backdrop) backdrop.remove();
-                        }
-                    }
-                }, 100);
             } else {
-                const errorMsg = response?.message || response?.error || 'Unknown error occurred';
-                showError(`Failed to save employment: ${errorMsg}`);
+                showError(response?.message || "Failed to save employment history");
             }
         } catch (error) {
-            showError(`Failed to save employment: ${error.message || 'Please check your connection and try again.'}`);
+            showError("An error occurred while saving your profile");
         } finally {
             setLoading(false);
         }
     };
 
-    const formStyles = {
-        container: {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            padding: '20px'
-        },
-        fieldGroup: {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '6px'
-        },
-        label: {
-            fontSize: '14px',
-            fontWeight: '600',
-            color: '#333',
-            marginBottom: '4px'
-        },
-        input: {
-            width: '100%',
-            padding: '10px 12px',
-            fontSize: '14px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            boxSizing: 'border-box',
-            fontFamily: 'inherit'
-        },
-        inputError: {
-            borderColor: '#dc3545'
-        },
-        error: {
-            fontSize: '12px',
-            color: '#dc3545',
-            marginTop: '4px'
-        },
-        radioGroup: {
-            display: 'flex',
-            gap: '24px',
-            marginTop: '8px',
-            alignItems: 'center',
-            flexWrap: 'nowrap'
-        },
-        radioOption: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer'
-        },
-        radioInput: {
-            cursor: 'pointer',
-            margin: 0,
-            width: '18px',
-            height: '18px'
-        },
-        radioLabel: {
-            margin: 0,
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '400'
-        },
-        twoColumnGrid: {
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-            gap: '16px'
-        },
-        textarea: {
-            width: '100%',
-            padding: '10px 12px',
-            fontSize: '14px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            boxSizing: 'border-box',
-            fontFamily: 'inherit',
-            minHeight: '100px',
-            resize: 'vertical'
-        },
-        textareaError: {
-            borderColor: '#dc3545'
-        },
-        buttonGroup: {
-            display: 'flex',
-            gap: '12px',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '16px 20px',
-            borderTop: '1px solid #e0e0e0',
-            flexWrap: 'wrap'
-        },
-        button: {
-            padding: '10px 24px',
-            fontSize: '14px',
-            fontWeight: '500',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            textAlign: 'center',
-            minWidth: '100px',
-            whiteSpace: 'nowrap'
-        },
-        modalHeader: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '16px 20px',
-            borderBottom: '1px solid #e0e0e0',
-            gap: '12px'
-        },
-        modalTitle: {
-            fontSize: '18px',
-            fontWeight: '600',
-            margin: 0,
-            flex: 1
-        },
-        closeButton: {
-            background: 'none',
-            border: 'none',
-            fontSize: '24px',
-            cursor: 'pointer',
-            padding: '4px 8px',
-            color: '#666'
-        },
-        inputWrapper: {
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center'
-        },
-        icon: {
-            position: 'absolute',
-            left: '12px',
-            color: '#666',
-            fontSize: '14px',
-            pointerEvents: 'none'
-        },
-        inputWithIcon: {
-            paddingLeft: '36px'
-        }
-    };
-
     return (
-        <>
+        <div className="wt-admin-dashboard-msg p-a20 mb-4">
             <div className="panel-heading wt-panel-heading p-a20 panel-heading-with-btn">
                 <h4 className="panel-tittle m-a0">Employment History</h4>
-                <button
-                    type="button"
-                    title="Add Employment"
-                    className="btn btn-link site-text-primary p-0 border-0"
-                    data-bs-toggle="modal"
-                    data-bs-target={`#${modalId}`}
-                    style={{background: 'none'}}
-                    onClick={() => {
-                        clearForm();
-                    }}
+                <button 
+                    type="button" 
+                    className="site-button-link text-primary" 
+                    onClick={handleAdd}
                 >
-                    <span className="fa fa-plus" />
+                    <i className="fa fa-plus me-2"></i>
+                    Add More
                 </button>
             </div>
+            
             <div className="panel-body wt-panel-body p-a20">
-                <div className="twm-panel-inner">
-                    {employment.length > 0 ? (
-                        <div className="m-b30">
-                            <h4 className="section-head-small m-b20">1. Employment History / Experience</h4>
-                            <div className="table-responsive">
-                                <table className="table table-bordered twm-table-style-1">
-                                    <thead className="table-light">
-                                        <tr>
-                                            <th>Organization Name</th>
-                                            <th>Designation</th>
-                                            <th>Notice Period</th>
-                                            <th style={{ width: '120px' }} className="text-center">Job Profile / Projects</th>
-                                            <th style={{ width: '100px' }} className="text-center">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {employment.map((emp, index) => (
-                                            <tr key={index}>
-                                                <td>{emp.organization}</td>
-                                                <td>{emp.designation}</td>
-                                                <td>{emp.noticePeriod || '—'}</td>
-                                                <td className="text-center">
-                                                    {(emp.description || emp.projectDetails) ? (
-                                                        <button
-                                                            className="btn btn-sm btn-outline-info"
-                                                            title="View Details"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target={`#${descModalId}`}
-                                                            onClick={() => setSelectedDescription(`JOB PROFILE:\n${emp.description || 'N/A'}\n\nPROJECT DETAILS:\n${emp.projectDetails || 'N/A'}`)}
-                                                        >
-                                                            <i className="fa fa-eye"></i>
-                                                        </button>
-                                                    ) : '—'}
-                                                </td>
-                                                <td>
-                                                    <div className="d-flex gap-2 justify-content-center">
-                                                        <button
-                                                            onClick={() => {
-                                                                handleEdit(index);
-                                                                const modal = document.getElementById(modalId);
-                                                                if (modal) {
-                                                                    if (window.bootstrap?.Modal) {
-                                                                        const modalInstance = new window.bootstrap.Modal(modal);
-                                                                        modalInstance.show();
-                                                                    } else if (window.$ && window.$.fn.modal) {
-                                                                        window.$(`#${modalId}`).modal('show');
-                                                                    }
-                                                                }
-                                                            }}
-                                                            className="btn btn-sm btn-outline-primary"
-                                                            title="Edit"
-                                                        >
-                                                            <i className="fa fa-edit"></i>
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(index)}
-                                                            className="btn btn-sm btn-outline-danger"
-                                                            title="Delete"
-                                                        >
-                                                            <i className="fa fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                <p className="text-muted small">The Job Description column is left blank to be filled by the candidate.</p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="text-center p-a30 site-bg-gray m-b30">
-                            <p>No employment history found. Click the "+" button to add.</p>
-                        </div>
-                    )}
+                <div className="employment-flow-container mb-4">
+                    {employmentList.map((emp, index) => (
+                        <EmploymentCard 
+                            key={index}
+                            emp={emp}
+                            index={index}
+                            isOnly={employmentList.length === 1}
+                            onUpdate={handleUpdate}
+                            onDelete={handleDelete}
+                        />
+                    ))}
+                </div>
+
+                <div className="text-right">
+                    <button 
+                        type="button" 
+                        className="site-button" 
+                        onClick={handleSave}
+                        disabled={loading}
+                    >
+                        {loading ? "Saving..." : "Save Changes"}
+                    </button>
                 </div>
             </div>
-
-            {createPortal(
-                <Fragment>
-                    <div className="modal fade twm-saved-jobs-view" id={modalId} tabIndex={-1}>
-                        <div className="modal-dialog modal-dialog-centered" style={{maxWidth: '500px'}}>
-                            <div className="modal-content">
-                                <div style={formStyles.modalHeader}>
-                                    <h2 style={formStyles.modalTitle}>{editingIndex !== null ? 'Edit Employment Details' : 'Add Employment Details'}</h2>
-                                    <button type="button" style={formStyles.closeButton} data-bs-dismiss="modal" aria-label="Close">×</button>
-                                </div>
-
-                                <div style={{...formStyles.container, paddingBottom: '80px'}}>
-                                    {/* Organization Name */}
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                            Organization Name
-                                            <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                        </label>
-                                        <div style={formStyles.inputWrapper}>
-                                            <i className="fa fa-building" style={formStyles.icon}></i>
-                                            <input
-                                                type="text"
-                                                placeholder="e.g., Google"
-                                                value={formData.organization}
-                                                onChange={(e) => handleInputChange('organization', e.target.value)}
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.organization && formStyles.inputError)}}
-                                            />
-                                        </div>
-                                        {errors.organization && <div style={formStyles.error}>{errors.organization}</div>}
-                                    </div>
-
-                                    {/* Designation */}
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                            Designation
-                                            <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                        </label>
-                                        <div style={formStyles.inputWrapper}>
-                                            <i className="fa fa-user-tie" style={formStyles.icon}></i>
-                                            <input
-                                                type="text"
-                                                placeholder="e.g., Software Engineer"
-                                                value={formData.designation}
-                                                onChange={(e) => handleInputChange('designation', e.target.value)}
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.designation && formStyles.inputError)}}
-                                            />
-                                        </div>
-                                        {errors.designation && <div style={formStyles.error}>{errors.designation}</div>}
-                                    </div>
-
-                                    {/* Total Experience */}
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                            Current Company Total Experience
-                                        </label>
-                                        <div style={formStyles.inputWrapper}>
-                                            <i className="fa fa-briefcase" style={formStyles.icon}></i>
-                                            <input
-                                                type="text"
-                                                placeholder="e.g., 2 Years 3 Months"
-                                                value={formData.totalExperienceManual}
-                                                onChange={(e) => handleInputChange('totalExperienceManual', e.target.value)}
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon}}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Work Experience Radio */}
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={formStyles.label}>Work Experience</label>
-                                        <div style={formStyles.radioGroup}>
-                                            <div style={formStyles.radioOption}>
-                                                <input
-                                                    type="radio"
-                                                    id="work_exp_yes"
-                                                    name="hasWorkExperience"
-                                                    checked={formData.hasWorkExperience === 'Yes'}
-                                                    onChange={() => handleInputChange('hasWorkExperience', 'Yes')}
-                                                    style={formStyles.radioInput}
-                                                />
-                                                <label htmlFor="work_exp_yes" style={formStyles.radioLabel}>Yes</label>
-                                            </div>
-                                            <div style={formStyles.radioOption}>
-                                                <input
-                                                    type="radio"
-                                                    id="work_exp_no"
-                                                    name="hasWorkExperience"
-                                                    checked={formData.hasWorkExperience === 'No'}
-                                                    onChange={() => handleInputChange('hasWorkExperience', 'No')}
-                                                    style={formStyles.radioInput}
-                                                />
-                                                <label htmlFor="work_exp_no" style={formStyles.radioLabel}>No</label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* CTC Fields - Only shown if Work Experience is Yes */}
-                                    {formData.hasWorkExperience === 'Yes' && (
-                                        <div style={formStyles.twoColumnGrid}>
-                                            <div style={formStyles.fieldGroup}>
-                                                <label style={formStyles.label}>Present CTC (LPA)</label>
-                                                <div style={{...formStyles.inputWrapper, position: 'relative'}}>
-                                                    <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
-                                                    <input
-                                                        type="number"
-                                                        placeholder="e.g., 5.5"
-                                                        value={formData.presentCTC}
-                                                        onChange={(e) => handleInputChange('presentCTC', e.target.value)}
-                                                        style={{...formStyles.input, ...formStyles.inputWithIcon, paddingRight: '45px', ...(errors.presentCTC && formStyles.inputError)}}
-                                                        min="0"
-                                                        step="0.1"
-                                                    />
-                                                    <span style={{position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px', pointerEvents: 'none'}}>LPA</span>
-                                                </div>
-                                                {errors.presentCTC && <div style={formStyles.error}>{errors.presentCTC}</div>}
-                                            </div>
-                                            <div style={formStyles.fieldGroup}>
-                                                <label style={{...formStyles.label, ...{display: 'flex', alignItems: 'center'}}}>
-                                                    Expected CTC (LPA)
-                                                    <span style={{color: '#dc3545', marginLeft: '4px'}}>*</span>
-                                                </label>
-                                                <div style={{...formStyles.inputWrapper, position: 'relative'}}>
-                                                    <i className="fa fa-rupee-sign" style={formStyles.icon}></i>
-                                                    <input
-                                                        type="number"
-                                                        placeholder="e.g., 7.0"
-                                                        value={formData.expectedCTC}
-                                                        onChange={(e) => handleInputChange('expectedCTC', e.target.value)}
-                                                        style={{...formStyles.input, ...formStyles.inputWithIcon, paddingRight: '45px', ...(errors.expectedCTC && formStyles.inputError)}}
-                                                        min="0"
-                                                        step="0.1"
-                                                    />
-                                                    <span style={{position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px', pointerEvents: 'none'}}>LPA</span>
-                                                </div>
-                                                {errors.expectedCTC && <div style={formStyles.error}>{errors.expectedCTC}</div>}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Notice Period */}
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={formStyles.label}>Notice Period</label>
-                                        <div style={formStyles.inputWrapper}>
-                                            <i className="fa fa-clock" style={formStyles.icon}></i>
-                                            <select
-                                                value={formData.noticePeriod}
-                                                onChange={(e) => handleInputChange('noticePeriod', e.target.value)}
-                                                style={{...formStyles.input, ...formStyles.inputWithIcon, ...(errors.noticePeriod && formStyles.inputError)}}
-                                            >
-                                                <option value="">Select Notice Period</option>
-                                                <option value="30 Days">30 Days</option>
-                                                <option value="40 Days">40 Days</option>
-                                                <option value="60 Days">60 Days</option>
-                                                <option value="Customized">Customized (user-defined)</option>
-                                            </select>
-                                        </div>
-                                        {formData.noticePeriod === 'Customized' && (
-                                            <div style={{marginTop: '10px'}}>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Enter customized notice period (e.g., 90 Days)"
-                                                    value={formData.customNoticePeriod}
-                                                    onChange={(e) => handleInputChange('customNoticePeriod', e.target.value)}
-                                                    style={formStyles.input}
-                                                />
-                                            </div>
-                                        )}
-                                        {errors.noticePeriod && <div style={formStyles.error}>{errors.noticePeriod}</div>}
-                                    </div>
-
-                                    {/* Description */}
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={formStyles.label}>Describe your Job Profile</label>
-                                        <textarea
-                                            placeholder="Describe your Job"
-                                            value={formData.description}
-                                            onChange={(e) => handleInputChange('description', e.target.value)}
-                                            style={{...formStyles.textarea, ...(errors.description && formStyles.textareaError)}}
-                                        />
-                                        {errors.description && <div style={formStyles.error}>{errors.description}</div>}
-                                        <small style={{fontSize: '12px', color: '#999', marginTop: '4px'}}>Optional: {formData.description.length}/1000 characters</small>
-                                    </div>
-
-                                    {/* Project Details */}
-                                    <div style={formStyles.fieldGroup}>
-                                        <label style={formStyles.label}>Project Details</label>
-                                        <textarea
-                                            placeholder="Enter Project Details"
-                                            value={formData.projectDetails}
-                                            onChange={(e) => handleInputChange('projectDetails', e.target.value)}
-                                            style={{...formStyles.textarea, ...(errors.projectDetails && formStyles.textareaError)}}
-                                        />
-                                        {errors.projectDetails && <div style={formStyles.error}>{errors.projectDetails}</div>}
-                                    </div>
-                                </div>
-
-                                {/* Buttons */}
-                                <div style={formStyles.buttonGroup}>
-                                    <button
-                                        type="button"
-                                        data-bs-dismiss="modal"
-                                        style={{...formStyles.button, background: '#e0e0e0', color: '#333'}}
-                                    >
-                                        Close
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={clearForm}
-                                        style={{...formStyles.button, background: '#f5f5f5', color: '#333', border: '1px solid #ddd'}}
-                                    >
-                                        Clear
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleSave}
-                                        disabled={loading}
-                                        style={{...formStyles.button, background: '#007bff', color: 'white', opacity: loading ? 0.6 : 1}}
-                                    >
-                                        {loading ? 'Saving...' : 'Save'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Job Description Modal */}
-                    <div className="modal fade twm-saved-jobs-view" id={descModalId} tabIndex={-1}>
-                        <div className="modal-dialog modal-dialog-centered" style={{maxWidth: '600px'}}>
-                            <div className="modal-content">
-                                <div style={formStyles.modalHeader}>
-                                    <h2 style={formStyles.modalTitle}>Job Description</h2>
-                                    <button type="button" style={formStyles.closeButton} data-bs-dismiss="modal" aria-label="Close">×</button>
-                                </div>
-                                <div style={{padding: '20px', maxHeight: '400px', overflowY: 'auto'}}>
-                                    <p style={{whiteSpace: 'pre-wrap', fontSize: '14px', lineHeight: '1.6', color: '#333', margin: 0}}>
-                                        {selectedDescription || 'No description provided.'}
-                                    </p>
-                                </div>
-                                <div style={formStyles.buttonGroup}>
-                                    <button
-                                        type="button"
-                                        data-bs-dismiss="modal"
-                                        style={{...formStyles.button, background: '#007bff', color: 'white'}}
-                                    >
-                                        Close
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </Fragment>,
-                document.body
-            )}
-        </>
+        </div>
     );
 }
 

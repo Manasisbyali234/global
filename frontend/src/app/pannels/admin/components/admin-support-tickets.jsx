@@ -455,7 +455,7 @@ function AdminSupportTickets() {
                                                         className={`tickets-row ${!ticket.isRead ? 'unread-ticket' : ''}`}
                                                         onClick={() => handleTicketClick(ticket)}
                                                     >
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.subject}>
+                                                        <td style={{whiteSpace: 'normal', wordWrap: 'break-word'}} title={ticket.subject}>
                                                             <div className="ticket-subject">
                                                                 {ticket.subject}
                                                             </div>
