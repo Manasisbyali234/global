@@ -1017,30 +1017,28 @@ exports.processFileApproval = async (req, res) => {
           originalRowData: row
         });
         
-        // Send welcome email with login credentials only if password exists in Excel
-        if (password && password.trim()) {
-          try {
-            await sendPlacementCandidateWelcomeEmail(
-              email.trim().toLowerCase(),
-              name.trim(),
-              password.trim(),
-              placement.name,
-              placement.collegeName,
-              finalCredits
-            );
-          
-            // Update placement candidate record to mark email as sent
-            await PlacementCandidate.findOneAndUpdate(
-              { candidateId: candidate._id },
-              { 
-                welcomeEmailSent: true,
-                welcomeEmailSentAt: new Date()
-              }
-            );
-          } catch (emailError) {
-            console.error(`Failed to send welcome email to ${email}:`, emailError);
-            // Continue processing even if email fails
-          }
+        // Send welcome email to placement candidate after approval
+        try {
+          await sendPlacementCandidateWelcomeEmail(
+            email.trim().toLowerCase(),
+            name.trim(),
+            password ? password.trim() : 'N/A',
+            placement.name,
+            placement.collegeName,
+            finalCredits
+          );
+        
+          // Update placement candidate record to mark email as sent
+          await PlacementCandidate.findOneAndUpdate(
+            { candidateId: candidate._id },
+            { 
+              welcomeEmailSent: true,
+              welcomeEmailSentAt: new Date()
+            }
+          );
+        } catch (emailError) {
+          console.error(`Failed to send welcome email to ${email}:`, emailError);
+          // Continue processing even if email fails
         }
         
         createdCandidates.push({
