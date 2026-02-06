@@ -731,6 +731,30 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 									style={{ marginBottom: '1rem' }}
 								/>
 							)}
+							{q.type === "questionary-image-mcq" && (
+								<div className="mb-3">
+									<label className="form-label small text-muted mb-1">Question Image (Optional)</label>
+									<input
+										type="file"
+										className="form-control"
+										accept="image/*"
+										onChange={(e) => handleImageUpload(qIndex, e.target.files[0])}
+									/>
+									{q.imageUrl && (
+										<div className="mt-2">
+											<img src={q.imageUrl} alt="Question" style={{maxWidth: '200px', maxHeight: '150px'}} />
+											<button
+												type="button"
+												className="btn btn-sm ms-2"
+												style={{backgroundColor: '#ff6600', color: 'white', border: 'none'}}
+												onClick={() => handleQuestionChange(qIndex, "imageUrl", "")}
+											>
+												Remove
+											</button>
+										</div>
+									)}
+								</div>
+							)}
 							{q.type === "mcq" || q.type === "visual-mcq" || q.type === "questionary-image-mcq" || q.type === "image-mcq" ? (
 								<>
 									<div className="row mb-3">

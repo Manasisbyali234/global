@@ -17,15 +17,15 @@ export default function AssessmentDashboard() {
 
 	const handleCreateAssessmentClick = () => {
 		showConfirmation(
-			'🔐 End-to-end encryption keeps your assessments secure \u00A0\u00A0\u00A0between you and the candidates you choose.\n\n' +
-			'👁️‍🗨️ Not even Tale-Global can read or copy the content\n' +
-			'🛡️ No one outside can read, copy, or share them\n' +
-			'❓ Questions and answers are protected\n' +
-			'📄Assessment content is encrypted\n' +
-			'🛡️ Candidate responses are secure\n' +
-			'📊 Results and evaluations are private\n' +
-			'🗄️ All assessment data is protected\n' +
-			'✅Agree to terms and conditions or not',
+			'🔐 End-to-end encryption keeps your assessments secure \u00A0\u00A0\u00A0\u00A0between you and the candidates you choose.\n\n' +
+			'👁️ Not even Tale-Global can read or copy the content\n' +
+			'🚷 No one outside can read, copy, or share them\n' +
+			'🧠 Questions and answers are protected\n' +
+			'📑Assessment content is encrypted\n' +
+			'🧾 Candidate responses are secure\n' +
+			'📉 Results and evaluations are private\n' +
+			'🏦  All assessment data is protected\n' +
+			'✔️Agree to terms and conditions ',
 			() => setShowModal(true),
 			null,
 			'info'
@@ -62,7 +62,8 @@ export default function AssessmentDashboard() {
 					setFilteredAssessments(updatedAssessments);
 					setShowModal(false);
 					setEditingAssessment(null);
-					showSuccess('Assessment updated successfully!');
+					const successMessage = assessmentData.status === 'draft' ? 'Assessment Draft updated successfully!' : 'Assessment updated successfully!';
+					showSuccess(successMessage);
 				}
 			} else {
 				// Create new assessment

@@ -569,7 +569,7 @@ function AdminSubAdmin() {
                                         </div>
 
                                         <div className="col-12 mt-4 admin-sub-admin-permissions">
-                                            <label className="form-label fw-semibold text-dark mb-3">Permissions *</label>
+                                            <label className="form-label fw-semibold text-dark mb-3">Permissions  <span style={{ color: 'red' }}>*</span></label>
                                             {validationErrors.permissions && (
                                                 <div className="alert alert-danger py-2 mb-3">
                                                     <i className="fa fa-exclamation-circle me-1"></i>
@@ -627,24 +627,6 @@ function AdminSubAdmin() {
                                                                 <i className="fa fa-users fa-2x mb-2" style={{ color: formData.permissions.includes('registered_candidates') ? '#fd7e14' : '#6c757d' }}></i>
                                                                 <span className="fw-medium">Registered Candidates</span>
                                                                 <small className="text-muted">Manage candidate accounts</small>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-4">
-                                                    <div className="card border-2 h-100" style={{ cursor: 'pointer', borderColor: formData.permissions.includes('support_tickets') ? '#fd7e14' : '#dee2e6' }}>
-                                                        <div className="card-body text-center p-3">
-                                                            <input
-                                                                className="form-check-input d-none"
-                                                                type="checkbox"
-                                                                id="support_tickets"
-                                                                checked={formData.permissions.includes('support_tickets')}
-                                                                onChange={() => handlePermissionChange('support_tickets')}
-                                                            />
-                                                            <label className="form-check-label w-100 h-100 d-flex flex-column align-items-center justify-content-center" htmlFor="support_tickets" style={{ cursor: 'pointer' }}>
-                                                                <i className="fa fa-headset fa-2x mb-2" style={{ color: formData.permissions.includes('support_tickets') ? '#fd7e14' : '#6c757d' }}></i>
-                                                                <span className="fw-medium">Support Tickets</span>
-                                                                <small className="text-muted">Manage support tickets</small>
                                                             </label>
                                                         </div>
                                                     </div>

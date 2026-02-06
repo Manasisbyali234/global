@@ -212,14 +212,12 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                             </li>
                         )}
 
-                        {hasPermission('support_tickets') && (
-                            <li className={setMenuActive(currentpath, adminRoute(admin.SUPPORT_TICKETS))}>
-                                <NavLink to={adminRoute(admin.SUPPORT_TICKETS)}>
-                                    <i className="fa fa-headset" />
-                                    <span className="admin-nav-text">Support Tickets</span>
-                                </NavLink>
-                            </li>
-                        )}
+                        <li className={setMenuActive(currentpath, adminRoute(admin.SUPPORT_TICKETS))}>
+                            <NavLink to={adminRoute(admin.SUPPORT_TICKETS)}>
+                                <i className="fa fa-headset" />
+                                <span className="admin-nav-text">Support Tickets</span>
+                            </NavLink>
+                        </li>
 
                         {hasPermission('transactions') && (
                             <li className={setMenuActive(currentpath, adminRoute(admin.TRANSACTIONS))}>

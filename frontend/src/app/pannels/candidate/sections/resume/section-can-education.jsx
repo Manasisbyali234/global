@@ -1379,7 +1379,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                                     name="courseName"
                                                     value={formData.courseName}
                                                     onChange={handleInputChange}
-                                                    placeholder="Enter course name/stream (optional for SSLC)"
+                                                    placeholder="Enter course name"
                                                 />
                                                 {errors.courseName && <div className="invalid-feedback">{errors.courseName}</div>}
                                             </div>

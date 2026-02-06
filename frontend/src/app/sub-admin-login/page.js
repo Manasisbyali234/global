@@ -111,21 +111,28 @@ export default function SubAdminLogin() {
                                                     placeholder="Password"
                                                     value={formData.password}
                                                     onChange={handleChange}
-                                                    style={{ paddingRight: '40px' }}
+                                                    style={{ paddingRight: '60px' }}
                                                 />
                                                 <span
                                                     onClick={() => setShowPassword(!showPassword)}
                                                     style={{
                                                         position: 'absolute',
-                                                        right: '12px',
+                                                        right: '10px',
                                                         top: '50%',
                                                         transform: 'translateY(-50%)',
                                                         cursor: 'pointer',
-                                                        fontSize: '18px',
-                                                        color: '#666'
+                                                        color: '#6c757d',
+                                                        fontSize: '16px',
+                                                        zIndex: '10',
+                                                        userSelect: 'none',
+                                                        display: 'inline-block',
+                                                        width: '20px',
+                                                        height: '20px',
+                                                        textAlign: 'center',
+                                                        lineHeight: '20px'
                                                     }}
                                                 >
-                                                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                                                    <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
                                                 </span>
                                             </div>
 
