@@ -299,7 +299,6 @@ input[type="file"]:focus {
 }
 
 .text-danger::before {
-  content: '⚠️';
   font-size: 14px;
   animation: pulse 1s infinite;
 }

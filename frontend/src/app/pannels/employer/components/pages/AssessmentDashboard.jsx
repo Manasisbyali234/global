@@ -17,7 +17,7 @@ export default function AssessmentDashboard() {
 
 	const handleCreateAssessmentClick = () => {
 		showConfirmation(
-			'🔐 End-to-end encryption keeps your assessments secure \u00A0\u00A0\u00A0\u00A0between you and the candidates you choose.\n\n' +
+			'🔐 End-to-end encryption keeps your assessments private.\n\n' +
 			'👁️ Not even Tale-Global can read or copy the content\n' +
 			'🚷 No one outside can read, copy, or share them\n' +
 			'🧠 Questions and answers are protected\n' +
