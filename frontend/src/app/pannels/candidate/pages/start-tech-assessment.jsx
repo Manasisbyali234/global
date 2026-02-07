@@ -190,7 +190,7 @@ const StartAssessment = () => {
             
             // Check if getUserMedia is supported
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                console.warn('⚠️ getUserMedia not supported, continuing without capture');
+                console.warn(' getUserMedia not supported, continuing without capture');
                 setWebcamStatus('failed');
                 return;
             }
@@ -252,7 +252,7 @@ const StartAssessment = () => {
                 }
             }
         } catch (error) {
-            console.warn('⚠️ Webcam initialization failed:', {
+            console.warn(' Webcam initialization failed:', {
                 name: error.name,
                 message: error.message,
                 constraint: error.constraint
@@ -289,7 +289,7 @@ const StartAssessment = () => {
         const video = videoRef.current;
         
         if (video.videoWidth === 0 || video.videoHeight === 0) {
-            console.warn('⚠️ Video not ready, retrying...', {
+            console.warn(' Video not ready, retrying...', {
                 videoWidth: video.videoWidth,
                 videoHeight: video.videoHeight,
                 readyState: video.readyState
@@ -311,7 +311,7 @@ const StartAssessment = () => {
             const hasActiveTrack = videoTracks && videoTracks.length > 0 && videoTracks[0].readyState === 'live';
             
             if (video.paused || video.ended || !hasActiveTrack) {
-                console.warn('⚠️ Video not ready for capture:', {
+                console.warn(' Video not ready for capture:', {
                     paused: video.paused,
                     ended: video.ended,
                     hasActiveTrack,
@@ -335,7 +335,7 @@ const StartAssessment = () => {
                 
                 // Check if blob is too small (likely corrupted/black image)
                 if (blob.size < 1000) {
-                    console.warn('⚠️ Blob size very small, image might be black:', blob.size);
+                    console.warn(' Blob size very small, image might be black:', blob.size);
                 }
                 
                 console.log('📦 Blob created:', {

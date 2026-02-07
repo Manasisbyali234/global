@@ -20,7 +20,8 @@ const ConfirmationDialog = ({ message, onConfirm, onCancel, type = 'warning' }) 
           <div className="popup-icon">
             {type === 'warning' && '⚠'}
             {type === 'error' && '✕'}
-            {type === 'info' && 'ℹ'}
+            {type === 'info' && <span className="text-normal" style={{ fontWeight: 'normal', fontSize: '20px' }}>Consent</span>}
+
           </div>
           <div className="popup-message-left">{message}</div>
           <div className="popup-buttons" style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
