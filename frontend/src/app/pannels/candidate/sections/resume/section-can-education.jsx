@@ -148,27 +148,29 @@ function SectionCanEducation({ profile, onUpdate }) {
     });
 
     useEffect(() => {
-        if (profile && profile.education) {
-            const entries = profile.education.map((edu, index) => {
-                return {
-                    id: `edu_${index}_${Date.now()}`,
-                    educationLevel: edu.educationLevel || 'degree',
-                    schoolCollegeName: edu.collegeName || '',
-                    boardUniversityName: edu.degreeName || '',
-                    registrationNumber: edu.registrationNumber || '',
-                    state: edu.state || '',
-                    result: edu.grade || (edu.percentage ? 'Passed' : ''),
-                    percentage: edu.percentage || '',
-                    cgpa: edu.cgpa || '',
-                    securedMarks: '',
-                    maximumMarks: '',
-                    courseName: edu.specialization || '',
-                    yearOfPassing: edu.passYear || '',
-                    specialization: edu.specialization || '',
-                    documentBase64: edu.marksheet || null,
-                    documentName: edu.marksheet ? 'Uploaded Document' : ''
-                };
-            });
+        if (profile && profile.education && profile.education.length > 0) {
+            const entries = profile.education
+                .filter(edu => edu.educationLevel) // Only include entries with educationLevel
+                .map((edu, index) => {
+                    return {
+                        id: `edu_${index}_${Date.now()}`,
+                        educationLevel: edu.educationLevel,
+                        schoolCollegeName: edu.collegeName || '',
+                        boardUniversityName: edu.degreeName || '',
+                        registrationNumber: edu.registrationNumber || '',
+                        state: edu.state || '',
+                        result: edu.grade || (edu.percentage ? 'Passed' : ''),
+                        percentage: edu.percentage || '',
+                        cgpa: edu.cgpa || '',
+                        securedMarks: '',
+                        maximumMarks: '',
+                        courseName: edu.specialization || '',
+                        yearOfPassing: edu.passYear || '',
+                        specialization: edu.specialization || '',
+                        documentBase64: edu.marksheet || null,
+                        documentName: edu.marksheet ? 'Uploaded Document' : ''
+                    };
+                });
             console.log('Loaded education entries from profile:', entries);
             setEducationEntries(entries);
         }

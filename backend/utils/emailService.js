@@ -70,7 +70,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
             <p style="margin: 0;">Warm regards,</p>
             <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
             <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -94,7 +94,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
             <p style="margin: 0;">Best regards,</p>
             <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
             <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -127,7 +127,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
             <p style="margin: 0;">Regards,</p>
             <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
             <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
             <p style="margin: 0;">Regards,</p>
             <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
             <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -219,7 +219,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
           <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <p style="margin: 0;">Warm regards,</p>
             <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
             <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
           </div>
         </div>
@@ -459,7 +459,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
           <p style="margin: 0;">Best wishes for your career journey,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
           <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -527,7 +527,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
             <p style="margin: 0;">Warm regards,</p>
             <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
             <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+            <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
           </div>
         </div>
       </div>
@@ -900,7 +900,7 @@ const sendCandidateActiveProfileEmail = async (email, name, password) => {
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Warm regards,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
           <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
         </div>
       </div>
@@ -985,7 +985,7 @@ const sendPlacementAccessEnabledEmail = async (email, name, collegeName) => {
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Warm regards,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
           <p style="margin: 0; font-size: 14px;">🌐 <a href="http://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
         </div>
       </div>
@@ -1037,7 +1037,7 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
           <p style="margin: 0;">Best wishes for your career journey,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
           <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1071,7 +1071,7 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
           <p style="margin: 0;">Warm regards,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
           <p style="margin: 0; font-size: 14px;">🌐 <a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
-          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a></p>
+          <p style="margin: 0; font-size: 14px;">📧 <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a></p>
         </div>
       </div>
     </div>
@@ -1157,7 +1157,7 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
         </ul>
         
         <p>We look forward to supporting your hiring needs.</p>
-        <p>For queries, contact <a href="mailto:info@taleglobal.net" style="color: #ff6b35; text-decoration: none;">info@taleglobal.net</a>.</p>
+        <p>For queries, contact <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a>.</p>
         
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Best regards,</p>

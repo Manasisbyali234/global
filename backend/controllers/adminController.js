@@ -1979,74 +1979,135 @@ exports.approveIndividualFile = async (req, res) => {
           
           // Check if user already exists in any role
           const existingUser = await checkEmailExists(email);
+          let candidate;
+          
           if (existingUser) {
-            skippedCount++;
-            skippedCandidates.push({
-              name: name.trim(),
-              email: email.trim().toLowerCase(),
-              reason: 'Email already registered in another role'
-            });
-            continue;
+            // If it's a candidate, we might want to still process them for placement
+            if (existingUser.role === 'candidate') {
+              console.log(`User ${email} already exists as candidate. Checking placement record...`);
+              candidate = existingUser.user;
+              
+              // Check if they already have a placement candidate record for THIS placement and file
+              const existingPC = await PlacementCandidate.findOne({
+                candidateId: candidate._id,
+                placementId: placement._id
+              });
+              
+              if (existingPC && existingPC.welcomeEmailSent) {
+                console.log(`Skipping existing candidate: ${email} - Placement record already exists and email sent.`);
+                skippedCount++;
+                skippedCandidates.push({
+                  name: name.trim(),
+                  email: email.trim().toLowerCase(),
+                  reason: 'Candidate already registered and welcome email sent'
+                });
+                continue;
+              }
+              
+              // If we reach here, we will update/create the placement record and send email
+              console.log(`Proceeding with existing candidate: ${email} to send welcome email.`);
+            } else {
+              console.log(`Skipping existing user: ${email} in role: ${existingUser.role}`);
+              skippedCount++;
+              skippedCandidates.push({
+                name: name.trim(),
+                email: email.trim().toLowerCase(),
+                reason: `Email already registered as ${existingUser.role}`
+              });
+              continue;
+            }
           }
           
           // Use file-specific credits or individual row credits
           const rowCredits = parseInt(row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || 0);
           const finalCredits = rowCredits || file.credits || placement.credits || 0;
           
-          // Create candidate with placement credentials
-          const candidate = await Candidate.create({
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            password: password.trim(),
-            phone: phone ? phone.toString().trim() : '',
-            course: course ? course.trim() : '',
-            credits: finalCredits,
-            registrationMethod: 'placement',
-            placementId: placement._id,
-            fileId: file._id,
-            isVerified: true,
-            status: 'active'
-          });
-          
-          // Create candidate profile
-          await CandidateProfile.create({ 
-            candidateId: candidate._id,
-            collegeName: collegeName || placement.collegeName,
-            education: [{
-              degreeName: course ? course.trim() : '',
+          if (!candidate) {
+            // Create candidate with placement credentials
+            candidate = await Candidate.create({
+              name: name.trim(),
+              email: email.trim().toLowerCase(),
+              password: password.trim(),
+              phone: phone ? phone.toString().trim() : '',
+              course: course ? course.trim() : '',
+              credits: finalCredits,
+              registrationMethod: 'placement',
+              placementId: placement._id,
+              fileId: file._id,
+              isVerified: true,
+              status: 'active'
+            });
+            
+            // Create candidate profile
+            await CandidateProfile.create({ 
+              candidateId: candidate._id,
               collegeName: collegeName || placement.collegeName,
-              scoreType: 'percentage',
-              scoreValue: '0'
-            }]
+              education: [{
+                degreeName: course ? course.trim() : '',
+                collegeName: collegeName || placement.collegeName,
+                scoreType: 'percentage',
+                scoreValue: '0'
+              }]
+            });
+            
+            createdCount++;
+          } else {
+            // Update existing candidate credits if needed
+            if (finalCredits > 0) {
+              await Candidate.findByIdAndUpdate(candidate._id, {
+                $inc: { credits: finalCredits }
+              });
+            }
+          }
+          
+          // Create or Update placement candidate record
+          let placementCandidate = await PlacementCandidate.findOne({
+            candidateId: candidate._id,
+            placementId: placement._id
           });
           
-          // Create placement candidate record with enhanced data
-          const placementCandidate = await PlacementCandidate.create({
-            candidateId: candidate._id,
-            studentName: name.trim(),
-            studentEmail: email.trim().toLowerCase(),
-            studentPhone: phone ? phone.toString().trim() : '',
-            course: course ? course.trim() : '',
-            collegeName: collegeName || placement.collegeName,
-            placementId: placement._id,
-            placementOfficerName: placement.name,
-            placementOfficerEmail: placement.email,
-            placementOfficerPhone: placement.phone,
-            fileId: file._id,
-            fileName: file.customName || file.fileName,
-            status: 'approved',
-            approvedAt: new Date(),
-            approvedBy: req.user.id,
-            creditsAssigned: finalCredits,
-            originalRowData: row
-          });
+          if (placementCandidate) {
+             placementCandidate.status = 'approved';
+             placementCandidate.approvedAt = new Date();
+             placementCandidate.approvedBy = req.user.id;
+             placementCandidate.creditsAssigned = (placementCandidate.creditsAssigned || 0) + finalCredits;
+             placementCandidate.studentName = name.trim();
+             placementCandidate.studentPhone = phone ? phone.toString().trim() : placementCandidate.studentPhone;
+             placementCandidate.course = course ? course.trim() : placementCandidate.course;
+             placementCandidate.fileId = file._id;
+             placementCandidate.fileName = file.customName || file.fileName;
+             await placementCandidate.save();
+          } else {
+            placementCandidate = await PlacementCandidate.create({
+              candidateId: candidate._id,
+              studentName: name.trim(),
+              studentEmail: email.trim().toLowerCase(),
+              studentPhone: phone ? phone.toString().trim() : '',
+              course: course ? course.trim() : '',
+              collegeName: collegeName || placement.collegeName,
+              placementId: placement._id,
+              placementOfficerName: placement.name,
+              placementOfficerEmail: placement.email,
+              placementOfficerPhone: placement.phone,
+              fileId: file._id,
+              fileName: file.customName || file.fileName,
+              status: 'approved',
+              approvedAt: new Date(),
+              approvedBy: req.user.id,
+              creditsAssigned: finalCredits,
+              originalRowData: row
+            });
+          }
           
           // Send welcome email with create password link
           try {
-            const { sendCandidateDetailsUpdatedEmail } = require('../utils/emailService');
-            await sendCandidateDetailsUpdatedEmail(
+            const { sendPlacementCandidateWelcomeEmail } = require('../utils/emailService');
+            await sendPlacementCandidateWelcomeEmail(
               email.trim().toLowerCase(),
               name.trim(),
+              password.trim(),
+              placement.name,
+              collegeName || placement.collegeName,
               finalCredits
             );
             
@@ -3385,66 +3446,119 @@ exports.approveAllStudentsInPlacement = async (req, res) => {
                 
                 // Check if user already exists in any role
                 const existingUser = await checkEmailExists(email);
+                let candidate;
+                
                 if (existingUser) {
-                  continue;
+                  // If it's a candidate, we might want to still process them for placement
+                  if (existingUser.role === 'candidate') {
+                    console.log(`User ${email} already exists as candidate. Checking placement record...`);
+                    candidate = existingUser.user;
+                    
+                    // Check if they already have a placement candidate record for THIS placement and file
+                    const existingPC = await PlacementCandidate.findOne({
+                      candidateId: candidate._id,
+                      placementId: placement._id
+                    });
+                    
+                    if (existingPC && existingPC.welcomeEmailSent) {
+                      console.log(`Skipping existing candidate: ${email} - Placement record already exists and email sent.`);
+                      continue;
+                    }
+                    
+                    // If we reach here, we will update/create the placement record and send email
+                    console.log(`Proceeding with existing candidate: ${email} to send welcome email.`);
+                  } else {
+                    console.log(`Skipping existing user: ${email} in role: ${existingUser.role}`);
+                    continue;
+                  }
                 }
                 
                 const rowCredits = parseInt(row['Credits Assigned'] || row.Credits || file.credits || placement.credits || 0);
                 
-                // Create candidate
-                const candidate = await Candidate.create({
-                  name: name.trim(),
-                  email: email.trim().toLowerCase(),
-                  password: password.trim(),
-                  phone: phone ? phone.toString().trim() : '',
-                  course: course ? course.trim() : '',
-                  credits: rowCredits,
-                  registrationMethod: 'placement',
-                  placementId: placement._id,
-                  fileId: file._id,
-                  isVerified: true,
-                  status: 'active'
-                });
-                
-                // Create candidate profile
-                await CandidateProfile.create({ 
-                  candidateId: candidate._id,
-                  collegeName: collegeName || placement.collegeName,
-                  education: [{
-                    degreeName: course ? course.trim() : '',
+                if (!candidate) {
+                  // Create candidate
+                  candidate = await Candidate.create({
+                    name: name.trim(),
+                    email: email.trim().toLowerCase(),
+                    password: password.trim(),
+                    phone: phone ? phone.toString().trim() : '',
+                    course: course ? course.trim() : '',
+                    credits: rowCredits,
+                    registrationMethod: 'placement',
+                    placementId: placement._id,
+                    fileId: file._id,
+                    isVerified: true,
+                    status: 'active'
+                  });
+                  
+                  // Create candidate profile
+                  await CandidateProfile.create({ 
+                    candidateId: candidate._id,
                     collegeName: collegeName || placement.collegeName,
-                    scoreType: 'percentage',
-                    scoreValue: '0'
-                  }]
+                    education: [{
+                      degreeName: course ? course.trim() : '',
+                      collegeName: collegeName || placement.collegeName,
+                      scoreType: 'percentage',
+                      scoreValue: '0'
+                    }]
+                  });
+                } else {
+                  // Update existing candidate credits if needed
+                  if (rowCredits > 0) {
+                    await Candidate.findByIdAndUpdate(candidate._id, {
+                      $inc: { credits: rowCredits }
+                    });
+                  }
+                }
+                
+                // Create or Update placement candidate record
+                let placementCandidate = await PlacementCandidate.findOne({
+                  candidateId: candidate._id,
+                  placementId: placement._id
                 });
                 
-                // Create placement candidate record
-                const placementCandidate = await PlacementCandidate.create({
-                  candidateId: candidate._id,
-                  studentName: name.trim(),
-                  studentEmail: email.trim().toLowerCase(),
-                  studentPhone: phone ? phone.toString().trim() : '',
-                  course: course ? course.trim() : '',
-                  collegeName: collegeName || placement.collegeName,
-                  placementId: placement._id,
-                  placementOfficerName: placement.name,
-                  placementOfficerEmail: placement.email,
-                  placementOfficerPhone: placement.phone,
-                  fileId: file._id,
-                  fileName: file.customName || file.fileName,
-                  status: 'approved',
-                  approvedAt: new Date(),
-                  approvedBy: req.user.id,
-                  creditsAssigned: rowCredits,
-                  originalRowData: row
-                });
+                if (placementCandidate) {
+                   placementCandidate.status = 'approved';
+                   placementCandidate.approvedAt = new Date();
+                   placementCandidate.approvedBy = req.user.id;
+                   placementCandidate.creditsAssigned = (placementCandidate.creditsAssigned || 0) + rowCredits;
+                   placementCandidate.studentName = name.trim();
+                   placementCandidate.studentPhone = phone ? phone.toString().trim() : placementCandidate.studentPhone;
+                   placementCandidate.course = course ? course.trim() : placementCandidate.course;
+                   placementCandidate.fileId = file._id;
+                   placementCandidate.fileName = file.customName || file.fileName;
+                   await placementCandidate.save();
+                } else {
+                  placementCandidate = await PlacementCandidate.create({
+                    candidateId: candidate._id,
+                    studentName: name.trim(),
+                    studentEmail: email.trim().toLowerCase(),
+                    studentPhone: phone ? phone.toString().trim() : '',
+                    course: course ? course.trim() : '',
+                    collegeName: collegeName || placement.collegeName,
+                    placementId: placement._id,
+                    placementOfficerName: placement.name,
+                    placementOfficerEmail: placement.email,
+                    placementOfficerPhone: placement.phone,
+                    fileId: file._id,
+                    fileName: file.customName || file.fileName,
+                    status: 'approved',
+                    approvedAt: new Date(),
+                    approvedBy: req.user.id,
+                    creditsAssigned: rowCredits,
+                    originalRowData: row
+                  });
+                }
                 
                 // Send welcome email
                 try {
-                  const { sendCandidateDetailsUpdatedEmail } = require('../utils/emailService');
-                  await sendCandidateDetailsUpdatedEmail(
+                  const { sendPlacementCandidateWelcomeEmail } = require('../utils/emailService');
+                  await sendPlacementCandidateWelcomeEmail(
                     email.trim().toLowerCase(),
                     name.trim(),
+                    password.trim(),
+                    placement.name,
+                    collegeName || placement.collegeName,
                     rowCredits
                   );
                   
