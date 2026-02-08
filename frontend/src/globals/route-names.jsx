@@ -121,6 +121,7 @@ export const admin = {
     PLACEMENT_MANAGE: "/admin-placement-manage",
     PLACEMENT_APPROVE: "/admin-placement-approved",
     PLACEMENT_REJECT: "/admin-placement-rejected",
+    PLACEMENT_BATCH_UPLOAD: "/placement-batch-upload",
     PLACEMENT_DETAILS: "/placement-details/:id",
     SUB_ADMIN: "/sub-admin",
     SUB_ADMIN_ADD: "/sub-admin/add",

@@ -300,7 +300,12 @@ function PlacementDashboardRedesigned() {
                 setShowEditModal(false);
                 setLogoPreview(null);
                 setIdCardPreview(null);
+                
+                // Refresh local state
                 await fetchPlacementDetails();
+                
+                // Dispatch event to update AuthContext
+                window.dispatchEvent(new Event('PlacementProfileUpdated'));
             } else {
                 showError(response?.message || 'Failed to update profile');
             }
@@ -1348,7 +1353,7 @@ function PlacementDashboardRedesigned() {
                             </button>
                         </div>
                         <div className="modal-body">
-                            <h4 className="modal-section-title">Personal Information</h4>
+                            <h4 className="modal-section-title">Personal Information <small style={{fontSize: '11px', fontWeight: 'normal', color: '#666'}}>(Primary Info is Read-only)</small></h4>
                             <div className="form-group">
                                 <label>First Name <span className="required" style={{color: 'red'}}>*</span></label>
                                 <input
@@ -1356,6 +1361,8 @@ function PlacementDashboardRedesigned() {
                                     value={editFormData.firstName || ''}
                                     onChange={(e) => setEditFormData({...editFormData, firstName: e.target.value})}
                                     placeholder="Enter your first name"
+                                    disabled={true}
+                                    style={{backgroundColor: '#f3f4f6', cursor: 'not-allowed'}}
                                 />
                             </div>
                             <div className="form-group">
@@ -1365,6 +1372,8 @@ function PlacementDashboardRedesigned() {
                                     value={editFormData.lastName || ''}
                                     onChange={(e) => setEditFormData({...editFormData, lastName: e.target.value})}
                                     placeholder="Enter your last name"
+                                    disabled={true}
+                                    style={{backgroundColor: '#f3f4f6', cursor: 'not-allowed'}}
                                 />
                             </div>
                             <div className="form-group">
@@ -1374,6 +1383,8 @@ function PlacementDashboardRedesigned() {
                                     value={editFormData.phone || ''}
                                     onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
                                     placeholder="Enter your phone number"
+                                    disabled={true}
+                                    style={{backgroundColor: '#f3f4f6', cursor: 'not-allowed'}}
                                 />
                             </div>
                             

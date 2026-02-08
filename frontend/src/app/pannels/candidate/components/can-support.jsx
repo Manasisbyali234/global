@@ -366,7 +366,7 @@ function CanSupport() {
                         </div>
                         <p className="mb-4">
                             Thank you for contacting our support team.<br />
-                            We have received your ticket and will respond within 3 days.
+                            We have received your ticket and will respond within 3 Working Days.
                         </p>
                         <button 
                             onClick={() => setIsSubmitted(false)} 
@@ -434,7 +434,6 @@ function CanSupport() {
                                                 value={formData.email}
                                                 onChange={handleChange}
                                                 disabled={isLoadingProfile}
-                                                readOnly
                                             />
                                             {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                                         </div>

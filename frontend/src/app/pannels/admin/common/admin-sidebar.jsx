@@ -94,7 +94,8 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         const isPlacementPath = [
             adminRoute(admin.PLACEMENT_MANAGE),
             adminRoute(admin.PLACEMENT_APPROVE),
-            adminRoute(admin.PLACEMENT_REJECT)
+            adminRoute(admin.PLACEMENT_REJECT),
+            adminRoute(admin.PLACEMENT_BATCH_UPLOAD)
         ].includes(currentpath);
 
         setOpenMenus({
@@ -201,6 +202,11 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     <li className={currentpath === adminRoute(admin.PLACEMENT_REJECT) ? 'active' : ''}>
                                         <NavLink to={adminRoute(admin.PLACEMENT_REJECT)}>
                                             <span className="admin-nav-text">Rejected</span>
+                                        </NavLink>
+                                    </li>
+                                    <li className={currentpath === adminRoute(admin.PLACEMENT_BATCH_UPLOAD) ? 'active' : ''}>
+                                        <NavLink to={adminRoute(admin.PLACEMENT_BATCH_UPLOAD)}>
+                                            <span className="admin-nav-text">Batch Uploads</span>
                                         </NavLink>
                                     </li>
                                     <li>

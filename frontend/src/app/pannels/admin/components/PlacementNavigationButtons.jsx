@@ -17,6 +17,12 @@ function PlacementNavigationButtons() {
             label: 'Excel Uploads',
             path: '/admin/excel-uploads',
             icon: 'fa-file-excel-o'
+        },
+        {
+            id: 'batch-uploads',
+            label: 'Batch Uploads',
+            path: '/admin/placement-batch-upload',
+            icon: 'fa-list-alt'
         }
     ];
 

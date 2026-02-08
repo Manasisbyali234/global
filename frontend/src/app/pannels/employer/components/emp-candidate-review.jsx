@@ -687,12 +687,14 @@ function EmpCandidateReviewPage() {
                                                     </button>
                                                 </>
                                             )}
-                                            <button 
-                                                className={`${application.status === 'offer_sent' ? 'active' : ''}`}
-                                                onClick={() => updateApplicationStatus('offer_sent')}
-                                            >
-                                                <i className="fas fa-envelope"></i> Offer Letter Sent
-                                            </button>
+                                            {application.status !== 'hired' && (
+                                                <button 
+                                                    className={`${application.status === 'offer_sent' ? 'active' : ''}`}
+                                                    onClick={() => updateApplicationStatus('offer_sent')}
+                                                >
+                                                    <i className="fas fa-envelope"></i> Offer Letter Sent
+                                                </button>
+                                            )}
                                             {application.status !== 'shortlisted' && application.status !== 'hired' && (
                                                 <button 
                                                     className={`${application.status === 'rejected' ? 'active' : ''}`}

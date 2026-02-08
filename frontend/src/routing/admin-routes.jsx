@@ -17,6 +17,7 @@ import AdminPlacementOfficersAllRequest from "../app/pannels/admin/components/ad
 import AdminPlacementOfficersApproved from "../app/pannels/admin/components/admin-placement-approve";
 import AdminPlacementOfficersRejected from "../app/pannels/admin/components/admin-placement-reject";
 import AdminPlacementOfficersTabs from "../app/pannels/admin/components/admin-placement-manage-tabs.jsx";
+import AdminBatchUploads from "../app/pannels/admin/components/admin-placement-batch-uploads";
 import AdminIndividualCredit from "../app/pannels/admin/components/admin-individual-credit";
 import AdminJobsSkills from "../app/pannels/admin/components/admin-jobs-skills";
 import PlacementDetails from "../app/pannels/admin/components/placement-details.jsx";
@@ -55,6 +56,7 @@ function AdminRoutes() {
 				<Route path={admin.PLACEMENT_MANAGE} element={<AdminPlacementOfficersTabs />} />
 				<Route path={admin.PLACEMENT_APPROVE} element={<AdminPlacementOfficersApproved />} />
 				<Route path={admin.PLACEMENT_REJECT} element={<AdminPlacementOfficersRejected />} />
+				<Route path={admin.PLACEMENT_BATCH_UPLOAD} element={<AdminBatchUploads />} />
 				<Route path="/placement-details/:id" element={<PlacementDetails />} />
 				<Route path="/excel-uploads" element={<AdminExcelUploads />} />
 				<Route path="/placement-credits" element={<AdminIndividualCredit />} />

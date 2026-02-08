@@ -1561,22 +1561,38 @@ exports.updateProfile = async (req, res) => {
     
     const updateData = {};
     
-    // Handle name field - construct from firstName and lastName if provided
-    if (firstName && lastName) {
-      updateData.name = `${firstName.trim()} ${lastName.trim()}`;
-      updateData.firstName = firstName.trim();
-      updateData.lastName = lastName.trim();
-    } else if (name) {
-      updateData.name = name.trim();
-    }
+    // Primary info (name, firstName, lastName, phone) should NOT be editable by the user
+    // They are auto-fetched from signup/admin records
     
-    if (phone) updateData.phone = phone.trim();
     if (collegeName) updateData.collegeName = collegeName.trim();
     if (collegeAddress) updateData.collegeAddress = collegeAddress.trim();
-    if (collegeOfficialEmail) updateData.collegeOfficialEmail = collegeOfficialEmail.toLowerCase().trim();
-    if (collegeOfficialPhone) updateData.collegeOfficialPhone = collegeOfficialPhone.trim();
     
-    console.log('Constructed update data:', updateData);
+    // Check if collegeOfficialEmail is same as primary email
+    if (collegeOfficialEmail) {
+      const email = collegeOfficialEmail.toLowerCase().trim();
+      const existingPlacement = await Placement.findById(placementId);
+      if (existingPlacement && existingPlacement.email === email) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Official college email cannot be the same as your primary login email' 
+        });
+      }
+      updateData.collegeOfficialEmail = email;
+    }
+    
+    if (collegeOfficialPhone) {
+      const phoneVal = collegeOfficialPhone.trim();
+      const existingPlacement = await Placement.findById(placementId);
+      if (existingPlacement && existingPlacement.phone === phoneVal) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Official college phone cannot be the same as your primary login phone' 
+        });
+      }
+      updateData.collegeOfficialPhone = phoneVal;
+    }
+    
+    console.log('Constructed update data (restricted):', updateData);
     
     // Check if placement exists first
     const existingPlacement = await Placement.findById(placementId);
