@@ -222,7 +222,7 @@ function ForgotPassword() {
           </div>
           <div className="mb-3">
             <label className="form-label">New Password</label>
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
               <input
                 type={showPassword ? "text" : "password"}
                 className="form-control"
@@ -238,20 +238,28 @@ function ForgotPassword() {
                   });
                 }}
                 required
-                style={{ paddingRight: '40px' }}
+                style={{ paddingRight: '40px', height: '38px', lineHeight: '38px' }}
               />
-              <i
-                className={`fa ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}
+              <span
                 onClick={() => setShowPassword(!showPassword)}
                 style={{
                   position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
+                  right: '10px',
+                  top: '9px',
                   cursor: 'pointer',
-                  color: '#6c757d'
+                  color: '#6c757d',
+                  fontSize: '16px',
+                  lineHeight: '20px',
+                  userSelect: 'none',
+                  zIndex: 999,
+                  pointerEvents: 'auto',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}
-              ></i>
+              >
+                <i className={`fa ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+              </span>
             </div>
             {newPassword && (
               <div style={{ marginTop: '10px', padding: '15px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #dee2e6' }}>

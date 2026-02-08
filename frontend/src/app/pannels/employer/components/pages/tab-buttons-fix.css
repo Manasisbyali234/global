@@ -1,7 +1,6 @@
 /* Fix for overlapping tab buttons */
 .tab-btn {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
+    flex: 0 1 auto !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -15,8 +14,6 @@
     cursor: pointer !important;
     transition: all 0.3s ease !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
     box-sizing: border-box !important;
 }
 
