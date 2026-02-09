@@ -252,7 +252,7 @@ export default function ViewAnswers() {
                       textTransform: 'uppercase'
                     }}>
                       {question.type === 'mcq' ? 'MCQ' : 
-                       question.type === 'visual-mcq' ? 'Visual MCQ' :
+                       question.type === 'visual-mcq' ? 'Question with image' :
                        question.type === 'questionary-image-mcq' ? 'Option with image' :
                        question.type === 'image-mcq' ? 'Image MCQ' :
                        question.type === 'subjective' ? 'Subjective' : 'File/Image Upload'}
