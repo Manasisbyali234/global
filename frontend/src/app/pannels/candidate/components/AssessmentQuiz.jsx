@@ -260,26 +260,25 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
     
     const question = assessment.questions[currentQuestion];
     
-    if (question.type === 'image') {
-      const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-      if (!allowedImageTypes.includes(file.type)) {
-        alert('Invalid file type. Only JPG, JPEG, PNG, GIF, WEBP are allowed');
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size too large. Maximum 5MB allowed');
-        return;
-      }
-    } else {
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'];
-      if (!allowedTypes.includes(file.type)) {
-        alert('Invalid file type. Only PDF, DOC, DOCX, JPG, PNG are allowed');
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        alert('File size too large. Maximum 10MB allowed');
-        return;
-      }
+    const allowedTypes = [
+      'application/pdf', 
+      'application/msword', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+      'image/jpeg', 
+      'image/jpg',
+      'image/png', 
+      'image/gif',
+      'image/webp'
+    ];
+    
+    if (!allowedTypes.includes(file.type)) {
+      alert('Invalid file type. Only PDF, DOC, DOCX, JPG, PNG, GIF, WEBP are allowed');
+      return;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size too large. Maximum 10MB allowed');
+      return;
     }
     
     setUploading(true);

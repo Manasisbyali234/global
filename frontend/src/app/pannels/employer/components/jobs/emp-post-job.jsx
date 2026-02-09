@@ -1995,7 +1995,9 @@ export default function EmpPostJob({ onNext }) {
 							placeholder="e.g., 5"
 							value={formData.vacancies}
 							onChange={(e) => {
-								update({ vacancies: e.target.value });
+								const vacancies = e.target.value;
+								const applicationLimit = vacancies ? (parseInt(vacancies) + 1).toString() : '';
+								update({ vacancies, applicationLimit });
 							}}
 						/>
 						{errors.vacancies && (
