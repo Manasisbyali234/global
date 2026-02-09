@@ -59,12 +59,12 @@ const handleApiResponse = async (response) => {
     let errorData;
     try {
       const text = await response.text();
-      errorData = text ? JSON.parse(text) : { message: 'Network error' };
+      errorData = text ? JSON.parse(text) : { message: 'Request failed' };
     } catch (parseError) {
-      errorData = { message: `HTTP ${response.status}: Request failed` };
+      errorData = { message: 'Request failed' };
     }
     
-    throw new Error(`HTTP ${response.status}: ${errorData.message || 'Request failed'}`);
+    throw new Error(errorData.message || 'Request failed');
   }
   
   const text = await response.text();

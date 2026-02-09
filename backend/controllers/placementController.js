@@ -34,11 +34,20 @@ exports.registerPlacement = async (req, res) => {
         });
       }
 
+      if (collegeOfficialEmail && collegeOfficialPhone && collegeOfficialEmail.trim() === collegeOfficialPhone.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Official college email and official phone number cannot be the same'
+        });
+      }
+
       const placementData = { 
         name: name.trim(), 
         email: email.toLowerCase().trim(), 
         phone: phone.trim(), 
-        collegeName: collegeName.trim()
+        collegeName: collegeName.trim(),
+        collegeOfficialEmail: collegeOfficialEmail ? collegeOfficialEmail.toLowerCase().trim() : undefined,
+        collegeOfficialPhone: collegeOfficialPhone ? collegeOfficialPhone.trim() : undefined
       };
 
       // If OTP verification is skipped, mark phone as verified
@@ -71,7 +80,7 @@ exports.registerPlacement = async (req, res) => {
       // If OTP verification is skipped, send welcome email immediately
       if (skipOtpVerification) {
         try {
-          await sendWelcomeEmail(placement.email, placement.name, 'placement', placement.collegeName);
+          await sendWelcomeEmail(placement.email, placement.name, 'placement', placement.collegeName, placement.collegeOfficialEmail);
           console.log('Welcome email sent successfully to:', placement.email);
         } catch (emailError) {
           console.error('Welcome email failed:', emailError);
@@ -96,12 +105,21 @@ exports.registerPlacement = async (req, res) => {
       });
     }
 
+    if (collegeOfficialEmail && collegeOfficialPhone && collegeOfficialEmail.trim() === collegeOfficialPhone.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Official college email and official phone number cannot be the same'
+      });
+    }
+
     const placementData = { 
       name: name.trim(), 
       email: email.toLowerCase().trim(), 
       password: password.trim(), 
       phone: phone.trim(), 
-      collegeName: collegeName.trim()
+      collegeName: collegeName.trim(),
+      collegeOfficialEmail: collegeOfficialEmail ? collegeOfficialEmail.toLowerCase().trim() : undefined,
+      collegeOfficialPhone: collegeOfficialPhone ? collegeOfficialPhone.trim() : undefined
     };
 
     // If OTP verification is skipped, mark phone as verified
@@ -1558,6 +1576,13 @@ exports.updateProfile = async (req, res) => {
         message: 'First name, last name, phone, college name, college address, college official email, and college official phone are required' 
       });
     }
+
+    if (collegeOfficialEmail.trim() === collegeOfficialPhone.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Official college email and official phone number cannot be the same'
+      });
+    }
     
     const updateData = {};
     
@@ -1748,7 +1773,7 @@ exports.verifyMobileOTP = async (req, res) => {
 
     // Send welcome email with password creation link only after OTP verification
     try {
-      await sendWelcomeEmail(placement.email, placement.name, 'placement', placement.collegeName);
+      await sendWelcomeEmail(placement.email, placement.name, 'placement', placement.collegeName, placement.collegeOfficialEmail);
       console.log('Welcome email sent successfully to:', placement.email);
     } catch (emailError) {
       console.error('Welcome email failed:', emailError);

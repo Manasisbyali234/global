@@ -1162,7 +1162,7 @@ exports.updatePlacementStatus = async (req, res) => {
       try {
         const { sendApprovalEmail } = require('../utils/emailService');
         const placementName = placement.name || placement.firstName || 'Placement Officer';
-        await sendApprovalEmail(placement.email, placementName, 'placement', placement.collegeName);
+        await sendApprovalEmail(placement.email, placementName, 'placement', placement.collegeName, placement.collegeOfficialEmail);
         
         await createNotification({
           title: 'Account Approved',

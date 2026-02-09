@@ -278,6 +278,11 @@ function PlacementDashboardRedesigned() {
             return;
         }
 
+        if (editFormData.collegeOfficialEmail.trim() === editFormData.collegeOfficialPhone.trim()) {
+            showWarning('Official college email and official phone number cannot be the same');
+            return;
+        }
+
         setUpdating(true);
         try {
             // Upload images first if any are selected

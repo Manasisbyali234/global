@@ -34,7 +34,7 @@ const createTransport = () => {
   });
 };
 
-const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
+const sendWelcomeEmail = async (email, name, userType, collegeName = null, officialEmail = null) => {
   const transporter = createTransport();
   const normalizedUserType = (userType || 'candidate').toLowerCase();
   const userTypeParam = encodeURIComponent(normalizedUserType);
@@ -247,7 +247,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null) => {
 
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
-    to: email,
+    to: (normalizedUserType === 'placement' && officialEmail) ? `${email}, ${officialEmail}` : email,
     subject,
     html: template
   };
@@ -498,7 +498,7 @@ const retryFailedEmail = async (email, name, password, placementOfficerName, col
   return { success: false, error: lastError, attempts: attempt };
 };
 
-const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
+const sendApprovalEmail = async (email, name, userType, collegeName = null, officialEmail = null) => {
   const transporter = createTransport();
   const loginUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/`;
   const createPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=${userType}`;
@@ -616,7 +616,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null) => {
 
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
-    to: email,
+    to: (userType === 'placement' && officialEmail) ? `${email}, ${officialEmail}` : email,
     subject,
     html: template
   };
@@ -917,7 +917,7 @@ const sendCandidateActiveProfileEmail = async (email, name, password) => {
   await transporter.sendMail(mailOptions);
 };
 
-const sendPlacementAccessEnabledEmail = async (email, name, collegeName) => {
+const sendPlacementAccessEnabledEmail = async (email, name, collegeName, officialEmail = null) => {
   const transporter = createTransport();
   const loginUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/`;
   const createPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=placement`;
@@ -994,7 +994,7 @@ const sendPlacementAccessEnabledEmail = async (email, name, collegeName) => {
 
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
-    to: email,
+    to: (officialEmail) ? `${email}, ${officialEmail}` : email,
     subject: 'Welcome to TaleGlobal - Placement Access Enabled',
     html: template
   };
