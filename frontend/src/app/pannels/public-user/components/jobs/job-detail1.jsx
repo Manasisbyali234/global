@@ -567,10 +567,12 @@ function JobDetail1Page() {
                                         </ul>
                                     </div>
 
+
+
                                     {job.employerProfile && (
                                         <div style={{marginTop: '30px', marginBottom: '30px'}}>
                                             <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
-                                                <i className="feather-info" style={{marginRight: '10px', color: '#f39c12'}}></i>
+                                                <i className="feather-home" style={{marginRight: '10px', color: '#f39c12'}}></i>
                                                 About {job.employerId?.employerType === 'consultant' ? 'Hiring Company' : 'Company'}
                                             </h4>
                                             

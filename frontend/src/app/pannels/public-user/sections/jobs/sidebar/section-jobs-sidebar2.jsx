@@ -55,14 +55,6 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fa-solid fa-user-tie" />
-										<span className="twm-title">Job Title</span>
-										<div className="twm-s-info-discription">{job?.title || 'Not specified'}</div>
-									</div>
-								</li>
-
-								<li>
-									<div className="twm-s-info-inner">
 										<i className="fa-solid fa-user-graduate" />
 										<span className="twm-title">Experience</span>
 										<div className="twm-s-info-discription">
@@ -75,26 +67,6 @@ function SectionJobsSidebar2 ({ _config, job }) {
 											 job?.minExperience || job?.maxExperience ? 
 												`${job.minExperience || 0}-${job.maxExperience || job.minExperience || 0} Year(s)` :
 											 'Not specified'}
-										</div>
-									</div>
-								</li>
-
-								<li>
-									<div className="twm-s-info-inner">
-										<i className="fa-solid fa-graduation-cap" />
-										<span className="twm-title">Qualification</span>
-										<div className="twm-s-info-discription">
-											{Array.isArray(job?.education) ? job.education.join(', ') : (job?.education || 'Not specified')}
-										</div>
-									</div>
-								</li>
-
-								<li>
-									<div className="twm-s-info-inner">
-										<i className="fa-solid fa-triangle-exclamation" />
-										<span className="twm-title">Backlogs Allowed</span>
-										<div className="twm-s-info-discription">
-											{job?.backlogsAllowed ? 'Yes' : 'No'}
 										</div>
 									</div>
 								</li>
