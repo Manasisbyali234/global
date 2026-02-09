@@ -7,7 +7,8 @@ import { showHeader, showFooter, setFooterType, setHeaderType } from "../globals
 
 function PublicUserLayout() {
     const currentpath = useLocation().pathname;
-    const pageClass = currentpath === '/contact-us' ? 'contact-page-active' : '';
+    const isEmpGrid = currentpath === '/emp-grid';
+    const pageClass = currentpath === '/contact-us' ? 'contact-page-active' : isEmpGrid ? 'employer-grid-active' : '';
 
     return (
         <>

@@ -169,54 +169,46 @@ const EmployersGridPage = memo(() => {
             navigate(`/emp-detail/${employer._id}`);
         }, [employer._id, navigate]);
 
+        const companyInitial = (employer.companyName || "C").charAt(0);
+
         return (
-            <Col lg={6} md={6} sm={12} xs={12} className="mb-2">
-                <div className="new-job-card" style={{borderRadius: '12px', overflow: 'hidden'}}>
-                    <div className="job-card-header">
-                        <div className="job-card-left">
-                            <div className="company-logo">
-                                {employer.profile?.logo ? (
-                                    <img src={employer.profile.logo} alt="Company Logo" />
-                                ) : (
-                                    <div className="logo-placeholder">
-                                        {(employer.companyName || "C").charAt(0)}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="job-info">
-                                <h4 className="job-title">{employer.companyName}</h4>
-                                <div className="job-location">
-                                    <i className="feather-map-pin" />
-                                    {employer.profile?.location || employer.profile?.corporateAddress || 'Multiple Locations'}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="job-type-badge">
-                            <span className="job-type-pill full-time">
-                                {employer.profile?.industry || employer.profile?.industrySector || 'Company'}
-                            </span>
+            <Col lg={4} md={6} sm={12} className="mb-4 employer-col">
+                <div className="company-card">
+                    <div className="company-avatar-container">
+                        <div className="company-avatar-circle">
+                            {employer.profile?.logo ? (
+                                <img src={employer.profile.logo} alt={employer.companyName} className="company-avatar-img" />
+                            ) : (
+                                companyInitial
+                            )}
                         </div>
                     </div>
-                    <div className="job-card-middle">
-                        <div className="ctc-info">
-                            <span className="ctc-text">Active Jobs: {employer.jobCount || 0}</span>
+                    
+                    <h4 className="company-card-name">{employer.companyName}</h4>
+                    
+                    <div className="company-card-location">
+                        <i className="feather-map-pin" />
+                        {employer.profile?.location || employer.profile?.corporateAddress || 'Multiple Locations'}
+                    </div>
+
+                    <div className="industry-tag-pill">
+                        {employer.profile?.industry || employer.profile?.industrySector || 'Industry'}
+                    </div>
+
+                    <div className="company-stats-row">
+                        <div className="stat-item">
+                            <span className="stat-value">{employer.jobCount || 0}</span>
+                            <span className="stat-label">Active Jobs</span>
                         </div>
-                        <div className="vacancy-info">
-                            <span className="vacancy-text">
-                                Team Size: {employer.profile?.teamSize || 'Growing'}
-                            </span>
+                        <div className="stat-item">
+                            <span className="stat-value">{employer.profile?.teamSize || 'Growing'}</span>
+                            <span className="stat-label">Team Size</span>
                         </div>
                     </div>
-                    <div className="job-card-footer">
-                        <div className="company-info">
-                            <div className="posted-by-label">Est. Since:</div>
-                            <div className="company-name">{employer.establishedSince || employer.profile?.establishedSince || employer.profile?.foundedYear || 'Not specified'}</div>
-                            <div className="poster-type">{employer.profile?.companyType || 'Company'}</div>
-                        </div>
-                        <button className="apply-now-btn" onClick={handleViewClick}>
-                            View Details
-                        </button>
-                    </div>
+
+                    <button className="view-details-btn-orange" onClick={handleViewClick}>
+                        View Details
+                    </button>
                 </div>
             </Col>
         );
@@ -224,26 +216,16 @@ const EmployersGridPage = memo(() => {
 
     const skeletonCards = useMemo(() =>
         [...Array(6)].map((_, idx) => (
-            <Col key={`skeleton-${idx}`} lg={6} md={6} sm={12} xs={12} className="mb-2">
-                <div className="new-job-card job-card-skeleton" style={{borderRadius: '12px', overflow: 'hidden'}}>
-                    <div className="job-card-header">
-                        <div className="job-card-left">
-                            <div className="skeleton-logo" />
-                            <div className="skeleton-lines">
-                                <div className="skeleton-line short" />
-                                <div className="skeleton-line" />
-                            </div>
-                        </div>
-                        <div className="skeleton-badge" />
+            <Col key={`skeleton-${idx}`} lg={4} md={6} sm={12} className="mb-4 employer-col">
+                <div className="company-card skeleton">
+                    <div className="skeleton-avatar" />
+                    <div className="skeleton-text skeleton-name" />
+                    <div className="skeleton-text skeleton-location" />
+                    <div className="skeleton-tag" />
+                    <div className="company-stats-row">
+                        <div className="skeleton-stats" />
                     </div>
-                    <div className="job-card-middle">
-                        <div className="skeleton-line" />
-                        <div className="skeleton-line short" />
-                    </div>
-                    <div className="job-card-footer">
-                        <div className="skeleton-line" />
-                        <div className="skeleton-button" />
-                    </div>
+                    <div className="skeleton-btn" />
                 </div>
             </Col>
         )), []
@@ -252,11 +234,11 @@ const EmployersGridPage = memo(() => {
     return (
         <div className="section-full py-3 site-bg-white emp-grid-page" style={{paddingLeft: '20px', paddingRight: '20px'}}>
             <Row className="mb-4">
-                    <Col lg={4} md={12} className="rightSidebar">
+                    <Col lg={3} md={12} className="rightSidebar">
                         <SectionEmployerSidebar onFilterChange={setFilters} />
                     </Col>
 
-                    <Col lg={8} md={12}>
+                    <Col lg={9} md={12}>
                         <div className="mb-4">
                             <SectionRecordsFilter
                                 _config={_filterConfig}
