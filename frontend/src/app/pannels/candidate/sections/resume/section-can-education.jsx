@@ -917,8 +917,8 @@ function SectionCanEducation({ profile, onUpdate }) {
                                 <table className="table table-bordered table-sm mb-0" style={{fontSize: '14px', width: '100%'}}>
                                     <thead className="table-light">
                                         <tr>
-                                            <th style={{minWidth: '120px', whiteSpace: 'nowrap'}}>Qualification</th>
                                             <th style={{minWidth: '150px'}}>Institution</th>
+                                            <th style={{minWidth: '120px', whiteSpace: 'nowrap'}}>Qualification</th>
                                             <th style={{minWidth: '150px'}}>Degree / Board / Specialization</th>
                                             <th style={{minWidth: '80px', whiteSpace: 'nowrap'}}>Enrollment No.</th>
                                             <th style={{minWidth: '80px'}}>State</th>
@@ -932,11 +932,11 @@ function SectionCanEducation({ profile, onUpdate }) {
                                     <tbody>
                                         {educationEntries.map(entry => (
                                             <tr key={entry.id}>
-                                                <td style={{fontWeight: '600', fontSize: '13px'}}>
-                                                    {getEducationLevelLabel(entry.educationLevel)}
-                                                </td>
                                                 <td style={{fontSize: '13px'}}>
                                                     {entry.schoolCollegeName || '-'}
+                                                </td>
+                                                <td style={{fontWeight: '600', fontSize: '13px'}}>
+                                                    {getEducationLevelLabel(entry.educationLevel)}
                                                 </td>
                                                 <td style={{fontSize: '13px'}}>
                                                     <div>{entry.boardUniversityName}</div>
