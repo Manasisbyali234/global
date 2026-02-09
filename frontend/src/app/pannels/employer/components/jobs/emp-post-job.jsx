@@ -2741,7 +2741,7 @@ export default function EmpPostJob({ onNext }) {
 								
 								// Get custom type for "others" rounds
 								const customType = roundType === 'others' ? formData.interviewRoundDetails[uniqueKey]?.customType : null;
-								const displayName = customType || roundNames[roundType];
+								const displayName = (roundType === 'others' && customType && customType.trim()) ? customType : (roundNames[roundType] || roundType);
 								
 								return (
 									<div key={uniqueKey} style={{
@@ -3496,6 +3496,8 @@ export default function EmpPostJob({ onNext }) {
 										assessment: 'Assessment',
 										others: 'Others – Specify.'
 									};
+									const customType = roundType === 'others' ? formData.interviewRoundDetails[uniqueKey]?.customType : null;
+									const displayName = (roundType === 'others' && customType && customType.trim()) ? customType : (roundNames[roundType] || roundType);
 									const stageNumber = formData.interviewRoundOrder.indexOf(uniqueKey) + 1;
 									return (
 										<div key={uniqueKey} data-stage-key={uniqueKey} style={{ 
@@ -3532,7 +3534,7 @@ export default function EmpPostJob({ onNext }) {
 													{stageNumber}
 												</span>
 												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-													Stage {stageNumber}: {roundNames[roundType]}
+													Stage {stageNumber}: {displayName}
 												</div>
 												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
 													<button
@@ -3549,22 +3551,22 @@ export default function EmpPostJob({ onNext }) {
 															alignItems: 'center',
 															gap: 4
 														}}
-														title={`Schedule ${roundNames[roundType]}`}
+														title={`Schedule ${displayName}`}
 														onClick={() => {
 															const roundDetails = formData.interviewRoundDetails[uniqueKey];
 															
 															if (!roundDetails?.description?.trim()) {
-																showWarning(`Please enter description for ${roundNames[roundType]}`);
+																showWarning(`Please enter description for ${displayName}`);
 																return;
 															}
 															
 															if (!roundDetails?.fromDate) {
-																showWarning(`Please set the Date for ${roundNames[roundType]}`);
+																showWarning(`Please set the Date for ${displayName}`);
 																return;
 															}
 															
 															if (!roundDetails?.startTime || !roundDetails?.endTime) {
-																showWarning(`Please set both From and To Time for ${roundNames[roundType]}`);
+																showWarning(`Please set both From and To Time for ${displayName}`);
 																return;
 															}
 															
@@ -3580,7 +3582,7 @@ export default function EmpPostJob({ onNext }) {
 																return `${day}/${month}/${year}`;
 															};
 															
-															showSuccess(`${roundNames[roundType]} scheduled successfully! Date: ${formatDate(roundDetails.fromDate)} | Time: ${formatTimeToAMPM(roundDetails.startTime)} - ${formatTimeToAMPM(roundDetails.endTime)}`);
+															showSuccess(`${displayName} scheduled successfully! Date: ${formatDate(roundDetails.fromDate)} | Time: ${formatTimeToAMPM(roundDetails.startTime)} - ${formatTimeToAMPM(roundDetails.endTime)}`);
 														}}
 													>
 														<i className="fa fa-calendar-plus"></i>
@@ -3589,7 +3591,7 @@ export default function EmpPostJob({ onNext }) {
 													<i 
 														className="fa fa-edit"
 														style={{cursor: 'pointer', color: '#3b82f6', fontSize: 16}}
-														title={`Edit ${roundNames[roundType]} details`}
+														title={`Edit ${displayName} details`}
 														onClick={() => {
 															const stageSection = document.querySelector(`[data-stage-key="${uniqueKey}"]`);
 															if (stageSection) {
@@ -3730,6 +3732,9 @@ export default function EmpPostJob({ onNext }) {
 											others: 'Others – Specify.'
 										};
 										
+										const customType = roundType === 'others' ? details?.customType : null;
+										const displayName = customType || roundNames[roundType];
+										
 										return (
 											<div key={uniqueKey} style={{
 												padding: 12,
@@ -3759,7 +3764,7 @@ export default function EmpPostJob({ onNext }) {
 														{index + 1}
 													</span>
 													<span style={{fontSize: 14, fontWeight: 600, color: '#1e293b'}}>
-														{roundNames[roundType]} Round
+														{displayName} Round
 													</span>
 												</div>
 												{details?.fromDate ? (

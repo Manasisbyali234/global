@@ -908,3 +908,74 @@ img[loading="lazy"].loaded {
   width: 20px !important;
   text-align: center !important;
 }
+
+/* Job content section - consistent spacing for all HTML content */
+.cabdidate-de-info > div > div[style*="lineHeight"],
+.cabdidate-de-info > div > div.job-content-section,
+.job-content-section {
+  line-height: 1.2 !important;
+  font-size: 16px !important;
+  color: #495057 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.cabdidate-de-info > div > div[style*="lineHeight"] *,
+.cabdidate-de-info > div > div.job-content-section *,
+.job-content-section * {
+  margin-bottom: 0 !important;
+  background: transparent !important;
+  line-height: 1.2 !important;
+}
+
+.cabdidate-de-info > div > div[style*="lineHeight"] p,
+.cabdidate-de-info > div > div.job-content-section p,
+.job-content-section p {
+  margin: 0 !important;
+  line-height: 1.2 !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.cabdidate-de-info > div > div[style*="lineHeight"] ul,
+.cabdidate-de-info > div > div[style*="lineHeight"] ol,
+.cabdidate-de-info > div > div.job-content-section ul,
+.cabdidate-de-info > div > div.job-content-section ol,
+.job-content-section ul,
+.job-content-section ol {
+  margin: 0 !important;
+  padding-left: 2rem !important;
+  line-height: 1.2 !important;
+  background: transparent !important;
+  border: none !important;
+  list-style-position: outside !important;
+}
+
+.cabdidate-de-info > div > div[style*="lineHeight"] li,
+.cabdidate-de-info > div > div.job-content-section li,
+.job-content-section li {
+  margin-bottom: 0 !important;
+  line-height: 1.2 !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  display: list-item !important;
+}
+
+.job-content-section br {
+  display: block !important;
+  content: "" !important;
+  margin: 0 !important;
+}
+
+.job-content-section > *:first-child {
+  margin-top: 0 !important;
+}
+
+.job-content-section > *:last-child {
+  margin-bottom: 0 !important;
+}
