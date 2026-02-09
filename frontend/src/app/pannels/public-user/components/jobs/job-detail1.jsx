@@ -322,6 +322,7 @@ function JobDetail1Page() {
                         if (verifyData.success) {
                             setHasApplied(true);
                             showSuccess('Payment successful and application submitted!');
+                            await checkApplicationStatus();
                             fetchJobDetails();
                         } else {
                             showError(verifyData.message || 'Payment verification failed');
@@ -329,6 +330,11 @@ function JobDetail1Page() {
                     } catch (error) {
                         console.error('Error verifying payment:', error);
                         showError('Payment verification failed');
+                    }
+                },
+                modal: {
+                    ondismiss: function() {
+                        checkApplicationStatus();
                     }
                 },
                 theme: {
