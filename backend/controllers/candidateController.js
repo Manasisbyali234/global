@@ -17,8 +17,9 @@ const generateToken = (id, role) => {
 // Authentication Controllers
 exports.registerCandidate = async (req, res) => {
   try {
-    const { name, email, password, phone, sendWelcomeEmail: shouldSendWelcome, skipOtpVerification } = req.body;
-    console.log('Registration attempt:', { name, email, phone, shouldSendWelcome, skipOtpVerification });
+    const { firstName, middleName, lastName, email, password, phone, sendWelcomeEmail: shouldSendWelcome, skipOtpVerification } = req.body;
+    const name = `${firstName}${middleName ? ' ' + middleName : ''} ${lastName}`.trim();
+    console.log('Registration attempt:', { firstName, middleName, lastName, email, phone, shouldSendWelcome, skipOtpVerification });
 
     const existingUser = await checkEmailExists(email);
     if (existingUser) {
@@ -28,6 +29,9 @@ exports.registerCandidate = async (req, res) => {
 
     // Create candidate without password - they will create it via email link
     const candidateData = { 
+      firstName,
+      middleName,
+      lastName,
       name, 
       email: email.trim(), // Preserve original email format, just trim whitespace
       phone,
@@ -51,7 +55,12 @@ exports.registerCandidate = async (req, res) => {
     const candidate = await Candidate.create(candidateData);
     console.log('Candidate created:', candidate._id);
     
-    await CandidateProfile.create({ candidateId: candidate._id });
+    await CandidateProfile.create({ 
+      candidateId: candidate._id,
+      firstName,
+      middleName,
+      lastName
+    });
     console.log('Profile created for candidate');
 
     // If OTP verification is skipped, send welcome email immediately
@@ -109,6 +118,9 @@ exports.loginCandidate = async (req, res) => {
       token,
       candidate: {
         id: candidate._id,
+        firstName: candidate.firstName,
+        middleName: candidate.middleName,
+        lastName: candidate.lastName,
         name: candidate.name,
         email: candidate.email,
         credits: candidate.credits || 0
@@ -124,7 +136,7 @@ exports.loginCandidate = async (req, res) => {
 exports.getProfile = async (req, res) => {
   try {
     const profile = await CandidateProfile.findOne({ candidateId: req.user._id })
-      .populate('candidateId', 'name email phone');
+      .populate('candidateId', 'firstName middleName lastName name email phone');
     
     if (!profile) {
       return res.json({ success: true, profile: null, profileCompletion: 0 });
@@ -172,7 +184,7 @@ exports.updateProfile = async (req, res) => {
     // Removed console debug line for security;
     // Removed console debug line for security;
     
-    const { name, phone, email, middleName, lastName, ...profileData } = req.body;
+    const { firstName, middleName, lastName, name, phone, email, ...profileData } = req.body;
     
     console.log('=== UPDATE PROFILE DEBUG ===');
     console.log('Full req.body:', req.body);
@@ -180,8 +192,16 @@ exports.updateProfile = async (req, res) => {
     console.log('Location received:', req.body.location);
     console.log('Profile data (spread):', profileData);
     
-    // Validation for middleName and lastName
+    // Validation for firstName, middleName and lastName
     const errors = [];
+    
+    if (firstName && firstName.trim()) {
+      if (firstName.length > 30) {
+        errors.push({ field: 'firstName', msg: 'First name cannot exceed 30 characters' });
+      } else if (!/^[a-zA-Z\s]*$/.test(firstName)) {
+        errors.push({ field: 'firstName', msg: 'First name can only contain letters and spaces' });
+      }
+    }
     
     if (middleName && middleName.trim()) {
       if (middleName.length > 30) {
@@ -204,18 +224,31 @@ exports.updateProfile = async (req, res) => {
     }
     
     // Update candidate basic info
-    if (name || phone || email) {
-      const updatedCandidate = await Candidate.findByIdAndUpdate(req.user._id, {
-        ...(name && { name }),
-        ...(phone && { phone }),
-        ...(email && { email })
-      }, { new: true });
-      // Removed console debug line for security;
+    if (firstName || middleName || lastName || name || phone || email) {
+      const candidateUpdate = {};
+      if (firstName) candidateUpdate.firstName = firstName.trim();
+      if (middleName !== undefined) candidateUpdate.middleName = middleName.trim();
+      if (lastName) candidateUpdate.lastName = lastName.trim();
+      
+      // Update full name if any part changed
+      if (firstName || middleName !== undefined || lastName || name) {
+        const currentCandidate = await Candidate.findById(req.user._id);
+        const f = firstName || currentCandidate.firstName || '';
+        const m = middleName !== undefined ? middleName : (currentCandidate.middleName || '');
+        const l = lastName || currentCandidate.lastName || '';
+        candidateUpdate.name = `${f}${m ? ' ' + m : ''} ${l}`.trim();
+      }
+
+      if (phone) candidateUpdate.phone = phone;
+      if (email) candidateUpdate.email = email;
+
+      await Candidate.findByIdAndUpdate(req.user._id, candidateUpdate, { new: true });
     }
     
     // Prepare profile update data
     const updateData = { ...profileData };
 
+    if (firstName !== undefined) updateData.firstName = firstName.trim();
     if (middleName !== undefined) updateData.middleName = middleName.trim();
     if (lastName !== undefined) updateData.lastName = lastName.trim();
     if (req.file) {
@@ -298,7 +331,7 @@ exports.updateProfile = async (req, res) => {
       { candidateId: req.user._id },
       updateData,
       { new: true, upsert: true }
-    ).populate('candidateId', 'name email phone');
+    ).populate('candidateId', 'firstName middleName lastName name email phone');
     
     // Calculate total experience from employment records
     const { calculateTotalExperienceFromEmployment } = require('../utils/experienceCalculator');
@@ -1666,7 +1699,7 @@ exports.updateWorkLocationPreferences = async (req, res) => {
       { candidateId: req.user._id },
       updateData,
       { new: true, upsert: true }
-    ).populate('candidateId', 'name email phone');
+    ).populate('candidateId', 'firstName middleName lastName name email phone');
 
     res.json({ success: true, profile, message: 'Work location preferences saved successfully' });
   } catch (error) {
@@ -1680,7 +1713,7 @@ exports.getWorkLocationPreferences = async (req, res) => {
   try {
     const profile = await CandidateProfile.findOne({ candidateId: req.user._id })
       .select('jobPreferences expectedSalary')
-      .populate('candidateId', 'name email phone');
+      .populate('candidateId', 'firstName middleName lastName name email phone');
     
     if (!profile) {
       return res.json({ 

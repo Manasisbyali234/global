@@ -17,7 +17,7 @@ const indianCities = [
 
 function SectionCandicateBasicInfo() {
     const [formData, setFormData] = useState({
-        name: '',
+        firstName: '',
         middleName: '',
         lastName: '',
         phone: '',
@@ -107,7 +107,7 @@ function SectionCandicateBasicInfo() {
 
                 console.log('Profile data received:', { pincode: profile.pincode, location: profile.location });
                 setFormData({
-                    name: candidate.name || '',
+                    firstName: candidate.firstName || profile.firstName || '',
                     middleName: profile.middleName || '',
                     lastName: profile.lastName || '',
                     phone: phoneNumber,
@@ -137,15 +137,15 @@ function SectionCandicateBasicInfo() {
         const newErrors = { ...errors };
         
         switch (name) {
-            case 'name':
+            case 'firstName':
                 if (!value || !value.trim()) {
-                    newErrors.name = 'This field is required';
-                } else if (value.length < 2 || value.length > 50) {
-                    newErrors.name = 'Name must be between 2 and 50 characters';
+                    newErrors.firstName = 'First name is required';
+                } else if (value.length < 2 || value.length > 30) {
+                    newErrors.firstName = 'First name must be between 2 and 30 characters';
                 } else if (!/^[a-zA-Z\s]+$/.test(value)) {
-                    newErrors.name = 'Name can only contain letters and spaces';
+                    newErrors.firstName = 'First name can only contain letters and spaces';
                 } else {
-                    delete newErrors.name;
+                    delete newErrors.firstName;
                 }
                 break;
             
@@ -343,7 +343,7 @@ function SectionCandicateBasicInfo() {
 
 
     const validateForm = () => {
-        const fieldsToValidate = ['name', 'email', 'lastName', 'phone', 'location', 'pincode', 'stateCode'];
+        const fieldsToValidate = ['firstName', 'email', 'lastName', 'phone', 'location', 'pincode', 'stateCode'];
         let isValid = true;
         
         fieldsToValidate.forEach(field => {
@@ -400,7 +400,7 @@ function SectionCandicateBasicInfo() {
         
         try {
             const submitData = new FormData();
-            submitData.append('name', formData.name.trim());
+            submitData.append('firstName', formData.firstName.trim());
             submitData.append('middleName', (formData.middleName || '').trim());
             submitData.append('lastName', formData.lastName.trim());
             submitData.append('phone', `${formData.phoneCountryCode}${formData.phone.trim()}`);
@@ -544,16 +544,16 @@ function SectionCandicateBasicInfo() {
                         <div className="col-md-4 mb-3">
                             <label className="form-label"><i className="fa fa-user me-2" style={{color: '#ff6b35'}}></i>First Name <span style={{color: 'red'}}>*</span></label>
                             <input
-                                className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                                className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
                                 type="text"
-                                name="name"
-                                value={formData.name}
+                                name="firstName"
+                                value={formData.firstName}
                                 onChange={handleInputChange}
                                 onBlur={handleBlur}
-                                placeholder="Enter your complete name"
+                                placeholder="Enter your first name"
                                 required
                             />
-                            {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+                            {errors.firstName && <div className="invalid-feedback">{errors.firstName}</div>}
                         </div>
                         <div className="col-md-4 mb-3">
                             <label className="form-label"><i className="fa fa-user me-2" style={{color: '#ff6b35'}}></i>Middle Name</label>

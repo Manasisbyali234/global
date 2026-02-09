@@ -10,7 +10,9 @@ import "./AuthPages.css";
 function SignupCandidate() {
     const navigate = useNavigate();
     const [candidateData, setCandidateData] = useState({
-        username: '',
+        firstName: '',
+        middleName: '',
+        lastName: '',
         email: '',
         mobile: '',
         countryCode: '+91'
@@ -32,15 +34,31 @@ function SignupCandidate() {
 
     const validateField = (name, value) => {
         const errors = { ...fieldErrors };
-        if (name === 'username') {
+        if (name === 'firstName') {
             if (!value || !value.trim()) {
-                errors.username = 'Name is required';
+                errors.firstName = 'First name is required';
             } else if (value.trim().length < 2) {
-                errors.username = 'Name must be at least 2 characters long';
+                errors.firstName = 'First name must be at least 2 characters long';
             } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
-                errors.username = 'Name can only contain letters and spaces';
+                errors.firstName = 'First name can only contain letters and spaces';
             } else {
-                delete errors.username;
+                delete errors.firstName;
+            }
+        }
+        if (name === 'middleName') {
+            if (value && value.trim() && !/^[a-zA-Z\s]+$/.test(value.trim())) {
+                errors.middleName = 'Middle name can only contain letters and spaces';
+            } else {
+                delete errors.middleName;
+            }
+        }
+        if (name === 'lastName') {
+            if (!value || !value.trim()) {
+                errors.lastName = 'Last name is required';
+            } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+                errors.lastName = 'Last name can only contain letters and spaces';
+            } else {
+                delete errors.lastName;
             }
         }
         if (name === 'email') {
@@ -96,7 +114,9 @@ function SignupCandidate() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: candidateData.username,
+                    firstName: candidateData.firstName,
+                    middleName: candidateData.middleName,
+                    lastName: candidateData.lastName,
                     email: candidateData.email,
                     phone: candidateData.countryCode + candidateData.mobile,
                     sendWelcomeEmail: true,
@@ -107,7 +127,7 @@ function SignupCandidate() {
             const data = await response.json();
             if (response.ok && data.success) {
                 showSuccess('Registration successful! Please check your registered email inbox to create your password.');
-                setCandidateData({ username: '', email: '', mobile: '', countryCode: '+91' });
+                setCandidateData({ firstName: '', middleName: '', lastName: '', email: '', mobile: '', countryCode: '+91' });
                 navigate(publicUser.pages.LOGIN_CANDIDATE);
             } else {
                 showError(data.message || 'Registration failed.');
@@ -164,7 +184,7 @@ function SignupCandidate() {
                 clearInterval(timerRef.current);
                 showSuccess('Mobile number verified successfully! Please check your registered email inbox to create your password.');
                 setShowOtpModal(false);
-                setCandidateData({ username: '', email: '', mobile: '', countryCode: '+91' });
+                setCandidateData({ firstName: '', middleName: '', lastName: '', email: '', mobile: '', countryCode: '+91' });
                 navigate(publicUser.pages.LOGIN_CANDIDATE);
             } else {
                 showError(data.message || 'Verification failed');
@@ -247,15 +267,40 @@ function SignupCandidate() {
                     <form onSubmit={handleSubmit}>
                         <div className="auth-form-group">
                             <input 
-                                name="username" 
+                                name="firstName" 
                                 type="text" 
                                 required 
-                                className={`auth-input ${fieldErrors.username ? 'is-invalid' : ''}`} 
-                                placeholder="Full Name" 
-                                value={candidateData.username} 
+                                className={`auth-input ${fieldErrors.firstName ? 'is-invalid' : ''}`} 
+                                placeholder="First Name" 
+                                value={candidateData.firstName} 
                                 onChange={handleChange} 
                             />
-                            {fieldErrors.username && <div className="invalid-feedback">{fieldErrors.username}</div>}
+                            {fieldErrors.firstName && <div className="invalid-feedback">{fieldErrors.firstName}</div>}
+                        </div>
+
+                        <div className="auth-form-group">
+                            <input 
+                                name="middleName" 
+                                type="text" 
+                                className={`auth-input ${fieldErrors.middleName ? 'is-invalid' : ''}`} 
+                                placeholder="Middle Name (Optional)" 
+                                value={candidateData.middleName} 
+                                onChange={handleChange} 
+                            />
+                            {fieldErrors.middleName && <div className="invalid-feedback">{fieldErrors.middleName}</div>}
+                        </div>
+
+                        <div className="auth-form-group">
+                            <input 
+                                name="lastName" 
+                                type="text" 
+                                required 
+                                className={`auth-input ${fieldErrors.lastName ? 'is-invalid' : ''}`} 
+                                placeholder="Last Name" 
+                                value={candidateData.lastName} 
+                                onChange={handleChange} 
+                            />
+                            {fieldErrors.lastName && <div className="invalid-feedback">{fieldErrors.lastName}</div>}
                         </div>
 
                         <div className="auth-form-group">
