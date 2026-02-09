@@ -596,14 +596,7 @@ function JobDetail1Page() {
                                                 </div>
                                             )}
 
-                                            <ul className="description-list-2">
-                                                {job.employerProfile.website && (
-                                                    <li><strong>Website:</strong> <a href={job.employerProfile.website.startsWith('http') ? job.employerProfile.website : `https://${job.employerProfile.website}`} target="_blank" rel="noopener noreferrer">{job.employerProfile.website}</a></li>
-                                                )}
-                                                {job.employerProfile.location && (
-                                                    <li><strong>Location:</strong> {job.employerProfile.location}</li>
-                                                )}
-                                            </ul>
+
                                         </div>
                                     )}
 
