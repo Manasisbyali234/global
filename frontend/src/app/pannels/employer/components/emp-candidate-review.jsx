@@ -24,6 +24,7 @@ function EmpCandidateReviewPage() {
     const [documentModal, setDocumentModal] = useState({ isOpen: false, url: '', title: '' });
     const [capturesModal, setCapturesModal] = useState({ isOpen: false, captures: [] });
     const [descriptionModal, setDescriptionModal] = useState({ isOpen: false, description: '' });
+    const [detailsModal, setDetailsModal] = useState({ isOpen: false, role: '', projects: '' });
     const autoSaveTimeoutRef = useRef(null);
 
     useEffect(() => {
@@ -978,19 +979,15 @@ function EmpCandidateReviewPage() {
                                                         ) : '—'}
                                                     </td>
                                                     <td className="text-center">
-                                                        <div className="job-details-summary text-left">
-                                                            {emp.description && (
-                                                                <div className="mb-1">
-                                                                    <strong>Role:</strong> <span className="text-muted small text-truncate-2">{emp.description}</span>
-                                                                </div>
-                                                            )}
-                                                            {emp.projectDetails && (
-                                                                <div>
-                                                                    <strong>Projects:</strong> <span className="text-muted small text-truncate-2">{emp.projectDetails}</span>
-                                                                </div>
-                                                            )}
-                                                            {!emp.description && !emp.projectDetails && "—"}
-                                                        </div>
+                                                        {emp.description || emp.projectDetails ? (
+                                                            <button 
+                                                                className="btn btn-sm btn-outline-primary"
+                                                                onClick={() => setDetailsModal({ isOpen: true, role: emp.description || '', projects: emp.projectDetails || '' })}
+                                                                style={{padding: '4px 10px', fontSize: '12px'}}
+                                                            >
+                                                                <i className="fas fa-eye"></i>
+                                                            </button>
+                                                        ) : "—"}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -1027,7 +1024,6 @@ function EmpCandidateReviewPage() {
                 {activeTab === 'skills' && (
                     <div className="tab-panel skills-info">
                         <div className="section-header">
-                            <h4><i className="fas fa-cogs"></i> Skills & Professional Summary</h4>
                         </div>
 
                         {candidate.skills && candidate.skills.length > 0 && (
@@ -1198,6 +1194,38 @@ function EmpCandidateReviewPage() {
                             <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', color: '#4b5563', fontSize: '15px' }}>
                                 {descriptionModal.description}
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Details Modal */}
+            {detailsModal.isOpen && (
+                <div className="document-modal-overlay" onClick={() => setDetailsModal({ isOpen: false, role: '', projects: '' })}>
+                    <div className="document-modal-container" style={{ height: 'auto', maxHeight: '80%', maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+                        <div className="document-modal-header">
+                            <h3>Employment Details</h3>
+                            <button className="modal-btn close" onClick={() => setDetailsModal({ isOpen: false, role: '', projects: '' })}>
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="document-modal-body" style={{ maxHeight: '70vh', overflowY: 'auto', padding: '20px' }}>
+                            {detailsModal.role && (
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h5 style={{ color: '#1f2937', marginBottom: '10px' }}><strong>Role Description:</strong></h5>
+                                    <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', color: '#4b5563', fontSize: '15px' }}>
+                                        {detailsModal.role}
+                                    </div>
+                                </div>
+                            )}
+                            {detailsModal.projects && (
+                                <div>
+                                    <h5 style={{ color: '#1f2937', marginBottom: '10px' }}><strong>Project Details:</strong></h5>
+                                    <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', color: '#4b5563', fontSize: '15px' }}>
+                                        {detailsModal.projects}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

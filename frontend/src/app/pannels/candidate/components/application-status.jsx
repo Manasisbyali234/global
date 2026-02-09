@@ -203,11 +203,28 @@ function CanStatusPage() {
 	};
 
 	const getInterviewRounds = (job, application) => {
+		// Helper function to extract proper round name from uniqueKey
+		const getRoundNameFromKey = (key) => {
+			const roundNames = {
+				technical: 'Technical',
+				oneOnOne: 'One – On – One',
+				panel: 'Panel',
+				group: 'Group',
+				situational: 'Situational / Behavioral',
+				others: 'Others – Specify.',
+				assessment: 'Assessment'
+			};
+			
+			// Extract type from keys like "assessment_1770487959181"
+			const extractedType = key.includes('_') ? key.split('_')[0] : key;
+			return roundNames[extractedType] || roundNames[key] || 'Interview Round';
+		};
+		
 		// PRIORITY 1: Check if application has interviewProcess.stages from InterviewProcessManager
 		if (application?.interviewProcess?.stages && application.interviewProcess.stages.length > 0) {
 			console.log('Using interviewProcess.stages:', application.interviewProcess.stages);
 			return application.interviewProcess.stages.map(stage => ({
-				name: stage.stageName,
+				name: stage.stageName || getRoundNameFromKey(stage.stageType),
 				uniqueKey: stage._id || stage.stageType,
 				roundType: stage.stageType
 			}));
@@ -217,7 +234,7 @@ function CanStatusPage() {
 		if (application?.interviewProcesses && application.interviewProcesses.length > 0) {
 			console.log('Using interviewProcesses from application:', application.interviewProcesses);
 			return application.interviewProcesses.map(process => ({
-				name: process.name,
+				name: process.name || getRoundNameFromKey(process.type),
 				uniqueKey: process.id || process.type,
 				roundType: process.type
 			}));
@@ -231,19 +248,17 @@ function CanStatusPage() {
 			job.interviewRoundOrder.forEach(uniqueKey => {
 				const roundType = job.interviewRoundTypes?.[uniqueKey];
 				if (roundType) {
-					const roundNames = {
-						technical: 'Technical',
-						oneOnOne: 'One – On – One',
-						panel: 'Panel',
-						group: 'Group',
-						situational: 'Situational / Behavioral',
-						others: 'Others – Specify.',
-						assessment: 'Assessment'
-					};
 					rounds.push({
-						name: roundNames[roundType] || roundType,
+						name: getRoundNameFromKey(roundType),
 						uniqueKey: uniqueKey,
 						roundType: roundType
+					});
+				} else {
+					// Extract round type from uniqueKey
+					rounds.push({
+						name: getRoundNameFromKey(uniqueKey),
+						uniqueKey: uniqueKey,
+						roundType: uniqueKey.includes('_') ? uniqueKey.split('_')[0] : uniqueKey
 					});
 				}
 			});
@@ -914,17 +929,20 @@ function CanStatusPage() {
 																<small className="text-muted"><i className="fa fa-calendar me-1"></i>Assessment Period:</small>
 																<div>
 																	{selectedApplication.jobId?.assessmentStartDate && (
-																		<span><strong>From:</strong> {new Date(selectedApplication.jobId.assessmentStartDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})}</span>
+																		<span><strong>From:</strong> {new Date(selectedApplication.jobId.assessmentStartDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})} {selectedApplication.jobId?.assessmentStartTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentStartTime)}`}</span>
 																	)}
 																	{selectedApplication.jobId?.assessmentStartDate && selectedApplication.jobId?.assessmentEndDate && <span className="mx-2">-</span>}
 																	{selectedApplication.jobId?.assessmentEndDate && (
-																		<span><strong>To:</strong> {new Date(selectedApplication.jobId.assessmentEndDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})}</span>
+																		<span><strong>To:</strong> {new Date(selectedApplication.jobId.assessmentEndDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})} {selectedApplication.jobId?.assessmentEndTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentEndTime)}`}</span>
 																	)}
-																	{(selectedApplication.jobId?.assessmentStartTime || selectedApplication.jobId?.assessmentEndTime) && (
-																		<div className="mt-1">
-																			<strong>Time:</strong> {selectedApplication.jobId?.assessmentStartTime ? formatTimeToAMPM(selectedApplication.jobId.assessmentStartTime) : '--:--'} - {selectedApplication.jobId?.assessmentEndTime ? formatTimeToAMPM(selectedApplication.jobId.assessmentEndTime) : '--:--'}
-																		</div>
-																	)}
+																	{selectedApplication.jobId?.assessmentStartTime && selectedApplication.jobId?.assessmentEndTime && (() => {
+																		const [startHours, startMinutes] = selectedApplication.jobId.assessmentStartTime.split(':').map(Number);
+																		const [endHours, endMinutes] = selectedApplication.jobId.assessmentEndTime.split(':').map(Number);
+																		const totalMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes);
+																		const hours = Math.floor(totalMinutes / 60);
+																		const minutes = totalMinutes % 60;
+																		return <div className="mt-1"><strong>Duration:</strong> {hours > 0 && `${hours}h `}{minutes > 0 && `${minutes}m`}</div>;
+																	})()}
 																</div>
 															</div>
 														)}
@@ -1042,9 +1060,17 @@ function CanStatusPage() {
 																	<div className="mb-2">
 																		<small className="text-muted"><i className="fa fa-calendar me-1"></i>Interview Period:</small>
 																		<div>
-																			{roundDetails.fromDate && <span><strong>From:</strong> {new Date(roundDetails.fromDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})}</span>}
+																			{roundDetails.fromDate && <span><strong>From:</strong> {new Date(roundDetails.fromDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})} {roundDetails.startTime && `at ${formatTimeToAMPM(roundDetails.startTime)}`}</span>}
 																			{roundDetails.fromDate && roundDetails.toDate && <span className="mx-2">-</span>}
-																			{roundDetails.toDate && <span><strong>To:</strong> {new Date(roundDetails.toDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})}</span>}
+																			{roundDetails.toDate && <span><strong>To:</strong> {new Date(roundDetails.toDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})} {roundDetails.endTime && `at ${formatTimeToAMPM(roundDetails.endTime)}`}</span>}
+																			{roundDetails.startTime && roundDetails.endTime && (() => {
+																				const [startHours, startMinutes] = roundDetails.startTime.split(':').map(Number);
+																				const [endHours, endMinutes] = roundDetails.endTime.split(':').map(Number);
+																				const totalMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes);
+																				const hours = Math.floor(totalMinutes / 60);
+																				const minutes = totalMinutes % 60;
+																				return <div className="mt-1"><strong>Duration:</strong> {hours > 0 && `${hours}h `}{minutes > 0 && `${minutes}m`}</div>;
+																			})()}
 																			{roundDetails.time && <div className="mt-1"><strong>Time:</strong> {formatInterviewTime(roundDetails.time, roundDetails.fromDate)} - This timing continues until {roundDetails.toDate ? new Date(roundDetails.toDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'}) : 'end date'}</div>}
 																		</div>
 																	</div>

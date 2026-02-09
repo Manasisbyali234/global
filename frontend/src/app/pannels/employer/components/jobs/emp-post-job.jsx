@@ -1995,7 +1995,9 @@ export default function EmpPostJob({ onNext }) {
 							placeholder="e.g., 5"
 							value={formData.vacancies}
 							onChange={(e) => {
-								update({ vacancies: e.target.value });
+								const vacancies = e.target.value;
+								const applicationLimit = vacancies ? (parseInt(vacancies) + 1).toString() : '';
+								update({ vacancies, applicationLimit });
 							}}
 						/>
 						{errors.vacancies && (
@@ -3064,7 +3066,7 @@ export default function EmpPostJob({ onNext }) {
 														<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
 															Stage {stageNumber}: Assessment Schedule {assessmentIndex + 1}
 														</h4>
-														<div style={{ fontSize: 12, color: "#64748b" }}>Set the date and time window for candidates</div>
+														<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 													</div>
 												</div>
 												<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

@@ -322,6 +322,7 @@ function JobDetail1Page() {
                         if (verifyData.success) {
                             setHasApplied(true);
                             showSuccess('Payment successful and application submitted!');
+                            await checkApplicationStatus();
                             fetchJobDetails();
                         } else {
                             showError(verifyData.message || 'Payment verification failed');
@@ -329,6 +330,11 @@ function JobDetail1Page() {
                     } catch (error) {
                         console.error('Error verifying payment:', error);
                         showError('Payment verification failed');
+                    }
+                },
+                modal: {
+                    ondismiss: function() {
+                        checkApplicationStatus();
                     }
                 },
                 theme: {
@@ -598,14 +604,7 @@ function JobDetail1Page() {
                                                 </div>
                                             )}
 
-                                            <ul className="description-list-2">
-                                                {job.employerProfile.website && (
-                                                    <li><strong>Website:</strong> <a href={job.employerProfile.website.startsWith('http') ? job.employerProfile.website : `https://${job.employerProfile.website}`} target="_blank" rel="noopener noreferrer">{job.employerProfile.website}</a></li>
-                                                )}
-                                                {job.employerProfile.location && (
-                                                    <li><strong>Location:</strong> {job.employerProfile.location}</li>
-                                                )}
-                                            </ul>
+
                                         </div>
                                     )}
 

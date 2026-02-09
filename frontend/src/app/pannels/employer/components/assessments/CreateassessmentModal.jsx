@@ -623,7 +623,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					}}>
 						<i className="fa fa-info-circle" style={{color: '#2196f3', fontSize: 14}}></i>
 						<small style={{color: '#1565c0', fontSize: 12, margin: 0}}>
-							Supports MCQ, Visual MCQs, Questionary image MCQ, Image MCQ, Subjective (text), and Upload Image questions
+							Supports MCQ, Question with image, Option with image, Image MCQ, Subjective (text), and Upload File/image questions
 						</small>
 					</div>
 
@@ -646,10 +646,9 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 									>
 										<option value="mcq">MCQ</option>
 										<option value="subjective">Subjective</option>
-										<option value="upload">Upload File</option>
-										<option value="image">Upload Image</option>
-										<option value="questionary-image-mcq">Questions with Image</option>
-										<option value="visual-mcq">Options with Image</option>
+										<option value="upload">Upload File/image</option>
+										<option value="questionary-image-mcq">Option with image</option>
+										<option value="visual-mcq">Question with image</option>
 										<option value="image-mcq">Image MCQ</option>
 									</select>
 									<button
@@ -692,7 +691,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 											<div>
 												<i className="fa fa-cloud-upload" style={{ fontSize: '24px', color: '#6b7280', marginBottom: '8px' }}></i>
 												<p className="mb-0 small text-muted">Click to upload or drag and drop</p>
-												<p className="mb-0 extra-small text-muted" style={{ fontSize: '10px' }}>PNG, JPG or GIF (max. 5MB)</p>
+												<p className="mb-0 extra-small text-muted" style={{ fontSize: '10px' }}>PNG, JPG or GIF (max. 100MB)</p>
 											</div>
 										) : (
 											<div className="position-relative d-inline-block">
@@ -841,44 +840,19 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								<div className="mb-3">
 									<small className="text-muted">This is an upload question. Candidates will upload files as their answer.</small>
 									<div className="mt-2 p-2 border rounded" style={{backgroundColor: '#f8f9fa'}}>
-										<small className="text-info">📎 Accepted file types: PDF, DOC, DOCX, JPG, PNG (Max: 10MB)</small>
+										<small className="text-info">📎 Accepted file types: PDF, DOC, DOCX, JPG, PNG (Max: 100MB)</small>
 									</div>
 								</div>
 							) : q.type === "image" ? (
 								<div className="mb-3">
 									<small className="text-muted">This is an image upload question. Candidates will upload images as their answer.</small>
 									<div className="mt-2 p-2 border rounded" style={{backgroundColor: '#f8f9fa'}}>
-										<small className="text-info">🖼️ Accepted image types: JPG, JPEG, PNG, GIF, WEBP (Max: 5MB)</small>
+										<small className="text-info">🖼️ Accepted image types: JPG, JPEG, PNG, GIF, WEBP (Max: 100MB)</small>
 									</div>
 								</div>
 							) : (
 								<div className="mb-3">
-									<small className="text-muted">This is a subjective question. Candidates will provide written answers.</small>
-								</div>
-							)}
-							
-							{q.type !== 'image-mcq' && (
-								<div className="mb-3">
-									<label className="form-label small text-muted mb-1">Question Image (Optional)</label>
-									<input
-										type="file"
-										className="form-control"
-										accept="image/*"
-										onChange={(e) => handleImageUpload(qIndex, e.target.files[0])}
-									/>
-									{q.imageUrl && (
-										<div className="mt-2">
-											<img src={q.imageUrl} alt="Question" style={{maxWidth: '200px', maxHeight: '150px'}} />
-											<button
-												type="button"
-												className="btn btn-sm ms-2"
-												style={{backgroundColor: '#ff6600', color: 'white', border: 'none'}}
-												onClick={() => handleQuestionChange(qIndex, "imageUrl", "")}
-											>
-												Remove
-											</button>
-										</div>
-									)}
+									<small className="text-muted">This is a subjective question that requires the candidate to provide a detailed explanation in their response.</small>
 								</div>
 							)}
 							

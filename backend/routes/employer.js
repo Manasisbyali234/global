@@ -238,7 +238,7 @@ const handleUploadError = (error, req, res, next) => {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(413).json({ 
         success: false, 
-        message: 'File too large. Maximum size is 50MB per image. Please compress your image and try again.' 
+        message: 'File too large. Maximum size is 100MB per image. Please compress your image and try again.' 
       });
     }
     return res.status(400).json({ 

@@ -243,8 +243,7 @@ export default function ViewAnswers() {
                     </span>
                     <span style={{ 
                       background: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') ? '#3b82f6' : 
-                                 question.type === 'subjective' ? '#10b981' : 
-                                 question.type === 'image' ? '#8b5cf6' : '#f59e0b', 
+                                 question.type === 'subjective' ? '#10b981' : '#f59e0b', 
                       color: 'white', 
                       padding: '0.25rem 0.75rem', 
                       borderRadius: '9999px', 
@@ -253,11 +252,10 @@ export default function ViewAnswers() {
                       textTransform: 'uppercase'
                     }}>
                       {question.type === 'mcq' ? 'MCQ' : 
-                       question.type === 'visual-mcq' ? 'Visual MCQ' :
-                       question.type === 'questionary-image-mcq' ? 'Questionary image MCQ' :
+                       question.type === 'visual-mcq' ? 'Question with image' :
+                       question.type === 'questionary-image-mcq' ? 'Option with image' :
                        question.type === 'image-mcq' ? 'Image MCQ' :
-                       question.type === 'subjective' ? 'Subjective' : 
-                       question.type === 'image' ? 'Image Upload' : 'File Upload'}
+                       question.type === 'subjective' ? 'Subjective' : 'File/Image Upload'}
                     </span>
                     {(question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && (
                       <span style={{ 
