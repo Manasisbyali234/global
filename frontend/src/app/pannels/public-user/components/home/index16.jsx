@@ -959,7 +959,7 @@ function Home16Page() {
                                 <Row style={{'--bs-gutter-x': '20px'}}>
                                 {jobs.length > 0 ? (
                                     jobs.map((job) => (
-                                        <Col lg={4} md={6} sm={12} xs={12} key={job._id} className="mb-2">
+                                        <Col lg={6} md={6} sm={12} xs={12} key={job._id} className="mb-2">
                                             <div className="new-job-card">
                                                 {/* Top Row */}
                                                 <div className="job-card-header">
@@ -1115,41 +1115,105 @@ function Home16Page() {
             {/* JOB POST END */}
 
             {/* SECTION 1: Top Recruiters Hiring Now */}
-            <div className="section-full redesign-section bg-peach animate-on-scroll">
+            <div className="section-full redesign-section animate-on-scroll" style={{ background: '#fcfcfc', padding: '60px 0' }}>
                 <Container>
                     <div className="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
                         <div className="text-left">
-                            <span className="badge-orange">Hiring now</span>
-                            <h2 className="section-title-large">
-                                Top Recruiters <span className="text-orange">Hiring Now</span>
+                            <span className="badge-orange" style={{ 
+                                background: '#FFEBE3', 
+                                color: '#FF6A3D', 
+                                padding: '6px 16px', 
+                                borderRadius: '50px', 
+                                fontSize: '13px', 
+                                fontWeight: '600',
+                                marginBottom: '12px',
+                                display: 'inline-block'
+                            }}>Hiring now</span>
+                            <h2 className="section-title-large" style={{ fontWeight: '800', color: '#1c1c1c' }}>
+                                Top Recruiters <span style={{ color: '#FF6A3D' }}>Hiring Now</span>
                             </h2>
-                            <p className="section-subtitle mb-0">Discover your next career move with these industry leaders</p>
+                            <p className="section-subtitle mb-0" style={{ color: '#666' }}>Discover your next career move with these industry leaders</p>
                         </div>
-                        <NavLink to="/emp-grid" className="view-all-companies-btn">
+                        <NavLink to="/emp-grid" className="view-all-companies-btn" style={{
+                            background: '#ffffff',
+                            color: '#FF6A3D',
+                            border: '1px solid #FF6A3D',
+                            padding: '10px 24px',
+                            borderRadius: '10px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            textDecoration: 'none',
+                            transition: 'all 0.3s ease'
+                        }}>
                             View all companies
                         </NavLink>
                     </div>
 
                     <Row className="g-4 justify-content-center">
                         {loading ? (
-                            <Col xs={12}><RecruiterSkeleton count={6} /></Col>
+                            <Col xs={12}><RecruiterSkeleton count={8} /></Col>
                         ) : recruiters.length > 0 ? (
-                            recruiters.slice(0, 6).map((recruiter) => (
-                                <Col xl={2} lg={3} md={4} sm={6} xs={12} key={recruiter._id}>
+                            recruiters.slice(0, 8).map((recruiter) => (
+                                <Col xl={3} lg={3} md={6} sm={6} xs={12} key={recruiter._id}>
                                     <NavLink to={`/emp-detail/${recruiter._id}`} className="text-decoration-none">
-                                        <div className="recruiter-card">
-                                            <div className="recruiter-logo-circle">
+                                        <div className="recruiter-card" style={{
+                                            background: '#ffffff',
+                                            borderRadius: '12px',
+                                            border: '1px solid #f0f0f0',
+                                            padding: '25px 15px',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            textAlign: 'center',
+                                            height: '100%',
+                                            boxShadow: 'none',
+                                            transition: 'all 0.3s ease'
+                                        }}>
+                                            <div className="recruiter-logo-circle" style={{
+                                                width: '50px',
+                                                height: '50px',
+                                                borderRadius: '50%',
+                                                background: '#f8f9fa',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                marginBottom: '15px',
+                                                overflow: 'hidden',
+                                                border: '1px solid #f0f0f0'
+                                            }}>
                                                 {recruiter.logo ? (
-                                                    <img src={recruiter.logo} alt={recruiter.companyName} />
+                                                    <img src={recruiter.logo} alt={recruiter.companyName} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                                 ) : (
-                                                    <div style={{fontSize: '24px', fontWeight: 'bold', color: '#FF6A3D'}}>
+                                                    <div style={{fontSize: '20px', fontWeight: 'bold', color: '#A0A7B0'}}>
                                                         {(recruiter.companyName || 'C').charAt(0)}
                                                     </div>
                                                 )}
                                             </div>
-                                            <h4 className="recruiter-name text-truncate w-100">{recruiter.companyName}</h4>
-                                            <p className="recruiter-location mb-1">{recruiter.location || 'Location not specified'}</p>
-                                            <p className="job-posts-count mb-0">{recruiter.jobCount || 0} job posts</p>
+                                            <h4 className="recruiter-name" style={{
+                                                fontSize: '16px',
+                                                fontWeight: '700',
+                                                color: '#333',
+                                                marginBottom: '4px',
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: '1',
+                                                WebkitBoxOrient: 'vertical',
+                                                overflow: 'hidden'
+                                            }}>{recruiter.companyName}</h4>
+                                            <p className="recruiter-location" style={{
+                                                fontSize: '13px',
+                                                color: '#888',
+                                                marginBottom: '12px',
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: '1',
+                                                WebkitBoxOrient: 'vertical',
+                                                overflow: 'hidden'
+                                            }}>{recruiter.location || 'Location not specified'}</p>
+                                            <p className="job-posts-count" style={{
+                                                fontSize: '14px',
+                                                color: '#FF6A3D',
+                                                fontWeight: '600',
+                                                margin: '0'
+                                            }}>{recruiter.jobCount || 0} job posts</p>
                                         </div>
                                     </NavLink>
                                 </Col>
