@@ -938,9 +938,13 @@ exports.getApplications = async (req, res) => {
 
 exports.getRegisteredCandidates = async (req, res) => {
   try {
-    // Remove pagination to load all candidates quickly
+    const { page = 1, limit = 50 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
     const candidatesWithProfiles = await Candidate.aggregate([
       { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: parseInt(limit) },
       {
         $lookup: {
           from: 'candidateprofiles',
@@ -985,7 +989,8 @@ exports.getRegisteredCandidates = async (req, res) => {
       }
     ]);
 
-    // Calculate profile completion for each candidate
+    const total = await Candidate.countDocuments();
+
     const { calculateProfileCompletionWithDetails } = require('../utils/profileCompletion');
     const enhancedCandidates = candidatesWithProfiles.map(candidate => {
       const profileCompletion = calculateProfileCompletionWithDetails(candidate.profile);
@@ -997,8 +1002,16 @@ exports.getRegisteredCandidates = async (req, res) => {
       };
     });
 
-    res.json({ success: true, data: enhancedCandidates });
+    res.json({ 
+      success: true, 
+      data: enhancedCandidates,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(total / parseInt(limit))
+    });
   } catch (error) {
+    console.error('getRegisteredCandidates error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -1552,11 +1565,25 @@ exports.bulkUpdateCandidateCredits = async (req, res) => {
 
 exports.getCandidatesForCredits = async (req, res) => {
   try {
+    const { page = 1, limit = 100 } = req.query;
+    
     const candidates = await Candidate.find()
       .select('name email credits registrationMethod placementId')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .lean();
     
-    res.json({ success: true, candidates });
+    const total = await Candidate.countDocuments();
+    
+    res.json({ 
+      success: true, 
+      candidates,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(total / parseInt(limit))
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
