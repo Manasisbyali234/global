@@ -1102,9 +1102,18 @@ exports.processFileApproval = async (req, res) => {
     }
     
     const displayName = file.customName || fileName || file.fileName;
+    
+    let message = `"${displayName}" file processed successfully.`;
+    if (createdCount > 0) {
+      message += ` ${createdCount} ${createdCount === 1 ? 'student' : 'students'} created and can now login to the candidate dashboard using their email and password.`;
+    }
+    if (skippedCount > 0) {
+      message += ` ${skippedCount} ${skippedCount === 1 ? 'student already exists' : 'students already exist'} in the system. You can use Resend Welcome Emails to notify them.`;
+    }
+    
     res.json({
       success: true,
-      message: `File "${displayName}" processed successfully. ${createdCount} candidates created and can now login to candidate dashboard using their email and password. ${skippedCount} candidates were skipped.`,
+      message: message,
       stats: {
         created: createdCount,
         skipped: skippedCount,

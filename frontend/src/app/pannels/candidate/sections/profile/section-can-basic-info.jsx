@@ -106,18 +106,45 @@ function SectionCandicateBasicInfo() {
                 }
 
                 console.log('Profile data received:', { pincode: profile.pincode, location: profile.location });
-                setFormData({
-                    firstName: candidate.firstName || profile.firstName || '',
-                    middleName: profile.middleName || '',
-                    lastName: profile.lastName || '',
-                    phone: phoneNumber,
-                    phoneCountryCode: countryCode,
-                    email: candidate.email || '',
-                    location: profile.location || '',
-                    stateCode: profile.stateCode || '',
-                    pincode: profile.pincode || '',
-                    profilePicture: null
-                });
+                
+                // Check if profile is empty (first time login) and signup data exists
+                const signupData = localStorage.getItem('candidateSignupData');
+                const isProfileEmpty = !profile.firstName && !profile.lastName && !profile.location;
+                
+                if (isProfileEmpty && signupData) {
+                    // Auto-fill from signup data
+                    const parsedSignupData = JSON.parse(signupData);
+                    setFormData({
+                        firstName: parsedSignupData.firstName || '',
+                        middleName: parsedSignupData.middleName || '',
+                        lastName: parsedSignupData.lastName || '',
+                        phone: parsedSignupData.phone || '',
+                        phoneCountryCode: parsedSignupData.phoneCountryCode || '+91',
+                        email: parsedSignupData.email || candidate.email || '',
+                        location: '',
+                        stateCode: '',
+                        pincode: '',
+                        profilePicture: null
+                    });
+                    // Clear signup data after using it
+                    localStorage.removeItem('candidateSignupData');
+                    showInfo('Welcome! Please complete your profile with location details.');
+                } else {
+                    // Use existing profile data
+                    setFormData({
+                        firstName: candidate.firstName || profile.firstName || '',
+                        middleName: profile.middleName || '',
+                        lastName: profile.lastName || '',
+                        phone: phoneNumber,
+                        phoneCountryCode: countryCode,
+                        email: candidate.email || '',
+                        location: profile.location || '',
+                        stateCode: profile.stateCode || '',
+                        pincode: profile.pincode || '',
+                        profilePicture: null
+                    });
+                }
+                
                 setErrors({});
                 setTouched({});
                 setCurrentProfilePicture(profile.profilePicture);

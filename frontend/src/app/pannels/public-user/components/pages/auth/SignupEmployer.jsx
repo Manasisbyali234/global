@@ -99,8 +99,8 @@ function SignupEmployer() {
         
         if (!employerData.mobile || !employerData.mobile.trim()) {
             errors.mobile = 'Mobile number is required';
-        } else if (!/^\d{10,15}$/.test(employerData.mobile.replace(/[\s\-\(\)\+]/g, ''))) {
-            errors.mobile = 'Phone number must be at least 10 digits';
+        } else if (!/^\d{10}$/.test(employerData.mobile.replace(/[\s\-\(\)\+]/g, ''))) {
+            errors.mobile = 'Phone number must be exactly 10 digits';
         }
         
         if (!employerData.employerCategory) {

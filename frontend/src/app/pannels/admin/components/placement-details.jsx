@@ -109,8 +109,7 @@ function PlacementDetails() {
             });
             const data = await response.json();
             if (data.success) {
-                const displayName = placement?.fileHistory?.find(f => f._id === fileId)?.customName || fileName;
-                showSuccess(`File "${displayName}" approved and processed successfully! ${data.message}`);
+                showSuccess(data.message);
                 // Force immediate refresh
                 setTimeout(() => {
                     fetchPlacementDetails();

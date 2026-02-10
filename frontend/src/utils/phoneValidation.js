@@ -10,11 +10,11 @@ export const validatePhoneNumber = (phoneNumber, isRequired = false) => {
   // Remove all spaces and special characters
   const cleanNumber = phoneNumber.replace(/[\s\-\(\)\+]/g, '');
   
-  // Check if it's minimum 10 digits
-  if (!/^\d{10,15}$/.test(cleanNumber)) {
+  // Check if it's exactly 10 digits
+  if (!/^\d{10}$/.test(cleanNumber)) {
     return { 
       isValid: false, 
-      message: 'Phone number must be at least 10 digits' 
+      message: 'Phone number must be exactly 10 digits' 
     };
   }
   
@@ -26,8 +26,8 @@ export const formatPhoneNumber = (phoneNumber) => {
   
   const cleanNumber = phoneNumber.replace(/[\s\-\(\)\+]/g, '');
   
-  // Return only digits, max 15
-  return cleanNumber.substring(0, 15);
+  // Return only digits, max 10
+  return cleanNumber.substring(0, 10);
 };
 
 export const ensureCountryCode = (phoneNumber) => {
@@ -35,8 +35,8 @@ export const ensureCountryCode = (phoneNumber) => {
   
   const cleanNumber = phoneNumber.replace(/[\s\-\(\)\+]/g, '');
   
-  // Return only digits, max 15
-  return cleanNumber.substring(0, 15);
+  // Return only digits, max 10
+  return cleanNumber.substring(0, 10);
 };
 
 // Utility to handle phone input changes with validation
@@ -44,8 +44,12 @@ export const handlePhoneInputChange = (value, setFieldValue, setErrors, fieldNam
   const formattedValue = formatPhoneNumber(value);
   setFieldValue(formattedValue);
   
-  // Clear error when user starts typing
-  setErrors(prev => ({ ...prev, [fieldName]: '' }));
+  // Validate immediately if length is not 10
+  if (formattedValue.length > 0 && formattedValue.length !== 10) {
+    setErrors(prev => ({ ...prev, [fieldName]: 'Phone number must be exactly 10 digits' }));
+  } else {
+    setErrors(prev => ({ ...prev, [fieldName]: '' }));
+  }
   
   return formattedValue;
 };

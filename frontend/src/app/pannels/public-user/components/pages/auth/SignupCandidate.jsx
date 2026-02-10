@@ -126,6 +126,16 @@ function SignupCandidate() {
             
             const data = await response.json();
             if (response.ok && data.success) {
+                // Store signup data in localStorage for auto-filling profile
+                localStorage.setItem('candidateSignupData', JSON.stringify({
+                    firstName: candidateData.firstName,
+                    middleName: candidateData.middleName,
+                    lastName: candidateData.lastName,
+                    email: candidateData.email,
+                    phone: candidateData.mobile,
+                    phoneCountryCode: candidateData.countryCode
+                }));
+                
                 showSuccess('Registration successful! Please check your registered email inbox to create your password.');
                 setCandidateData({ firstName: '', middleName: '', lastName: '', email: '', mobile: '', countryCode: '+91' });
                 navigate(publicUser.pages.LOGIN_CANDIDATE);
@@ -283,7 +293,7 @@ function SignupCandidate() {
                                 name="middleName" 
                                 type="text" 
                                 className={`auth-input ${fieldErrors.middleName ? 'is-invalid' : ''}`} 
-                                placeholder="Middle Name (Optional)" 
+                                placeholder="Middle Name " 
                                 value={candidateData.middleName} 
                                 onChange={handleChange} 
                             />

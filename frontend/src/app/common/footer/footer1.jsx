@@ -160,7 +160,7 @@ function Footer1() {
                             <ul className="footer-link-list">
                                 <li><NavLink to={publicUser.INITIAL}>Home</NavLink></li>
                                 <li><NavLink to={publicUser.jobs.GRID}>Jobs</NavLink></li>
-                                <li><NavLink to={publicUser.employer.GRID}>Employers</NavLink></li>
+                                <li><NavLink to={publicUser.employer.GRID}>Companies</NavLink></li>
                                 <li><NavLink to={publicUser.pages.ABOUT}>About Us</NavLink></li>
                                 <li><NavLink to={publicUser.pages.CONTACT}>Contact Us</NavLink></li>
                             </ul>

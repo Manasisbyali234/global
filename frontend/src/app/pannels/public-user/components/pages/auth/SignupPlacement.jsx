@@ -14,8 +14,6 @@ function SignupPlacement() {
         email: '',
         phone: '',
         collegeName: '',
-        collegeOfficialEmail: '',
-        collegeOfficialPhone: '',
         countryCode: '+91'
     });
     
@@ -62,24 +60,7 @@ function SignupPlacement() {
                 delete errors.collegeName;
             }
         }
-        if (name === 'collegeOfficialEmail') {
-            if (!value || !value.trim()) {
-                errors.collegeOfficialEmail = 'Official college email is required';
-            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
-                errors.collegeOfficialEmail = 'Please enter a valid email address';
-            } else {
-                delete errors.collegeOfficialEmail;
-            }
-        }
-        if (name === 'collegeOfficialPhone') {
-            if (!value || !value.trim()) {
-                errors.collegeOfficialPhone = 'Official college phone is required';
-            } else if (value.trim().length < 10) {
-                errors.collegeOfficialPhone = 'Phone number must be at least 10 digits';
-            } else {
-                delete errors.collegeOfficialPhone;
-            }
-        }
+
         setFieldErrors(errors);
     };
 
@@ -128,8 +109,6 @@ function SignupPlacement() {
                     email: placementData.email,
                     phone: placementData.countryCode + placementData.phone,
                     collegeName: placementData.collegeName,
-                    collegeOfficialEmail: placementData.collegeOfficialEmail,
-                    collegeOfficialPhone: placementData.collegeOfficialPhone,
                     sendWelcomeEmail: true,
                     skipOtpVerification: true
                 })
@@ -166,11 +145,6 @@ function SignupPlacement() {
         
         if (Object.keys(fieldErrors).filter(key => fieldErrors[key]).length > 0 || missingFields.length > 0) {
             showError('Please complete all required fields correctly.');
-            return;
-        }
-
-        if (placementData.collegeOfficialEmail.trim() === placementData.collegeOfficialPhone.trim()) {
-            showError('Official college email and official phone number cannot be the same');
             return;
         }
 
@@ -346,32 +320,6 @@ function SignupPlacement() {
                                 onChange={handleChange} 
                             />
                             {fieldErrors.collegeName && <div className="invalid-feedback">{fieldErrors.collegeName}</div>}
-                        </div>
-
-                        <div className="auth-form-group">
-                            <input 
-                                name="collegeOfficialEmail" 
-                                type="email" 
-                                required 
-                                className={`auth-input ${fieldErrors.collegeOfficialEmail ? 'is-invalid' : ''}`} 
-                                placeholder="Official College Email ID" 
-                                value={placementData.collegeOfficialEmail} 
-                                onChange={handleChange} 
-                            />
-                            {fieldErrors.collegeOfficialEmail && <div className="invalid-feedback">{fieldErrors.collegeOfficialEmail}</div>}
-                        </div>
-
-                        <div className="auth-form-group">
-                            <input 
-                                name="collegeOfficialPhone" 
-                                type="text" 
-                                required 
-                                className={`auth-input ${fieldErrors.collegeOfficialPhone ? 'is-invalid' : ''}`} 
-                                placeholder="Official College Phone Number" 
-                                value={placementData.collegeOfficialPhone} 
-                                onChange={handleChange} 
-                            />
-                            {fieldErrors.collegeOfficialPhone && <div className="invalid-feedback d-block">{fieldErrors.collegeOfficialPhone}</div>}
                         </div>
 
                         <button type="submit" className="login-btn" disabled={loading}>
