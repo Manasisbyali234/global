@@ -1561,11 +1561,11 @@ exports.uploadIdCard = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const placementId = req.user.id;
-    const { name, firstName, lastName, phone, collegeName, collegeAddress, collegeOfficialEmail, collegeOfficialPhone } = req.body;
+    const { name, firstName, lastName, phone, collegeName, collegeAddress, collegeOfficialEmail, additionalOfficialEmail, collegeOfficialPhone } = req.body;
     
     console.log('=== PROFILE UPDATE REQUEST ===');
     console.log('Placement ID:', placementId);
-    console.log('Request body:', { name, firstName, lastName, phone, collegeName, collegeAddress, collegeOfficialEmail, collegeOfficialPhone });
+    console.log('Request body:', { name, firstName, lastName, phone, collegeName, collegeAddress, collegeOfficialEmail, additionalOfficialEmail, collegeOfficialPhone });
     console.log('User object:', req.user);
     
     // Validate required fields
@@ -1615,6 +1615,10 @@ exports.updateProfile = async (req, res) => {
         });
       }
       updateData.collegeOfficialPhone = phoneVal;
+    }
+    
+    if (additionalOfficialEmail) {
+      updateData.additionalOfficialEmail = additionalOfficialEmail.toLowerCase().trim();
     }
     
     console.log('Constructed update data (restricted):', updateData);

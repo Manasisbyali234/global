@@ -18,6 +18,7 @@ const placementSchema = new mongoose.Schema({
   collegeName: { type: String, required: true },
   collegeAddress: { type: String },
   collegeOfficialEmail: { type: String },
+  additionalOfficialEmail: { type: String },
   collegeOfficialPhone: { type: String },
   logo: { type: String }, // Base64 encoded logo image
   idCard: { type: String }, // Base64 encoded ID card image

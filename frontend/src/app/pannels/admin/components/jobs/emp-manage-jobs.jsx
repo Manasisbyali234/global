@@ -215,7 +215,7 @@ function EmpManageJobsPage() {
                                                     <button 
                                                         className="btn-action btn-view"
                                                         title="View Applications"
-                                                        onClick={() => window.location.href = `/employer/job-applications/${job._id}`}
+                                                        onClick={() => window.location.href = `/employer/candidates-list/${job._id}`}
                                                     >
                                                         <i className="fa fa-eye"></i>
                                                     </button>

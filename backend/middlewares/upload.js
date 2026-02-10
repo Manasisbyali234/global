@@ -304,11 +304,16 @@ Please fill in all required fields and upload again.`
 const uploadQuestionImage = multer({
   storage: diskStorage,
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/svg+xml',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only JPG, PNG, GIF, and WEBP images are allowed'), false);
+      cb(new Error('Only images (JPG, PNG, GIF, WEBP, BMP, SVG), PDF, DOC, and DOCX files are allowed'), false);
     }
   },
   limits: { 

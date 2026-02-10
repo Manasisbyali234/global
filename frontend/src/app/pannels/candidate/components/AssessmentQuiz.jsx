@@ -325,8 +325,8 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
     }
     
     if (question.type === 'upload' || question.type === 'image') {
-      if (!uploadedFile) {
-        alert('Please upload a file before proceeding to the next question.');
+      if (!uploadedFile && !textAnswer.trim()) {
+        alert('Please provide a written answer or upload a file before proceeding.');
         return;
       }
     }
@@ -387,8 +387,8 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
     
     // Submit current answer if provided
     if (((question.type === 'mcq' || question.type === 'visual-mcq') && selectedAnswer !== null) ||
-        (question.type === 'subjective' && textAnswer.trim()) ||
-        (question.type === 'upload' && uploadedFile)) {
+        (question.type === 'subjective' && (textAnswer.trim() || uploadedFile)) ||
+        (question.type === 'upload' && (uploadedFile || textAnswer.trim()))) {
       try {
         const token = localStorage.getItem('candidateToken');
         
@@ -593,18 +593,32 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
           
           {question.type === 'upload' && (
             <div className="mb-3">
-              <div className="border rounded p-4 text-center">
+              <div className="border rounded p-4">
+                <label className="form-label fw-semibold mb-3">✍️ Write your answer or upload a file</label>
+                
+                <textarea
+                  className="form-control mb-3"
+                  rows="6"
+                  placeholder="Type your answer here (optional if uploading a file)..."
+                  value={textAnswer}
+                  onChange={(e) => setTextAnswer(e.target.value)}
+                />
+                
+                <div className="text-center my-3">
+                  <span className="badge bg-secondary">OR</span>
+                </div>
+                
                 {!uploadedFile ? (
                   <>
                     <input
                       type="file"
                       className="form-control mb-3"
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      accept=".pdf,.doc,.docx,image/*"
                       onChange={(e) => handleFileUpload(e.target.files[0])}
                       disabled={uploading}
                     />
                     <small className="text-muted d-block">
-                      📎 Accepted file types: PDF, DOC, DOCX, JPG, PNG (Max: 10MB)
+                      📎 Accepted file types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF, WEBP, BMP, SVG (Max: 10MB)
                     </small>
                     {uploading && (
                       <div className="mt-2">
@@ -619,6 +633,12 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
                     File uploaded successfully: {uploadedFile.originalName}
                     <br />
                     <small>Size: {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</small>
+                    <button 
+                      className="btn btn-sm btn-outline-danger ms-2 mt-2"
+                      onClick={() => setUploadedFile(null)}
+                    >
+                      Remove File
+                    </button>
                   </div>
                 )}
               </div>
@@ -689,7 +709,8 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
                 disabled={
                   ((question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && selectedAnswer === null) ||
                   (question.type === 'subjective' && !textAnswer.trim() && !uploadedFile) ||
-                  (question.type === 'upload' && !uploadedFile) ||
+                  (question.type === 'upload' && !uploadedFile && !textAnswer.trim()) ||
+                  (question.type === 'image' && !uploadedFile) ||
                   uploading
                 }
               >

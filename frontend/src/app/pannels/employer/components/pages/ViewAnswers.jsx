@@ -253,7 +253,7 @@ export default function ViewAnswers() {
                     }}>
                       {question.type === 'mcq' ? 'MCQ' : 
                        question.type === 'visual-mcq' ? 'Question with image' :
-                       question.type === 'questionary-image-mcq' ? 'Option with image' :
+                       question.type === 'questionary-image-mcq' ? ' Options with image' :
                        question.type === 'image-mcq' ? 'Image MCQ' :
                        question.type === 'subjective' ? 'Subjective' : 'File/Image Upload'}
                     </span>

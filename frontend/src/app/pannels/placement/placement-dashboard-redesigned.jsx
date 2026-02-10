@@ -37,6 +37,7 @@ function PlacementDashboardRedesigned() {
         collegeName: '',
         collegeAddress: '',
         collegeOfficialEmail: '',
+        additionalOfficialEmail: '',
         collegeOfficialPhone: ''
     });
     const [updating, setUpdating] = useState(false);
@@ -243,6 +244,7 @@ function PlacementDashboardRedesigned() {
             collegeName: placementData?.collegeName || '',
             collegeAddress: placementData?.collegeAddress || '',
             collegeOfficialEmail: placementData?.collegeOfficialEmail || '',
+            additionalOfficialEmail: placementData?.additionalOfficialEmail || '',
             collegeOfficialPhone: placementData?.collegeOfficialPhone || ''
         });
         setShowEditModal(true);
@@ -315,7 +317,14 @@ function PlacementDashboardRedesigned() {
                 showError(response?.message || 'Failed to update profile');
             }
         } catch (error) {
-            showError(error.message || 'Error updating profile. Please try again.');
+            const errorMessage = error.message || 'Error updating profile. Please try again.';
+            // Extract only the message content, removing HTTP status and JSON structure
+            const cleanMessage = errorMessage
+                .replace(/^HTTP\s*\d+:\s*\{[^}]*"message"\s*:\s*"/i, '')
+                .replace(/"\s*\}\s*$/i, '')
+                .replace(/&quot;/g, '')
+                .trim();
+            showError(cleanMessage || 'Error updating profile. Please try again.');
         } finally {
             setUpdating(false);
         }
@@ -1430,6 +1439,17 @@ function PlacementDashboardRedesigned() {
                                     value={editFormData.collegeOfficialEmail || ''}
                                     onChange={(e) => setEditFormData({...editFormData, collegeOfficialEmail: e.target.value})}
                                     placeholder="Enter college official email"
+                                    disabled={true}
+                                    style={{backgroundColor: '#f3f4f6', cursor: 'not-allowed'}}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Add Official College Email ID</label>
+                                <input
+                                    type="email"
+                                    value={editFormData.additionalOfficialEmail || ''}
+                                    onChange={(e) => setEditFormData({...editFormData, additionalOfficialEmail: e.target.value})}
+                                    placeholder="Enter additional official college email"
                                 />
                             </div>
                             <div className="form-group">

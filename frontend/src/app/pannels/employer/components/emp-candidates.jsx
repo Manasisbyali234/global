@@ -240,7 +240,12 @@ function EmpCandidatesPage() {
               ) : (
                 filteredApplications.map((application) => (
                   <div className="col-lg-6 col-12" key={application._id}>
-                    <div className="d-flex justify-content-between align-items-center p-3 border rounded mb-3 shadow-sm">
+                    <div 
+                      className="d-flex justify-content-between align-items-center p-3 border rounded mb-3 shadow-sm" 
+                      style={{cursor: "pointer"}}
+                      onClick={() => navigate(`/employer/emp-job-review/${application.jobId?._id}`)}
+                      title="View Job Details"
+                    >
                       <div className="d-flex align-items-center gap-3" style={{flex: '1', minWidth: '0', marginRight: '1rem'}}>
                         <div
                           className="twm-media-pic rounded-circle overflow-hidden"
@@ -296,11 +301,10 @@ function EmpCandidatesPage() {
                       <div style={{flexShrink: 0}}>
                         <button
                           className="btn btn-outline-primary btn-sm"
-                          onClick={() =>
-                            navigate(
-                              `/employer/emp-candidate-review/${application._id}`
-                            )
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/employer/emp-candidate-review/${application._id}`);
+                          }}
                           style={{whiteSpace: 'nowrap'}}
                         >
                           <i className="fa fa-eye me-1" style={{ color: '#000000' }}></i> View Details

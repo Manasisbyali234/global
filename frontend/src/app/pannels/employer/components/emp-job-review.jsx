@@ -91,7 +91,7 @@ function EmpJobReviewPage() {
                             <div className="col-lg-6 col-12">
                                 <div className="mt-2">
                                     <h5 className="mb-1">Job Title / Designation</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.title}</p>
+                                    <p className="mb-0 text-muted"><strong>{jobDetails.title}</strong></p>
                                 </div>
 
                                 <div className="mt-2">

@@ -309,6 +309,10 @@ function EmpCandidateReviewPage() {
         return interviewProcesses.every(p => p.isCompleted);
     };
 
+    const hasAnyStageTracked = () => {
+        return interviewProcesses.some(p => p.isCompleted);
+    };
+
     const updateProcessCompletion = (processId, isCompleted) => {
         setInterviewProcesses(prev => 
             prev.map(p => p.id === processId ? { ...p, isCompleted } : p)
@@ -688,7 +692,7 @@ function EmpCandidateReviewPage() {
                                                     </button>
                                                 </>
                                             )}
-                                            {application.status !== 'hired' && (
+                                            {application.status !== 'hired' && hasAnyStageTracked() && (
                                                 <button 
                                                     className={`${application.status === 'offer_sent' ? 'active' : ''}`}
                                                     onClick={() => updateApplicationStatus('offer_sent')}
@@ -696,7 +700,7 @@ function EmpCandidateReviewPage() {
                                                     <i className="fas fa-envelope"></i> Offer Letter Sent
                                                 </button>
                                             )}
-                                            {application.status !== 'shortlisted' && application.status !== 'hired' && (
+                                            {application.status !== 'shortlisted' && application.status !== 'hired' && hasAnyStageTracked() && (
                                                 <button 
                                                     className={`${application.status === 'rejected' ? 'active' : ''}`}
                                                     onClick={() => updateApplicationStatus('rejected')}

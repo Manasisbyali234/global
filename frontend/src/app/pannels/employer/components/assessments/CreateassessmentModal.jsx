@@ -230,12 +230,12 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			const data = await response.json();
 			if (data.success) {
 				handleQuestionChange(qIndex, "imageUrl", data.imageUrl);
-				showSuccess('Image uploaded successfully');
+				showSuccess('File uploaded successfully');
 			} else {
-				showError(data.message || 'Failed to upload image');
+				showError(data.message || 'Failed to upload file');
 			}
 		} catch (error) {
-			showError('Failed to upload image');
+			showError('Failed to upload file');
 		}
 	};
 
@@ -623,7 +623,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					}}>
 						<i className="fa fa-info-circle" style={{color: '#2196f3', fontSize: 14}}></i>
 						<small style={{color: '#1565c0', fontSize: 12, margin: 0}}>
-							Supports MCQ, Question with image, Option with image, Image MCQ, Subjective (text), and Upload File/image questions
+							Supports MCQ, Question with image,  Options with image, Image MCQ, Subjective (text), and Upload File/image questions
 						</small>
 					</div>
 
@@ -647,7 +647,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 										<option value="mcq">MCQ</option>
 										<option value="subjective">Subjective</option>
 										<option value="upload">Upload File/image</option>
-										<option value="questionary-image-mcq">Option with image</option>
+										<option value="questionary-image-mcq">Options with image</option>
 										<option value="visual-mcq">Question with image</option>
 										<option value="image-mcq">Image MCQ</option>
 									</select>
@@ -732,7 +732,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							)}
 							{q.type === "questionary-image-mcq" && (
 								<div className="mb-3">
-									<label className="form-label small text-muted mb-1">Question Image (Optional)</label>
+									<label className="form-label small text-muted mb-1">Question Image</label>
 									<input
 										type="file"
 										className="form-control"
@@ -838,9 +838,31 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								</>
 							) : q.type === "upload" ? (
 								<div className="mb-3">
-									<small className="text-muted">This is an upload question. Candidates will upload files as their answer.</small>
+									<small className="text-muted">This is an upload question. Candidates will upload files/images as their answer.</small>
+									<div className="mt-2">
+										<label className="form-label small text-muted mb-1">Sample Upload (Optional)</label>
+										<input
+											type="file"
+											className="form-control"
+											accept=".pdf,.doc,.docx,image/*"
+											onChange={(e) => handleImageUpload(qIndex, e.target.files[0])}
+										/>
+										{q.imageUrl && (
+											<div className="mt-2">
+												<small className="text-success"><i className="fa fa-check-circle me-1"></i>File uploaded</small>
+												<button
+													type="button"
+													className="btn btn-sm ms-2"
+													style={{backgroundColor: '#ff6600', color: 'white', border: 'none', fontSize: '11px'}}
+													onClick={() => handleQuestionChange(qIndex, "imageUrl", "")}
+												>
+													Remove
+												</button>
+											</div>
+										)}
+									</div>
 									<div className="mt-2 p-2 border rounded" style={{backgroundColor: '#f8f9fa'}}>
-										<small className="text-info">📎 Accepted file types: PDF, DOC, DOCX, JPG, PNG (Max: 100MB)</small>
+										<small className="text-info">📎 Accepted file types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF, WEBP, BMP, SVG (Max: 100MB)</small>
 									</div>
 								</div>
 							) : q.type === "image" ? (
