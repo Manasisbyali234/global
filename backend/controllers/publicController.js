@@ -108,7 +108,7 @@ exports.getJobs = async (req, res) => {
         select: 'companyName employerType',
         match: { status: 'active', isApproved: true }
       })
-      .select('title location jobType vacancies category ctc createdAt employerId companyName companyLogo education')
+      .select('title location jobType vacancies category ctc createdAt employerId companyName companyLogo education shift')
       .sort(sortCriteria)
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))
@@ -148,8 +148,8 @@ exports.getJobs = async (req, res) => {
       hasPrevPage: parseInt(page) > 1
     };
     
-    // Cache for 30 seconds for faster updates
-    cache.set(cacheKey, response, 30000);
+    // Cache for 2 minutes for faster updates
+    cache.set(cacheKey, response, 120000);
     
     res.json(response);
   } catch (error) {
@@ -218,7 +218,7 @@ exports.getJobById = async (req, res) => {
     };
 
     const response = { success: true, job: jobWithProfile };
-    cache.set(cacheKey, response, 60000); // Cache for 1 minute
+    cache.set(cacheKey, response, 300000); // Cache for 5 minutes
     
     res.json(response);
   } catch (error) {
@@ -637,7 +637,7 @@ exports.getEmployers = async (req, res) => {
       hasPrevPage: parseInt(page) > 1
     };
     
-    cache.set(cacheKey, response, 30000);
+    cache.set(cacheKey, response, 120000); // Cache for 2 minutes
     res.json(response);
   } catch (error) {
     console.error('Error in getEmployers:', error);
@@ -976,8 +976,8 @@ exports.getJobFilterCounts = async (req, res) => {
       }
     };
 
-    // Cache for 60 seconds
-    cache.set(cacheKey, response, 60000);
+    // Cache for 5 minutes
+    cache.set(cacheKey, response, 300000);
     
     res.json(response);
   } catch (error) {
