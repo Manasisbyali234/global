@@ -9,8 +9,9 @@ const connectDB = async () => {
 
     // Atlas-optimized connection options
     const connectionOptions = {
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 60000,
+      connectTimeoutMS: 30000,
       bufferCommands: true,
       maxPoolSize: 10,
       minPoolSize: 5,
