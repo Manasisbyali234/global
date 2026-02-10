@@ -137,6 +137,52 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                                     value={answers[currentQuestionIndex] || ''}
                                     onChange={(e) => handleTextAnswerChange(e.target.value)}
                                 />
+                            ) : currentQuestion.type === 'upload' ? (
+                                <>
+                                    <div style={{
+                                        border: "2px dashed #ccc",
+                                        borderRadius: "8px",
+                                        padding: "20px",
+                                        textAlign: "center",
+                                        marginBottom: "15px",
+                                        backgroundColor: "#f9f9f9"
+                                    }}>
+                                        <i className="fa fa-cloud-upload" style={{ fontSize: "32px", color: "#999", marginBottom: "10px" }}></i>
+                                        <p style={{ margin: 0, color: "#666" }}>Click to upload or drag and drop</p>
+                                        <small style={{ color: "#999" }}>PDF, DOC, DOCX, JPG, PNG, GIF (Max: 100MB)</small>
+                                    </div>
+                                    {currentQuestion.options && currentQuestion.options.length > 0 && currentQuestion.options.some(opt => opt && opt.trim()) && (
+                                        <div style={{ marginTop: "10px" }}>
+                                            <div style={{ marginBottom: "10px", fontWeight: "500" }}>Answer Options:</div>
+                                            {currentQuestion.options.map((option, idx) => (
+                                                option && option.trim() ? (
+                                                    <label
+                                                        key={idx}
+                                                        style={{
+                                                            border: answers[currentQuestionIndex] === idx ? "2px solid #3498db" : "1px solid #ccc",
+                                                            borderRadius: "5px",
+                                                            padding: "10px",
+                                                            marginBottom: "8px",
+                                                            cursor: "pointer",
+                                                            backgroundColor: answers[currentQuestionIndex] === idx ? "#ecf6fd" : "#fff",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                        }}
+                                                    >
+                                                        <input
+                                                            type="radio"
+                                                            name={`q-${currentQuestionIndex}`}
+                                                            checked={answers[currentQuestionIndex] === idx}
+                                                            onChange={() => handleOptionChange(idx)}
+                                                            style={{ marginRight: "10px" }}
+                                                        />
+                                                        {String.fromCharCode(65 + idx)}. {option}
+                                                    </label>
+                                                ) : null
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
                             ) : currentQuestion.options && currentQuestion.options.length > 0 ? (
                                 currentQuestion.options.map((option, idx) => (
                                     <label

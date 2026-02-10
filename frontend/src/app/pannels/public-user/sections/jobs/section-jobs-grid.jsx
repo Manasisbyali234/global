@@ -198,6 +198,15 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
             return typeMap[job.jobType] || 'golden';
         }, [job.jobType]);
 
+        const formatJobType = (jobType) => {
+            if (!jobType) return 'Full Time';
+            return jobType
+                .trim()
+                .split(/[\s\-_]+/)
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        };
+
         const ctcDisplay = useMemo(() => {
             if (job.ctc?.min && job.ctc?.max) {
                 const minLPA = (job.ctc.min / 100000).toFixed(1);
@@ -261,13 +270,13 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                         </div>
                         <div className="job-type-badge">
                             <span className={`job-type-pill ${
-                                job.jobType === "full-time" ? "full-time" :
-                                job.jobType === "part-time" ? "part-time" :
-                                job.jobType === "contract" ? "contract" :
-                                job.jobType?.includes("internship") ? "internship" :
-                                job.jobType === "work-from-home" ? "wfh" : "full-time"
+                                job.jobType?.toLowerCase() === "full-time" ? "full-time" :
+                                job.jobType?.toLowerCase() === "part-time" ? "part-time" :
+                                job.jobType?.toLowerCase() === "contract" ? "contract" :
+                                job.jobType?.toLowerCase().includes("internship") ? "internship" :
+                                job.jobType?.toLowerCase() === "work-from-home" ? "wfh" : "full-time"
                             }`}>
-                                {job.jobType ? job.jobType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : "Full Time"}
+                                {formatJobType(job.jobType)}
                             </span>
                         </div>
                     </div>

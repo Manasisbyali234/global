@@ -837,34 +837,58 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 									</div>
 								</>
 							) : q.type === "upload" ? (
-								<div className="mb-3">
-									<small className="text-muted">This is an upload question. Candidates will upload files/images as their answer.</small>
-									<div className="mt-2">
-										<label className="form-label small text-muted mb-1">Sample Upload (Optional)</label>
-										<input
-											type="file"
-											className="form-control"
-											accept=".pdf,.doc,.docx,image/*"
-											onChange={(e) => handleImageUpload(qIndex, e.target.files[0])}
-										/>
-										{q.imageUrl && (
-											<div className="mt-2">
-												<small className="text-success"><i className="fa fa-check-circle me-1"></i>File uploaded</small>
-												<button
-													type="button"
-													className="btn btn-sm ms-2"
-													style={{backgroundColor: '#ff6600', color: 'white', border: 'none', fontSize: '11px'}}
-													onClick={() => handleQuestionChange(qIndex, "imageUrl", "")}
-												>
-													Remove
-												</button>
+								<>
+									<div className="mb-3">
+										<small className="text-muted">This is an upload question. Candidates will upload files/images as their answer.</small>
+										<div className="mt-2">
+											<label className="form-label small text-muted mb-1">Sample Upload (Optional)</label>
+											<input
+												type="file"
+												className="form-control"
+												accept=".pdf,.doc,.docx,image/*"
+												onChange={(e) => handleImageUpload(qIndex, e.target.files[0])}
+											/>
+											{q.imageUrl && (
+												<div className="mt-2">
+													<small className="text-success"><i className="fa fa-check-circle me-1"></i>File uploaded</small>
+													<button
+														type="button"
+														className="btn btn-sm ms-2"
+														style={{backgroundColor: '#ff6600', color: 'white', border: 'none', fontSize: '11px'}}
+														onClick={() => handleQuestionChange(qIndex, "imageUrl", "")}
+													>
+														Remove
+													</button>
+												</div>
+											)}
+										</div>
+										<div className="mt-2 p-2 border rounded" style={{backgroundColor: '#f8f9fa'}}>
+											<small className="text-info">📎 Accepted file types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF, WEBP, BMP, SVG (Max: 100MB)</small>
+										</div>
+									</div>
+									<div className="row mb-3">
+										{q.options.map((opt, optIndex) => (
+											<div key={optIndex} className="col-6 mb-3">
+												<div className="d-flex align-items-center mb-2">
+													<input
+														type="radio"
+														name={`correct-${qIndex}`}
+														checked={q.correctAnswer === optIndex}
+														onChange={() => handleCorrectAnswerChange(qIndex, optIndex)}
+														style={{ width: "18px", height: "18px", marginRight: "8px", flexShrink: 0, appearance: "auto" }}
+													/>
+													<input
+														type="text"
+														className="form-control"
+														placeholder={`Option ${String.fromCharCode(65 + optIndex)}`}
+														value={opt}
+														onChange={(e) => handleOptionChange(qIndex, optIndex, e.target.value)}
+													/>
+												</div>
 											</div>
-										)}
+										))}
 									</div>
-									<div className="mt-2 p-2 border rounded" style={{backgroundColor: '#f8f9fa'}}>
-										<small className="text-info">📎 Accepted file types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF, WEBP, BMP, SVG (Max: 100MB)</small>
-									</div>
-								</div>
+								</>
 							) : q.type === "image" ? (
 								<div className="mb-3">
 									<small className="text-muted">This is an image upload question. Candidates will upload images as their answer.</small>

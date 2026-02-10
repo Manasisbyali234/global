@@ -103,7 +103,7 @@ exports.getJobs = async (req, res) => {
 
     // Optimized query for better performance
     const jobs = await Job.find(query)
-      .select('title location jobType vacancies category ctc createdAt employerId companyName companyLogo education shift')
+      .select('title location jobType vacancies category ctc createdAt employerId companyName companyLogo education shift lastDateOfApplication lastDateOfApplicationTime')
       .sort(sortCriteria)
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))
@@ -111,14 +111,19 @@ exports.getJobs = async (req, res) => {
 
     const totalJobs = await Job.countDocuments(query);
     const employerIds = jobs.map(job => job.employerId).filter(Boolean);
+    const jobIds = jobs.map(job => job._id);
 
-    const [profiles, employers] = await Promise.all([
+    const [profiles, employers, applicationCounts] = await Promise.all([
       require('../models/EmployerProfile').find({ employerId: { $in: employerIds } })
         .select('employerId logo companyName')
         .lean(),
       require('../models/Employer').find({ _id: { $in: employerIds } })
         .select('companyName employerType status isApproved')
-        .lean()
+        .lean(),
+      require('../models/Application').aggregate([
+        { $match: { jobId: { $in: jobIds } } },
+        { $group: { _id: '$jobId', count: { $sum: 1 } } }
+      ])
     ]);
 
     const profileMap = new Map();
@@ -131,17 +136,44 @@ exports.getJobs = async (req, res) => {
       employerMap.set(emp._id.toString(), emp);
     });
 
+    const applicationCountMap = new Map();
+    applicationCounts.forEach(item => {
+      applicationCountMap.set(item._id.toString(), item.count);
+    });
+
     const filteredJobs = jobs.filter(job => {
       const employer = employerMap.get(job.employerId.toString());
-      return employer && employer.status === 'active' && employer.isApproved;
+      const applicationCount = applicationCountMap.get(job._id.toString()) || 0;
+      const vacancies = parseInt(job.vacancies) || 0;
+      
+      // Filter out jobs where applications have reached vacancies
+      const hasAvailableVacancies = vacancies === 0 || applicationCount < vacancies;
+      
+      // Filter out jobs past application deadline
+      const now = new Date();
+      let isBeforeDeadline = true;
+      if (job.lastDateOfApplication) {
+        const deadline = new Date(job.lastDateOfApplication);
+        if (job.lastDateOfApplicationTime) {
+          const [hours, minutes] = job.lastDateOfApplicationTime.split(':');
+          deadline.setHours(parseInt(hours), parseInt(minutes), 59, 999);
+        } else {
+          deadline.setHours(23, 59, 59, 999);
+        }
+        isBeforeDeadline = now <= deadline;
+      }
+      
+      return employer && employer.status === 'active' && employer.isApproved && hasAvailableVacancies && isBeforeDeadline;
     });
     
     const jobsWithProfiles = filteredJobs.map(job => {
       const employer = employerMap.get(job.employerId.toString());
+      const applicationCount = applicationCountMap.get(job._id.toString()) || 0;
       return {
         ...job,
         employerProfile: profileMap.get(job.employerId.toString()),
-        postedBy: employer?.employerType === 'consultant' ? 'Consultant' : 'Company'
+        postedBy: employer?.employerType === 'consultant' ? 'Consultant' : 'Company',
+        applicationCount
       };
     });
     
