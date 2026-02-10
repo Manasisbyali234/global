@@ -70,6 +70,14 @@ function BatchUpload() {
             return;
         }
 
+        // Check if profile is complete
+        if (!placementData?.collegeName || !placementData?.collegeAddress || 
+            !placementData?.collegeOfficialEmail || !placementData?.collegeOfficialPhone) {
+            showWarning('Please complete your profile in Edit Profile before uploading CSV files.');
+            setTimeout(() => navigate('/placement/dashboard'), 1500);
+            return;
+        }
+
         if (!customFileName.trim()) {
             showWarning('Custom Display Name is required.');
             return;

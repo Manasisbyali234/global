@@ -30,10 +30,15 @@ function PlacementDashboardRedesigned() {
     const [viewingFileName, setViewingFileName] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editFormData, setEditFormData] = useState({
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         phone: '',
-        collegeName: ''
+        collegeName: '',
+        collegeAddress: '',
+        collegeOfficialEmail: '',
+        additionalOfficialEmail: '',
+        collegeOfficialPhone: ''
     });
     const [updating, setUpdating] = useState(false);
     const [uploadingImages, setUploadingImages] = useState(false);
@@ -170,7 +175,8 @@ function PlacementDashboardRedesigned() {
         // Check if profile is complete
         if (!placementData?.collegeName || !placementData?.collegeAddress || 
             !placementData?.collegeOfficialEmail || !placementData?.collegeOfficialPhone) {
-            showWarning('Please complete your profile in Edit Profile before uploading files.');
+            showWarning('Please complete your profile in Edit Profile before uploading CSV files.');
+            setTimeout(() => setActiveTab('overview'), 1500);
             return;
         }
         
@@ -229,18 +235,30 @@ function PlacementDashboardRedesigned() {
     };
 
     const handleEditProfile = () => {
+        const nameParts = (placementData?.name || '').split(' ');
         setEditFormData({
-            name: placementData?.name || '',
+            firstName: nameParts[0] || '',
+            lastName: nameParts.slice(1).join(' ') || '',
             email: placementData?.email || '',
             phone: placementData?.phone || '',
-            collegeName: placementData?.collegeName || ''
+            collegeName: placementData?.collegeName || '',
+            collegeAddress: placementData?.collegeAddress || '',
+            collegeOfficialEmail: placementData?.collegeOfficialEmail || '',
+            additionalOfficialEmail: placementData?.additionalOfficialEmail || '',
+            collegeOfficialPhone: placementData?.collegeOfficialPhone || ''
         });
+        setLogoPreview(null);
+        setIdCardPreview(null);
         setShowEditModal(true);
     };
 
     const handleUpdateProfile = async () => {
-        if (!editFormData.name.trim()) {
-            showWarning('Name is required');
+        if (!editFormData.firstName.trim()) {
+            showWarning('First Name is required');
+            return;
+        }
+        if (!editFormData.lastName.trim()) {
+            showWarning('Last Name is required');
             return;
         }
         if (!editFormData.phone.trim()) {
@@ -251,14 +269,36 @@ function PlacementDashboardRedesigned() {
             showWarning('College Name is required');
             return;
         }
+        if (!editFormData.collegeAddress.trim()) {
+            showWarning('College Address is required');
+            return;
+        }
+        if (!editFormData.collegeOfficialEmail.trim()) {
+            showWarning('College Official Email is required');
+            return;
+        }
+        if (!editFormData.collegeOfficialPhone.trim()) {
+            showWarning('College Official Phone is required');
+            return;
+        }
 
         setUpdating(true);
         try {
+            // Upload images first if they exist
+            if (logoPreview || idCardPreview) {
+                const uploadPromises = [];
+                if (logoPreview) uploadPromises.push(api.uploadLogo(logoPreview));
+                if (idCardPreview) uploadPromises.push(api.uploadIdCard(idCardPreview));
+                await Promise.all(uploadPromises);
+            }
+
             const response = await api.updatePlacementProfile(editFormData);
             
             if (response && response.success) {
                 showSuccess('Profile updated successfully!');
                 setShowEditModal(false);
+                setLogoPreview(null);
+                setIdCardPreview(null);
                 await fetchPlacementDetails();
                 window.dispatchEvent(new Event('PlacementProfileUpdated'));
             } else {
@@ -832,38 +872,6 @@ function PlacementDashboardRedesigned() {
 
                             {activeTab === 'upload' && (
                                 <div className="upload-page">
-                                    {(!placementData?.collegeName || !placementData?.collegeAddress || 
-                                      !placementData?.collegeOfficialEmail || !placementData?.collegeOfficialPhone) && (
-                                        <div className="alert alert-warning" style={{
-                                            padding: '15px',
-                                            marginBottom: '20px',
-                                            backgroundColor: '#fff3cd',
-                                            border: '1px solid #ffc107',
-                                            borderRadius: '8px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '10px'
-                                        }}>
-                                            <i className="fa fa-exclamation-triangle" style={{fontSize: '20px', color: '#856404'}}></i>
-                                            <div>
-                                                <strong>Profile Incomplete:</strong> Please complete your profile information in Edit Profile before uploading files.
-                                                <button 
-                                                    onClick={handleEditProfile}
-                                                    style={{
-                                                        marginLeft: '10px',
-                                                        padding: '5px 15px',
-                                                        backgroundColor: '#ffc107',
-                                                        border: 'none',
-                                                        borderRadius: '4px',
-                                                        cursor: 'pointer',
-                                                        fontWeight: '500'
-                                                    }}
-                                                >
-                                                    Complete Profile
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
                                     <div className="upload-container">
                                         <div className="upload-tips">
                                             <h5>Upload Tips:</h5>
@@ -1347,12 +1355,21 @@ function PlacementDashboardRedesigned() {
                         </div>
                         <div className="modal-body">
                             <div className="form-group">
-                                <label>Name <span style={{color: 'red'}}>*</span></label>
+                                <label>First Name <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
-                                    value={editFormData.name || ''}
-                                    onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
-                                    placeholder="Enter your name"
+                                    value={editFormData.firstName || ''}
+                                    onChange={(e) => setEditFormData({...editFormData, firstName: e.target.value})}
+                                    placeholder="Enter your first name"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Last Name <span style={{color: 'red'}}>*</span></label>
+                                <input
+                                    type="text"
+                                    value={editFormData.lastName || ''}
+                                    onChange={(e) => setEditFormData({...editFormData, lastName: e.target.value})}
+                                    placeholder="Enter your last name"
                                 />
                             </div>
                             <div className="form-group">
@@ -1381,6 +1398,70 @@ function PlacementDashboardRedesigned() {
                                     onChange={(e) => setEditFormData({...editFormData, collegeName: e.target.value})}
                                     placeholder="Enter your college name"
                                 />
+                            </div>
+                            <div className="form-group">
+                                <label>College Address <span style={{color: 'red'}}>*</span></label>
+                                <input
+                                    type="text"
+                                    value={editFormData.collegeAddress || ''}
+                                    onChange={(e) => setEditFormData({...editFormData, collegeAddress: e.target.value})}
+                                    placeholder="Enter college address"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>College Official Email <span style={{color: 'red'}}>*</span></label>
+                                <input
+                                    type="email"
+                                    value={editFormData.collegeOfficialEmail || ''}
+                                    onChange={(e) => setEditFormData({...editFormData, collegeOfficialEmail: e.target.value})}
+                                    placeholder="Enter college official email"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Additional College Official Email</label>
+                                <input
+                                    type="email"
+                                    value={editFormData.additionalOfficialEmail || ''}
+                                    onChange={(e) => setEditFormData({...editFormData, additionalOfficialEmail: e.target.value})}
+                                    placeholder="Enter additional college official email"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>College Official Phone <span style={{color: 'red'}}>*</span></label>
+                                <input
+                                    type="tel"
+                                    value={editFormData.collegeOfficialPhone || ''}
+                                    onChange={(e) => setEditFormData({...editFormData, collegeOfficialPhone: e.target.value})}
+                                    placeholder="Enter college official phone"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>College Logo</label>
+                                <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+                                    {logoPreview && (
+                                        <img src={logoPreview} alt="Logo Preview" style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd'}} />
+                                    )}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleLogoChange}
+                                        style={{flex: 1}}
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>ID Card</label>
+                                <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+                                    {idCardPreview && (
+                                        <img src={idCardPreview} alt="ID Card Preview" style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd'}} />
+                                    )}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleIdCardChange}
+                                        style={{flex: 1}}
+                                    />
+                                </div>
                             </div>
                         </div>
                         <div className="modal-footer">
