@@ -148,8 +148,8 @@ exports.getJobs = async (req, res) => {
       hasPrevPage: parseInt(page) > 1
     };
     
-    // Cache for 2 minutes for faster updates
-    cache.set(cacheKey, response, 120000);
+    // Cache for 10 minutes for faster responses
+    cache.set(cacheKey, response, 600000);
     
     res.json(response);
   } catch (error) {
@@ -218,7 +218,7 @@ exports.getJobById = async (req, res) => {
     };
 
     const response = { success: true, job: jobWithProfile };
-    cache.set(cacheKey, response, 300000); // Cache for 5 minutes
+    cache.set(cacheKey, response, 600000); // Cache for 10 minutes
     
     res.json(response);
   } catch (error) {
@@ -637,7 +637,7 @@ exports.getEmployers = async (req, res) => {
       hasPrevPage: parseInt(page) > 1
     };
     
-    cache.set(cacheKey, response, 120000); // Cache for 2 minutes
+    cache.set(cacheKey, response, 600000); // Cache for 10 minutes
     res.json(response);
   } catch (error) {
     console.error('Error in getEmployers:', error);
@@ -727,7 +727,7 @@ exports.getTopRecruiters = async (req, res) => {
       total: recruitersWithData.length
     };
     
-    cache.set(cacheKey, response, 300000); // Cache for 5 minutes
+    cache.set(cacheKey, response, 600000); // Cache for 10 minutes
     res.json(response);
   } catch (error) {
     console.error('Error in getTopRecruiters:', error);
@@ -976,8 +976,8 @@ exports.getJobFilterCounts = async (req, res) => {
       }
     };
 
-    // Cache for 5 minutes
-    cache.set(cacheKey, response, 300000);
+    // Cache for 10 minutes
+    cache.set(cacheKey, response, 600000);
     
     res.json(response);
   } catch (error) {
