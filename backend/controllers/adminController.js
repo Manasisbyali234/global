@@ -246,30 +246,37 @@ exports.getUsers = async (req, res) => {
     let users;
     if (type === 'candidates') {
       const candidates = await Candidate.find().select('-password')
-        .limit(limit * 1).skip((page - 1) * limit);
+        .limit(limit * 1).skip((page - 1) * limit)
+        .lean();
       
-      // Enhance candidates with profile completion status
+      const candidateIds = candidates.map(c => c._id);
+      const profiles = await CandidateProfile.find({ candidateId: { $in: candidateIds } }).lean();
+      
+      const profileMap = new Map();
+      profiles.forEach(profile => {
+        profileMap.set(profile.candidateId.toString(), profile);
+      });
+      
       const { calculateProfileCompletionWithDetails } = require('../utils/profileCompletion');
-      const enhancedCandidates = await Promise.all(
-        candidates.map(async (candidate) => {
-          const profile = await CandidateProfile.findOne({ candidateId: candidate._id }).lean();
-          const profileCompletion = calculateProfileCompletionWithDetails(profile);
-          
-          return {
-            ...candidate.toObject(),
-            hasProfile: !!profile,
-            isProfileComplete: profileCompletion.percentage === 100,
-            profileCompletionPercentage: profileCompletion.percentage
-          };
-        })
-      );
+      const enhancedCandidates = candidates.map((candidate) => {
+        const profile = profileMap.get(candidate._id.toString());
+        const profileCompletion = calculateProfileCompletionWithDetails(profile);
+        
+        return {
+          ...candidate,
+          hasProfile: !!profile,
+          isProfileComplete: profileCompletion.percentage === 100,
+          profileCompletionPercentage: profileCompletion.percentage
+        };
+      });
       users = enhancedCandidates;
     } else if (type === 'employers') {
       users = await Employer.find().select('-password')
-        .limit(limit * 1).skip((page - 1) * limit);
+        .limit(limit * 1).skip((page - 1) * limit)
+        .lean();
     } else {
-      const candidates = await Candidate.find().select('-password').limit(5);
-      const employers = await Employer.find().select('-password').limit(5);
+      const candidates = await Candidate.find().select('-password').limit(5).lean();
+      const employers = await Employer.find().select('-password').limit(5).lean();
       users = { candidates, employers };
     }
 
@@ -379,23 +386,28 @@ exports.getAllEmployers = async (req, res) => {
       .skip((page - 1) * limit)
       .lean();
 
-    // Enrich with profile completion status
-    const employersWithProfile = await Promise.all(
-      employers.map(async (employer) => {
-        const profile = await EmployerProfile.findOne({ employerId: employer._id }).lean();
-        const requiredFields = ['companyName', 'description', 'location', 'phone', 'email'];
-        const isProfileComplete = profile && requiredFields.every(field => profile[field]);
-        
-        return {
-          ...employer,
-          hasProfile: !!profile,
-          isProfileComplete,
-          profileCompletionPercentage: profile 
-            ? Math.round((requiredFields.filter(field => profile[field]).length / requiredFields.length) * 100)
-            : 0
-        };
-      })
-    );
+    const employerIds = employers.map(e => e._id);
+    const profiles = await EmployerProfile.find({ employerId: { $in: employerIds } }).lean();
+    
+    const profileMap = new Map();
+    profiles.forEach(profile => {
+      profileMap.set(profile.employerId.toString(), profile);
+    });
+
+    const requiredFields = ['companyName', 'description', 'location', 'phone', 'email'];
+    const employersWithProfile = employers.map(employer => {
+      const profile = profileMap.get(employer._id.toString());
+      const isProfileComplete = profile && requiredFields.every(field => profile[field]);
+      
+      return {
+        ...employer,
+        hasProfile: !!profile,
+        isProfileComplete,
+        profileCompletionPercentage: profile 
+          ? Math.round((requiredFields.filter(field => profile[field]).length / requiredFields.length) * 100)
+          : 0
+      };
+    });
 
     res.json({ success: true, data: employersWithProfile });
   } catch (error) {
@@ -411,23 +423,29 @@ exports.getAllCandidates = async (req, res) => {
       .select('-password')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
-      .skip((page - 1) * limit);
+      .skip((page - 1) * limit)
+      .lean();
 
-    // Enhance candidates with profile completion status
+    const candidateIds = candidates.map(c => c._id);
+    const profiles = await CandidateProfile.find({ candidateId: { $in: candidateIds } }).lean();
+    
+    const profileMap = new Map();
+    profiles.forEach(profile => {
+      profileMap.set(profile.candidateId.toString(), profile);
+    });
+
     const { calculateProfileCompletionWithDetails } = require('../utils/profileCompletion');
-    const enhancedCandidates = await Promise.all(
-      candidates.map(async (candidate) => {
-        const profile = await require('../models/CandidateProfile').findOne({ candidateId: candidate._id }).lean();
-        const profileCompletion = calculateProfileCompletionWithDetails(profile);
-        
-        return {
-          ...candidate.toObject(),
-          hasProfile: !!profile,
-          isProfileComplete: profileCompletion.percentage === 100,
-          profileCompletionPercentage: profileCompletion.percentage
-        };
-      })
-    );
+    const enhancedCandidates = candidates.map((candidate) => {
+      const profile = profileMap.get(candidate._id.toString());
+      const profileCompletion = calculateProfileCompletionWithDetails(profile);
+      
+      return {
+        ...candidate,
+        hasProfile: !!profile,
+        isProfileComplete: profileCompletion.percentage === 100,
+        profileCompletionPercentage: profileCompletion.percentage
+      };
+    });
 
     res.json({ success: true, data: enhancedCandidates, candidates: enhancedCandidates });
   } catch (error) {
@@ -898,16 +916,21 @@ exports.getSettings = async (req, res) => {
 
 exports.getApplications = async (req, res) => {
   try {
-    const { status } = req.query;
+    const { status, page = 1, limit = 50 } = req.query;
     const filter = status ? { status } : {};
     
     const applications = await Application.find(filter)
       .populate('candidateId', 'name email phone')
       .populate('employerId', 'companyName email')
       .populate('jobId', 'title location')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .lean();
 
-    res.json({ success: true, data: applications });
+    const total = await Application.countDocuments(filter);
+
+    res.json({ success: true, data: applications, total, page: parseInt(page), limit: parseInt(limit), totalPages: Math.ceil(total / limit) });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -219,9 +219,10 @@ app.use(cors({
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10000, // limit each IP to 10000 requests per windowMs
+  max: 1000, // limit each IP to 1000 requests per windowMs
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skip: (req) => process.env.NODE_ENV === 'development'
 });
 app.use(limiter);
 
@@ -231,8 +232,8 @@ app.use('/api/employer/assessments/upload-question-image', (req, res, next) => n
 app.use('/api/employer/assessments/upload-option-image', (req, res, next) => next());
 
 // Body Parser Middleware with increased limits for file uploads
-app.use(express.json({ limit: '100mb', parameterLimit: 50000 }));
-app.use(express.urlencoded({ extended: true, limit: '100mb', parameterLimit: 50000 }));
+app.use(express.json({ limit: '50mb', parameterLimit: 10000 }));
+app.use(express.urlencoded({ extended: true, limit: '50mb', parameterLimit: 10000 }));
 
 // Set timeout for requests
 app.use((req, res, next) => {

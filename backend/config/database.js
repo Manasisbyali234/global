@@ -9,15 +9,16 @@ const connectDB = async () => {
 
     // Atlas-optimized connection options
     const connectionOptions = {
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 60000,
-      connectTimeoutMS: 30000,
-      bufferCommands: true,
-      maxPoolSize: 10,
-      minPoolSize: 5,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+      bufferCommands: false,
+      maxPoolSize: 50,
+      minPoolSize: 10,
       maxIdleTimeMS: 30000,
       retryWrites: true,
-      w: 'majority'
+      w: 'majority',
+      appName: 'tale-job-portal'
     };
 
     // Add Atlas-specific options if using Atlas
