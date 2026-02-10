@@ -103,11 +103,6 @@ exports.getJobs = async (req, res) => {
 
     // Optimized query for better performance
     const jobs = await Job.find(query)
-      .populate({
-        path: 'employerId',
-        select: 'companyName employerType',
-        match: { status: 'active', isApproved: true }
-      })
       .select('title location jobType vacancies category ctc createdAt employerId companyName companyLogo education shift')
       .sort(sortCriteria)
       .limit(parseInt(limit))
@@ -115,27 +110,40 @@ exports.getJobs = async (req, res) => {
       .lean();
 
     const totalJobs = await Job.countDocuments(query);
-    const filteredJobs = jobs.filter(job => job.employerId);
+    const employerIds = jobs.map(job => job.employerId).filter(Boolean);
 
-    // Optimize employer profile fetching with batch query
-    const EmployerProfile = require('../models/EmployerProfile');
-    const employerIds = filteredJobs.map(job => job.employerId._id);
-    const profiles = await EmployerProfile.find({ employerId: { $in: employerIds } })
-      .select('employerId logo companyName')
-      .lean();
-    
-    // Create profile lookup map
+    const [profiles, employers] = await Promise.all([
+      require('../models/EmployerProfile').find({ employerId: { $in: employerIds } })
+        .select('employerId logo companyName')
+        .lean(),
+      require('../models/Employer').find({ _id: { $in: employerIds } })
+        .select('companyName employerType status isApproved')
+        .lean()
+    ]);
+
     const profileMap = new Map();
     profiles.forEach(profile => {
       profileMap.set(profile.employerId.toString(), profile);
     });
+
+    const employerMap = new Map();
+    employers.forEach(emp => {
+      employerMap.set(emp._id.toString(), emp);
+    });
+
+    const filteredJobs = jobs.filter(job => {
+      const employer = employerMap.get(job.employerId.toString());
+      return employer && employer.status === 'active' && employer.isApproved;
+    });
     
-    // Add profiles to jobs
-    const jobsWithProfiles = filteredJobs.map(job => ({
-      ...job,
-      employerProfile: profileMap.get(job.employerId._id.toString()),
-      postedBy: job.employerId.employerType === 'consultant' ? 'Consultant' : 'Company'
-    }));
+    const jobsWithProfiles = filteredJobs.map(job => {
+      const employer = employerMap.get(job.employerId.toString());
+      return {
+        ...job,
+        employerProfile: profileMap.get(job.employerId.toString()),
+        postedBy: employer?.employerType === 'consultant' ? 'Consultant' : 'Company'
+      };
+    });
     
     const response = {
       success: true,

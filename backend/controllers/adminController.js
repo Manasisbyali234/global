@@ -941,66 +941,66 @@ exports.getRegisteredCandidates = async (req, res) => {
     const { page = 1, limit = 50 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const candidatesWithProfiles = await Candidate.aggregate([
-      { $sort: { createdAt: -1 } },
-      { $skip: skip },
-      { $limit: parseInt(limit) },
-      {
-        $lookup: {
-          from: 'candidateprofiles',
-          localField: '_id',
-          foreignField: 'candidateId',
-          as: 'profile'
-        }
-      },
-      {
-        $lookup: {
-          from: 'applications',
-          localField: '_id',
-          foreignField: 'candidateId',
-          as: 'applications'
-        }
-      },
-      {
-        $addFields: {
-          profile: { $arrayElemAt: ['$profile', 0] },
-          hasProfile: { $gt: [{ $size: '$profile' }, 0] },
-          totalApplications: { $size: '$applications' },
-          totalPaidAmount: {
-            $reduce: {
-              input: '$applications',
-              initialValue: 0,
-              in: {
+    const candidates = await Candidate.find()
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip(skip)
+      .lean();
+
+    const candidateIds = candidates.map(c => c._id);
+
+    const [profiles, applicationAggregates] = await Promise.all([
+      CandidateProfile.find({ candidateId: { $in: candidateIds } }).lean(),
+      Application.aggregate([
+        { $match: { candidateId: { $in: candidateIds } } },
+        {
+          $group: {
+            _id: '$candidateId',
+            totalApplications: { $sum: 1 },
+            totalPaidAmount: {
+              $sum: {
                 $cond: [
-                  { $eq: ['$$this.paymentStatus', 'paid'] },
-                  { $add: ['$$value', { $ifNull: ['$$this.paymentAmount', 129] }] },
-                  '$$value'
+                  { $eq: ['$paymentStatus', 'paid'] },
+                  { $ifNull: ['$paymentAmount', 129] },
+                  0
                 ]
               }
             }
           }
         }
-      },
-      {
-        $project: {
-          password: 0,
-          applications: 0
-        }
-      }
+      ])
     ]);
 
-    const total = await Candidate.countDocuments();
+    const profileMap = new Map();
+    profiles.forEach(profile => {
+      profileMap.set(profile.candidateId.toString(), profile);
+    });
+
+    const appMap = new Map();
+    applicationAggregates.forEach(app => {
+      appMap.set(app._id.toString(), app);
+    });
 
     const { calculateProfileCompletionWithDetails } = require('../utils/profileCompletion');
-    const enhancedCandidates = candidatesWithProfiles.map(candidate => {
-      const profileCompletion = calculateProfileCompletionWithDetails(candidate.profile);
+    const enhancedCandidates = candidates.map(candidate => {
+      const profile = profileMap.get(candidate._id.toString());
+      const appData = appMap.get(candidate._id.toString()) || { totalApplications: 0, totalPaidAmount: 0 };
+      const profileCompletion = calculateProfileCompletionWithDetails(profile);
+
       return {
         ...candidate,
+        profile,
+        hasProfile: !!profile,
         isProfileComplete: profileCompletion.percentage === 100,
         profileCompletionPercentage: profileCompletion.percentage,
-        missingSections: profileCompletion.missingSections
+        missingSections: profileCompletion.missingSections,
+        totalApplications: appData.totalApplications,
+        totalPaidAmount: appData.totalPaidAmount
       };
     });
+
+    const total = await Candidate.countDocuments();
 
     res.json({ 
       success: true, 

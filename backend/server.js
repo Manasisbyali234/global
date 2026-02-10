@@ -35,6 +35,10 @@ const startAssessmentNotificationScheduler = () => {
     if (isRunning) {
       return;
     }
+    if (!dbConnected) {
+      console.log('Skipping assessment notification scheduler - DB not connected yet');
+      return;
+    }
     isRunning = true;
     try {
       const now = new Date();
@@ -114,6 +118,10 @@ const startJobDeactivationScheduler = () => {
     if (isRunning) {
       return;
     }
+    if (!dbConnected) {
+      console.log('Skipping job deactivation scheduler - DB not connected yet');
+      return;
+    }
     isRunning = true;
     try {
       const now = new Date();
@@ -151,8 +159,18 @@ const startJobDeactivationScheduler = () => {
 // Trust proxy for rate limiting
 app.set('trust proxy', 1);
 
-// Connect to Database
-connectDB();
+// Connect to Database (async, but will be awaited in server start)
+let dbConnected = false;
+(async () => {
+  try {
+    await connectDB();
+    dbConnected = true;
+    console.log('Database connection established successfully');
+  } catch (error) {
+    console.error('Failed to connect to database:', error.message);
+    process.exit(1);
+  }
+})();
 
 // iOS Safari compatible security middleware
 app.use(helmet({

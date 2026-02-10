@@ -17,6 +17,8 @@ const createIndexes = async () => {
       await db.collection('jobs').createIndex({ location: 1, status: 1 });
       await db.collection('jobs').createIndex({ jobType: 1, status: 1 });
       await db.collection('jobs').createIndex({ category: 1, status: 1 });
+      await db.collection('jobs').createIndex({ title: 'text', description: 'text', requiredSkills: 'text' });
+      await db.collection('jobs').createIndex({ title: 1, status: 1 });
       console.log('✓ Job indexes created');
     } catch (e) {
       console.log('Job indexes already exist or error:', e.message);
@@ -27,9 +29,20 @@ const createIndexes = async () => {
     try {
       await db.collection('employers').createIndex({ status: 1, isApproved: 1 });
       await db.collection('employers').createIndex({ createdAt: -1 });
+      await db.collection('employers').createIndex({ _id: 1, status: 1, isApproved: 1 });
       console.log('✓ Employer indexes created');
     } catch (e) {
       console.log('Employer indexes already exist or error:', e.message);
+    }
+
+    // Candidate indexes
+    console.log('Creating Candidate indexes...');
+    try {
+      await db.collection('candidates').createIndex({ createdAt: -1 });
+      await db.collection('candidates').createIndex({ email: 1 });
+      console.log('✓ Candidate indexes created');
+    } catch (e) {
+      console.log('Candidate indexes already exist or error:', e.message);
     }
     
     // EmployerProfile indexes - skip if unique index exists
@@ -47,12 +60,22 @@ const createIndexes = async () => {
       console.log('✓ EmployerProfile index already exists');
     }
     
+    // CandidateProfile indexes
+    console.log('Creating CandidateProfile indexes...');
+    try {
+      await db.collection('candidateprofiles').createIndex({ candidateId: 1 });
+      console.log('✓ CandidateProfile index created');
+    } catch (e) {
+      console.log('CandidateProfile index error:', e.message);
+    }
+    
     // Application indexes
     console.log('Creating Application indexes...');
     try {
       await db.collection('applications').createIndex({ candidateId: 1 });
       await db.collection('applications').createIndex({ jobId: 1 });
       await db.collection('applications').createIndex({ status: 1 });
+      await db.collection('applications').createIndex({ candidateId: 1, paymentStatus: 1 });
       console.log('✓ Application indexes created');
     } catch (e) {
       console.log('Application indexes already exist or error:', e.message);
