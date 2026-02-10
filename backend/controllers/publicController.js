@@ -108,7 +108,7 @@ exports.getJobs = async (req, res) => {
         select: 'companyName employerType',
         match: { status: 'active', isApproved: true }
       })
-      .select('title location jobType vacancies category ctc createdAt employerId companyName companyLogo education')
+      .select('title location jobType vacancies category ctc createdAt employerId companyName companyLogo education shift')
       .sort(sortCriteria)
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))
@@ -148,8 +148,8 @@ exports.getJobs = async (req, res) => {
       hasPrevPage: parseInt(page) > 1
     };
     
-    // Cache for 30 seconds for faster updates
-    cache.set(cacheKey, response, 30000);
+    // Cache for 10 minutes for faster responses
+    cache.set(cacheKey, response, 600000);
     
     res.json(response);
   } catch (error) {
@@ -218,7 +218,7 @@ exports.getJobById = async (req, res) => {
     };
 
     const response = { success: true, job: jobWithProfile };
-    cache.set(cacheKey, response, 60000); // Cache for 1 minute
+    cache.set(cacheKey, response, 600000); // Cache for 10 minutes
     
     res.json(response);
   } catch (error) {
@@ -637,7 +637,7 @@ exports.getEmployers = async (req, res) => {
       hasPrevPage: parseInt(page) > 1
     };
     
-    cache.set(cacheKey, response, 30000);
+    cache.set(cacheKey, response, 600000); // Cache for 10 minutes
     res.json(response);
   } catch (error) {
     console.error('Error in getEmployers:', error);
@@ -647,60 +647,88 @@ exports.getEmployers = async (req, res) => {
 
 exports.getTopRecruiters = async (req, res) => {
   try {
-    // Check if database is connected
     if (!isDBConnected()) {
       return res.json({ success: true, recruiters: [], total: 0, message: 'Database offline' });
     }
     
     const { limit = 8 } = req.query;
+    const cacheKey = `top_recruiters_${limit}`;
+    const cached = cache.get(cacheKey);
+    
+    if (cached) {
+      return res.json(cached);
+    }
+    
     const Employer = require('../models/Employer');
     const EmployerProfile = require('../models/EmployerProfile');
     
-    // Get active and approved employers
-    const employers = await Employer.find({ 
-      status: 'active', 
-      isApproved: true 
-    }).select('_id companyName employerType createdAt');
+    // Optimized aggregation pipeline
+    const topRecruiters = await Employer.aggregate([
+      { $match: { status: 'active', isApproved: true } },
+      {
+        $lookup: {
+          from: 'jobs',
+          localField: '_id',
+          foreignField: 'employerId',
+          as: 'jobs',
+          pipeline: [
+            { $match: { status: { $in: ['active', 'pending'] } } },
+            { $count: 'count' }
+          ]
+        }
+      },
+      {
+        $addFields: {
+          jobCount: { $ifNull: [{ $arrayElemAt: ['$jobs.count', 0] }, 0] }
+        }
+      },
+      { $match: { jobCount: { $gt: 0 } } },
+      { $sort: { jobCount: -1 } },
+      { $limit: parseInt(limit) },
+      {
+        $project: {
+          _id: 1,
+          companyName: 1,
+          employerType: 1,
+          jobCount: 1
+        }
+      }
+    ]);
     
-    // Get job counts and profiles for each employer
-    const recruitersWithData = await Promise.all(
-      employers.map(async (employer) => {
-        // Get job count for this employer
-        const jobCount = await Job.countDocuments({
-          employerId: employer._id,
-          status: { $in: ['active', 'pending'] }
-        });
-        
-        // Get employer profile
-        const profile = await EmployerProfile.findOne({ employerId: employer._id });
-        
-        return {
-          _id: employer._id,
-          companyName: employer.companyName,
-          employerType: employer.employerType,
-          jobCount,
-          logo: profile?.logo || null,
-          description: profile?.description || profile?.companyDescription || 'Leading recruitment company',
-          location: profile?.location || profile?.corporateAddress || 'Multiple Locations',
-          industry: profile?.industry || profile?.industrySector || 'Various Industries',
-          establishedSince: profile?.establishedSince || (profile?.foundedYear ? profile.foundedYear.toString() : null),
-          teamSize: profile?.teamSize || profile?.companySize || null,
-          website: profile?.website || null
-        };
-      })
-    );
+    // Get profiles for top recruiters
+    const employerIds = topRecruiters.map(r => r._id);
+    const profiles = await EmployerProfile.find({ employerId: { $in: employerIds } })
+      .select('employerId logo description location industry establishedSince teamSize website companyDescription corporateAddress industrySector companySize foundedYear')
+      .lean();
     
-    // Sort by job count (descending) and take top recruiters
-    const topRecruiters = recruitersWithData
-      .filter(recruiter => recruiter.jobCount > 0) // Only include recruiters with active jobs
-      .sort((a, b) => b.jobCount - a.jobCount)
-      .slice(0, parseInt(limit));
+    const profileMap = new Map();
+    profiles.forEach(p => profileMap.set(p.employerId.toString(), p));
     
-    res.json({ 
-      success: true, 
-      recruiters: topRecruiters,
-      total: topRecruiters.length
+    const recruitersWithData = topRecruiters.map(recruiter => {
+      const profile = profileMap.get(recruiter._id.toString());
+      return {
+        _id: recruiter._id,
+        companyName: recruiter.companyName,
+        employerType: recruiter.employerType,
+        jobCount: recruiter.jobCount,
+        logo: profile?.logo || null,
+        description: profile?.description || profile?.companyDescription || 'Leading recruitment company',
+        location: profile?.location || profile?.corporateAddress || 'Multiple Locations',
+        industry: profile?.industry || profile?.industrySector || 'Various Industries',
+        establishedSince: profile?.establishedSince || (profile?.foundedYear ? profile.foundedYear.toString() : null),
+        teamSize: profile?.teamSize || profile?.companySize || null,
+        website: profile?.website || null
+      };
     });
+    
+    const response = { 
+      success: true, 
+      recruiters: recruitersWithData,
+      total: recruitersWithData.length
+    };
+    
+    cache.set(cacheKey, response, 600000); // Cache for 10 minutes
+    res.json(response);
   } catch (error) {
     console.error('Error in getTopRecruiters:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -948,8 +976,8 @@ exports.getJobFilterCounts = async (req, res) => {
       }
     };
 
-    // Cache for 60 seconds
-    cache.set(cacheKey, response, 60000);
+    // Cache for 10 minutes
+    cache.set(cacheKey, response, 600000);
     
     res.json(response);
   } catch (error) {

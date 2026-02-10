@@ -2,10 +2,11 @@
 class Cache {
   constructor() {
     this.cache = new Map();
-    this.ttl = new Map(); // Time to live
+    this.ttl = new Map();
+    this.startCleanupInterval();
   }
 
-  set(key, value, ttlMs = 300000) { // Default 5 minutes
+  set(key, value, ttlMs = 300000) {
     this.cache.set(key, value);
     this.ttl.set(key, Date.now() + ttlMs);
   }
@@ -36,6 +37,26 @@ class Cache {
       return false;
     }
     return this.cache.has(key);
+  }
+
+  // Auto cleanup expired entries every 5 minutes
+  startCleanupInterval() {
+    setInterval(() => {
+      const now = Date.now();
+      for (const [key, expiry] of this.ttl.entries()) {
+        if (now > expiry) {
+          this.cache.delete(key);
+          this.ttl.delete(key);
+        }
+      }
+    }, 300000);
+  }
+
+  getStats() {
+    return {
+      size: this.cache.size,
+      keys: Array.from(this.cache.keys())
+    };
   }
 }
 
