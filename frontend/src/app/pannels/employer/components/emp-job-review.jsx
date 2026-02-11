@@ -292,9 +292,6 @@ function EmpJobReviewPage() {
                                                     {details.toDate && (
                                                         <p className="mb-1"><strong>To Date:</strong> {new Date(details.toDate).toLocaleDateString()}</p>
                                                     )}
-                                                    {details.time && (
-                                                        <p className="mb-1"><strong>Time:</strong> {formatTimeToAMPM(details.time)}</p>
-                                                    )}
                                                     {details.startTime && (
                                                         <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(details.startTime)}</p>
                                                     )}
