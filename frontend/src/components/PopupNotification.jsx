@@ -34,7 +34,7 @@ const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 })
             {type === 'success' && '✓'}
             {type === 'error' && '✕'}
             {type === 'warning' && '⚠'}
-            {type === 'info' && 'ℹ'}
+            {type === 'info' && '👍'}
           </div>
           <div className="popup-message" style={{ textAlign: 'center' }}>{message}</div>
         </div>

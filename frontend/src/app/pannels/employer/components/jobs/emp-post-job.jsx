@@ -159,7 +159,7 @@ function LocationSearchInput({ value, onChange, error, style }) {
 					onFocus={handleInputFocus}
 					onBlur={handleInputBlur}
 					onKeyDown={handleKeyDown}
-					placeholder={selectedLocations.length === 0 ? "Search or select locations..." : ""}
+					placeholder={selectedLocations.length === 0 ? "    Search or select locations..." : ""}
 					autoComplete="off"
 				/>
 				<i 
