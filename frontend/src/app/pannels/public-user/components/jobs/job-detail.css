@@ -913,7 +913,7 @@ img[loading="lazy"].loaded {
 .cabdidate-de-info > div > div[style*="lineHeight"],
 .cabdidate-de-info > div > div.job-content-section,
 .job-content-section {
-  line-height: 1.2 !important;
+  line-height: 1.7 !important;
   font-size: 16px !important;
   color: #495057 !important;
   background: transparent !important;
@@ -928,14 +928,14 @@ img[loading="lazy"].loaded {
 .job-content-section * {
   margin-bottom: 0 !important;
   background: transparent !important;
-  line-height: 1.2 !important;
+  line-height: 1.7 !important;
 }
 
 .cabdidate-de-info > div > div[style*="lineHeight"] p,
 .cabdidate-de-info > div > div.job-content-section p,
 .job-content-section p {
   margin: 0 !important;
-  line-height: 1.2 !important;
+  line-height: 1.7 !important;
   background: transparent !important;
   border: none !important;
   padding: 0 !important;
@@ -949,7 +949,7 @@ img[loading="lazy"].loaded {
 .job-content-section ol {
   margin: 0 !important;
   padding-left: 2rem !important;
-  line-height: 1.2 !important;
+  line-height: 1.7 !important;
   background: transparent !important;
   border: none !important;
   list-style-position: outside !important;
@@ -959,7 +959,7 @@ img[loading="lazy"].loaded {
 .cabdidate-de-info > div > div.job-content-section li,
 .job-content-section li {
   margin-bottom: 0 !important;
-  line-height: 1.2 !important;
+  line-height: 1.7 !important;
   background: transparent !important;
   border: none !important;
   padding: 0 !important;
