@@ -1299,6 +1299,27 @@ function CanStatusPage() {
 														<div className="mt-1">{roundStatus.feedback}</div>
 													</div>
 												)}
+												
+												{/* Schedule Button - Below the card */}
+												{roundName !== 'Assessment' && (
+													<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
+														<a 
+															href={`https://schedule.taleglobal.net/interview/?jobId=${selectedApplication.jobId?._id || ''}&applicationId=${selectedApplication._id || ''}`}
+															target="_blank" 
+															rel="noopener noreferrer"
+															className="btn btn-primary"
+															style={{
+																fontSize: '14px',
+																padding: '8px 16px',
+																borderRadius: '6px',
+																whiteSpace: 'nowrap'
+															}}
+														>
+															<i className="fa fa-calendar me-2" style={{fontSize: '14px'}}></i>
+															Schedule {roundName}
+														</a>
+													</div>
+												)}
 											</div>
 										);
 									})}
