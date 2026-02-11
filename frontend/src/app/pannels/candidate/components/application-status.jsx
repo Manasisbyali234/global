@@ -266,11 +266,51 @@ function CanStatusPage() {
 		// PRIORITY 2: Check if application has interviewProcesses from employer review (legacy)
 		if (application?.interviewProcesses && application.interviewProcesses.length > 0) {
 			console.log('Using interviewProcesses from application:', application.interviewProcesses);
-			return application.interviewProcesses.map(process => ({
-				name: process.name || getRoundNameFromKey(process.type),
-				uniqueKey: process.id || process.type,
-				roundType: process.type
-			}));
+			return application.interviewProcesses.map(process => {
+				let name = process.name || getRoundNameFromKey(process.type);
+				
+				// Sanitize name: if it looks like a unique key, extract the actual type
+				if (name && (name.includes('_') || /^\d+$/.test(name))) {
+					const stageNames = {
+						assessment: 'Assessment',
+						technical: 'Technical',
+						oneOnOne: 'One – On – One',
+						panel: 'Panel',
+						group: 'Group',
+						situational: 'Situational / Behavioral',
+						others: 'Others – Specify.',
+						nonTechnical: 'Non-Technical',
+						managerial: 'Managerial',
+						final: 'Final',
+						hr: 'HR'
+					};
+					
+					const lowerName = name.toLowerCase();
+					let extractedType = null;
+					
+					if (lowerName.includes('assessment')) extractedType = 'assessment';
+					else if (lowerName.includes('technical')) extractedType = 'technical';
+					else if (lowerName.includes('oneonone')) extractedType = 'oneOnOne';
+					else if (lowerName.includes('panel')) extractedType = 'panel';
+					else if (lowerName.includes('group')) extractedType = 'group';
+					else if (lowerName.includes('situational')) extractedType = 'situational';
+					else if (lowerName.includes('others')) extractedType = 'others';
+					else if (lowerName.includes('nontechnical')) extractedType = 'nonTechnical';
+					else if (lowerName.includes('managerial')) extractedType = 'managerial';
+					else if (lowerName.includes('final')) extractedType = 'final';
+					else if (lowerName.includes('hr')) extractedType = 'hr';
+					
+					if (extractedType && stageNames[extractedType]) {
+						name = stageNames[extractedType];
+					}
+				}
+				
+				return {
+					name: name,
+					uniqueKey: process.id || process.type,
+					roundType: process.type
+				};
+			});
 		}
 		
 		// PRIORITY 2: Check if job has interviewRoundOrder (new format)
@@ -348,6 +388,11 @@ function CanStatusPage() {
 			if (roundTypes.others) rounds.push({ name: 'Others – Specify.', uniqueKey: 'others', roundType: 'others' });
 
 			if (rounds.length > 0) return rounds;
+		}
+
+		// PRIORITY 5: Check if job has assessment before falling back to defaults
+		if (job?.assessmentId) {
+			return [{ name: 'Assessment', uniqueKey: 'assessment', roundType: 'assessment' }];
 		}
 
 		// Default rounds for testing
@@ -684,9 +729,30 @@ function CanStatusPage() {
 																						coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 																					};
 																					
-																					// Try to extract round type from unique key
-																					let extractedType = uniqueKey.includes('_') ? uniqueKey.split('_')[0] : uniqueKey;
-																					roundName = stageNameMap[extractedType] || 'Interview Round';
+																					// Better extraction: look for known keywords in the unique key
+																					let extractedType = null;
+																					const lowerKey = uniqueKey.toLowerCase();
+																					
+																					if (lowerKey.includes('assessment')) extractedType = 'assessment';
+																					else if (lowerKey.includes('technical')) extractedType = 'technical';
+																					else if (lowerKey.includes('oneonone')) extractedType = 'oneOnOne';
+																					else if (lowerKey.includes('panel')) extractedType = 'panel';
+																					else if (lowerKey.includes('group')) extractedType = 'group';
+																					else if (lowerKey.includes('situational')) extractedType = 'situational';
+																					else if (lowerKey.includes('others')) extractedType = 'others';
+																					else if (lowerKey.includes('nontechnical')) extractedType = 'nonTechnical';
+																					else if (lowerKey.includes('managerial')) extractedType = 'managerial';
+																					else if (lowerKey.includes('final')) extractedType = 'final';
+																					else if (lowerKey.includes('hr')) extractedType = 'hr';
+																					else {
+																						// Fallback: try splitting by underscore/dash
+																						const parts = uniqueKey.split(/[_-]/);
+																						extractedType = parts.find(p => stageNameMap[p.toLowerCase()]);
+																					}
+																					
+																					console.log('Round ' + roundIndex + ' - extractedType:', extractedType);
+																					roundName = extractedType && stageNameMap[extractedType] ? stageNameMap[extractedType] : 'Interview Round';
+																					console.log('Round ' + roundIndex + ' - Final roundName after conversion:', roundName);
 																				}
 																			}
 																			
@@ -966,8 +1032,29 @@ function CanStatusPage() {
 												aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
 												coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 											};
-											let extractedType = uniqueKey.includes('_') ? uniqueKey.split('_')[0] : uniqueKey;
-											roundName = stageNameMap[extractedType] || 'Interview Round';
+											
+											// Better extraction: look for known keywords in the unique key
+											let extractedType = null;
+											const lowerKey = uniqueKey.toLowerCase();
+											
+											if (lowerKey.includes('assessment')) extractedType = 'assessment';
+											else if (lowerKey.includes('technical')) extractedType = 'technical';
+											else if (lowerKey.includes('oneonone')) extractedType = 'oneOnOne';
+											else if (lowerKey.includes('panel')) extractedType = 'panel';
+											else if (lowerKey.includes('group')) extractedType = 'group';
+											else if (lowerKey.includes('situational')) extractedType = 'situational';
+											else if (lowerKey.includes('others')) extractedType = 'others';
+											else if (lowerKey.includes('nontechnical')) extractedType = 'nonTechnical';
+											else if (lowerKey.includes('managerial')) extractedType = 'managerial';
+											else if (lowerKey.includes('final')) extractedType = 'final';
+											else if (lowerKey.includes('hr')) extractedType = 'hr';
+											else {
+												// Fallback: try splitting by underscore/dash
+												const parts = uniqueKey.split(/[_-]/);
+												extractedType = parts.find(p => stageNameMap[p.toLowerCase()]);
+											}
+											
+											roundName = extractedType && stageNameMap[extractedType] ? stageNameMap[extractedType] : 'Interview Round';
 										}
 										
 										const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName);

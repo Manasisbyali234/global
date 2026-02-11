@@ -907,6 +907,12 @@ export const api = {
   },
 
   // Payment APIs
+  getCandidateTransactions: () => {
+    return fetch(`${API_BASE_URL}/payments/candidate-transactions`, {
+      headers: getAuthHeaders('candidate'),
+    }).then((res) => res.json());
+  },
+
   getEmployerTransactions: () => {
     return fetch(`${API_BASE_URL}/payments/employer-transactions`, {
       headers: getAuthHeaders('employer'),
