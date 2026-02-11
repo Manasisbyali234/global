@@ -220,11 +220,44 @@ function CanStatusPage() {
 			return roundNames[extractedType] || roundNames[key] || 'Interview Round';
 		};
 		
+		// Helper function to get round name from stage type or stage name
+		const getProperRoundName = (stageType, stageName) => {
+			const roundNames = {
+				technical: 'Technical',
+				oneOnOne: 'One – On – One',
+				panel: 'Panel',
+				group: 'Group',
+				situational: 'Situational / Behavioral',
+				others: 'Others – Specify.',
+				assessment: 'Assessment',
+				nonTechnical: 'Non-Technical',
+				managerial: 'Managerial',
+				final: 'Final',
+				hr: 'HR',
+				aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+				coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+			};
+			
+			// Return stageName if it's a proper name (not a unique key)
+			if (stageName && !stageName.includes('_') && !stageName.match(/^[0-9a-f]{24}$/i) && !/^\d+$/.test(stageName)) {
+				return stageName;
+			}
+			
+			// Extract actual type if stageType looks like a unique key (e.g., "assessment_1234" -> "assessment")
+			let actualStageType = stageType;
+			if (stageType && (stageType.includes('_') || /^\d+$/.test(stageType))) {
+				actualStageType = stageType.split('_')[0];
+			}
+			
+			// Fallback to stageType mapping
+			return roundNames[actualStageType] || roundNames[stageType] || 'Interview Round';
+		};
+		
 		// PRIORITY 1: Check if application has interviewProcess.stages from InterviewProcessManager
 		if (application?.interviewProcess?.stages && application.interviewProcess.stages.length > 0) {
 			console.log('Using interviewProcess.stages:', application.interviewProcess.stages);
 			return application.interviewProcess.stages.map(stage => ({
-				name: stage.stageName || getRoundNameFromKey(stage.stageType),
+				name: getProperRoundName(stage.stageType, stage.stageName),
 				uniqueKey: stage._id || stage.stageType,
 				roundType: stage.stageType
 			}));
@@ -243,52 +276,61 @@ function CanStatusPage() {
 		// PRIORITY 2: Check if job has interviewRoundOrder (new format)
 		if (job?.interviewRoundOrder && job.interviewRoundOrder.length > 0) {
 			const rounds = [];
+			const stageNames = {
+				technical: 'Technical',
+				oneOnOne: 'One – On – One',
+				panel: 'Panel',
+				group: 'Group',
+				situational: 'Situational / Behavioral',
+				others: 'Others – Specify.',
+				assessment: 'Assessment',
+				nonTechnical: 'Non-Technical',
+				managerial: 'Managerial',
+				final: 'Final',
+				hr: 'HR',
+				aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+				coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+			};
 			
-			// Map unique keys to round names
+			// Map unique keys to round names - ALWAYS return a proper name
 			job.interviewRoundOrder.forEach(uniqueKey => {
 				const roundType = job.interviewRoundTypes?.[uniqueKey];
-				if (roundType) {
-					rounds.push({
-						name: getRoundNameFromKey(roundType),
-						uniqueKey: uniqueKey,
-						roundType: roundType
-					});
+				let name = '';
+				let finalRoundType = roundType || uniqueKey;
+				
+				// Extract actual type from unique key if needed (e.g., "assessment_123456" -> "assessment")
+				let baseType = uniqueKey;
+				if (uniqueKey && uniqueKey.includes('_')) {
+					baseType = uniqueKey.split('_')[0];
+				}
+				
+				if (roundType && !roundType.includes('_') && !/^\d+$/.test(roundType)) {
+					// roundType is a proper type, use it
+					name = stageNames[roundType] || getRoundNameFromKey(roundType);
+					finalRoundType = roundType;
+				} else if (roundType) {
+					// roundType looks like a unique key, extract it
+					const extractedType = roundType.includes('_') ? roundType.split('_')[0] : roundType;
+					name = stageNames[extractedType] || getRoundNameFromKey(extractedType);
+					finalRoundType = extractedType;
 				} else {
-					// Extract round type from uniqueKey
-					rounds.push({
-						name: getRoundNameFromKey(uniqueKey),
-						uniqueKey: uniqueKey,
-						roundType: uniqueKey.includes('_') ? uniqueKey.split('_')[0] : uniqueKey
-					});
+					// No roundType, use extracted baseType
+					name = stageNames[baseType] || getRoundNameFromKey(baseType);
+					finalRoundType = baseType;
 				}
+				
+				// CRITICAL: Ensure we NEVER display a unique key directly
+				if (!name || name === uniqueKey || name.includes('_') || /^\d+$/.test(name)) {
+					name = stageNames[baseType] || stageNames[finalRoundType] || 'Interview Round';
+				}
+				
+				rounds.push({
+					name: name,
+					uniqueKey: uniqueKey,
+					roundType: finalRoundType
+				});
 			});
 			
-			if (rounds.length > 0) return rounds;
-		}
-		
-		// PRIORITY 3: Use job's interview rounds (from job posting)
-		if (job?.interviewRoundOrder && job.interviewRoundOrder.length > 0) {
-			const rounds = [];
-			job.interviewRoundOrder.forEach(uniqueKey => {
-				const roundType = job.interviewRoundTypes?.[uniqueKey];
-				if (roundType) {
-					const roundNames = {
-						technical: 'Technical',
-						nonTechnical: 'Non-Technical',
-						managerial: 'Managerial',
-						final: 'Final',
-						hr: 'HR',
-						assessment: 'Assessment',
-						aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
-						coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
-					};
-					rounds.push({
-						name: roundNames[roundType] || roundType,
-						uniqueKey: uniqueKey,
-						roundType: roundType
-					});
-				}
-			});
 			if (rounds.length > 0) return rounds;
 		}
 		
@@ -315,18 +357,25 @@ function CanStatusPage() {
 	const getRoundStatus = (application, roundIndex, roundName) => {
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment' && application.assessmentStatus) {
-			switch (application.assessmentStatus) {
-				case 'completed':
-					return { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
-				case 'in_progress':
-					return { text: 'In Progress', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' };
-				case 'available':
-					return { text: 'Available', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' };
-				case 'expired':
-					return { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
-				default:
-					return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
+			const status = application.assessmentStatus?.toLowerCase?.() || application.assessmentStatus;
+			
+			// Map all possible assessment status values
+			const statusMappings = {
+				'completed': { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' },
+				'in_progress': { text: 'In Progress', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' },
+				'available': { text: 'Available', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
+				'expired': { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
+				'pending': { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
+				'not_required': { text: 'Not Required', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
+				'not_started': { text: 'Not Started', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
+			};
+			
+			const result = statusMappings[status];
+			if (!result) {
+				console.warn(`Unknown assessment status: "${application.assessmentStatus}", defaulting to Pending`);
+				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
+			return result;
 		}
 
 		// Check if there are actual interview rounds data from employer review
@@ -608,9 +657,40 @@ function CanStatusPage() {
 																	{interviewRounds.length > 0 ? (
 																		interviewRounds.map((round, roundIndex) => {
 																			// Get interview details for this round
-																			const roundName = typeof round === 'string' ? round : round.name;
-																			const roundStatus = getRoundStatus(app, roundIndex, roundName);
+																			let roundName = typeof round === 'string' ? round : round.name;
 																			const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round.uniqueKey;
+																			
+																			// CRITICAL Safety check: if roundName looks like a unique key, replace it immediately
+																			if (roundName) {
+																				// Check if it's a unique key pattern: contains _ , is all digits, or is MongoDB ObjectId
+																				const isUniqueKey = roundName.includes('_') || 
+																					roundName.match(/^[0-9a-f]{24}$/i) || 
+																					/^\d+$/.test(roundName);
+																				
+																				if (isUniqueKey) {
+																					const stageNameMap = {
+																						technical: 'Technical',
+																						oneOnOne: 'One – On – One',
+																						panel: 'Panel',
+																						group: 'Group',
+																						situational: 'Situational / Behavioral',
+																						others: 'Others – Specify.',
+																						assessment: 'Assessment',
+																						nonTechnical: 'Non-Technical',
+																						managerial: 'Managerial',
+																						final: 'Final',
+																						hr: 'HR',
+																						aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+																						coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+																					};
+																					
+																					// Try to extract round type from unique key
+																					let extractedType = uniqueKey.includes('_') ? uniqueKey.split('_')[0] : uniqueKey;
+																					roundName = stageNameMap[extractedType] || 'Interview Round';
+																				}
+																			}
+																			
+																			const roundStatus = getRoundStatus(app, roundIndex, roundName);
 																			
 																			// Try to find round details with multiple possible keys
 																			let roundDetails = null;
@@ -866,9 +946,31 @@ function CanStatusPage() {
 										Interview Rounds
 									</h6>
 									{getInterviewRounds(selectedApplication.jobId, selectedApplication).map((round, roundIndex) => {
-										const roundName = typeof round === 'string' ? round : round.name;
-										const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName);
+										let roundName = typeof round === 'string' ? round : round.name;
 										const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round.uniqueKey;
+										
+										// Safety check: ensure roundName is not a unique key
+										if (roundName && (roundName.includes('_') || roundName.match(/^[0-9a-f]{24}$/i) || /^\d+$/.test(roundName))) {
+											const stageNameMap = {
+												technical: 'Technical',
+												oneOnOne: 'One – On – One',
+												panel: 'Panel',
+												group: 'Group',
+												situational: 'Situational / Behavioral',
+												others: 'Others – Specify.',
+												assessment: 'Assessment',
+												nonTechnical: 'Non-Technical',
+												managerial: 'Managerial',
+												final: 'Final',
+												hr: 'HR',
+												aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+												coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+											};
+											let extractedType = uniqueKey.includes('_') ? uniqueKey.split('_')[0] : uniqueKey;
+											roundName = stageNameMap[extractedType] || 'Interview Round';
+										}
+										
+										const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName);
 										const roundType = (typeof round === 'object' ? round.roundType : round.toLowerCase()).replace(/[^a-z]/gi, '');
 										
 										// Find round details from job interviewRoundDetails

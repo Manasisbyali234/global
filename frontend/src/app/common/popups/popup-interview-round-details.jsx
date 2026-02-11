@@ -7,11 +7,23 @@ const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, 
     const [assessmentData, setAssessmentData] = useState(null);
     const [loadingAssessment, setLoadingAssessment] = useState(false);
     
+    // Helper to extract actual type from roundType (which might be a unique key)
+    const extractActualType = (type) => {
+        if (!type) return type;
+        // If it looks like a unique key (contains _ or all digits), extract the type
+        if (type.includes('_') || /^\d+$/.test(type)) {
+            return type.split('_')[0];
+        }
+        return type;
+    };
+    
+    const normalizedRoundType = extractActualType(roundType);
+    
     useEffect(() => {
-        if (isOpen && roundType === 'technical' && assessmentId) {
+        if (isOpen && normalizedRoundType === 'technical' && assessmentId) {
             fetchAssessmentDetails();
         }
-    }, [isOpen, roundType, assessmentId]);
+    }, [isOpen, normalizedRoundType, assessmentId]);
 
     useEffect(() => {
         if (isOpen) {
@@ -38,14 +50,29 @@ const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, 
     
     if (!isOpen) return null;
 
-    const roundNames = {
-        technical: 'Technical',
-        oneOnOne: 'One – On – One',
-        panel: 'Panel',
-        group: 'Group',
-        situational: 'Situational / Behavioral',
-        others: 'Others – Specify.',
-        assessment: 'Assessment'
+    const getProperRoundName = (type) => {
+        const roundNames = {
+            technical: 'Technical',
+            oneOnOne: 'One – On – One',
+            panel: 'Panel',
+            group: 'Group',
+            situational: 'Situational / Behavioral',
+            others: 'Others – Specify.',
+            assessment: 'Assessment',
+            nonTechnical: 'Non-Technical',
+            managerial: 'Managerial',
+            final: 'Final',
+            hr: 'HR',
+            aptitude: 'Aptitude test - SOFTWARE ENGINEERING',
+            coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
+        };
+        
+        const actualType = extractActualType(type);
+        
+        // If type is already a proper name, return it
+        if (roundNames[actualType]) return roundNames[actualType];
+        
+        return roundNames[actualType] || 'Interview Round Details';
     };
 
     const formatDate = (dateString) => {
@@ -82,7 +109,7 @@ const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, 
                     }}>
                         <h5 className="modal-title d-flex align-items-center gap-2">
                             <FileText size={20} />
-                            {roundNames[roundType] || 'Interview Round Details'}
+                            {getProperRoundName(roundType)}
                         </h5>
                         <button 
                             type="button" 
@@ -92,7 +119,7 @@ const PopupInterviewRoundDetails = ({ isOpen, onClose, roundDetails, roundType, 
                         ></button>
                     </div>
                     <div className="modal-body" style={{ padding: '2rem', overflowY: 'auto' }}>
-                        {roundType === 'technical' && assessmentId ? (
+                        {normalizedRoundType === 'technical' && assessmentId ? (
                             loadingAssessment ? (
                                 <div className="text-center py-4">
                                     <div className="spinner-border text-primary" role="status">

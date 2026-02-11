@@ -829,8 +829,16 @@ exports.submitAssessment = async (req, res) => {
     await attempt.save();
     
     // Update application with assessment results
+    // Map AssessmentAttempt status to Application assessmentStatus
+    const statusMap = {
+      'not_started': 'pending',
+      'in_progress': 'in_progress',
+      'completed': 'completed',
+      'expired': 'expired'
+    };
+    
     const updateData = {
-      assessmentStatus: attempt.status,
+      assessmentStatus: statusMap[attempt.status] || 'pending',
       assessmentScore: score,
       assessmentPercentage: attempt.percentage,
       assessmentResult: result,

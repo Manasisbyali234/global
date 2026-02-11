@@ -9,6 +9,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
   const [textAnswer, setTextAnswer] = useState('');
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [answerMode, setAnswerMode] = useState('text'); // 'text' or 'upload'
   const [timeRemaining, setTimeRemaining] = useState(assessment.timer * 60);
   const [violations, setViolations] = useState([]);
   const [startTime] = useState(Date.now());
@@ -364,6 +365,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
         setSelectedAnswer(null);
         setTextAnswer('');
         setUploadedFile(null);
+        setAnswerMode('text');
       }
     } catch (error) {
       console.error('Error submitting answer:', error);
@@ -593,52 +595,74 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
           
           {question.type === 'upload' && (
             <div className="mb-3">
-              <div className="border rounded p-4">
-                <label className="form-label fw-semibold mb-3">✍️ Write your answer or upload a file</label>
+              <div className="border rounded p-3">
+                <label className="form-label fw-semibold mb-3">Choose answer method:</label>
                 
-                <textarea
-                  className="form-control mb-3"
-                  rows="6"
-                  placeholder="Type your answer here (optional if uploading a file)..."
-                  value={textAnswer}
-                  onChange={(e) => setTextAnswer(e.target.value)}
-                />
-                
-                <div className="text-center my-3">
-                  <span className="badge bg-secondary">OR</span>
+                <div className="btn-group w-100 mb-3" role="group">
+                  <button
+                    type="button"
+                    className={`btn ${answerMode === 'text' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => setAnswerMode('text')}
+                  >
+                    <i className="fa fa-pencil me-2"></i>Text Answer
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn ${answerMode === 'upload' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => setAnswerMode('upload')}
+                  >
+                    <i className="fa fa-upload me-2"></i>Upload File
+                  </button>
                 </div>
                 
-                {!uploadedFile ? (
-                  <>
-                    <input
-                      type="file"
-                      className="form-control mb-3"
-                      accept=".pdf,.doc,.docx,image/*"
-                      onChange={(e) => handleFileUpload(e.target.files[0])}
-                      disabled={uploading}
+                {answerMode === 'text' && (
+                  <div>
+                    <textarea
+                      className="form-control"
+                      rows="6"
+                      placeholder="Type your answer here..."
+                      value={textAnswer}
+                      onChange={(e) => setTextAnswer(e.target.value)}
                     />
-                    <small className="text-muted d-block">
-                      📎 Accepted file types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF, WEBP, BMP, SVG (Max: 10MB)
-                    </small>
-                    {uploading && (
-                      <div className="mt-2">
-                        <div className="spinner-border spinner-border-sm me-2" role="status"></div>
-                        Uploading...
+                    <small className="text-muted d-block mt-2">Provide your answer in text format</small>
+                  </div>
+                )}
+                
+                {answerMode === 'upload' && (
+                  <div>
+                    {!uploadedFile ? (
+                      <>
+                        <input
+                          type="file"
+                          className="form-control"
+                          accept=".pdf,.doc,.docx,image/*"
+                          onChange={(e) => handleFileUpload(e.target.files[0])}
+                          disabled={uploading}
+                        />
+                        <small className="text-muted d-block mt-2">
+                          📎 Accepted: PDF, DOC, DOCX, Images (Max: 10MB)
+                        </small>
+                        {uploading && (
+                          <div className="mt-2">
+                            <div className="spinner-border spinner-border-sm me-2" role="status"></div>
+                            Uploading...
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="alert alert-success mb-0">
+                        <i className="fa fa-check-circle me-2"></i>
+                        File uploaded: {uploadedFile.originalName}
+                        <br />
+                        <small>Size: {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</small>
+                        <button 
+                          className="btn btn-sm btn-outline-danger ms-2 mt-2"
+                          onClick={() => setUploadedFile(null)}
+                        >
+                          Remove
+                        </button>
                       </div>
                     )}
-                  </>
-                ) : (
-                  <div className="alert alert-success">
-                    <i className="fa fa-check-circle me-2"></i>
-                    File uploaded successfully: {uploadedFile.originalName}
-                    <br />
-                    <small>Size: {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</small>
-                    <button 
-                      className="btn btn-sm btn-outline-danger ms-2 mt-2"
-                      onClick={() => setUploadedFile(null)}
-                    >
-                      Remove File
-                    </button>
                   </div>
                 )}
               </div>
@@ -647,32 +671,74 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
           
           {question.type === 'image' && (
             <div className="mb-3">
-              <div className="border rounded p-4 text-center">
-                {!uploadedFile ? (
-                  <>
-                    <input
-                      type="file"
-                      className="form-control mb-3"
-                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                      onChange={(e) => handleFileUpload(e.target.files[0])}
-                      disabled={uploading}
+              <div className="border rounded p-3">
+                <label className="form-label fw-semibold mb-3">Choose answer method:</label>
+                
+                <div className="btn-group w-100 mb-3" role="group">
+                  <button
+                    type="button"
+                    className={`btn ${answerMode === 'text' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => setAnswerMode('text')}
+                  >
+                    <i className="fa fa-pencil me-2"></i>Text Answer
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn ${answerMode === 'upload' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => setAnswerMode('upload')}
+                  >
+                    <i className="fa fa-image me-2"></i>Upload Image
+                  </button>
+                </div>
+                
+                {answerMode === 'text' && (
+                  <div>
+                    <textarea
+                      className="form-control"
+                      rows="6"
+                      placeholder="Type your answer here..."
+                      value={textAnswer}
+                      onChange={(e) => setTextAnswer(e.target.value)}
                     />
-                    <small className="text-muted d-block">
-                      🖼️ Accepted image types: JPG, JPEG, PNG, GIF, WEBP (Max: 5MB)
-                    </small>
-                    {uploading && (
-                      <div className="mt-2">
-                        <div className="spinner-border spinner-border-sm me-2" role="status"></div>
-                        Uploading...
+                    <small className="text-muted d-block mt-2">Provide your answer in text format</small>
+                  </div>
+                )}
+                
+                {answerMode === 'upload' && (
+                  <div>
+                    {!uploadedFile ? (
+                      <>
+                        <input
+                          type="file"
+                          className="form-control"
+                          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                          onChange={(e) => handleFileUpload(e.target.files[0])}
+                          disabled={uploading}
+                        />
+                        <small className="text-muted d-block mt-2">
+                          🖼️ Accepted: JPG, PNG, GIF, WEBP (Max: 5MB)
+                        </small>
+                        {uploading && (
+                          <div className="mt-2">
+                            <div className="spinner-border spinner-border-sm me-2" role="status"></div>
+                            Uploading...
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="alert alert-success mb-0">
+                        <i className="fa fa-check-circle me-2"></i>
+                        Image uploaded: {uploadedFile.originalName}
+                        <br />
+                        <small>Size: {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</small>
+                        <button 
+                          className="btn btn-sm btn-outline-danger ms-2 mt-2"
+                          onClick={() => setUploadedFile(null)}
+                        >
+                          Remove
+                        </button>
                       </div>
                     )}
-                  </>
-                ) : (
-                  <div className="alert alert-success">
-                    <i className="fa fa-check-circle me-2"></i>
-                    Image uploaded successfully: {uploadedFile.originalName}
-                    <br />
-                    <small>Size: {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</small>
                   </div>
                 )}
               </div>

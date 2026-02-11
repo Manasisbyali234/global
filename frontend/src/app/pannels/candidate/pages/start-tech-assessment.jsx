@@ -993,6 +993,26 @@ const StartAssessment = () => {
 										<small style={{ color: "#999" }}>PDF, DOC, DOCX, JPG, PNG, GIF (Max: 100MB)</small>
 									</label>
 								</div>
+								<div style={{ marginBottom: "15px" }}>
+									<label style={{ display: "block", marginBottom: "8px", fontWeight: "500", fontSize: "14px", textAlign: "left" }}>Or write your answer:</label>
+									<textarea
+										style={{
+											width: "100%",
+											minHeight: "150px",
+											padding: "12px",
+											border: "1px solid #ccc",
+											borderRadius: "5px",
+											fontSize: "14px",
+											fontFamily: "Arial, sans-serif",
+											resize: "vertical",
+											boxSizing: "border-box"
+										}}
+										placeholder="Type your answer here..."
+										value={answers[currentQuestionIndex] || ''}
+										onChange={(e) => handleTextAnswerChange(e.target.value)}
+										disabled={isSubmitted}
+									/>
+								</div>
 								{question.options && question.options.length > 0 && question.options.some(opt => opt && opt.trim()) && (
 									<div style={{ marginTop: "20px" }}>
 										<div style={{ marginBottom: "10px", fontWeight: "500", fontSize: "14px" }}>Answer Options:</div>
