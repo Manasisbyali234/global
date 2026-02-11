@@ -960,13 +960,74 @@ const StartAssessment = () => {
 									borderRadius: "5px",
 									fontSize: "14px",
 									fontFamily: "Arial, sans-serif",
-									resize: "vertical"
+									resize: "vertical",
+									boxSizing: "border-box"
 								}}
 								placeholder="Type your answer here..."
 								value={answers[currentQuestionIndex] || ''}
 								onChange={(e) => handleTextAnswerChange(e.target.value)}
 								disabled={isSubmitted}
 							/>
+						) : question.type === 'upload' ? (
+							<>
+								<div style={{
+									border: "2px dashed #ccc",
+									borderRadius: "8px",
+									padding: "30px",
+									textAlign: "center",
+									marginBottom: "15px",
+									backgroundColor: "#f9f9f9",
+									cursor: "pointer",
+									boxSizing: "border-box"
+								}}>
+									<input
+										type="file"
+										id="file-upload"
+										style={{ display: "none" }}
+										accept=".pdf,.doc,.docx,image/*"
+										disabled={isSubmitted}
+									/>
+									<label htmlFor="file-upload" style={{ cursor: "pointer", display: "block", width: "100%" }}>
+										<i className="fa fa-cloud-upload" style={{ fontSize: "48px", color: "#999", marginBottom: "10px", display: "block" }}></i>
+										<p style={{ margin: "10px 0", color: "#666", fontSize: "16px" }}>Click to upload or drag and drop</p>
+										<small style={{ color: "#999" }}>PDF, DOC, DOCX, JPG, PNG, GIF (Max: 100MB)</small>
+									</label>
+								</div>
+								{question.options && question.options.length > 0 && question.options.some(opt => opt && opt.trim()) && (
+									<div style={{ marginTop: "20px" }}>
+										<div style={{ marginBottom: "10px", fontWeight: "500", fontSize: "14px" }}>Answer Options:</div>
+										{question.options.map((option, idx) => (
+											option && option.trim() ? (
+												<label
+													key={idx}
+													style={{
+														border: answers[currentQuestionIndex] === idx ? "2px solid #3498db" : "1px solid #ccc",
+														borderRadius: "5px",
+														padding: "10px",
+														marginBottom: "8px",
+														cursor: isSubmitted ? "not-allowed" : "pointer",
+														backgroundColor: answers[currentQuestionIndex] === idx ? "#ecf6fd" : "#fff",
+														display: "flex",
+														alignItems: "center",
+														boxSizing: "border-box"
+													}}
+												>
+													<input
+														type="radio"
+														name={`q-${currentQuestionIndex}`}
+														value={idx}
+														checked={answers[currentQuestionIndex] === idx}
+														onChange={() => handleOptionChange(idx)}
+														disabled={isSubmitted}
+														style={{ marginRight: "10px", flexShrink: 0 }}
+													/>
+													<span style={{ wordBreak: "break-word" }}>{String.fromCharCode(65 + idx)}. {option}</span>
+												</label>
+											) : null
+										))}
+									</div>
+								)}
+							</>
 						) : question.options && question.options.length > 0 ? (
 							question.options.map((option, idx) => (
 								<label
