@@ -1543,17 +1543,17 @@ function EmpCompanyProfilePage() {
                                     <div className="row">
                                         {formData.authorizationLetters.map((doc, index) => (
                                             <div key={doc._id || index} className="col-md-6 mb-2">
-                                                <div className="document-card p-3 border rounded shadow-sm" style={{backgroundColor: '#fff'}}>
-                                                    <div className="d-flex justify-content-between align-items-start">
-                                                        <div className="flex-grow-1">
+                                                <div className="document-card p-3 border rounded shadow-sm" style={{backgroundColor: '#fff', overflow: 'hidden'}}>
+                                                    <div className="row" style={{margin: 0}}>
+                                                        <div className="col-9" style={{paddingRight: '8px'}}>
                                                             <div className="d-flex align-items-center mb-1">
-                                                                <i className="fas fa-file-alt text-primary me-2"></i>
-                                                                <span className="fw-bold">{doc.fileName}</span>
+                                                                <i className="fas fa-file-alt text-primary me-2" style={{flexShrink: 0}}></i>
+                                                                <span className="fw-bold" style={{wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis'}}>{doc.fileName}</span>
                                                             </div>
                                                             {renderStatusBadge(doc.status)}
                                                             {doc.companyName && (
                                                                 <div className="mb-1">
-                                                                    <small className="text-info">
+                                                                    <small className="text-info" style={{wordBreak: 'break-word'}}>
                                                                         <i className="fas fa-building me-1"></i>
                                                                         {doc.companyName}
                                                                     </small>
@@ -1564,15 +1564,18 @@ function EmpCompanyProfilePage() {
                                                                 {new Date(doc.uploadedAt).toLocaleDateString('en-GB')}
                                                             </small>
                                                         </div>
-                                                        <button 
-                                                            type="button" 
-                                                            className="btn btn-outline-danger btn-sm"
-                                                            onClick={() => handleDeleteAuthorizationLetter(doc._id)}
-                                                            title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
-                                                            disabled={doc.status === 'approved'}
-                                                        >
-                                                            <i className="fas fa-trash"></i>
-                                                        </button>
+                                                        <div className="col-3 d-flex align-items-start justify-content-end" style={{paddingLeft: '8px'}}>
+                                                            <button 
+                                                                type="button" 
+                                                                className="btn btn-outline-danger btn-sm"
+                                                                onClick={() => handleDeleteAuthorizationLetter(doc._id)}
+                                                                title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
+                                                                disabled={doc.status === 'approved'}
+                                                                style={{flexShrink: 0}}
+                                                            >
+                                                                <i className="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
