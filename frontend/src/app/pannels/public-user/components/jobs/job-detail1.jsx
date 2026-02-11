@@ -500,7 +500,7 @@ function JobDetail1Page() {
                                                 <i className="feather-list" style={{marginRight: '10px', color: '#e74c3c'}}></i>
                                                 Roles and Responsibilities
                                             </h4>
-                                            <div className="job-content-section" style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{__html: job.rolesAndResponsibilities}}></div>
+                                            <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{__html: job.rolesAndResponsibilities}}></div>
                                         </div>
                                     )}
 
@@ -541,14 +541,14 @@ function JobDetail1Page() {
                                             Requirements & Qualifications
                                         </h4>
                                         <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}}>
-                                            <p style={{marginBottom: '12px'}}>
+                                            <p style={{marginBottom: 0}}>
                                                 <strong>Education: </strong>
                                                 {Array.isArray(job?.education) && job.education.length > 0 
                                                     ? job.education.join(', ')
                                                     : (job?.education || 'Not specified')
                                                 }
                                             </p>
-                                            <p style={{marginBottom: '12px'}}>
+                                            <p style={{marginBottom: 0}}>
                                                 <strong>Backlogs Allowed: </strong>
                                                 {job?.backlogsAllowed ? 'Yes' : 'No'}
                                             </p>
@@ -578,7 +578,7 @@ function JobDetail1Page() {
                                             {(job.employerId?.employerType === 'consultant' ? job.companyDescription : job.employerProfile.whyJoinUs) && (
                                                 <div style={{marginBottom: '20px', marginTop: '20px'}}>
                                                     <h5 style={{fontSize: '18px', fontWeight: '600', color: '#34495e', marginBottom: '10px'}}>Why Join Us</h5>
-                                                    <div className="job-content-section" style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
+                                                    <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
                                                         __html: (job.employerId?.employerType === 'consultant') 
                                                             ? job.companyDescription 
                                                             : job.employerProfile.whyJoinUs
@@ -598,7 +598,7 @@ function JobDetail1Page() {
                                                 <i className="feather-check-circle" style={{marginRight: '10px', color: '#28a745'}}></i>
                                                 Responsibilities
                                             </h4>
-                                            <div className="job-content-section" style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}}>
+                                            <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}}>
                                                 <ul style={{margin: 0, paddingLeft: '2rem'}}>
                                                     {job.responsibilities.map((resp, index) => (
                                                         <li key={index} style={{marginBottom: 0}}>{resp}</li>
@@ -614,7 +614,7 @@ function JobDetail1Page() {
                                                 <i className="feather-gift" style={{marginRight: '10px', color: '#ffc107'}}></i>
                                                 Benefits
                                             </h4>
-                                            <div className="job-content-section" style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}}>
+                                            <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}}>
                                                 <ul style={{margin: 0, paddingLeft: '2rem'}}>
                                                     {job.benefits.map((benefit, index) => (
                                                         <li key={index} style={{marginBottom: 0}}>{benefit}</li>
