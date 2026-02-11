@@ -277,21 +277,24 @@ router.get('/notifications', auth(['placement']), async (req, res) => {
     console.log('Placement ID:', placementId);
     
     const notifications = await Notification.find({
+      role: 'placement',
       $or: [
-        { role: 'placement', placementId: { $exists: false } }, // General placement notifications
-        { role: 'placement', placementId: placementId } // Specific to this placement officer
+        { placementId: { $exists: false } }, // General placement notifications (no specific placementId)
+        { placementId: placementId } // Specific to this placement officer only
       ]
     })
     .sort({ createdAt: -1 })
     .lean();
     
     const unreadCount = await Notification.countDocuments({
+      role: 'placement',
       $or: [
-        { role: 'placement', placementId: { $exists: false }, isRead: false },
-        { role: 'placement', placementId: placementId, isRead: false }
+        { placementId: { $exists: false }, isRead: false },
+        { placementId: placementId, isRead: false }
       ]
     });
     
+    console.log(`Retrieved ${notifications.length} notifications for placement officer`);
     res.json({ success: true, notifications, unreadCount });
   } catch (error) {
     console.error('Notifications error:', error);
@@ -306,18 +309,24 @@ router.patch('/notifications/read-all', auth(['placement']), async (req, res) =>
     const mongoose = require('mongoose');
     const placementId = new mongoose.Types.ObjectId(req.user._id || req.user.id);
     
-    await Notification.updateMany(
+    console.log('=== MARK ALL NOTIFICATIONS AS READ ===');
+    console.log('Placement ID:', placementId);
+    
+    const result = await Notification.updateMany(
       {
+        role: 'placement',
         $or: [
-          { role: 'placement', placementId: { $exists: false }, isRead: false },
-          { role: 'placement', placementId: placementId, isRead: false }
+          { placementId: { $exists: false }, isRead: false },
+          { placementId: placementId, isRead: false }
         ]
       },
       { isRead: true }
     );
     
-    res.json({ success: true, message: 'All notifications marked as read' });
+    console.log(`Updated ${result.modifiedCount} notifications`);
+    res.json({ success: true, message: 'All notifications marked as read', modifiedCount: result.modifiedCount });
   } catch (error) {
+    console.error('Error marking notifications as read:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -347,15 +356,32 @@ router.patch('/notifications/:id/read', auth(['placement']), async (req, res) =>
 router.put('/notifications/:id/dismiss', auth(['placement']), async (req, res) => {
   try {
     const Notification = require('../models/Notification');
+    const mongoose = require('mongoose');
+    const placementId = new mongoose.Types.ObjectId(req.user._id || req.user.id);
     
-    const notification = await Notification.findByIdAndDelete(req.params.id);
+    // Verify the notification belongs to this placement officer or is a general notification
+    const notification = await Notification.findById(req.params.id);
     
     if (!notification) {
       return res.status(404).json({ success: false, message: 'Notification not found' });
     }
     
+    // Check authorization: notification must be either general or belong to this placement officer
+    const isAuthorized = 
+      notification.role === 'placement' && 
+      (!notification.placementId || notification.placementId.equals(placementId));
+    
+    if (!isAuthorized) {
+      console.warn(`Unauthorized attempt to dismiss notification ${req.params.id} by placement officer ${placementId}`);
+      return res.status(403).json({ success: false, message: 'Unauthorized to dismiss this notification' });
+    }
+    
+    // Delete the notification
+    await Notification.findByIdAndDelete(req.params.id);
+    
     res.json({ success: true, message: 'Notification dismissed' });
   } catch (error) {
+    console.error('Error dismissing notification:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

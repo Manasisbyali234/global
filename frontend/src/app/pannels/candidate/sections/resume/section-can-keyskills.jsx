@@ -217,57 +217,24 @@ function SectionCanKeySkills({ profile }) {
                                                     <span style={{fontSize: '12px', color: '#666', fontWeight: '500'}}>
                                                         {selectedSkills.length} of {predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())).length} selected
                                                     </span>
-                                                    <div className="dropdown-controls" style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
-                                                        <style>{`
-                                                            @media (max-width: 480px) {
-                                                                .dropdown-controls {
-                                                                    flex-direction: column !important;
-                                                                    width: 100%;
-                                                                }
-                                                                .dropdown-controls button {
-                                                                    text-align: left !important;
-                                                                    padding: 5px 0 !important;
-                                                                }
-                                                            }
-                                                        `}</style>
-                                                        <button
-                                                            type="button"
-                                                            onMouseDown={(e) => {
-                                                                e.preventDefault();
-                                                                const availableSkills = predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase()));
-                                                                setSelectedSkills(availableSkills);
-                                                            }}
-                                                            style={{
-                                                                background: 'none',
-                                                                border: 'none',
-                                                                color: '#0056b3',
-                                                                fontSize: '11px',
-                                                                cursor: 'pointer',
-                                                                padding: '2px 6px',
-                                                                borderRadius: '3px'
-                                                            }}
-                                                        >
-                                                            Select All
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onMouseDown={(e) => {
-                                                                e.preventDefault();
-                                                                setSelectedSkills([]);
-                                                            }}
-                                                            style={{
-                                                                background: 'none',
-                                                                border: 'none',
-                                                                color: '#dc3545',
-                                                                fontSize: '11px',
-                                                                cursor: 'pointer',
-                                                                padding: '2px 6px',
-                                                                borderRadius: '3px'
-                                                            }}
-                                                        >
-                                                            Clear All
-                                                        </button>
-                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onMouseDown={(e) => {
+                                                            e.preventDefault();
+                                                            setSelectedSkills([]);
+                                                        }}
+                                                        style={{
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            color: '#dc3545',
+                                                            fontSize: '11px',
+                                                            cursor: 'pointer',
+                                                            padding: '2px 6px',
+                                                            borderRadius: '3px'
+                                                        }}
+                                                    >
+                                                        Clear All
+                                                    </button>
                                                 </div>
                                             )}
                                             {predefinedSkills

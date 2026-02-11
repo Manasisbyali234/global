@@ -329,14 +329,27 @@ function SectionCanEmployment({ profile, onUpdate }) {
                 <h4 className="panel-tittle m-a0">Employment History</h4>
                 <div className="d-flex gap-2">
                     {!isEditMode ? (
-                        <button 
-                            type="button" 
-                            className="site-button-link text-primary" 
-                            onClick={() => setIsEditMode(true)}
-                        >
-                            <i className="fa fa-edit me-2"></i>
-                            Edit Details
-                        </button>
+                        <>
+                            <button 
+                                type="button" 
+                                className="site-button-link text-primary" 
+                                onClick={() => setIsEditMode(true)}
+                            >
+                                <i className="fa fa-edit me-2"></i>
+                                Edit Details
+                            </button>
+                            <button 
+                                type="button" 
+                                className="site-button-link text-primary" 
+                                onClick={() => {
+                                    setIsEditMode(true);
+                                    handleAdd();
+                                }}
+                            >
+                                <i className="fa fa-plus me-2"></i>
+                                Add More
+                            </button>
+                        </>
                     ) : (
                         <>
                             {profile?.employment?.length > 0 && (

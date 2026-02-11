@@ -1205,6 +1205,7 @@ exports.updatePlacementStatus = async (req, res) => {
           message: 'Your placement officer account has been approved by admin. You can now sign in.',
           type: 'placement_approved',
           role: 'placement',
+          placementId: new mongoose.Types.ObjectId(placement._id),
           relatedId: placement._id,
           createdBy: req.user.id
         });
@@ -2300,8 +2301,8 @@ exports.rejectIndividualFile = async (req, res) => {
         message: `File "${file.customName || file.fileName}" has been rejected. Reason: ${rejectionReason || 'No reason provided'}. You can resubmit a corrected version.`,
         type: 'file_rejected',
         role: 'placement',
-        targetUserId: placementId,
-        relatedId: placementId,
+        placementId: new mongoose.Types.ObjectId(placementId),
+        relatedId: new mongoose.Types.ObjectId(placementId),
         createdBy: req.user.id
       });
     } catch (notifError) {

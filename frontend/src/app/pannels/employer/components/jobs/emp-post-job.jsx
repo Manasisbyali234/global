@@ -1,6 +1,6 @@
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 import React, { useState, useEffect, useCallback } from "react";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useParams, useNavigate } from "react-router-dom";
 import { employer, empRoute, publicUser } from "../../../../../globals/route-names";
 import { holidaysApi } from "../../../../../utils/holidaysApi";
 import HolidayIndicator from "../../../../../components/HolidayIndicator";
@@ -240,6 +240,7 @@ function LocationSearchInput({ value, onChange, error, style }) {
 
 export default function EmpPostJob({ onNext }) {
 	const { id } = useParams();
+	const navigate = useNavigate();
 	const isEditMode = Boolean(id);
 	const [formData, setFormData] = useState({
 		jobTitle: "",
@@ -316,6 +317,7 @@ export default function EmpPostJob({ onNext }) {
 	const [globalErrors, setGlobalErrors] = useState([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
+	const [isScheduleMeeting, setIsScheduleMeeting] = useState(false);
 	const [scheduledRounds, setScheduledRounds] = useState({});
 	const [locationSearchTerm, setLocationSearchTerm] = useState('');
 	const [showLocationDropdown, setShowLocationDropdown] = useState(false);
@@ -825,6 +827,7 @@ export default function EmpPostJob({ onNext }) {
 	const validateJobForm = () => {
 		const newErrors = {};
 		const errorMessages = [];
+		const isSchedulingMeeting = hasSchedulableInterviewType();
 
 		// Basic validation using validation rules
 		const basicErrors = validateForm(formData, validationRules);
@@ -861,56 +864,59 @@ export default function EmpPostJob({ onNext }) {
 			showError(`Interview rounds mismatch! You specified ${specifiedRoundsCount} rounds but selected ${selectedRoundsCount}. Please adjust your selection.`);
 		}
 
-		// Validate Interview Round Details
-		const selectedRounds = formData.interviewRoundOrder
-			.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment');
+		// Skip detailed interview round validation when scheduling (they will be set on the scheduling page)
+		if (!isSchedulingMeeting) {
+			// Validate Interview Round Details
+			const selectedRounds = formData.interviewRoundOrder
+				.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment');
 
-		for (const uniqueKey of selectedRounds) {
-			const roundType = formData.interviewRoundTypes[uniqueKey];
-			const details = formData.interviewRoundDetails[uniqueKey];
-			const roundNames = {
-				technical: 'Technical',
-				oneOnOne: 'One – On – One',
-				panel: 'Panel',
-				group: 'Group',
-				situational: 'Situational / Behavioral',
-				assessment: 'MCQ/Aptitude/Assessment Schedule',
-				others: 'Others – Specify.'
-			};
+			for (const uniqueKey of selectedRounds) {
+				const roundType = formData.interviewRoundTypes[uniqueKey];
+				const details = formData.interviewRoundDetails[uniqueKey];
+				const roundNames = {
+					technical: 'Technical',
+					oneOnOne: 'One – On – One',
+					panel: 'Panel',
+					group: 'Group',
+					situational: 'Situational / Behavioral',
+					assessment: 'MCQ/Aptitude/Assessment Schedule',
+					others: 'Others – Specify.'
+				};
 
-			const roundName = roundNames[roundType] || roundType;
+				const roundName = roundNames[roundType] || roundType;
 
-			if (!details?.description?.trim()) {
-				errorMessages.push(`Please enter description for ${roundName}`);
+				if (!details?.description?.trim()) {
+					errorMessages.push(`Please enter description for ${roundName}`);
+				}
+				if (!details?.fromDate) {
+					errorMessages.push(`Please select Date for ${roundName}`);
+				}
+				if (!details?.startTime) {
+					errorMessages.push(`Please select From Time for ${roundName}`);
+				}
+				if (!details?.endTime) {
+					errorMessages.push(`Please select To Time for ${roundName}`);
+				}
 			}
-			if (!details?.fromDate) {
-				errorMessages.push(`Please select Date for ${roundName}`);
-			}
-			if (!details?.startTime) {
-				errorMessages.push(`Please select From Time for ${roundName}`);
-			}
-			if (!details?.endTime) {
-				errorMessages.push(`Please select To Time for ${roundName}`);
-			}
+
+			// Validate Assessment if selected
+			const assessmentKeys = formData.interviewRoundOrder.filter(key => formData.interviewRoundTypes[key] === 'assessment');
+			assessmentKeys.forEach((assessmentKey, index) => {
+				if (!selectedAssessment) {
+					errorMessages.push('Please select an Assessment');
+				}
+				const assessmentDetails = formData.interviewRoundDetails[assessmentKey];
+				if (!assessmentDetails?.fromDate) {
+					errorMessages.push(`Please select Date for Assessment ${index + 1}`);
+				}
+				if (!assessmentDetails?.startTime) {
+					errorMessages.push(`Please select Start Time for Assessment ${index + 1}`);
+				}
+				if (!assessmentDetails?.endTime) {
+					errorMessages.push(`Please select End Time for Assessment ${index + 1}`);
+				}
+			});
 		}
-
-		// Validate Assessment if selected
-		const assessmentKeys = formData.interviewRoundOrder.filter(key => formData.interviewRoundTypes[key] === 'assessment');
-		assessmentKeys.forEach((assessmentKey, index) => {
-			if (!selectedAssessment) {
-				errorMessages.push('Please select an Assessment');
-			}
-			const assessmentDetails = formData.interviewRoundDetails[assessmentKey];
-			if (!assessmentDetails?.fromDate) {
-				errorMessages.push(`Please select Date for Assessment ${index + 1}`);
-			}
-			if (!assessmentDetails?.startTime) {
-				errorMessages.push(`Please select Start Time for Assessment ${index + 1}`);
-			}
-			if (!assessmentDetails?.endTime) {
-				errorMessages.push(`Please select End Time for Assessment ${index + 1}`);
-			}
-		});
 
 		// Validate Offer Letter Date vs Last Interview Round
 		if (formData.offerLetterDate) {
@@ -960,6 +966,127 @@ export default function EmpPostJob({ onNext }) {
 		return Object.keys(newErrors).length === 0 && errorMessages.length === 0;
 	};
 
+	const hasSchedulableInterviewType = () => {
+		const hasOneOnOne = formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'oneOnOne');
+		const hasPanel = formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'panel');
+		return hasOneOnOne || hasPanel;
+	};
+
+	const submitJobAndRedirectToSchedule = async () => {
+		setShowConfirmModal(false);
+		
+		try {
+			const token = localStorage.getItem('employerToken');
+			if (!token) {
+				showWarning('Please login first');
+				return;
+			}
+
+			setIsSubmitting(true);
+
+			const assessmentRoundKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
+			const assessmentDetails = assessmentRoundKey ? formData.interviewRoundDetails[assessmentRoundKey] : null;
+			
+			const mappedInterviewRoundDetails = {};
+			formData.interviewRoundOrder.forEach(uniqueKey => {
+				const roundType = formData.interviewRoundTypes[uniqueKey];
+				const details = formData.interviewRoundDetails[uniqueKey];
+				if (roundType && details) {
+					mappedInterviewRoundDetails[uniqueKey] = details;
+				}
+			});
+
+			const jobData = {
+				title: formData.jobTitle,
+				location: formData.jobLocation,
+				jobType: formData.jobType ? formData.jobType.toLowerCase().replace(/\s+/g, '-') : '',
+				ctc: formData.ctc,
+				netSalary: formData.netSalary,
+				vacancies: parseInt(formData.vacancies) || 0,
+				applicationLimit: parseInt(formData.applicationLimit) || 0,
+				description: formData.jobDescription || 'Job description to be updated',
+				rolesAndResponsibilities: formData.rolesAndResponsibilities || '',
+				requiredSkills: formData.requiredSkills,
+				experienceLevel: formData.experienceLevel,
+				minExperience: formData.minExperience ? parseInt(formData.minExperience) : 0,
+				maxExperience: formData.maxExperience ? parseInt(formData.maxExperience) : 0,
+				education: formData.education,
+				backlogsAllowed: formData.backlogsAllowed,
+				interviewRoundsCount: parseInt(formData.interviewRoundsCount) || 0,
+				interviewRoundTypes: formData.interviewRoundTypes,
+				interviewRoundDetails: mappedInterviewRoundDetails,
+				interviewRoundOrder: formData.interviewRoundOrder || [],
+				assignedAssessment: selectedAssessment || null,
+				assessmentStartDate: assessmentDetails?.fromDate || null,
+				assessmentEndDate: assessmentDetails?.fromDate || null,
+				assessmentStartTime: assessmentDetails?.startTime || null,
+				assessmentEndTime: assessmentDetails?.endTime || null,
+				offerLetterDate: formData.offerLetterDate || null,
+				lastDateOfApplication: formData.lastDateOfApplication || null,
+				lastDateOfApplicationTime: formData.lastDateOfApplicationTime || null,
+				transportation: formData.transportation,
+				category: formData.category,
+				typeOfEmployment: formData.typeOfEmployment,
+				shift: formData.shift,
+				workMode: formData.workMode,
+				companyLogo: formData.companyLogo,
+				companyName: formData.companyName,
+				companyDescription: formData.companyDescription
+			};
+
+			if (employerType === 'consultant') {
+				jobData.companyLogo = formData.companyLogo;
+				jobData.companyName = formData.companyName;
+				jobData.companyDescription = formData.companyDescription;
+				jobData.aboutCompany = formData.aboutCompany;
+			}
+
+			const url = isEditMode 
+				? `http://localhost:5000/api/employer/jobs/${id}`
+				: 'http://localhost:5000/api/employer/jobs';
+			
+			const method = isEditMode ? 'PUT' : 'POST';
+
+			const data = await safeApiCall(url, {
+				method: method,
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				},
+				body: JSON.stringify(jobData)
+			});
+
+			if (data.success) {
+				localStorage.removeItem('draft_ctc');
+				const jobId = data.job?._id || data.jobId || id;
+				
+				if (!jobId) {
+					showError('Could not retrieve job ID. Please try again.');
+					return;
+				}
+
+				showSuccess('Job posted successfully! Redirecting to schedule interviews...');
+				setTimeout(() => {
+					window.location.href = `https://schedule.taleglobal.net/interview/?jobId=${jobId}&applicationId=`;
+				}, 1500);
+			} else {
+				showError(data.message || 'Failed to post job');
+			}
+		} catch (error) {
+			if (error.name === 'AuthError') {
+				showWarning('Session expired. Please login again.');
+				localStorage.removeItem('employerToken');
+				window.location.href = '/login';
+				return;
+			}
+			
+			const errorMessage = getErrorMessage(error, 'profile');
+			showError(errorMessage);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
 	const handleSubmitClick = () => {
 		if (isSubmitting) return;
 		
@@ -979,11 +1106,16 @@ export default function EmpPostJob({ onNext }) {
 			return;
 		}
 		
-		// Show confirmation modal
+		setIsScheduleMeeting(hasSchedulableInterviewType());
 		setShowConfirmModal(true);
 	};
 	
 	const submitNext = async () => {
+		if (isScheduleMeeting) {
+			submitJobAndRedirectToSchedule();
+			return;
+		}
+
 		setShowConfirmModal(false);
 		
 		try {
@@ -3477,7 +3609,7 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					{/* Interview Round Details - Only show for non-assessment rounds */}
-					{formData.interviewRoundOrder.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment').length > 0 && (
+					{false && formData.interviewRoundOrder.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment').length > 0 && (
 						<>
 						<div style={fullRow}>
 							<h4 style={{ margin: "16px 0 12px 0", fontSize: 15, color: "#0f172a" }}>
@@ -3697,7 +3829,7 @@ export default function EmpPostJob({ onNext }) {
 					)}
 
 					{/* Interview Schedule Summary */}
-					{formData.interviewRoundOrder.length > 0 && (
+					{false && formData.interviewRoundOrder.length > 0 && (
 						<div style={fullRow}>
 							<div style={{
 								padding: 16,
@@ -3934,7 +4066,13 @@ export default function EmpPostJob({ onNext }) {
 				gap: 16,
 			}}>
 				<button
-					onClick={handleSubmitClick}
+					onClick={() => {
+						if (hasSchedulableInterviewType()) {
+							handleSubmitClick();
+						} else {
+							handleSubmitClick();
+						}
+					}}
 					style={{
 						background: "transparent",
 						color: "#ff6b35",
@@ -3967,6 +4105,11 @@ export default function EmpPostJob({ onNext }) {
 						<>
 							<i className="fa fa-save"></i>
 							Update Job
+						</>
+					) : hasSchedulableInterviewType() ? (
+						<>
+							<i className="fa fa-calendar-check"></i>
+							Schedule Meeting
 						</>
 					) : (
 						<>
@@ -4003,20 +4146,24 @@ export default function EmpPostJob({ onNext }) {
 							<div style={{
 								width: 60,
 								height: 60,
-								background: '#fff3cd',
+								background: isScheduleMeeting ? '#dbeafe' : '#fff3cd',
 								borderRadius: '50%',
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',
 								margin: '0 auto 16px'
 							}}>
-								<i className="fa fa-exclamation-triangle" style={{fontSize: 28, color: '#ff6b35'}}></i>
+								<i className={isScheduleMeeting ? "fa fa-calendar-check" : "fa fa-exclamation-triangle"} style={{fontSize: 28, color: isScheduleMeeting ? '#2563eb' : '#ff6b35'}}></i>
 							</div>
-							<h3 style={{margin: 0, fontSize: 22, color: '#1f2937', fontWeight: 700}}>Confirm Submission</h3>
+							<h3 style={{margin: 0, fontSize: 22, color: '#1f2937', fontWeight: 700}}>
+								{isScheduleMeeting ? 'Schedule Interview' : 'Confirm Submission'}
+							</h3>
 						</div>
 						<p style={{fontSize: 15, color: '#4b5563', lineHeight: 1.6, marginBottom: 24, textAlign: 'center'}}>
 							{isEditMode 
 								? "Are you sure you want to update this job? Once updated, the changes will be reflected immediately."
+								: isScheduleMeeting
+								? "Are you sure you want to post this job and schedule interviews? You'll be redirected to the interview scheduling page."
 								: "Are you sure you want to submit this job? Once you submit, you won't be able to edit it. Please review all details carefully before proceeding."}
 						</p>
 						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
@@ -4054,7 +4201,7 @@ export default function EmpPostJob({ onNext }) {
 								onMouseEnter={(e) => e.currentTarget.style.background = '#e55a2b'}
 								onMouseLeave={(e) => e.currentTarget.style.background = '#ff6b35'}
 							>
-								{isEditMode ? 'Yes, Update' : 'Yes, Submit'}
+								{isEditMode ? 'Yes, Update' : isScheduleMeeting ? 'Yes, Schedule' : 'Yes, Submit'}
 							</button>
 						</div>
 					</div>

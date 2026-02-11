@@ -4,11 +4,37 @@ import JobZImage from "../../../common/jobz-img";
 import { NavLink, useLocation } from "react-router-dom";
 import { loadScript, setMenuActive } from "../../../../globals/constants";
 import { candidate, canRoute, publicUser } from "../../../../globals/route-names";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./can-sidebar.css";
 
 function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
   const currentpath = useLocation().pathname;
+  const [isPlacementCandidate, setIsPlacementCandidate] = useState(false);
+
+  useEffect(() => {
+    const checkPlacementStatus = async () => {
+      try {
+        const token = localStorage.getItem('candidateToken');
+        if (!token) return;
+
+        const response = await fetch('http://localhost:5000/api/candidate/dashboard/stats', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.candidate) {
+            const isPlacement = !!data.candidate.placement;
+            setIsPlacementCandidate(isPlacement);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking placement status:', error);
+      }
+    };
+
+    checkPlacementStatus();
+  }, []);
 
   const handleLinkClick = () => {
     if (isMobile && onLinkClick) {
@@ -66,12 +92,14 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
                 <span className="admin-nav-text">Support</span>
               </NavLink>
             </li>
-            <li className={setMenuActive(currentpath, canRoute(candidate.TRANSACTIONS))}>
-              <NavLink to={canRoute(candidate.TRANSACTIONS)} onClick={handleLinkClick}>
-                <i className="fa fa-receipt" />
-                <span className="admin-nav-text">Transactions</span>
-              </NavLink>
-            </li>
+            {!isPlacementCandidate && (
+              <li className={setMenuActive(currentpath, canRoute(candidate.TRANSACTIONS))}>
+                <NavLink to={canRoute(candidate.TRANSACTIONS)} onClick={handleLinkClick}>
+                  <i className="fa fa-receipt" />
+                  <span className="admin-nav-text">Transactions</span>
+                </NavLink>
+              </li>
+            )}
             <li>
               <a href="#" data-bs-toggle="modal" data-bs-target="#logout-dash-profile">
                 <i className="fa fa-share-square" />

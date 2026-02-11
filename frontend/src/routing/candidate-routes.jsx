@@ -1,6 +1,7 @@
 
 import { Route, Routes, Navigate } from "react-router-dom";
 import { candidate } from "../globals/route-names";
+import { useState, useEffect } from "react";
 import CanDashboardPage from "../app/pannels/candidate/components/can-dashboard";
 import CanProfilePage from "../app/pannels/candidate/components/can-profile";
 import CanAppliedJobs from "../app/pannels/candidate/components/can-applied-jobs";
@@ -19,6 +20,49 @@ import StartAssessment from "../app/pannels/candidate/pages/start-tech-assessmen
 import AssessmentResults from "../app/pannels/candidate/pages/assessment-result";
 import CanSupport from "../app/pannels/candidate/components/can-support";
 import CanTransactionsPage from "../app/pannels/candidate/components/can-transactions";
+
+// Component to protect transactions route from placement candidates
+function ProtectedTransactions() {
+	const [isPlacementCandidate, setIsPlacementCandidate] = useState(null);
+
+	useEffect(() => {
+		const checkPlacementStatus = async () => {
+			try {
+				const token = localStorage.getItem('candidateToken');
+				if (!token) {
+					setIsPlacementCandidate(false);
+					return;
+				}
+
+				const response = await fetch('http://localhost:5000/api/candidate/dashboard/stats', {
+					headers: { 'Authorization': `Bearer ${token}` }
+				});
+
+				if (response.ok) {
+					const data = await response.json();
+					if (data.success && data.candidate) {
+						setIsPlacementCandidate(!!data.candidate.placement);
+						return;
+					}
+				}
+				setIsPlacementCandidate(false);
+			} catch (error) {
+				setIsPlacementCandidate(false);
+			}
+		};
+
+		checkPlacementStatus();
+	}, []);
+
+	if (isPlacementCandidate === null) {
+		return <div>Loading...</div>;
+	}
+	
+	if (isPlacementCandidate) {
+		return <Navigate to="/candidate/dashboard" replace />;
+	}
+	return <CanTransactionsPage />;
+}
 
 function CandidateRoutes() {
     return (
@@ -48,7 +92,7 @@ function CandidateRoutes() {
 				/>
 				<Route path={candidate.CHAT} element={<CanChatPage />} />
 				<Route path={candidate.SUPPORT} element={<CanSupport />} />
-				<Route path={candidate.TRANSACTIONS} element={<CanTransactionsPage />} />
+				<Route path={candidate.TRANSACTIONS} element={<ProtectedTransactions />} />
 				<Route path="*" element={<Error404Page />} />
 			</Routes>
 		);

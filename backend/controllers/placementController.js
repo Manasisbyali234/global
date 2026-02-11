@@ -1169,8 +1169,8 @@ exports.rejectFile = async (req, res) => {
         message: `Your uploaded file "${displayName}" has been rejected. Reason: ${rejectionReason || 'No reason provided'}. You can resubmit a corrected version.`,
         type: 'file_rejected',
         role: 'placement',
-        placementId: placementId,
-        relatedId: placementId,
+        placementId: new mongoose.Types.ObjectId(placementId),
+        relatedId: new mongoose.Types.ObjectId(placementId),
         createdBy: req.user?.id || 'admin'
       });
     } catch (notifError) {
