@@ -1595,8 +1595,14 @@ exports.updateProfile = async (req, res) => {
     
     const updateData = {};
     
-    // Primary info (name, firstName, lastName, phone) should NOT be editable by the user
-    // They are auto-fetched from signup/admin records
+    // Update firstName and lastName
+    if (firstName) updateData.firstName = firstName.trim();
+    if (lastName) updateData.lastName = lastName.trim();
+    
+    // Update name field by combining firstName and lastName
+    if (firstName && lastName) {
+      updateData.name = `${firstName.trim()} ${lastName.trim()}`;
+    }
     
     if (collegeName) updateData.collegeName = collegeName.trim();
     if (collegeAddress) updateData.collegeAddress = collegeAddress.trim();
