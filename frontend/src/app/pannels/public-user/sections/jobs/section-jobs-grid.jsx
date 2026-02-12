@@ -119,7 +119,9 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                     const jobList = data.jobs || [];
                     setJobs(jobList);
                     setTotalPages(data.totalPages || 1);
-                    onTotalChange?.(data.totalCount || jobList.length);
+                    const totalCount = data.totalCount || data.total || jobList.length;
+                    console.log('Total jobs count:', totalCount);
+                    onTotalChange?.(totalCount);
                 } else {
                     setJobs([]);
                     setTotalPages(1);
