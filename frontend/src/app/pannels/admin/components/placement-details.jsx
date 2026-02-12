@@ -565,22 +565,7 @@ function PlacementDetails() {
                                     {placement.collegeOfficialPhone || 'Not Available'}
                                 </p>
                             </div>
-                            <div className="col-md-6 mb-3">
-                                <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>ID Card</h4>
-                                <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
-                                    {placement.idCard ? (
-                                        <>
-                                            <i className="fa fa-id-card me-2"></i>
-                                            Uploaded
-                                        </>
-                                    ) : (
-                                        <>
-                                            <i className="fa fa-id-card me-2"></i>
-                                            Not Uploaded
-                                        </>
-                                    )}
-                                </p>
-                            </div>
+
                             <div className="col-md-6 mb-3">
                                 <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>College Official Email ID</h4>
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
