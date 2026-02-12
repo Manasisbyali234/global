@@ -875,8 +875,7 @@ export default function EmpPostJob({ onNext }) {
 				const details = formData.interviewRoundDetails[uniqueKey];
 				const roundNames = {
 					technical: 'Technical',
-					oneOnOne: 'One – On – One',
-					panel: 'Panel',
+					oneOnOnePanel: 'One – On – One / Panel',
 					group: 'Group',
 					situational: 'Situational / Behavioral',
 					assessment: 'MCQ/Aptitude/Assessment Schedule',
@@ -967,9 +966,7 @@ export default function EmpPostJob({ onNext }) {
 	};
 
 	const hasSchedulableInterviewType = () => {
-		const hasOneOnOne = formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'oneOnOne');
-		const hasPanel = formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'panel');
-		return hasOneOnOne || hasPanel;
+		return formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'oneOnOnePanel');
 	};
 
 	const submitJobAndRedirectToSchedule = async () => {
@@ -2777,8 +2774,7 @@ export default function EmpPostJob({ onNext }) {
 						>
 							<option value="">-- Select Round Type --</option>
 							<option value="assessment">MCQ/Aptitude/Assessment</option>
-							<option value="oneOnOne">One – On – One</option>
-							<option value="panel">Panel</option>
+							<option value="oneOnOnePanel">One – On – One / Panel</option>
 							<option value="group">Group</option>
 							<option value="technical">Technical</option>
 							<option value="situational">Situational / Behavioral</option>
@@ -2863,8 +2859,7 @@ export default function EmpPostJob({ onNext }) {
 								const roundType = formData.interviewRoundTypes[uniqueKey];
 								const roundNames = {
 									technical: 'Technical',
-									oneOnOne: 'One – On – One',
-									panel: 'Panel',
+									oneOnOnePanel: 'One – On – One / Panel',
 									group: 'Group',
 									situational: 'Situational / Behavioral',
 									assessment: 'MCQ/Aptitude/Assessment Schedule',
@@ -3609,20 +3604,19 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					{/* Interview Round Details - Only show for non-assessment rounds */}
-					{false && formData.interviewRoundOrder.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment').length > 0 && (
+					{formData.interviewRoundOrder.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment' && formData.interviewRoundTypes[uniqueKey] !== 'oneOnOnePanel').length > 0 && (
 						<>
 						<div style={fullRow}>
 							<h4 style={{ margin: "16px 0 12px 0", fontSize: 15, color: "#0f172a" }}>
 								Interview Round Details
 							</h4>
 							{formData.interviewRoundOrder
-								.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment')
+								.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment' && formData.interviewRoundTypes[uniqueKey] !== 'oneOnOnePanel')
 								.map((uniqueKey, index) => {
 									const roundType = formData.interviewRoundTypes[uniqueKey];
 									const roundNames = {
 										technical: 'Technical',
-										oneOnOne: 'One – On – One',
-										panel: 'Panel',
+										oneOnOnePanel: 'One – On – One / Panel',
 										group: 'Group',
 										situational: 'Situational / Behavioral',
 										assessment: 'Assessment',
@@ -3856,8 +3850,7 @@ export default function EmpPostJob({ onNext }) {
 										const details = formData.interviewRoundDetails[uniqueKey];
 										const roundNames = {
 											technical: 'Technical',
-											oneOnOne: 'One – On – One',
-											panel: 'Panel',
+											oneOnOnePanel: 'One – On – One / Panel',
 											group: 'Group',
 											situational: 'Situational / Behavioral',
 											assessment: 'Assessment',
