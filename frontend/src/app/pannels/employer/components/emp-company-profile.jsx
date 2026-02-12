@@ -1013,9 +1013,16 @@ function EmpCompanyProfilePage() {
             profileData.contactMobile = formData.contactMobileCountryCode + formData.contactMobile;
             profileData.alternateContact = formData.alternateContactCountryCode + formData.alternateContact;
 
-            // Explicitly ensure whyJoinUs and googleMapsEmbed are included
-            profileData.whyJoinUs = formData.whyJoinUs || '';
-            profileData.googleMapsEmbed = formData.googleMapsEmbed || '';
+            // Strip HTML tags from rich text fields before sending
+            const stripHtml = (html) => {
+                if (!html) return '';
+                return html.replace(/<[^>]*>/g, '').trim();
+            };
+            
+            // Explicitly ensure whyJoinUs, googleMapsEmbed, and description are plain text
+            profileData.description = stripHtml(formData.description) || '';
+            profileData.whyJoinUs = stripHtml(formData.whyJoinUs) || '';
+            profileData.googleMapsEmbed = stripHtml(formData.googleMapsEmbed) || '';
 
             // Remove Base64 encoded files and UI-only fields from the request (these are uploaded separately)
             delete profileData.logo;

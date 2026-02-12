@@ -172,11 +172,9 @@ exports.updateProfile = async (req, res) => {
       if (req.body[field] !== undefined) {
         let value = req.body[field];
         if (typeof value === 'string') {
-          // Decode HTML entities if present
-          if (value.includes('&lt;')) {
-            value = value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-          }
-          // Strip HTML tags to store plain text only
+          // First decode HTML entities
+          value = value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+          // Then strip all HTML tags
           value = value.replace(/<[^>]*>/g, '').trim();
         }
         setOperations[field] = value;
