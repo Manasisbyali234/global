@@ -324,6 +324,7 @@ export default function EmpPostJob({ onNext }) {
 	const [showEducationDropdown, setShowEducationDropdown] = useState(false);
 	const [approvedCompanies, setApprovedCompanies] = useState([]);
 	const [applicationLimitWarning, setApplicationLimitWarning] = useState('');
+	const [ctcFormatError, setCtcFormatError] = useState('');
 	const [validationRules] = useState({
 		jobTitle: { required: true, minLength: 3 },
 		category: { required: true },
@@ -331,7 +332,11 @@ export default function EmpPostJob({ onNext }) {
 		typeOfEmployment: { required: true },
 		workMode: { required: true },
 		shift: { required: true },
-		ctc: { required: true },
+		ctc: { 
+			required: true, 
+			pattern: /^(\d+(?:\.\d+)?|\d+(?:\.\d+)?-\d+(?:\.\d+)?)$/,
+			patternMessage: 'Enter CTC as number (e.g., 8) or range (e.g., 6-8) in lakhs. Max value is 500.'
+		},
 		netSalary: { required: true },
 		jobLocation: { required: true },
 		vacancies: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
@@ -830,6 +835,11 @@ export default function EmpPostJob({ onNext }) {
 		const errorMessages = [];
 		const isSchedulingMeeting = hasSchedulableInterviewType();
 
+		// Check for CTC format error
+		if (ctcFormatError) {
+			newErrors.ctc = [ctcFormatError];
+		}
+
 		// Basic validation using validation rules
 		const basicErrors = validateForm(formData, validationRules);
 		Object.assign(newErrors, basicErrors);
@@ -1087,6 +1097,17 @@ export default function EmpPostJob({ onNext }) {
 
 	const handleSubmitClick = () => {
 		if (isSubmitting) return;
+		
+		// Check for CTC format error first
+		if (ctcFormatError) {
+			showError('Please fix the CTC format error before submitting.');
+			const ctcInput = document.querySelector('input[placeholder="e.g., 8 or 6-8"]');
+			if (ctcInput) {
+				ctcInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				ctcInput.focus();
+			}
+			return;
+		}
 		
 		// Validate form first
 		if (!validateJobForm()) {
@@ -2041,31 +2062,79 @@ export default function EmpPostJob({ onNext }) {
 						<input
 							style={{
 								...input,
-								borderColor: errors.ctc ? '#dc2626' : '#d1d5db'
+								borderColor: errors.ctc || ctcFormatError ? '#dc2626' : '#d1d5db'
 							}}
-							className={errors.ctc ? 'is-invalid' : ''}
-							placeholder="e.g., 8 L.P.A or 6-8 L.P.A"
+							className={errors.ctc || ctcFormatError ? 'is-invalid' : ''}
+							placeholder="e.g., 8 or 6-8"
 							value={formData.ctc || ''}
 							onChange={(e) => {
 								const value = e.target.value;
-								update({ ctc: value });
-								// Trigger auto-calculation immediately
+								let error = '';
+								
 								if (value.trim()) {
+									// Check for invalid characters like commas
+									if (/[,]/.test(value)) {
+										error = 'Commas are not allowed. Use format: 8 or 6-8';
+									} else {
+										// Check for valid format
+										const ctcPattern = /^(\d+(?:\.\d+)?|\d+(?:\.\d+)?-\d+(?:\.\d+)?)$/;
+										if (!ctcPattern.test(value)) {
+											error = 'Enter CTC as number (e.g., 8) or range (e.g., 6-8)';
+										} else {
+											// Validate the actual values
+											if (value.includes('-')) {
+												const [minStr, maxStr] = value.split('-');
+												const minVal = parseFloat(minStr);
+												const maxVal = parseFloat(maxStr);
+												
+												// Check for unrealistic numbers (numbers > 500 are likely in rupees not lakhs)
+												if (minVal > 500 || maxVal > 500) {
+													error = 'CTC must be in lakhs (e.g., 8 = 8 L.P.A). Numbers > 500 are not allowed.';
+												}
+												// Check min < max
+												else if (minVal >= maxVal) {
+													error = 'Minimum CTC must be less than maximum CTC';
+												}
+												// Check reasonable range
+												else if (minVal < 0.5 || maxVal < 0.5) {
+													error = 'CTC must be at least 0.5 lakhs';
+												}
+											} else {
+												const ctcVal = parseFloat(value);
+												
+												// Check for unrealistic numbers (numbers > 500 are likely in rupees not lakhs)
+												if (ctcVal > 500) {
+													error = 'CTC must be in lakhs (e.g., 8 = 8 L.P.A). Numbers > 500 are not allowed.';
+												}
+												// Check minimum
+												else if (ctcVal < 0.5) {
+													error = 'CTC must be at least 0.5 lakhs';
+												}
+											}
+										}
+									}
+								}
+								
+								setCtcFormatError(error);
+								update({ ctc: value });
+								
+								// Trigger auto-calculation immediately only if no error
+								if (value.trim() && !error) {
 									autoSaveCTC(value);
-								} else {
+								} else if (!value.trim()) {
 									// Clear net salary when CTC is cleared
 									update({ netSalary: '' });
 								}
 							}}
 						/>
-						{errors.ctc && (
+						{(errors.ctc || ctcFormatError) && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
 								<i className="fa fa-exclamation-circle"></i>
-								{errors.ctc[0]}
+								{ctcFormatError || errors.ctc?.[0] || 'Invalid CTC format'}
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Enter annual CTC in lakhs (e.g., 8 or 6-8) - Net salary will auto-calculate
+							Enter CTC in lakhs only (e.g., 8 = 8 LPA, 6-8 = 6-8 LPA). Do not enter: 800000, 12,00,000, etc. Max value: 500
 						</small>
 					</div>
 
@@ -2146,7 +2215,7 @@ export default function EmpPostJob({ onNext }) {
 						<input
 							style={{
 								...input,
-								borderColor: errors.applicationLimit ? '#dc2626' : (applicationLimitWarning ? '#f59e0b' : '#d1d5db')
+								borderColor: errors.applicationLimit || applicationLimitWarning ? '#dc2626' : '#d1d5db'
 							}}
 							className={errors.applicationLimit ? 'is-invalid' : ''}
 							type="number"
@@ -2174,8 +2243,8 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						{applicationLimitWarning && !errors.applicationLimit && (
-							<div style={{color: '#f59e0b', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
-								<i className="fa fa-exclamation-triangle"></i>
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
 								{applicationLimitWarning}
 							</div>
 						)}
