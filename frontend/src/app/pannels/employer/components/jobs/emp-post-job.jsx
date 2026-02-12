@@ -323,6 +323,7 @@ export default function EmpPostJob({ onNext }) {
 	const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 	const [showEducationDropdown, setShowEducationDropdown] = useState(false);
 	const [approvedCompanies, setApprovedCompanies] = useState([]);
+	const [applicationLimitWarning, setApplicationLimitWarning] = useState('');
 	const [validationRules] = useState({
 		jobTitle: { required: true, minLength: 3 },
 		category: { required: true },
@@ -1064,7 +1065,7 @@ export default function EmpPostJob({ onNext }) {
 
 				showSuccess('Job posted successfully! Redirecting to schedule interviews...');
 				setTimeout(() => {
-					window.location.href = `https://schedule.taleglobal.net/interview/?jobId=${jobId}&applicationId=`;
+					window.location.href = `https://schedule.taleglobal.net/interview/?jobId=${jobId}`;
 				}, 1500);
 			} else {
 				showError(data.message || 'Failed to post job');
@@ -2145,7 +2146,7 @@ export default function EmpPostJob({ onNext }) {
 						<input
 							style={{
 								...input,
-								borderColor: errors.applicationLimit ? '#dc2626' : '#d1d5db'
+								borderColor: errors.applicationLimit ? '#dc2626' : (applicationLimitWarning ? '#f59e0b' : '#d1d5db')
 							}}
 							className={errors.applicationLimit ? 'is-invalid' : ''}
 							type="number"
@@ -2156,9 +2157,11 @@ export default function EmpPostJob({ onNext }) {
 								const applicationLimit = parseInt(e.target.value) || 0;
 								const vacancies = parseInt(formData.vacancies) || 0;
 								
-								// Only show popup if application limit is less than vacancies
+								// Set warning if application limit is less than vacancies
 								if (applicationLimit > 0 && vacancies > 0 && applicationLimit < vacancies) {
-									showWarning(`Warning: Application limit (${applicationLimit}) is less than number of vacancies (${vacancies}). Consider setting it to at least ${vacancies} for better hiring outcomes.`);
+									setApplicationLimitWarning(`Warning: Application limit (${applicationLimit}) is less than number of vacancies (${vacancies}). Consider setting it to at least ${vacancies} for better hiring outcomes.`);
+								} else {
+									setApplicationLimitWarning('');
 								}
 								
 								update({ applicationLimit: e.target.value });
@@ -2168,6 +2171,12 @@ export default function EmpPostJob({ onNext }) {
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
 								<i className="fa fa-exclamation-circle"></i>
 								{errors.applicationLimit[0]}
+							</div>
+						)}
+						{applicationLimitWarning && !errors.applicationLimit && (
+							<div style={{color: '#f59e0b', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-triangle"></i>
+								{applicationLimitWarning}
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
