@@ -970,12 +970,19 @@ exports.processFileApproval = async (req, res) => {
         const row = jsonData[index];
         const email = row.Email || row.email || row.EMAIL;
         const password = row.Password || row.password || row.PASSWORD;
-        const name = row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['full name'] || row['FULL NAME'] || row['Student Name'] || row['student name'] || row['STUDENT NAME'];
+        let name = row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['full name'] || row['FULL NAME'] || row['Student Name'] || row['student name'] || row['STUDENT NAME'];
         const phone = row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE;
         const course = row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH;
         const collegeName = row['College Name'] || row['college name'] || row['COLLEGE NAME'] || row.College || row.college || row.COLLEGE || placement.collegeName;
         
-
+        // If name is missing or empty, generate from email or use default
+        if (!name || !name.trim()) {
+          if (email && email.includes('@')) {
+            name = email.split('@')[0].replace(/[._-]/g, ' ');
+          } else {
+            name = `Student ${index + 1}`;
+          }
+        }
         
         // Check if user already exists in any role
         const existingUser = await checkEmailExists(email);
@@ -990,7 +997,7 @@ exports.processFileApproval = async (req, res) => {
         
         // Create candidate with plain text password for placement method
         const candidate = await Candidate.create({
-          name: name ? name.trim() : '',
+          name: name.trim(),
           email: email ? email.trim().toLowerCase() : '',
           password: password ? password.trim() : `pwd${Math.random().toString(36).substr(2, 8)}`, // Auto-generate if missing
           phone: phone ? phone.toString().trim() : '',
