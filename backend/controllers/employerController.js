@@ -170,7 +170,12 @@ exports.updateProfile = async (req, res) => {
     
     textFieldsToPreserve.forEach(field => {
       if (req.body[field] !== undefined) {
-        setOperations[field] = req.body[field];
+        // Decode HTML entities if present
+        let value = req.body[field];
+        if (typeof value === 'string' && value.includes('&lt;')) {
+          value = value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+        }
+        setOperations[field] = value;
       }
     });
     
