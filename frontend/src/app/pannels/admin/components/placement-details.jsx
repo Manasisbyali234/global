@@ -588,6 +588,15 @@ function PlacementDetails() {
                                     {placement.collegeOfficialEmail || 'Not Available'}
                                 </p>
                             </div>
+                            {placement.additionalOfficialEmail && (
+                                <div className="col-md-6 mb-3">
+                                    <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>Additional College Official Email</h4>
+                                    <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
+                                        <i className="fa fa-envelope me-2" style={{color: '#fd7e14'}}></i>
+                                        {placement.additionalOfficialEmail}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                         </div>
                         </div>
@@ -1036,7 +1045,7 @@ function PlacementDetails() {
                         <div className="text-center">
                             <i className="fa fa-upload fa-2x text-warning mb-2"></i>
                             <p className="mb-0 text-muted">No Excel/CSV files uploaded yet</p>
-                            <small className="text-muted">Files must contain: ID | Candidate Name | College Name | Email | Phone | Course | Password | Credits Assigned</small>
+                            <small className="text-muted">Files must contain: ID |  Candidate Name |  Email | Phone Number </small>
                         </div>
                     </div>
                 )}
