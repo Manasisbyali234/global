@@ -965,8 +965,8 @@
     max-width: 100px !important;
 }
 
-.action-buttons-container .text-success {
-    font-size: 0.9rem !important;
+.documents-table .action-buttons-container .text-success {
+    font-size: 1rem !important;
     font-weight: 600 !important;
 }
 

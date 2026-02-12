@@ -370,13 +370,12 @@ function EmpDashboardPage() {
                                 borderRadius: '0.75rem',
                                 border: '1px solid #e5e7eb',
                                 padding: isMobile ? '1rem' : '1.5rem',
-                                height: '100%',
                                 display: 'flex',
                                 flexDirection: 'column'
                             }}>
-                                <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#111827', marginBottom: '1rem' }}>Notifications</h3>
+                                <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#111827', marginBottom: '1.5rem' }}>Notifications</h3>
                                 
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: '1', overflowY: 'auto', maxHeight: '240px' }}>
                                     {notifications.length > 0 ? notifications.slice(0, 5).map((notification, index) => {
                                         const isDocumentNotification = notification.type === 'document_approved' || notification.type === 'document_rejected';
                                         const isApproved = notification.type === 'document_approved' || notification.title?.includes('Approved');
@@ -422,12 +421,10 @@ function EmpDashboardPage() {
                                                         color: '#6b7280', 
                                                         margin: '0 0 0.25rem 0',
                                                         lineHeight: '1.4',
-                                                        wordBreak: 'break-word'
+                                                        wordBreak: 'break-word',
+                                                        display: hoveredId === notification._id ? 'block' : 'none'
                                                     }}>
-                                                        {notification.message.length > 100 ? 
-                                                            `${notification.message.substring(0, 100)}...` : 
-                                                            notification.message
-                                                        }
+                                                        {notification.message}
                                                     </p>
                                                     <p style={{ 
                                                         fontSize: '0.75rem', 

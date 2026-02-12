@@ -1425,6 +1425,12 @@ function EmpCompanyProfilePage() {
                                         className="form-control-editor"
                                     />
                                     <small className="text-muted mt-1">Use the toolbar above to format your company description with bold, italic, lists, and alignment options.</small>
+                                    {formData.description && (
+                                        <div className="mt-3 p-3 border rounded" style={{backgroundColor: '#f8f9fa'}}>
+                                            <h6 className="text-muted mb-2">Preview:</h6>
+                                            <div dangerouslySetInnerHTML={{ __html: formData.description }} />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
