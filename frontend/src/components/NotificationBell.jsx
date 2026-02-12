@@ -167,7 +167,7 @@ const NotificationBell = ({ userRole }) => {
             position: 'absolute',
             top: '0',
             right: '0',
-            background: '#ff4444',
+            backgroundColor: '#ff4444',
             color: 'white',
             borderRadius: '50%',
             width: '18px',
@@ -175,7 +175,9 @@ const NotificationBell = ({ userRole }) => {
             fontSize: '12px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            zIndex: 10,
+            opacity: 1
           }}>
             {unreadCount}
           </span>

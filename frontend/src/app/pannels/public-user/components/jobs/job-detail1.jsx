@@ -7,6 +7,7 @@ import ApplyJobPopup from "../../../../common/popups/popup-apply-job";
 import SectionShareProfile from "../../sections/common/section-share-profile";
 import SectionJobsSidebar2 from "../../sections/jobs/sidebar/section-jobs-sidebar2";
 import TermsModal from "../../../../../components/TermsModal";
+import { pendingPaymentManager } from '../../../../../utils/pendingPaymentManager';
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
 import "../../../../../job-detail-section-spacing.css";
@@ -28,6 +29,8 @@ function JobDetail1Page() {
     const [pendingJobApplication, setPendingJobApplication] = useState(false);
     const [razorpayKey, setRazorpayKey] = useState(null);
     const [candidateData, setCandidateData] = useState(null);
+    const [pendingPayment, setPendingPayment] = useState(null);
+    const [showPendingPaymentBanner, setShowPendingPaymentBanner] = useState(false);
 
     const authState = useMemo(() => {
         const token = localStorage.getItem('candidateToken');
@@ -155,6 +158,14 @@ function JobDetail1Page() {
         window.addEventListener('scroll', throttledScroll, { passive: true });
         return () => window.removeEventListener('scroll', throttledScroll);
     }, [jobId, handleScroll, fetchJobDetails]);
+
+    useEffect(() => {
+        const pending = pendingPaymentManager.getPendingPayment();
+        if (pending) {
+            setPendingPayment(pending);
+            setShowPendingPaymentBanner(true);
+        }
+    }, []);
 
     if (loading) {
         return (
@@ -294,6 +305,14 @@ function JobDetail1Page() {
                 return;
             }
 
+            // Store pending payment state before opening Razorpay
+            pendingPaymentManager.setPendingPayment(jobId, orderData.order.id, orderData.order);
+            setPendingPayment({
+                jobId,
+                orderId: orderData.order.id,
+                orderData: orderData.order
+            });
+
             // 2. Open Razorpay Checkout
             const options = {
                 key: razorpayKey,
@@ -321,6 +340,8 @@ function JobDetail1Page() {
                         
                         if (verifyData.success) {
                             setHasApplied(true);
+                            pendingPaymentManager.clearPendingPayment();
+                            setShowPendingPaymentBanner(false);
                             showSuccess('Payment successful and application submitted!');
                             await checkApplicationStatus();
                             fetchJobDetails();
@@ -350,6 +371,73 @@ function JobDetail1Page() {
         }
     };
 
+    const resumePendingPayment = async () => {
+        try {
+            if (!pendingPayment || !pendingPayment.orderData) {
+                showError('Pending payment data not found');
+                return;
+            }
+
+            const token = localStorage.getItem('candidateToken');
+            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+
+            const options = {
+                key: razorpayKey,
+                amount: pendingPayment.orderData.amount,
+                currency: pendingPayment.orderData.currency,
+                name: 'TaleGlobal',
+                description: `Job Application fee for ${job.title}`,
+                order_id: pendingPayment.orderId,
+                handler: async (response) => {
+                    try {
+                        const verifyResponse = await fetch(`${baseUrl}/api/payments/verify-payment`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                ...response,
+                                jobId: pendingPayment.jobId,
+                                coverLetter: "" 
+                            })
+                        });
+                        const verifyData = await verifyResponse.json();
+                        
+                        if (verifyData.success) {
+                            setHasApplied(true);
+                            pendingPaymentManager.clearPendingPayment();
+                            setShowPendingPaymentBanner(false);
+                            setPendingPayment(null);
+                            showSuccess('Payment successful and application submitted!');
+                            await checkApplicationStatus();
+                            fetchJobDetails();
+                        } else {
+                            showError(verifyData.message || 'Payment verification failed');
+                        }
+                    } catch (error) {
+                        console.error('Error verifying payment:', error);
+                        showError('Payment verification failed');
+                    }
+                },
+                modal: {
+                    ondismiss: function() {
+                        checkApplicationStatus();
+                    }
+                },
+                theme: {
+                    color: '#ff6b35'
+                }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+        } catch (error) {
+            console.error('Error resuming payment:', error);
+            showError('Failed to resume payment');
+        }
+    };
+
     const handleApplyClick = async () => {
         if (isEnded) return;
         if (!isLoggedIn) {
@@ -369,6 +457,78 @@ function JobDetail1Page() {
     return (
         <>
             <div className="scroll-progress" style={{width: `${scrollProgress}%`}}></div>
+            
+            {showPendingPaymentBanner && pendingPayment && (
+                <div style={{
+                    backgroundColor: '#fff3cd',
+                    borderBottom: '2px solid #ffc107',
+                    padding: '16px 20px',
+                    margin: 0,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '12px'
+                }}>
+                    <div style={{flex: 1, minWidth: '200px'}}>
+                        <h5 style={{margin: '0 0 8px 0', color: '#856404', fontWeight: '600', fontSize: '16px'}}>
+                            <i className="feather-alert-triangle" style={{marginRight: '8px'}}></i>
+                            Pending Payment
+                        </h5>
+                        <p style={{margin: '0', color: '#856404', fontSize: '14px'}}>
+                            You have an incomplete payment for a job application. Click "Resume Payment" to complete it.
+                        </p>
+                    </div>
+                    <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
+                        <button 
+                            onClick={resumePendingPayment}
+                            style={{
+                                backgroundColor: '#ffc107',
+                                color: '#000',
+                                border: 'none',
+                                padding: '10px 20px',
+                                borderRadius: '4px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                transition: 'background-color 0.3s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#e0a800'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = '#ffc107'}
+                        >
+                            Resume Payment
+                        </button>
+                        <button 
+                            onClick={() => {
+                                pendingPaymentManager.clearPendingPayment();
+                                setShowPendingPaymentBanner(false);
+                                setPendingPayment(null);
+                            }}
+                            style={{
+                                backgroundColor: 'transparent',
+                                color: '#856404',
+                                border: '1px solid #856404',
+                                padding: '10px 20px',
+                                borderRadius: '4px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                transition: 'all 0.3s'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = '#856404';
+                                e.target.style.color = '#fff';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = 'transparent';
+                                e.target.style.color = '#856404';
+                            }}
+                        >
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+            )}
             
             <div className="section-full p-t120 p-b90 bg-white">
                 <div className="container">

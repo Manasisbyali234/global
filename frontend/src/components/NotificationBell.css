@@ -41,6 +41,13 @@
   animation: badge-pop 0.5s ease-in-out;
 }
 
+.notif-badge {
+  z-index: 10 !important;
+  opacity: 1 !important;
+  background-color: #ff4444 !important;
+  color: white !important;
+}
+
 .notification-dropdown {
   animation: dropdown-fade-in 0.3s ease-out;
   min-width: 320px !important;
