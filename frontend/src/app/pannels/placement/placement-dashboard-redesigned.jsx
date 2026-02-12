@@ -707,6 +707,12 @@ function PlacementDashboardRedesigned() {
                                                             <span>Official Email: {placementData.collegeOfficialEmail}</span>
                                                         </div>
                                                     )}
+                                                    {placementData?.additionalOfficialEmail && (
+                                                        <div className="contact-item">
+                                                            <i className="fa fa-envelope"></i>
+                                                            <span>Add Official Email: {placementData.additionalOfficialEmail}</span>
+                                                        </div>
+                                                    )}
                                                     {placementData?.collegeOfficialPhone && (
                                                         <div className="contact-item">
                                                             <i className="fa fa-phone-square"></i>
@@ -1423,7 +1429,7 @@ function PlacementDashboardRedesigned() {
                                     type="email"
                                     value={editFormData.additionalOfficialEmail || ''}
                                     onChange={(e) => setEditFormData({...editFormData, additionalOfficialEmail: e.target.value})}
-                                    placeholder="Enter additional college official email"
+                                    placeholder="Enter additional  college official email"
                                 />
                             </div>
                             <div className="form-group">

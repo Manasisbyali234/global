@@ -83,7 +83,7 @@ router.get('/profile', auth(['placement']), async (req, res) => {
     console.log('User object:', req.user);
     
     const placement = await Placement.findById(placementId)
-      .select('name firstName lastName email phone collegeName collegeAddress collegeOfficialEmail collegeOfficialPhone status logo idCard fileHistory credits')
+      .select('name firstName lastName email phone collegeName collegeAddress collegeOfficialEmail additionalOfficialEmail collegeOfficialPhone status logo idCard fileHistory credits')
       .lean();
     
     if (!placement) {
