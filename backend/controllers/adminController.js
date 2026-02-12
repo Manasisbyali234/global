@@ -1162,7 +1162,15 @@ exports.updatePlacementStatus = async (req, res) => {
   try {
     const { status, isApproved } = req.body;
 
+    // First, fetch the current placement to check its state
+    const currentPlacement = await Placement.findById(req.params.id);
+    if (!currentPlacement) {
+      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+    }
+
     const updateData = {};
+    let shouldSendEmail = false;
+
     if (status !== undefined) {
       const normalized = String(status).toLowerCase();
       if (normalized === 'approved') {
@@ -1183,6 +1191,14 @@ exports.updatePlacementStatus = async (req, res) => {
       updateData.status = 'active';
     }
     
+    // Determine if we should send the approval email
+    // Only send if: status is being set to 'active' AND email hasn't been sent yet
+    if ((updateData.status === 'active' || currentPlacement.status === 'active') && !currentPlacement.approvalEmailSent) {
+      shouldSendEmail = true;
+      updateData.approvalEmailSent = true;
+      updateData.approvalEmailSentAt = new Date();
+    }
+    
     const placement = await Placement.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -1193,8 +1209,8 @@ exports.updatePlacementStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Placement officer not found' });
     }
 
-    // Send approval email and create notification
-    if (updateData.status === 'active') {
+    // Send approval email and create notification only if it hasn't been sent before
+    if (shouldSendEmail) {
       try {
         const { sendApprovalEmail } = require('../utils/emailService');
         const placementName = placement.name || placement.firstName || 'Placement Officer';
@@ -1211,6 +1227,7 @@ exports.updatePlacementStatus = async (req, res) => {
         });
       } catch (notifError) {
         console.error('Failed to send approval email/notification:', notifError);
+        // Still mark as sent to prevent retries
       }
     }
 

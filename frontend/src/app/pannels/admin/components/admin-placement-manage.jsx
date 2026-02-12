@@ -15,6 +15,7 @@ function AdminPlacementOfficersAllRequest() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [statusFilter, setStatusFilter] = useState('pending');
+    const [processingId, setProcessingId] = useState(null);
 
     useEffect(() => {
         fetchPlacements();
@@ -86,22 +87,30 @@ function AdminPlacementOfficersAllRequest() {
     };
 
     const handleApprove = async (placementId) => {
+        if (processingId === placementId) return;
+        
+        setProcessingId(placementId);
         try {
             const response = await api.updatePlacementStatus(placementId, 'approved');
             if (response.success) {
                 const updatedPlacements = placements.filter(placement => placement._id !== placementId);
                 setPlacements(updatedPlacements);
                 applyFilters(updatedPlacements, statusFilter);
-                showSuccess('Placement officer approved successfully! Once approved, you cannot reject or retake this action.');
+                showSuccess('Placement officer approved successfully! Approval email sent. Once approved, you cannot reject or retake this action.');
             } else {
                 showError('Failed to approve placement officer');
             }
         } catch (error) {
             showError('Error approving placement officer');
+        } finally {
+            setProcessingId(null);
         }
     };
 
     const handleReject = async (placementId) => {
+        if (processingId === placementId) return;
+        
+        setProcessingId(placementId);
         try {
             const response = await api.updatePlacementStatus(placementId, 'rejected');
             if (response.success) {
@@ -114,6 +123,8 @@ function AdminPlacementOfficersAllRequest() {
             }
         } catch (error) {
             showError('Error rejecting placement officer');
+        } finally {
+            setProcessingId(null);
         }
     };
 
@@ -226,44 +237,62 @@ function AdminPlacementOfficersAllRequest() {
                                                     {(placement.status === 'pending' || (!placement.status && !placement.isApproved)) && (
                                                         <>
                                                             <button
+                                                                disabled={processingId === placement._id}
                                                                 style={{
                                                                     all: 'unset',
-                                                                    backgroundColor: 'rgba(255, 122, 0, 0.08)',
-                                                                    color: '#FF7A00',
-                                                                    border: '1px solid #FF7A00',
+                                                                    backgroundColor: processingId === placement._id ? 'rgba(200, 200, 200, 0.5)' : 'rgba(255, 122, 0, 0.08)',
+                                                                    color: processingId === placement._id ? '#999' : '#FF7A00',
+                                                                    border: processingId === placement._id ? '1px solid #ccc' : '1px solid #FF7A00',
                                                                     borderRadius: '6px',
                                                                     width: '70px',
                                                                     height: '28px',
                                                                     fontSize: '0.7rem',
                                                                     fontWeight: '600',
-                                                                    cursor: 'pointer',
+                                                                    cursor: processingId === placement._id ? 'not-allowed' : 'pointer',
                                                                     display: 'inline-block',
                                                                     textAlign: 'center',
-                                                                    lineHeight: '26px'
+                                                                    lineHeight: '26px',
+                                                                    transition: 'all 0.2s'
                                                                 }}
                                                                 onClick={() => handleApprove(placement._id)}
                                                             >
-                                                                Approve
+                                                                {processingId === placement._id ? (
+                                                                    <>
+                                                                        <i className="fa fa-spinner fa-spin" style={{marginRight: '4px'}}></i>
+                                                                        Processing...
+                                                                    </>
+                                                                ) : (
+                                                                    'Approve'
+                                                                )}
                                                             </button>
                                                             <button
+                                                                disabled={processingId === placement._id}
                                                                 style={{
                                                                     all: 'unset',
-                                                                    backgroundColor: 'rgba(255, 122, 0, 0.08)',
-                                                                    color: '#FF7A00',
-                                                                    border: '1px solid #FF7A00',
+                                                                    backgroundColor: processingId === placement._id ? 'rgba(200, 200, 200, 0.5)' : 'rgba(255, 122, 0, 0.08)',
+                                                                    color: processingId === placement._id ? '#999' : '#FF7A00',
+                                                                    border: processingId === placement._id ? '1px solid #ccc' : '1px solid #FF7A00',
                                                                     borderRadius: '6px',
                                                                     width: '70px',
                                                                     height: '28px',
                                                                     fontSize: '0.7rem',
                                                                     fontWeight: '600',
-                                                                    cursor: 'pointer',
+                                                                    cursor: processingId === placement._id ? 'not-allowed' : 'pointer',
                                                                     display: 'inline-block',
                                                                     textAlign: 'center',
-                                                                    lineHeight: '26px'
+                                                                    lineHeight: '26px',
+                                                                    transition: 'all 0.2s'
                                                                 }}
                                                                 onClick={() => handleReject(placement._id)}
                                                             >
-                                                                Reject
+                                                                {processingId === placement._id ? (
+                                                                    <>
+                                                                        <i className="fa fa-spinner fa-spin" style={{marginRight: '4px'}}></i>
+                                                                        Processing...
+                                                                    </>
+                                                                ) : (
+                                                                    'Reject'
+                                                                )}
                                                             </button>
                                                         </>
                                                     )}

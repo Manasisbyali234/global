@@ -31,6 +31,8 @@ const placementSchema = new mongoose.Schema({
   isApproved: { type: Boolean, default: false },
   approvedBy: { type: mongoose.Schema.Types.ObjectId, refPath: 'approvedByModel' },
   approvedByModel: { type: String, enum: ['Admin', 'SubAdmin'] },
+  approvalEmailSent: { type: Boolean, default: false },
+  approvalEmailSentAt: { type: Date },
 
   isProcessed: { type: Boolean, default: false },
   processedAt: { type: Date },
