@@ -208,7 +208,7 @@ function CanStatusPage() {
 		const getRoundNameFromKey = (key) => {
 			const roundNames = {
 				technical: 'Technical',
-				oneOnOne: 'One – On – One',
+				oneOnOne: 'One-to-One',
 				panel: 'Panel',
 				group: 'Group',
 				situational: 'Situational / Behavioral',
@@ -225,7 +225,7 @@ function CanStatusPage() {
 		const getProperRoundName = (stageType, stageName) => {
 			const roundNames = {
 				technical: 'Technical',
-				oneOnOne: 'One – On – One',
+				oneOnOne: 'One-to-One',
 				panel: 'Panel',
 				group: 'Group',
 				situational: 'Situational / Behavioral',
@@ -275,7 +275,7 @@ function CanStatusPage() {
 					const stageNames = {
 						assessment: 'Assessment',
 						technical: 'Technical',
-						oneOnOne: 'One – On – One',
+						oneOnOne: 'One-to-One',
 						panel: 'Panel',
 						group: 'Group',
 						situational: 'Situational / Behavioral',
@@ -319,7 +319,7 @@ function CanStatusPage() {
 			const rounds = [];
 			const stageNames = {
 				technical: 'Technical',
-				oneOnOne: 'One – On – One',
+				oneOnOne: 'One-to-One',
 				panel: 'Panel',
 				group: 'Group',
 				situational: 'Situational / Behavioral',
@@ -381,7 +381,7 @@ function CanStatusPage() {
 			const roundTypes = job.interviewRoundTypes;
 
 			if (job.assessmentId) rounds.push({ name: 'Assessment', uniqueKey: 'assessment', roundType: 'assessment' });
-			if (roundTypes.oneOnOne) rounds.push({ name: 'One – On – One', uniqueKey: 'oneOnOne', roundType: 'oneOnOne' });
+			if (roundTypes.oneOnOne) rounds.push({ name: 'One-to-One', uniqueKey: 'oneOnOne', roundType: 'oneOnOne' });
 			if (roundTypes.panel) rounds.push({ name: 'Panel', uniqueKey: 'panel', roundType: 'panel' });
 			if (roundTypes.group) rounds.push({ name: 'Group', uniqueKey: 'group', roundType: 'group' });
 			if (roundTypes.technical) rounds.push({ name: 'Technical', uniqueKey: 'technical', roundType: 'technical' });
@@ -712,7 +712,7 @@ function CanStatusPage() {
 																				if (isUniqueKey) {
 																					const stageNameMap = {
 																						technical: 'Technical',
-																						oneOnOne: 'One – On – One',
+																						oneOnOne: 'One-to-One',
 																						panel: 'Panel',
 																						group: 'Group',
 																						situational: 'Situational / Behavioral',
@@ -1016,7 +1016,7 @@ function CanStatusPage() {
 										if (roundName && (roundName.includes('_') || roundName.match(/^[0-9a-f]{24}$/i) || /^\d+$/.test(roundName))) {
 											const stageNameMap = {
 												technical: 'Technical',
-												oneOnOne: 'One – On – One',
+												oneOnOne: 'One-to-One',
 												panel: 'Panel',
 												group: 'Group',
 												situational: 'Situational / Behavioral',

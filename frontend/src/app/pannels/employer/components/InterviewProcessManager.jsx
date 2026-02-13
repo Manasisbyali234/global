@@ -22,7 +22,7 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
 
   const stageTypes = [
     { value: 'assessment', label: 'Assessment Schedule', icon: '📝' },
-    { value: 'oneOnOne', label: 'One – On – One', icon: '🤝' },
+    { value: 'oneOnOne', label: 'One-to-One', icon: '🤝' },
     { value: 'panel', label: 'Panel', icon: '👥' },
     { value: 'group', label: 'Group', icon: '👨‍👩‍👧‍👦' },
     { value: 'technical', label: 'Technical', icon: '💻' },
@@ -299,7 +299,7 @@ const InterviewProcessManager = ({ applicationId, onSave }) => {
           const stage = scheduledStages[0]; // Get first scheduled stage for message
           const stageNames = {
             technical: 'Technical',
-            oneOnOne: 'One – On – One',
+            oneOnOne: 'One-to-One',
             panel: 'Panel',
             group: 'Group',
             situational: 'Situational / Behavioral',

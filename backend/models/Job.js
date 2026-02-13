@@ -58,7 +58,7 @@ const jobSchema = new mongoose.Schema({
   },
   // Dynamic interview rounds for multiple instances
   dynamicInterviewRounds: [{
-    roundType: { type: String, enum: ['oneOnOne', 'panel', 'group', 'technical', 'situational', 'others', 'assessment'] },
+    roundType: { type: String, enum: ['oneOnOne', 'panel', 'oneOnOnePanel', 'group', 'technical', 'managerial', 'hr', 'situational', 'others', 'assessment'] },
     description: { type: String },
     fromDate: { type: Date },
     toDate: { type: Date },

@@ -295,7 +295,22 @@
     font-weight: 700;
     font-size: 18px;
     color: #212529;
+}
+
+.process-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     flex: 1;
+}
+
+.stage-number {
+    font-size: 11px;
+    font-weight: 800;
+    color: #FF7A00;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
 }
 
 .status-badge {
@@ -1546,4 +1561,42 @@
     .detail-item span {
         font-size: 0.9rem;
     }
+}
+
+.process-item.stage-disabled {
+    opacity: 0.7;
+    background-color: #f8f9fa;
+    position: relative;
+    border-style: dashed;
+}
+
+.process-item.stage-disabled select,
+.process-item.stage-disabled textarea,
+.process-item.stage-disabled input {
+    cursor: not-allowed;
+    background-color: #e9ecef;
+}
+
+.stage-locked-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 10px 15px;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 8px;
+    color: #856404;
+    font-size: 14px;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease;
+}
+
+.stage-locked-info i {
+    color: #856404;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }

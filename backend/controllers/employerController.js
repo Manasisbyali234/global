@@ -2134,7 +2134,10 @@ exports.scheduleInterviewRound = async (req, res) => {
     try {
       const roundNames = {
         technical: 'Technical',
-        oneOnOne: 'One – On – One',
+        managerial: 'Managerial Round',
+        hr: 'HR Round',
+        oneOnOne: 'One-to-One',
+        oneOnOnePanel: 'One-to-One / Panel',
         panel: 'Panel',
         group: 'Group',
         situational: 'Situational / Behavioral',
@@ -2167,7 +2170,7 @@ exports.scheduleInterviewRound = async (req, res) => {
       formattedMessage: (() => {
         const roundNames = {
           technical: 'Technical',
-          oneOnOne: 'One – On – One',
+          oneOnOne: 'One-to-One',
           panel: 'Panel',
           group: 'Group',
           situational: 'Situational / Behavioral',

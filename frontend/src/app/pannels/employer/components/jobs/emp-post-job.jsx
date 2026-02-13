@@ -318,7 +318,6 @@ export default function EmpPostJob({ onNext }) {
 	const [globalErrors, setGlobalErrors] = useState([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
-	const [isScheduleMeeting, setIsScheduleMeeting] = useState(false);
 	const [scheduledRounds, setScheduledRounds] = useState({});
 	const [locationSearchTerm, setLocationSearchTerm] = useState('');
 	const [showLocationDropdown, setShowLocationDropdown] = useState(false);
@@ -887,7 +886,7 @@ export default function EmpPostJob({ onNext }) {
 				const details = formData.interviewRoundDetails[uniqueKey];
 				const roundNames = {
 					technical: 'Technical',
-					oneOnOnePanel: 'One – On – One / Panel',
+					oneOnOnePanel: 'One-to-One / Panel',
 					group: 'Group',
 					situational: 'Situational / Behavioral',
 					assessment: 'MCQ/Aptitude/Assessment Schedule',
@@ -978,7 +977,11 @@ export default function EmpPostJob({ onNext }) {
 	};
 
 	const hasSchedulableInterviewType = () => {
-		return formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'oneOnOnePanel');
+		return formData.interviewRoundOrder.some(key => 
+			formData.interviewRoundTypes[key] === 'oneOnOnePanel' || 
+			formData.interviewRoundTypes[key] === 'group' ||
+			String(formData.interviewRoundTypes[key]).toLowerCase().includes('group')
+		);
 	};
 
 	const submitJobAndRedirectToSchedule = async () => {
@@ -1126,16 +1129,10 @@ export default function EmpPostJob({ onNext }) {
 			return;
 		}
 		
-		setIsScheduleMeeting(hasSchedulableInterviewType());
 		setShowConfirmModal(true);
 	};
 	
 	const submitNext = async () => {
-		if (isScheduleMeeting) {
-			submitJobAndRedirectToSchedule();
-			return;
-		}
-
 		setShowConfirmModal(false);
 		
 		try {
@@ -1243,8 +1240,15 @@ export default function EmpPostJob({ onNext }) {
 				// Clear saved CTC from localStorage after successful submission
 				localStorage.removeItem('draft_ctc');
 				showSuccess(isEditMode ? 'Job updated successfully!' : 'Job posted successfully!');
+				
+				const jobId = data.job?._id || data.jobId || id;
+				
 				setTimeout(() => {
-					window.location.href = '/employer/manage-jobs';
+					if (jobId) {
+						window.location.href = `/employer/edit-job/${jobId}`;
+					} else {
+						window.location.href = '/employer/manage-jobs';
+					}
 				}, 1500);
 			} else {
 				showError(data.message || `Failed to ${isEditMode ? 'update' : 'post'} job`);
@@ -2853,9 +2857,11 @@ export default function EmpPostJob({ onNext }) {
 						>
 							<option value="">-- Select Round Type --</option>
 							<option value="assessment">MCQ/Aptitude/Assessment</option>
-							<option value="oneOnOnePanel">One – On – One / Panel</option>
+							<option value="oneOnOnePanel">One-to-One / Panel</option>
 							<option value="group">Group</option>
+							<option value="managerial">Managerial Round</option>
 							<option value="technical">Technical</option>
+							<option value="hr">HR Round</option>
 							<option value="situational">Situational / Behavioral</option>
 							<option value="others">Others – Specify.</option>
 						</select>
@@ -2938,7 +2944,9 @@ export default function EmpPostJob({ onNext }) {
 								const roundType = formData.interviewRoundTypes[uniqueKey];
 								const roundNames = {
 									technical: 'Technical',
-									oneOnOnePanel: 'One – On – One / Panel',
+									managerial: 'Managerial Round',
+									hr: 'HR Round',
+									oneOnOnePanel: 'One-to-One / Panel',
 									group: 'Group',
 									situational: 'Situational / Behavioral',
 									assessment: 'MCQ/Aptitude/Assessment Schedule',
@@ -3308,20 +3316,11 @@ export default function EmpPostJob({ onNext }) {
 															}
 															
 															setScheduledRounds(prev => ({...prev, [assessmentKey]: true}));
-															
-															const formatDate = (date) => {
-																const d = new Date(date);
-																const day = d.getDate().toString().padStart(2, '0');
-																const month = (d.getMonth() + 1).toString().padStart(2, '0');
-																const year = d.getFullYear();
-																return `${day}/${month}/${year}`;
-															};
-															
-															showSuccess(`Assessment ${assessmentIndex + 1} scheduled successfully! Assessment: ${availableAssessments.find(a => a._id === selectedAssessment)?.title} | Date: ${formatDate(assessmentDetails.fromDate)}`);
+															showSuccess(`Assessment ${assessmentIndex + 1} details saved locally!`);
 														}}
 													>
-														<i className="fa fa-calendar-check"></i>
-														Schedule Now
+														<i className="fa fa-save"></i>
+														Save Schedule
 													</button>
 													<div 
 														style={{
@@ -3683,19 +3682,21 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					{/* Interview Round Details - Only show for non-assessment rounds */}
-					{formData.interviewRoundOrder.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment' && formData.interviewRoundTypes[uniqueKey] !== 'oneOnOnePanel').length > 0 && (
+					{formData.interviewRoundOrder.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment').length > 0 && (
 						<>
 						<div style={fullRow}>
 							<h4 style={{ margin: "16px 0 12px 0", fontSize: 15, color: "#0f172a" }}>
 								Interview Round Details
 							</h4>
 							{formData.interviewRoundOrder
-								.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment' && formData.interviewRoundTypes[uniqueKey] !== 'oneOnOnePanel')
+								.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment')
 								.map((uniqueKey, index) => {
 									const roundType = formData.interviewRoundTypes[uniqueKey];
 									const roundNames = {
 										technical: 'Technical',
-										oneOnOnePanel: 'One – On – One / Panel',
+										managerial: 'Managerial Round',
+										hr: 'HR Round',
+										oneOnOnePanel: 'One-to-One / Panel',
 										group: 'Group',
 										situational: 'Situational / Behavioral',
 										assessment: 'Assessment',
@@ -3742,57 +3743,86 @@ export default function EmpPostJob({ onNext }) {
 													Stage {stageNumber}: {displayName}
 												</div>
 												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-													<button
-														style={{
-															background: '#10b981',
-															color: '#fff',
-															border: 'none',
-															padding: '6px 12px',
-															borderRadius: 6,
-															cursor: 'pointer',
-															fontSize: 12,
-															fontWeight: 600,
-															display: 'flex',
-															alignItems: 'center',
-															gap: 4
-														}}
-														title={`Schedule ${displayName}`}
-														onClick={() => {
-															const roundDetails = formData.interviewRoundDetails[uniqueKey];
-															
-															if (!roundDetails?.description?.trim()) {
-																showWarning(`Please enter description for ${displayName}`);
-																return;
-															}
-															
-															if (!roundDetails?.fromDate) {
-																showWarning(`Please set the Date for ${displayName}`);
-																return;
-															}
-															
-															if (!roundDetails?.startTime || !roundDetails?.endTime) {
-																showWarning(`Please set both From and To Time for ${displayName}`);
-																return;
-															}
-															
-															// Mark this round as scheduled
-															setScheduledRounds(prev => ({...prev, [uniqueKey]: true}));
-															
-															// Format dates as DD/MM/YYYY
-															const formatDate = (date) => {
-																const d = new Date(date);
-																const day = d.getDate().toString().padStart(2, '0');
-																const month = (d.getMonth() + 1).toString().padStart(2, '0');
-																const year = d.getFullYear();
-																return `${day}/${month}/${year}`;
-															};
-															
-															showSuccess(`${displayName} scheduled successfully! Date: ${formatDate(roundDetails.fromDate)} | Time: ${formatTimeToAMPM(roundDetails.startTime)} - ${formatTimeToAMPM(roundDetails.endTime)}`);
-														}}
-													>
-														<i className="fa fa-calendar-plus"></i>
-														Interview Schedule
-													</button>
+													{(roundType === 'oneOnOnePanel' || roundType === 'group') ? (
+														<button
+															style={{
+																background: '#10b981',
+																color: '#fff',
+																border: 'none',
+																padding: '6px 12px',
+																borderRadius: 6,
+																cursor: 'pointer',
+																fontSize: 12,
+																fontWeight: 600,
+																display: 'flex',
+																alignItems: 'center',
+																gap: 4
+															}}
+															title={`Schedule ${displayName}`}
+															onClick={() => {
+																const roundDetails = formData.interviewRoundDetails[uniqueKey];
+																
+																if (!roundDetails?.fromDate) {
+																	showWarning(`Please set the Date for ${displayName}`);
+																	return;
+																}
+																
+																if (roundType !== 'oneOnOnePanel' && roundType !== 'group' && (!roundDetails?.startTime || !roundDetails?.endTime)) {
+																	showWarning(`Please set both From and To Time for ${displayName}`);
+																	return;
+																}
+
+																showSuccess(`${displayName} details saved locally!`);
+																
+																// Save job and redirect to scheduler
+																submitJobAndRedirectToSchedule();
+															}}
+														>
+															<i className="fa fa-calendar-plus"></i>
+															Schedule Meeting
+														</button>
+													) : (
+														<button
+															style={{
+																background: '#10b981',
+																color: '#fff',
+																border: 'none',
+																padding: '6px 12px',
+																borderRadius: 6,
+																cursor: 'pointer',
+																fontSize: 12,
+																fontWeight: 600,
+																display: 'flex',
+																alignItems: 'center',
+																gap: 4
+															}}
+															title={`Save ${displayName} details`}
+															onClick={() => {
+																const roundDetails = formData.interviewRoundDetails[uniqueKey];
+																
+																if (!roundDetails?.description?.trim()) {
+																	showWarning(`Please enter description for ${displayName}`);
+																	return;
+																}
+																
+																if (!roundDetails?.fromDate) {
+																	showWarning(`Please set the Date for ${displayName}`);
+																	return;
+																}
+																
+																if (!roundDetails?.startTime || !roundDetails?.endTime) {
+																	showWarning(`Please set both From and To Time for ${displayName}`);
+																	return;
+																}
+																
+																setScheduledRounds(prev => ({...prev, [uniqueKey]: true}));
+																showSuccess(`${displayName} details saved locally!`);
+															}}
+														>
+															<i className="fa fa-save"></i>
+															Save Round
+														</button>
+													)}
 													<i 
 														className="fa fa-edit"
 														style={{cursor: 'pointer', color: '#3b82f6', fontSize: 16}}
@@ -3810,16 +3840,23 @@ export default function EmpPostJob({ onNext }) {
 													/>
 												</div>
 											</h5>
-											<div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.5fr 1fr 1fr 1fr', gap: isMobile ? 8 : 12, alignItems: 'start' }}>
-												<div>
-													<label style={{...label, marginBottom: 4}}>Description</label>
-													<textarea
-														style={{...input, minHeight: '60px', fontSize: 13}}
-														placeholder={`Describe the ${roundNames[roundType] ? roundNames[roundType].toLowerCase() : 'round'}...`}
-																						value={formData.interviewRoundDetails[uniqueKey]?.description || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'description', e.target.value)}
-													/>
-												</div>
+											<div style={{ 
+												display: 'grid', 
+												gridTemplateColumns: isMobile ? '1fr' : (roundType === 'oneOnOnePanel' || roundType === 'group' ? '1fr 1fr' : '1.5fr 1fr 1fr 1fr 1fr'), 
+												gap: isMobile ? 8 : 12, 
+												alignItems: 'start' 
+											}}>
+												{roundType !== 'oneOnOnePanel' && roundType !== 'group' && (
+													<div>
+														<label style={{...label, marginBottom: 4}}>Description</label>
+														<textarea
+															style={{...input, minHeight: '60px', fontSize: 13}}
+															placeholder={`Describe the ${roundNames[roundType] ? roundNames[roundType].toLowerCase() : 'round'}...`}
+															value={formData.interviewRoundDetails[uniqueKey]?.description || ''}
+															onChange={(e) => updateRoundDetails(uniqueKey, 'description', e.target.value)}
+														/>
+													</div>
+												)}
 												<div>
 													<div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4}}>
 														<label style={{...label, marginBottom: 0}}>
@@ -3874,24 +3911,28 @@ export default function EmpPostJob({ onNext }) {
 													/>
 													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.toDate} />
 												</div>
-												<div>
-													<label style={{...label, marginBottom: 4}}>From Time</label>
-													<input
-														style={{...input, fontSize: 13}}
-														type="time"
-														value={formData.interviewRoundDetails[uniqueKey]?.startTime || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'startTime', e.target.value)}
-													/>
-												</div>
-												<div>
-													<label style={{...label, marginBottom: 4}}>To Time</label>
-													<input
-														style={{...input, fontSize: 13}}
-														type="time"
-														value={formData.interviewRoundDetails[uniqueKey]?.endTime || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'endTime', e.target.value)}
-													/>
-												</div>
+												{roundType !== 'oneOnOnePanel' && roundType !== 'group' && (
+													<>
+														<div>
+															<label style={{...label, marginBottom: 4}}>From Time</label>
+															<input
+																style={{...input, fontSize: 13}}
+																type="time"
+																value={formData.interviewRoundDetails[uniqueKey]?.startTime || ''}
+																onChange={(e) => updateRoundDetails(uniqueKey, 'startTime', e.target.value)}
+															/>
+														</div>
+														<div>
+															<label style={{...label, marginBottom: 4}}>To Time</label>
+															<input
+																style={{...input, fontSize: 13}}
+																type="time"
+																value={formData.interviewRoundDetails[uniqueKey]?.endTime || ''}
+																onChange={(e) => updateRoundDetails(uniqueKey, 'endTime', e.target.value)}
+															/>
+														</div>
+													</>
+												)}
 											</div>
 										</div>
 									);
@@ -3929,7 +3970,9 @@ export default function EmpPostJob({ onNext }) {
 										const details = formData.interviewRoundDetails[uniqueKey];
 										const roundNames = {
 											technical: 'Technical',
-											oneOnOnePanel: 'One – On – One / Panel',
+											managerial: 'Managerial Round',
+											hr: 'HR Round',
+											oneOnOnePanel: 'One-to-One / Panel',
 											group: 'Group',
 											situational: 'Situational / Behavioral',
 											assessment: 'Assessment',
@@ -4138,13 +4181,7 @@ export default function EmpPostJob({ onNext }) {
 				gap: 16,
 			}}>
 				<button
-					onClick={() => {
-						if (hasSchedulableInterviewType()) {
-							handleSubmitClick();
-						} else {
-							handleSubmitClick();
-						}
-					}}
+					onClick={handleSubmitClick}
 					style={{
 						background: "transparent",
 						color: "#ff6b35",
@@ -4177,11 +4214,6 @@ export default function EmpPostJob({ onNext }) {
 						<>
 							<i className="fa fa-save"></i>
 							Update Job
-						</>
-					) : hasSchedulableInterviewType() ? (
-						<>
-							<i className="fa fa-calendar-check"></i>
-							Schedule Meeting
 						</>
 					) : (
 						<>
@@ -4218,25 +4250,23 @@ export default function EmpPostJob({ onNext }) {
 							<div style={{
 								width: 60,
 								height: 60,
-								background: isScheduleMeeting ? '#dbeafe' : '#fff3cd',
+								background: '#fff3cd',
 								borderRadius: '50%',
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',
 								margin: '0 auto 16px'
 							}}>
-								<i className={isScheduleMeeting ? "fa fa-calendar-check" : "fa fa-exclamation-triangle"} style={{fontSize: 28, color: isScheduleMeeting ? '#2563eb' : '#ff6b35'}}></i>
+								<i className="fa fa-exclamation-triangle" style={{fontSize: 28, color: '#ff6b35'}}></i>
 							</div>
 							<h3 style={{margin: 0, fontSize: 22, color: '#1f2937', fontWeight: 700}}>
-								{isScheduleMeeting ? 'Schedule Interview' : 'Confirm Submission'}
+								Confirm Submission
 							</h3>
 						</div>
 						<p style={{fontSize: 15, color: '#4b5563', lineHeight: 1.6, marginBottom: 24, textAlign: 'center'}}>
 							{isEditMode 
 								? "Are you sure you want to update this job? Once updated, the changes will be reflected immediately."
-								: isScheduleMeeting
-								? "Are you sure you want to post this job and schedule interviews? You'll be redirected to the interview scheduling page."
-								: "Are you sure you want to submit this job? Once you submit, you won't be able to edit it. Please review all details carefully before proceeding."}
+								: "Are you sure you want to submit this job? Please review all details carefully before proceeding."}
 						</p>
 						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
 							<button
@@ -4273,7 +4303,7 @@ export default function EmpPostJob({ onNext }) {
 								onMouseEnter={(e) => e.currentTarget.style.background = '#e55a2b'}
 								onMouseLeave={(e) => e.currentTarget.style.background = '#ff6b35'}
 							>
-								{isEditMode ? 'Yes, Update' : isScheduleMeeting ? 'Yes, Schedule' : 'Yes, Submit'}
+								{isEditMode ? 'Yes, Update' : 'Yes, Submit'}
 							</button>
 						</div>
 					</div>

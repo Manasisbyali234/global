@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams } from "react-router-dom";
-import InterviewProcessManager from "./InterviewProcessManager";
 import './emp-candidate-review.css';
 import './emp-candidate-review-active-button-fix.css';
 import './emp-candidate-review-back-button-mobile-fix.css';
@@ -76,6 +75,7 @@ function EmpCandidateReviewPage() {
                 if (data.application.interviewProcess?.stages && data.application.interviewProcess.stages.length > 0) {
                     processes = data.application.interviewProcess.stages
                         .filter(stage => stage && stage.stageName && stage.stageType)
+                        .sort((a, b) => (a.stageOrder || 0) - (b.stageOrder || 0))
                         .map(stage => ({
                             id: stage._id || `${stage.stageType}-${stage.stageOrder}`,
                             name: stage.stageName,
@@ -95,22 +95,35 @@ function EmpCandidateReviewPage() {
                     }));
                 } else if (data.application.jobId?.interviewRoundOrder && data.application.jobId.interviewRoundOrder.length > 0) {
                     const roundNames = {
-                        oneOnOne: 'One – On – One',
+                        oneOnOne: 'One-to-One',
+                        oneOnOnePanel: 'One-to-One / Panel',
                         panel: 'Panel',
                         group: 'Group',
                         technical: 'Technical',
+                        managerial: 'Managerial Round',
+                        hr: 'HR Round',
                         situational: 'Situational / Behavioral',
                         others: 'Others – Specify.',
-                        assessment: 'Assessment Schedule'
+                        assessment: 'Assessment'
                     };
-                    processes = data.application.jobId.interviewRoundOrder.map((round, index) => ({
-                        id: `initial-${round}-${index}`,
-                        name: roundNames[round] || round,
-                        type: round,
-                        status: 'pending',
-                        isCompleted: false,
-                        result: null
-                    }));
+                    processes = data.application.jobId.interviewRoundOrder.map((roundKey, index) => {
+                        const roundType = data.application.jobId.interviewRoundTypes?.[roundKey] || roundKey;
+                        const roundDetails = data.application.jobId.interviewRoundDetails?.[roundKey];
+                        
+                        let displayName = roundNames[roundType] || roundType;
+                        if (roundType === 'others' && roundDetails?.customType) {
+                            displayName = roundDetails.customType;
+                        }
+
+                        return {
+                            id: `initial-${roundKey}-${index}`,
+                            name: displayName,
+                            type: roundType,
+                            status: 'pending',
+                            isCompleted: false,
+                            result: null
+                        };
+                    });
                 }
                 
                 setInterviewProcesses(processes);
@@ -293,6 +306,11 @@ function EmpCandidateReviewPage() {
 
     const allProcessesCompleted = () => {
         if (!application || !application.jobId) return false;
+        
+        // If any stage is rejected, the whole process is considered terminal/completed
+        if (interviewProcesses.some(p => p.status === 'rejected')) {
+            return true;
+        }
         
         const requiredRoundsCount = application.jobId.interviewRoundOrder?.length || 0;
         
@@ -541,25 +559,6 @@ function EmpCandidateReviewPage() {
                     <div className="tab-panel review-panel">
                         <div className="review-grid">
                             <div className="review-main">
-                                <div className="interview-manager-container">
-                                    <InterviewProcessManager 
-                                        applicationId={applicationId}
-                                        onSave={(process) => {
-                                            if (process && process.stages) {
-                                                const processes = process.stages.map(stage => ({
-                                                    id: stage._id || `${stage.stageType}-${stage.stageOrder}`,
-                                                    name: stage.stageName,
-                                                    type: stage.stageType,
-                                                    status: stage.status,
-                                                    isCompleted: stage.status === 'completed' || stage.status === 'passed',
-                                                    result: stage.assessmentResult
-                                                }));
-                                                setInterviewProcesses(processes);
-                                            }
-                                        }}
-                                    />
-                                </div>
-                                
                                 {interviewProcesses.length > 0 && (
                                     <div className="section-card mt-4">
                                         <div className="section-header">
@@ -567,43 +566,69 @@ function EmpCandidateReviewPage() {
                                         </div>
                                         <div className="section-body">
                                             <div className="processes-grid">
-                                                {interviewProcesses.map((process) => (
-                                                    <div key={process.id} className={`process-item ${process.isCompleted ? 'completed' : ''}`}>
-                                                        <div className="process-header">
-                                                            <input 
-                                                                type="checkbox" 
-                                                                checked={process.isCompleted}
-                                                                onChange={(e) => updateProcessCompletion(process.id, e.target.checked)}
-                                                            />
-                                                            <h6>{cleanProcessName(process.name)}</h6>
-                                                            <span className={`status-badge ${process.status || 'pending'}`}>
-                                                                {(process.status || 'pending').replace('_', ' ')}
-                                                            </span>
+                                                {interviewProcesses.map((process, index) => {
+                                                    const isPreviousRejected = interviewProcesses.slice(0, index).some(p => p.status === 'rejected');
+                                                    const isCurrentDisabled = isPreviousRejected || (application.status === 'rejected' && process.status !== 'rejected');
+
+                                                    return (
+                                                        <div key={process.id} className={`process-item ${process.isCompleted ? 'completed' : ''} ${isCurrentDisabled ? 'stage-disabled' : ''}`}>
+                                                            <div className="process-header">
+                                                                <input 
+                                                                    type="checkbox" 
+                                                                    checked={process.isCompleted}
+                                                                    onChange={(e) => updateProcessCompletion(process.id, e.target.checked)}
+                                                                    disabled={isCurrentDisabled}
+                                                                />
+                                                                <div className="process-title-group">
+                                                                    <span className="stage-number">Stage {index + 1}</span>
+                                                                    <h6>{cleanProcessName(process.name)}</h6>
+                                                                </div>
+                                                                <span className={`status-badge ${process.status || 'pending'}`}>
+                                                                    {(process.status || 'pending').replace('_', ' ')}
+                                                                </span>
+                                                            </div>
+                                                            <div className="process-controls">
+                                                                <select 
+                                                                    value={process.status || 'pending'}
+                                                                    onChange={(e) => {
+                                                                        const newStatus = e.target.value;
+                                                                        setInterviewProcesses(prev => 
+                                                                            prev.map(p => p.id === process.id ? { 
+                                                                                ...p, 
+                                                                                status: newStatus,
+                                                                                isCompleted: newStatus === 'rejected' ? true : p.isCompleted
+                                                                            } : p)
+                                                                        );
+                                                                        
+                                                                        // If rejected in any stage, update overall application status
+                                                                        if (newStatus === 'rejected') {
+                                                                            updateApplicationStatus('rejected');
+                                                                        }
+                                                                    }}
+                                                                    disabled={isCurrentDisabled}
+                                                                >
+                                                                    <option value="pending">Pending</option>
+                                                                    <option value="shortlisted">Shortlisted</option>
+                                                                    <option value="under_review">Under Review</option>
+                                                                    <option value="selected">Selected</option>
+                                                                    <option value="rejected">Rejected</option>
+                                                                </select>
+                                                                <textarea 
+                                                                    placeholder="Stage remarks..."
+                                                                    value={processRemarks[process.id] || ''}
+                                                                    onChange={(e) => updateProcessRemark(process.id, e.target.value)}
+                                                                    disabled={isCurrentDisabled}
+                                                                />
+                                                            </div>
+                                                            {isPreviousRejected && (
+                                                                <div className="stage-locked-info">
+                                                                    <i className="fas fa-info-circle"></i>
+                                                                    <span>Stage locked because a previous stage was rejected.</span>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                        <div className="process-controls">
-                                                            <select 
-                                                                value={process.status || 'pending'}
-                                                                onChange={(e) => {
-                                                                    const newStatus = e.target.value;
-                                                                    setInterviewProcesses(prev => 
-                                                                        prev.map(p => p.id === process.id ? { ...p, status: newStatus } : p)
-                                                                    );
-                                                                }}
-                                                            >
-                                                                <option value="pending">Pending</option>
-                                                                <option value="shortlisted">Shortlisted</option>
-                                                                <option value="under_review">Under Review</option>
-                                                                <option value="selected">Selected</option>
-                                                                <option value="rejected">Rejected</option>
-                                                            </select>
-                                                            <textarea 
-                                                                placeholder="Stage remarks..."
-                                                                value={processRemarks[process.id] || ''}
-                                                                onChange={(e) => updateProcessRemark(process.id, e.target.value)}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     </div>

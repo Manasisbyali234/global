@@ -1344,7 +1344,10 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
             const details = job.interviewRoundDetails[uniqueKey];
             const roundTypeNames = {
               technical: 'Technical',
-              oneOnOne: 'One – On – One',
+              managerial: 'Managerial Round',
+              hr: 'HR Round',
+              oneOnOne: 'One-to-One',
+              oneOnOnePanel: 'One-to-One / Panel',
               panel: 'Panel',
               group: 'Group',
               situational: 'Situational / Behavioral',
@@ -1622,7 +1625,10 @@ exports.getApplicationInterviewDetails = async (req, res) => {
           const details = job.interviewRoundDetails[uniqueKey];
             const roundTypeNames = {
               technical: 'Technical',
-              oneOnOne: 'One – On – One',
+              managerial: 'Managerial Round',
+              hr: 'HR Round',
+              oneOnOne: 'One-to-One',
+              oneOnOnePanel: 'One-to-One / Panel',
               panel: 'Panel',
               group: 'Group',
               situational: 'Situational / Behavioral',
@@ -1884,7 +1890,10 @@ exports.getInterviewProcessDetails = async (req, res) => {
           const details = job.interviewRoundDetails[uniqueKey];
             const roundTypeNames = {
               technical: 'Technical',
-              oneOnOne: 'One – On – One',
+              managerial: 'Managerial Round',
+              hr: 'HR Round',
+              oneOnOne: 'One-to-One',
+              oneOnOnePanel: 'One-to-One / Panel',
               panel: 'Panel',
               group: 'Group',
               situational: 'Situational / Behavioral',

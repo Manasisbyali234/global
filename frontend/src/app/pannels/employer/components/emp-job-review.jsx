@@ -238,7 +238,7 @@ function EmpJobReviewPage() {
                                                 const roundType = jobDetails.interviewRoundTypes?.[key];
                                                 const roundNames = {
                                                     technical: 'Technical',
-                                                    oneOnOne: 'One – On – One',
+                                                    oneOnOne: 'One-to-One',
                                                     panel: 'Panel',
                                                     group: 'Group',
                                                     situational: 'Situational / Behavioral',
@@ -267,7 +267,7 @@ function EmpJobReviewPage() {
                                         const details = jobDetails.interviewRoundDetails?.[key];
                                         const roundNames = {
                                             technical: 'Technical',
-                                            oneOnOne: 'One – On – One',
+                                            oneOnOne: 'One-to-One',
                                             panel: 'Panel',
                                             group: 'Group',
                                             situational: 'Situational / Behavioral',

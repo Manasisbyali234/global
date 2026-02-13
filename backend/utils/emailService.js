@@ -659,7 +659,10 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
     if (jobDetails.interviewRoundOrder && jobDetails.interviewRoundDetails) {
       const roundNames = {
         technical: 'Technical',
-        oneOnOne: 'One – On – One',
+        managerial: 'Managerial Round',
+        hr: 'HR Round',
+        oneOnOne: 'One-to-One',
+        oneOnOnePanel: 'One-to-One / Panel',
         panel: 'Panel',
         group: 'Group',
         situational: 'Situational / Behavioral',
