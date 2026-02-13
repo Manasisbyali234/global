@@ -103,9 +103,7 @@ function EmpCandidatesPage() {
     }
   };
 
-  const formatDate = (dateString) => {
-    return formatDate(dateString);
-  };
+
 
   // Derived filtering
   const filteredApplications = useMemo(() => {

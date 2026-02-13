@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { formatDate } from '../../../../utils/dateFormatter';
+import { formatDate as formatDateUtil } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams } from "react-router-dom";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -61,7 +61,7 @@ function EmployerDetails() {
     };
 
     const formatDate = (date) => {
-        return date ? formatDate(date) : 'N/A';
+        return date ? formatDateUtil(date) : 'N/A';
     };
 
     const downloadDocument = async (employerId, documentType) => {

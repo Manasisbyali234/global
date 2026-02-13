@@ -76,10 +76,6 @@ function AdminTransactionsPage() {
         }
     };
 
-    const formatDate = (dateString) => {
-        return formatDate(dateString);
-    };
-
     const filteredTransactions = useMemo(() => {
         const q = searchText.trim().toLowerCase();
         return transactions.filter((t) => {

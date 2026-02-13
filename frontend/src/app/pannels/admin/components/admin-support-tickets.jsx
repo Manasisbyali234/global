@@ -25,10 +25,7 @@ function AdminSupportTickets() {
     });
     const [updating, setUpdating] = useState(false);
 
-    const formatDate = (value) => {
-        if (!value) return '--';
-        return formatDate(value);
-    };
+
 
     useEffect(() => {
         fetchSupportTickets();

@@ -49,10 +49,6 @@ function AdminPlacementOfficersRejected() {
         setFilteredPlacements(filtered);
     };
 
-    const formatDate = (dateString) => {
-        return formatDate(dateString);
-    };
-
     if (loading) {
         return (
             <div className="dashboard-content">

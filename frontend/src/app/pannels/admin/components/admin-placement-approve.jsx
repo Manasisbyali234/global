@@ -52,9 +52,7 @@ function AdminPlacementOfficersApproved() {
         setFilteredPlacements(filtered);
     };
 
-    const formatDate = (dateString) => {
-        return formatDate(dateString);
-    };
+
 
     if (loading) {
         return (
