@@ -83,26 +83,6 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fa-solid fa-business-time" />
-										<span className="twm-title">Job Type</span>
-										<div className="twm-s-info-discription">
-											{job?.jobType || 'Not specified'}
-										</div>
-									</div>
-								</li>
-
-								<li>
-									<div className="twm-s-info-inner">
-										<i className="fa-solid fa-briefcase" />
-										<span className="twm-title">Type of Employment</span>
-										<div className="twm-s-info-discription">
-											{job?.typeOfEmployment ? job.typeOfEmployment.charAt(0).toUpperCase() + job.typeOfEmployment.slice(1) : 'Not specified'}
-										</div>
-									</div>
-								</li>
-
-								<li>
-									<div className="twm-s-info-inner">
 										<i className="fa-solid fa-house" />
 										<span className="twm-title">Work Mode</span>
 										<div className="twm-s-info-discription">

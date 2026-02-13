@@ -856,6 +856,24 @@ exports.createJob = async (req, res) => {
       delete jobData.interviewRoundTypes.assessment;
     }
     
+    // Process interview rounds into new format
+    if (jobData.interviewRoundDetails && typeof jobData.interviewRoundDetails === 'object') {
+      const interviewRounds = [];
+      Object.entries(jobData.interviewRoundDetails).forEach(([key, value]) => {
+        if (value && typeof value === 'object') {
+          interviewRounds.push({
+            id: key,
+            name: key.replace(/_\d+$/, ''),
+            date: value.fromDate || value.date || null,
+            startTime: value.startTime || value.time || '',
+            endTime: value.endTime || ''
+          });
+        }
+      });
+      jobData.interviewRounds = interviewRounds;
+      delete jobData.interviewRoundDetails;
+    }
+    
     // Ensure interviewRoundOrder is properly handled
     if (!jobData.interviewRoundOrder) {
       jobData.interviewRoundOrder = [];
@@ -948,16 +966,13 @@ exports.createJob = async (req, res) => {
       companyName: jobData.companyName,
       companyDescription: jobData.companyDescription ? 'Present' : 'Missing',
       category: jobData.category,
-      typeOfEmployment: jobData.typeOfEmployment
+      jobType: jobData.jobType
     });
     console.log('Parsed CTC:', jobData.ctc);
     console.log('Parsed Net Salary:', jobData.netSalary);
     
     // Check if interview rounds are scheduled
-    const hasScheduledRounds = jobData.interviewRoundDetails && 
-      Object.values(jobData.interviewRoundDetails).some(round => 
-        round && (round.date || round.fromDate) && round.time && round.description
-      );
+    const hasScheduledRounds = jobData.interviewRounds && jobData.interviewRounds.length > 0;
     
     console.log('Interview rounds scheduled check:', {
       hasScheduledRounds,
@@ -1129,10 +1144,7 @@ exports.updateJob = async (req, res) => {
     }
     
     // Check if interview rounds are being scheduled/updated
-    const hasScheduledRounds = req.body.interviewRoundDetails && 
-      Object.values(req.body.interviewRoundDetails).some(round => 
-        round && round.fromDate && (round.startTime || round.time) && round.description
-      );
+    const hasScheduledRounds = req.body.interviewRounds && req.body.interviewRounds.length > 0;
     
     console.log('Update job - Interview rounds scheduled check:', {
       hasScheduledRounds,
@@ -1181,6 +1193,24 @@ exports.updateJob = async (req, res) => {
     // Remove assessment from interviewRoundTypes (it's stored separately in assessmentId)
     if (req.body.interviewRoundTypes && req.body.interviewRoundTypes.assessment) {
       delete req.body.interviewRoundTypes.assessment;
+    }
+    
+    // Process interview rounds into new format
+    if (req.body.interviewRoundDetails && typeof req.body.interviewRoundDetails === 'object') {
+      const interviewRounds = [];
+      Object.entries(req.body.interviewRoundDetails).forEach(([key, value]) => {
+        if (value && typeof value === 'object') {
+          interviewRounds.push({
+            id: key,
+            name: key.replace(/_\d+$/, ''),
+            date: value.fromDate || value.date || null,
+            startTime: value.startTime || value.time || '',
+            endTime: value.endTime || ''
+          });
+        }
+      });
+      req.body.interviewRounds = interviewRounds;
+      delete req.body.interviewRoundDetails;
     }
     
     // Ensure interviewRoundOrder is included in the update
@@ -2107,13 +2137,25 @@ exports.scheduleInterviewRound = async (req, res) => {
     }
     
     // Update the job with the scheduled round details
+    const newRound = {
+      id: roundKey,
+      name: roundKey.replace(/_\d+$/, ''),
+      date: new Date(fromDate),
+      startTime: time || '',
+      endTime: ''
+    };
+    
+    const existingRounds = job.interviewRounds || [];
+    const roundIndex = existingRounds.findIndex(r => r.id === roundKey);
+    
+    if (roundIndex >= 0) {
+      existingRounds[roundIndex] = newRound;
+    } else {
+      existingRounds.push(newRound);
+    }
+    
     const updateData = {
-      [`interviewRoundDetails.${roundKey}`]: {
-        description: description || '',
-        fromDate: new Date(fromDate),
-        toDate: new Date(toDate),
-        time: time || ''
-      },
+      interviewRounds: existingRounds,
       interviewScheduled: true
     };
     

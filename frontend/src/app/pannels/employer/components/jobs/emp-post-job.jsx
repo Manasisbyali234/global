@@ -301,8 +301,6 @@ export default function EmpPostJob({ onNext }) {
 		companyDescription: "",
 		aboutCompany: "",
 		category: "",
-		// Type of Employment
-		typeOfEmployment: "",
 		// Work Shift
 		shift: "",
 		// Work Mode

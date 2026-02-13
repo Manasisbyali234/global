@@ -12,14 +12,8 @@ const jobSchema = new mongoose.Schema({
   companyDescription: { type: String }, // Company description (only for consultants)
   aboutCompany: { type: String }, // About company information
   category: { type: String }, // Job category (IT, Sales, Marketing, etc.)
-  typeOfEmployment: { type: String, enum: ['permanent', 'temporary', 'freelance', 'consultant', 'trainee'] }, // Type of employment
   shift: { type: String, enum: ['day-shift', 'night-shift', 'rotational'] }, // Work shift
   workMode: { type: String, enum: ['work-from-home', 'work-from-office', 'remote', 'hybrid'] }, // Work mode
-  salary: {
-    min: { type: Number },
-    max: { type: Number },
-    currency: { type: String, default: 'INR' }
-  },
   ctc: {
     min: { type: Number },
     max: { type: Number }
@@ -28,7 +22,7 @@ const jobSchema = new mongoose.Schema({
     min: { type: Number },
     max: { type: Number }
   },
-  jobType: { type: String, enum: ['full-time', 'part-time', 'remote', 'hybrid', 'contract', 'freelance', 'temporary', 'permanent', 'apprenticeship', 'consultant'], required: true },
+  jobType: { type: String, enum: ['full-time', 'part-time', 'remote', 'hybrid', 'contract', 'freelance', 'temporary', 'permanent', 'apprenticeship', 'consultant', 'internship', 'internship-paid', 'internship-unpaid'], required: true },
   vacancies: { type: Number },
   applicationLimit: { type: Number },
   education: [String],
@@ -52,10 +46,13 @@ const jobSchema = new mongoose.Schema({
       assessment: false
     }
   },
-  interviewRoundDetails: {
-    type: mongoose.Schema.Types.Mixed,
-    default: {}
-  },
+  interviewRounds: [{
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    date: { type: Date },
+    startTime: { type: String },
+    endTime: { type: String }
+  }],
   // Dynamic interview rounds for multiple instances
   dynamicInterviewRounds: [{
     roundType: { type: String, enum: ['oneOnOne', 'panel', 'oneOnOnePanel', 'group', 'technical', 'managerial', 'hr', 'situational', 'others', 'assessment'] },

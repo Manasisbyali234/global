@@ -101,16 +101,6 @@ function EmpJobReviewPage() {
                                 </div>
 
                                 <div className="mt-2">
-                                    <h5 className="mb-1">Job Type</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.jobType}</p>
-                                </div>
-
-                                <div className="mt-2">
-                                    <h5 className="mb-1">Type of Employment</h5>
-                                    <p className="mb-0 text-muted text-capitalize">{jobDetails.typeOfEmployment || 'N/A'}</p>
-                                </div>
-
-                                <div className="mt-2">
                                     <h5 className="mb-1">Work Mode</h5>
                                     <p className="mb-0 text-muted text-capitalize">{jobDetails.workMode ? jobDetails.workMode.replace(/-/g, ' ') : 'N/A'}</p>
                                 </div>
