@@ -254,7 +254,15 @@ function EmpJobReviewPage() {
                                 <div className="row">
                                     {jobDetails.interviewRoundOrder.map((key, index) => {
                                         const roundType = jobDetails.interviewRoundTypes?.[key];
-                                        const details = jobDetails.interviewRoundDetails?.[key];
+                                        
+                                        // Support both old and new formats
+                                        let details = null;
+                                        if (jobDetails.interviewRounds && Array.isArray(jobDetails.interviewRounds)) {
+                                            details = jobDetails.interviewRounds.find(r => r.id === key);
+                                        } else if (jobDetails.interviewRoundDetails) {
+                                            details = jobDetails.interviewRoundDetails[key];
+                                        }
+                                        
                                         const roundNames = {
                                             technical: 'Technical',
                                             oneOnOne: 'One-to-One',
@@ -277,8 +285,8 @@ function EmpJobReviewPage() {
                                                     {details.description && (
                                                         <p className="mb-1"><strong>Description:</strong> {details.description}</p>
                                                     )}
-                                                    {details.fromDate && (
-                                                        <p className="mb-1"><strong>From Date:</strong> {formatDate(details.fromDate)}</p>
+                                                    {(details.date || details.fromDate) && (
+                                                        <p className="mb-1"><strong>Date:</strong> {formatDate(details.date || details.fromDate)}</p>
                                                     )}
                                                     {details.toDate && (
                                                         <p className="mb-1"><strong>To Date:</strong> {formatDate(details.toDate)}</p>

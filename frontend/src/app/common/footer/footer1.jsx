@@ -26,6 +26,8 @@ function Footer1() {
                     text-transform: uppercase;
                     margin-bottom: 24px;
                     letter-spacing: 0.05em;
+                    padding-left: 0;
+                    margin-left: -10px;
                 }
                 .footer-link-list {
                     list-style: none;
@@ -157,7 +159,7 @@ function Footer1() {
                         {/* Column 2: Quick Links */}
                         <Col lg={2} md={6}>
                             <h4 className="footer-col-title">Quick Links</h4>
-                            <ul className="footer-link-list">
+                            <ul className="footer-link-list" style={{ paddingLeft: '0' }}>
                                 <li><NavLink to={publicUser.INITIAL}>Home</NavLink></li>
                                 <li><NavLink to={publicUser.jobs.GRID}>Jobs</NavLink></li>
                                 <li><NavLink to={publicUser.employer.GRID}>Companies</NavLink></li>
@@ -169,7 +171,7 @@ function Footer1() {
                         {/* Column 3: Helpful Links */}
                         <Col lg={3} md={6}>
                             <h4 className="footer-col-title">Helpful Links</h4>
-                            <ul className="footer-link-list">
+                            <ul className="footer-link-list" style={{ paddingLeft: '0' }}>
                                 <li><NavLink to={publicUser.pages.LOGIN_CANDIDATE}>Candidate Dashboard</NavLink></li>
                                 <li><NavLink to={publicUser.pages.LOGIN_EMPLOYER}>Employers Dashboard</NavLink></li>
                                 <li><NavLink to={publicUser.pages.LOGIN_PLACEMENT}>Placement Dashboard</NavLink></li>
