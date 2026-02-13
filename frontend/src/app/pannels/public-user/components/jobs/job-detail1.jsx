@@ -733,9 +733,6 @@ function JobDetail1Page() {
                                             </h4>
                                             
                                             <div style={{marginBottom: '20px'}}>
-                                                <h5 style={{fontSize: '18px', fontWeight: '600', color: '#34495e', marginBottom: '10px'}}>
-                                                    {job.companyName || job.employerId?.companyName || 'Our Company'}
-                                                </h5>
                                                 <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
                                                     __html: (job.employerId?.employerType === 'consultant' && job.aboutCompany) 
                                                         ? job.aboutCompany 

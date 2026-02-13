@@ -92,16 +92,6 @@ function SectionProfile({ employer }) {
                             </div>
                         </div>
                     </li>
-
-                    <li>
-                        <div className="twm-s-info-inner">
-                            <i className="fas fa-map-marker" style={iconStyle}></i>
-                            <div>
-                                <span className="twm-title">Corporate Office Addres</span>
-                                <div className="twm-s-info-discription">{employer?.corporateAddress || 'Not specified'}</div>
-                            </div>
-                        </div>
-                    </li>
                 </ul>
             </div>
         </>

@@ -1,5 +1,5 @@
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
-import { formatDate } from '../../../../../utils/dateFormatter';
+import { formatDate as formatDateUtil } from '../../../../../utils/dateFormatter';
 import { Building2, Calendar, Edit, Eye, MapPin, Pause, Play, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -112,7 +112,7 @@ export default function EmpPostedJobs() {
     };
 
     const formatDate = (dateString) => {
-        return formatDate(dateString);
+        return formatDateUtil(dateString);
     };
 
     const getStatusBadge = (status) => {

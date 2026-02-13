@@ -898,7 +898,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								</div>
 							) : (
 								<div className="mb-3">
-									<small className="text-muted">This is a subjective question that requires the candidate to provide a detailed explanation in their response.</small>
+									<small className="text-muted">This is a subjective question that requires a detailed explanation in the response.</small>
 								</div>
 							)}
 							

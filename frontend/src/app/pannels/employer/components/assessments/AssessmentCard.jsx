@@ -1,5 +1,4 @@
 import React from "react";
-import { formatDate } from '../../../../../utils/dateFormatter';
 import { useNavigate } from "react-router-dom";
 import './create-assessment.css';
 

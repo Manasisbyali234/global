@@ -129,16 +129,6 @@ function SectionJobsSidebar2 ({ _config, job }) {
 
 								<li>
 									<div className="twm-s-info-inner">
-										<i className="fa-solid fa-clock" />
-										<span className="twm-title">Work Shift</span>
-										<div className="twm-s-info-discription">
-											{job?.shift ? (job.shift.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')) : 'Not specified'}
-										</div>
-									</div>
-								</li>
-
-								<li>
-									<div className="twm-s-info-inner">
 										<i className="fa-solid fa-money-bill-wave" />
 										<span className="twm-title">Offered Salary</span>
 										<div className="twm-s-info-discription">
