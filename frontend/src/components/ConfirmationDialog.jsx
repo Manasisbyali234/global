@@ -20,7 +20,7 @@ const ConfirmationDialog = ({ message, onConfirm, onCancel, type = 'warning' }) 
           <div className="popup-icon">
             {type === 'warning' && '⚠'}
             {type === 'error' && '✕'}
-            {type === 'info' && <span className="text-normal" style={{ fontWeight: 'normal', fontSize: '20px' }}>Consent</span>}
+            {type === 'info' && '🌟'}
 
           </div>
           <div className="popup-message-left">{message}</div>
