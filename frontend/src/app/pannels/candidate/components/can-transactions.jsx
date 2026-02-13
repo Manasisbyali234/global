@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { formatDate } from '../../../../utils/dateFormatter';
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
@@ -89,13 +90,7 @@ function CanTransactionsPage() {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString("en-IN", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        return formatDate(dateString);
     };
 
     const filteredTransactions = useMemo(() => {
@@ -177,7 +172,7 @@ function CanTransactionsPage() {
                                         filteredTransactions.map((t) => (
                                             <tr key={t._id}>
                                                 <td>
-                                                    <div className="text-nowrap">{new Date(t.createdAt).toLocaleDateString()}</div>
+                                                    <div className="text-nowrap">{formatDate(t.createdAt)}</div>
                                                     <small className="text-muted">{new Date(t.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
                                                 </td>
                                                 <td>

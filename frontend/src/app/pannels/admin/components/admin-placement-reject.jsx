@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDate } from '../../../../utils/dateFormatter';
 import { api } from '../../../../utils/api';
 import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
@@ -49,7 +50,7 @@ function AdminPlacementOfficersRejected() {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString();
+        return formatDate(dateString);
     };
 
     if (loading) {

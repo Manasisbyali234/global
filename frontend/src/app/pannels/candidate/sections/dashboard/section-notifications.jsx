@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { formatDate } from '../../../../../utils/dateFormatter';
 import './section-notifications.css';
 
 function SectionNotifications() {
@@ -81,7 +82,7 @@ function SectionNotifications() {
 											{notif.message}
 										</p>
 										<small style={{ fontSize: '10px', color: '#9ca3af' }}>
-											{new Date(notif.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+											{formatDate(notif.createdAt)}
 										</small>
 									</div>
 									{(hoveredId === notif._id || isMobile) && (

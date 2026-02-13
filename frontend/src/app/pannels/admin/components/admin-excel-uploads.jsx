@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../../../utils/api';
 import './admin-emp-manage-styles.css';
@@ -68,7 +69,7 @@ function AdminExcelUploads() {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString();
+        return formatDate(dateString);
     };
 
     const getStatusBadge = (status) => {

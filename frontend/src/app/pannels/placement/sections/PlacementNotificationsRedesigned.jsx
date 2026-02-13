@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { formatDate } from '../../../../utils/dateFormatter';
 
 function PlacementNotificationsRedesigned() {
     const [notifications, setNotifications] = useState([]);
@@ -118,12 +119,7 @@ function PlacementNotificationsRedesigned() {
                                             }
                                         </div>
                                         <div className="notification-time">
-                                            {new Date(notif.createdAt).toLocaleDateString('en-US', { 
-                                                month: 'short', 
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}
+                                            {formatDate(notif.createdAt)}
                                         </div>
                                     </div>
                                     <button 

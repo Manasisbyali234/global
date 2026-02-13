@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatDate } from '../../../../utils/dateFormatter';
 
 const RecentJobPosts = () => {
   const [jobPosts, setJobPosts] = useState([]);
@@ -48,7 +49,7 @@ const RecentJobPosts = () => {
               <div>
                 <h5 className="mb-1">{job.title}</h5>
                 <p className="mb-0 text-muted">
-                  {job.applicationCount || 0} applications &bull; Posted {new Date(job.createdAt).toLocaleDateString()}
+                  {job.applicationCount || 0} applications &bull; Posted {formatDate(job.createdAt)}
                 </p>
               </div>
               <div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatDate } from '../../../../utils/dateFormatter';
 
 function ShortlistedCandidatesPage() {
     const [shortlistedCandidates, setShortlistedCandidates] = useState([]);
@@ -64,7 +65,7 @@ function ShortlistedCandidatesPage() {
                                                             <td>{application.employerId?.email || 'N/A'}</td>
                                                             <td>{application.jobId?.location || 'N/A'}</td>
                                                             <td>{application.jobId?.title || 'N/A'}</td>
-                                                            <td>{new Date(application.createdAt).toLocaleDateString()}</td>
+                                                            <td>{formatDate(application.createdAt)}</td>
                                                         </tr>
                                                     ))
                                                 ) : (

@@ -174,29 +174,31 @@ export default function AssessmentDashboard() {
 
 			{/* Search Bar */}
 			<div style={{ padding: '0 2rem 1rem 2rem' }}>
-				<div className="d-flex gap-3 align-items-center" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+				<div className="d-flex flex-wrap gap-3 align-items-center" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
 					<label className="form-label mb-0 fw-semibold" style={{ minWidth: '140px' }}>Search Assessment:</label>
-					<input
-						type="text"
-						className="form-control"
-						placeholder="Search by title, designation, or type..."
-						style={{ width: '300px' }}
-						value={searchTerm}
-						onChange={(e) => handleTitleSelect(e.target.value)}
-					/>
-					<select 
-						className="form-select" 
-						style={{ width: '300px', color: '#007bff' }}
-						onChange={(e) => handleTitleSelect(e.target.value)}
-						value={searchTerm}
-					>
-						<option value="" style={{ color: '#6c757d' }}>Select Assessment</option>
-						{assessments.map(assessment => (
-							<option key={assessment._id} value={assessment.title} style={{ color: '#28a745' }}>
-								{assessment.title} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)
-							</option>
-						))}
-					</select>
+					<div className="d-flex flex-grow-1 flex-wrap gap-2" style={{minWidth: '250px'}}>
+						<input
+							type="text"
+							className="form-control"
+							placeholder="Search by title, designation, or type..."
+							style={{ flex: '1 1 300px' }}
+							value={searchTerm}
+							onChange={(e) => handleTitleSelect(e.target.value)}
+						/>
+						<select 
+							className="form-select" 
+							style={{ flex: '1 1 300px', color: '#007bff' }}
+							onChange={(e) => handleTitleSelect(e.target.value)}
+							value={searchTerm}
+						>
+							<option value="" style={{ color: '#6c757d' }}>Select Assessment</option>
+							{assessments.map(assessment => (
+								<option key={assessment._id} value={assessment.title} style={{ color: '#28a745' }}>
+									{assessment.title} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)
+								</option>
+							))}
+						</select>
+					</div>
 				</div>
 			</div>
 

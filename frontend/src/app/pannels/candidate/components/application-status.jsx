@@ -1,4 +1,5 @@
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+import { formatDate } from '../../../../utils/dateFormatter';
 import { formatInterviewTime } from '../../../../utils/timeUtils';
 import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
 // Route: /candidate/status
@@ -646,11 +647,7 @@ function CanStatusPage() {
 														>
 															<td className="px-4 py-3">
 																<span className="text-dark fw-medium">
-																	{new Date(app.createdAt || app.appliedAt).toLocaleDateString('en-US', {
-																		day: '2-digit',
-																		month: 'short',
-																		year: 'numeric'
-																	})}
+																	{formatDate(app.createdAt || app.appliedAt)}
 																</span>
 															</td>
 															<td className={`px-4 py-3 ${highlightCompanyPosition ? 'highlight-company-position' : ''}`} style={{transition: 'all 0.3s ease'}}>
@@ -799,7 +796,7 @@ function CanStatusPage() {
 																			const formatDate = (dateStr) => {
 																				if (!dateStr) return null;
 																				try {
-																					return new Date(dateStr).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'});
+																					return formatDate(dateStr);
 																				} catch (error) {
 																					return null;
 																				}
@@ -988,7 +985,7 @@ function CanStatusPage() {
 											})()}
 										</div>
 										<div className="col-md-6 mb-2">
-											<strong>Applied Date:</strong> {new Date(selectedApplication.createdAt || selectedApplication.appliedAt).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})}
+											<strong>Applied Date:</strong> {formatDate(selectedApplication.createdAt || selectedApplication.appliedAt)}
 										</div>
 										<div className="col-md-12 mb-2">
 											<strong>Status:</strong> 
@@ -1118,11 +1115,11 @@ function CanStatusPage() {
 																<small className="text-muted"><i className="fa fa-calendar me-1"></i>Assessment Period:</small>
 																<div>
 																	{selectedApplication.jobId?.assessmentStartDate && (
-																		<span><strong>From:</strong> {new Date(selectedApplication.jobId.assessmentStartDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})} {selectedApplication.jobId?.assessmentStartTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentStartTime)}`}</span>
+																		<span><strong>From:</strong> {formatDate(selectedApplication.jobId.assessmentStartDate)} {selectedApplication.jobId?.assessmentStartTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentStartTime)}`}</span>
 																	)}
 																	{selectedApplication.jobId?.assessmentStartDate && selectedApplication.jobId?.assessmentEndDate && <span className="mx-2">-</span>}
 																	{selectedApplication.jobId?.assessmentEndDate && (
-																		<span><strong>To:</strong> {new Date(selectedApplication.jobId.assessmentEndDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})} {selectedApplication.jobId?.assessmentEndTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentEndTime)}`}</span>
+																		<span><strong>To:</strong> {formatDate(selectedApplication.jobId.assessmentEndDate)} {selectedApplication.jobId?.assessmentEndTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentEndTime)}`}</span>
 																	)}
 																	{selectedApplication.jobId?.assessmentStartTime && selectedApplication.jobId?.assessmentEndTime && (() => {
 																		const [startHours, startMinutes] = selectedApplication.jobId.assessmentStartTime.split(':').map(Number);
@@ -1249,9 +1246,9 @@ function CanStatusPage() {
 																	<div className="mb-2">
 																		<small className="text-muted"><i className="fa fa-calendar me-1"></i>Interview Period:</small>
 																		<div>
-																			{roundDetails.fromDate && <span><strong>From:</strong> {new Date(roundDetails.fromDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})} {roundDetails.startTime && `at ${formatTimeToAMPM(roundDetails.startTime)}`}</span>}
+																			{roundDetails.fromDate && <span><strong>From:</strong> {formatDate(roundDetails.fromDate)} {roundDetails.startTime && `at ${formatTimeToAMPM(roundDetails.startTime)}`}</span>}
 																			{roundDetails.fromDate && roundDetails.toDate && <span className="mx-2">-</span>}
-																			{roundDetails.toDate && <span><strong>To:</strong> {new Date(roundDetails.toDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})} {roundDetails.endTime && `at ${formatTimeToAMPM(roundDetails.endTime)}`}</span>}
+																			{roundDetails.toDate && <span><strong>To:</strong> {formatDate(roundDetails.toDate)} {roundDetails.endTime && `at ${formatTimeToAMPM(roundDetails.endTime)}`}</span>}
 																			{roundDetails.startTime && roundDetails.endTime && (() => {
 																				const [startHours, startMinutes] = roundDetails.startTime.split(':').map(Number);
 																				const [endHours, endMinutes] = roundDetails.endTime.split(':').map(Number);
@@ -1260,14 +1257,14 @@ function CanStatusPage() {
 																				const minutes = totalMinutes % 60;
 																				return <div className="mt-1"><strong>Duration:</strong> {hours > 0 && `${hours}h `}{minutes > 0 && `${minutes}m`}</div>;
 																			})()}
-																			{roundDetails.time && <div className="mt-1"><strong>Time:</strong> {formatInterviewTime(roundDetails.time, roundDetails.fromDate)} - This timing continues until {roundDetails.toDate ? new Date(roundDetails.toDate).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'}) : 'end date'}</div>}
+																			{roundDetails.time && <div className="mt-1"><strong>Time:</strong> {formatInterviewTime(roundDetails.time, roundDetails.fromDate)} - This timing continues until {roundDetails.toDate ? formatDate(roundDetails.toDate) : 'end date'}</div>}
 																		</div>
 																	</div>
 																)}
 																{!roundDetails.fromDate && !roundDetails.toDate && roundDetails.date && (
 																	<div className="mb-2">
 																		<small className="text-muted"><i className="fa fa-calendar me-1"></i>Date:</small>
-																		<div>{new Date(roundDetails.date).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'})}</div>
+																		<div>{formatDate(roundDetails.date)}</div>
 																	</div>
 																)}
 																{roundDetails.location && (
@@ -1304,7 +1301,7 @@ function CanStatusPage() {
 												{roundName !== 'Assessment' && (
 													<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
 														<a 
-															href={`https://schedule.taleglobal.net/interview/?jobId=${selectedApplication.jobId?._id || ''}`}
+															href={`https://schedule.taleglobal.net/scheduler/book/${selectedApplication.jobId?._id || ''}/${selectedApplication.candidateId?._id || selectedApplication.candidateId || ''}`}
 															target="_blank" 
 															rel="noopener noreferrer"
 															className="btn btn-primary"

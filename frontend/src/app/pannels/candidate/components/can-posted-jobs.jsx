@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate } from "react-router-dom";
 import JobZImage from "../../../common/jobz-img";
 
@@ -157,7 +158,7 @@ function CanPostedJobs() {
                                                     <div className="twm-job-self-mid-right">
                                                         <div className="twm-job-self-bottom">
                                                             <span className="job-time">
-                                                                Posted: {new Date(job.createdAt).toLocaleDateString()}
+                                                                Posted: {formatDate(job.createdAt)}
                                                             </span>
                                                         </div>
                                                     </div>

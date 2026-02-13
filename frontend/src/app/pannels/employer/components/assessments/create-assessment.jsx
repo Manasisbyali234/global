@@ -201,16 +201,16 @@ function CreateAssessmentPage() {
                                 <div className="card mb-4 assessment-card" style={{overflow: 'hidden'}}>
                                     <div className="card-body" style={{position: 'relative'}}>
                                         <style>{`.assessment-card .card-body > *:first-child { display: none !important; }`}</style>
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <p className="text-muted">{assessment.designation}</p>
-                                                <p className="card-text">{assessment.description}</p>
-                                                <div className="d-flex justify-content-between">
-                                                    <small>Questions: {assessment.questions?.length || 0}</small>
-                                                    <small>Time: {assessment.timer || 0} min</small>
+                                        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+                                            <div className="flex-grow-1 w-100">
+                                                <h6 className="text-primary mb-1" style={{fontWeight: '600', wordWrap: 'break-word', overflowWrap: 'break-word'}}>{assessment.designation}</h6>
+                                                <p className="card-text mb-2 text-muted" style={{fontSize: '0.9rem', wordWrap: 'break-word', overflowWrap: 'break-word'}}>{assessment.description}</p>
+                                                <div className="d-flex gap-3">
+                                                    <small className="text-muted"><i className="fa fa-question-circle me-1"></i>Questions: {assessment.questions?.length || 0}</small>
+                                                    <small className="text-muted"><i className="fa fa-clock me-1"></i>Time: {assessment.timer || 0} min</small>
                                                 </div>
                                             </div>
-                                            <div className="d-flex flex-column gap-2">
+                                            <div className="d-flex flex-row flex-sm-column gap-2 mt-2 mt-sm-0">
                                                 <button 
                                                     className="btn btn-sm btn-outline-secondary"
                                                     onClick={() => handleEditAssessment(assessment)}

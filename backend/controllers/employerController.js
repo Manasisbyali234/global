@@ -14,6 +14,7 @@ const { cacheInvalidation } = require('../utils/cacheInvalidation');
 const { sendSMS } = require('../utils/smsProvider');
 const { validateGSTFormat, fetchGSTInfo, mapGSTToProfile } = require('../utils/gstService');
 const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
+const { formatDate } = require('../utils/dateFormatter');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -2147,7 +2148,7 @@ exports.scheduleInterviewRound = async (req, res) => {
       for (const app of applications) {
         await createNotification({
           title: `${roundName} Scheduled`,
-          message: `${roundName} has been scheduled for ${job.title} position from ${new Date(fromDate).toLocaleDateString()} to ${new Date(toDate).toLocaleDateString()}`,
+          message: `${roundName} has been scheduled for ${job.title} position from ${formatDate(fromDate)} to ${formatDate(toDate)}`,
           type: 'interview_scheduled',
           role: 'candidate',
           relatedId: job._id,
@@ -2248,7 +2249,7 @@ exports.sendInterviewInvite = async (req, res) => {
         <h2>Interview Invitation</h2>
         <p>Dear ${application.candidateId.name},</p>
         <p>We would like to invite you for an interview for the position of <strong>${application.jobId.title}</strong>.</p>
-        <p><strong>Preferred Date:</strong> ${new Date(interviewDate).toLocaleDateString('en-GB')}</p>
+        <p><strong>Preferred Date:</strong> ${formatDate(interviewDate)}</p>
         <p><strong>Preferred Time:</strong> ${formatTimeToAMPM(interviewTime)}</p>
         ${meetingLink ? `<p><strong>Meeting Link:</strong> <a href="${meetingLink}">${meetingLink}</a></p>` : ''}
         ${instructions ? `<p><strong>Instructions:</strong> ${instructions}</p>` : ''}
@@ -2320,7 +2321,7 @@ exports.confirmInterview = async (req, res) => {
       }
     });
     
-    const formattedDate = new Date(confirmedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const formattedDate = formatDate(confirmedDate);
     
     const mailOptions = {
       from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,

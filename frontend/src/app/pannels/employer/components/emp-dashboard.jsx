@@ -1,6 +1,7 @@
 import {
     MapPin
 } from 'lucide-react';
+import { formatDate } from '../../../../utils/dateFormatter';
 import { useEffect, useState } from 'react';
 import CountUp from "react-countup";
 import { api } from '../../../../utils/api';
@@ -432,12 +433,7 @@ function EmpDashboardPage() {
                                                         margin: 0,
                                                         fontStyle: 'italic'
                                                     }}>
-                                                        {new Date(notification.createdAt).toLocaleDateString('en-US', {
-                                                            month: 'short',
-                                                            day: 'numeric',
-                                                            hour: '2-digit',
-                                                            minute: '2-digit'
-                                                        })}
+                                                        {formatDate(notification.createdAt)}
                                                     </p>
                                                 </div>
                                                 {hoveredId === notification._id && (

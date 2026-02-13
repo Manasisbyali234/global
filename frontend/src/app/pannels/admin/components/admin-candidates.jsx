@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import JobZImage from "../../../common/jobz-img";
 import { loadScript } from "../../../../globals/constants";
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+import { formatDate } from '../../../../utils/dateFormatter';
 function AdminCandidates() {
     const [candidates, setCandidates] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -79,15 +80,7 @@ function AdminCandidates() {
         }
     };
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
+
 
     return (
         <>

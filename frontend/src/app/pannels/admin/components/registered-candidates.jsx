@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { formatDate } from '../../../../utils/dateFormatter';
 import { api } from '../../../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import './registered-candidates-styles.css';
@@ -229,7 +230,7 @@ function RegisteredCandidatesPage() {
                                                     {candidate.profile?.location || 'Not specified'}
                                                 </td>
                                                 <td>
-                                                    {new Date(candidate.createdAt).toLocaleDateString()}
+                                                    {formatDate(candidate.createdAt)}
                                                 </td>
                                                 <td>
                                                     <button 

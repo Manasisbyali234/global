@@ -40,25 +40,22 @@ export const formatDateTimeToLocal = (datetime) => {
   try {
     const dateObj = new Date(datetime);
     
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    
     return {
-      date: dateObj.toLocaleDateString('en-US', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      }),
+      date: `${day}/${month}/${year}`,
       time: dateObj.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
         hour12: true
       }),
-      full: dateObj.toLocaleString('en-US', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
+      full: `${day}/${month}/${year} ${dateObj.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
         hour12: true
-      })
+      })}`
     };
   } catch (error) {
     console.error('Error formatting datetime:', error);

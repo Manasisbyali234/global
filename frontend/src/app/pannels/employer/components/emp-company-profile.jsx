@@ -1,4 +1,5 @@
 import { Briefcase, Building, Calendar, FileText, Globe, Hash, IdCard, Image as ImageIcon, Mail, MapPin, Phone, Upload, User as UserIcon, Users as UsersIcon, Images, Edit3 } from "lucide-react";
+import { formatDate } from '../../../../utils/dateFormatter';
 import { useEffect, useState } from "react";
 import { loadScript } from "../../../../globals/constants";
 import { validateForm, safeApiCall, getErrorMessage, getFieldLabel } from "../../../../utils/errorHandler";
@@ -349,7 +350,7 @@ function EmpCompanyProfilePage() {
                 {reuploadedAt && status === 'rejected' && (
                     <div className="text-muted mt-1" style={{fontSize: '0.75rem'}}>
                         <i className="fas fa-redo me-1"></i>
-                        Re-uploaded: {new Date(reuploadedAt).toLocaleDateString()}
+                        Re-uploaded: {formatDate(reuploadedAt)}
                     </div>
                 )}
             </div>
@@ -1574,7 +1575,7 @@ function EmpCompanyProfilePage() {
                                                             )}
                                                             <small className="text-muted">
                                                                 <i className="fas fa-calendar me-1"></i>
-                                                                {new Date(doc.uploadedAt).toLocaleDateString('en-GB')}
+                                                                {formatDate(doc.uploadedAt)}
                                                             </small>
                                                         </div>
                                                         <div className="col-3 d-flex align-items-start justify-content-end" style={{paddingLeft: '8px'}}>
@@ -2066,7 +2067,7 @@ function EmpCompanyProfilePage() {
                                                                     )}
                                                                     <small className="text-muted">
                                                                         <i className="fas fa-calendar me-1"></i>
-                                                                        {new Date(doc.uploadedAt).toLocaleDateString('en-GB')}
+                                                                        {formatDate(doc.uploadedAt)}
                                                                     </small>
                                                                 </div>
                                                                 <button 

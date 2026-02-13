@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import JobZImage from "../../../common/jobz-img";
@@ -103,11 +104,7 @@ function EmpCandidatesPage() {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
-    });
+    return formatDate(dateString);
   };
 
   // Derived filtering

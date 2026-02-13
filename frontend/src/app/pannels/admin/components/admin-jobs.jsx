@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../../utils/api';
+import { formatDate } from '../../../../utils/dateFormatter';
 
 function AdminJobs() {
     const [jobs, setJobs] = useState([]);
@@ -43,9 +44,7 @@ function AdminJobs() {
         }
     };
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString();
-    };
+
 
     const getJobTypeColor = (type) => {
         const colors = {

@@ -6,7 +6,7 @@ import 'aos/dist/aos.css';
 import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
 import SearchBar from '../../../../components/SearchBar';
-
+import { formatDate } from '../../../../utils/dateFormatter';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 function AdminEmployersAllRequest() {
     const navigate = useNavigate();
@@ -193,9 +193,7 @@ function AdminEmployersAllRequest() {
         }
     };
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString();
-    };
+
 
     if (loading) {
         return (

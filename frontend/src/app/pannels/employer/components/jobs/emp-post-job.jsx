@@ -1,4 +1,5 @@
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
+import { formatDate } from '../../../../../utils/dateFormatter';
 import React, { useState, useEffect, useCallback } from "react";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
 import { employer, empRoute, publicUser } from "../../../../../globals/route-names";
@@ -3102,7 +3103,7 @@ export default function EmpPostJob({ onNext }) {
 													const details = assessmentKey ? formData.interviewRoundDetails[assessmentKey] : null;
 													
 													if (details?.fromDate && details?.startTime && details?.endTime) {
-														showInfo(`Assessment scheduled on ${new Date(details.fromDate).toLocaleDateString()} from ${formatTimeToAMPM(details.startTime)} to ${formatTimeToAMPM(details.endTime)}`, 4000);
+														showInfo(`Assessment scheduled on ${formatDate(details.fromDate)} from ${formatTimeToAMPM(details.startTime)} to ${formatTimeToAMPM(details.endTime)}`, 4000);
 													} else {
 														showInfo('Please set assessment dates and times below to complete the schedule.', 3000);
 													}
@@ -3179,7 +3180,7 @@ export default function EmpPostJob({ onNext }) {
 														return (
 															<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
 																<span style={{ background: '#fef3c7', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
-																	{new Date(details.fromDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+																	{formatDate(details.fromDate)}
 																</span>
 																<span>at</span>
 																<span style={{ background: '#fef3c7', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
@@ -3974,9 +3975,9 @@ export default function EmpPostJob({ onNext }) {
 													<div style={{fontSize: 13, color: '#6b7280', fontWeight: 500}}>
 														<div style={{marginBottom: 4}}>
 															<i className="fa fa-calendar" style={{marginRight: 6}}></i>
-															{new Date(details.fromDate).toLocaleDateString()}
+															{formatDate(details.fromDate)}
 															{details.toDate && details.toDate !== details.fromDate && (
-																<> to {new Date(details.toDate).toLocaleDateString()}</>
+																<> to {formatDate(details.toDate)}</>
 															)}
 														</div>
 														{(details.startTime || details.endTime) && (

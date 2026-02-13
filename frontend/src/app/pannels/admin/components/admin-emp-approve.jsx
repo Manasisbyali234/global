@@ -6,6 +6,7 @@ import 'aos/dist/aos.css';
 import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
 import SearchBar from '../../../../components/SearchBar';
+import { formatDate } from '../../../../utils/dateFormatter';
 
 function AdminEmployersApproved() {
     const navigate = useNavigate();
@@ -76,9 +77,7 @@ function AdminEmployersApproved() {
         setFilteredEmployers(filtered);
     };
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString();
-    };
+
 
     if (loading) {
         return (

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate } from "react-router-dom";
 import { api } from '../../../../utils/api';
 import AOS from 'aos';
@@ -60,7 +61,7 @@ function AdminEmployersRejected() {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString();
+        return formatDate(dateString);
     };
 
     if (loading) {

@@ -61,9 +61,12 @@ function JobDetail1Page() {
     }, [jobId]);
 
     const checkApplicationStatus = useCallback(async () => {
+        if (!authState.token || !jobId) return;
+        
         try {
             const token = localStorage.getItem('candidateToken');
-            const response = await fetch(`http://localhost:5000/api/candidate/applications/status/${jobId}`, {
+            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+            const response = await fetch(`${baseUrl}/api/candidate/applications/status/${jobId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -73,7 +76,7 @@ function JobDetail1Page() {
         } catch (error) {
             console.error('Error checking application status:', error);
         }
-    }, [jobId]);
+    }, [jobId, authState.token]);
 
     const fetchCandidateData = useCallback(async () => {
         try {
@@ -106,7 +109,7 @@ function JobDetail1Page() {
             checkApplicationStatus();
             fetchCandidateData();
         }
-    }, [jobId, authState.token, authState.candidateId, checkApplicationStatus, fetchCandidateData]);
+    }, [jobId, authState.token, authState.candidateId, authState.isLoggedIn, checkApplicationStatus, fetchCandidateData]);
 
     const sidebarConfig = {
         showJobInfo: true
@@ -142,6 +145,10 @@ function JobDetail1Page() {
         if (jobId) {
             fetchJobDetails();
             fetchRazorpayKey();
+            // Check application status after job details are loaded
+            if (authState.token && authState.candidateId) {
+                checkApplicationStatus();
+            }
         }
         
         let ticking = false;
@@ -157,7 +164,7 @@ function JobDetail1Page() {
         
         window.addEventListener('scroll', throttledScroll, { passive: true });
         return () => window.removeEventListener('scroll', throttledScroll);
-    }, [jobId, handleScroll, fetchJobDetails]);
+    }, [jobId, handleScroll, fetchJobDetails, authState.token, authState.candidateId, checkApplicationStatus]);
 
     useEffect(() => {
         const pending = pendingPaymentManager.getPendingPayment();
@@ -339,12 +346,13 @@ function JobDetail1Page() {
                         const verifyData = await verifyResponse.json();
                         
                         if (verifyData.success) {
-                            setHasApplied(true);
                             pendingPaymentManager.clearPendingPayment();
                             setShowPendingPaymentBanner(false);
+                            setPendingPayment(null);
                             showSuccess('Payment successful and application submitted!');
+                            setHasApplied(true);
+                            await fetchJobDetails();
                             await checkApplicationStatus();
-                            fetchJobDetails();
                         } else {
                             showError(verifyData.message || 'Payment verification failed');
                         }
@@ -405,13 +413,13 @@ function JobDetail1Page() {
                         const verifyData = await verifyResponse.json();
                         
                         if (verifyData.success) {
-                            setHasApplied(true);
                             pendingPaymentManager.clearPendingPayment();
                             setShowPendingPaymentBanner(false);
                             setPendingPayment(null);
                             showSuccess('Payment successful and application submitted!');
+                            setHasApplied(true);
+                            await fetchJobDetails();
                             await checkApplicationStatus();
-                            fetchJobDetails();
                         } else {
                             showError(verifyData.message || 'Payment verification failed');
                         }

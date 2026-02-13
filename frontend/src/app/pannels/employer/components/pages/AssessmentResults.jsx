@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatDate } from '../../../../../utils/dateFormatter';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ResponsiveTable from '../../../../../components/ResponsiveTable';
@@ -92,8 +93,8 @@ export default function AssessmentResults() {
           padding: isMobile ? '1rem' : '2rem', 
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' 
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
+          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div style={{ flex: '1 1 300px' }}>
               <h2 style={{ 
                 fontSize: isMobile ? '1.5rem' : '1.875rem', 
                 fontWeight: 'bold', 
@@ -135,7 +136,8 @@ export default function AssessmentResults() {
                 borderRadius: '0.5rem',
                 fontSize: '0.875rem',
                 fontWeight: '500',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = '#ea580c';
@@ -253,7 +255,7 @@ export default function AssessmentResults() {
                         </span>
                       </td>
                       <td style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
-                        {new Date(result.endTime).toLocaleDateString()}
+                        {formatDate(result.endTime)}
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxWidth: '150px' }}>

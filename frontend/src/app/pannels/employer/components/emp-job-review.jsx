@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { formatDate } from '../../../../utils/dateFormatter';
 import JobZImage from "../../../common/jobz-img";
 import { loadScript } from "../../../../globals/constants";
 import { useNavigate, useParams } from "react-router-dom";
@@ -162,7 +163,7 @@ function EmpJobReviewPage() {
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Offer Letter Release Date</h5>
-                                    <p className="mb-0 text-muted">{jobDetails.offerLetterDate ? new Date(jobDetails.offerLetterDate).toLocaleDateString() : 'N/A'}</p>
+                                    <p className="mb-0 text-muted">{jobDetails.offerLetterDate ? formatDate(jobDetails.offerLetterDate) : 'N/A'}</p>
                                 </div>
 
 
@@ -170,7 +171,7 @@ function EmpJobReviewPage() {
                                 <div className="mt-2">
                                     <h5 className="mb-1">Last Date of Application</h5>
                                     <p className="mb-0 text-muted">
-                                        {jobDetails.lastDateOfApplication ? new Date(jobDetails.lastDateOfApplication).toLocaleDateString() : 'N/A'}
+                                        {jobDetails.lastDateOfApplication ? formatDate(jobDetails.lastDateOfApplication) : 'N/A'}
                                         {jobDetails.lastDateOfApplicationTime && ` at ${formatTimeToAMPM(jobDetails.lastDateOfApplicationTime)}`}
                                     </p>
                                 </div>
@@ -287,10 +288,10 @@ function EmpJobReviewPage() {
                                                         <p className="mb-1"><strong>Description:</strong> {details.description}</p>
                                                     )}
                                                     {details.fromDate && (
-                                                        <p className="mb-1"><strong>From Date:</strong> {new Date(details.fromDate).toLocaleDateString()}</p>
+                                                        <p className="mb-1"><strong>From Date:</strong> {formatDate(details.fromDate)}</p>
                                                     )}
                                                     {details.toDate && (
-                                                        <p className="mb-1"><strong>To Date:</strong> {new Date(details.toDate).toLocaleDateString()}</p>
+                                                        <p className="mb-1"><strong>To Date:</strong> {formatDate(details.toDate)}</p>
                                                     )}
                                                     {details.startTime && (
                                                         <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(details.startTime)}</p>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatDate } from '../../../../../utils/dateFormatter';
 import { usePopupNotification } from '../../../../../hooks/usePopupNotification';
 import PopupNotification from '../../../../../components/PopupNotification';
 import ConfirmationDialog from '../../../../../components/ConfirmationDialog';
@@ -127,7 +128,7 @@ function ManageAssessmentPage() {
                                             </div>
                                             <div className="text-muted">
                                                 <i className="fa fa-calendar-alt text-dark m-r5" />
-                                                Created: {new Date(assessment.createdAt).toLocaleDateString()}
+                                                Created: {formatDate(assessment.createdAt)}
                                             </div>
                                         </div>
                                     </div>

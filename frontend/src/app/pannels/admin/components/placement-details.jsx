@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDate } from '../../../../utils/dateFormatter';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../../../utils/api';
 import { useWebSocket } from '../../../../contexts/WebSocketContext';
@@ -602,11 +603,7 @@ function PlacementDetails() {
                             <label className="text-muted mb-1">
                                 <i className="fa fa-calendar me-2" style={{color: '#fd7e14'}}></i>Registration Date
                             </label>
-                            <p className="mb-0 font-weight-bold">{new Date(placement.createdAt).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                            })}</p>
+                            <p className="mb-0 font-weight-bold">{formatDate(placement.createdAt)}</p>
                         </div>
                     </div>
                     <div className="info-card" style={{minHeight: '100px', background: 'transparent'}}>
@@ -763,7 +760,7 @@ function PlacementDetails() {
                                                             <div className="d-flex align-items-center">
                                                                 <i className="fa fa-calendar me-2" style={{color: '#007bff'}}></i>
                                                                 <span style={{fontSize: '0.85rem', color: '#495057'}}>
-                                                                    {new Date(file.uploadedAt).toLocaleDateString()}
+                                                                    {formatDate(file.uploadedAt)}
                                                                 </span>
                                                             </div>
                                                             <div className="d-flex align-items-center">
@@ -776,7 +773,7 @@ function PlacementDetails() {
                                                                 <div className="d-flex align-items-center">
                                                                     <i className="fa fa-check-circle me-2" style={{color: '#28a745'}}></i>
                                                                     <span style={{fontSize: '0.85rem', color: '#495057'}}>
-                                                                        Processed: {new Date(file.processedAt).toLocaleDateString()}
+                                                                        Processed: {formatDate(file.processedAt)}
                                                                     </span>
                                                                 </div>
                                                             )}
@@ -1448,7 +1445,7 @@ function PlacementDetails() {
                                                         </td>
                                                         <td>
                                                             <small className="text-muted">
-                                                                {record.processedAt ? new Date(record.processedAt).toLocaleDateString() : '-'}
+                                                                {record.processedAt ? formatDate(record.processedAt) : '-'}
                                                             </small>
                                                         </td>
                                                     </tr>

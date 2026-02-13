@@ -1,4 +1,5 @@
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+import { formatDate } from '../../../../utils/dateFormatter';
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
@@ -152,11 +153,7 @@ function CanStatusPage() {
 														<tr key={index} className="border-bottom">
 															<td className="px-4 py-3">
 																<span className="text-dark fw-medium">
-																	{new Date(app.createdAt || app.appliedAt).toLocaleDateString('en-US', {
-																		day: '2-digit',
-																		month: 'short',
-																		year: 'numeric'
-																	})}
+																	{formatDate(app.createdAt || app.appliedAt)}
 																</span>
 															</td>
 															<td className="px-4 py-3">
@@ -256,7 +253,7 @@ function CanStatusPage() {
 									<strong>Status:</strong> {selectedApplication.status || 'N/A'}
 								</div>
 								<div className="mb-3">
-									<strong>Applied Date:</strong> {new Date(selectedApplication.createdAt || selectedApplication.appliedAt).toLocaleDateString()}
+									<strong>Applied Date:</strong> {formatDate(selectedApplication.createdAt || selectedApplication.appliedAt)}
 								</div>
 							</div>
 							<div className="modal-footer">

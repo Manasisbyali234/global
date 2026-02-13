@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDate } from '../../../utils/dateFormatter';
 import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { debugAuth, testAPIConnection, testPlacementAuth } from '../../../utils/authDebug';
@@ -790,7 +791,7 @@ function PlacementDashboardRedesigned() {
                                                             <div className="activity-metadata">
                                                                 <span><i className="fa fa-university"></i>{file.university || placementData?.collegeName || 'University'}</span>
                                                                 <span><i className="fa fa-calendar"></i>{file.batch || 'Batch 2024'}</span>
-                                                                <span><i className="fa fa-clock-o"></i>{new Date(file.uploadedAt).toLocaleDateString()}</span>
+                                                                <span><i className="fa fa-clock-o"></i>{formatDate(file.uploadedAt)}</span>
                                                                 <span className={`status-indicator ${
                                                                     file.status === 'processed' ? 'status-processed' : 
                                                                     file.status === 'approved' ? 'status-approved' : 
@@ -1260,7 +1261,7 @@ function PlacementDashboardRedesigned() {
                                                                 <td>{file.customName || '-'}</td>
                                                                 <td>{file.university || '-'}</td>
                                                                 <td>{file.batch || '-'}</td>
-                                                                <td>{new Date(file.uploadedAt).toLocaleDateString()}</td>
+                                                                <td>{formatDate(file.uploadedAt)}</td>
                                                                 <td>
                                                                     <span className={`status-badge ${
                                                                         file.status === 'processed' ? 'status-success' : 

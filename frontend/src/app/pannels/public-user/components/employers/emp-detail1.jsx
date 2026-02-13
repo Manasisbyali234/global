@@ -1,4 +1,5 @@
 import JobZImage from "../../../../common/jobz-img";
+import { formatDate } from '../../../../../utils/dateFormatter';
 import SectionEmployersCandidateSidebar from "../../sections/common/section-emp-can-sidebar";
 import SectionShareProfile from "../../sections/common/section-share-profile";
 import SectionOfficePhotos1 from "../../sections/common/section-office-photos1";
@@ -551,7 +552,7 @@ function EmployersDetail1Page() {
 																		</div>
 																		<div className="d-flex align-items-center flex-wrap">
 																			<h6 className="mb-0 fw-bold me-2">{review.reviewerName}</h6>
-																			<small className="text-muted">{new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</small>
+																			<small className="text-muted">{formatDate(review.createdAt)}</small>
 																		</div>
 																	</div>
 																	<span className="badge bg-success px-3 py-2" style={{fontSize: '0.75rem'}}>✓ Published</span>

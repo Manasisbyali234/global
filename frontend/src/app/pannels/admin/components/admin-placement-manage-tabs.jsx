@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { api } from '../../../../utils/api';
 import SearchBar from '../../../../components/SearchBar';
-
+import { formatDate } from '../../../../utils/dateFormatter';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 function AdminPlacementOfficersTabs() {
     const navigate = useNavigate();
@@ -186,7 +186,7 @@ function AdminPlacementOfficersTabs() {
                                             <td style={{textAlign: 'center'}}>{placement.name}</td>
                                             <td style={{textAlign: 'center', fontFamily: 'monospace'}}>{placement.email}</td>
                                             <td style={{textAlign: 'center', fontFamily: 'monospace'}}>{placement.phone || 'N/A'}</td>
-                                            <td style={{textAlign: 'center'}}>{new Date(placement.createdAt).toLocaleDateString()}</td>
+                                            <td style={{textAlign: 'center'}}>{formatDate(placement.createdAt)}</td>
                                             <td style={{textAlign: 'center'}}>
                                                 <span className={`status-badge status-${placement.status || 'pending'}`}>{placement.status || 'Pending'}</span>
                                             </td>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDate } from '../../../utils/dateFormatter';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -470,7 +471,7 @@ function BatchUpload() {
                                                 <span className="file-name">{item.fileName}</span>
                                                 <span className="university">{item.university || placementData?.collegeName || 'Unknown University'}</span>
                                                 <span className="batch-info">{item.batch || 'General Batch'}</span>
-                                                <span className="upload-date">{new Date(item.uploadedAt).toLocaleDateString()}</span>
+                                                <span className="upload-date">{formatDate(item.uploadedAt)}</span>
                                             </div>
                                             <div className="item-footer">
                                                 {item.status === 'rejected' ? (

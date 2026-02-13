@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDate } from '../../../../../utils/dateFormatter';
 import JobZImage from "../../../../common/jobz-img";
 import { api } from '../../../../utils/api';
 import './emp-manage-jobs.css';
@@ -48,7 +49,7 @@ function EmpManageJobsPage() {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString();
+        return formatDate(dateString);
     };
 
     const handleDelete = async (jobId) => {

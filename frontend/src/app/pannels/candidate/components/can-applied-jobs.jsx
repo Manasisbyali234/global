@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { formatDate } from '../../../../utils/dateFormatter';
 import { publicUser } from "../../../../globals/route-names";
 import JobZImage from "../../../common/jobz-img";
 import SectionRecordsFilter from "../../public-user/sections/common/section-records-filter";
@@ -144,7 +145,7 @@ function CanAppliedJobsPage() {
 													<h4>
 														{app.job?.title || 'Job Title'}
 														<span className="twm-job-post-duration">
-															/ {new Date(app.appliedAt).toLocaleDateString()}
+															/ {formatDate(app.appliedAt)}
 														</span>
 													</h4>
 												</NavLink>

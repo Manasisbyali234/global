@@ -9,7 +9,7 @@ import "./can-sidebar.css";
 
 function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
   const currentpath = useLocation().pathname;
-  const [isPlacementCandidate, setIsPlacementCandidate] = useState(false);
+  const [showTransactions, setShowTransactions] = useState(true);
 
   useEffect(() => {
     const checkPlacementStatus = async () => {
@@ -25,7 +25,8 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
           const data = await response.json();
           if (data.success && data.candidate) {
             const isPlacement = !!data.candidate.placement;
-            setIsPlacementCandidate(isPlacement);
+            const credits = data.candidate.credits || 0;
+            setShowTransactions(!isPlacement || credits === 0);
           }
         }
       } catch (error) {
@@ -92,7 +93,7 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
                 <span className="admin-nav-text">Support</span>
               </NavLink>
             </li>
-            {!isPlacementCandidate && (
+            {showTransactions && (
               <li className={setMenuActive(currentpath, canRoute(candidate.TRANSACTIONS))}>
                 <NavLink to={canRoute(candidate.TRANSACTIONS)} onClick={handleLinkClick}>
                   <i className="fa fa-receipt" />

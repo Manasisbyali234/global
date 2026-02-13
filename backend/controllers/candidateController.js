@@ -9,6 +9,7 @@ const { createProfileCompletionNotification } = require('./notificationControlle
 const { sendWelcomeEmail, sendJobApplicationConfirmationEmail } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { sendSMS } = require('../utils/smsProvider');
+const { formatDate } = require('../utils/dateFormatter');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -778,7 +779,7 @@ exports.respondToInterviewInvite = async (req, res) => {
           <h2>Candidate Interview Response</h2>
           <p>Dear ${application.employerId.companyName},</p>
           <p>The candidate <strong>${req.user.name}</strong> has responded to your interview invitation for the position of <strong>${application.jobId.title}</strong>.</p>
-          <p><strong>Candidate's Available Date:</strong> ${new Date(availableDate).toLocaleDateString()}</p>
+          <p><strong>Candidate's Available Date:</strong> ${formatDate(availableDate)}</p>
           <p><strong>Candidate's Available Time:</strong> ${availableTime}</p>
           ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
           <p>Please log in to your dashboard to confirm the interview schedule.</p>

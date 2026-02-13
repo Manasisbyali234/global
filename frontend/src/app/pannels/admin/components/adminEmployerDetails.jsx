@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams } from "react-router-dom";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -60,7 +61,7 @@ function EmployerDetails() {
     };
 
     const formatDate = (date) => {
-        return date ? new Date(date).toLocaleDateString() : 'N/A';
+        return date ? formatDate(date) : 'N/A';
     };
 
     const downloadDocument = async (employerId, documentType) => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { formatDate } from '../../../../utils/dateFormatter';
 import { Container, Row, Col, Card, Badge, Button, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import './admin-support-tickets.css';
 import './admin-emp-manage-styles.css';
@@ -26,11 +27,7 @@ function AdminSupportTickets() {
 
     const formatDate = (value) => {
         if (!value) return '--';
-        return new Date(value).toLocaleDateString(undefined, {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
+        return formatDate(value);
     };
 
     useEffect(() => {

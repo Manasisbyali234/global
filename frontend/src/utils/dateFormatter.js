@@ -2,7 +2,6 @@
  * Utility function to format dates consistently across the application
  * Format: DD/MM/YYYY
  */
-
 export const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     
@@ -19,6 +18,9 @@ export const formatDate = (dateString) => {
         return 'Invalid Date';
     }
 };
+
+// Alias for consistency
+export const toLocaleDateString = formatDate;
 
 export const formatDateTime = (dateString) => {
     if (!dateString) return 'N/A';
