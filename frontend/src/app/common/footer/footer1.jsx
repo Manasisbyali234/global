@@ -128,7 +128,7 @@ function Footer1() {
                         {/* Column 1: Brand & Contact */}
                         <Col lg={4} md={6}>
                             <div className="footer-brand mb-4">
-                                <div className="logo-footer mb-3">
+                                <div className="logo-footer mb-3" style={{ marginTop: '-20px' }}>
                                     <NavLink to={publicUser.INITIAL}>
                                         <JobZImage
                                             id="skin_footer_light_logo"
