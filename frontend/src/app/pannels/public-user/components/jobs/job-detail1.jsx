@@ -723,10 +723,24 @@ function JobDetail1Page() {
                                         </div>
                                     </div>
 
-
+                                    {job.responsibilities && job.responsibilities.length > 0 && (
+                                        <div style={{marginBottom: '20px'}}>
+                                            <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
+                                                <i className="feather-check-circle" style={{marginRight: '10px', color: '#28a745'}}></i>
+                                                Responsibilities
+                                            </h4>
+                                            <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}}>
+                                                <ul style={{margin: 0, paddingLeft: '2rem'}}>
+                                                    {job.responsibilities.map((resp, index) => (
+                                                        <li key={index} style={{marginBottom: 0}}>{resp}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {job.employerProfile && (
-                                        <div style={{marginTop: '30px', marginBottom: '30px'}}>
+                                        <div style={{marginBottom: '20px'}}>
                                             <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
                                                 <i className="feather-home" style={{marginRight: '10px', color: '#f39c12'}}></i>
                                                 About {job.employerId?.employerType === 'consultant' ? 'Hiring Company' : 'Company'}
@@ -741,8 +755,8 @@ function JobDetail1Page() {
                                             </div>
 
                                             {(job.employerId?.employerType === 'consultant' ? job.companyDescription : job.employerProfile.whyJoinUs) && (
-                                                <div style={{marginBottom: '20px', marginTop: '20px'}}>
-                                                    <h5 style={{fontSize: '18px', fontWeight: '600', color: '#34495e', marginBottom: '10px'}}>Why Join Us</h5>
+                                                <div style={{marginBottom: '20px'}}>
+                                                    <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>Why Join Us</h4>
                                                     <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
                                                         __html: (job.employerId?.employerType === 'consultant') 
                                                             ? job.companyDescription 
@@ -752,24 +766,6 @@ function JobDetail1Page() {
                                             )}
 
 
-                                        </div>
-                                    )}
-
-
-
-                                    {job.responsibilities && job.responsibilities.length > 0 && (
-                                        <div style={{marginBottom: '20px'}}>
-                                            <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
-                                                <i className="feather-check-circle" style={{marginRight: '10px', color: '#28a745'}}></i>
-                                                Responsibilities
-                                            </h4>
-                                            <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}}>
-                                                <ul style={{margin: 0, paddingLeft: '2rem'}}>
-                                                    {job.responsibilities.map((resp, index) => (
-                                                        <li key={index} style={{marginBottom: 0}}>{resp}</li>
-                                                    ))}
-                                                </ul>
-                                            </div>
                                         </div>
                                     )}
 

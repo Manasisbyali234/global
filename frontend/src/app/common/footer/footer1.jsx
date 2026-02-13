@@ -155,7 +155,7 @@ function Footer1() {
                         </Col>
 
                         {/* Column 2: Quick Links */}
-                        <Col lg={3} md={6}>
+                        <Col lg={2} md={6}>
                             <h4 className="footer-col-title">Quick Links</h4>
                             <ul className="footer-link-list">
                                 <li><NavLink to={publicUser.INITIAL}>Home</NavLink></li>

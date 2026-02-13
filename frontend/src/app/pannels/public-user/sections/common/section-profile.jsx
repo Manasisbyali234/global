@@ -36,7 +36,7 @@ function SectionProfile({ employer }) {
                             <i className="fas fa-building" style={iconStyle}></i>
                             <div>
                                 <span className="twm-title">Company Type</span>
-                                <div className="twm-s-info-discription">{(employer?.industrySector || employer?.companyType || 'Not specified').toUpperCase()}</div>
+                                <div className="twm-s-info-discription">{(employer?.industrySector || employer?.companyType || 'Not specified').replace(/_/g, ' ')}</div>
                             </div>
                         </div>
                     </li>

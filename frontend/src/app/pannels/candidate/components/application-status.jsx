@@ -412,7 +412,7 @@ function CanStatusPage() {
 				'available': { text: 'Available', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
 				'expired': { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'pending': { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
-				'not_required': { text: 'Not Required', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
+				'not_required': { text: 'Expired', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
 				'not_started': { text: 'Not Started', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
 			};
 			

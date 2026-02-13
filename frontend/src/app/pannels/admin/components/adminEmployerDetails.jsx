@@ -1013,7 +1013,7 @@ function EmployerDetails() {
                     Posted Jobs
                 </h4>
                 <div className="job-count-container">
-                    <div className="job-count-card">
+                    <div className="job-count-card" onClick={() => navigate('/job-grid')} style={{cursor: 'pointer'}}>
                         <div className="job-count-info">
                             <div className="job-count-number">
                                 {jobsLoading ? (

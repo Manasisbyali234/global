@@ -134,7 +134,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			const lastQuestion = questions[questions.length - 1];
 			const questionText = (lastQuestion.question || "").replace(/<[^>]*>/g, '').trim();
 			
-			if (!questionText && lastQuestion.type !== 'image-mcq') {
+			if (!questionText) {
 				showWarning("Please write a question before adding a new one");
 				return;
 			}
@@ -275,7 +275,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			const question = questions[i];
 			
 			const questionText = (question.question || "").replace(/<[^>]*>/g, '').trim();
-			if (!questionText && question.type !== 'image-mcq') {
+			if (!questionText) {
 				showWarning(`Please enter text for Question ${i + 1}`);
 				return;
 			}
@@ -663,7 +663,17 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								</div>
 							</div>
 							{q.type === 'image-mcq' ? (
-								<div className="mb-3">
+								<>
+									<ReactQuill
+										theme="snow"
+										value={q.question || ''}
+										onChange={(value) => handleQuestionChange(qIndex, "question", value)}
+										modules={quillModules}
+										formats={quillFormats}
+										placeholder="Enter your question here..."
+										style={{ marginBottom: '1rem' }}
+									/>
+									<div className="mb-3">
 									<label className="form-label small text-muted mb-2 fw-semibold">
 										Upload Question Image <span style={{color: '#dc2626'}}>*</span>
 									</label>
@@ -719,6 +729,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 										</small>
 									)}
 								</div>
+								</>
 							) : (
 								<ReactQuill
 									theme="snow"
@@ -730,7 +741,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 									style={{ marginBottom: '1rem' }}
 								/>
 							)}
-							{q.type === "questionary-image-mcq" && (
+							{q.type === "visual-mcq" && (
 								<div className="mb-3">
 									<label className="form-label small text-muted mb-1">Question Image</label>
 									<input
@@ -800,18 +811,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 													/>
 												)}
 											</div>
-											{q.type === "visual-mcq" && (
-												<div className="mt-2">
-													<input
-														type="file"
-														className="form-control form-control-sm"
-														accept="image/*"
-														onChange={(e) => handleOptionImageUpload(qIndex, optIndex, e.target.files[0])}
-														style={{ fontSize: "12px" }}
-													/>
-												</div>
-											)}
-											{(q.type === "visual-mcq" || q.type === "questionary-image-mcq") && q.optionImages && q.optionImages[optIndex] && (
+											{q.type === "questionary-image-mcq" && q.optionImages && q.optionImages[optIndex] && (
 												<div className="mt-1">
 													<img 
 														src={q.optionImages[optIndex]} 
@@ -898,7 +898,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								</div>
 							) : (
 								<div className="mb-3">
-									<small className="text-muted">This is a subjective question that requires a detailed explanation in the response.</small>
+									<small className="text-muted">This is a subjective question. Requires the Candidate to provide a detailed explanation.</small>
 								</div>
 							)}
 							

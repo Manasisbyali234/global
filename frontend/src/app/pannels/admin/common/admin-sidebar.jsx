@@ -11,6 +11,8 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
     const [userPermissions, setUserPermissions] = useState([]);
     const [isSubAdmin, setIsSubAdmin] = useState(false);
     const [openMenus, setOpenMenus] = useState({});
+    const [hasNewEmployers, setHasNewEmployers] = useState(false);
+    const [hasNewPlacements, setHasNewPlacements] = useState(false);
 
     // Function to fetch and update sub-admin profile
     const fetchSubAdminProfile = async () => {
@@ -50,9 +52,54 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         }
     };
 
+    // Check for new employers
+    const checkNewEmployers = async () => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            if (!token) return;
+            
+            const res = await fetch('http://localhost:5000/api/admin/employers?approvalStatus=pending&limit=1', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                setHasNewEmployers(data.data?.length > 0);
+            }
+        } catch (error) {
+            console.error('Error checking new employers:', error);
+        }
+    };
+
+    // Check for new placements
+    const checkNewPlacements = async () => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            if (!token) return;
+            
+            const res = await fetch('http://localhost:5000/api/admin/placements?status=pending&limit=1', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                setHasNewPlacements(data.data?.length > 0);
+            }
+        } catch (error) {
+            console.error('Error checking new placements:', error);
+        }
+    };
+
     useEffect(() => {
         loadScript("js/custom.js");
         loadScript("js/admin-sidebar.js");
+        checkNewEmployers();
+        checkNewPlacements();
+        
+        const interval = setInterval(() => {
+            checkNewEmployers();
+            checkNewPlacements();
+        }, 45000);
         
         // Add arrows after scripts load
         setTimeout(() => {
@@ -77,12 +124,17 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             // Set up periodic refresh every 30 seconds
             const refreshInterval = setInterval(fetchSubAdminProfile, 30000);
             
-            return () => clearInterval(refreshInterval);
+            return () => {
+                clearInterval(refreshInterval);
+                clearInterval(interval);
+            };
         } else if (adminData) {
             // Regular admin has all permissions
             setUserPermissions(['employers', 'placement_officers', 'registered_candidates']);
             setIsSubAdmin(false);
         }
+        
+        return () => clearInterval(interval);
 
         // Auto-open menus if current path matches submenu items
         const isEmployerPath = [
@@ -154,6 +206,16 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     <li className={currentpath === adminRoute(admin.CAN_MANAGE) ? 'active' : ''}>
                                         <NavLink to={adminRoute(admin.CAN_MANAGE)} id="allList">
                                             <span className="admin-nav-text">All Submissions</span>
+                                            {hasNewEmployers && (
+                                                <span style={{
+                                                    display: 'inline-block',
+                                                    width: '8px',
+                                                    height: '8px',
+                                                    backgroundColor: '#ff4444',
+                                                    borderRadius: '50%',
+                                                    marginLeft: '8px'
+                                                }}></span>
+                                            )}
                                         </NavLink>
                                     </li>
                                     <li className={currentpath === adminRoute(admin.CAN_APPROVE) ? 'active' : ''}>
@@ -192,6 +254,16 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     <li className={currentpath === adminRoute(admin.PLACEMENT_MANAGE) ? 'active' : ''}>
                                         <NavLink to={adminRoute(admin.PLACEMENT_MANAGE)}>
                                             <span className="admin-nav-text">All Submissions</span>
+                                            {hasNewPlacements && (
+                                                <span style={{
+                                                    display: 'inline-block',
+                                                    width: '8px',
+                                                    height: '8px',
+                                                    backgroundColor: '#ff4444',
+                                                    borderRadius: '50%',
+                                                    marginLeft: '8px'
+                                                }}></span>
+                                            )}
                                         </NavLink>
                                     </li>
                                     <li className={currentpath === adminRoute(admin.PLACEMENT_APPROVE) ? 'active' : ''}>

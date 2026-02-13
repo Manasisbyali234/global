@@ -644,7 +644,7 @@ exports.updateEmployerProfile = async (req, res) => {
           const isApproved = req.body[field] === 'approved';
           const notificationData = {
             title: `${documentName} ${isApproved ? 'Approved' : 'Rejected'}`,
-            message: `Your ${documentName} document has been ${req.body[field]} by admin. ${isApproved ? 'You can now proceed with the next steps.' : 'Please resubmit the document with correct information.'}`,
+            message: `Your ${documentName} has been ${req.body[field]} by admin. ${isApproved ? 'You can now proceed with the next steps.' : 'Please resubmit the document with correct information.'}`,
             type: isApproved ? 'document_approved' : 'document_rejected',
             role: 'employer',
             relatedId: new mongoose.Types.ObjectId(req.params.id),
