@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const Employer = require('../models/Employer');
 const EmployerProfile = require('../models/EmployerProfile');
 const Job = require('../models/Job');
+const InterviewRound = require('../models/InterviewRound');
 const Application = require('../models/Application');
 const Message = require('../models/Message');
 const Subscription = require('../models/Subscription');
@@ -862,15 +863,19 @@ exports.createJob = async (req, res) => {
       Object.entries(jobData.interviewRoundDetails).forEach(([key, value]) => {
         if (value && typeof value === 'object') {
           interviewRounds.push({
-            id: key,
-            name: key.replace(/_\d+$/, ''),
+            name: value.customType || key.replace(/_\d+$/, ''),
             date: value.fromDate || value.date || null,
             startTime: value.startTime || value.time || '',
-            endTime: value.endTime || ''
+            endTime: value.endTime || '',
+            applicationLimit: parseInt(jobData.applicationLimit) || 50
           });
         }
       });
-      jobData.interviewRounds = interviewRounds;
+      
+      // Save to new InterviewRound collection
+      if (interviewRounds.length > 0) {
+        jobData.interviewRounds = interviewRounds;
+      }
       delete jobData.interviewRoundDetails;
     }
     
@@ -986,6 +991,20 @@ exports.createJob = async (req, res) => {
     const job = await Job.create(jobData);
     console.log('Job created successfully with typeOfEmployment:', job.typeOfEmployment);
     console.log('Job created:', JSON.stringify(job, null, 2));
+
+    // Create interview rounds in new collection
+    if (jobData.interviewRounds && jobData.interviewRounds.length > 0) {
+      for (const round of jobData.interviewRounds) {
+        await InterviewRound.create({
+          job_id: job._id,
+          name: round.name,
+          date: round.date,
+          startTime: round.startTime,
+          endTime: round.endTime,
+          applicationLimit: round.applicationLimit
+        });
+      }
+    }
 
     // If job has assessment, update existing applications to set assessmentStatus to 'available'
     if (job.assessmentId) {
@@ -1201,15 +1220,31 @@ exports.updateJob = async (req, res) => {
       Object.entries(req.body.interviewRoundDetails).forEach(([key, value]) => {
         if (value && typeof value === 'object') {
           interviewRounds.push({
-            id: key,
-            name: key.replace(/_\d+$/, ''),
+            name: value.customType || key.replace(/_\d+$/, ''),
             date: value.fromDate || value.date || null,
             startTime: value.startTime || value.time || '',
-            endTime: value.endTime || ''
+            endTime: value.endTime || '',
+            applicationLimit: parseInt(req.body.applicationLimit) || 50
           });
         }
       });
-      req.body.interviewRounds = interviewRounds;
+      
+      // Update interview rounds in new collection
+      if (interviewRounds.length > 0) {
+        // Delete old rounds
+        await InterviewRound.deleteMany({ job_id: req.params.jobId });
+        // Create new rounds
+        for (const round of interviewRounds) {
+          await InterviewRound.create({
+            job_id: req.params.jobId,
+            name: round.name,
+            date: round.date,
+            startTime: round.startTime,
+            endTime: round.endTime,
+            applicationLimit: round.applicationLimit
+          });
+        }
+      }
       delete req.body.interviewRoundDetails;
     }
     
@@ -1344,17 +1379,21 @@ exports.getEmployerJobs = async (req, res) => {
       .populate('employerId', 'companyName')
       .sort({ createdAt: -1 });
     
-    // Ensure all jobs have a companyName field for search functionality
-    const jobsWithCompanyName = jobs.map(job => {
+    // Fetch interview rounds for all jobs
+    const jobsWithRounds = await Promise.all(jobs.map(async (job) => {
       const jobObj = job.toObject();
-      // If job doesn't have companyName (for regular companies), use employer's companyName
       if (!jobObj.companyName && job.employerId?.companyName) {
         jobObj.companyName = job.employerId.companyName;
       }
+      
+      // Get interview rounds from new collection
+      const interviewRounds = await InterviewRound.find({ job_id: job._id }).sort({ date: 1, startTime: 1 });
+      jobObj.interviewRounds = interviewRounds;
+      
       return jobObj;
-    });
+    }));
     
-    res.json({ success: true, jobs: jobsWithCompanyName });
+    res.json({ success: true, jobs: jobsWithRounds });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -1377,7 +1416,15 @@ exports.getJob = async (req, res) => {
     if (!job) {
       return res.status(404).json({ success: false, message: 'Job not found' });
     }
-    res.json({ success: true, job });
+    
+    // Get interview rounds from new collection
+    const interviewRounds = await InterviewRound.find({ job_id: req.params.jobId }).sort({ date: 1, startTime: 1 });
+    
+    // Return job with new interview rounds structure
+    const jobData = job.toObject();
+    jobData.interviewRounds = interviewRounds;
+    
+    res.json({ success: true, job: jobData });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -2866,6 +2913,122 @@ exports.resendMobileOTP = async (req, res) => {
 
     res.json({ success: true, message: 'New OTP sent successfully' });
   } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+// Interview Rounds Management - New Structure
+exports.createInterviewRounds = async (req, res) => {
+  try {
+    const { jobId, rounds } = req.body;
+    
+    // Verify job belongs to employer
+    const job = await Job.findOne({ _id: jobId, employerId: req.user._id });
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+    
+    // Validate rounds data
+    if (!rounds || !Array.isArray(rounds) || rounds.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid rounds data' });
+    }
+    
+    // Create interview rounds
+    const createdRounds = [];
+    for (const round of rounds) {
+      const interviewRound = await InterviewRound.create({
+        job_id: jobId,
+        name: round.name,
+        date: round.date,
+        startTime: normalizeTimeFormat(round.startTime),
+        endTime: normalizeTimeFormat(round.endTime),
+        applicationLimit: round.applicationLimit || job.applicationLimit || 50
+      });
+      createdRounds.push(interviewRound);
+    }
+    
+    res.status(201).json({ 
+      success: true, 
+      message: 'Interview rounds created successfully',
+      rounds: createdRounds 
+    });
+  } catch (error) {
+    console.error('Create interview rounds error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getInterviewRounds = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    
+    // Verify job belongs to employer
+    const job = await Job.findOne({ _id: jobId, employerId: req.user._id });
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+    
+    // Get interview rounds for this job
+    const rounds = await InterviewRound.find({ job_id: jobId }).sort({ date: 1, startTime: 1 });
+    
+    res.json({ success: true, rounds });
+  } catch (error) {
+    console.error('Get interview rounds error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.updateInterviewRound = async (req, res) => {
+  try {
+    const { roundId } = req.params;
+    const { name, date, startTime, endTime, applicationLimit } = req.body;
+    
+    // Find the round and verify it belongs to employer's job
+    const round = await InterviewRound.findById(roundId).populate('job_id');
+    if (!round) {
+      return res.status(404).json({ success: false, message: 'Interview round not found' });
+    }
+    
+    if (round.job_id.employerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Unauthorized' });
+    }
+    
+    // Update round
+    if (name) round.name = name;
+    if (date) round.date = date;
+    if (startTime) round.startTime = normalizeTimeFormat(startTime);
+    if (endTime) round.endTime = normalizeTimeFormat(endTime);
+    if (applicationLimit) round.applicationLimit = applicationLimit;
+    
+    await round.save();
+    
+    res.json({ success: true, message: 'Interview round updated successfully', round });
+  } catch (error) {
+    console.error('Update interview round error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.deleteInterviewRound = async (req, res) => {
+  try {
+    const { roundId } = req.params;
+    
+    // Find the round and verify it belongs to employer's job
+    const round = await InterviewRound.findById(roundId).populate('job_id');
+    if (!round) {
+      return res.status(404).json({ success: false, message: 'Interview round not found' });
+    }
+    
+    if (round.job_id.employerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Unauthorized' });
+    }
+    
+    await InterviewRound.findByIdAndDelete(roundId);
+    
+    res.json({ success: true, message: 'Interview round deleted successfully' });
+  } catch (error) {
+    console.error('Delete interview round error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

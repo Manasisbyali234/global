@@ -24,18 +24,18 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 				
 				{/* Designation - Second */}
 				{data.designation && (
-					<div className="mb-2">
-						<h6 className="fw-bold mb-1" style={{fontSize: '14px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal'}}>
-							<span style={{color: '#8B7355'}}>Designation:</span> <span className="text-primary">{data.designation}</span>
+					<div className="mb-2" style={{maxWidth: '100%', overflow: 'hidden'}}>
+						<h6 className="fw-bold mb-1" style={{fontSize: '14px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', wordBreak: 'break-word'}}>
+							<span style={{color: '#8B7355'}}>Designation:</span> <span className="text-primary" style={{wordWrap: 'break-word', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{data.designation}</span>
 						</h6>
 					</div>
 				)}
 				
 				{/* Company Name - Third (for consultancy) */}
 				{data.companyName && (
-					<div className="mb-2">
-						<h6 className="fw-bold mb-1" style={{fontSize: '14px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal'}}>
-							<span style={{color: '#8B7355'}}>Company:</span> <span className="text-primary">{data.companyName}</span>
+					<div className="mb-2" style={{maxWidth: '100%', overflow: 'hidden'}}>
+						<h6 className="fw-bold mb-1" style={{fontSize: '14px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', wordBreak: 'break-word'}}>
+							<span style={{color: '#8B7355'}}>Company:</span> <span className="text-primary" style={{wordWrap: 'break-word', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{data.companyName}</span>
 						</h6>
 					</div>
 				)}
@@ -55,7 +55,7 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					</small>
 				</div>
 				{data.description && (
-					<p className="card-text text-muted small" style={{wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal'}}>{data.description}</p>
+					<p className="card-text text-muted small" style={{wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', wordBreak: 'break-word', maxWidth: '100%'}}>{data.description}</p>
 				)}
 				<div className="d-flex flex-wrap gap-3 mb-3">
 					<small className="text-muted">

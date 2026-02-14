@@ -1,0 +1,44 @@
+/* Mobile Text Overflow Fix for Candidate Profile */
+@media (max-width: 768px) {
+    /* Override conflicting global styles */
+    .twm-right-section-panel *,
+    .twm-right-section-panel .d-flex *,
+    .twm-right-section-panel .panel-body *,
+    .twm-right-section-panel .panel-heading *,
+    .twm-right-section-panel div,
+    .twm-right-section-panel span,
+    .twm-right-section-panel p,
+    .twm-right-section-panel h1,
+    .twm-right-section-panel h2,
+    .twm-right-section-panel h3,
+    .twm-right-section-panel h4,
+    .twm-right-section-panel h5,
+    .twm-right-section-panel h6,
+    .twm-right-section-panel label,
+    .twm-right-section-panel .form-control {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        hyphens: auto !important;
+        max-width: 100% !important;
+    }
+    
+    /* Ensure containers don't cause overflow */
+    .twm-right-section-panel,
+    .twm-right-section-panel .panel,
+    .twm-right-section-panel .panel-body,
+    .twm-right-section-panel .panel-heading,
+    .twm-right-section-panel .row,
+    .twm-right-section-panel [class*="col-"] {
+        overflow: visible !important;
+        max-width: 100% !important;
+    }
+    
+    /* Fix inline styles that might cause overflow */
+    .twm-right-section-panel div[style*="padding"],
+    .twm-right-section-panel div[style*="margin"] {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}

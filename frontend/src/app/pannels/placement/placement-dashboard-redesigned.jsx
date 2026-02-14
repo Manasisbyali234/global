@@ -792,20 +792,6 @@ function PlacementDashboardRedesigned() {
                                                                 <span><i className="fa fa-university"></i>{file.university || placementData?.collegeName || 'University'}</span>
                                                                 <span><i className="fa fa-calendar"></i>{file.batch || 'Batch 2024'}</span>
                                                                 <span><i className="fa fa-clock-o"></i>{formatDate(file.uploadedAt)}</span>
-                                                                <span className={`status-indicator ${
-                                                                    file.status === 'processed' ? 'status-processed' : 
-                                                                    file.status === 'approved' ? 'status-approved' : 
-                                                                    file.status === 'rejected' ? 'status-rejected' : 'status-pending'
-                                                                }`}>
-                                                                    <i className={`fa ${
-                                                                        file.status === 'processed' ? 'fa-check-circle' : 
-                                                                        file.status === 'approved' ? 'fa-thumbs-up' : 
-                                                                        file.status === 'rejected' ? 'fa-times-circle' : 'fa-clock-o'
-                                                                    }`}></i>
-                                                                    {file.status === 'processed' ? 'Processed' : 
-                                                                     file.status === 'approved' ? 'Approved' : 
-                                                                     file.status === 'rejected' ? 'Rejected' : 'Pending'}
-                                                                </span>
                                                             </div>
                                                         </div>
                                                         <div className="activity-action">

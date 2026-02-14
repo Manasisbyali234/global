@@ -46,9 +46,11 @@ const jobSchema = new mongoose.Schema({
       assessment: false
     }
   },
+  // Interview rounds are now stored in separate InterviewRound collection
+  // This field is kept for backward compatibility but should not be used for new data
   interviewRounds: [{
-    id: { type: String, required: true },
-    name: { type: String, required: true },
+    id: { type: String },
+    name: { type: String },
     date: { type: Date },
     startTime: { type: String },
     endTime: { type: String }

@@ -80,4 +80,18 @@
   .emp-assessment-page .panel .text-center {
     padding: 2rem 1rem !important;
   }
+
+  /* Fix text overflow in cards */
+  .emp-assessment-page .card .card-body * {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  .emp-assessment-page .card .card-text,
+  .emp-assessment-page .card h6,
+  .emp-assessment-page .card p {
+    white-space: normal !important;
+    max-width: 100% !important;
+  }
 }

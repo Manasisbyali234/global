@@ -127,7 +127,7 @@
 }
 
 .auth-input {
-  width: 80%;
+  width: 100%;
   padding: 14px 18px;
   border-radius: 8px;
   border: 1px solid #E2E8F0;
@@ -165,7 +165,7 @@
 
 .password-toggle {
   position: absolute;
-  right: calc(20% + 15px);
+  right: 15px;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
@@ -174,7 +174,7 @@
 }
 
 .login-btn {
-  width: 80%;
+  width: 100%;
   padding: 14px;
   border-radius: 25px;
   border: none;
@@ -203,6 +203,7 @@
   color: #64748B;
   margin-top: 15px;
   text-align: center;
+  padding-left: 20px;
 }
 
 .small-link a {
@@ -220,7 +221,7 @@
   text-align: right;
   margin-bottom: 20px;
   font-size: 13px;
-  width: 80%;
+  width: 100%;
 }
 
 /* OTP Modal Styles */

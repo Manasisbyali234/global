@@ -314,6 +314,20 @@
     white-space: normal !important;
     hyphens: auto !important;
   }
+
+  .assessment-card .card-body > div {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .assessment-card h6,
+  .assessment-card .text-primary {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+    max-width: 100% !important;
+  }
 }
 
 /* Override conflicting global styles for mobile text wrapping */
@@ -336,6 +350,15 @@
   .assessment-card .card-body {
     overflow: visible !important;
     padding: 16px !important;
+  }
+
+  .assessment-card .flex-grow-1 {
+    max-width: calc(100% - 80px) !important;
+    overflow: hidden !important;
+  }
+
+  .assessment-card .d-flex.gap-3 {
+    flex-wrap: wrap !important;
   }
 }
 

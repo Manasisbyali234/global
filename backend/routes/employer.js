@@ -272,4 +272,23 @@ router.put('/support-tickets/:id', employerController.updateSupportTicketStatus)
 router.delete('/support-tickets/:id', employerController.deleteSupportTicket);
 router.get('/support-tickets/:ticketId/attachments/:attachmentIndex', employerController.downloadSupportAttachment);
 
+// Interview Rounds Routes - New Structure
+router.post('/jobs/:jobId/interview-rounds', [
+  body('rounds').isArray().withMessage('Rounds must be an array'),
+  body('rounds.*.name').notEmpty().withMessage('Round name is required'),
+  body('rounds.*.date').isISO8601().withMessage('Valid date is required'),
+  body('rounds.*.startTime').notEmpty().withMessage('Start time is required'),
+  body('rounds.*.endTime').notEmpty().withMessage('End time is required'),
+  body('rounds.*.applicationLimit').isInt({ min: 1 }).withMessage('Application limit must be at least 1')
+], handleValidationErrors, employerController.createInterviewRounds);
+router.get('/jobs/:jobId/interview-rounds', employerController.getInterviewRounds);
+router.put('/interview-rounds/:roundId', [
+  body('name').optional().notEmpty().withMessage('Round name cannot be empty'),
+  body('date').optional().isISO8601().withMessage('Valid date is required'),
+  body('startTime').optional().notEmpty().withMessage('Start time cannot be empty'),
+  body('endTime').optional().notEmpty().withMessage('End time cannot be empty'),
+  body('applicationLimit').optional().isInt({ min: 1 }).withMessage('Application limit must be at least 1')
+], handleValidationErrors, employerController.updateInterviewRound);
+router.delete('/interview-rounds/:roundId', employerController.deleteInterviewRound);
+
 module.exports = router;

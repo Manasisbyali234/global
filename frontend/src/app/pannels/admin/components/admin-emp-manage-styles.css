@@ -14,6 +14,10 @@
     display: none;
 }
 
+.admin-emp-manage-container .wt-admin-right-page-header {
+    margin-bottom: 50px;
+}
+
 .admin-emp-header {
     background: linear-gradient(135deg, #fff3e0 0%, #ffffff 100%);
     border-radius: 12px;
@@ -534,6 +538,11 @@
 @media (max-width: 768px) {
     .admin-emp-manage-container {
         padding: 10px;
+        margin-top: 40px;
+    }
+
+    .wt-admin-right-page-header {
+        margin-bottom: 25px !important;
     }
     
     .admin-emp-header {
@@ -646,6 +655,11 @@
 @media (max-width: 480px) {
     .admin-emp-manage-container {
         padding: 5px;
+        margin-top: 40px;
+    }
+
+    .wt-admin-right-page-header {
+        margin-bottom: 20px !important;
     }
     
     .admin-emp-header h2 {

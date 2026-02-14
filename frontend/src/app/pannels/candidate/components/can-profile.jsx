@@ -1,5 +1,6 @@
 import SectionCandicateBasicInfo from "../sections/profile/section-can-basic-info";
 import "./profile-styles.css";
+import "./mobile-text-overflow-fix.css";
 import "../../../../mobile-profile-fix.css";
 import { validatePhoneNumber } from "../../../../utils/phoneValidation";
 

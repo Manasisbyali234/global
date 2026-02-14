@@ -204,16 +204,15 @@ function AdminEmployersAllRequest() {
     }
 
     return (
-        <>
-            <div>
-                <div className="wt-admin-right-page-header clearfix">
-                    <h2>Employers Details</h2>
-                </div>
+        <div className="admin-emp-manage-container">
+            <div className="wt-admin-right-page-header clearfix">
+                <h2>Employers Details</h2>
+            </div>
 
-                <div className="panel panel-default site-bg-white">
-                    <div className="panel-heading wt-panel-heading p-a20">
-                        <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', gap: '15px', width: '100%'}}>
-                            <h4 className="panel-tittle m-a0" style={{marginRight: 'auto'}}>Employers ({filteredEmployers.length})</h4>
+            <div className="panel panel-default site-bg-white">
+                <div className="panel-heading wt-panel-heading p-a20">
+                    <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', gap: '15px', width: '100%'}}>
+                        <h4 className="panel-tittle m-a0" style={{marginRight: 'auto'}}>Employers ({filteredEmployers.length})</h4>
                             
                             <div className="status-filter" style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
                                 <label style={{fontSize: '14px', fontWeight: '600', color: '#374151'}}>Filter by Status:</label>
@@ -432,8 +431,7 @@ function AdminEmployersAllRequest() {
                         </div>
                     </div>
                 </div>
-            </div>
-        </>
+        </div>
     );
 }
 

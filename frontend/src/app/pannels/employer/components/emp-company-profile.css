@@ -874,42 +874,39 @@ button.btn-danger:hover i.fas {
     margin-bottom: 0.5rem !important;
   }
   
-  .form-group div[style*="position: relative"] {
+  /* Fix country code span - prevent word wrap and maintain position */
+  .form-group span[style*="position: absolute"][style*="left: 0"] {
+    position: absolute !important;
+    left: 0 !important;
+    width: 55px !important;
     display: flex !important;
-    flex-direction: row !important;
-    gap: 0.5rem !important;
+    justify-content: center !important;
+    align-items: center !important;
+    color: #000 !important;
+    font-size: 14px !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+    line-height: normal !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+    hyphens: none !important;
+    white-space: nowrap !important;
     overflow: visible !important;
+    max-width: 55px !important;
   }
   
-  .form-group div[style*="position: absolute"] {
-    position: relative !important;
-    width: 120px !important;
-    flex-shrink: 0 !important;
-    overflow: visible !important;
-  }
-  
-  .form-group input[style*="paddingLeft: 130px"] {
-    padding-left: 15px !important;
-    height: auto !important;
-    flex: 1 !important;
+  .form-group input[style*="paddingLeft: 55px"],
+  .form-group input[type="tel"],
+  .form-group input[type="text"][style*="height: 50px"] {
+    padding-left: 70px !important;
+    height: 50px !important;
   }
   
   .panel-body {
     overflow: visible !important;
-  }
-  
-  .country-dropdown,
-  .dropdown-menu {
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    z-index: 9999 !important;
-    width: 120px !important;
-    max-height: 200px !important;
-    overflow-y: auto !important;
-    background: white !important;
-    border: 1px solid #ccc !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
   }
   
   input[type="radio"] {

@@ -15,6 +15,7 @@ function Footer1() {
             <footer className="site-footer-new" style={{
                 background: '#F9FAFB',
                 padding: '64px 0 0',
+                paddingLeft: '40px',
                 color: '#000000',
                 fontFamily: 'Poppins, sans-serif'
             }}>
