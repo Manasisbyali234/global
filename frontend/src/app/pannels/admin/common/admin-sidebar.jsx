@@ -281,11 +281,13 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                             <span className="admin-nav-text">Batch Uploads</span>
                                         </NavLink>
                                     </li>
-                                    <li>
-                                        <NavLink to="/admin/placement-credits">
-                                            <span className="admin-nav-text">Credits</span>
-                                        </NavLink>
-                                    </li>
+                                    {!isSubAdmin && (
+                                        <li>
+                                            <NavLink to="/admin/placement-credits">
+                                                <span className="admin-nav-text">Credits</span>
+                                            </NavLink>
+                                        </li>
+                                    )}
                                 </ul>
                             </li>
                         )}
