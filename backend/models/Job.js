@@ -46,15 +46,7 @@ const jobSchema = new mongoose.Schema({
       assessment: false
     }
   },
-  // Interview rounds are now stored in separate InterviewRound collection
-  // This field is kept for backward compatibility but should not be used for new data
-  interviewRounds: [{
-    id: { type: String },
-    name: { type: String },
-    date: { type: Date },
-    startTime: { type: String },
-    endTime: { type: String }
-  }],
+
   // Dynamic interview rounds for multiple instances
   dynamicInterviewRounds: [{
     roundType: { type: String, enum: ['oneOnOne', 'panel', 'oneOnOnePanel', 'group', 'technical', 'managerial', 'hr', 'situational', 'others', 'assessment'] },

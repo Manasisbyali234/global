@@ -258,7 +258,9 @@ function EmpJobReviewPage() {
                                         // Support both old and new formats
                                         let details = null;
                                         if (jobDetails.interviewRounds && Array.isArray(jobDetails.interviewRounds)) {
-                                            details = jobDetails.interviewRounds.find(r => r.id === key);
+                                            // Match by name (e.g., 'assessment', 'technical') extracted from key
+                                            const roundName = key.split('_')[0];
+                                            details = jobDetails.interviewRounds.find(r => r.name === roundName);
                                         } else if (jobDetails.interviewRoundDetails) {
                                             details = jobDetails.interviewRoundDetails[key];
                                         }

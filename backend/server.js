@@ -22,6 +22,7 @@ const placementRoutes = require('./routes/placement');
 const holidaysRoutes = require('./routes/holidays');
 const cacheRoutes = require('./routes/cache');
 const paymentRoutes = require('./routes/payment');
+const interviewRoundsRoutes = require('./routes/interviewRounds');
 
 const app = express();
 
@@ -365,6 +366,7 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/payments', paymentRoutes);
 app.use('/api', holidaysRoutes);
 app.use('/api/cache', cacheRoutes);
+app.use('/api/interview-rounds', interviewRoundsRoutes);
 
 // Test page for interview status
 app.get('/test-interview-status', (req, res) => {

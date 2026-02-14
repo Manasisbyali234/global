@@ -994,34 +994,23 @@ exports.createJob = async (req, res) => {
 
     // Create interview rounds in new collection
     if (jobData.interviewRounds && jobData.interviewRounds.length > 0) {
+      console.log('Creating interview rounds:', jobData.interviewRounds);
       for (const round of jobData.interviewRounds) {
-        await InterviewRound.create({
-          job_id: job._id,
-          name: round.name,
-          date: round.date,
-          startTime: round.startTime,
-          endTime: round.endTime,
-          applicationLimit: round.applicationLimit
-        });
+        try {
+          const createdRound = await InterviewRound.create({
+            jobId: job._id,
+            name: round.name,
+            date: round.date,
+            startTime: round.startTime,
+            endTime: round.endTime,
+            applicationLimit: round.applicationLimit
+          });
+          console.log('Interview round created:', createdRound);
+        } catch (roundError) {
+          console.error('Error creating interview round:', roundError);
+        }
       }
     }
-
-    // If job has assessment, update existing applications to set assessmentStatus to 'available'
-    if (job.assessmentId) {
-      try {
-        await Application.updateMany(
-          { jobId: job._id },
-          { assessmentStatus: 'available' }
-        );
-        console.log('Updated existing applications with assessment status');
-      } catch (updateError) {
-        console.error('Error updating existing applications:', updateError);
-        // Don't fail job creation if this update fails
-      }
-    }
-
-    // Clear job-related caches immediately
-    cacheInvalidation.clearJobCaches();
 
     // Notify all candidates about new job posting (broadcast)
     try {
@@ -1232,11 +1221,11 @@ exports.updateJob = async (req, res) => {
       // Update interview rounds in new collection
       if (interviewRounds.length > 0) {
         // Delete old rounds
-        await InterviewRound.deleteMany({ job_id: req.params.jobId });
+        await InterviewRound.deleteMany({ jobId: req.params.jobId });
         // Create new rounds
         for (const round of interviewRounds) {
           await InterviewRound.create({
-            job_id: req.params.jobId,
+            jobId: req.params.jobId,
             name: round.name,
             date: round.date,
             startTime: round.startTime,
@@ -1377,20 +1366,23 @@ exports.getEmployerJobs = async (req, res) => {
   try {
     const jobs = await Job.find({ employerId: req.user._id })
       .populate('employerId', 'companyName')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
     
     // Fetch interview rounds for all jobs
     const jobsWithRounds = await Promise.all(jobs.map(async (job) => {
-      const jobObj = job.toObject();
-      if (!jobObj.companyName && job.employerId?.companyName) {
-        jobObj.companyName = job.employerId.companyName;
+      if (!job.companyName && job.employerId?.companyName) {
+        job.companyName = job.employerId.companyName;
       }
       
-      // Get interview rounds from new collection
-      const interviewRounds = await InterviewRound.find({ job_id: job._id }).sort({ date: 1, startTime: 1 });
-      jobObj.interviewRounds = interviewRounds;
+      // Remove old embedded interviewRounds
+      delete job.interviewRounds;
       
-      return jobObj;
+      // Get interview rounds from new collection
+      const interviewRounds = await InterviewRound.find({ jobId: job._id }).sort({ date: 1, startTime: 1 });
+
+      
+      return job;
     }));
     
     res.json({ success: true, jobs: jobsWithRounds });
@@ -1412,19 +1404,30 @@ exports.getRecentJobs = async (req, res) => {
 
 exports.getJob = async (req, res) => {
   try {
-    const job = await Job.findOne({ _id: req.params.jobId, employerId: req.user._id });
+    const job = await Job.findOne({ _id: req.params.jobId, employerId: req.user._id }).lean();
     if (!job) {
       return res.status(404).json({ success: false, message: 'Job not found' });
     }
     
+    // Remove old embedded interviewRounds
+    delete job.interviewRounds;
+    
     // Get interview rounds from new collection
-    const interviewRounds = await InterviewRound.find({ job_id: req.params.jobId }).sort({ date: 1, startTime: 1 });
+    const interviewRounds = await InterviewRound.find({ jobId: req.params.jobId }).sort({ date: 1, startTime: 1 });
+      console.log('[getJob] Fetching rounds for jobId:', req.params.jobId);
+      console.log('[getJob] Found rounds:', interviewRounds);
+      
+      // Format interview rounds for frontend compatibility
+      job.interviewRounds = interviewRounds.map(round => ({
+        id: round._id.toString(),
+        name: round.name,
+        date: round.date,
+        startTime: round.startTime,
+        endTime: round.endTime,
+        applicationLimit: round.applicationLimit
+      }));
     
-    // Return job with new interview rounds structure
-    const jobData = job.toObject();
-    jobData.interviewRounds = interviewRounds;
-    
-    res.json({ success: true, job: jobData });
+    res.json({ success: true, job });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -2938,7 +2941,7 @@ exports.createInterviewRounds = async (req, res) => {
     const createdRounds = [];
     for (const round of rounds) {
       const interviewRound = await InterviewRound.create({
-        job_id: jobId,
+        jobId: jobId,
         name: round.name,
         date: round.date,
         startTime: normalizeTimeFormat(round.startTime),
@@ -2970,7 +2973,7 @@ exports.getInterviewRounds = async (req, res) => {
     }
     
     // Get interview rounds for this job
-    const rounds = await InterviewRound.find({ job_id: jobId }).sort({ date: 1, startTime: 1 });
+    const rounds = await InterviewRound.find({ jobId: jobId }).sort({ date: 1, startTime: 1 });
     
     res.json({ success: true, rounds });
   } catch (error) {
@@ -3032,3 +3035,9 @@ exports.deleteInterviewRound = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+
+
+
+
