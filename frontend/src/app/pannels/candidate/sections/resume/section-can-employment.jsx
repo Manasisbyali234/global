@@ -227,6 +227,13 @@ function SectionCanEmployment({ profile, onUpdate }) {
     const [employmentList, setEmploymentList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [selectedEmployment, setSelectedEmployment] = useState(null);
+
+    const handleViewDetails = (emp) => {
+        setSelectedEmployment(emp);
+        setShowDetailsModal(true);
+    };
 
     useEffect(() => {
         if (profile?.employment && profile.employment.length > 0) {
@@ -418,19 +425,15 @@ function SectionCanEmployment({ profile, onUpdate }) {
                                             ) : '—'}
                                         </td>
                                         <td className="text-center">
-                                            <div className="job-details-summary text-left">
-                                                {emp.description && (
-                                                    <div className="mb-1">
-                                                        <strong>Role:</strong> <span className="text-muted small text-truncate-2">{emp.description}</span>
-                                                    </div>
-                                                )}
-                                                {emp.projectDetails && (
-                                                    <div>
-                                                        <strong>Projects:</strong> <span className="text-muted small text-truncate-2">{emp.projectDetails}</span>
-                                                    </div>
-                                                )}
-                                                {!emp.description && !emp.projectDetails && "—"}
-                                            </div>
+                                            {(emp.description || emp.projectDetails) ? (
+                                                <button 
+                                                    className="btn btn-link p-0" 
+                                                    onClick={() => handleViewDetails(emp)}
+                                                    title="View Details"
+                                                >
+                                                    <i className="fa fa-eye" style={{fontSize: '18px', color: '#1967d2'}}></i>
+                                                </button>
+                                            ) : "—"}
                                         </td>
                                     </tr>
                                 ))}
@@ -466,6 +469,39 @@ function SectionCanEmployment({ profile, onUpdate }) {
                     </>
                 )}
             </div>
+
+            {/* Details Modal */}
+            {showDetailsModal && selectedEmployment && (
+                <div className="modal fade show" style={{display: 'block', backgroundColor: 'rgba(0,0,0,0.5)'}} onClick={() => setShowDetailsModal(false)}>
+                    <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">
+                                    {selectedEmployment.organizationName || selectedEmployment.organization} - {selectedEmployment.designation}
+                                </h5>
+                                <button type="button" className="btn-close" onClick={() => setShowDetailsModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                {selectedEmployment.description && (
+                                    <div className="mb-3">
+                                        <h6 className="text-primary mb-2">Job Responsibilities:</h6>
+                                        <p className="text-muted" style={{whiteSpace: 'pre-wrap'}}>{selectedEmployment.description}</p>
+                                    </div>
+                                )}
+                                {selectedEmployment.projectDetails && (
+                                    <div>
+                                        <h6 className="text-primary mb-2">Project Details:</h6>
+                                        <p className="text-muted" style={{whiteSpace: 'pre-wrap'}}>{selectedEmployment.projectDetails}</p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={() => setShowDetailsModal(false)}>Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
