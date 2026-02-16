@@ -3777,7 +3777,7 @@ export default function EmpPostJob({ onNext }) {
 															}}
 														>
 															<i className="fa fa-calendar-plus"></i>
-															Schedule Meeting
+															Schedule Interview
 														</button>
 													) : (
 														<button
@@ -3840,7 +3840,7 @@ export default function EmpPostJob({ onNext }) {
 											</h5>
 											<div style={{ 
 												display: 'grid', 
-												gridTemplateColumns: isMobile ? '1fr' : (roundType === 'oneOnOnePanel' || roundType === 'group' ? '1fr 1fr' : '1.5fr 1fr 1fr 1fr 1fr'), 
+												gridTemplateColumns: isMobile ? '1fr' : '1.5fr 1fr 1fr 1fr 1fr', 
 												gap: isMobile ? 8 : 12, 
 												alignItems: 'start' 
 											}}>
@@ -3909,28 +3909,24 @@ export default function EmpPostJob({ onNext }) {
 													/>
 													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.toDate} />
 												</div>
-												{roundType !== 'oneOnOnePanel' && roundType !== 'group' && (
-													<>
-														<div>
-															<label style={{...label, marginBottom: 4}}>From Time</label>
-															<input
-																style={{...input, fontSize: 13}}
-																type="time"
-																value={formData.interviewRoundDetails[uniqueKey]?.startTime || ''}
-																onChange={(e) => updateRoundDetails(uniqueKey, 'startTime', e.target.value)}
-															/>
-														</div>
-														<div>
-															<label style={{...label, marginBottom: 4}}>To Time</label>
-															<input
-																style={{...input, fontSize: 13}}
-																type="time"
-																value={formData.interviewRoundDetails[uniqueKey]?.endTime || ''}
-																onChange={(e) => updateRoundDetails(uniqueKey, 'endTime', e.target.value)}
-															/>
-														</div>
-													</>
-												)}
+												<div>
+													<label style={{...label, marginBottom: 4}}>Start Time</label>
+													<input
+														style={{...input, fontSize: 13}}
+														type="time"
+														value={formData.interviewRoundDetails[uniqueKey]?.startTime || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'startTime', e.target.value)}
+													/>
+												</div>
+												<div>
+													<label style={{...label, marginBottom: 4}}>End Time</label>
+													<input
+														style={{...input, fontSize: 13}}
+														type="time"
+														value={formData.interviewRoundDetails[uniqueKey]?.endTime || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'endTime', e.target.value)}
+													/>
+												</div>
 											</div>
 										</div>
 									);
