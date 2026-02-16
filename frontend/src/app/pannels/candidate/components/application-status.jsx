@@ -1342,7 +1342,7 @@ function CanStatusPage() {
 															}}
 														>
 															<i className="fa fa-calendar me-2" style={{fontSize: '14px'}}></i>
-															Schedule {roundName}
+															Book Your Slot
 														</a>
 													</div>
 												)}
