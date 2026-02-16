@@ -219,18 +219,10 @@ function SectionCanKeySkills({ profile }) {
                                                     </span>
                                                     <button
                                                         type="button"
+                                                        className="dropdown-clear-all"
                                                         onMouseDown={(e) => {
                                                             e.preventDefault();
                                                             setSelectedSkills([]);
-                                                        }}
-                                                        style={{
-                                                            background: 'none',
-                                                            border: 'none',
-                                                            color: '#dc3545',
-                                                            fontSize: '11px',
-                                                            cursor: 'pointer',
-                                                            padding: '2px 6px',
-                                                            borderRadius: '3px'
                                                         }}
                                                     >
                                                         Clear All
@@ -355,6 +347,67 @@ function SectionCanKeySkills({ profile }) {
                             <div className="mt-4">
                                 <label><i className="fa fa-tags me-1"></i> Your Skills</label>
                                 <style>{`
+                                    html body .skill-badge .skill-delete-btn {
+                                        background-color: transparent !important;
+                                        background: transparent !important;
+                                        border: none !important;
+                                        color: #FF7A00 !important;
+                                        cursor: pointer !important;
+                                        padding: 0 !important;
+                                        margin: 0 !important;
+                                        width: 16px !important;
+                                        height: 16px !important;
+                                        min-width: 16px !important;
+                                        min-height: 16px !important;
+                                        display: inline-flex !important;
+                                        align-items: center !important;
+                                        justify-content: center !important;
+                                        flex-shrink: 0 !important;
+                                        line-height: 1 !important;
+                                        font-size: 12px !important;
+                                        border-radius: 50% !important;
+                                        transition: none !important;
+                                        box-shadow: none !important;
+                                        outline: none !important;
+                                        position: relative !important;
+                                        top: auto !important;
+                                        right: auto !important;
+                                        transform: none !important;
+                                    }
+                                    html body .skill-badge .skill-delete-btn:hover,
+                                    html body .skill-badge .skill-delete-btn:focus,
+                                    html body .skill-badge .skill-delete-btn:active {
+                                        background-color: transparent !important;
+                                        background: none !important;
+                                        color: #FF7A00 !important;
+                                        box-shadow: none !important;
+                                        outline: none !important;
+                                    }
+                                    html body .skill-badge .skill-delete-btn::before,
+                                    html body .skill-badge .skill-delete-btn::after {
+                                        display: none !important;
+                                        content: none !important;
+                                    }
+                                    html body .skill-badge .skill-delete-btn i {
+                                        background: transparent !important;
+                                        background-color: transparent !important;
+                                    }
+                                    html body .dropdown-clear-all {
+                                        background-color: transparent !important;
+                                        background: transparent !important;
+                                        border: none !important;
+                                        color: #dc3545 !important;
+                                        font-size: 11px !important;
+                                        cursor: pointer !important;
+                                        padding: 2px 6px !important;
+                                        border-radius: 3px !important;
+                                        min-width: auto !important;
+                                        min-height: auto !important;
+                                        width: auto !important;
+                                        height: auto !important;
+                                        box-shadow: none !important;
+                                        font-weight: 400 !important;
+                                    }
                                     @media (max-width: 768px) {
                                         .skill-badge {
                                             width: auto !important;
@@ -391,6 +444,7 @@ function SectionCanKeySkills({ profile }) {
                                             <span className="skill-text" style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: '1 1 auto', minWidth: 0}}>{skill}</span>
                                             <button 
                                                 type="button"
+                                                className="skill-delete-btn"
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
@@ -399,25 +453,31 @@ function SectionCanKeySkills({ profile }) {
                                                 disabled={loading}
                                                 title="Remove skill"
                                                 style={{
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    color: '#dc3545',
-                                                    cursor: 'pointer',
-                                                    padding: 0,
-                                                    margin: 0,
-                                                    width: '16px',
-                                                    height: '16px',
-                                                    minWidth: '16px',
-                                                    minHeight: '16px',
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    flexShrink: 0,
-                                                    lineHeight: 1,
-                                                    fontSize: '12px'
+                                                    background: 'none !important',
+                                                    backgroundColor: 'transparent !important',
+                                                    border: 'none !important',
+                                                    boxShadow: 'none !important',
+                                                    padding: '0 !important',
+                                                    margin: '0 0 0 8px !important',
+                                                    display: 'inline-flex !important',
+                                                    alignItems: 'center !important',
+                                                    justifyContent: 'center !important',
+                                                    width: '16px !important',
+                                                    height: '16px !important',
+                                                    minWidth: '16px !important',
+                                                    minHeight: '16px !important',
+                                                    cursor: 'pointer !important',
+                                                    color: '#FF7A00 !important'
                                                 }}
                                             >
-                                                ×
+                                                <i className="fa fa-times" style={{
+                                                    lineHeight: '1 !important', 
+                                                    display: 'block !important', 
+                                                    background: 'none !important', 
+                                                    backgroundColor: 'transparent !important',
+                                                    fontSize: '12px !important',
+                                                    color: '#FF7A00 !important'
+                                                }}></i>
                                             </button>
                                         </span>
                                     ))}
