@@ -101,13 +101,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             checkNewPlacements();
         }, 45000);
         
-        // Add arrows after scripts load
-        setTimeout(() => {
-            if (!document.getElementById('arrowId') && window.jQuery) {
-                window.jQuery(".sub-menu").parent('li').addClass('has-child');
-                window.jQuery("<div id='arrowId' class='fa fa-angle-right submenu-toogle'></div>").insertAfter(".has-child > a");
-            }
-        }, 100);
+
         
         // Check if user is sub-admin and get permissions
         const adminData = localStorage.getItem('adminData');
@@ -134,8 +128,6 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             setIsSubAdmin(false);
         }
         
-        return () => clearInterval(interval);
-
         // Auto-open menus if current path matches submenu items
         const isEmployerPath = [
             adminRoute(admin.CAN_MANAGE),
@@ -202,6 +194,11 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     <i className="fa fa-user-tie" />
                                     <span className="admin-nav-text">Employers</span>
                                 </a>
+                                <div className="fa fa-angle-right submenu-toogle" onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setOpenMenus(prev => ({...prev, employers: !prev.employers}));
+                                }}></div>
                                 <ul className={`sub-menu ${openMenus.employers ? 'open' : ''}`}>
                                     <li className={currentpath === adminRoute(admin.CAN_MANAGE) ? 'active' : ''}>
                                         <NavLink to={adminRoute(admin.CAN_MANAGE)} id="allList">
@@ -250,6 +247,11 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     <i className="fa fa-graduation-cap" />
                                     <span className="admin-nav-text">Placement Officers</span>
                                 </a>
+                                <div className="fa fa-angle-right submenu-toogle" onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setOpenMenus(prev => ({...prev, placement: !prev.placement}));
+                                }}></div>
                                 <ul className={`sub-menu ${openMenus.placement ? 'open' : ''}`}>
                                     <li className={currentpath === adminRoute(admin.PLACEMENT_MANAGE) ? 'active' : ''}>
                                         <NavLink to={adminRoute(admin.PLACEMENT_MANAGE)}>
