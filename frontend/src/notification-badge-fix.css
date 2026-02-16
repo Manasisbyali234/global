@@ -1,0 +1,74 @@
+/* Notification Badge Transparency Fix */
+.notif-badge {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    background-color: #ff4444 !important;
+    color: white !important;
+    border-radius: 50% !important;
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 999999 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    font-weight: bold !important;
+    border: 2px solid white !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+}
+
+/* Ensure the notification bell container doesn't interfere */
+.dashboard-noti-dropdown {
+    position: relative !important;
+    z-index: 1001 !important;
+}
+
+/* Ensure the bell icon container maintains proper positioning */
+.dashboard-noti-dropdown > div {
+    position: relative !important;
+}
+
+/* Override any transparency or opacity issues */
+.header-widget.dashboard-noti-dropdown .notif-badge,
+.header-widget .notif-badge,
+.notification-bell .notif-badge {
+    background-color: #ff4444 !important;
+    color: white !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 999999 !important;
+}
+
+/* Ensure the badge is always visible on top of everything */
+.notif-badge::before,
+.notif-badge::after {
+    display: none !important;
+}
+
+/* Fix for any parent elements that might be causing transparency */
+.header-widget-wrap,
+.header-right,
+.header-admin {
+    position: relative !important;
+}
+
+/* Ensure notification badge works on mobile */
+@media (max-width: 991px) {
+    .notif-badge {
+        position: absolute !important;
+        top: 0 !important;
+        right: 0 !important;
+        background-color: #ff4444 !important;
+        color: white !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 999999 !important;
+        border: 2px solid white !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    }
+}

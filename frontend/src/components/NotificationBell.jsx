@@ -176,7 +176,7 @@ const NotificationBell = ({ userRole }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 10,
+            zIndex: 999999,
             opacity: 1
           }}>
             {unreadCount}

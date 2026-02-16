@@ -1,0 +1,5 @@
+/* Minimal Notification Badge Transparency Fix */
+.notif-badge {
+    opacity: 1 !important;
+    z-index: 999999 !important;
+}
