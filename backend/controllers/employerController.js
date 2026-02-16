@@ -864,9 +864,11 @@ exports.createJob = async (req, res) => {
         if (value && typeof value === 'object') {
           interviewRounds.push({
             name: value.customType || key.replace(/_\d+$/, ''),
-            date: value.fromDate || value.date || null,
+            fromdate: value.fromDate || value.date || null,
+            todate: value.toDate || value.fromDate || value.date || null,
             startTime: value.startTime || value.time || '',
             endTime: value.endTime || '',
+            description: value.description || '',
             applicationLimit: parseInt(jobData.applicationLimit) || 50
           });
         }
@@ -1000,9 +1002,11 @@ exports.createJob = async (req, res) => {
           const createdRound = await InterviewRound.create({
             jobId: job._id,
             name: round.name,
-            date: round.date,
+            fromdate: round.fromdate,
+            todate: round.todate,
             startTime: round.startTime,
             endTime: round.endTime,
+            description: round.description,
             applicationLimit: round.applicationLimit
           });
           console.log('Interview round created:', createdRound);
@@ -1210,9 +1214,11 @@ exports.updateJob = async (req, res) => {
         if (value && typeof value === 'object') {
           interviewRounds.push({
             name: value.customType || key.replace(/_\d+$/, ''),
-            date: value.fromDate || value.date || null,
+            fromdate: value.fromDate || value.date || null,
+            todate: value.toDate || value.fromDate || value.date || null,
             startTime: value.startTime || value.time || '',
             endTime: value.endTime || '',
+            description: value.description || '',
             applicationLimit: parseInt(req.body.applicationLimit) || 50
           });
         }
@@ -1227,9 +1233,11 @@ exports.updateJob = async (req, res) => {
           await InterviewRound.create({
             jobId: req.params.jobId,
             name: round.name,
-            date: round.date,
+            fromdate: round.fromdate,
+            todate: round.todate,
             startTime: round.startTime,
             endTime: round.endTime,
+            description: round.description,
             applicationLimit: round.applicationLimit
           });
         }
@@ -1440,9 +1448,11 @@ exports.getJob = async (req, res) => {
           return {
             id: key,
             name: details?.customType || roundNames[roundType] || roundType || key.replace(/_\d+$/, ''),
-            date: details?.fromDate || details?.date || null,
+            fromdate: details?.fromDate || details?.date || null,
+            todate: details?.toDate || details?.fromDate || details?.date || null,
             startTime: details?.startTime || details?.time || null,
             endTime: details?.endTime || null,
+            description: details?.description || null,
             applicationLimit: details?.applicationLimit || job.applicationLimit || null
           };
         });
@@ -1454,9 +1464,11 @@ exports.getJob = async (req, res) => {
       job.interviewRounds = interviewRounds.map(round => ({
         id: round._id.toString(),
         name: round.name,
-        date: round.date,
+        fromdate: round.fromdate,
+        todate: round.todate,
         startTime: round.startTime,
         endTime: round.endTime,
+        description: round.description,
         applicationLimit: round.applicationLimit
       }));
     }
@@ -2980,9 +2992,11 @@ exports.createInterviewRounds = async (req, res) => {
       const interviewRound = await InterviewRound.create({
         jobId: jobId,
         name: round.name,
-        date: round.date,
+        fromdate: round.fromdate || round.date,
+        todate: round.todate || round.fromdate || round.date,
         startTime: normalizeTimeFormat(round.startTime),
         endTime: normalizeTimeFormat(round.endTime),
+        description: round.description || '',
         applicationLimit: round.applicationLimit || job.applicationLimit || 50
       });
       createdRounds.push(interviewRound);
@@ -3036,10 +3050,16 @@ exports.updateInterviewRound = async (req, res) => {
     
     // Update round
     if (name) round.name = name;
-    if (date) round.date = date;
+    if (date) {
+      round.fromdate = date;
+      round.todate = date;
+    }
     if (startTime) round.startTime = normalizeTimeFormat(startTime);
     if (endTime) round.endTime = normalizeTimeFormat(endTime);
     if (applicationLimit) round.applicationLimit = applicationLimit;
+    if (req.body.description !== undefined) round.description = req.body.description;
+    if (req.body.fromdate) round.fromdate = req.body.fromdate;
+    if (req.body.todate) round.todate = req.body.todate;
     
     await round.save();
     
