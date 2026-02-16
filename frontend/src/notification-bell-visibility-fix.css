@@ -1,0 +1,59 @@
+/* Fix notification bell visibility on candidate dashboard */
+
+/* Ensure header is always visible and fixed at top */
+#header-admin-wrap.header-admin-fixed {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 9999 !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    transform: translateY(0) !important;
+    transition: none !important;
+}
+
+/* Prevent header from hiding on scroll */
+#header-admin-wrap {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+/* Ensure notification bell is always visible */
+.dashboard-noti-dropdown {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    z-index: 10000 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Notification badge always visible */
+.notif-badge {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    background-color: #ff4444 !important;
+    color: white !important;
+    z-index: 999999 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+/* Ensure header widgets are visible */
+.header-widget-wrap,
+.header-widget {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+}
+
+/* Override any scroll-based transforms or transitions */
+#header-admin-wrap[style*="transform"],
+#header-admin[style*="transform"] {
+    transform: translateY(0) !important;
+}
