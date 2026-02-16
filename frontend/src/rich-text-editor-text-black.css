@@ -1,0 +1,16 @@
+/* Override orange color for Rich Text Editor content */
+.rich-text-editor-content,
+.rich-text-editor-content *:not(i):not(.fa):not([class*="fa-"]),
+.rich-text-editor-content p,
+.rich-text-editor-content span,
+.rich-text-editor-content div,
+.rich-text-editor-content li,
+.rich-text-editor-content strong,
+.rich-text-editor-content em,
+.rich-text-editor-content u,
+.rich-text-editor-content ol,
+.rich-text-editor-content ul {
+    color: #000000 !important;
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+}

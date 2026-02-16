@@ -57,7 +57,7 @@ const RichTextEditor = ({ value, onChange, placeholder = "Enter text...", classN
                     •
                 </button>
                 <button type="button" className="rich-text-editor-button" onClick={() => applyCommand('removeFormat')} aria-label="Clear formatting">
-                    Clear
+                    <i className="fa fa-eraser"></i>
                 </button>
             </div>
             <div

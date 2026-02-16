@@ -47,6 +47,8 @@ import "./table-overflow-fix.css";
 import "./gif-alignment-revert.css";
 // HERO SECTION REVERT - Reverts Hero section layout to original appearance
 import "./hero-section-revert.css";
+// RICH TEXT EDITOR TEXT BLACK - Ensures Rich Text Editor text is black, not orange
+import "./rich-text-editor-text-black.css";
 
 
 function App() {

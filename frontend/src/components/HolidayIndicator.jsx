@@ -34,7 +34,7 @@ const HolidayIndicator = ({ date, style = {} }) => {
     '2025-12-25': 'Christmas Day',
     // 2026
     '2026-01-01': 'New Year\'s Day', '2026-01-13': 'Lohri', '2026-01-14': 'Makar Sankranti', '2026-01-26': 'Republic Day',
-    '2026-02-01': 'Vasant Panchami', '2026-02-16': 'Guru Ravidas Jayanti', '2026-02-17': 'Maha Shivratri',
+    '2026-02-01': 'Vasant Panchami', '2026-02-15': 'Maha Shivratri', '2026-02-16': 'Guru Ravidas Jayanti',
     '2026-03-03': 'Holi', '2026-03-20': 'Eid ul-Fitr',
     '2026-04-02': 'Ram Navami', '2026-04-03': 'Good Friday', '2026-04-06': 'Mahavir Jayanti', '2026-04-14': 'Baisakhi',
     '2026-05-01': 'Labour Day', '2026-05-11': 'Buddha Purnima', '2026-05-29': 'Raksha Bandhan',
@@ -56,9 +56,18 @@ const HolidayIndicator = ({ date, style = {} }) => {
   const checkHoliday = async () => {
     setLoading(true);
     try {
-      // Check local holidays first
+      if (!date) {
+        setHolidayInfo(null);
+        setLoading(false);
+        return;
+      }
+
+      // Ensure we only match holidays for the correct year
+      const selectedYear = new Date(date).getFullYear().toString();
       const holidayName = holidays[date];
-      if (holidayName) {
+      
+      // Validation: if the date in holidays object doesn't start with the selected year, ignore it
+      if (holidayName && date.startsWith(selectedYear)) {
         setHolidayInfo({ name: holidayName, date });
       } else {
         setHolidayInfo(null);

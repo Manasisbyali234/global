@@ -3,21 +3,25 @@
     border-radius: 8px;
     background: #ffffff;
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .rich-text-editor-toolbar {
     background: #f8f9fa;
     border-bottom: 1px solid #d1d5db;
-    padding: 10px;
+    padding: 8px;
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 4px;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 .rich-text-editor-button {
-    height: 32px;
-    min-width: 32px;
-    padding: 4px 8px;
+    height: 30px;
+    min-width: 30px;
+    padding: 2px 4px;
     border: 1px solid transparent;
     background: #ffffff;
     color: #374151;
@@ -26,6 +30,8 @@
     align-items: center;
     justify-content: center;
     font-size: 13px;
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
 .rich-text-editor-button:hover {
@@ -38,8 +44,25 @@
     padding: 16px;
     line-height: 1.6;
     font-size: 14px;
-    color: #000000;
+    color: #000000 !important;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    overflow-x: hidden;
+}
+
+.rich-text-editor-content,
+.rich-text-editor-content *,
+.rich-text-editor-content p,
+.rich-text-editor-content span,
+.rich-text-editor-content div,
+.rich-text-editor-content li,
+.rich-text-editor-content strong,
+.rich-text-editor-content em,
+.rich-text-editor-content u {
+    color: #000000 !important;
+    max-width: 100%;
 }
 
 .rich-text-editor-content:focus {
@@ -50,6 +73,8 @@
     content: attr(data-placeholder);
     color: #9ca3af;
     font-style: italic;
+    pointer-events: none;
+    display: block;
 }
 
 .rich-text-editor-wrapper:focus-within {
@@ -75,16 +100,42 @@
 @media (max-width: 768px) {
     .rich-text-editor-toolbar {
         padding: 8px;
+        gap: 4px;
     }
 
     .rich-text-editor-button {
-        height: 28px;
-        min-width: 28px;
-        font-size: 12px;
+        height: 32px;
+        min-width: 32px;
+        font-size: 13px;
+        padding: 4px 8px;
+        flex-shrink: 0;
     }
 
     .rich-text-editor-content {
         min-height: 150px;
         padding: 12px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rich-text-editor-toolbar {
+        padding: 4px;
+        gap: 2px;
+        justify-content: space-between;
+    }
+
+    .rich-text-editor-button {
+        height: 28px;
+        min-width: 28px;
+        flex: 1;
+        max-width: 40px;
+        font-size: 11px;
+        padding: 0;
+    }
+
+    .rich-text-editor-content {
+        padding: 10px;
+        font-size: 13px;
     }
 }

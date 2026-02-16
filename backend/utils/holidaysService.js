@@ -21,10 +21,16 @@ class HolidaysService {
         { date: '2025-12-25', name: 'Christmas Day', localName: 'Christmas Day' }
       ],
       '2026': [
+        { date: '2026-01-01', name: "New Year's Day", localName: "New Year's Day" },
+        { date: '2026-01-14', name: 'Makar Sankranti', localName: 'Makar Sankranti' },
         { date: '2026-01-26', name: 'Republic Day', localName: 'Republic Day' },
         { date: '2026-02-15', name: 'Maha Shivaratri', localName: 'Maha Shivaratri' },
+        { date: '2026-03-03', name: 'Holi', localName: 'Holi' },
+        { date: '2026-03-20', name: 'Eid ul-Fitr', localName: 'Eid ul-Fitr' },
+        { date: '2026-04-03', name: 'Good Friday', localName: 'Good Friday' },
         { date: '2026-08-15', name: 'Independence Day', localName: 'Independence Day' },
         { date: '2026-10-02', name: 'Gandhi Jayanti', localName: 'Gandhi Jayanti' },
+        { date: '2026-11-11', name: 'Diwali', localName: 'Diwali' },
         { date: '2026-12-25', name: 'Christmas Day', localName: 'Christmas Day' }
       ]
     };
