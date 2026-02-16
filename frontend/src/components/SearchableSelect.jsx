@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 const SearchableSelect = ({ options, value, onChange, placeholder, className, isMulti = false, showCategories = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
+    const [dropUp, setDropUp] = useState(false);
     const wrapperRef = useRef(null);
 
     useEffect(() => {
@@ -14,6 +15,19 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (isOpen && wrapperRef.current) {
+            const rect = wrapperRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            // If less than 300px below, drop up
+            if (spaceBelow < 300 && rect.top > 300) {
+                setDropUp(true);
+            } else {
+                setDropUp(false);
+            }
+        }
+    }, [isOpen]);
 
     const filtered = options.filter(opt => 
         opt.label.toLowerCase().includes(search.toLowerCase())
@@ -175,7 +189,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
             {isOpen && (
                 <div style={{
                     position: 'absolute',
-                    top: '100%',
+                    [dropUp ? 'bottom' : 'top']: '100%',
                     left: 0,
                     right: 0,
                     background: '#fff',
@@ -183,8 +197,10 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
                     borderRadius: '4px',
                     maxHeight: '300px',
                     overflow: 'hidden',
-                    zIndex: 9999,
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    zIndex: '10000 !important',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    marginBottom: dropUp ? '4px' : '0',
+                    marginTop: dropUp ? '0' : '4px'
                 }}>
                     <input
                         type="text"

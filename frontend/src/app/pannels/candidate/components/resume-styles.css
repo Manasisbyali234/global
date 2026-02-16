@@ -30,7 +30,8 @@ select:focus {
 .education-panel-container,
 .education-section-body,
 .education-section-body .twm-panel-inner {
-    z-index: 1000;
+    z-index: 1001 !important;
+    overflow: visible !important;
 }
 
 .education-section-body .form-select,
