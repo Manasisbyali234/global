@@ -48,8 +48,17 @@ function CanStatusPage() {
 			const [hours, minutes] = job.assessmentEndTime.split(':').map(Number);
 			if (!isNaN(hours) && !isNaN(minutes)) {
 				endDate = new Date(endDate);
+				// Set to end of the minute (59 seconds, 999 milliseconds)
 				endDate.setHours(hours, minutes, 59, 999);
+			} else {
+				// If no valid time, set to end of day
+				endDate = new Date(endDate);
+				endDate.setHours(23, 59, 59, 999);
 			}
+		} else if (endDate) {
+			// If no end time specified, set to end of day
+			endDate = new Date(endDate);
+			endDate.setHours(23, 59, 59, 999);
 		}
 		
 		const isBeforeStart = startDate ? now < startDate : false;
@@ -57,7 +66,7 @@ function CanStatusPage() {
 		return {
 			isBeforeStart,
 			isAfterEnd,
-			isWithinWindow: !(isBeforeStart || isAfterEnd),
+			isWithinWindow: startDate && endDate ? (now >= startDate && now <= endDate) : !isBeforeStart && !isAfterEnd,
 			startDate,
 			endDate
 		};
@@ -430,14 +439,20 @@ function CanStatusPage() {
 		if (roundName === 'Assessment' && application.assessmentStatus) {
 			const status = application.assessmentStatus?.toLowerCase?.() || application.assessmentStatus;
 			
+			// Check if assessment window has expired
+			const windowInfo = getAssessmentWindowInfo(application.jobId);
+			if (windowInfo.isAfterEnd && status !== 'completed' && status !== 'in_progress') {
+				return { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+			}
+			
 			// Map all possible assessment status values
 			const statusMappings = {
 				'completed': { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' },
 				'in_progress': { text: 'In Progress', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' },
-				'available': { text: 'Available', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
+				'available': { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
 				'expired': { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'pending': { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
-				'not_required': { text: 'Expired', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
+				'not_required': { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
 				'not_started': { text: 'Not Started', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
 			};
 			
