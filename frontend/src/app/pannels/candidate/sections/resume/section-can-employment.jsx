@@ -1,4 +1,5 @@
 import React, { useEffect, useState, memo } from "react";
+import ReactDOM from "react-dom";
 import { api } from "../../../../../utils/api";
 import { showSuccess, showError } from '../../../../../utils/popupNotification';
 import "./employment-card-styles.css";
@@ -471,9 +472,22 @@ function SectionCanEmployment({ profile, onUpdate }) {
             </div>
 
             {/* Details Modal */}
-            {showDetailsModal && selectedEmployment && (
-                <div className="modal fade show" style={{display: 'block', backgroundColor: 'rgba(0,0,0,0.5)'}} onClick={() => setShowDetailsModal(false)}>
-                    <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()}>
+            {showDetailsModal && selectedEmployment && ReactDOM.createPortal(
+                <div className="modal fade show employment-details-modal" style={{
+                    display: 'block', 
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 99999,
+                    overflow: 'auto'
+                }} onClick={() => setShowDetailsModal(false)}>
+                    <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()} style={{ 
+                        zIndex: 99999,
+                        position: 'relative'
+                    }}>
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">
@@ -500,7 +514,8 @@ function SectionCanEmployment({ profile, onUpdate }) {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

@@ -185,3 +185,16 @@
     margin-left: 8px !important;
     margin-bottom: 0 !important;
 }
+
+/* Employment Details Modal - Ensure it appears above sidebar */
+.employment-details-modal {
+    z-index: 99999 !important;
+}
+
+.employment-details-modal .modal-dialog {
+    z-index: 99999 !important;
+}
+
+.employment-details-modal .modal-content {
+    z-index: 99999 !important;
+}
