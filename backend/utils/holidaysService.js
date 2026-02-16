@@ -19,6 +19,13 @@ class HolidaysService {
         { date: '2025-08-15', name: 'Independence Day', localName: 'Independence Day' },
         { date: '2025-10-02', name: 'Gandhi Jayanti', localName: 'Gandhi Jayanti' },
         { date: '2025-12-25', name: 'Christmas Day', localName: 'Christmas Day' }
+      ],
+      '2026': [
+        { date: '2026-01-26', name: 'Republic Day', localName: 'Republic Day' },
+        { date: '2026-02-15', name: 'Maha Shivaratri', localName: 'Maha Shivaratri' },
+        { date: '2026-08-15', name: 'Independence Day', localName: 'Independence Day' },
+        { date: '2026-10-02', name: 'Gandhi Jayanti', localName: 'Gandhi Jayanti' },
+        { date: '2026-12-25', name: 'Christmas Day', localName: 'Christmas Day' }
       ]
     };
   }
@@ -42,12 +49,30 @@ class HolidaysService {
         localName: holiday.localName
       }));
 
+      // Override with fallback data for accuracy
+      const fallback = this.fallbackHolidays[year.toString()] || [];
+      const mergedHolidays = [...processedHolidays];
+      
+      fallback.forEach(fbHoliday => {
+        const existingIndex = mergedHolidays.findIndex(h => 
+          h.name.toLowerCase().includes('shiv') || 
+          h.localName.toLowerCase().includes('shiv') ||
+          h.name === fbHoliday.name || 
+          h.localName === fbHoliday.localName
+        );
+        if (existingIndex >= 0) {
+          mergedHolidays[existingIndex] = fbHoliday;
+        } else {
+          mergedHolidays.push(fbHoliday);
+        }
+      });
+
       this.cache.set(cacheKey, {
-        data: processedHolidays,
+        data: mergedHolidays,
         timestamp: Date.now()
       });
 
-      return processedHolidays;
+      return mergedHolidays;
     } catch (error) {
       console.error('Error fetching holidays from API, using fallback:', error.message);
       const fallback = this.fallbackHolidays[year.toString()] || [];
@@ -79,6 +104,10 @@ class HolidaysService {
     const isHol = await this.isHoliday(date, countryCode);
     const isWeek = this.isWeekend(date);
     return isHol || isWeek;
+  }
+
+  clearCache() {
+    this.cache.clear();
   }
 }
 

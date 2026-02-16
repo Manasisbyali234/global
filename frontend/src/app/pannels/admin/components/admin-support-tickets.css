@@ -617,8 +617,12 @@
   .support-tickets-container {
     padding: 0.75rem;
   }
+  .dashboard-content .wt-admin-right-page-header {
+    margin-top: 1.5rem !important;
+  }
   .support-header {
     padding: 1.25rem;
+    margin-top: 1rem;
   }
   .support-header h2 {
     font-size: 1.25rem;

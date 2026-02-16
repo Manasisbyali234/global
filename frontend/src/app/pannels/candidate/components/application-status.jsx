@@ -209,6 +209,13 @@ function CanStatusPage() {
 			const roundNames = {
 				technical: 'Technical',
 				oneOnOne: 'One-to-One',
+				oneonone: 'One-to-One',
+				"one-on-one": 'One-to-One',
+				one_on_one: 'One-to-One',
+				oneOnOnePanel: 'One-to-One / Panel',
+				oneononepanel: 'One-to-One / Panel',
+				"one-on-one-panel": 'One-to-One / Panel',
+				one_on_one_panel: 'One-to-One / Panel',
 				panel: 'Panel',
 				group: 'Group',
 				situational: 'Situational / Behavioral',
@@ -226,6 +233,13 @@ function CanStatusPage() {
 			const roundNames = {
 				technical: 'Technical',
 				oneOnOne: 'One-to-One',
+				oneonone: 'One-to-One',
+				"one-on-one": 'One-to-One',
+				one_on_one: 'One-to-One',
+				oneOnOnePanel: 'One-to-One / Panel',
+				oneononepanel: 'One-to-One / Panel',
+				"one-on-one-panel": 'One-to-One / Panel',
+				one_on_one_panel: 'One-to-One / Panel',
 				panel: 'Panel',
 				group: 'Group',
 				situational: 'Situational / Behavioral',
@@ -239,9 +253,13 @@ function CanStatusPage() {
 				coding: 'Coding - SENIOR SOFTWARE ENGINEERING'
 			};
 			
-			// Return stageName if it's a proper name (not a unique key)
-			if (stageName && !stageName.includes('_') && !stageName.match(/^[0-9a-f]{24}$/i) && !/^\d+$/.test(stageName)) {
-				return stageName;
+			const normalizedStageName = stageName ? stageName.trim() : '';
+			const normalizedStageNameLower = normalizedStageName.toLowerCase();
+			const genericStageNames = new Set(['interview round', 'interview round details', 'interview rounds', 'interview']);
+			const isGenericStageName = !normalizedStageName || genericStageNames.has(normalizedStageNameLower);
+			
+			if (!isGenericStageName && !normalizedStageName.includes('_') && !normalizedStageName.match(/^[0-9a-f]{24}$/i) && !/^\d+$/.test(normalizedStageName)) {
+				return normalizedStageName;
 			}
 			
 			// Extract actual type if stageType looks like a unique key (e.g., "assessment_1234" -> "assessment")
@@ -291,7 +309,7 @@ function CanStatusPage() {
 					
 					if (lowerName.includes('assessment')) extractedType = 'assessment';
 					else if (lowerName.includes('technical')) extractedType = 'technical';
-					else if (lowerName.includes('oneonone')) extractedType = 'oneOnOne';
+					else if (lowerName.includes('oneonone') || lowerName.includes('one-on-one') || lowerName.includes('one_on_one')) extractedType = 'oneOnOne';
 					else if (lowerName.includes('panel')) extractedType = 'panel';
 					else if (lowerName.includes('group')) extractedType = 'group';
 					else if (lowerName.includes('situational')) extractedType = 'situational';
@@ -320,6 +338,13 @@ function CanStatusPage() {
 			const stageNames = {
 				technical: 'Technical',
 				oneOnOne: 'One-to-One',
+				oneonone: 'One-to-One',
+				"one-on-one": 'One-to-One',
+				one_on_one: 'One-to-One',
+				oneOnOnePanel: 'One-to-One / Panel',
+				oneononepanel: 'One-to-One / Panel',
+				"one-on-one-panel": 'One-to-One / Panel',
+				one_on_one_panel: 'One-to-One / Panel',
 				panel: 'Panel',
 				group: 'Group',
 				situational: 'Situational / Behavioral',
@@ -732,7 +757,7 @@ function CanStatusPage() {
 																					
 																					if (lowerKey.includes('assessment')) extractedType = 'assessment';
 																					else if (lowerKey.includes('technical')) extractedType = 'technical';
-																					else if (lowerKey.includes('oneonone')) extractedType = 'oneOnOne';
+																					else if (lowerKey.includes('oneonone') || lowerKey.includes('one-on-one') || lowerKey.includes('one_on_one')) extractedType = 'oneOnOne';
 																					else if (lowerKey.includes('panel')) extractedType = 'panel';
 																					else if (lowerKey.includes('group')) extractedType = 'group';
 																					else if (lowerKey.includes('situational')) extractedType = 'situational';
@@ -747,7 +772,11 @@ function CanStatusPage() {
 																						extractedType = parts.find(p => stageNameMap[p.toLowerCase()]);
 																					}
 																					
-																					console.log('Round ' + roundIndex + ' - extractedType:', extractedType);
+																					if (!extractedType && typeof round === 'object' && round.roundType) {
+												const fallbackType = round.roundType.includes('_') ? round.roundType.split('_')[0] : round.roundType;
+												extractedType = fallbackType;
+											}
+											console.log('Round ' + roundIndex + ' - extractedType:', extractedType);
 																					roundName = extractedType && stageNameMap[extractedType] ? stageNameMap[extractedType] : 'Interview Round';
 																					console.log('Round ' + roundIndex + ' - Final roundName after conversion:', roundName);
 																				}
@@ -1036,7 +1065,7 @@ function CanStatusPage() {
 											
 											if (lowerKey.includes('assessment')) extractedType = 'assessment';
 											else if (lowerKey.includes('technical')) extractedType = 'technical';
-											else if (lowerKey.includes('oneonone')) extractedType = 'oneOnOne';
+											else if (lowerKey.includes('oneonone') || lowerKey.includes('one-on-one') || lowerKey.includes('one_on_one')) extractedType = 'oneOnOne';
 											else if (lowerKey.includes('panel')) extractedType = 'panel';
 											else if (lowerKey.includes('group')) extractedType = 'group';
 											else if (lowerKey.includes('situational')) extractedType = 'situational';

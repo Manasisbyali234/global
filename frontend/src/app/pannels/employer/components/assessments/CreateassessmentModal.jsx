@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import './CreateassessmentModal.css';
 import { disableBodyScroll, enableBodyScroll } from "../../../../../utils/scrollUtils";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import RichTextEditor from "../../../../../components/RichTextEditor";
 import AssessmentPreview from "./AssessmentPreview";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
@@ -22,34 +21,6 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const [isMinimized, setIsMinimized] = useState(false);
 	const [isMaximized, setIsMaximized] = useState(false);
 	const [showPreview, setShowPreview] = useState(false);
-
-	const quillModules = useMemo(() => ({
-		toolbar: [
-			[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-			[{ 'font': [] }],
-			[{ 'size': ['small', false, 'large', 'huge'] }],
-			['bold', 'italic', 'underline', 'strike'],
-			[{ 'color': [] }, { 'background': [] }],
-			[{ 'script': 'sub' }, { 'script': 'super' }],
-			[{ 'list': 'ordered' }, { 'list': 'bullet' }],
-			[{ 'indent': '-1' }, { 'indent': '+1' }],
-			[{ 'align': [] }],
-			['blockquote', 'code-block'],
-			['link', 'image'],
-			['clean']
-		]
-	}), []);
-
-	const quillFormats = [
-		'header', 'font', 'size',
-		'bold', 'italic', 'underline', 'strike',
-		'color', 'background',
-		'script',
-		'list', 'bullet', 'indent',
-		'align',
-		'blockquote', 'code-block',
-		'link', 'image'
-	];
 
 	useEffect(() => {
 		disableBodyScroll();
@@ -664,15 +635,14 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							</div>
 							{q.type === 'image-mcq' ? (
 								<>
-									<ReactQuill
-										theme="snow"
-										value={q.question || ''}
-										onChange={(value) => handleQuestionChange(qIndex, "question", value)}
-										modules={quillModules}
-										formats={quillFormats}
-										placeholder="Enter your question here..."
-										style={{ marginBottom: '1rem' }}
-									/>
+									<div style={{ marginBottom: '1rem' }}>
+										<RichTextEditor
+											value={q.question || ''}
+											onChange={(value) => handleQuestionChange(qIndex, "question", value)}
+											placeholder="Enter your question here..."
+											className="form-control-editor"
+										/>
+									</div>
 									<div className="mb-3">
 									<label className="form-label small text-muted mb-2 fw-semibold">
 										Upload Question Image <span style={{color: '#dc2626'}}>*</span>
@@ -731,15 +701,14 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								</div>
 								</>
 							) : (
-								<ReactQuill
-									theme="snow"
-									value={q.question || ''}
-									onChange={(value) => handleQuestionChange(qIndex, "question", value)}
-									modules={quillModules}
-									formats={quillFormats}
-									placeholder="Enter your question here..."
-									style={{ marginBottom: '1rem' }}
-								/>
+								<div style={{ marginBottom: '1rem' }}>
+									<RichTextEditor
+										value={q.question || ''}
+										onChange={(value) => handleQuestionChange(qIndex, "question", value)}
+										placeholder="Enter your question here..."
+										className="form-control-editor"
+									/>
+								</div>
 							)}
 							{q.type === "visual-mcq" && (
 								<div className="mb-3">

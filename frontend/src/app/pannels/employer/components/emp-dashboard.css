@@ -573,4 +573,29 @@
   .emp-dashboard .wt-admin-right-page-header {
     margin-bottom: 2rem !important;
   }
+
+  /* Limit header text to 2 lines on mobile */
+  .emp-dashboard .wt-admin-right-page-header h2 {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.4 !important;
+    max-height: calc(1.4em * 2) !important;
+  }
+
+  /* Fix notification cards wrapping on mobile */
+  .emp-dashboard .col-xl-4 > div[style*="border-radius: 0.75rem"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .emp-dashboard .col-xl-4 > div[style*="border-radius: 0.75rem"] * {
+    max-width: 100% !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+  }
 }

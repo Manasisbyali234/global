@@ -386,12 +386,11 @@ function SectionCanKeySkills({ profile }) {
                                 `}</style>
                                 <div className="d-flex flex-wrap gap-2 mt-2">
                                     {skills.map((skill, index) => (
-                                        <span key={index} className="badge bg-light skill-badge" style={{fontSize: '13px', padding: '8px 12px', borderRadius: '20px', color: '#333', border: '1px solid #ddd', display: 'inline-flex', alignItems: 'center', flexDirection: 'row', maxWidth: '100%'}}>
-                                            <i className="fa fa-tag me-2" style={{color: '#0056b3', fontSize: '11px', flexShrink: 0}}></i>
+                                        <span key={index} className="badge bg-light skill-badge" style={{fontSize: '13px', padding: '8px 12px', borderRadius: '20px', color: '#333', border: '1px solid #ddd', display: 'inline-flex', alignItems: 'center', gap: '8px', flexDirection: 'row', maxWidth: '100%'}}>
+                                            <i className="fa fa-tag" style={{color: '#0056b3', fontSize: '11px', flexShrink: 0}}></i>
                                             <span className="skill-text" style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: '1 1 auto', minWidth: 0}}>{skill}</span>
                                             <button 
-                                                className="btn btn-sm ms-2 p-0"
-                                                style={{background: 'none', border: 'none', color: '#dc3545', fontSize: '12px', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginLeft: '10px'}}
+                                                type="button"
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
@@ -399,9 +398,26 @@ function SectionCanKeySkills({ profile }) {
                                                 }}
                                                 disabled={loading}
                                                 title="Remove skill"
-                                                type="button"
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: '#dc3545',
+                                                    cursor: 'pointer',
+                                                    padding: 0,
+                                                    margin: 0,
+                                                    width: '16px',
+                                                    height: '16px',
+                                                    minWidth: '16px',
+                                                    minHeight: '16px',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    flexShrink: 0,
+                                                    lineHeight: 1,
+                                                    fontSize: '12px'
+                                                }}
                                             >
-                                                <i className="fa fa-times"></i>
+                                                ×
                                             </button>
                                         </span>
                                     ))}

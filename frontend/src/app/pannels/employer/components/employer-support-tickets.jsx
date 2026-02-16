@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { formatDate } from '../../../../utils/dateFormatter';
+import { formatDate as formatDateUtil } from '../../../../utils/dateFormatter';
 import { Container, Row, Col, Card, Badge, Button, Modal, Form, Spinner } from 'react-bootstrap';
 import '../../admin/components/admin-support-tickets.css';
 import '../../admin/components/admin-emp-manage-styles.css';
@@ -29,7 +29,7 @@ function EmployerSupportTickets() {
 
     const formatDate = (value) => {
         if (!value) return '--';
-        return formatDate(value);
+        return formatDateUtil(value);
     };
 
     useEffect(() => {

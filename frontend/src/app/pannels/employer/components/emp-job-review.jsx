@@ -27,8 +27,14 @@ function EmpJobReviewPage() {
                 }
             });
             const data = await response.json();
+            console.log('Job API Response:', data);
             if (response.ok && data.success) {
-                setJobDetails(data.job || data.data || data);
+                const jobData = data.job || data.data || data;
+                console.log('Job Details:', jobData);
+                console.log('Interview Rounds:', jobData.interviewRounds);
+                console.log('Interview Round Order:', jobData.interviewRoundOrder);
+                console.log('Interview Round Details:', jobData.interviewRoundDetails);
+                setJobDetails(jobData);
             }
         } catch (error) {
             
@@ -248,61 +254,36 @@ function EmpJobReviewPage() {
                         <hr />
 
                         {/* Interview Round Details */}
-                        {jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.length > 0 && (
+                        {jobDetails.interviewRounds && jobDetails.interviewRounds.length > 0 && (
                             <div className="mt-4">
                                 <h5 className="mb-3">Interview Schedule Details</h5>
                                 <div className="row">
-                                    {jobDetails.interviewRoundOrder.map((key, index) => {
-                                        const roundType = jobDetails.interviewRoundTypes?.[key];
-                                        
-                                        // Support both old and new formats
-                                        let details = null;
-                                        if (jobDetails.interviewRounds && Array.isArray(jobDetails.interviewRounds)) {
-                                            // Match by name (e.g., 'assessment', 'technical') extracted from key
-                                            const roundName = key.split('_')[0];
-                                            details = jobDetails.interviewRounds.find(r => r.name === roundName);
-                                        } else if (jobDetails.interviewRoundDetails) {
-                                            details = jobDetails.interviewRoundDetails[key];
-                                        }
-                                        
-                                        const roundNames = {
-                                            technical: 'Technical',
-                                            oneOnOne: 'One-to-One',
-                                            panel: 'Panel',
-                                            group: 'Group',
-                                            situational: 'Situational / Behavioral',
-                                            others: 'Others – Specify.',
-                                            assessment: 'Assessment'
-                                        };
-                                        
-                                        if (!details) return null;
-                                        
-                                        return (
-                                            <div key={key} className="col-lg-6 col-12 mb-3">
-                                                <div className="border rounded p-3 bg-light">
-                                                    <h6 className="mb-2">
-                                                        <span className="badge bg-primary me-2">{index + 1}</span>
-                                                        {roundNames[roundType] || roundType}
-                                                    </h6>
-                                                    {details.description && (
-                                                        <p className="mb-1"><strong>Description:</strong> {details.description}</p>
-                                                    )}
-                                                    {(details.date || details.fromDate) && (
-                                                        <p className="mb-1"><strong>Date:</strong> {formatDate(details.date || details.fromDate)}</p>
-                                                    )}
-                                                    {details.toDate && (
-                                                        <p className="mb-1"><strong>To Date:</strong> {formatDate(details.toDate)}</p>
-                                                    )}
-                                                    {details.startTime && (
-                                                        <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(details.startTime)}</p>
-                                                    )}
-                                                    {details.endTime && (
-                                                        <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(details.endTime)}</p>
-                                                    )}
-                                                </div>
+                                    {jobDetails.interviewRounds.map((round, index) => (
+                                        <div key={round.id || index} className="col-lg-6 col-12 mb-3">
+                                            <div className="border rounded p-3 bg-light">
+                                                <h6 className="mb-2">
+                                                    <span className="badge bg-primary me-2">{index + 1}</span>
+                                                    {round.name}
+                                                </h6>
+                                                {round.date ? (
+                                                    <p className="mb-1"><strong>Date:</strong> {formatDate(round.date)}</p>
+                                                ) : (
+                                                    <p className="mb-1 text-muted"><strong>Date:</strong> Not scheduled yet</p>
+                                                )}
+                                                {round.startTime ? (
+                                                    <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(round.startTime)}</p>
+                                                ) : (
+                                                    <p className="mb-1 text-muted"><strong>Start Time:</strong> Not scheduled yet</p>
+                                                )}
+                                                {round.endTime && (
+                                                    <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(round.endTime)}</p>
+                                                )}
+                                                {round.applicationLimit && (
+                                                    <p className="mb-1"><strong>Application Limit:</strong> {round.applicationLimit}</p>
+                                                )}
                                             </div>
-                                        );
-                                    })}
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}

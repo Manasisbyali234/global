@@ -375,6 +375,18 @@
   .filter-select {
     margin-bottom: 10px;
   }
+
+  /* Fix search bar size on mobile */
+  .panel-body .row .col-md-6 {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+  }
+
+  .panel-body .row .col-md-6 .form-control {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+  }
   
   .assessment-card {
     margin-bottom: 15px;

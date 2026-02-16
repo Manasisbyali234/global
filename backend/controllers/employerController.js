@@ -1409,14 +1409,47 @@ exports.getJob = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Job not found' });
     }
     
-    // Remove old embedded interviewRounds
-    delete job.interviewRounds;
-    
     // Get interview rounds from new collection
     const interviewRounds = await InterviewRound.find({ jobId: req.params.jobId }).sort({ date: 1, startTime: 1 });
-      console.log('[getJob] Fetching rounds for jobId:', req.params.jobId);
-      console.log('[getJob] Found rounds:', interviewRounds);
+    console.log('[getJob] Fetching rounds for jobId:', req.params.jobId);
+    console.log('[getJob] Found rounds from collection:', interviewRounds);
+    
+    // If no rounds in new collection, try to build from old format
+    if (interviewRounds.length === 0) {
+      console.log('[getJob] No rounds in collection, checking old format');
+      console.log('[getJob] interviewRoundOrder:', job.interviewRoundOrder);
+      console.log('[getJob] interviewRoundDetails:', job.interviewRoundDetails);
+      console.log('[getJob] interviewRoundTypes:', job.interviewRoundTypes);
       
+      // Build rounds array from available data
+      if (job.interviewRoundOrder && job.interviewRoundOrder.length > 0) {
+        job.interviewRounds = job.interviewRoundOrder.map((key) => {
+          const details = job.interviewRoundDetails?.[key];
+          const roundType = job.interviewRoundTypes?.[key];
+          
+          const roundNames = {
+            technical: 'Technical',
+            oneOnOne: 'One-to-One',
+            panel: 'Panel',
+            group: 'Group',
+            situational: 'Situational / Behavioral',
+            others: 'Others',
+            assessment: 'Assessment'
+          };
+          
+          return {
+            id: key,
+            name: details?.customType || roundNames[roundType] || roundType || key.replace(/_\d+$/, ''),
+            date: details?.fromDate || details?.date || null,
+            startTime: details?.startTime || details?.time || null,
+            endTime: details?.endTime || null,
+            applicationLimit: details?.applicationLimit || job.applicationLimit || null
+          };
+        });
+      } else {
+        job.interviewRounds = [];
+      }
+    } else {
       // Format interview rounds for frontend compatibility
       job.interviewRounds = interviewRounds.map(round => ({
         id: round._id.toString(),
@@ -1426,9 +1459,13 @@ exports.getJob = async (req, res) => {
         endTime: round.endTime,
         applicationLimit: round.applicationLimit
       }));
+    }
+    
+    console.log('[getJob] Final interviewRounds:', job.interviewRounds);
     
     res.json({ success: true, job });
   } catch (error) {
+    console.error('[getJob] Error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

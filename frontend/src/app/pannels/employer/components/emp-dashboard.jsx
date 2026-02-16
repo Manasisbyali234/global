@@ -376,8 +376,8 @@ function EmpDashboardPage() {
                             }}>
                                 <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#111827', marginBottom: '1.5rem' }}>Notifications</h3>
                                 
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: '1', overflowY: 'auto', maxHeight: '240px' }}>
-                                    {notifications.length > 0 ? notifications.slice(0, 5).map((notification, index) => {
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: '1' }}>
+                                    {notifications.length > 0 ? notifications.slice(0, 3).map((notification, index) => {
                                         const isDocumentNotification = notification.type === 'document_approved' || notification.type === 'document_rejected';
                                         const isApproved = notification.type === 'document_approved' || notification.title?.includes('Approved');
                                         const isRejected = notification.type === 'document_rejected' || notification.title?.includes('Rejected');

@@ -32,6 +32,18 @@
 }
 
 @media (max-width: 768px) {
+  /* Fix search bar size on mobile */
+  .emp-assessment-page .d-flex.flex-grow-1 .form-control,
+  .emp-assessment-page .d-flex.flex-grow-1 .form-select {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  .emp-assessment-page .d-flex.flex-grow-1 {
+    width: 100% !important;
+  }
+
   .emp-assessment-page .btn {
     font-size: 0.875rem !important;
     padding: 0.5rem 0.75rem !important;

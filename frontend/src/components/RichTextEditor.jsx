@@ -1,38 +1,9 @@
-import React, { useMemo } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import React, { useEffect, useMemo, useRef } from 'react';
 import './RichTextEditor.css';
 
 const RichTextEditor = ({ value, onChange, placeholder = "Enter text...", className = "" }) => {
-    const modules = useMemo(() => ({
-        toolbar: [
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            [{ 'font': [] }],
-            [{ 'size': ['small', false, 'large', 'huge'] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'color': [] }, { 'background': [] }],
-            [{ 'script': 'sub' }, { 'script': 'super' }],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'indent': '-1' }, { 'indent': '+1' }],
-            [{ 'align': [] }],
-            ['blockquote', 'code-block'],
-            ['link', 'image'],
-            ['clean']
-        ]
-    }), []);
+    const editorRef = useRef(null);
 
-    const formats = [
-        'header', 'font', 'size',
-        'bold', 'italic', 'underline', 'strike',
-        'color', 'background',
-        'script',
-        'list', 'bullet', 'indent',
-        'align',
-        'blockquote', 'code-block',
-        'link', 'image'
-    ];
-
-    // Decode HTML entities if they exist
     const decodeHTML = (html) => {
         if (!html) return '';
         const txt = document.createElement('textarea');
@@ -42,21 +13,60 @@ const RichTextEditor = ({ value, onChange, placeholder = "Enter text...", classN
 
     const decodedValue = useMemo(() => decodeHTML(value), [value]);
 
-    // Handle onChange to ensure we're passing proper HTML
-    const handleChange = (content) => {
-        // ReactQuill already provides HTML, just pass it through
-        onChange(content);
+    useEffect(() => {
+        if (!editorRef.current) return;
+        if (editorRef.current.innerHTML !== decodedValue) {
+            editorRef.current.innerHTML = decodedValue || '';
+        }
+    }, [decodedValue]);
+
+    const emitChange = () => {
+        if (!editorRef.current) return;
+        const textContent = editorRef.current.textContent || '';
+        if (!textContent.trim()) {
+            editorRef.current.innerHTML = '';
+            onChange('');
+            return;
+        }
+        onChange(editorRef.current.innerHTML);
+    };
+
+    const applyCommand = (command) => {
+        if (!editorRef.current) return;
+        editorRef.current.focus();
+        document.execCommand(command, false, null);
+        emitChange();
     };
 
     return (
         <div className={`rich-text-editor-wrapper ${className}`}>
-            <ReactQuill
-                theme="snow"
-                value={decodedValue}
-                onChange={handleChange}
-                modules={modules}
-                formats={formats}
-                placeholder={placeholder}
+            <div className="rich-text-editor-toolbar">
+                <button type="button" className="rich-text-editor-button" onClick={() => applyCommand('bold')} aria-label="Bold">
+                    <strong>B</strong>
+                </button>
+                <button type="button" className="rich-text-editor-button" onClick={() => applyCommand('italic')} aria-label="Italic">
+                    <em>I</em>
+                </button>
+                <button type="button" className="rich-text-editor-button" onClick={() => applyCommand('underline')} aria-label="Underline">
+                    <span style={{ textDecoration: 'underline' }}>U</span>
+                </button>
+                <button type="button" className="rich-text-editor-button" onClick={() => applyCommand('insertOrderedList')} aria-label="Numbered list">
+                    1.
+                </button>
+                <button type="button" className="rich-text-editor-button" onClick={() => applyCommand('insertUnorderedList')} aria-label="Bullet list">
+                    •
+                </button>
+                <button type="button" className="rich-text-editor-button" onClick={() => applyCommand('removeFormat')} aria-label="Clear formatting">
+                    Clear
+                </button>
+            </div>
+            <div
+                className="rich-text-editor-content"
+                contentEditable
+                ref={editorRef}
+                onInput={emitChange}
+                data-placeholder={placeholder}
+                suppressContentEditableWarning
             />
         </div>
     );
