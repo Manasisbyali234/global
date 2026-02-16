@@ -3,7 +3,7 @@ import JobZImage from "../../../common/jobz-img";
 import { NavLink, useLocation } from "react-router-dom";
 import { loadScript, setMenuActive } from "../../../../globals/constants";
 import { admin, adminRoute, publicUser } from "../../../../globals/route-names";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./admin-sidebar.css";
 
 function AdminSidebarSection({ sidebarActive, isMobile }) {
@@ -13,6 +13,8 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
     const [openMenus, setOpenMenus] = useState({});
     const [hasNewEmployers, setHasNewEmployers] = useState(false);
     const [hasNewPlacements, setHasNewPlacements] = useState(false);
+    const employersLinkRef = useRef(null);
+    const placementLinkRef = useRef(null);
 
     // Function to fetch and update sub-admin profile
     const fetchSubAdminProfile = async () => {
@@ -106,11 +108,6 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             if (!document.getElementById('arrowId') && window.jQuery) {
                 window.jQuery(".sub-menu").parent('li').addClass('has-child');
                 window.jQuery("<div id='arrowId' class='fa fa-angle-right submenu-toogle'></div>").insertAfter(".has-child > a");
-                
-                // Rotate arrow on click
-                window.jQuery('.has-child > a').on('click', function() {
-                    window.jQuery(this).next('.submenu-toogle').toggleClass('rotate-down');
-                });
             }
         }, 100);
         
@@ -200,10 +197,15 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
 
                         {hasPermission('employers') && (
                             <li>
-                                <a href="#" onClick={(e) => {
+                                <a ref={employersLinkRef} href="#" onClick={(e) => {
                                     e.preventDefault();
                                     setOpenMenus(prev => ({...prev, employers: !prev.employers}));
-                                    e.currentTarget.nextElementSibling?.classList.toggle('rotate-down');
+                                    setTimeout(() => {
+                                        const arrow = employersLinkRef.current?.nextElementSibling;
+                                        if (arrow?.classList.contains('submenu-toogle')) {
+                                            arrow.classList.toggle('rotate-down');
+                                        }
+                                    }, 0);
                                 }}>
                                     <i className="fa fa-user-tie" />
                                     <span className="admin-nav-text">Employers</span>
@@ -249,10 +251,15 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
 
                         {hasPermission('placement_officers') && (
                             <li>
-                                <a href="#" onClick={(e) => {
+                                <a ref={placementLinkRef} href="#" onClick={(e) => {
                                     e.preventDefault();
                                     setOpenMenus(prev => ({...prev, placement: !prev.placement}));
-                                    e.currentTarget.nextElementSibling?.classList.toggle('rotate-down');
+                                    setTimeout(() => {
+                                        const arrow = placementLinkRef.current?.nextElementSibling;
+                                        if (arrow?.classList.contains('submenu-toogle')) {
+                                            arrow.classList.toggle('rotate-down');
+                                        }
+                                    }, 0);
                                 }}>
                                     <i className="fa fa-graduation-cap" />
                                     <span className="admin-nav-text">Placement Officers</span>
