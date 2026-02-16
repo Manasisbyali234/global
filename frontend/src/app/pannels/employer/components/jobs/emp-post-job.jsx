@@ -1075,9 +1075,9 @@ export default function EmpPostJob({ onNext }) {
 					return;
 				}
 
-				showSuccess('Job posted successfully! Redirecting to schedule interviews...');
+				showSuccess('Job posted successfully! Opening scheduler in new tab...');
 				setTimeout(() => {
-					window.location.href = `https://schedule.taleglobal.net/scheduler/${jobId}`;
+					window.open(`https://schedule.taleglobal.net/scheduler/${jobId}`, '_blank');
 				}, 1500);
 			} else {
 				showError(data.message || 'Failed to post job');
