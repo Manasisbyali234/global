@@ -863,10 +863,12 @@ exports.createJob = async (req, res) => {
       const interviewRounds = [];
       Object.entries(jobData.interviewRoundDetails).forEach(([key, value]) => {
         if (value && typeof value === 'object') {
-          // Skip completely empty rounds
+          // Check if round has any meaningful data (more lenient check)
           const hasData = (value.description && value.description.trim() !== '') || 
                          (value.fromDate && value.fromDate !== '') || 
-                         (value.startTime && value.startTime !== '');
+                         (value.toDate && value.toDate !== '') ||
+                         (value.startTime && value.startTime !== '') ||
+                         (value.endTime && value.endTime !== '');
           
           if (!hasData) {
             console.log(`[createJob] Skipping empty round: ${key}`);
@@ -979,7 +981,7 @@ exports.createJob = async (req, res) => {
 
     // Create interview rounds in new collection
     if (jobData.interviewRounds && jobData.interviewRounds.length > 0) {
-      console.log('Creating interview rounds:', jobData.interviewRounds);
+      console.log('[createJob] Creating interview rounds in DB:', jobData.interviewRounds);
       for (const round of jobData.interviewRounds) {
         try {
           const createdRound = await InterviewRound.create({
@@ -993,11 +995,19 @@ exports.createJob = async (req, res) => {
             description: round.description,
             applicationLimit: round.applicationLimit
           });
-          console.log('Interview round created:', createdRound);
+          console.log('[createJob] Interview round created successfully:', {
+            id: createdRound._id,
+            key: createdRound.key,
+            name: createdRound.name,
+            fromdate: createdRound.fromdate,
+            todate: createdRound.todate
+          });
         } catch (roundError) {
-          console.error('Error creating interview round:', roundError);
+          console.error('[createJob] Error creating interview round:', roundError);
         }
       }
+    } else {
+      console.log('[createJob] No interview rounds to create');
     }
 
     // Notify all candidates about new job posting (broadcast)
@@ -1197,10 +1207,12 @@ exports.updateJob = async (req, res) => {
       const interviewRounds = [];
       Object.entries(req.body.interviewRoundDetails).forEach(([key, value]) => {
         if (value && typeof value === 'object') {
-          // Skip completely empty rounds
+          // Check if round has any meaningful data (more lenient check)
           const hasData = (value.description && value.description.trim() !== '') || 
                          (value.fromDate && value.fromDate !== '') || 
-                         (value.startTime && value.startTime !== '');
+                         (value.toDate && value.toDate !== '') ||
+                         (value.startTime && value.startTime !== '') ||
+                         (value.endTime && value.endTime !== '');
           
           if (!hasData) {
             console.log(`[updateJob] Skipping empty round: ${key}`);
@@ -1234,6 +1246,7 @@ exports.updateJob = async (req, res) => {
         // Delete old rounds
         const { ObjectId } = require('mongoose').Types;
         await InterviewRound.deleteMany({ jobId: new ObjectId(req.params.jobId) });
+        console.log('[updateJob] Deleted old interview rounds');
         // Create new rounds
         for (const round of interviewRounds) {
           try {
@@ -1248,11 +1261,19 @@ exports.updateJob = async (req, res) => {
               description: round.description,
               applicationLimit: round.applicationLimit
             });
-            console.log('[updateJob] Interview round created:', createdRound._id);
+            console.log('[updateJob] Interview round created successfully:', {
+              id: createdRound._id,
+              key: createdRound.key,
+              name: createdRound.name,
+              fromdate: createdRound.fromdate,
+              todate: createdRound.todate
+            });
           } catch (roundError) {
             console.error('[updateJob] Error creating interview round:', roundError);
           }
         }
+      } else {
+        console.log('[updateJob] No interview rounds to create');
       }
       // Keep interviewRoundDetails in req.body for Mixed storage if needed
     }
