@@ -3750,7 +3750,7 @@ export default function EmpPostJob({ onNext }) {
 																alignItems: 'center',
 																gap: 4
 															}}
-															title={`Schedule ${displayName}`}
+															title={`Save ${displayName} details`}
 															onClick={() => {
 																const roundDetails = formData.interviewRoundDetails[uniqueKey];
 																
@@ -3758,20 +3758,13 @@ export default function EmpPostJob({ onNext }) {
 																	showWarning(`Please set the Date for ${displayName}`);
 																	return;
 																}
-																
-																if (roundType !== 'oneOnOnePanel' && roundType !== 'group' && (!roundDetails?.startTime || !roundDetails?.endTime)) {
-																	showWarning(`Please set both From and To Time for ${displayName}`);
-																	return;
-																}
 
+																setScheduledRounds(prev => ({...prev, [uniqueKey]: true}));
 																showSuccess(`${displayName} details saved locally!`);
-																
-																// Save job and redirect to scheduler
-																submitJobAndRedirectToSchedule();
 															}}
 														>
-															<i className="fa fa-calendar-plus"></i>
-															Schedule Interview
+															<i className="fa fa-save"></i>
+															Save Round
 														</button>
 													) : (
 														<button
@@ -3792,18 +3785,8 @@ export default function EmpPostJob({ onNext }) {
 															onClick={() => {
 																const roundDetails = formData.interviewRoundDetails[uniqueKey];
 																
-																if (!roundDetails?.description?.trim()) {
-																	showWarning(`Please enter description for ${displayName}`);
-																	return;
-																}
-																
 																if (!roundDetails?.fromDate) {
 																	showWarning(`Please set the Date for ${displayName}`);
-																	return;
-																}
-																
-																if (!roundDetails?.startTime || !roundDetails?.endTime) {
-																	showWarning(`Please set both From and To Time for ${displayName}`);
 																	return;
 																}
 																
