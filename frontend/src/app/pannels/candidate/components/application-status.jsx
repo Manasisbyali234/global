@@ -865,9 +865,31 @@ function CanStatusPage() {
 																				<div key={roundIndex} className="interview-round-item" style={{minWidth: '120px', padding: '4px', flexShrink: 0}}>
 																					<div className="round-name" style={{fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', color: '#232323'}}>{roundName}</div>
 																					<div style={{display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'center'}}>
-																						<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px', minWidth: 'fit-content', textAlign: 'center'}}>
-																							{roundStatus?.text || 'Pending'}
-																						</span>
+																						{/* Show countdown timer if assessment hasn't started yet */}
+																						{roundName === 'Assessment' && roundStatus.text === 'Started' && (() => {
+																							const windowInfo = getAssessmentWindowInfo(app.jobId);
+																							if (windowInfo.isBeforeStart && windowInfo.startDate) {
+																								const now = new Date().getTime();
+																								const timeUntilStart = windowInfo.startDate.getTime() - now;
+																								return (
+																									<AssessmentTimer 
+																										timerInfo={{
+																											isBeforeStart: true,
+																											timeUntilStart: timeUntilStart,
+																											startDate: windowInfo.startDate
+																										}}
+																										onTimerEnd={() => fetchApplications()}
+																									/>
+																								);
+																							}
+																							return null;
+																						})()}
+																						{/* Show status badge only if not showing countdown */}
+																						{!(roundName === 'Assessment' && roundStatus.text === 'Started' && getAssessmentWindowInfo(app.jobId).isBeforeStart) && (
+																							<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px', minWidth: 'fit-content', textAlign: 'center'}}>
+																								{roundStatus?.text || 'Pending'}
+																							</span>
+																						)}
 																						{/* Show pass/fail result for completed assessments */}
 																						{roundName === 'Assessment' && (app.assessmentResult === 'pass' || app.assessmentResult === 'fail') && (
 																							<span className={`badge ${app.assessmentResult === 'pass' ? 'bg-success' : 'bg-danger'}`} style={{fontSize: '9px', padding: '2px 6px', marginTop: '2px'}}>

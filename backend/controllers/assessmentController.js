@@ -118,7 +118,7 @@ exports.createAssessment = async (req, res) => {
         explanation: q.explanation ? q.explanation.trim() : '',
         imageUrl: q.imageUrl || ''
       })),
-      passingPercentage: passingPercentage || 60,
+      passingPercentage: typeof passingPercentage === 'number' ? passingPercentage : (parseInt(passingPercentage) || 60),
       status: 'published'
     });
 
@@ -255,7 +255,7 @@ exports.updateAssessment = async (req, res) => {
         explanation: q.explanation ? q.explanation.trim() : '',
         imageUrl: q.imageUrl || ''
       })),
-      passingPercentage: passingPercentage || 60,
+      passingPercentage: typeof passingPercentage === 'number' ? passingPercentage : (parseInt(passingPercentage) || 60),
       updatedAt: Date.now()
     };
     

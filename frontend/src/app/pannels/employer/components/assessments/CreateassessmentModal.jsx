@@ -282,6 +282,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			}
 		}
 		
+		const parsedPercentage = passingPercentage === '' ? 60 : parseInt(passingPercentage);
 		onCreate({
 			id: editData?._id,
 			title: title.trim(),
@@ -289,7 +290,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			designation: designation.trim(),
 			companyName: companyName.trim(),
 			timer: parseInt(timeLimit) || 30,
-			passingPercentage: parseInt(passingPercentage) || 60,
+			passingPercentage: parsedPercentage,
 			description: description.trim(),
 			questions,
 			status: isDraft ? 'draft' : 'published'
