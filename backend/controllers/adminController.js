@@ -2170,6 +2170,13 @@ exports.approveIndividualFile = async (req, res) => {
           // Send welcome email with create password link
           try {
             const { sendPlacementCandidateWelcomeEmail } = require('../utils/emailService');
+            console.log(`=== SENDING WELCOME EMAIL ===`);
+            console.log(`To: ${email.trim().toLowerCase()}`);
+            console.log(`Name: ${name.trim()}`);
+            console.log(`Placement Officer: ${placement.name}`);
+            console.log(`College: ${collegeName || placement.collegeName}`);
+            console.log(`Credits: ${finalCredits}`);
+            
             await sendPlacementCandidateWelcomeEmail(
               email.trim().toLowerCase(),
               name.trim(),
@@ -2178,6 +2185,8 @@ exports.approveIndividualFile = async (req, res) => {
               collegeName || placement.collegeName,
               finalCredits
             );
+            
+            console.log(`✅ Welcome email sent successfully to ${email}`);
             
             // Update placement candidate record to mark email as sent
             await PlacementCandidate.findByIdAndUpdate(
@@ -2190,7 +2199,12 @@ exports.approveIndividualFile = async (req, res) => {
             
             emailsSent++;
           } catch (emailError) {
-            console.error(`Failed to send welcome email to ${email}:`, emailError);
+            console.error(`❌ Failed to send welcome email to ${email}:`, emailError);
+            console.error('Email error details:', {
+              message: emailError.message,
+              code: emailError.code,
+              command: emailError.command
+            });
             emailsFailed++;
             // Continue processing even if email fails
           }
