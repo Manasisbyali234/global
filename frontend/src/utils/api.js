@@ -59,8 +59,12 @@ const handleApiResponse = async (response) => {
     let errorData;
     try {
       const text = await response.text();
-      errorData = { message: 'Request failed' };
-    } catch (parseError) {
+      try {
+        errorData = JSON.parse(text);
+      } catch (parseError) {
+        errorData = { message: text || 'Request failed' };
+      }
+    } catch (readError) {
       errorData = { message: 'Request failed' };
     }
     
@@ -452,7 +456,23 @@ export const api = {
         Authorization: `Bearer ${token}`,
       },
       body: formData,
-    }).then(handleApiResponse);
+    }).then(async (response) => {
+      const text = await response.text();
+      let data;
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        throw new Error('Invalid server response');
+      }
+      
+      if (!response.ok) {
+        // Extract the error message from the response
+        const errorMessage = data.message || `HTTP ${response.status}: Request failed`;
+        throw new Error(errorMessage);
+      }
+      
+      return data;
+    });
   },
 
   viewPlacementFile: (fileId) => {

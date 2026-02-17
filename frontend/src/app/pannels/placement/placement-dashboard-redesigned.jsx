@@ -229,7 +229,23 @@ function PlacementDashboardRedesigned() {
             }
         } catch (error) {
             console.error('Upload error:', error);
-            showError(error.message || 'Upload failed. Please try again.');
+            // Extract the actual error message from the error object
+            let errorMessage = 'Upload failed. Please try again.';
+            
+            if (error.response && error.response.data && error.response.data.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            // Clean up the error message by removing HTTP status codes and extra formatting
+            errorMessage = errorMessage
+                .replace(/^HTTP\s*\d+:\s*/i, '')
+                .replace(/^\d{3}\s*-?\s*/g, '')
+                .replace(/^[:\s-]+|[:\s-]+$/g, '')
+                .trim();
+            
+            showError(errorMessage);
         } finally {
             setUploadingFile(false);
         }
