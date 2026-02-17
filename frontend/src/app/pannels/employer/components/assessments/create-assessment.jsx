@@ -67,8 +67,12 @@ function CreateAssessmentPage() {
     const handleCreateAssessment = async (assessmentData) => {
         try {
             const token = localStorage.getItem('employerToken');
-            const response = await fetch('/api/employer/assessments', {
-                method: 'POST',
+            const isEditing = !!assessmentData.id;
+            const url = isEditing ? `/api/employer/assessments/${assessmentData.id}` : '/api/employer/assessments';
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -77,10 +81,16 @@ function CreateAssessmentPage() {
             });
             if (response.ok) {
                 setShowModal(false);
+                setEditingAssessment(null);
                 fetchAssessments();
+                showSuccess(`Assessment ${isEditing ? 'updated' : 'created'} successfully`);
+            } else {
+                const data = await response.json();
+                showError(data.message || `Failed to ${isEditing ? 'update' : 'create'} assessment`);
             }
         } catch (error) {
-            console.error('Error creating assessment:', error);
+            console.error(`Error ${assessmentData.id ? 'updating' : 'creating'} assessment:`, error);
+            showError(`Failed to ${assessmentData.id ? 'update' : 'create'} assessment`);
         }
     };
 
@@ -208,6 +218,7 @@ function CreateAssessmentPage() {
                                                 <div className="d-flex gap-3">
                                                     <small className="text-muted"><i className="fa fa-question-circle me-1"></i>Questions: {assessment.questions?.length || 0}</small>
                                                     <small className="text-muted"><i className="fa fa-clock me-1"></i>Time: {assessment.timer || 0} min</small>
+                                                    <small className="text-muted"><i className="fa fa-check-circle me-1"></i>Passing: {assessment.passingPercentage || 60}%</small>
                                                 </div>
                                             </div>
                                             <div className="d-flex flex-row flex-sm-column gap-2 mt-2 mt-sm-0">

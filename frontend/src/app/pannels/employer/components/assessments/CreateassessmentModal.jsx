@@ -12,6 +12,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const [designation, setDesignation] = useState(editData?.designation || "");
 	const [companyName, setCompanyName] = useState(editData?.companyName || "");
 	const [timeLimit, setTimeLimit] = useState(editData?.timer || 30);
+	const [passingPercentage, setPassingPercentage] = useState(editData?.passingPercentage || 60);
 	const [description, setDescription] = useState(editData?.description || "");
 	const [employerCategory, setEmployerCategory] = useState("");
 	const [approvedCompanies, setApprovedCompanies] = useState([]);
@@ -236,6 +237,11 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			showWarning("Please enter a valid time limit (at least 1 minute)");
 			return;
 		}
+
+		if (passingPercentage === undefined || passingPercentage === "" || passingPercentage < 0 || passingPercentage > 100) {
+			showWarning("Please enter a valid passing percentage (0-100)");
+			return;
+		}
 		
 		if (questions.length === 0) {
 			showWarning("Please add at least one question");
@@ -283,6 +289,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			designation: designation.trim(),
 			companyName: companyName.trim(),
 			timer: parseInt(timeLimit) || 30,
+			passingPercentage: parseInt(passingPercentage) || 60,
 			description: description.trim(),
 			questions,
 			status: isDraft ? 'draft' : 'published'
@@ -551,6 +558,30 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
 									<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
 									Please enter a valid time limit (at least 1 minute)
+								</small>
+							)}
+						</div>
+						<div className="col-6">
+							<label className="form-label small text-muted mb-2">
+								Passing Percentage (%) <span style={{color: '#dc2626'}}>*</span>
+							</label>
+							<input
+								type="number"
+								className="form-control"
+								value={passingPercentage}
+								onChange={(e) => setPassingPercentage(e.target.value)}
+								min="0"
+								max="100"
+								required
+								style={{
+									borderColor: passingPercentage >= 0 && passingPercentage <= 100 ? '#10b981' : '#dc2626',
+									borderWidth: 2
+								}}
+							/>
+							{(passingPercentage < 0 || passingPercentage > 100) && (
+								<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
+									<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
+									Please enter a valid percentage (0-100)
 								</small>
 							)}
 						</div>

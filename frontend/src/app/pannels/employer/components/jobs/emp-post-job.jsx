@@ -3735,7 +3735,7 @@ export default function EmpPostJob({ onNext }) {
 													Stage {stageNumber}: {displayName}
 												</div>
 												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-													{(roundType === 'oneOnOnePanel' || roundType === 'group') ? (
+													{roundType !== 'assessment' && (
 														<button
 															style={{
 																background: '#10b981',
@@ -3750,52 +3750,22 @@ export default function EmpPostJob({ onNext }) {
 																alignItems: 'center',
 																gap: 4
 															}}
-															title={`Save ${displayName} details`}
+															title={`Schedule ${displayName}`}
 															onClick={() => {
 																const roundDetails = formData.interviewRoundDetails[uniqueKey];
-																
-																if (!roundDetails?.fromDate) {
-																	showWarning(`Please set the Date for ${displayName}`);
+																if (!roundDetails?.fromDate || !roundDetails?.startTime || !roundDetails?.endTime) {
+																	showWarning('Please fill From Date, Start Time, and End Time for this interview round.');
 																	return;
 																}
-
-																setScheduledRounds(prev => ({...prev, [uniqueKey]: true}));
-																showSuccess(`${displayName} details saved locally!`);
-															}}
-														>
-															<i className="fa fa-save"></i>
-															Save Round
-														</button>
-													) : (
-														<button
-															style={{
-																background: '#10b981',
-																color: '#fff',
-																border: 'none',
-																padding: '6px 12px',
-																borderRadius: 6,
-																cursor: 'pointer',
-																fontSize: 12,
-																fontWeight: 600,
-																display: 'flex',
-																alignItems: 'center',
-																gap: 4
-															}}
-															title={`Save ${displayName} details`}
-															onClick={() => {
-																const roundDetails = formData.interviewRoundDetails[uniqueKey];
-																
-																if (!roundDetails?.fromDate) {
-																	showWarning(`Please set the Date for ${displayName}`);
+																if (!id) {
+																	showWarning('Please submit the job first before scheduling interviews.');
 																	return;
 																}
-																
-																setScheduledRounds(prev => ({...prev, [uniqueKey]: true}));
-																showSuccess(`${displayName} details saved locally!`);
+																window.open(`https://schedule.taleglobal.net/scheduler/${id}`, '_blank');
 															}}
 														>
-															<i className="fa fa-save"></i>
-															Save Round
+															<i className="fa fa-calendar-plus"></i>
+															Schedule Interview
 														</button>
 													)}
 													<i 
