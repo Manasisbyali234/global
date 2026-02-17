@@ -88,6 +88,7 @@ export const employer = {
 	PROFILE: "/profile",
 	PROFILE1: "/profile1",
 	POST_A_JOB: "/post-job",
+	EDIT_JOB: "/edit-job/:id",
 	MANAGE_JOBS: "/manage-jobs",
 	CREATE_ASSESSMENT: "/create-assessment",
 	MANAGE_ASSESSMENT: "/manage-assessment",

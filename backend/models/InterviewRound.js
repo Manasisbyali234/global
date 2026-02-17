@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const interviewRoundSchema = new mongoose.Schema({
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
+  key: { type: String }, // Store unique key (e.g., technical_123456)
   name: { type: String, required: true },
   fromdate: { type: Date },
   todate: { type: Date },

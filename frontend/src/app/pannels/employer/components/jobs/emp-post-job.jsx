@@ -1,7 +1,7 @@
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 import { formatDate } from '../../../../../utils/dateFormatter';
 import React, { useState, useEffect, useCallback } from "react";
-import { NavLink, useParams, useNavigate } from "react-router-dom";
+import { NavLink, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { employer, empRoute, publicUser } from "../../../../../globals/route-names";
 import { holidaysApi } from "../../../../../utils/holidaysApi";
 import HolidayIndicator from "../../../../../components/HolidayIndicator";
@@ -242,6 +242,7 @@ function LocationSearchInput({ value, onChange, error, style }) {
 export default function EmpPostJob({ onNext }) {
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
 	const isEditMode = Boolean(id);
 	const [formData, setFormData] = useState({
 		jobTitle: "",
@@ -308,6 +309,15 @@ export default function EmpPostJob({ onNext }) {
 	});
 
 	const [employerType, setEmployerType] = useState('company');
+	const [currentStep, setCurrentStep] = useState(parseInt(searchParams.get('step')) || 1);
+
+	// Sync currentStep with URL step parameter
+	useEffect(() => {
+		const step = parseInt(searchParams.get('step'));
+		if (step && step !== currentStep) {
+			setCurrentStep(step);
+		}
+	}, [searchParams, currentStep]);
 	const [logoFile, setLogoFile] = useState(null);
 	const [isMobile, setIsMobile] = useState(false);
 	const [availableAssessments, setAvailableAssessments] = useState([]);
@@ -524,18 +534,35 @@ export default function EmpPostJob({ onNext }) {
 						hr: false,
 					},
 					interviewRoundDetails: (() => {
-						const details = job.interviewRoundDetails || {};
-						// Convert date objects to YYYY-MM-DD format for input fields
-						Object.keys(details).forEach(key => {
-							if (details[key]) {
-								if (details[key].fromDate) {
-									details[key].fromDate = new Date(details[key].fromDate).toISOString().split('T')[0];
+						const details = { ...formData.interviewRoundDetails };
+						
+						// If we have rounds in the new format, use them to populate details
+						if (job.interviewRounds && job.interviewRounds.length > 0) {
+							job.interviewRounds.forEach(round => {
+								if (round.key) {
+									details[round.key] = {
+										description: round.description || '',
+										fromDate: round.fromdate ? new Date(round.fromdate).toISOString().split('T')[0] : '',
+										toDate: round.todate ? new Date(round.todate).toISOString().split('T')[0] : '',
+										startTime: round.startTime || '',
+										endTime: round.endTime || '',
+										customType: round.name
+									};
 								}
-								if (details[key].toDate) {
-									details[key].toDate = new Date(details[key].toDate).toISOString().split('T')[0];
+							});
+						} else if (job.interviewRoundDetails) {
+							// Fallback to old format
+							const oldDetails = job.interviewRoundDetails;
+							Object.keys(oldDetails).forEach(key => {
+								if (oldDetails[key]) {
+									details[key] = {
+										...oldDetails[key],
+										fromDate: oldDetails[key].fromDate ? new Date(oldDetails[key].fromDate).toISOString().split('T')[0] : '',
+										toDate: oldDetails[key].toDate ? new Date(oldDetails[key].toDate).toISOString().split('T')[0] : ''
+									};
 								}
-							}
-						});
+							});
+						}
 						return details;
 					})(),
 					interviewRoundOrder: job.interviewRoundOrder || [],
@@ -828,19 +855,41 @@ export default function EmpPostJob({ onNext }) {
 		}
 	};
 
-	const validateJobForm = () => {
+	const validateStep1 = () => {
 		const newErrors = {};
 		const errorMessages = [];
-		const isSchedulingMeeting = hasSchedulableInterviewType();
 
 		// Check for CTC format error
 		if (ctcFormatError) {
 			newErrors.ctc = [ctcFormatError];
 		}
 
-		// Basic validation using validation rules
-		const basicErrors = validateForm(formData, validationRules);
-		Object.assign(newErrors, basicErrors);
+		// Validation rules for step 1
+		const step1Rules = { ...validationRules };
+		
+		const basicErrors = validateForm(formData, step1Rules);
+		// We only care about step 1 errors here
+		const step1Fields = [
+			'jobTitle', 'category', 'jobType', 'typeOfEmployment', 'workMode', 'shift', 
+			'ctc', 'netSalary', 'jobLocation', 'vacancies', 'applicationLimit', 
+			'education', 'requiredSkills', 'offerLetterDate', 'lastDateOfApplication',
+			'jobDescription', 'rolesAndResponsibilities'
+		];
+		
+		Object.keys(basicErrors).forEach(key => {
+			if (step1Fields.includes(key)) {
+				newErrors[key] = basicErrors[key];
+			}
+		});
+
+		// Custom validation for CTC max value
+		if (formData.ctc) {
+			const ctcParts = formData.ctc.split('-');
+			const maxCtcVal = parseFloat(ctcParts[ctcParts.length - 1]);
+			if (!isNaN(maxCtcVal) && maxCtcVal > 500) {
+				newErrors.ctc = ['CTC cannot exceed 500 lakhs'];
+			}
+		}
 
 		// Custom validation for job title
 		if (formData.jobTitle === 'Other - Specify' || (formData.jobTitle && formData.jobTitle.trim().length < 3)) {
@@ -862,95 +911,6 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}
 
-		// Application limit validation - removed strict requirement, now just a warning
-
-		// Validate Interview Rounds Count
-		const specifiedRoundsCount = parseInt(formData.interviewRoundsCount) || 0;
-		const selectedRoundsCount = formData.interviewRoundOrder.length;
-		
-		if (specifiedRoundsCount > 0 && selectedRoundsCount !== specifiedRoundsCount) {
-			errorMessages.push(`You specified ${specifiedRoundsCount} interview rounds but selected ${selectedRoundsCount} rounds. Please select exactly ${specifiedRoundsCount} interview round(s) to match your specified count.`);
-			showError(`Interview rounds mismatch! You specified ${specifiedRoundsCount} rounds but selected ${selectedRoundsCount}. Please adjust your selection.`);
-		}
-
-		// Skip detailed interview round validation when scheduling (they will be set on the scheduling page)
-		if (!isSchedulingMeeting) {
-			// Validate Interview Round Details
-			const selectedRounds = formData.interviewRoundOrder
-				.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment');
-
-			for (const uniqueKey of selectedRounds) {
-				const roundType = formData.interviewRoundTypes[uniqueKey];
-				const details = formData.interviewRoundDetails[uniqueKey];
-				const roundNames = {
-					technical: 'Technical',
-					oneOnOnePanel: 'One-to-One / Panel',
-					group: 'Group',
-					situational: 'Situational / Behavioral',
-					assessment: 'MCQ/Aptitude/Assessment Schedule',
-					others: 'Others – Specify.'
-				};
-
-				const roundName = roundNames[roundType] || roundType;
-
-				if (!details?.description?.trim()) {
-					errorMessages.push(`Please enter description for ${roundName}`);
-				}
-				if (!details?.fromDate) {
-					errorMessages.push(`Please select Date for ${roundName}`);
-				}
-				if (!details?.startTime) {
-					errorMessages.push(`Please select From Time for ${roundName}`);
-				}
-				if (!details?.endTime) {
-					errorMessages.push(`Please select To Time for ${roundName}`);
-				}
-			}
-
-			// Validate Assessment if selected
-			const assessmentKeys = formData.interviewRoundOrder.filter(key => formData.interviewRoundTypes[key] === 'assessment');
-			assessmentKeys.forEach((assessmentKey, index) => {
-				if (!selectedAssessment) {
-					errorMessages.push('Please select an Assessment');
-				}
-				const assessmentDetails = formData.interviewRoundDetails[assessmentKey];
-				if (!assessmentDetails?.fromDate) {
-					errorMessages.push(`Please select Date for Assessment ${index + 1}`);
-				}
-				if (!assessmentDetails?.startTime) {
-					errorMessages.push(`Please select Start Time for Assessment ${index + 1}`);
-				}
-				if (!assessmentDetails?.endTime) {
-					errorMessages.push(`Please select End Time for Assessment ${index + 1}`);
-				}
-			});
-		}
-
-		// Validate Offer Letter Date vs Last Interview Round
-		if (formData.offerLetterDate) {
-			const allRoundDates = [];
-			formData.interviewRoundOrder.forEach(key => {
-				const details = formData.interviewRoundDetails[key];
-				if (details?.fromDate) {
-					allRoundDates.push(new Date(details.fromDate));
-				}
-			});
-			
-			if (allRoundDates.length > 0) {
-				const latestRoundDate = new Date(Math.max(...allRoundDates));
-				const offerDate = new Date(formData.offerLetterDate);
-				
-				if (offerDate < latestRoundDate) {
-					newErrors.offerLetterDate = ['Offer letter date cannot be before the interview rounds'];
-					errorMessages.push(`Offer letter date (${formData.offerLetterDate}) must be on or after the last interview round (${latestRoundDate.toISOString().split('T')[0]})`);
-				}
-			}
-		}
-
-
-
-		// Skip consultant field validation - these are optional
-		// Actually, let's add validation for consultant fields since they're marked as required
 		if (employerType === 'consultant') {
 			if (!formData.companyName || formData.companyName.trim().length < 2) {
 				newErrors.companyName = ['Please enter a valid company name (minimum 2 characters)'];
@@ -963,17 +923,113 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}
 
-		// Validate Transportation
 		if (!formData.transportation.oneWay && !formData.transportation.twoWay && !formData.transportation.noCab) {
 			newErrors.transportation = ['Please select a transportation option'];
 		}
 
-		setErrors(newErrors);
-		setGlobalErrors(errorMessages);
+		// Logical date validation for Step 1
+		if (formData.offerLetterDate && formData.lastDateOfApplication) {
+			const offerDate = new Date(formData.offerLetterDate);
+			const lastAppDate = new Date(formData.lastDateOfApplication);
+			if (offerDate < lastAppDate) {
+				newErrors.offerLetterDate = ['Offer letter date must be on or after the last date of application'];
+			}
+		}
 
-		return Object.keys(newErrors).length === 0 && errorMessages.length === 0;
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
 	};
 
+	const validateStep2 = () => {
+		const errorMessages = [];
+		const isSchedulingMeeting = hasSchedulableInterviewType();
+		const newErrors = { ...errors };
+
+		// Validate Interview Rounds Count using basic rules
+		const basicErrors = validateForm(formData, validationRules);
+		if (basicErrors.interviewRoundsCount) {
+			newErrors.interviewRoundsCount = basicErrors.interviewRoundsCount;
+			errorMessages.push(basicErrors.interviewRoundsCount[0]);
+		} else {
+			delete newErrors.interviewRoundsCount;
+		}
+		setErrors(newErrors);
+
+		// Validate Interview Rounds Count vs Selection
+		const specifiedRoundsCount = parseInt(formData.interviewRoundsCount) || 0;
+		const selectedRoundsCount = formData.interviewRoundOrder.length;
+		
+		if (specifiedRoundsCount > 0 && selectedRoundsCount !== specifiedRoundsCount) {
+			errorMessages.push(`You specified ${specifiedRoundsCount} interview rounds but selected ${selectedRoundsCount} rounds.`);
+		}
+
+		// Logical date validation for Step 2
+		const lastAppDate = formData.lastDateOfApplication ? new Date(formData.lastDateOfApplication) : null;
+		const allRoundDates = [];
+
+		if (!isSchedulingMeeting) {
+			const selectedRounds = formData.interviewRoundOrder;
+
+			for (const uniqueKey of selectedRounds) {
+				const roundType = formData.interviewRoundTypes[uniqueKey];
+				const details = formData.interviewRoundDetails[uniqueKey];
+				const roundNames = {
+					technical: 'Technical',
+					managerial: 'Managerial Round',
+					hr: 'HR Round',
+					oneOnOnePanel: 'One-to-One / Panel',
+					group: 'Group',
+					situational: 'Situational / Behavioral',
+					assessment: 'Assessment',
+					others: 'Others – Specify.'
+				};
+				const roundName = roundNames[roundType] || roundType;
+
+				if (roundType !== 'assessment' && !details?.description?.trim()) {
+					errorMessages.push(`Please enter description for ${roundName}`);
+				}
+				if (!details?.fromDate) {
+					errorMessages.push(`Please select Date for ${roundName}`);
+				} else {
+					const roundDate = new Date(details.fromDate);
+					allRoundDates.push(roundDate);
+					if (lastAppDate && roundDate < lastAppDate) {
+						errorMessages.push(`${roundName} date must be on or after the last date of application (${formData.lastDateOfApplication})`);
+					}
+				}
+				if (!details?.startTime) {
+					errorMessages.push(`Please select Start Time for ${roundName}`);
+				}
+				if (!details?.endTime) {
+					errorMessages.push(`Please select End Time for ${roundName}`);
+				}
+			}
+
+			// Special check for assessment selection if assessment rounds exist
+			if (formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'assessment') && !selectedAssessment) {
+				errorMessages.push('Please select an Assessment for your assessment rounds');
+			}
+		}
+
+		// Validate Offer Letter Date vs Interview Rounds
+		if (formData.offerLetterDate && allRoundDates.length > 0) {
+			const latestRoundDate = new Date(Math.max(...allRoundDates));
+			const offerDate = new Date(formData.offerLetterDate);
+			
+			if (offerDate < latestRoundDate) {
+				errorMessages.push(`Offer letter date (${formData.offerLetterDate}) must be on or after the last interview round (${latestRoundDate.toISOString().split('T')[0]})`);
+			}
+		}
+
+		setGlobalErrors(errorMessages);
+		return errorMessages.length === 0;
+	};
+
+	const validateJobForm = () => {
+		const s1 = validateStep1();
+		const s2 = validateStep2();
+		return s1 && s2;
+	};
 	const hasSchedulableInterviewType = () => {
 		return formData.interviewRoundOrder.some(key => 
 			formData.interviewRoundTypes[key] === 'oneOnOnePanel' || 
@@ -982,120 +1038,6 @@ export default function EmpPostJob({ onNext }) {
 		);
 	};
 
-	const submitJobAndRedirectToSchedule = async () => {
-		setShowConfirmModal(false);
-		
-		try {
-			const token = localStorage.getItem('employerToken');
-			if (!token) {
-				showWarning('Please login first');
-				return;
-			}
-
-			setIsSubmitting(true);
-
-			const assessmentRoundKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
-			const assessmentDetails = assessmentRoundKey ? formData.interviewRoundDetails[assessmentRoundKey] : null;
-			
-			const mappedInterviewRoundDetails = {};
-			formData.interviewRoundOrder.forEach(uniqueKey => {
-				const roundType = formData.interviewRoundTypes[uniqueKey];
-				const details = formData.interviewRoundDetails[uniqueKey];
-				if (roundType && details) {
-					mappedInterviewRoundDetails[uniqueKey] = details;
-				}
-			});
-
-			const jobData = {
-				title: formData.jobTitle,
-				location: formData.jobLocation,
-				jobType: formData.jobType ? formData.jobType.toLowerCase().replace(/\s+/g, '-') : '',
-				ctc: formData.ctc,
-				netSalary: formData.netSalary,
-				vacancies: parseInt(formData.vacancies) || 0,
-				applicationLimit: parseInt(formData.applicationLimit) || 0,
-				description: formData.jobDescription || 'Job description to be updated',
-				rolesAndResponsibilities: formData.rolesAndResponsibilities || '',
-				requiredSkills: formData.requiredSkills,
-				experienceLevel: formData.experienceLevel,
-				minExperience: formData.minExperience ? parseInt(formData.minExperience) : 0,
-				maxExperience: formData.maxExperience ? parseInt(formData.maxExperience) : 0,
-				education: formData.education,
-				backlogsAllowed: formData.backlogsAllowed,
-				interviewRoundsCount: parseInt(formData.interviewRoundsCount) || 0,
-				interviewRoundTypes: formData.interviewRoundTypes,
-				interviewRoundDetails: mappedInterviewRoundDetails,
-				interviewRoundOrder: formData.interviewRoundOrder || [],
-				assignedAssessment: selectedAssessment || null,
-				assessmentStartDate: assessmentDetails?.fromDate || null,
-				assessmentEndDate: assessmentDetails?.fromDate || null,
-				assessmentStartTime: assessmentDetails?.startTime || null,
-				assessmentEndTime: assessmentDetails?.endTime || null,
-				offerLetterDate: formData.offerLetterDate || null,
-				lastDateOfApplication: formData.lastDateOfApplication || null,
-				lastDateOfApplicationTime: formData.lastDateOfApplicationTime || null,
-				transportation: formData.transportation,
-				category: formData.category,
-				typeOfEmployment: formData.typeOfEmployment,
-				shift: formData.shift,
-				workMode: formData.workMode,
-				companyLogo: formData.companyLogo,
-				companyName: formData.companyName,
-				companyDescription: formData.companyDescription
-			};
-
-			if (employerType === 'consultant') {
-				jobData.companyLogo = formData.companyLogo;
-				jobData.companyName = formData.companyName;
-				jobData.companyDescription = formData.companyDescription;
-				jobData.aboutCompany = formData.aboutCompany;
-			}
-
-			const url = isEditMode 
-				? `http://localhost:5000/api/employer/jobs/${id}`
-				: 'http://localhost:5000/api/employer/jobs';
-			
-			const method = isEditMode ? 'PUT' : 'POST';
-
-			const data = await safeApiCall(url, {
-				method: method,
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`
-				},
-				body: JSON.stringify(jobData)
-			});
-
-			if (data.success) {
-				localStorage.removeItem('draft_ctc');
-				const jobId = data.job?._id || data.jobId || id;
-				
-				if (!jobId) {
-					showError('Could not retrieve job ID. Please try again.');
-					return;
-				}
-
-				showSuccess('Job posted successfully! Opening scheduler in new tab...');
-				setTimeout(() => {
-					window.open(`https://schedule.taleglobal.net/scheduler/${jobId}`, '_blank');
-				}, 1500);
-			} else {
-				showError(data.message || 'Failed to post job');
-			}
-		} catch (error) {
-			if (error.name === 'AuthError') {
-				showWarning('Session expired. Please login again.');
-				localStorage.removeItem('employerToken');
-				window.location.href = '/login';
-				return;
-			}
-			
-			const errorMessage = getErrorMessage(error, 'profile');
-			showError(errorMessage);
-		} finally {
-			setIsSubmitting(false);
-		}
-	};
 
 	const handleSubmitClick = () => {
 		if (isSubmitting) return;
@@ -1130,6 +1072,109 @@ export default function EmpPostJob({ onNext }) {
 		setShowConfirmModal(true);
 	};
 	
+	const handleNext = async () => {
+		if (isSubmitting) return;
+
+		// Validate step 1 fields
+		if (!validateStep1()) {
+			// Find first error field and scroll to it
+			const errorFields = Object.keys(errors);
+			if (errorFields.length > 0) {
+				const firstErrorField = errorFields[0];
+				const fieldElement = document.querySelector(`[name="${firstErrorField}"]`) || 
+									 document.querySelector(`input, select, textarea`);
+				if (fieldElement) {
+					fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					fieldElement.focus();
+				}
+			}
+			showError('Please fill all required fields correctly before moving to the next step.');
+			return;
+		}
+
+		try {
+			const token = localStorage.getItem('employerToken');
+			if (!token) {
+				showWarning('Please login first');
+				return;
+			}
+
+			setIsSubmitting(true);
+
+			const jobData = {
+				title: formData.jobTitle,
+				location: formData.jobLocation,
+				jobType: formData.jobType ? formData.jobType.toLowerCase().replace(/\s+/g, '-') : '',
+				ctc: formData.ctc,
+				netSalary: formData.netSalary,
+				vacancies: parseInt(formData.vacancies) || 0,
+				applicationLimit: parseInt(formData.applicationLimit) || 0,
+				description: formData.jobDescription || 'Job description to be updated',
+				rolesAndResponsibilities: formData.rolesAndResponsibilities || '',
+				requiredSkills: formData.requiredSkills,
+				experienceLevel: formData.experienceLevel,
+				minExperience: formData.minExperience ? parseInt(formData.minExperience) : 0,
+				maxExperience: formData.maxExperience ? parseInt(formData.maxExperience) : 0,
+				education: formData.education,
+				backlogsAllowed: formData.backlogsAllowed,
+				offerLetterDate: formData.offerLetterDate || null,
+				joiningDate: formData.joiningDate || null,
+				lastDateOfApplication: formData.lastDateOfApplication || null,
+				lastDateOfApplicationTime: formData.lastDateOfApplicationTime || null,
+				transportation: formData.transportation,
+				category: formData.category,
+				typeOfEmployment: formData.typeOfEmployment,
+				shift: formData.shift,
+				workMode: formData.workMode
+			};
+
+			if (employerType === 'consultant') {
+				jobData.companyLogo = formData.companyLogo;
+				jobData.companyName = formData.companyName;
+				jobData.companyDescription = formData.companyDescription;
+				jobData.aboutCompany = formData.aboutCompany;
+			}
+
+			const url = isEditMode 
+				? `http://localhost:5000/api/employer/jobs/${id}`
+				: 'http://localhost:5000/api/employer/jobs';
+			
+			const method = isEditMode ? 'PUT' : 'POST';
+
+			const data = await safeApiCall(url, {
+				method: method,
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				},
+				body: JSON.stringify(jobData)
+			});
+
+			if (data.success) {
+				const jobId = data.job?._id || data.jobId || id;
+				showSuccess(isEditMode ? 'Job information updated!' : 'Job information saved! Now set up the interview process.');
+				
+				// Move to step 2 and update URL if it's a new job
+				if (!isEditMode) {
+					navigate(`/employer/edit-job/${jobId}?step=2`);
+				} else {
+					setCurrentStep(2);
+					const newUrl = new URL(window.location.href);
+					newUrl.searchParams.set('step', '2');
+					window.history.replaceState({}, '', newUrl);
+				}
+				window.scrollTo(0, 0);
+			} else {
+				showError(data.message || `Failed to save job information`);
+			}
+		} catch (error) {
+			const errorMessage = getErrorMessage(error, 'profile');
+			showError(errorMessage);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
 	const submitNext = async () => {
 		setShowConfirmModal(false);
 		
@@ -1237,15 +1282,17 @@ export default function EmpPostJob({ onNext }) {
 			if (data.success) {
 				// Clear saved CTC from localStorage after successful submission
 				localStorage.removeItem('draft_ctc');
-				showSuccess(isEditMode ? 'Job updated successfully!' : 'Job posted successfully! Edit the job to schedule interviews.');
+				const jobId = data.job?._id || data.jobId || id;
+
+				const successMsg = isEditMode ? 'Job updated successfully!' : 'Job posted successfully!';
+				showSuccess(`${successMsg} Opening scheduler in new tab...`);
 				
-				if (!isEditMode) {
-					// Only redirect to manage-jobs if it's a new job post
-					setTimeout(() => {
-						window.location.href = '/employer/manage-jobs';
-					}, 1500);
-				}
-				// If editing, stay on the same page
+				setTimeout(() => {
+					if (jobId) {
+						window.open(`https://schedule.taleglobal.net/scheduler/${jobId}`, '_blank');
+					}
+					navigate('/employer/manage-jobs');
+				}, 4000);
 			} else {
 				showError(data.message || `Failed to ${isEditMode ? 'update' : 'post'} job`);
 			}
@@ -1415,27 +1462,116 @@ export default function EmpPostJob({ onNext }) {
 			{/* Header */}
 			<div style={{marginBottom: 24}}>
 				<h1 style={heading}>
-					{isEditMode ? (
+					{currentStep === 2 ? (
+						<><i className="fa fa-calendar-check" style={{color: '#ff6b35', marginRight: 12}}></i>Set Up Interview Process</>
+					) : isEditMode ? (
 						<><i className="fa fa-edit" style={{color: '#ff6b35', marginRight: 12}}></i>Edit Job Posting</>
 					) : (
 						<><i className="fa fa-plus-circle" style={{color: '#ff6b35', marginRight: 12}}></i>Post a New Job</>
 					)}
 				</h1>
 				<p style={sub}>
-					{isEditMode 
-						? 'Update your job posting details below. All fields marked with * are required.'
-						: 'Fill in the details below to create a new job posting. All fields marked with * are required.'}
+					{currentStep === 2 
+						? 'Define the interview rounds and schedule for this job posting.'
+						: isEditMode 
+							? 'Update your job posting details below. All fields marked with * are required.'
+							: 'Fill in the details below to create a new job posting. All fields marked with * are required.'}
 				</p>
 			</div>
 
-
-
-
+			{/* Step Indicator */}
+			<div style={{
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+				marginBottom: 32,
+				gap: 16
+			}}>
+				<div 
+					onClick={() => {
+						if (currentStep === 2) {
+							setCurrentStep(1);
+							const newUrl = new URL(window.location.href);
+							newUrl.searchParams.set('step', '1');
+							window.history.replaceState({}, '', newUrl);
+						}
+					}}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: 10,
+						padding: '8px 16px',
+						borderRadius: 30,
+						background: currentStep === 1 ? '#ff6b35' : '#fff',
+						color: currentStep === 1 ? '#fff' : '#6b7280',
+						border: '2px solid',
+						borderColor: currentStep === 1 ? '#ff6b35' : '#e5e7eb',
+						cursor: currentStep === 2 ? 'pointer' : 'default',
+						fontWeight: 600,
+						transition: 'all 0.2s ease',
+						boxShadow: currentStep === 1 ? '0 4px 12px rgba(255,107,53,0.2)' : 'none'
+					}}
+				>
+					<span style={{
+						width: 24,
+						height: 24,
+						borderRadius: '50%',
+						background: currentStep === 1 ? '#fff' : (id ? '#10b981' : '#e5e7eb'),
+						color: currentStep === 1 ? '#ff6b35' : '#fff',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						fontSize: 12
+					}}>
+						{id && currentStep === 2 ? <i className="fa fa-check"></i> : '1'}
+					</span>
+					Job Information
+				</div>
+				<div style={{ width: 40, height: 2, background: '#e5e7eb' }}></div>
+				<div 
+					onClick={() => currentStep === 1 && handleNext()}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: 10,
+						padding: '8px 16px',
+						borderRadius: 30,
+						background: currentStep === 2 ? '#ff6b35' : '#fff',
+						color: currentStep === 2 ? '#fff' : '#6b7280',
+						border: '2px solid',
+						borderColor: currentStep === 2 ? '#ff6b35' : '#e5e7eb',
+						cursor: currentStep === 1 ? 'pointer' : 'default',
+						fontWeight: 600,
+						transition: 'all 0.2s ease',
+						boxShadow: currentStep === 2 ? '0 4px 12px rgba(255,107,53,0.2)' : 'none'
+					}}
+				>
+					<span style={{
+						width: 24,
+						height: 24,
+						borderRadius: '50%',
+						background: currentStep === 2 ? '#fff' : '#e5e7eb',
+						color: currentStep === 2 ? '#ff6b35' : '#fff',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						fontSize: 12
+					}}>2</span>
+					Interview Process
+				</div>
+			</div>
 
 			{/* Card */}
 			<div style={card}>
 				<div style={grid}>
-					{/* Consultant Fields */}
+					{globalErrors.length > 0 && (
+						<div style={fullRow}>
+							<GlobalErrorDisplay errors={globalErrors} />
+						</div>
+					)}
+					{currentStep === 1 && (
+						<>
+						{/* Consultant Fields */}
 					{employerType === 'consultant' && (
 						<>
 							<div style={fullRow}>
@@ -2725,7 +2861,136 @@ export default function EmpPostJob({ onNext }) {
 						)}
 					</div>
 
+					{/* Additional Details Section */}
+					<div style={fullRow}>
+						<h3 style={sectionHeader}>
+							<i className="fa fa-file-alt" style={{color: '#ff6b35'}}></i>
+							Additional Details
+						</h3>
+					</div>
+
+					{/* Dates */}
 					<div>
+						<label style={label}>
+							<i className="fa fa-calendar-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Offer Letter Release Date <span style={redAsterisk}>*</span>
+						</label>
+						<input
+							style={input}
+							type="date"
+							min={new Date().toISOString().split('T')[0]}
+							value={formData.offerLetterDate || ''}
+							onChange={(e) => update({ offerLetterDate: e.target.value })}
+							placeholder="DD/MM/YYYY"
+						/>
+						{errors.offerLetterDate && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.offerLetterDate[0]}
+							</div>
+						)}
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
+							Format: DD/MM/YYYY
+						</small>
+						<HolidayIndicator date={formData.offerLetterDate} />
+					</div>
+
+					<div>
+						<label style={label}>
+							<i className="fa fa-calendar-times" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Last Date of Application <span style={redAsterisk}>*</span>
+						</label>
+						<div style={{display: 'flex', gap: 12, alignItems: 'flex-end'}}>
+							<div style={{flex: 1}}>
+								<input
+									style={{
+										...input,
+										borderColor: formData.lastDateOfApplication ? '#10b981' : '#d1d5db',
+										background: formData.lastDateOfApplication ? '#f0fdf4' : '#fff'
+									}}
+									type="date"
+									min={new Date().toISOString().split('T')[0]}
+									value={formData.lastDateOfApplication || ''}
+									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
+									placeholder="DD/MM/YYYY"
+								/>
+							</div>
+							<div style={{flex: 1}}>
+								<input
+									style={{
+										...input,
+										borderColor: formData.lastDateOfApplicationTime ? '#10b981' : '#d1d5db',
+										background: formData.lastDateOfApplicationTime ? '#f0fdf4' : '#fff'
+									}}
+									type="time"
+									value={formData.lastDateOfApplicationTime || ''}
+									onChange={(e) => update({ lastDateOfApplicationTime: e.target.value })}
+									placeholder="HH:MM AM/PM"
+								/>
+							</div>
+						</div>
+						<small style={{color: '#6b7280', fontSize: 11, marginTop: 4, display: 'block'}}>
+							Time (AM/PM or 24-hour format) and Date - Optional: Set deadline time (e.g., 11:59 PM or 23:59)
+						</small>
+						{errors.lastDateOfApplication && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.lastDateOfApplication[0]}
+							</div>
+						)}
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
+							Manually set the deadline for job applications
+						</small>
+						<HolidayIndicator date={formData.lastDateOfApplication} />
+					</div>
+
+					{/* Job Description */}
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-align-left" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Job Description <span style={redAsterisk}>*</span>
+						</label>
+						<RichTextEditor
+							value={formData.jobDescription || 'We are looking for a talented professional to join our dynamic team. The ideal candidate will be responsible for key tasks and contribute to our company\'s growth and success.'}
+							onChange={(value) => update({ jobDescription: value })}
+							placeholder="Provide a detailed description of the job role, responsibilities, and expectations..."
+							className="form-control-editor"
+						/>
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>
+							Use the toolbar above to format your job description with bold, italic, lists, and alignment options
+						</small>
+					</div>
+
+					{/* Roles and Responsibilities */}
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-tasks" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Roles and Responsibilities <span style={redAsterisk}>*</span>
+						</label>
+						<RichTextEditor
+							value={formData.rolesAndResponsibilities || ''}
+							onChange={(value) => update({ rolesAndResponsibilities: value })}
+							placeholder="List the key roles and responsibilities for this position..."
+							className="form-control-editor"
+						/>
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>
+							Use bullet points or numbered lists to clearly outline the main responsibilities
+						</small>
+					</div>
+					</>
+					)}
+
+					{currentStep === 2 && (
+						<>
+					{/* Interview Process Section */}
+					<div style={fullRow}>
+						<h3 style={sectionHeader}>
+							<i className="fa fa-clipboard-list" style={{color: '#ff6b35'}}></i>
+							Interview Process
+						</h3>
+					</div>
+
+					<div style={fullRow}>
 						<label style={label}>
 							<i className="fa fa-comments" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Number of Interview Rounds <span style={redAsterisk}>*</span>
@@ -2784,14 +3049,6 @@ export default function EmpPostJob({ onNext }) {
 								Please select exactly {formData.interviewRoundsCount} interview rounds to match your specified count.
 							</div>
 						)}
-					</div>
-
-					{/* Interview Process Section */}
-					<div style={fullRow}>
-						<h3 style={sectionHeader}>
-							<i className="fa fa-clipboard-list" style={{color: '#ff6b35'}}></i>
-							Interview Process
-						</h3>
 					</div>
 
 					{/* Interview Round Types - full row */}
@@ -3894,9 +4151,11 @@ export default function EmpPostJob({ onNext }) {
 						</div>
 						</>
 					)}
+					</>
+					)}
 
 					{/* Interview Schedule Summary */}
-					{false && formData.interviewRoundOrder.length > 0 && (
+					{currentStep === 2 && formData.interviewRoundOrder.length > 0 && (
 						<div style={fullRow}>
 							<div style={{
 								padding: 16,
@@ -3996,125 +4255,6 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						</div>
 					)}
-
-					{/* Additional Details Section */}
-					<div style={fullRow}>
-						<h3 style={sectionHeader}>
-							<i className="fa fa-file-alt" style={{color: '#ff6b35'}}></i>
-							Additional Details
-						</h3>
-					</div>
-
-					{/* Dates */}
-					<div>
-						<label style={label}>
-							<i className="fa fa-calendar-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Offer Letter Release Date <span style={redAsterisk}>*</span>
-						</label>
-						<input
-							style={input}
-							type="date"
-							min={new Date().toISOString().split('T')[0]}
-							value={formData.offerLetterDate || ''}
-							onChange={(e) => update({ offerLetterDate: e.target.value })}
-							placeholder="DD/MM/YYYY"
-						/>
-						{errors.offerLetterDate && (
-							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
-								<i className="fa fa-exclamation-circle"></i>
-								{errors.offerLetterDate[0]}
-							</div>
-						)}
-						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Format: DD/MM/YYYY
-						</small>
-						<HolidayIndicator date={formData.offerLetterDate} />
-					</div>
-
-
-
-					<div>
-						<label style={label}>
-							<i className="fa fa-calendar-times" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Last Date of Application <span style={redAsterisk}>*</span>
-						</label>
-						<div style={{display: 'flex', gap: 12, alignItems: 'flex-end'}}>
-							<div style={{flex: 1}}>
-								<input
-									style={{
-										...input,
-										borderColor: formData.lastDateOfApplication ? '#10b981' : '#d1d5db',
-										background: formData.lastDateOfApplication ? '#f0fdf4' : '#fff'
-									}}
-									type="date"
-									min={new Date().toISOString().split('T')[0]}
-									value={formData.lastDateOfApplication || ''}
-									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
-									placeholder="DD/MM/YYYY"
-								/>
-							</div>
-							<div style={{flex: 1}}>
-								<input
-									style={{
-										...input,
-										borderColor: formData.lastDateOfApplicationTime ? '#10b981' : '#d1d5db',
-										background: formData.lastDateOfApplicationTime ? '#f0fdf4' : '#fff'
-									}}
-									type="time"
-									value={formData.lastDateOfApplicationTime || ''}
-									onChange={(e) => update({ lastDateOfApplicationTime: e.target.value })}
-									placeholder="HH:MM AM/PM"
-								/>
-							</div>
-						</div>
-						<small style={{color: '#6b7280', fontSize: 11, marginTop: 4, display: 'block'}}>
-							Time (AM/PM or 24-hour format) and Date - Optional: Set deadline time (e.g., 11:59 PM or 23:59)
-						</small>
-						{errors.lastDateOfApplication && (
-							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
-								<i className="fa fa-exclamation-circle"></i>
-								{errors.lastDateOfApplication[0]}
-							</div>
-						)}
-						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Manually set the deadline for job applications
-						</small>
-						<HolidayIndicator date={formData.lastDateOfApplication} />
-					</div>
-
-					{/* Job Description */}
-					<div style={fullRow}>
-						<label style={label}>
-							<i className="fa fa-align-left" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Job Description <span style={redAsterisk}>*</span>
-						</label>
-						<RichTextEditor
-							value={formData.jobDescription || 'We are looking for a talented professional to join our dynamic team. The ideal candidate will be responsible for key tasks and contribute to our company\'s growth and success.'}
-							onChange={(value) => update({ jobDescription: value })}
-							placeholder="Provide a detailed description of the job role, responsibilities, and expectations..."
-							className="form-control-editor"
-						/>
-						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>
-							Use the toolbar above to format your job description with bold, italic, lists, and alignment options
-						</small>
-					</div>
-
-					{/* Roles and Responsibilities */}
-					<div style={fullRow}>
-						<label style={label}>
-							<i className="fa fa-tasks" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Roles and Responsibilities <span style={redAsterisk}>*</span>
-						</label>
-						<RichTextEditor
-							value={formData.rolesAndResponsibilities || ''}
-							onChange={(value) => update({ rolesAndResponsibilities: value })}
-							placeholder="List the key roles and responsibilities for this position..."
-							className="form-control-editor"
-						/>
-						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>
-							Use bullet points or numbered lists to clearly outline the main responsibilities
-						</small>
-					</div>
 				</div>
 			</div>
 
@@ -4130,45 +4270,82 @@ export default function EmpPostJob({ onNext }) {
 				borderTop: '2px solid #f3f4f6',
 				gap: 16,
 			}}>
+				{currentStep === 2 && (
+					<button
+						onClick={() => {
+							setCurrentStep(1);
+							const newUrl = new URL(window.location.href);
+							newUrl.searchParams.set('step', '1');
+							window.history.replaceState({}, '', newUrl);
+						}}
+						style={{
+							background: "transparent",
+							color: "#64748b",
+							border: "2px solid #e2e8f0",
+							padding: "12px 32px",
+							borderRadius: 8,
+							cursor: "pointer",
+							fontSize: 15,
+							fontWeight: 600,
+							transition: "all 0.2s ease",
+							display: 'flex',
+							alignItems: 'center',
+							gap: 8,
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#f8fafc';
+							e.currentTarget.style.borderColor = '#cbd5e1';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = 'transparent';
+							e.currentTarget.style.borderColor = '#e2e8f0';
+						}}
+					>
+						<i className="fa fa-arrow-left"></i>
+						Previous Step
+					</button>
+				)}
+
 				<button
-					onClick={handleSubmitClick}
+					onClick={currentStep === 1 ? handleNext : handleSubmitClick}
 					style={{
-						background: "transparent",
-						color: "#ff6b35",
-						border: "2px solid #ff6b35",
+						background: currentStep === 1 ? "#3b82f6" : "transparent",
+						color: currentStep === 1 ? "#fff" : "#ff6b35",
+						border: `2px solid ${currentStep === 1 ? "#3b82f6" : "#ff6b35"}`,
 						padding: "12px 32px",
 						borderRadius: 8,
 						cursor: "pointer",
 						fontSize: 15,
 						fontWeight: 600,
 						transition: "all 0.2s ease",
-						boxShadow: "0 4px 12px rgba(255,107,53,0.1)",
+						boxShadow: currentStep === 1 ? "0 4px 12px rgba(59,130,246,0.1)" : "0 4px 12px rgba(255,107,53,0.1)",
 						display: 'flex',
 						alignItems: 'center',
 						gap: 8,
 					}}
 					onMouseEnter={(e) => {
-						e.currentTarget.style.background = '#ff6b35';
+						const primaryColor = currentStep === 1 ? '#2563eb' : '#ff6b35';
+						e.currentTarget.style.background = primaryColor;
 						e.currentTarget.style.color = '#fff';
 						e.currentTarget.style.transform = 'translateY(-2px)';
-						e.currentTarget.style.boxShadow = '0 6px 16px rgba(255,107,53,0.4)';
+						e.currentTarget.style.boxShadow = `0 6px 16px ${currentStep === 1 ? 'rgba(59,130,246,0.4)' : 'rgba(255,107,53,0.4)'}`;
 					}}
 					onMouseLeave={(e) => {
-						e.currentTarget.style.background = 'transparent';
-						e.currentTarget.style.color = '#ff6b35';
+						e.currentTarget.style.background = currentStep === 1 ? "#3b82f6" : "transparent";
+						e.currentTarget.style.color = currentStep === 1 ? "#fff" : "#ff6b35";
 						e.currentTarget.style.transform = 'translateY(0)';
-						e.currentTarget.style.boxShadow = '0 4px 12px rgba(255,107,53,0.1)';
+						e.currentTarget.style.boxShadow = currentStep === 1 ? "0 4px 12px rgba(59,130,246,0.1)" : "0 4px 12px rgba(255,107,53,0.1)";
 					}}
 				>
-					{isEditMode ? (
+					{currentStep === 1 ? (
 						<>
-							<i className="fa fa-save"></i>
-							Update Job
+							Continue to Interview Process
+							<i className="fa fa-arrow-right"></i>
 						</>
 					) : (
 						<>
 							<i className="fa fa-paper-plane"></i>
-							Submit Job
+							Post Job
 						</>
 					)}
 				</button>
@@ -4214,9 +4391,11 @@ export default function EmpPostJob({ onNext }) {
 							</h3>
 						</div>
 						<p style={{fontSize: 15, color: '#4b5563', lineHeight: 1.6, marginBottom: 24, textAlign: 'center'}}>
-							{isEditMode 
-								? "Are you sure you want to update this job? Once updated, the changes will be reflected immediately."
-								: "Are you sure you want to submit this job? Please review all details carefully before proceeding."}
+							{currentStep === 2 
+								? "Are you sure you want to post this job? Please review all details carefully before proceeding."
+								: isEditMode 
+									? "Are you sure you want to update this job? Once updated, the changes will be reflected immediately."
+									: "Are you sure you want to submit this job? Please review all details carefully before proceeding."}
 						</p>
 						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
 							<button
@@ -4253,7 +4432,7 @@ export default function EmpPostJob({ onNext }) {
 								onMouseEnter={(e) => e.currentTarget.style.background = '#e55a2b'}
 								onMouseLeave={(e) => e.currentTarget.style.background = '#ff6b35'}
 							>
-								{isEditMode ? 'Yes, Update' : 'Yes, Submit'}
+								{currentStep === 2 ? 'Yes, Post Job' : (isEditMode ? 'Yes, Update' : 'Yes, Submit')}
 							</button>
 						</div>
 					</div>

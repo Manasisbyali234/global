@@ -859,70 +859,53 @@ exports.createJob = async (req, res) => {
     
     // Process interview rounds into new format
     if (jobData.interviewRoundDetails && typeof jobData.interviewRoundDetails === 'object') {
+      console.log('[createJob] Processing interviewRoundDetails:', JSON.stringify(jobData.interviewRoundDetails));
       const interviewRounds = [];
       Object.entries(jobData.interviewRoundDetails).forEach(([key, value]) => {
         if (value && typeof value === 'object') {
+          // Skip completely empty rounds
+          const hasData = (value.description && value.description.trim() !== '') || 
+                         (value.fromDate && value.fromDate !== '') || 
+                         (value.startTime && value.startTime !== '');
+          
+          if (!hasData) {
+            console.log(`[createJob] Skipping empty round: ${key}`);
+            return;
+          }
+
+          // Normalize dates
+          let fromDate = value.fromDate || value.date || null;
+          let toDate = value.toDate || value.fromDate || value.date || null;
+          
+          if (fromDate && typeof fromDate === 'string' && fromDate !== '') fromDate = new Date(fromDate);
+          if (toDate && typeof toDate === 'string' && toDate !== '') toDate = new Date(toDate);
+
           interviewRounds.push({
+            key: key,
             name: value.customType || key.replace(/_\d+$/, ''),
-            fromdate: value.fromDate || value.date || null,
-            todate: value.toDate || value.fromDate || value.date || null,
-            startTime: value.startTime || value.time || '',
-            endTime: value.endTime || '',
+            fromdate: fromDate,
+            todate: toDate,
+            startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
+            endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
             applicationLimit: parseInt(jobData.applicationLimit) || 50
           });
         }
       });
       
+      console.log(`[createJob] Built ${interviewRounds.length} interview rounds`);
+      
       // Save to new InterviewRound collection
       if (interviewRounds.length > 0) {
         jobData.interviewRounds = interviewRounds;
       }
-      delete jobData.interviewRoundDetails;
+      // Explicitly ensure interviewRoundDetails is kept for the Job model
+      jobData.interviewRoundDetails = jobData.interviewRoundDetails || {};
     }
     
     // Ensure interviewRoundOrder is properly handled
     if (!jobData.interviewRoundOrder) {
       jobData.interviewRoundOrder = [];
-    }
-    
-    // Process and validate interview round details dates
-    if (jobData.interviewRoundDetails) {
-      Object.keys(jobData.interviewRoundDetails).forEach(roundKey => {
-        const roundDetails = jobData.interviewRoundDetails[roundKey];
-        if (roundDetails) {
-          // Convert date strings to Date objects for proper storage
-          if (roundDetails.fromDate && typeof roundDetails.fromDate === 'string') {
-            roundDetails.fromDate = new Date(roundDetails.fromDate);
-          }
-          
-          // If toDate is missing, use fromDate
-          if (!roundDetails.toDate && roundDetails.fromDate) {
-            roundDetails.toDate = roundDetails.fromDate;
-          } else if (roundDetails.toDate && typeof roundDetails.toDate === 'string') {
-            roundDetails.toDate = new Date(roundDetails.toDate);
-          }
-          
-          if (roundDetails.startTime) {
-            roundDetails.startTime = normalizeTimeFormat(String(roundDetails.startTime));
-          }
-          if (roundDetails.endTime) {
-            roundDetails.endTime = normalizeTimeFormat(String(roundDetails.endTime));
-          }
-          
-          // Backward compatibility for 'time' field
-          if (roundDetails.startTime && !roundDetails.time) {
-            roundDetails.time = roundDetails.startTime;
-          } else if (roundDetails.time) {
-            roundDetails.time = normalizeTimeFormat(String(roundDetails.time));
-          }
-          
-          // Store custom type for "Others" rounds
-          if (roundDetails.customType) {
-            roundDetails.customType = String(roundDetails.customType).trim();
-          }
-        }
-      });
     }
     
     // Parse CTC from string format to proper structure
@@ -1001,6 +984,7 @@ exports.createJob = async (req, res) => {
         try {
           const createdRound = await InterviewRound.create({
             jobId: job._id,
+            key: round.key,
             name: round.name,
             fromdate: round.fromdate,
             todate: round.todate,
@@ -1209,40 +1193,68 @@ exports.updateJob = async (req, res) => {
     
     // Process interview rounds into new format
     if (req.body.interviewRoundDetails && typeof req.body.interviewRoundDetails === 'object') {
+      console.log('[updateJob] Processing interviewRoundDetails:', JSON.stringify(req.body.interviewRoundDetails));
       const interviewRounds = [];
       Object.entries(req.body.interviewRoundDetails).forEach(([key, value]) => {
         if (value && typeof value === 'object') {
+          // Skip completely empty rounds
+          const hasData = (value.description && value.description.trim() !== '') || 
+                         (value.fromDate && value.fromDate !== '') || 
+                         (value.startTime && value.startTime !== '');
+          
+          if (!hasData) {
+            console.log(`[updateJob] Skipping empty round: ${key}`);
+            return;
+          }
+
+          // Normalize dates
+          let fromDate = value.fromDate || value.date || null;
+          let toDate = value.toDate || value.fromDate || value.date || null;
+          
+          if (fromDate && typeof fromDate === 'string' && fromDate !== '') fromDate = new Date(fromDate);
+          if (toDate && typeof toDate === 'string' && toDate !== '') toDate = new Date(toDate);
+
           interviewRounds.push({
+            key: key,
             name: value.customType || key.replace(/_\d+$/, ''),
-            fromdate: value.fromDate || value.date || null,
-            todate: value.toDate || value.fromDate || value.date || null,
-            startTime: value.startTime || value.time || '',
-            endTime: value.endTime || '',
+            fromdate: fromDate,
+            todate: toDate,
+            startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
+            endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
             applicationLimit: parseInt(req.body.applicationLimit) || 50
           });
         }
       });
       
+      console.log(`[updateJob] Built ${interviewRounds.length} interview rounds`);
+      
       // Update interview rounds in new collection
       if (interviewRounds.length > 0) {
         // Delete old rounds
-        await InterviewRound.deleteMany({ jobId: req.params.jobId });
+        const { ObjectId } = require('mongoose').Types;
+        await InterviewRound.deleteMany({ jobId: new ObjectId(req.params.jobId) });
         // Create new rounds
         for (const round of interviewRounds) {
-          await InterviewRound.create({
-            jobId: req.params.jobId,
-            name: round.name,
-            fromdate: round.fromdate,
-            todate: round.todate,
-            startTime: round.startTime,
-            endTime: round.endTime,
-            description: round.description,
-            applicationLimit: round.applicationLimit
-          });
+          try {
+            const createdRound = await InterviewRound.create({
+              jobId: new ObjectId(req.params.jobId),
+              key: round.key,
+              name: round.name,
+              fromdate: round.fromdate,
+              todate: round.todate,
+              startTime: round.startTime,
+              endTime: round.endTime,
+              description: round.description,
+              applicationLimit: round.applicationLimit
+            });
+            console.log('[updateJob] Interview round created:', createdRound._id);
+          } catch (roundError) {
+            console.error('[updateJob] Error creating interview round:', roundError);
+          }
         }
       }
-      delete req.body.interviewRoundDetails;
+      // Keep interviewRoundDetails in req.body for Mixed storage if needed
     }
     
     // Ensure interviewRoundOrder is included in the update
@@ -1250,47 +1262,7 @@ exports.updateJob = async (req, res) => {
       // Keep the interview round order as provided from frontend
     }
     
-    // Ensure interviewRoundDetails is properly set
-    if (req.body.interviewRoundDetails) {
-      // Process and validate interview round details dates
-      Object.keys(req.body.interviewRoundDetails).forEach(key => {
-        const round = req.body.interviewRoundDetails[key];
-        if (!round || (!round.description && !round.fromDate && !round.toDate && !round.startTime && !round.time)) {
-          delete req.body.interviewRoundDetails[key];
-        } else {
-          // Convert date strings to Date objects for proper storage
-          if (round.fromDate && typeof round.fromDate === 'string') {
-            round.fromDate = new Date(round.fromDate);
-          }
-          
-          // If toDate is missing, use fromDate
-          if (!round.toDate && round.fromDate) {
-            round.toDate = round.fromDate;
-          } else if (round.toDate && typeof round.toDate === 'string') {
-            round.toDate = new Date(round.toDate);
-          }
-          
-          if (round.startTime) {
-            round.startTime = normalizeTimeFormat(String(round.startTime));
-          }
-          if (round.endTime) {
-            round.endTime = normalizeTimeFormat(String(round.endTime));
-          }
-          
-          // Backward compatibility for 'time' field
-          if (round.startTime && !round.time) {
-            round.time = round.startTime;
-          } else if (round.time) {
-            round.time = normalizeTimeFormat(String(round.time));
-          }
-          
-          // Store custom type for "Others" rounds
-          if (round.customType) {
-            round.customType = String(round.customType).trim();
-          }
-        }
-      });
-    }
+    // Remove the unreachable duplicate block
     
     const job = await Job.findOneAndUpdate(
       { _id: req.params.jobId, employerId: req.user._id },
@@ -1387,7 +1359,7 @@ exports.getEmployerJobs = async (req, res) => {
       delete job.interviewRounds;
       
       // Get interview rounds from new collection
-      const interviewRounds = await InterviewRound.find({ jobId: job._id }).sort({ date: 1, startTime: 1 });
+      const interviewRounds = await InterviewRound.find({ jobId: job._id }).sort({ fromdate: 1, startTime: 1 });
 
       
       return job;
@@ -1418,9 +1390,10 @@ exports.getJob = async (req, res) => {
     }
     
     // Get interview rounds from new collection
-    const interviewRounds = await InterviewRound.find({ jobId: req.params.jobId }).sort({ date: 1, startTime: 1 });
+    const { ObjectId } = require('mongoose').Types;
+    const interviewRounds = await InterviewRound.find({ jobId: new ObjectId(req.params.jobId) }).sort({ fromdate: 1, startTime: 1 });
     console.log('[getJob] Fetching rounds for jobId:', req.params.jobId);
-    console.log('[getJob] Found rounds from collection:', interviewRounds);
+    console.log('[getJob] Found rounds from collection:', JSON.stringify(interviewRounds));
     
     // If no rounds in new collection, try to build from old format
     if (interviewRounds.length === 0) {
@@ -1463,6 +1436,7 @@ exports.getJob = async (req, res) => {
       // Format interview rounds for frontend compatibility
       job.interviewRounds = interviewRounds.map(round => ({
         id: round._id.toString(),
+        key: round.key,
         name: round.name,
         fromdate: round.fromdate,
         todate: round.todate,
@@ -3024,7 +2998,7 @@ exports.getInterviewRounds = async (req, res) => {
     }
     
     // Get interview rounds for this job
-    const rounds = await InterviewRound.find({ jobId: jobId }).sort({ date: 1, startTime: 1 });
+    const rounds = await InterviewRound.find({ jobId: jobId }).sort({ fromdate: 1, startTime: 1 });
     
     res.json({ success: true, rounds });
   } catch (error) {
