@@ -1239,14 +1239,8 @@ export default function EmpPostJob({ onNext }) {
 				localStorage.removeItem('draft_ctc');
 				showSuccess(isEditMode ? 'Job updated successfully!' : 'Job posted successfully!');
 				
-				const jobId = data.job?._id || data.jobId || id;
-				
 				setTimeout(() => {
-					if (jobId) {
-						window.location.href = `/employer/edit-job/${jobId}`;
-					} else {
-						window.location.href = '/employer/manage-jobs';
-					}
+					window.location.href = '/employer/manage-jobs';
 				}, 1500);
 			} else {
 				showError(data.message || `Failed to ${isEditMode ? 'update' : 'post'} job`);
@@ -4159,10 +4153,7 @@ export default function EmpPostJob({ onNext }) {
 				</div>
 			</div>
 
-			{/* Interview Date Tester - Show for testing */}
-			{isEditMode && (
-				<InterviewDateTester jobId={id} />
-			)}
+
 
 			{/* Action Buttons */}
 			<div style={{ 

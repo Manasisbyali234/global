@@ -439,9 +439,8 @@ function SectionCanKeySkills({ profile }) {
                                 `}</style>
                                 <div className="d-flex flex-wrap gap-2 mt-2">
                                     {skills.map((skill, index) => (
-                                        <span key={index} className="badge bg-light skill-badge" style={{fontSize: '13px', padding: '8px 12px', borderRadius: '20px', color: '#333', border: '1px solid #ddd', display: 'inline-flex', alignItems: 'center', gap: '8px', flexDirection: 'row', maxWidth: '100%'}}>
-                                            <i className="fa fa-tag" style={{color: '#0056b3', fontSize: '11px', flexShrink: 0}}></i>
-                                            <span className="skill-text" style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: '1 1 auto', minWidth: 0}}>{skill}</span>
+                                        <span key={index} className="badge bg-light skill-badge" style={{fontSize: '13px', padding: '6px 12px', borderRadius: '20px', color: '#333', border: '1px solid #ddd', display: 'inline-flex', alignItems: 'center', gap: '6px', flexDirection: 'row', maxWidth: '100%'}}>
+                                            <span className="skill-text" style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: '1 1 auto', minWidth: 0, lineHeight: '1.2'}}>{skill}</span>
                                             <button 
                                                 type="button"
                                                 className="skill-delete-btn"
@@ -458,8 +457,8 @@ function SectionCanKeySkills({ profile }) {
                                                     border: 'none !important',
                                                     boxShadow: 'none !important',
                                                     padding: '0 !important',
-                                                    margin: '0 0 0 8px !important',
-                                                    display: 'inline-flex !important',
+                                                    margin: '0 !important',
+                                                    display: 'flex !important',
                                                     alignItems: 'center !important',
                                                     justifyContent: 'center !important',
                                                     width: '16px !important',
@@ -467,16 +466,18 @@ function SectionCanKeySkills({ profile }) {
                                                     minWidth: '16px !important',
                                                     minHeight: '16px !important',
                                                     cursor: 'pointer !important',
-                                                    color: '#FF7A00 !important'
+                                                    color: '#FF7A00 !important',
+                                                    flexShrink: 0
                                                 }}
                                             >
                                                 <i className="fa fa-times" style={{
-                                                    lineHeight: '1 !important', 
-                                                    display: 'block !important', 
-                                                    background: 'none !important', 
-                                                    backgroundColor: 'transparent !important',
-                                                    fontSize: '12px !important',
-                                                    color: '#FF7A00 !important'
+                                                    lineHeight: '1', 
+                                                    display: 'block', 
+                                                    background: 'none', 
+                                                    backgroundColor: 'transparent',
+                                                    fontSize: '12px',
+                                                    color: '#FF7A00',
+                                                    marginTop: '1px'
                                                 }}></i>
                                             </button>
                                         </span>

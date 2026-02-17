@@ -136,22 +136,26 @@ function EmpCandidatesPage() {
       {/* Header */}
       <div style={{ padding: '2rem 2rem 2rem 2rem' }}>
         <div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-          <h2>
-            {jobId && currentJob
-              ? `Applicants for ${currentJob.title}`
-              : "Applicants Details"}
-          </h2>
-          {jobId && currentJob && (
-            <div className="d-flex align-items-center gap-2 mt-2">
+          <div className="d-flex justify-content-between align-items-start">
+            <div>
+              <h2>
+                {jobId && currentJob
+                  ? `Applicants for ${currentJob.title}`
+                  : "Applicants Details"}
+              </h2>
+              {jobId && currentJob && (
+                <span className="text-muted mt-2 d-block">{currentJob.location}</span>
+              )}
+            </div>
+            {jobId && currentJob && (
               <button
                 className="btn btn-outline-secondary btn-sm"
                 onClick={() => navigate("/employer/manage-jobs")}
               >
                 <ArrowLeft size={16} className="me-1" /> Back to Jobs
               </button>
-              <span className="text-muted">| {currentJob.location}</span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

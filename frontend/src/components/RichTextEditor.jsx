@@ -3,6 +3,7 @@ import './RichTextEditor.css';
 
 const RichTextEditor = ({ value, onChange, placeholder = "Enter text...", className = "" }) => {
     const editorRef = useRef(null);
+    const isInternalChange = useRef(false);
 
     const decodeHTML = (html) => {
         if (!html) return '';
@@ -14,7 +15,10 @@ const RichTextEditor = ({ value, onChange, placeholder = "Enter text...", classN
     const decodedValue = useMemo(() => decodeHTML(value), [value]);
 
     useEffect(() => {
-        if (!editorRef.current) return;
+        if (!editorRef.current || isInternalChange.current) {
+            isInternalChange.current = false;
+            return;
+        }
         if (editorRef.current.innerHTML !== decodedValue) {
             editorRef.current.innerHTML = decodedValue || '';
         }
@@ -22,6 +26,7 @@ const RichTextEditor = ({ value, onChange, placeholder = "Enter text...", classN
 
     const emitChange = () => {
         if (!editorRef.current) return;
+        isInternalChange.current = true;
         const textContent = editorRef.current.textContent || '';
         if (!textContent.trim()) {
             editorRef.current.innerHTML = '';

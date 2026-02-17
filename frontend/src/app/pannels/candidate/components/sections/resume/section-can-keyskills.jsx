@@ -175,17 +175,16 @@ function SectionCanKeySkills({ profile }) {
                 {skills.length > 0 ? (
                     <div className="d-flex flex-wrap gap-2">
                         {skills.map((skill, index) => (
-                            <span key={index} className="badge bg-white d-flex align-items-center" style={{fontSize: '13px', padding: '6px 10px', borderRadius: '15px', color: '#333', border: '1px solid #ddd'}}>
-                                <i className="fa fa-tag me-2" style={{color: '#0056b3', fontSize: '11px'}}></i>
-                                {skill}
+                            <span key={index} className="badge bg-white d-flex align-items-center" style={{fontSize: '13px', padding: '6px 12px', borderRadius: '15px', color: '#333', border: '1px solid #ddd', gap: '6px'}}>
+                                <span style={{lineHeight: '1.2'}}>{skill}</span>
                                 <button 
-                                    className="btn btn-sm ms-2 p-0"
-                                    style={{background: 'none', border: 'none', color: '#000', fontSize: '11px', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                                    className="btn btn-sm p-0"
+                                    style={{background: 'none', border: 'none', color: '#FF7A00', fontSize: '11px', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                                     onClick={() => removeSkill(skill)}
                                     disabled={loading}
                                     title="Remove skill"
                                 >
-                                    <i className="fa fa-times"></i>
+                                    <i className="fa fa-times" style={{marginTop: '1px'}}></i>
                                 </button>
                             </span>
                         ))}
