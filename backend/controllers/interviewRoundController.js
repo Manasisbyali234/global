@@ -15,7 +15,8 @@ exports.createInterviewRound = async (req, res) => {
     const interviewRound = new InterviewRound({
       jobId,
       name,
-      date,
+      fromdate: req.body.fromdate || req.body.fromDate || date,
+      todate: req.body.todate || req.body.toDate || req.body.fromdate || req.body.fromDate || date,
       startTime,
       endTime,
       applicationLimit

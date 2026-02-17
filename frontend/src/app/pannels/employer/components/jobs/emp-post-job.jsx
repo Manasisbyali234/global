@@ -242,7 +242,7 @@ function LocationSearchInput({ value, onChange, error, style }) {
 export default function EmpPostJob({ onNext }) {
 	const { id } = useParams();
 	const navigate = useNavigate();
-	const [searchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 	const isEditMode = Boolean(id);
 	const [formData, setFormData] = useState({
 		jobTitle: "",
@@ -412,11 +412,12 @@ export default function EmpPostJob({ onNext }) {
 			
 			const netSalary = calculateNetSalary(ctcValue);
 			if (netSalary) {
-				update({ netSalary });
+				// Only update netSalary, don't modify the CTC value
+				setFormData(prev => ({ ...prev, netSalary }));
 			}
 		} else {
 			// Clear net salary when CTC is empty
-			update({ netSalary: '' });
+			setFormData(prev => ({ ...prev, netSalary: '' }));
 		}
 	}, []);
 
@@ -704,87 +705,6 @@ export default function EmpPostJob({ onNext }) {
 
 	/* Update interview round details */
 	const updateRoundDetails = async (roundType, field, value) => {
-		// Validation to ensure rounds are scheduled in order
-		if (field === 'fromDate' || field === 'startTime' || field === 'endTime') {
-			const currentIndex = formData.interviewRoundOrder.indexOf(roundType);
-			
-			// Check against previous round
-			if (currentIndex > 0) {
-				const prevRoundKey = formData.interviewRoundOrder[currentIndex - 1];
-				const prevRound = formData.interviewRoundDetails[prevRoundKey];
-				
-				const currentFromDate = field === 'fromDate' ? value : formData.interviewRoundDetails[roundType].fromDate;
-				const currentStartTime = field === 'startTime' ? value : formData.interviewRoundDetails[roundType].startTime;
-				
-				if (prevRound.fromDate && currentFromDate) {
-					if (currentFromDate < prevRound.fromDate) {
-						showWarning(`Round ${currentIndex + 1} cannot be scheduled before Round ${currentIndex}. Please select a date on or after ${prevRound.fromDate}.`);
-						return;
-					}
-					
-					if (currentFromDate === prevRound.fromDate) {
-						// Prioritize check against previous round's "To Time" (endTime)
-						const prevCompareTime = prevRound.endTime || prevRound.startTime;
-						if (prevCompareTime && currentStartTime && currentStartTime < prevCompareTime) {
-							showWarning(`Round ${currentIndex + 1} cannot start before Round ${currentIndex} finishes (ends at ${prevCompareTime}).`);
-							return;
-						}
-						if (prevCompareTime && currentStartTime && currentStartTime === prevCompareTime) {
-							showWarning(`Round ${currentIndex + 1} cannot start at the exact same time as Round ${currentIndex} ends (${prevCompareTime}). Please select a later time.`);
-							return;
-						}
-					}
-				}
-			}
-			
-			// Check against next round (if user is modifying an earlier round)
-			if (currentIndex !== -1 && currentIndex < formData.interviewRoundOrder.length - 1) {
-				const nextRoundKey = formData.interviewRoundOrder[currentIndex + 1];
-				const nextRound = formData.interviewRoundDetails[nextRoundKey];
-				
-				const currentFromDate = field === 'fromDate' ? value : formData.interviewRoundDetails[roundType].fromDate;
-				const currentEndTime = field === 'endTime' ? value : formData.interviewRoundDetails[roundType].endTime;
-				const currentStartTime = field === 'startTime' ? value : formData.interviewRoundDetails[roundType].startTime;
-				
-				if (nextRound.fromDate && currentFromDate) {
-					if (currentFromDate > nextRound.fromDate) {
-						showWarning(`Round ${currentIndex + 1} cannot be scheduled after Round ${currentIndex + 2}. Please select a date on or before ${nextRound.fromDate}.`);
-						return;
-					}
-					
-					if (currentFromDate === nextRound.fromDate && nextRound.startTime) {
-						// For the current round, its end time (or start time if end not set) should be before next round's start time
-						const currentCompareTime = currentEndTime || currentStartTime;
-						if (currentCompareTime && currentCompareTime > nextRound.startTime) {
-							showWarning(`Round ${currentIndex + 1} cannot end after Round ${currentIndex + 2} starts (${nextRound.startTime}).`);
-							return;
-						}
-						if (currentCompareTime && currentCompareTime === nextRound.startTime) {
-							showWarning(`Round ${currentIndex + 1} cannot end at the exact same time as Round ${currentIndex + 2} starts (${nextRound.startTime}). Please select an earlier time.`);
-							return;
-						}
-					}
-				}
-			}
-
-			// Internal validation: End time must be after Start time for the same round
-			if (field === 'startTime' || field === 'endTime') {
-				const startTime = field === 'startTime' ? value : formData.interviewRoundDetails[roundType].startTime;
-				const endTime = field === 'endTime' ? value : formData.interviewRoundDetails[roundType].endTime;
-				
-				const isAssessment = formData.interviewRoundTypes[roundType] === 'assessment' || 
-									 roundType === 'assessment' || 
-									 String(roundType).startsWith('assessment_');
-
-				// For assessments, when changing startTime, the endTime will be auto-calculated, 
-				// so we skip the validation against the OLD endTime
-				if (!(isAssessment && field === 'startTime') && startTime && endTime && endTime <= startTime) {
-					showWarning(`End time must be after the start time for the same round.`);
-					return;
-				}
-			}
-		}
-
 		// Ensure the roundType exists in interviewRoundDetails
 		setFormData(s => {
 			let updatedValue = value;
@@ -931,13 +851,10 @@ export default function EmpPostJob({ onNext }) {
 		if (formData.offerLetterDate && formData.lastDateOfApplication) {
 			const offerDate = new Date(formData.offerLetterDate);
 			const lastAppDate = new Date(formData.lastDateOfApplication);
-			if (offerDate < lastAppDate) {
-				newErrors.offerLetterDate = ['Offer letter date must be on or after the last date of application'];
-			}
 		}
 
 		setErrors(newErrors);
-		return Object.keys(newErrors).length === 0;
+		return { valid: Object.keys(newErrors).length === 0, errors: newErrors };
 	};
 
 	const validateStep2 = () => {
@@ -993,9 +910,6 @@ export default function EmpPostJob({ onNext }) {
 				} else {
 					const roundDate = new Date(details.fromDate);
 					allRoundDates.push(roundDate);
-					if (lastAppDate && roundDate < lastAppDate) {
-						errorMessages.push(`${roundName} date must be on or after the last date of application (${formData.lastDateOfApplication})`);
-					}
 				}
 				if (!details?.startTime) {
 					errorMessages.push(`Please select Start Time for ${roundName}`);
@@ -1022,13 +936,13 @@ export default function EmpPostJob({ onNext }) {
 		}
 
 		setGlobalErrors(errorMessages);
-		return errorMessages.length === 0;
+		return { valid: errorMessages.length === 0, errors: errorMessages };
 	};
 
 	const validateJobForm = () => {
-		const s1 = validateStep1();
-		const s2 = validateStep2();
-		return s1 && s2;
+		const { valid: s1, errors: step1Errors } = validateStep1();
+		const { valid: s2, errors: step2Errors } = validateStep2();
+		return { valid: s1 && s2, step1Errors, step2Errors };
 	};
 	const hasSchedulableInterviewType = () => {
 		return formData.interviewRoundOrder.some(key => 
@@ -1054,9 +968,11 @@ export default function EmpPostJob({ onNext }) {
 		}
 		
 		// Validate form first
-		if (!validateJobForm()) {
+		const { valid: isValid, step1Errors, step2Errors } = validateJobForm();
+		if (!isValid) {
 			// Find first error field and scroll to it
-			const errorFields = Object.keys(errors);
+			const allErrors = { ...step1Errors, ...errors };
+			const errorFields = Object.keys(allErrors);
 			if (errorFields.length > 0) {
 				const firstErrorField = errorFields[0];
 				const fieldElement = document.querySelector(`[name="${firstErrorField}"]`) || 
@@ -1066,19 +982,36 @@ export default function EmpPostJob({ onNext }) {
 					fieldElement.focus();
 				}
 			}
+			
+			// Show error message to user
+			if (step1Errors && Object.keys(step1Errors).length > 0) {
+				const firstField = Object.keys(step1Errors)[0];
+				showError(`Please fix errors in Step 1: ${step1Errors[firstField][0]}`);
+			} else if (step2Errors && step2Errors.length > 0) {
+				showError(step2Errors[0]);
+			} else {
+				showError('Please fill all required fields correctly before submitting.');
+			}
 			return;
 		}
 		
 		setShowConfirmModal(true);
 	};
 	
+	const handlePrevious = () => {
+		setCurrentStep(1);
+		setSearchParams({ step: '1' });
+		window.scrollTo(0, 0);
+	};
+
 	const handleNext = async () => {
 		if (isSubmitting) return;
 
 		// Validate step 1 fields
-		if (!validateStep1()) {
+		const { valid: isStep1Valid, errors: step1Errors } = validateStep1();
+		if (!isStep1Valid) {
 			// Find first error field and scroll to it
-			const errorFields = Object.keys(errors);
+			const errorFields = Object.keys(step1Errors);
 			if (errorFields.length > 0) {
 				const firstErrorField = errorFields[0];
 				const fieldElement = document.querySelector(`[name="${firstErrorField}"]`) || 
@@ -1159,9 +1092,7 @@ export default function EmpPostJob({ onNext }) {
 					navigate(`/employer/edit-job/${jobId}?step=2`);
 				} else {
 					setCurrentStep(2);
-					const newUrl = new URL(window.location.href);
-					newUrl.searchParams.set('step', '2');
-					window.history.replaceState({}, '', newUrl);
+					setSearchParams({ step: '2' });
 				}
 				window.scrollTo(0, 0);
 			} else {
@@ -1232,7 +1163,7 @@ export default function EmpPostJob({ onNext }) {
 				interviewRoundOrder: formData.interviewRoundOrder || [],
 				assignedAssessment: selectedAssessment || null,
 				assessmentStartDate: assessmentDetails?.fromDate || null,
-				assessmentEndDate: assessmentDetails?.fromDate || null,
+				assessmentEndDate: assessmentDetails?.toDate || assessmentDetails?.fromDate || null,
 				assessmentStartTime: assessmentDetails?.startTime || null,
 				assessmentEndTime: assessmentDetails?.endTime || null,
 				offerLetterDate: formData.offerLetterDate || null,
@@ -1285,14 +1216,11 @@ export default function EmpPostJob({ onNext }) {
 				const jobId = data.job?._id || data.jobId || id;
 
 				const successMsg = isEditMode ? 'Job updated successfully!' : 'Job posted successfully!';
-				showSuccess(`${successMsg} Opening scheduler in new tab...`);
+				showSuccess(successMsg);
 				
 				setTimeout(() => {
-					if (jobId) {
-						window.open(`https://schedule.taleglobal.net/scheduler/${jobId}`, '_blank');
-					}
 					navigate('/employer/manage-jobs');
-				}, 4000);
+				}, 2000);
 			} else {
 				showError(data.message || `Failed to ${isEditMode ? 'update' : 'post'} job`);
 			}
@@ -2260,7 +2188,7 @@ export default function EmpPostJob({ onNext }) {
 									autoSaveCTC(value);
 								} else if (!value.trim()) {
 									// Clear net salary when CTC is cleared
-									update({ netSalary: '' });
+									setFormData(prev => ({ ...prev, netSalary: '' }));
 								}
 							}}
 						/>
@@ -2878,7 +2806,6 @@ export default function EmpPostJob({ onNext }) {
 						<input
 							style={input}
 							type="date"
-							min={new Date().toISOString().split('T')[0]}
 							value={formData.offerLetterDate || ''}
 							onChange={(e) => update({ offerLetterDate: e.target.value })}
 							placeholder="DD/MM/YYYY"
@@ -2909,7 +2836,6 @@ export default function EmpPostJob({ onNext }) {
 										background: formData.lastDateOfApplication ? '#f0fdf4' : '#fff'
 									}}
 									type="date"
-									min={new Date().toISOString().split('T')[0]}
 									value={formData.lastDateOfApplication || ''}
 									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
 									placeholder="DD/MM/YYYY"
@@ -3647,7 +3573,6 @@ export default function EmpPostJob({ onNext }) {
 															background: '#f8fafc'
 														}}
 														type="date"
-														min={new Date().toISOString().split('T')[0]}
 														value={formData.interviewRoundDetails[assessmentKey]?.fromDate || ''}
 														onChange={(e) => updateRoundDetails(assessmentKey, 'fromDate', e.target.value)}
 													/>
@@ -3978,80 +3903,53 @@ export default function EmpPostJob({ onNext }) {
 												gap: 8,
 												justifyContent: 'space-between'
 											}}>
-												<span style={{
-													fontSize: 12,
-													fontWeight: 700,
-													color: '#fff',
-													background: '#ff6b35',
-													borderRadius: '50%',
-													width: '24px',
-													height: '24px',
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'center'
-												}}>
-													{stageNumber}
-												</span>
 												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+													<span style={{
+														fontSize: 12,
+														fontWeight: 700,
+														color: '#fff',
+														background: '#ff6b35',
+														borderRadius: '50%',
+														width: '24px',
+														height: '24px',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center'
+													}}>
+														{stageNumber}
+													</span>
 													Stage {stageNumber}: {displayName}
 												</div>
 												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-													{roundType !== 'assessment' && (
-														<button
-															style={{
-																background: '#10b981',
-																color: '#fff',
-																border: 'none',
-																padding: '6px 12px',
-																borderRadius: 6,
-																cursor: 'pointer',
-																fontSize: 12,
-																fontWeight: 600,
-																display: 'flex',
-																alignItems: 'center',
-																gap: 4
-															}}
-															title={`Schedule ${displayName}`}
-															onClick={() => {
-																const roundDetails = formData.interviewRoundDetails[uniqueKey];
-																if (!roundDetails?.fromDate || !roundDetails?.startTime || !roundDetails?.endTime) {
-																	showWarning('Please fill From Date, Start Time, and End Time for this interview round.');
-																	return;
-																}
-																if (!id) {
-																	showWarning('Please submit the job first before scheduling interviews.');
-																	return;
-																}
-																const roundData = encodeURIComponent(JSON.stringify({
-																	roundKey: uniqueKey,
-																	roundType: roundType,
-																	roundName: displayName,
-																	fromDate: roundDetails.fromDate,
-																	startTime: roundDetails.startTime,
-																	endTime: roundDetails.endTime
-																}));
-																window.open(`https://schedule.taleglobal.net/scheduler/${id}?round=${roundData}`, '_blank');
-															}}
-														>
-															<i className="fa fa-calendar-plus"></i>
-															Schedule Interview
-														</button>
-													)}
-													<i 
-														className="fa fa-edit"
-														style={{cursor: 'pointer', color: '#3b82f6', fontSize: 16}}
-														title={`Edit ${displayName} details`}
-														onClick={() => {
-															const stageSection = document.querySelector(`[data-stage-key="${uniqueKey}"]`);
-															if (stageSection) {
-																stageSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-																stageSection.style.border = '3px solid #3b82f6';
-																setTimeout(() => {
-																	stageSection.style.border = '1px solid #e5e7eb';
-																}, 2000);
-															}
+													<button
+														style={{
+															background: '#10b981',
+															color: '#fff',
+															border: 'none',
+															padding: '6px 12px',
+															borderRadius: 6,
+															cursor: 'pointer',
+															fontSize: 12,
+															fontWeight: 600,
+															display: 'flex',
+															alignItems: 'center',
+															gap: 6,
+															transition: 'all 0.2s'
 														}}
-													/>
+														onMouseEnter={(e) => e.currentTarget.style.background = '#059669'}
+														onMouseLeave={(e) => e.currentTarget.style.background = '#10b981'}
+														onClick={() => {
+															const details = formData.interviewRoundDetails[uniqueKey];
+															if (!details?.fromDate) {
+																showWarning(`Please set the Date for ${displayName}`);
+																return;
+															}
+															window.open(`https://schedule.taleglobal.net/scheduler/${uniqueKey}`, '_blank');
+														}}
+													>
+														<i className="fa fa-calendar-check"></i>
+														Schedule Interview
+													</button>
 												</div>
 											</h5>
 											<div style={{ 
@@ -4092,7 +3990,6 @@ export default function EmpPostJob({ onNext }) {
 															background: formData.interviewRoundDetails[uniqueKey]?.fromDate ? '#f0fdf4' : '#fff'
 														}}
 														type="date"
-														min={new Date().toISOString().split('T')[0]}
 														value={formData.interviewRoundDetails[uniqueKey]?.fromDate || ''}
 														onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
 													/>
@@ -4119,7 +4016,6 @@ export default function EmpPostJob({ onNext }) {
 															background: formData.interviewRoundDetails[uniqueKey]?.toDate ? '#f0fdf4' : '#fff'
 														}}
 														type="date"
-														min={formData.interviewRoundDetails[uniqueKey]?.fromDate || new Date().toISOString().split('T')[0]}
 														value={formData.interviewRoundDetails[uniqueKey]?.toDate || ''}
 														onChange={(e) => updateRoundDetails(uniqueKey, 'toDate', e.target.value)}
 													/>
@@ -4272,12 +4168,7 @@ export default function EmpPostJob({ onNext }) {
 			}}>
 				{currentStep === 2 && (
 					<button
-						onClick={() => {
-							setCurrentStep(1);
-							const newUrl = new URL(window.location.href);
-							newUrl.searchParams.set('step', '1');
-							window.history.replaceState({}, '', newUrl);
-						}}
+						onClick={handlePrevious}
 						style={{
 							background: "transparent",
 							color: "#64748b",

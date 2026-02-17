@@ -734,6 +734,8 @@ exports.createJob = async (req, res) => {
     console.log('=== FULL REQUEST BODY DEBUG ===');
     console.log('Full req.body:', JSON.stringify(req.body, null, 2));
     console.log('Job title received:', req.body.title);
+    console.log('interviewRoundDetails received:', req.body.interviewRoundDetails);
+    console.log('interviewRoundOrder received:', req.body.interviewRoundOrder);
     console.log('jobData keys:', Object.keys(jobData));
     console.log('=== END FULL DEBUG ===');
     
@@ -852,23 +854,24 @@ exports.createJob = async (req, res) => {
       }
     }
 
-    // Remove assessment from interviewRoundTypes (it's stored separately in assessmentId)
-    if (jobData.interviewRoundTypes && jobData.interviewRoundTypes.assessment) {
-      delete jobData.interviewRoundTypes.assessment;
-    }
-    
     // Process interview rounds into new format
     if (jobData.interviewRoundDetails && typeof jobData.interviewRoundDetails === 'object') {
       console.log('[createJob] Processing interviewRoundDetails:', JSON.stringify(jobData.interviewRoundDetails));
       const interviewRounds = [];
       Object.entries(jobData.interviewRoundDetails).forEach(([key, value]) => {
         if (value && typeof value === 'object') {
-          // Check if round has any meaningful data (more lenient check)
-          const hasData = (value.description && value.description.trim() !== '') || 
-                         (value.fromDate && value.fromDate !== '') || 
-                         (value.toDate && value.toDate !== '') ||
-                         (value.startTime && value.startTime !== '') ||
-                         (value.endTime && value.endTime !== '');
+          // Determine round type from key or interviewRoundTypes
+          const roundType = jobData.interviewRoundTypes?.[key] || key.replace(/_\d+$/, '');
+          
+          // For assessment rounds, only require date/time (description is optional)
+          // For oneOnOnePanel and group types, description is optional (scheduled via scheduler)
+          // For other types, require at least description OR date/time info
+          const isAssessment = roundType === 'assessment' || String(key).startsWith('assessment_');
+          const isSchedulableType = roundType === 'oneOnOnePanel' || roundType === 'group' || String(roundType).toLowerCase().includes('group');
+          
+          const hasData = isAssessment || isSchedulableType 
+            ? ((value.fromDate && value.fromDate !== '') || (value.toDate && value.toDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''))
+            : ((value.description && value.description.trim() !== '') || (value.customType && value.customType.trim() !== '') || (value.fromDate && value.fromDate !== '') || (value.toDate && value.toDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''));
           
           if (!hasData) {
             console.log(`[createJob] Skipping empty round: ${key}`);
@@ -884,7 +887,7 @@ exports.createJob = async (req, res) => {
 
           interviewRounds.push({
             key: key,
-            name: value.customType || key.replace(/_\d+$/, ''),
+            name: value.customType || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
             fromdate: fromDate,
             todate: toDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
@@ -963,18 +966,6 @@ exports.createJob = async (req, res) => {
     console.log('Parsed CTC:', jobData.ctc);
     console.log('Parsed Net Salary:', jobData.netSalary);
     
-    // Check if interview rounds are scheduled
-    const hasScheduledRounds = jobData.interviewRounds && jobData.interviewRounds.length > 0;
-    
-    console.log('Interview rounds scheduled check:', {
-      hasScheduledRounds,
-      interviewRoundDetails: jobData.interviewRoundDetails
-    });
-    
-    if (hasScheduledRounds) {
-      jobData.interviewScheduled = true;
-    }
-    
     const job = await Job.create(jobData);
     console.log('Job created successfully with typeOfEmployment:', job.typeOfEmployment);
     console.log('Job created:', JSON.stringify(job, null, 2));
@@ -1003,8 +994,16 @@ exports.createJob = async (req, res) => {
             todate: createdRound.todate
           });
         } catch (roundError) {
-          console.error('[createJob] Error creating interview round:', roundError);
+          console.error('[createJob] Error creating interview round:', roundError.message, roundError.stack);
+          // Don't fail the entire job creation if round creation fails
         }
+      }
+      
+      // Update job with interviewScheduled flag
+      const hasScheduledRounds = await InterviewRound.hasScheduledRounds(job._id);
+      if (hasScheduledRounds) {
+        await Job.findByIdAndUpdate(job._id, { interviewScheduled: true });
+        job.interviewScheduled = true;
       }
     } else {
       console.log('[createJob] No interview rounds to create');
@@ -1052,57 +1051,59 @@ exports.updateJob = async (req, res) => {
     console.log('rolesAndResponsibilities type:', typeof req.body.rolesAndResponsibilities);
     console.log('rolesAndResponsibilities length:', req.body.rolesAndResponsibilities ? req.body.rolesAndResponsibilities.length : 0);
     
-    if (req.body.rolesAndResponsibilities && typeof req.body.rolesAndResponsibilities === 'string') {
-      // Convert rich text to array of responsibilities
-      // Remove HTML tags and split by line breaks or bullet points
-      let cleanText = req.body.rolesAndResponsibilities
-        .replace(/<[^>]*>/g, '') // Remove HTML tags
-        .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
-        .replace(/&amp;/g, '&') // Replace HTML entities
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .trim();
-      
-      console.log('Clean text after processing:', cleanText);
-      console.log('Clean text length:', cleanText.length);
-      
-      if (cleanText && cleanText.length > 0) {
-        // Try multiple splitting strategies
-        let responsibilities = [];
+    if (req.body.rolesAndResponsibilities !== undefined) {
+      if (typeof req.body.rolesAndResponsibilities === 'string') {
+        // Convert rich text to array of responsibilities
+        // Remove HTML tags and split by line breaks or bullet points
+        let cleanText = req.body.rolesAndResponsibilities
+          .replace(/<[^>]*>/g, '') // Remove HTML tags
+          .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
+          .replace(/&amp;/g, '&') // Replace HTML entities
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .trim();
         
-        // First try splitting by common patterns
-        if (cleanText.includes('\n')) {
-          // Split by line breaks
-          responsibilities = cleanText
-            .split(/\n|\r\n|\r/)
-            .map(line => line.trim())
-            .filter(line => line.length > 0)
-            .map(line => line.replace(/^[\u2022\-\*•]\s*/, '')); // Remove bullet points
-        } else if (cleanText.includes('.') && cleanText.split('.').length > 2) {
-          // Split by periods if multiple sentences
-          responsibilities = cleanText
-            .split('.')
-            .map(line => line.trim())
-            .filter(line => line.length > 0)
-            .map(line => line.replace(/^[\u2022\-\*•]\s*/, ''));
+        console.log('Clean text after processing:', cleanText);
+        console.log('Clean text length:', cleanText.length);
+        
+        if (cleanText && cleanText.length > 0) {
+          // Try multiple splitting strategies
+          let responsibilities = [];
+          
+          // First try splitting by common patterns
+          if (cleanText.includes('\n')) {
+            // Split by line breaks
+            responsibilities = cleanText
+              .split(/\n|\r\n|\r/)
+              .map(line => line.trim())
+              .filter(line => line.length > 0)
+              .map(line => line.replace(/^[\u2022\-\*•]\s*/, '')); // Remove bullet points
+          } else if (cleanText.includes('.') && cleanText.split('.').length > 2) {
+            // Split by periods if multiple sentences
+            responsibilities = cleanText
+              .split('.')
+              .map(line => line.trim())
+              .filter(line => line.length > 0)
+              .map(line => line.replace(/^[\u2022\-\*•]\s*/, ''));
+          } else {
+            // Use the entire text as a single responsibility
+            responsibilities = [cleanText];
+          }
+          
+          console.log('Final responsibilities array:', responsibilities);
+          req.body.responsibilities = responsibilities;
         } else {
-          // Use the entire text as a single responsibility
-          responsibilities = [cleanText];
+          console.log('Clean text is empty, setting empty responsibilities array');
+          req.body.responsibilities = [];
         }
         
-        console.log('Final responsibilities array:', responsibilities);
-        req.body.responsibilities = responsibilities;
+        // Remove the original field to avoid confusion
+        delete req.body.rolesAndResponsibilities;
       } else {
-        console.log('Clean text is empty, setting empty responsibilities array');
+        console.log('No valid rolesAndResponsibilities field found in req.body');
         req.body.responsibilities = [];
       }
-      
-      // Remove the original field to avoid confusion
-      delete req.body.rolesAndResponsibilities;
-    } else {
-      console.log('No valid rolesAndResponsibilities field found in req.body');
-      req.body.responsibilities = [];
     }
     console.log('Final req.body.responsibilities:', req.body.responsibilities);
     console.log('=== END UPDATE DEBUG ===');
@@ -1149,8 +1150,8 @@ exports.updateJob = async (req, res) => {
       }
     }
     
-    // Check if interview rounds are being scheduled/updated
-    const hasScheduledRounds = req.body.interviewRounds && req.body.interviewRounds.length > 0;
+    // Check if interview rounds are scheduled in database
+    const hasScheduledRounds = await InterviewRound.hasScheduledRounds(req.params.jobId);
     
     console.log('Update job - Interview rounds scheduled check:', {
       hasScheduledRounds,
@@ -1159,8 +1160,11 @@ exports.updateJob = async (req, res) => {
     
     const wasScheduled = oldJob.interviewScheduled;
     
-    if (hasScheduledRounds) {
-      req.body.interviewScheduled = true;
+    console.log('[updateJob] req.body keys:', Object.keys(req.body));
+    if (req.body.interviewRoundDetails) {
+      console.log('[updateJob] interviewRoundDetails found in request:', Object.keys(req.body.interviewRoundDetails));
+    } else {
+      console.log('[updateJob] interviewRoundDetails NOT found in request - preserving existing data if any');
     }
     
     // Map assignedAssessment to assessmentId
@@ -1196,23 +1200,24 @@ exports.updateJob = async (req, res) => {
       req.body.assessmentEndTime = normalizeTimeFormat(String(req.body.assessmentEndTime));
     }
     
-    // Remove assessment from interviewRoundTypes (it's stored separately in assessmentId)
-    if (req.body.interviewRoundTypes && req.body.interviewRoundTypes.assessment) {
-      delete req.body.interviewRoundTypes.assessment;
-    }
-    
     // Process interview rounds into new format
     if (req.body.interviewRoundDetails && typeof req.body.interviewRoundDetails === 'object') {
       console.log('[updateJob] Processing interviewRoundDetails:', JSON.stringify(req.body.interviewRoundDetails));
       const interviewRounds = [];
       Object.entries(req.body.interviewRoundDetails).forEach(([key, value]) => {
         if (value && typeof value === 'object') {
-          // Check if round has any meaningful data (more lenient check)
-          const hasData = (value.description && value.description.trim() !== '') || 
-                         (value.fromDate && value.fromDate !== '') || 
-                         (value.toDate && value.toDate !== '') ||
-                         (value.startTime && value.startTime !== '') ||
-                         (value.endTime && value.endTime !== '');
+          // Determine round type from key or interviewRoundTypes
+          const roundType = req.body.interviewRoundTypes?.[key] || key.replace(/_\d+$/, '');
+          
+          // For assessment rounds, only require date/time (description is optional)
+          // For oneOnOnePanel and group types, description is optional (scheduled via scheduler)
+          // For other types, require at least description OR date/time info
+          const isAssessment = roundType === 'assessment' || String(key).startsWith('assessment_');
+          const isSchedulableType = roundType === 'oneOnOnePanel' || roundType === 'group' || String(roundType).toLowerCase().includes('group');
+          
+          const hasData = isAssessment || isSchedulableType 
+            ? ((value.fromDate && value.fromDate !== '') || (value.toDate && value.toDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''))
+            : ((value.description && value.description.trim() !== '') || (value.customType && value.customType.trim() !== '') || (value.fromDate && value.fromDate !== '') || (value.toDate && value.toDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''));
           
           if (!hasData) {
             console.log(`[updateJob] Skipping empty round: ${key}`);
@@ -1228,7 +1233,7 @@ exports.updateJob = async (req, res) => {
 
           interviewRounds.push({
             key: key,
-            name: value.customType || key.replace(/_\d+$/, ''),
+            name: value.customType || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
             fromdate: fromDate,
             todate: toDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
@@ -1242,16 +1247,16 @@ exports.updateJob = async (req, res) => {
       console.log(`[updateJob] Built ${interviewRounds.length} interview rounds`);
       
       // Update interview rounds in new collection
+      // ALWAYS delete old rounds if interviewRoundDetails is provided (even if no new rounds built)
+      await InterviewRound.deleteMany({ jobId: oldJob._id });
+      console.log('[updateJob] Deleted old interview rounds');
+
       if (interviewRounds.length > 0) {
-        // Delete old rounds
-        const { ObjectId } = require('mongoose').Types;
-        await InterviewRound.deleteMany({ jobId: new ObjectId(req.params.jobId) });
-        console.log('[updateJob] Deleted old interview rounds');
         // Create new rounds
         for (const round of interviewRounds) {
           try {
             const createdRound = await InterviewRound.create({
-              jobId: new ObjectId(req.params.jobId),
+              jobId: oldJob._id,
               key: round.key,
               name: round.name,
               fromdate: round.fromdate,
@@ -1264,9 +1269,7 @@ exports.updateJob = async (req, res) => {
             console.log('[updateJob] Interview round created successfully:', {
               id: createdRound._id,
               key: createdRound.key,
-              name: createdRound.name,
-              fromdate: createdRound.fromdate,
-              todate: createdRound.todate
+              name: createdRound.name
             });
           } catch (roundError) {
             console.error('[updateJob] Error creating interview round:', roundError);
@@ -1275,21 +1278,52 @@ exports.updateJob = async (req, res) => {
       } else {
         console.log('[updateJob] No interview rounds to create');
       }
-      // Keep interviewRoundDetails in req.body for Mixed storage if needed
     }
     
-    // Ensure interviewRoundOrder is included in the update
-    if (req.body.interviewRoundOrder) {
-      // Keep the interview round order as provided from frontend
+    // Update interviewScheduled flag based on database
+    const hasScheduledRoundsAfterUpdate = await InterviewRound.hasScheduledRounds(oldJob._id);
+    req.body.interviewScheduled = hasScheduledRoundsAfterUpdate;
+    
+    // Ensure interviewRoundOrder and interviewRoundDetails are not cleared if missing from request
+    if (req.body.interviewRoundOrder === undefined) {
+      delete req.body.interviewRoundOrder;
+    }
+    if (req.body.interviewRoundDetails === undefined) {
+      delete req.body.interviewRoundDetails;
+    }
+    if (req.body.interviewRoundTypes === undefined) {
+      delete req.body.interviewRoundTypes;
     }
     
-    // Remove the unreachable duplicate block
-    
-    const job = await Job.findOneAndUpdate(
-      { _id: req.params.jobId, employerId: req.user._id },
-      req.body,
-      { new: true, runValidators: false }
-    );
+    // Use findOne and save instead of findOneAndUpdate to ensure Mixed types are properly marked as modified
+    const job = await Job.findOne({ _id: req.params.jobId, employerId: req.user._id });
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+
+    // Apply updates from req.body to the job document
+    Object.keys(req.body).forEach(key => {
+      job[key] = req.body[key];
+    });
+
+    // Explicitly mark Mixed types as modified
+    if (req.body.interviewRoundDetails) {
+      job.markModified('interviewRoundDetails');
+      console.log('[updateJob] Marked interviewRoundDetails as modified');
+    }
+    if (req.body.interviewRoundTypes) {
+      job.markModified('interviewRoundTypes');
+      console.log('[updateJob] Marked interviewRoundTypes as modified');
+    }
+    if (req.body.ctc) {
+      job.markModified('ctc');
+    }
+    if (req.body.netSalary) {
+      job.markModified('netSalary');
+    }
+
+    await job.save();
+    console.log('[updateJob] Job saved successfully with save()');
 
     // If assessment was added to the job, update existing applications
     if (!oldJob.assessmentId && job.assessmentId) {
@@ -1310,7 +1344,7 @@ exports.updateJob = async (req, res) => {
     cacheInvalidation.clearCandidateApplicationCaches();
 
     // Notify only candidates who have applied for this job
-    if (hasScheduledRounds) {
+    if (hasScheduledRoundsAfterUpdate) {
       try {
         const applications = await Application.find({ jobId: job._id }).select('candidateId');
         
@@ -1381,7 +1415,53 @@ exports.getEmployerJobs = async (req, res) => {
       
       // Get interview rounds from new collection
       const interviewRounds = await InterviewRound.find({ jobId: job._id }).sort({ fromdate: 1, startTime: 1 });
-
+      
+      // If no rounds in new collection, try to build from old format
+      if (interviewRounds.length === 0) {
+        if (job.interviewRoundOrder && job.interviewRoundOrder.length > 0) {
+          job.interviewRounds = job.interviewRoundOrder.map((key) => {
+            const details = job.interviewRoundDetails?.[key];
+            const roundType = job.interviewRoundTypes?.[key];
+            
+            const roundNames = {
+              technical: 'Technical',
+              oneOnOne: 'One-to-One',
+              panel: 'Panel',
+              group: 'Group',
+              situational: 'Situational / Behavioral',
+              others: 'Others',
+              assessment: 'Assessment'
+            };
+            
+            return {
+              id: key,
+              key: key,
+              name: details?.customType || roundNames[roundType] || roundType || key.replace(/_\d+$/, ''),
+              fromdate: details?.fromDate || details?.date || null,
+              todate: details?.toDate || details?.fromDate || details?.date || null,
+              startTime: details?.startTime || details?.time || null,
+              endTime: details?.endTime || null,
+              description: details?.description || null,
+              applicationLimit: details?.applicationLimit || job.applicationLimit || 50
+            };
+          });
+        } else {
+          job.interviewRounds = [];
+        }
+      } else {
+        // Format interview rounds for frontend compatibility
+        job.interviewRounds = interviewRounds.map(round => ({
+          id: round._id.toString(),
+          key: round.key,
+          name: round.name,
+          fromdate: round.fromdate,
+          todate: round.todate,
+          startTime: round.startTime,
+          endTime: round.endTime,
+          description: round.description,
+          applicationLimit: round.applicationLimit
+        }));
+      }
       
       return job;
     }));
@@ -2210,11 +2290,6 @@ exports.scheduleInterviewRound = async (req, res) => {
       return res.status(400).json({ success: false, message: 'From date and to date are required' });
     }
     
-    // Validate date range
-    if (new Date(fromDate) > new Date(toDate)) {
-      return res.status(400).json({ success: false, message: 'From date cannot be after to date' });
-    }
-    
     // For non-assessment rounds, require description and time
     if (roundType !== 'assessment') {
       if (!description?.trim()) {
@@ -2230,26 +2305,30 @@ exports.scheduleInterviewRound = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Assessment ID is required for assessment rounds' });
     }
     
-    // Update the job with the scheduled round details
-    const newRound = {
-      id: roundKey,
-      name: roundKey.replace(/_\d+$/, ''),
-      date: new Date(fromDate),
-      startTime: time || '',
-      endTime: ''
-    };
+    // Create or update interview round in the new collection
+    let interviewRound = await InterviewRound.findOne({ jobId: job._id, key: roundKey });
     
-    const existingRounds = job.interviewRounds || [];
-    const roundIndex = existingRounds.findIndex(r => r.id === roundKey);
-    
-    if (roundIndex >= 0) {
-      existingRounds[roundIndex] = newRound;
+    if (interviewRound) {
+      interviewRound.name = roundKey.replace(/_\d+$/, '');
+      interviewRound.fromdate = new Date(fromDate);
+      interviewRound.todate = new Date(toDate);
+      interviewRound.startTime = normalizeTimeFormat(time || '');
+      interviewRound.description = description || interviewRound.description;
+      await interviewRound.save();
     } else {
-      existingRounds.push(newRound);
+      interviewRound = await InterviewRound.create({
+        jobId: job._id,
+        key: roundKey,
+        name: roundKey.replace(/_\d+$/, ''),
+        fromdate: new Date(fromDate),
+        todate: new Date(toDate),
+        startTime: normalizeTimeFormat(time || ''),
+        description: description || '',
+        applicationLimit: job.applicationLimit || 50
+      });
     }
     
     const updateData = {
-      interviewRounds: existingRounds,
       interviewScheduled: true
     };
     
@@ -2258,6 +2337,7 @@ exports.scheduleInterviewRound = async (req, res) => {
       updateData.assessmentId = assessmentId;
       updateData.assessmentStartDate = new Date(fromDate);
       updateData.assessmentEndDate = new Date(toDate);
+      updateData.assessmentStartTime = normalizeTimeFormat(time || '');
     }
     
     const updatedJob = await Job.findOneAndUpdate(
@@ -2968,7 +3048,8 @@ exports.resendMobileOTP = async (req, res) => {
 // Interview Rounds Management - New Structure
 exports.createInterviewRounds = async (req, res) => {
   try {
-    const { jobId, rounds } = req.body;
+    const { jobId } = req.params;
+    const { rounds } = req.body;
     
     // Verify job belongs to employer
     const job = await Job.findOne({ _id: jobId, employerId: req.user._id });
@@ -2986,9 +3067,10 @@ exports.createInterviewRounds = async (req, res) => {
     for (const round of rounds) {
       const interviewRound = await InterviewRound.create({
         jobId: jobId,
+        key: round.key || `${round.name.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`,
         name: round.name,
-        fromdate: round.fromdate || round.date,
-        todate: round.todate || round.fromdate || round.date,
+        fromdate: round.fromdate || round.fromDate || round.date,
+        todate: round.todate || round.toDate || round.fromdate || round.fromDate || round.date,
         startTime: normalizeTimeFormat(round.startTime),
         endTime: normalizeTimeFormat(round.endTime),
         description: round.description || '',
@@ -3034,12 +3116,12 @@ exports.updateInterviewRound = async (req, res) => {
     const { name, date, startTime, endTime, applicationLimit } = req.body;
     
     // Find the round and verify it belongs to employer's job
-    const round = await InterviewRound.findById(roundId).populate('job_id');
+    const round = await InterviewRound.findById(roundId).populate('jobId');
     if (!round) {
       return res.status(404).json({ success: false, message: 'Interview round not found' });
     }
     
-    if (round.job_id.employerId.toString() !== req.user._id.toString()) {
+    if (round.jobId.employerId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ success: false, message: 'Unauthorized' });
     }
     
@@ -3055,6 +3137,8 @@ exports.updateInterviewRound = async (req, res) => {
     if (req.body.description !== undefined) round.description = req.body.description;
     if (req.body.fromdate) round.fromdate = req.body.fromdate;
     if (req.body.todate) round.todate = req.body.todate;
+    if (req.body.fromDate) round.fromdate = req.body.fromDate;
+    if (req.body.toDate) round.todate = req.body.toDate;
     
     await round.save();
     
