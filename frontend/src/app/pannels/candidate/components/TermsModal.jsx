@@ -41,98 +41,47 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
                                     <span style={{ marginRight: '8px' }}>🔒</span> Assessment Integrity
                                 </h6>
                                 <ul style={{ paddingLeft: '24px', margin: '0', color: '#f72d12ff', lineHeight: '1.8' }}>
-                                    <li style={{ marginBottom: '8px' }}>You must complete the assessment in one continuous session</li>
-                                    <li style={{ marginBottom: '8px' }}>Switching browser tabs will result in immediate termination</li>
-                                    <li style={{ marginBottom: '8px' }}>Minimizing the browser window will result in immediate termination</li>
-                                    <li style={{ marginBottom: '8px' }}>Using Alt+Tab or other window switching will result in immediate termination</li>
-                                    <li style={{ marginBottom: '8px' }}>Right-clicking is disabled during the assessment</li>
-                                    <li style={{ marginBottom: '8px' }}>Copy-paste functionality is disabled during the assessment</li>
+                                    <li style={{ marginBottom: '8px' }}>Complete in one continuous session</li>
+                                    <li style={{ marginBottom: '8px' }}>No tab/window switching (immediate termination)</li>
+                                    <li style={{ marginBottom: '8px' }}>Right-click and copy-paste disabled</li>
                                 </ul>
                             </div>
 
                             <div className="mb-4" style={{ backgroundColor: '#fff5f5', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #dc3545' }}>
                                 <h6 style={{ color: '#dc3545', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center' }}>
-                                    <span style={{ marginRight: '8px' }}>⚠️</span> Violation Consequences
+                                    <span style={{ marginRight: '8px' }}>⚠️</span> Violations = Immediate Termination
                                 </h6>
-                                <ul style={{ paddingLeft: '24px', margin: '0', color: '#495057', lineHeight: '1.8' }}>
-                                    <li style={{ marginBottom: '8px' }}><strong>Tab Switch:</strong> Assessment will be terminated immediately</li>
-                                    <li style={{ marginBottom: '8px' }}><strong>Window Minimize/Blur:</strong> Assessment will be terminated immediately</li>
-                                    <li style={{ marginBottom: '8px' }}><strong>Right Click:</strong> Assessment will be terminated immediately</li>
-                                    <li style={{ marginBottom: '8px' }}><strong>Copy/Paste Attempt:</strong> Assessment will be terminated immediately</li>
-                                    <li style={{ marginBottom: '0' }}><strong>Time Expiration:</strong> Assessment will auto-submit with current answers</li>
-                                </ul>
+                                <p style={{ margin: '0', color: '#495057', lineHeight: '1.6' }}>Tab switching, window blur, right-click, or copy/paste will terminate the assessment. Time expiration auto-submits current answers.</p>
                             </div>
 
                             <div className="mb-4">
                                 <h6 style={{ color: '#2c3e50', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center' }}>
                                     <span style={{ marginRight: '8px' }}>💻</span> Technical Requirements
                                 </h6>
-                                <ul style={{ paddingLeft: '24px', margin: '0', color: '#495057', lineHeight: '1.8' }}>
-                                    <li style={{ marginBottom: '8px' }}>Use a stable internet connection</li>
-                                    <li style={{ marginBottom: '8px' }}>Ensure your browser is up to date</li>
-                                    <li style={{ marginBottom: '8px' }}>Close all unnecessary applications</li>
-                                    <li style={{ marginBottom: '0' }}>Do not refresh the page during the assessment</li>
-                                </ul>
+                                <p style={{ margin: '0', color: '#495057', lineHeight: '1.6' }}>Stable internet, updated browser, close unnecessary apps, no page refresh.</p>
                             </div>
 
                             <div className="mb-4">
                                 <h6 style={{ color: '#2c3e50', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center' }}>
                                     <span style={{ marginRight: '8px' }}>📌</span> Important Notes
                                 </h6>
-                                <ul style={{ paddingLeft: '24px', margin: '0', color: '#495057', lineHeight: '1.8' }}>
-                                    <li style={{ marginBottom: '8px' }}>All violations are logged with timestamps</li>
-                                    <li style={{ marginBottom: '8px' }}>Once terminated, the assessment cannot be resumed</li>
-                                    <li style={{ marginBottom: '8px' }}>Your progress will be saved only upon successful completion</li>
-                                    <li style={{ marginBottom: '0' }}>Ensure you have answered all questions before submitting</li>
-                                </ul>
+                                <p style={{ margin: '0', color: '#495057', lineHeight: '1.6' }}>Violations are logged. Terminated assessments cannot be resumed. Progress saved only on completion.</p>
                             </div>
 
-                            <div style={{ backgroundColor: '#fff3cd', border: '1px solid #ffc107', borderRadius: '8px', padding: '16px', marginTop: '24px', marginBottom: '24px' }}>
-                                <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-                                    <span style={{ fontSize: '24px', marginRight: '12px' }}>⚠️</span>
-                                    <div>
-                                        <strong style={{ color: '#856404', display: 'block', marginBottom: '4px' }}>Warning:</strong>
-                                        <p style={{ margin: '0', color: '#856404', lineHeight: '1.6' }}>By proceeding with this assessment, you agree to abide by all the rules stated above. Any violation will result in immediate termination of your assessment.</p>
-                                    </div>
-                                </div>
+                            <div style={{ backgroundColor: '#fff3cd', border: '1px solid #ffc107', borderRadius: '8px', padding: '12px 16px', marginTop: '20px', marginBottom: '20px' }}>
+                                <p style={{ margin: '0', color: '#856404', lineHeight: '1.6' }}><strong>⚠️ Warning:</strong> By proceeding, you agree to all rules. Violations result in immediate termination.</p>
                             </div>
 
-                            <div style={{ borderTop: '1px solid #dee2e6', paddingTop: '20px', marginTop: '8px' }}>
-                                <details style={{ marginBottom: '16px' }}>
-                                    <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#2c3e50', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px', marginBottom: '8px' }}>
-                                        📋 Legal Compliance and Jurisdiction
-                                    </summary>
-                                    <div style={{ padding: '12px 16px', color: '#6c757d', fontSize: '13px', lineHeight: '1.7', backgroundColor: '#f8f9fa', borderRadius: '6px', marginTop: '8px' }}>
-                                        <p style={{ marginBottom: '12px' }}>All users of TaleGlobal including employers, candidates, consultancies, and placement officers agree to comply with all applicable laws, regulations, and guidelines in force in India, including but not limited to: Information Technology Act, 2000 and the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021; Digital Personal Data Protection Act, 2023; Indian Contract Act, 1872; Right to Privacy as enshrined under Article 21 of the Constitution of India; Applicable Employment, Labour, and Anti-Discrimination Laws of India; UGC and AICTE Guidelines governing campus placements and institutional data management.</p>
-                                        <p style={{ marginBottom: '12px' }}>TaleGlobal operates solely as a digital intermediary within the meaning of Section 2(1)(w) of the Information Technology Act, 2000 and shall not be deemed to create any employment, partnership, or agency relationship with any user.</p>
-                                        <p style={{ marginBottom: '0' }}>Any dispute, claim, or controversy arising out of or in connection with these Terms, the Privacy Policy, or use of the platform shall be governed exclusively by the laws of India. The parties agree that the courts at Bengaluru, Karnataka, shall have exclusive jurisdiction to adjudicate all such disputes.</p>
-                                    </div>
-                                </details>
-
-                                <details style={{ marginBottom: '16px' }}>
-                                    <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#2c3e50', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px', marginBottom: '8px' }}>
-                                        🔐 Privacy Policy
-                                    </summary>
-                                    <div style={{ padding: '12px 16px', color: '#6c757d', fontSize: '13px', lineHeight: '1.7', backgroundColor: '#f8f9fa', borderRadius: '6px', marginTop: '8px' }}>
-                                        <p style={{ marginBottom: '0' }}>TaleGlobal is committed to protecting the privacy, security, and lawful use of personal information entrusted to it by all individuals using its website and services. By creating an account, accessing, or using the TaleGlobal platform, you expressly acknowledge that you have read, understood, and agree to be bound by this Privacy Policy and consent to the collection and use of your personal data as set out herein in accordance with the Digital Personal Data Protection Act, 2023, the Information Technology Act, 2000, and other applicable laws of India.</p>
-                                    </div>
-                                </details>
-
-                                <details style={{ marginBottom: '16px' }}>
-                                    <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#2c3e50', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px', marginBottom: '8px' }}>
-                                        ⚖️ Disclaimer and Limitation of Liability
-                                    </summary>
-                                    <div style={{ padding: '12px 16px', color: '#6c757d', fontSize: '13px', lineHeight: '1.7', backgroundColor: '#f8f9fa', borderRadius: '6px', marginTop: '8px' }}>
-                                        <p style={{ marginBottom: '0' }}>TaleGlobal functions solely as a digital recruitment intermediary and does not guarantee employment, selection, job placement, or any hiring outcome. TaleGlobal shall not be held liable for any hiring decisions, rejections, delayed offers, job cancellations, or any consequential, indirect, emotional, reputational, or financial loss arising out of or in connection with the use of the platform. TaleGlobal provides all services on an "as is" and "as available" basis, without any express or implied warranties.</p>
-                                    </div>
-                                </details>
-
+                            <div style={{ borderTop: '1px solid #dee2e6', paddingTop: '16px', marginTop: '8px' }}>
                                 <details>
-                                    <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#2c3e50', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px', marginBottom: '8px' }}>
-                                        ⚖️ Legal Validity and Governing Law
+                                    <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#2c3e50', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '6px' }}>
+                                        📋 Legal Terms & Privacy
                                     </summary>
-                                    <div style={{ padding: '12px 16px', color: '#6c757d', fontSize: '13px', lineHeight: '1.7', backgroundColor: '#f8f9fa', borderRadius: '6px', marginTop: '8px' }}>
-                                        <p style={{ marginBottom: '0' }}>This Disclaimer and all related Terms and Conditions shall be governed by and construed in accordance with the laws of India. Users agree that any dispute, claim, or controversy arising from or relating to the use of the TaleGlobal platform, these Terms, or this Disclaimer shall be subject to the exclusive jurisdiction of the competent courts at Bengaluru, Karnataka, India. The invalidity or unenforceability of any provision of this Disclaimer shall not affect the validity of the remaining provisions, which shall remain in full force and effect.</p>
+                                    <div style={{ padding: '12px', color: '#6c757d', fontSize: '12px', lineHeight: '1.6', backgroundColor: '#f8f9fa', borderRadius: '6px', marginTop: '8px' }}>
+                                        <p style={{ marginBottom: '8px' }}><strong>Compliance:</strong> Users agree to comply with Indian laws including IT Act 2000, DPDP Act 2023, and applicable employment laws.</p>
+                                        <p style={{ marginBottom: '8px' }}><strong>Privacy:</strong> By using TaleGlobal, you consent to data collection per our Privacy Policy in accordance with Indian data protection laws.</p>
+                                        <p style={{ marginBottom: '8px' }}><strong>Disclaimer:</strong> TaleGlobal is a recruitment intermediary and does not guarantee employment outcomes. Services provided "as is" without warranties.</p>
+                                        <p style={{ marginBottom: '0' }}><strong>Jurisdiction:</strong> Governed by Indian law. Disputes subject to exclusive jurisdiction of Bengaluru, Karnataka courts.</p>
                                     </div>
                                 </details>
                             </div>
