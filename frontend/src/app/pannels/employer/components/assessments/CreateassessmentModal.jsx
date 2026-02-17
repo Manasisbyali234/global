@@ -394,7 +394,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					showPreview ? (
 						<div className="p-0 overflow-auto" style={{ flex: "1 1 auto", minHeight: 0 }}>
 							<AssessmentPreview 
-								assessment={{ title, timer: timeLimit, questions }} 
+								assessment={{ title, timer: timeLimit, questions, passingPercentage }} 
 								onBack={() => setShowPreview(false)} 
 							/>
 						</div>
@@ -566,19 +566,26 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								Passing Percentage (%) <span style={{color: '#dc2626'}}>*</span>
 							</label>
 							<input
-								type="number"
+								type="text"
+								inputMode="numeric"
 								className="form-control"
 								value={passingPercentage}
-								onChange={(e) => setPassingPercentage(e.target.value)}
-								min="0"
-								max="100"
+								onChange={(e) => {
+									const val = e.target.value;
+									if (val === '' || /^\d+$/.test(val)) {
+										const num = parseInt(val);
+										if (val === '' || (num >= 0 && num <= 100)) {
+											setPassingPercentage(val);
+										}
+									}
+								}}
 								required
 								style={{
-									borderColor: passingPercentage >= 0 && passingPercentage <= 100 ? '#10b981' : '#dc2626',
+									borderColor: passingPercentage !== '' && parseInt(passingPercentage) >= 0 && parseInt(passingPercentage) <= 100 ? '#10b981' : '#dc2626',
 									borderWidth: 2
 								}}
 							/>
-							{(passingPercentage < 0 || passingPercentage > 100) && (
+							{(passingPercentage !== '' && (parseInt(passingPercentage) < 0 || parseInt(passingPercentage) > 100)) && (
 								<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
 									<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
 									Please enter a valid percentage (0-100)

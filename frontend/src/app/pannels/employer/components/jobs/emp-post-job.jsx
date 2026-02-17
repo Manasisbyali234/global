@@ -1237,11 +1237,15 @@ export default function EmpPostJob({ onNext }) {
 			if (data.success) {
 				// Clear saved CTC from localStorage after successful submission
 				localStorage.removeItem('draft_ctc');
-				showSuccess(isEditMode ? 'Job updated successfully!' : 'Job posted successfully!');
+				showSuccess(isEditMode ? 'Job updated successfully!' : 'Job posted successfully! Edit the job to schedule interviews.');
 				
-				setTimeout(() => {
-					window.location.href = '/employer/manage-jobs';
-				}, 1500);
+				if (!isEditMode) {
+					// Only redirect to manage-jobs if it's a new job post
+					setTimeout(() => {
+						window.location.href = '/employer/manage-jobs';
+					}, 1500);
+				}
+				// If editing, stay on the same page
 			} else {
 				showError(data.message || `Failed to ${isEditMode ? 'update' : 'post'} job`);
 			}
@@ -3761,7 +3765,15 @@ export default function EmpPostJob({ onNext }) {
 																	showWarning('Please submit the job first before scheduling interviews.');
 																	return;
 																}
-																window.open(`https://schedule.taleglobal.net/scheduler/${id}`, '_blank');
+																const roundData = encodeURIComponent(JSON.stringify({
+																	roundKey: uniqueKey,
+																	roundType: roundType,
+																	roundName: displayName,
+																	fromDate: roundDetails.fromDate,
+																	startTime: roundDetails.startTime,
+																	endTime: roundDetails.endTime
+																}));
+																window.open(`https://schedule.taleglobal.net/scheduler/${id}?round=${roundData}`, '_blank');
 															}}
 														>
 															<i className="fa fa-calendar-plus"></i>
