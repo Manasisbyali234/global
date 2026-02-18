@@ -206,22 +206,15 @@ function Home1Page() {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/public/jobs');
+            const response = await fetch('http://localhost:5000/api/public/jobs/filter-counts');
             const data = await response.json();
             
-            if (data.success) {
-                const categoryCount = {};
-                data.jobs.forEach(job => {
-                    const category = job.category || 'Other';
-                    categoryCount[category] = (categoryCount[category] || 0) + 1;
-                });
-                
-                const categoryList = Object.entries(categoryCount).map(([name, count]) => ({
+            if (data.success && data.counts && data.counts.categories) {
+                const categoryList = data.counts.categories.map(([name, count]) => ({
                     name,
                     count,
                     icon: getCategoryIcon(name)
                 }));
-                
                 
                 setCategories(categoryList);
             }

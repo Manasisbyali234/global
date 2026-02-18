@@ -1,7 +1,18 @@
 const mongoose = require('mongoose');
 
 const candidateProfileSchema = new mongoose.Schema({
-  candidateId: { type: mongoose.Schema.Types.ObjectId, ref: 'Candidate', required: true, unique: true },
+  candidateId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Candidate', 
+    required: [true, 'Candidate ID is required'], 
+    unique: true,
+    validate: {
+      validator: function(v) {
+        return v != null && mongoose.Types.ObjectId.isValid(v);
+      },
+      message: 'Candidate ID must be a valid ObjectId'
+    }
+  },
   firstName: { type: String },
   middleName: { type: String },
   lastName: { type: String },
@@ -76,6 +87,14 @@ const candidateProfileSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true
+});
+
+// Pre-save validation to ensure candidateId is never null
+candidateProfileSchema.pre('save', function(next) {
+  if (!this.candidateId) {
+    return next(new Error('Candidate ID cannot be null or undefined'));
+  }
+  next();
 });
 
 module.exports = mongoose.model('CandidateProfile', candidateProfileSchema);

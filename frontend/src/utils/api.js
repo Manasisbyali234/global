@@ -101,6 +101,13 @@ export const api = {
     }).then(handleApiResponse);
   },
 
+  getJobFilterCounts: () => {
+    return safeFetch(`${API_BASE_URL}/public/jobs/filter-counts`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    }).then(handleApiResponse);
+  },
+
   getJobById: (id) => {
     return safeFetch(`${API_BASE_URL}/public/jobs/${id}`, {
       method: 'GET',

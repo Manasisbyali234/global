@@ -56,13 +56,27 @@ exports.registerCandidate = async (req, res) => {
     const candidate = await Candidate.create(candidateData);
     console.log('Candidate created:', candidate._id);
     
-    await CandidateProfile.create({ 
-      candidateId: candidate._id,
-      firstName,
-      middleName,
-      lastName
-    });
-    console.log('Profile created for candidate');
+    // Validate candidate._id before creating profile
+    if (!candidate._id) {
+      console.error('CRITICAL: Candidate created without _id');
+      throw new Error('Failed to create candidate with valid ID');
+    }
+    
+    // Create profile with validated candidateId
+    try {
+      await CandidateProfile.create({ 
+        candidateId: candidate._id,
+        firstName,
+        middleName,
+        lastName
+      });
+      console.log('Profile created for candidate:', candidate._id);
+    } catch (profileError) {
+      console.error('Profile creation failed:', profileError);
+      // Rollback: delete the candidate if profile creation fails
+      await Candidate.findByIdAndDelete(candidate._id);
+      throw new Error('Failed to create candidate profile. Registration rolled back.');
+    }
 
     // If OTP verification is skipped, send welcome email immediately
     if (skipOtpVerification) {

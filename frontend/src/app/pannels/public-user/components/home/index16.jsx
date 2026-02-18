@@ -163,6 +163,16 @@ function Home16Page() {
         try {
             // Fetch jobs with error handling
             try {
+                // Fetch filter counts for accurate category totals
+                const filterCounts = await api.getJobFilterCounts();
+                const categoryCountsMap = {};
+                
+                if (filterCounts && filterCounts.success && filterCounts.counts && filterCounts.counts.categories) {
+                    filterCounts.counts.categories.forEach(([catName, count]) => {
+                        categoryCountsMap[catName] = count;
+                    });
+                }
+
                 const jobsData = await api.getJobs({ limit: 50 });
                 
                 if (!jobsData) {
@@ -170,35 +180,32 @@ function Home16Page() {
                 }
                 
                 if (jobsData.success) {
-                    // Validate jobs data
-                    if (!Array.isArray(jobsData.jobs)) {
-                        throw new Error('Invalid jobs data format');
-                    }
-                    
-                    // Show all jobs without filtering
                     const validJobs = jobsData.jobs || [];
-                    
-                    
                     setAllJobs(validJobs);
                     setJobs(validJobs.slice(0, 6));
                     
-                    // Calculate category counts
-                    const categoryCount = {};
-                    validJobs.forEach(job => {
-                        const category = job.category || 'Other';
-                        categoryCount[category] = (categoryCount[category] || 0) + 1;
-                    });
+                    // Function to get aggregated count for a keyword
+                    const getAggregatedCount = (keyword) => {
+                        let total = 0;
+                        const lowerKeyword = keyword.toLowerCase();
+                        Object.entries(categoryCountsMap).forEach(([catName, count]) => {
+                            if (catName.toLowerCase().includes(lowerKeyword)) {
+                                total += count;
+                            }
+                        });
+                        return total;
+                    };
                     
                     const categoryList = [
-                        { name: 'IT', count: categoryCount['IT'] || 0 },
-                        { name: 'Content', count: categoryCount['Content'] || 0 },
-                        { name: 'Sales', count: categoryCount['Sales'] || 0 },
-                        { name: 'Healthcare', count: categoryCount['Healthcare'] || 0 },
-                        { name: 'HR', count: categoryCount['HR'] || 0 },
-                        { name: 'Finance', count: categoryCount['Finance'] || 0 },
-                        { name: 'Education', count: categoryCount['Education'] || 0 },
-                        { name: 'Design', count: categoryCount['Design'] || 0 },
-                        { name: 'Operations', count: categoryCount['Operations'] || 0 }
+                        { name: 'IT', count: getAggregatedCount('IT') || getAggregatedCount('Programming') || 0 },
+                        { name: 'Content', count: getAggregatedCount('Content') || 0 },
+                        { name: 'Sales', count: getAggregatedCount('Sales') || 0 },
+                        { name: 'Healthcare', count: getAggregatedCount('Healthcare') || 0 },
+                        { name: 'HR', count: getAggregatedCount('HR') || 0 },
+                        { name: 'Finance', count: getAggregatedCount('Finance') || 0 },
+                        { name: 'Education', count: getAggregatedCount('Education') || 0 },
+                        { name: 'Design', count: getAggregatedCount('Design') || 0 },
+                        { name: 'Operations', count: getAggregatedCount('Operations') || 0 }
                     ];
                     
                     setCategories(categoryList);

@@ -63,8 +63,30 @@ const createIndexes = async () => {
     // CandidateProfile indexes
     console.log('Creating CandidateProfile indexes...');
     try {
-      await db.collection('candidateprofiles').createIndex({ candidateId: 1 });
-      console.log('✓ CandidateProfile index created');
+      // Check if unique index already exists
+      const candidateProfileIndexes = await db.collection('candidateprofiles').indexes();
+      const hasUniqueIndex = candidateProfileIndexes.some(idx => 
+        idx.key.candidateId && idx.unique
+      );
+      
+      if (!hasUniqueIndex) {
+        // Drop any non-unique candidateId index
+        try {
+          await db.collection('candidateprofiles').dropIndex('candidateId_1');
+          console.log('Dropped old non-unique candidateId index');
+        } catch (e) {
+          // Index might not exist, continue
+        }
+        
+        // Create unique index
+        await db.collection('candidateprofiles').createIndex(
+          { candidateId: 1 }, 
+          { unique: true, sparse: false }
+        );
+        console.log('✓ CandidateProfile unique index created');
+      } else {
+        console.log('✓ CandidateProfile unique index already exists');
+      }
     } catch (e) {
       console.log('CandidateProfile index error:', e.message);
     }
