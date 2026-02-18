@@ -4058,7 +4058,7 @@ export default function EmpPostJob({ onNext }) {
 																if (response.ok) {
 																	const interviewRound = await response.json();
 																	setInterviewRoundIds(prev => ({...prev, [uniqueKey]: interviewRound._id}));
-																	window.open(`https://schedule.taleglobal.net/scheduler/${interviewRound._id}`, '_blank');
+																	window.open(`https://schedule.taleglobal.net/scheduler/book/${id}/${interviewRound._id}`, '_blank');
 																} else {
 																	showError('Failed to create interview round');
 																}
