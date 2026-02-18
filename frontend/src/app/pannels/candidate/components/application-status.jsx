@@ -896,31 +896,9 @@ function CanStatusPage() {
 																								{app.assessmentResult === 'pass' ? 'PASS' : 'FAIL'}
 																							</span>
 																						)}
-																						{/* Show assessment description if available */}
-																						{roundName === 'Assessment' && roundDetails?.description && typeof roundDetails.description === 'string' && (
-																							<div style={{fontSize: '8px', color: '#1976d2', textAlign: 'center', padding: '2px 4px', backgroundColor: '#e3f2fd', borderRadius: '3px', marginTop: '2px', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={roundDetails.description}>
-																								<i className="fa fa-info-circle me-1" style={{fontSize: '7px'}}></i>
-																								{roundDetails.description.length > 15 ? roundDetails.description.substring(0, 15) + '...' : roundDetails.description}
-																							</div>
-																						)}
+
 																						{/* Show assessment remarks if available - removed from table, only in modal */}
-																						{dateDisplay && (
-																							<div style={{fontSize: '9px', color: '#666', textAlign: 'center', padding: '2px 4px', backgroundColor: '#f8f9fa', borderRadius: '3px', marginTop: '2px'}}>
-																								{dateDisplay}
-																							</div>
-																						)}
-																						{!dateDisplay && (
-																							<div style={{fontSize: '9px', color: '#999', textAlign: 'center', padding: '2px 4px', backgroundColor: '#f8f9fa', borderRadius: '3px', marginTop: '2px'}}>
-																								Dates TBD
-																							</div>
-																						)}
-																						{/* Show non-assessment round description and remarks */}
-																						{roundName !== 'Assessment' && roundDetails?.description && typeof roundDetails.description === 'string' && (
-																							<div style={{fontSize: '8px', color: '#666', textAlign: 'center', padding: '2px 4px', backgroundColor: '#e8f5e9', borderRadius: '3px', marginTop: '2px', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={roundDetails.description}>
-																								<i className="fa fa-info-circle me-1" style={{fontSize: '7px'}}></i>
-																								{roundDetails.description.length > 15 ? roundDetails.description.substring(0, 15) + '...' : roundDetails.description}
-																							</div>
-																						)}
+
 																						{/* Show non-assessment round employer remarks */}
 																						{(() => {
 																							if (roundName === 'Assessment') return null;
@@ -1279,7 +1257,7 @@ function CanStatusPage() {
 															<>
 																{roundDetails.description && typeof roundDetails.description === 'string' && (
 																	<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-																		<small className="text-muted d-block mb-1"><i className="fa fa-info-circle me-1" style={{color: '#ff6b35'}}></i><strong>Interview Process Description:</strong></small>
+																		<small className="text-muted d-block mb-1"><i className></i><strong>Interview Process Description:</strong></small>
 																		<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>{roundDetails.description}</div>
 																	</div>
 																)}
