@@ -45,6 +45,7 @@ function PlacementDashboardRedesigned() {
     const [uploadingImages, setUploadingImages] = useState(false);
     const [logoPreview, setLogoPreview] = useState(null);
     const [idCardPreview, setIdCardPreview] = useState(null);
+    const [formErrors, setFormErrors] = useState({});
     const [showResubmitModal, setShowResubmitModal] = useState(false);
     const [resubmittingFile, setResubmittingFile] = useState(null);
     const [resubmitFile, setResubmitFile] = useState(null);
@@ -270,35 +271,21 @@ function PlacementDashboardRedesigned() {
     };
 
     const handleUpdateProfile = async () => {
-        if (!editFormData.firstName.trim()) {
-            showWarning('First Name is required');
+        const errors = {};
+        if (!editFormData.firstName.trim()) errors.firstName = 'First Name is required';
+        if (!editFormData.lastName.trim()) errors.lastName = 'Last Name is required';
+        if (!editFormData.phone.trim()) errors.phone = 'Phone Number is required';
+        if (!editFormData.collegeName.trim()) errors.collegeName = 'College Name is required';
+        if (!editFormData.collegeAddress.trim()) errors.collegeAddress = 'College Address is required';
+        if (!editFormData.collegeOfficialEmail.trim()) errors.collegeOfficialEmail = 'College Official Email is required';
+        if (!editFormData.collegeOfficialPhone.trim()) errors.collegeOfficialPhone = 'College Official Phone is required';
+        
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
             return;
         }
-        if (!editFormData.lastName.trim()) {
-            showWarning('Last Name is required');
-            return;
-        }
-        if (!editFormData.phone.trim()) {
-            showWarning('Phone Number is required');
-            return;
-        }
-        if (!editFormData.collegeName.trim()) {
-            showWarning('College Name is required');
-            return;
-        }
-        if (!editFormData.collegeAddress.trim()) {
-            showWarning('College Address is required');
-            return;
-        }
-        if (!editFormData.collegeOfficialEmail.trim()) {
-            showWarning('College Official Email is required');
-            return;
-        }
-        if (!editFormData.collegeOfficialPhone.trim()) {
-            showWarning('College Official Phone is required');
-            return;
-        }
-
+        
+        setFormErrors({});
         setUpdating(true);
         try {
             // Upload images first if they exist
@@ -322,13 +309,25 @@ function PlacementDashboardRedesigned() {
                 showError(response?.message || 'Failed to update profile');
             }
         } catch (error) {
-            const errorMessage = error.message || 'Error updating profile. Please try again.';
-            const cleanMessage = errorMessage
-                .replace(/^HTTP\s*\d+:\s*\{[^}]*"message"\s*:\s*"/i, '')
-                .replace(/"\s*\}\s*$/i, '')
-                .replace(/&quot;/g, '')
-                .trim();
-            showError(cleanMessage || 'Error updating profile. Please try again.');
+            if (error.message) {
+                try {
+                    const decoded = error.message.replace(/&quot;/g, '"');
+                    const jsonMatch = decoded.match(/\{.*"errors"\s*:\s*\[.*?\].*\}/s);
+                    
+                    if (jsonMatch) {
+                        const errorObj = JSON.parse(jsonMatch[0]);
+                        if (errorObj.errors && errorObj.errors.length > 0) {
+                            const errors = {};
+                            errorObj.errors.forEach(err => {
+                                errors[err.path] = err.msg;
+                            });
+                            setFormErrors(errors);
+                            return;
+                        }
+                    }
+                } catch (parseError) {}
+            }
+            showError('Error updating profile. Please try again.');
         } finally {
             setUpdating(false);
         }
@@ -1368,18 +1367,36 @@ function PlacementDashboardRedesigned() {
                                 <input
                                     type="text"
                                     value={editFormData.firstName || ''}
-                                    onChange={(e) => setEditFormData({...editFormData, firstName: e.target.value})}
+                                    onChange={(e) => {
+                                        setEditFormData({...editFormData, firstName: e.target.value});
+                                        if (formErrors.firstName) setFormErrors({...formErrors, firstName: ''});
+                                    }}
                                     placeholder="Enter your first name"
+                                    style={{borderColor: formErrors.firstName ? '#dc3545' : ''}}
                                 />
+                                {formErrors.firstName && (
+                                    <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>
+                                        {formErrors.firstName}
+                                    </small>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label>Last Name <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
                                     value={editFormData.lastName || ''}
-                                    onChange={(e) => setEditFormData({...editFormData, lastName: e.target.value})}
+                                    onChange={(e) => {
+                                        setEditFormData({...editFormData, lastName: e.target.value});
+                                        if (formErrors.lastName) setFormErrors({...formErrors, lastName: ''});
+                                    }}
                                     placeholder="Enter your last name"
+                                    style={{borderColor: formErrors.lastName ? '#dc3545' : ''}}
                                 />
+                                {formErrors.lastName && (
+                                    <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>
+                                        {formErrors.lastName}
+                                    </small>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label>Email <span style={{color: 'red'}}>*</span></label>
@@ -1395,36 +1412,74 @@ function PlacementDashboardRedesigned() {
                                 <input
                                     type="tel"
                                     value={editFormData.phone || ''}
-                                    onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                                    onChange={(e) => {
+                                        setEditFormData({...editFormData, phone: e.target.value});
+                                        if (formErrors.phone) {
+                                            setFormErrors({...formErrors, phone: ''});
+                                        }
+                                    }}
                                     placeholder="Enter your phone number"
+                                    style={{borderColor: formErrors.phone ? '#dc3545' : ''}}
                                 />
+                                {formErrors.phone && (
+                                    <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>
+                                        {formErrors.phone}
+                                    </small>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label>College Name <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
                                     value={editFormData.collegeName || ''}
-                                    onChange={(e) => setEditFormData({...editFormData, collegeName: e.target.value})}
+                                    onChange={(e) => {
+                                        setEditFormData({...editFormData, collegeName: e.target.value});
+                                        if (formErrors.collegeName) setFormErrors({...formErrors, collegeName: ''});
+                                    }}
                                     placeholder="Enter your college name"
+                                    style={{borderColor: formErrors.collegeName ? '#dc3545' : ''}}
                                 />
+                                {formErrors.collegeName && (
+                                    <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>
+                                        {formErrors.collegeName}
+                                    </small>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label>College Address <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="text"
                                     value={editFormData.collegeAddress || ''}
-                                    onChange={(e) => setEditFormData({...editFormData, collegeAddress: e.target.value})}
+                                    onChange={(e) => {
+                                        setEditFormData({...editFormData, collegeAddress: e.target.value});
+                                        if (formErrors.collegeAddress) setFormErrors({...formErrors, collegeAddress: ''});
+                                    }}
                                     placeholder="Enter college address"
+                                    style={{borderColor: formErrors.collegeAddress ? '#dc3545' : ''}}
                                 />
+                                {formErrors.collegeAddress && (
+                                    <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>
+                                        {formErrors.collegeAddress}
+                                    </small>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label>College Official Email <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="email"
                                     value={editFormData.collegeOfficialEmail || ''}
-                                    onChange={(e) => setEditFormData({...editFormData, collegeOfficialEmail: e.target.value})}
+                                    onChange={(e) => {
+                                        setEditFormData({...editFormData, collegeOfficialEmail: e.target.value});
+                                        if (formErrors.collegeOfficialEmail) setFormErrors({...formErrors, collegeOfficialEmail: ''});
+                                    }}
                                     placeholder="Enter college official email"
+                                    style={{borderColor: formErrors.collegeOfficialEmail ? '#dc3545' : ''}}
                                 />
+                                {formErrors.collegeOfficialEmail && (
+                                    <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>
+                                        {formErrors.collegeOfficialEmail}
+                                    </small>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label>Additional College Official Email</label>
@@ -1440,9 +1495,20 @@ function PlacementDashboardRedesigned() {
                                 <input
                                     type="tel"
                                     value={editFormData.collegeOfficialPhone || ''}
-                                    onChange={(e) => setEditFormData({...editFormData, collegeOfficialPhone: e.target.value})}
+                                    onChange={(e) => {
+                                        setEditFormData({...editFormData, collegeOfficialPhone: e.target.value});
+                                        if (formErrors.collegeOfficialPhone) {
+                                            setFormErrors({...formErrors, collegeOfficialPhone: ''});
+                                        }
+                                    }}
                                     placeholder="Enter college official phone"
+                                    style={{borderColor: formErrors.collegeOfficialPhone ? '#dc3545' : ''}}
                                 />
+                                {formErrors.collegeOfficialPhone && (
+                                    <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>
+                                        {formErrors.collegeOfficialPhone}
+                                    </small>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label>College Logo</label>
