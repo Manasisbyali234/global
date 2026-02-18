@@ -1987,107 +1987,110 @@ function EmpCompanyProfilePage() {
                                 </div>
                             </div>
 
-                            <div className="col-md-12">
-                                <div className="form-group">
-                                    <label className="mb-3">
-                                        <FileText size={16} className="me-2" /> 
-                                        Authorization Letters (if registering on behalf of someone else)
-                                    </label>
-                                    
-                                    <div className="row">
-                                    {/* Dynamic Authorization Letter Sections */}
-                                    {authSections.map((section, index) => (
-                                        <div key={section.id} className="col-md-6 mb-3">
-                                            <div className="form-group">
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <label>
-                                                        <Upload size={16} className="me-2" /> 
-                                                        Authorization Letter #{index + 1}
-                                                    </label>
-                                                    {authSections.length > 1 && (
-                                                        <button 
-                                                            type="button" 
-                                                            className="btn btn-outline-danger btn-sm"
-                                                            onClick={() => removeAuthSection(section.id)}
-                                                        >
-                                                            <i className="fas fa-times"></i>
-                                                        </button>
-                                                    )}
+                            {/* Authorization Letters - Only show for company employers, not consultants */}
+                            {formData.employerCategory !== 'consultancy' && (
+                                <div className="col-md-12">
+                                    <div className="form-group">
+                                        <label className="mb-3">
+                                            <FileText size={16} className="me-2" /> 
+                                            Authorization Letters (if registering on behalf of someone else)
+                                        </label>
+                                        
+                                        <div className="row">
+                                        {/* Dynamic Authorization Letter Sections */}
+                                        {authSections.map((section, index) => (
+                                            <div key={section.id} className="col-md-6 mb-3">
+                                                <div className="form-group">
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <label>
+                                                            <Upload size={16} className="me-2" /> 
+                                                            Authorization Letter #{index + 1}
+                                                        </label>
+                                                        {authSections.length > 1 && (
+                                                            <button 
+                                                                type="button" 
+                                                                className="btn btn-outline-danger btn-sm"
+                                                                onClick={() => removeAuthSection(section.id)}
+                                                            >
+                                                                <i className="fas fa-times"></i>
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    
+                                                    <input
+                                                        className="form-control"
+                                                        type="file"
+                                                        accept=".jpg,.jpeg,.png,.pdf"
+                                                        onChange={(e) => handleAuthorizationLetterUpload(e, section.id)}
+                                                    />
                                                 </div>
-                                                
-                                                <input
-                                                    className="form-control"
-                                                    type="file"
-                                                    accept=".jpg,.jpeg,.png,.pdf"
-                                                    onChange={(e) => handleAuthorizationLetterUpload(e, section.id)}
-                                                />
                                             </div>
+                                        ))}
+                                        
                                         </div>
-                                    ))}
-                                    
-                                    </div>
-                                    
-                                    <div className="mt-2">
-                                        <button 
-                                            type="button" 
-                                            className="btn btn-sm"
-                                            style={{backgroundColor: '#ffb366', color: 'white', border: 'none'}}
-                                            onClick={addNewAuthSection}
-                                        >
-                                            <i className="fas fa-plus me-1"></i> 
-                                            Add New Authorization Letter
-                                        </button>
-                                    </div>
-                                    
-                                    {/* Display uploaded authorization letters */}
-                                    {formData.authorizationLetters && formData.authorizationLetters.length > 0 && (
-                                        <div className="uploaded-documents mt-4">
-                                            <h6 className="text-success">
-                                                <i className="fas fa-check-circle me-2"></i>
-                                                Uploaded Authorization Letters
-                                            </h6>
-                                            <div className="row">
-                                                {formData.authorizationLetters.map((doc, index) => (
-                                                    <div key={doc._id || index} className="col-md-6 mb-2">
-                                                        <div className="document-card p-3 border rounded shadow-sm" style={{backgroundColor: '#fff'}}>
-                                                            <div className="d-flex justify-content-between align-items-start">
-                                                                <div className="flex-grow-1">
-                                                                    <div className="d-flex align-items-center mb-1">
-                                                                        <i className="fas fa-file-alt text-primary me-2"></i>
-                                                                        <span className="fw-bold">{doc.fileName}</span>
-                                                                    </div>
-                                                                    {renderStatusBadge(doc.status)}
-                                                                    {doc.companyName && (
-                                                                        <div className="mb-1">
-                                                                            <small className="text-info">
-                                                                                <i className="fas fa-building me-1"></i>
-                                                                                {doc.companyName}
-                                                                            </small>
+                                        
+                                        <div className="mt-2">
+                                            <button 
+                                                type="button" 
+                                                className="btn btn-sm"
+                                                style={{backgroundColor: '#ffb366', color: 'white', border: 'none'}}
+                                                onClick={addNewAuthSection}
+                                            >
+                                                <i className="fas fa-plus me-1"></i> 
+                                                Add New Authorization Letter
+                                            </button>
+                                        </div>
+                                        
+                                        {/* Display uploaded authorization letters */}
+                                        {formData.authorizationLetters && formData.authorizationLetters.length > 0 && (
+                                            <div className="uploaded-documents mt-4">
+                                                <h6 className="text-success">
+                                                    <i className="fas fa-check-circle me-2"></i>
+                                                    Uploaded Authorization Letters
+                                                </h6>
+                                                <div className="row">
+                                                    {formData.authorizationLetters.map((doc, index) => (
+                                                        <div key={doc._id || index} className="col-md-6 mb-2">
+                                                            <div className="document-card p-3 border rounded shadow-sm" style={{backgroundColor: '#fff'}}>
+                                                                <div className="d-flex justify-content-between align-items-start">
+                                                                    <div className="flex-grow-1">
+                                                                        <div className="d-flex align-items-center mb-1">
+                                                                            <i className="fas fa-file-alt text-primary me-2"></i>
+                                                                            <span className="fw-bold">{doc.fileName}</span>
                                                                         </div>
-                                                                    )}
-                                                                    <small className="text-muted">
-                                                                        <i className="fas fa-calendar me-1"></i>
-                                                                        {formatDate(doc.uploadedAt)}
-                                                                    </small>
+                                                                        {renderStatusBadge(doc.status)}
+                                                                        {doc.companyName && (
+                                                                            <div className="mb-1">
+                                                                                <small className="text-info">
+                                                                                    <i className="fas fa-building me-1"></i>
+                                                                                    {doc.companyName}
+                                                                                </small>
+                                                                            </div>
+                                                                        )}
+                                                                        <small className="text-muted">
+                                                                            <i className="fas fa-calendar me-1"></i>
+                                                                            {formatDate(doc.uploadedAt)}
+                                                                        </small>
+                                                                    </div>
+                                                                    <button 
+                                                                        type="button" 
+                                                                        className="btn btn-outline-danger btn-sm"
+                                                                        onClick={() => handleDeleteAuthorizationLetter(doc._id)}
+                                                                        title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
+                                                                        disabled={doc.status === 'approved'}
+                                                                    >
+                                                                        <i className="fas fa-trash"></i>
+                                                                    </button>
                                                                 </div>
-                                                                <button 
-                                                                    type="button" 
-                                                                    className="btn btn-outline-danger btn-sm"
-                                                                    onClick={() => handleDeleteAuthorizationLetter(doc._id)}
-                                                                    title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
-                                                                    disabled={doc.status === 'approved'}
-                                                                >
-                                                                    <i className="fas fa-trash"></i>
-                                                                </button>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                ))}
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
 
                         </div>
