@@ -870,8 +870,8 @@ exports.createJob = async (req, res) => {
           const isSchedulableType = roundType === 'oneOnOnePanel' || roundType === 'group' || String(roundType).toLowerCase().includes('group');
           
           const hasData = isAssessment || isSchedulableType 
-            ? ((value.fromDate && value.fromDate !== '') || (value.toDate && value.toDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''))
-            : ((value.description && value.description.trim() !== '') || (value.customType && value.customType.trim() !== '') || (value.fromDate && value.fromDate !== '') || (value.toDate && value.toDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''));
+            ? ((value.fromDate && value.fromDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''))
+            : ((value.description && value.description.trim() !== '') || (value.customType && value.customType.trim() !== '') || (value.fromDate && value.fromDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''));
           
           if (!hasData) {
             console.log(`[createJob] Skipping empty round: ${key}`);
@@ -880,16 +880,14 @@ exports.createJob = async (req, res) => {
 
           // Normalize dates
           let fromDate = value.fromDate || value.date || null;
-          let toDate = value.toDate || value.fromDate || value.date || null;
           
           if (fromDate && typeof fromDate === 'string' && fromDate !== '') fromDate = new Date(fromDate);
-          if (toDate && typeof toDate === 'string' && toDate !== '') toDate = new Date(toDate);
 
           interviewRounds.push({
             key: key,
             name: value.customType || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
             fromdate: fromDate,
-            todate: toDate,
+            todate: fromDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
@@ -1216,8 +1214,8 @@ exports.updateJob = async (req, res) => {
           const isSchedulableType = roundType === 'oneOnOnePanel' || roundType === 'group' || String(roundType).toLowerCase().includes('group');
           
           const hasData = isAssessment || isSchedulableType 
-            ? ((value.fromDate && value.fromDate !== '') || (value.toDate && value.toDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''))
-            : ((value.description && value.description.trim() !== '') || (value.customType && value.customType.trim() !== '') || (value.fromDate && value.fromDate !== '') || (value.toDate && value.toDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''));
+            ? ((value.fromDate && value.fromDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''))
+            : ((value.description && value.description.trim() !== '') || (value.customType && value.customType.trim() !== '') || (value.fromDate && value.fromDate !== '') || (value.startTime && value.startTime !== '') || (value.endTime && value.endTime !== ''));
           
           if (!hasData) {
             console.log(`[updateJob] Skipping empty round: ${key}`);
@@ -1226,16 +1224,14 @@ exports.updateJob = async (req, res) => {
 
           // Normalize dates
           let fromDate = value.fromDate || value.date || null;
-          let toDate = value.toDate || value.fromDate || value.date || null;
           
           if (fromDate && typeof fromDate === 'string' && fromDate !== '') fromDate = new Date(fromDate);
-          if (toDate && typeof toDate === 'string' && toDate !== '') toDate = new Date(toDate);
 
           interviewRounds.push({
             key: key,
             name: value.customType || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
             fromdate: fromDate,
-            todate: toDate,
+            todate: fromDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',

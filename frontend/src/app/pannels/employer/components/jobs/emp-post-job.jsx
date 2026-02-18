@@ -273,13 +273,13 @@ export default function EmpPostJob({ onNext }) {
 		},
 		interviewRoundOrder: [],
 		interviewRoundDetails: {
-			oneOnOne: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			panel: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			group: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			technical: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			situational: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			others: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' },
-			assessment: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' }
+			oneOnOne: { description: '', fromDate: '', startTime: '', endTime: '' },
+			panel: { description: '', fromDate: '', startTime: '', endTime: '' },
+			group: { description: '', fromDate: '', startTime: '', endTime: '' },
+			technical: { description: '', fromDate: '', startTime: '', endTime: '' },
+			situational: { description: '', fromDate: '', startTime: '', endTime: '' },
+			others: { description: '', fromDate: '', startTime: '', endTime: '' },
+			assessment: { description: '', fromDate: '', startTime: '', endTime: '' }
 		},
 		offerLetterDate: "",
 		joiningDate: "",
@@ -544,7 +544,6 @@ export default function EmpPostJob({ onNext }) {
 									details[round.key] = {
 										description: round.description || '',
 										fromDate: round.fromdate ? new Date(round.fromdate).toISOString().split('T')[0] : '',
-										toDate: round.todate ? new Date(round.todate).toISOString().split('T')[0] : '',
 										startTime: round.startTime || '',
 										endTime: round.endTime || '',
 										customType: round.name
@@ -558,8 +557,7 @@ export default function EmpPostJob({ onNext }) {
 								if (oldDetails[key]) {
 									details[key] = {
 										...oldDetails[key],
-										fromDate: oldDetails[key].fromDate ? new Date(oldDetails[key].fromDate).toISOString().split('T')[0] : '',
-										toDate: oldDetails[key].toDate ? new Date(oldDetails[key].toDate).toISOString().split('T')[0] : ''
+										fromDate: oldDetails[key].fromDate ? new Date(oldDetails[key].fromDate).toISOString().split('T')[0] : ''
 									};
 								}
 							});
@@ -917,6 +915,38 @@ export default function EmpPostJob({ onNext }) {
 				if (!details?.endTime) {
 					errorMessages.push(`Please select End Time for ${roundName}`);
 				}
+				
+				// Validate sub-stages if they exist
+				if (details?.subStages && Array.isArray(details.subStages)) {
+					details.subStages.forEach((subStage, index) => {
+						if (!subStage.fromDate) {
+							errorMessages.push(`Please select Date for ${roundName} - Sub-Stage ${index + 1}`);
+						}
+						if (!subStage.startTime) {
+							errorMessages.push(`Please select Start Time for ${roundName} - Sub-Stage ${index + 1}`);
+						}
+						if (!subStage.endTime) {
+							errorMessages.push(`Please select End Time for ${roundName} - Sub-Stage ${index + 1}`);
+						}
+						
+						// Check for time conflicts with other sub-stages in the same round
+						if (subStage.fromDate && subStage.startTime && subStage.endTime) {
+							const currentStart = new Date(`${subStage.fromDate}T${subStage.startTime}`);
+							const currentEnd = new Date(`${subStage.fromDate}T${subStage.endTime}`);
+							
+							details.subStages.forEach((otherStage, otherIndex) => {
+								if (index !== otherIndex && otherStage.fromDate && otherStage.startTime && otherStage.endTime) {
+									const otherStart = new Date(`${otherStage.fromDate}T${otherStage.startTime}`);
+									const otherEnd = new Date(`${otherStage.fromDate}T${otherStage.endTime}`);
+									
+									if ((currentStart >= otherStart && currentStart < otherEnd) || (currentEnd > otherStart && currentEnd <= otherEnd) || (currentStart <= otherStart && currentEnd >= otherEnd)) {
+										errorMessages.push(`${roundName} - Sub-Stage ${index + 1} has time conflict with Sub-Stage ${otherIndex + 1}`);
+									}
+								}
+							});
+						}
+					});
+				}
 			}
 
 			// Special check for assessment selection if assessment rounds exist
@@ -1163,7 +1193,7 @@ export default function EmpPostJob({ onNext }) {
 				interviewRoundOrder: formData.interviewRoundOrder || [],
 				assignedAssessment: selectedAssessment || null,
 				assessmentStartDate: assessmentDetails?.fromDate || null,
-				assessmentEndDate: assessmentDetails?.toDate || assessmentDetails?.fromDate || null,
+				assessmentEndDate: assessmentDetails?.fromDate || null,
 				assessmentStartTime: assessmentDetails?.startTime || null,
 				assessmentEndTime: assessmentDetails?.endTime || null,
 				offerLetterDate: formData.offerLetterDate || null,
@@ -3020,7 +3050,7 @@ export default function EmpPostJob({ onNext }) {
 											},
 											interviewRoundDetails: {
 												...s.interviewRoundDetails,
-												[uniqueKey]: { description: '', fromDate: '', toDate: '', startTime: '', endTime: '' }
+												[uniqueKey]: { description: '', fromDate: '', startTime: '', endTime: '' }
 											}
 										};
 										
@@ -3944,7 +3974,6 @@ export default function EmpPostJob({ onNext }) {
 															const newSubStage = {
 																id: `${uniqueKey}_sub_${Date.now()}`,
 																fromDate: '',
-																toDate: '',
 																startTime: '',
 																endTime: ''
 															};
@@ -3981,13 +4010,50 @@ export default function EmpPostJob({ onNext }) {
 														}}
 														onMouseEnter={(e) => e.currentTarget.style.background = '#059669'}
 														onMouseLeave={(e) => e.currentTarget.style.background = '#10b981'}
-														onClick={() => {
+														onClick={async () => {
 															const details = formData.interviewRoundDetails[uniqueKey];
 															if (!details?.fromDate) {
 																showWarning(`Please set the Date for ${displayName}`);
 																return;
 															}
-															window.open(`https://schedule.taleglobal.net/scheduler/${uniqueKey}`, '_blank');
+															
+															// Prepare sub-stages data
+															const subStages = (details.subStages || []).map(sub => ({
+																fromDate: sub.fromDate,
+																startTime: sub.startTime,
+																endTime: sub.endTime
+															}));
+															
+															// Create InterviewRound in DB and get the ID
+															try {
+																const token = localStorage.getItem('employerToken');
+																const response = await fetch('http://localhost:5000/api/interview-rounds', {
+																	method: 'POST',
+																	headers: {
+																		'Content-Type': 'application/json',
+																		'Authorization': `Bearer ${token}`
+																	},
+																	body: JSON.stringify({
+																		jobId: id,
+																		name: displayName,
+																		roundType: roundType,
+																		fromdate: details.fromDate,
+																		startTime: details.startTime,
+																		endTime: details.endTime,
+																		description: details.description,
+																		subStages: subStages
+																	})
+																});
+																
+																if (response.ok) {
+																	const interviewRound = await response.json();
+																	window.open(`https://schedule.taleglobal.net/scheduler/${interviewRound._id}`, '_blank');
+																} else {
+																	showError('Failed to create interview round');
+																}
+															} catch (error) {
+																showError('Error creating interview round: ' + error.message);
+															}
 														}}
 													>
 														<i className="fa fa-calendar-check"></i>
@@ -4039,32 +4105,6 @@ export default function EmpPostJob({ onNext }) {
 													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.fromDate} />
 												</div>
 												<div>
-													<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4}}>
-														<label style={{...label, marginBottom: 0}}>
-															<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
-															To Date
-														</label>
-														{formData.interviewRoundDetails[uniqueKey]?.toDate && (
-															<div style={{fontSize: 10, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '2px 6px', borderRadius: 4, border: '1px solid #6b7280'}}>
-																<i className="fa fa-check-circle"></i>
-																Saved
-															</div>
-														)}
-													</div>
-													<input
-														style={{
-															...input, 
-															fontSize: 13,
-															borderColor: formData.interviewRoundDetails[uniqueKey]?.toDate ? '#10b981' : '#d1d5db',
-															background: formData.interviewRoundDetails[uniqueKey]?.toDate ? '#f0fdf4' : '#fff'
-														}}
-														type="date"
-														value={formData.interviewRoundDetails[uniqueKey]?.toDate || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'toDate', e.target.value)}
-													/>
-													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.toDate} />
-												</div>
-												<div>
 													<label style={{...label, marginBottom: 4}}>Start Time</label>
 													<input
 														style={{...input, fontSize: 13}}
@@ -4089,9 +4129,8 @@ export default function EmpPostJob({ onNext }) {
 														<h6 style={{margin: 0, fontSize: 14, color: '#3b82f6', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8}}><i className="fa fa-layer-group" style={{fontSize: 12}}></i>Sub-Stage {subIndex + 1}</h6>
 														<button style={{background: '#ef4444', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 600}} onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'} onMouseLeave={(e) => e.currentTarget.style.background = '#ef4444'} onClick={() => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.filter(s => s.id !== subStage.id); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}})); showSuccess('Sub-stage removed');}}><i className="fa fa-times"></i></button>
 													</div>
-													<div style={{display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr 1fr', gap: 12}}>
-														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>From Date</label><input style={{...input, fontSize: 12}} type="date" value={subStage.fromDate || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, fromDate: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
-														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>To Date</label><input style={{...input, fontSize: 12}} type="date" value={subStage.toDate || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, toDate: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
+													<div style={{display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: 12}}>
+														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>Date</label><input style={{...input, fontSize: 12}} type="date" value={subStage.fromDate || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, fromDate: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
 														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>Start Time</label><input style={{...input, fontSize: 12}} type="time" value={subStage.startTime || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, startTime: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
 														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>End Time</label><input style={{...input, fontSize: 12}} type="time" value={subStage.endTime || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, endTime: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
 													</div>
@@ -4184,9 +4223,6 @@ export default function EmpPostJob({ onNext }) {
 														<div style={{marginBottom: 4}}>
 															<i className="fa fa-calendar" style={{marginRight: 6}}></i>
 															{formatDate(details.fromDate)}
-															{details.toDate && details.toDate !== details.fromDate && (
-																<> to {formatDate(details.toDate)}</>
-															)}
 														</div>
 														{(details.startTime || details.endTime) && (
 															<div>
