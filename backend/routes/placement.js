@@ -259,11 +259,11 @@ router.post('/upload-id-card', auth(['placement']), placementController.uploadId
 router.put('/profile', auth(['placement']), [
   body('firstName').notEmpty().withMessage('First name is required'),
   body('lastName').notEmpty().withMessage('Last name is required'),
-  body('phone').isLength({ min: 10, max: 15 }).withMessage('Phone number must be between 10-15 digits'),
+  body('phone').isLength({ min: 10, max: 10 }).withMessage('Phone number must be exactly 10 digits'),
   body('collegeName').notEmpty().withMessage('College name is required'),
   body('collegeAddress').notEmpty().withMessage('College address is required'),
   body('collegeOfficialEmail').isEmail().withMessage('Valid college official email is required'),
-  body('collegeOfficialPhone').isLength({ min: 10, max: 15 }).withMessage('College official phone must be between 10-15 digits')
+  body('collegeOfficialPhone').isLength({ min: 10, max: 10 }).withMessage('Phone number must be exactly 10 digits')
 ], handleValidationErrors, placementController.updateProfile);
 
 // Get placement notifications
