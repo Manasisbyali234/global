@@ -3923,6 +3923,49 @@ export default function EmpPostJob({ onNext }) {
 												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
 													<button
 														style={{
+															background: '#3b82f6',
+															color: '#fff',
+															border: 'none',
+															padding: '6px 12px',
+															borderRadius: 6,
+															cursor: 'pointer',
+															fontSize: 12,
+															fontWeight: 600,
+															display: 'flex',
+															alignItems: 'center',
+															gap: 6,
+															transition: 'all 0.2s'
+														}}
+														onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
+														onMouseLeave={(e) => e.currentTarget.style.background = '#3b82f6'}
+														onClick={() => {
+															// Add a new sub-stage for this round
+															const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || [];
+															const newSubStage = {
+																id: `${uniqueKey}_sub_${Date.now()}`,
+																fromDate: '',
+																toDate: '',
+																startTime: '',
+																endTime: ''
+															};
+															setFormData(prev => ({
+																...prev,
+																interviewRoundDetails: {
+																	...prev.interviewRoundDetails,
+																	[uniqueKey]: {
+																		...prev.interviewRoundDetails[uniqueKey],
+																		subStages: [...subStages, newSubStage]
+																	}
+																}
+															}));
+															showSuccess('Sub-stage added successfully!');
+														}}
+													>
+														<i className="fa fa-plus"></i>
+														Add Stage
+													</button>
+													<button
+														style={{
 															background: '#10b981',
 															color: '#fff',
 															border: 'none',
@@ -4040,6 +4083,20 @@ export default function EmpPostJob({ onNext }) {
 													/>
 												</div>
 											</div>
+											{formData.interviewRoundDetails[uniqueKey]?.subStages?.map((subStage, subIndex) => (
+												<div key={subStage.id} style={{marginTop: 16, paddingTop: 16, borderTop: '2px dashed #e5e7eb'}}>
+													<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
+														<h6 style={{margin: 0, fontSize: 14, color: '#3b82f6', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8}}><i className="fa fa-layer-group" style={{fontSize: 12}}></i>Sub-Stage {subIndex + 1}</h6>
+														<button style={{background: '#ef4444', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 600}} onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'} onMouseLeave={(e) => e.currentTarget.style.background = '#ef4444'} onClick={() => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.filter(s => s.id !== subStage.id); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}})); showSuccess('Sub-stage removed');}}><i className="fa fa-times"></i></button>
+													</div>
+													<div style={{display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr 1fr', gap: 12}}>
+														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>From Date</label><input style={{...input, fontSize: 12}} type="date" value={subStage.fromDate || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, fromDate: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
+														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>To Date</label><input style={{...input, fontSize: 12}} type="date" value={subStage.toDate || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, toDate: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
+														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>Start Time</label><input style={{...input, fontSize: 12}} type="time" value={subStage.startTime || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, startTime: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
+														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>End Time</label><input style={{...input, fontSize: 12}} type="time" value={subStage.endTime || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, endTime: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
+													</div>
+												</div>
+											))}
 										</div>
 									);
 								})
