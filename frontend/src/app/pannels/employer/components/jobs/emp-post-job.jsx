@@ -327,6 +327,7 @@ export default function EmpPostJob({ onNext }) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [scheduledRounds, setScheduledRounds] = useState({});
+	const [interviewRoundIds, setInterviewRoundIds] = useState({}); // Store created InterviewRound IDs
 	const [locationSearchTerm, setLocationSearchTerm] = useState('');
 	const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 	const [showEducationDropdown, setShowEducationDropdown] = useState(false);
@@ -900,7 +901,7 @@ export default function EmpPostJob({ onNext }) {
 				};
 				const roundName = roundNames[roundType] || roundType;
 
-				if (roundType !== 'assessment' && !details?.description?.trim()) {
+				if (!details?.description?.trim()) {
 					errorMessages.push(`Please enter description for ${roundName}`);
 				}
 				if (!details?.fromDate) {
@@ -4025,11 +4026,19 @@ export default function EmpPostJob({ onNext }) {
 																endTime: sub.endTime
 															}));
 															
-															// Create InterviewRound in DB and get the ID
+															// Create or Update InterviewRound in DB
 															try {
 																const token = localStorage.getItem('employerToken');
-																const response = await fetch('http://localhost:5000/api/interview-rounds', {
-																	method: 'POST',
+																const existingRoundId = interviewRoundIds[uniqueKey];
+																
+																const url = existingRoundId 
+																	? `http://localhost:5000/api/interview-rounds/${existingRoundId}`
+																	: 'http://localhost:5000/api/interview-rounds';
+																
+																const method = existingRoundId ? 'PUT' : 'POST';
+																
+																const response = await fetch(url, {
+																	method: method,
 																	headers: {
 																		'Content-Type': 'application/json',
 																		'Authorization': `Bearer ${token}`
@@ -4048,6 +4057,7 @@ export default function EmpPostJob({ onNext }) {
 																
 																if (response.ok) {
 																	const interviewRound = await response.json();
+																	setInterviewRoundIds(prev => ({...prev, [uniqueKey]: interviewRound._id}));
 																	window.open(`https://schedule.taleglobal.net/scheduler/${interviewRound._id}`, '_blank');
 																} else {
 																	showError('Failed to create interview round');
@@ -4068,17 +4078,15 @@ export default function EmpPostJob({ onNext }) {
 												gap: isMobile ? 8 : 12, 
 												alignItems: 'start' 
 											}}>
-												{roundType !== 'oneOnOnePanel' && roundType !== 'group' && (
-													<div>
-														<label style={{...label, marginBottom: 4}}>Description</label>
-														<textarea
-															style={{...input, minHeight: '60px', fontSize: 13}}
-															placeholder={`Describe the ${roundNames[roundType] ? roundNames[roundType].toLowerCase() : 'round'}...`}
-															value={formData.interviewRoundDetails[uniqueKey]?.description || ''}
-															onChange={(e) => updateRoundDetails(uniqueKey, 'description', e.target.value)}
-														/>
-													</div>
-												)}
+												<div>
+													<label style={{...label, marginBottom: 4}}>Description</label>
+													<textarea
+														style={{...input, minHeight: '60px', fontSize: 13}}
+														placeholder={`Describe the ${roundNames[roundType] ? roundNames[roundType].toLowerCase() : 'round'}...`}
+														value={formData.interviewRoundDetails[uniqueKey]?.description || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'description', e.target.value)}
+													/>
+												</div>
 												<div>
 													<div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4}}>
 														<label style={{...label, marginBottom: 0}}>

@@ -265,8 +265,8 @@ function EmpJobReviewPage() {
                                                     <span className="badge bg-primary me-2">{index + 1}</span>
                                                     {round.name}
                                                 </h6>
-                                                {round.date ? (
-                                                    <p className="mb-1"><strong>Date:</strong> {formatDate(round.date)}</p>
+                                                {(round.fromdate || round.fromDate || round.date) ? (
+                                                    <p className="mb-1"><strong>Date:</strong> {formatDate(round.fromdate || round.fromDate || round.date)}</p>
                                                 ) : (
                                                     <p className="mb-1 text-muted"><strong>Date:</strong> Not scheduled yet</p>
                                                 )}
@@ -280,6 +280,27 @@ function EmpJobReviewPage() {
                                                 )}
                                                 {round.applicationLimit && (
                                                     <p className="mb-1"><strong>Application Limit:</strong> {round.applicationLimit}</p>
+                                                )}
+                                                
+                                                {/* Sub-stages */}
+                                                {round.subStages && round.subStages.length > 0 && (
+                                                    <div className="mt-3">
+                                                        <h6 className="mb-2 text-secondary">Sub-Stages:</h6>
+                                                        {round.subStages.map((subStage, subIndex) => (
+                                                            <div key={subIndex} className="ms-3 mb-2 p-2 bg-white rounded border">
+                                                                <p className="mb-1 small"><strong>Sub-Stage {subIndex + 1}</strong></p>
+                                                                {subStage.fromDate && (
+                                                                    <p className="mb-1 small"><strong>Date:</strong> {formatDate(subStage.fromDate)}</p>
+                                                                )}
+                                                                {subStage.startTime && (
+                                                                    <p className="mb-1 small"><strong>Start:</strong> {formatTimeToAMPM(subStage.startTime)}</p>
+                                                                )}
+                                                                {subStage.endTime && (
+                                                                    <p className="mb-0 small"><strong>End:</strong> {formatTimeToAMPM(subStage.endTime)}</p>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>

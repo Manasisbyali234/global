@@ -80,6 +80,7 @@ function EmpCandidateReviewPage() {
                             id: stage._id || `${stage.stageType}-${stage.stageOrder}`,
                             name: stage.stageName,
                             type: stage.stageType,
+                            description: stage.description || '',
                             status: stage.status,
                             isCompleted: stage.status === 'completed' || stage.status === 'passed',
                             result: stage.assessmentResult

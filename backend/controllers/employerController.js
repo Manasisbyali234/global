@@ -981,8 +981,9 @@ exports.createJob = async (req, res) => {
             todate: round.todate,
             startTime: round.startTime,
             endTime: round.endTime,
-            description: round.description,
-            applicationLimit: round.applicationLimit
+            description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
+            applicationLimit: round.applicationLimit,
+            subStages: round.subStages || round.subStagesArray || []
           });
           console.log('[createJob] Interview round created successfully:', {
             id: createdRound._id,
@@ -1235,7 +1236,8 @@ exports.updateJob = async (req, res) => {
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
-            applicationLimit: parseInt(req.body.applicationLimit) || 50
+            applicationLimit: parseInt(req.body.applicationLimit) || 50,
+            subStages: value.subStages || value.subStagesArray || []
           });
         }
       });
@@ -1259,8 +1261,13 @@ exports.updateJob = async (req, res) => {
               todate: round.todate,
               startTime: round.startTime,
               endTime: round.endTime,
-              description: round.description,
-              applicationLimit: round.applicationLimit
+              description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
+              applicationLimit: round.applicationLimit,
+              subStages: (round.subStages || []).map(sub => ({
+                fromDate: sub.fromDate || sub.fromdate || sub.date,
+                startTime: normalizeTimeFormat(sub.startTime),
+                endTime: normalizeTimeFormat(sub.endTime)
+              }))
             });
             console.log('[updateJob] Interview round created successfully:', {
               id: createdRound._id,
@@ -1450,12 +1457,15 @@ exports.getEmployerJobs = async (req, res) => {
           id: round._id.toString(),
           key: round.key,
           name: round.name,
+          roundType: round.roundType || 'others',
           fromdate: round.fromdate,
           todate: round.todate,
           startTime: round.startTime,
           endTime: round.endTime,
           description: round.description,
-          applicationLimit: round.applicationLimit
+          applicationLimit: round.applicationLimit,
+          subStages: round.subStages || [],
+          subStagesArray: round.subStages || []
         }));
       }
       
@@ -1535,12 +1545,15 @@ exports.getJob = async (req, res) => {
         id: round._id.toString(),
         key: round.key,
         name: round.name,
+        roundType: round.roundType || 'others',
         fromdate: round.fromdate,
         todate: round.todate,
         startTime: round.startTime,
         endTime: round.endTime,
         description: round.description,
-        applicationLimit: round.applicationLimit
+        applicationLimit: round.applicationLimit,
+        subStages: round.subStages || [],
+        subStagesArray: round.subStages || []
       }));
     }
     
@@ -2269,7 +2282,7 @@ exports.testInterviewDates = async (req, res) => {
 exports.scheduleInterviewRound = async (req, res) => {
   try {
     const { jobId } = req.params;
-    const { roundKey, roundType, description, fromDate, toDate, time, assessmentId } = req.body;
+    const { roundKey, roundType, description, fromDate, toDate, time, assessmentId, subStages, subStagesArray } = req.body;
     
     // Find the job
     const job = await Job.findOne({ _id: jobId, employerId: req.user._id });
@@ -2309,7 +2322,15 @@ exports.scheduleInterviewRound = async (req, res) => {
       interviewRound.fromdate = new Date(fromDate);
       interviewRound.todate = new Date(toDate);
       interviewRound.startTime = normalizeTimeFormat(time || '');
-      interviewRound.description = description || interviewRound.description;
+      interviewRound.description = (description && description.trim()) ? description : (roundType !== 'assessment' ? `Interview round for ${roundKey.replace(/_\d+$/, '') || 'candidate evaluation'}.` : interviewRound.description);
+      if (subStages || subStagesArray) {
+        const stagesToUse = subStages || subStagesArray || [];
+        interviewRound.subStages = stagesToUse.map(sub => ({
+          fromDate: sub.fromDate || sub.fromdate || sub.date,
+          startTime: normalizeTimeFormat(sub.startTime),
+          endTime: normalizeTimeFormat(sub.endTime)
+        }));
+      }
       await interviewRound.save();
     } else {
       interviewRound = await InterviewRound.create({
@@ -2319,8 +2340,13 @@ exports.scheduleInterviewRound = async (req, res) => {
         fromdate: new Date(fromDate),
         todate: new Date(toDate),
         startTime: normalizeTimeFormat(time || ''),
-        description: description || '',
-        applicationLimit: job.applicationLimit || 50
+        description: (description && description.trim()) ? description : (roundType !== 'assessment' ? `Interview round for ${roundKey.replace(/_\d+$/, '') || 'candidate evaluation'}.` : ''),
+        applicationLimit: job.applicationLimit || 50,
+        subStages: (subStages || subStagesArray || []).map(sub => ({
+          fromDate: sub.fromDate || sub.fromdate || sub.date,
+          startTime: normalizeTimeFormat(sub.startTime),
+          endTime: normalizeTimeFormat(sub.endTime)
+        }))
       });
     }
     
@@ -3047,6 +3073,9 @@ exports.createInterviewRounds = async (req, res) => {
     const { jobId } = req.params;
     const { rounds } = req.body;
     
+    console.log('[createInterviewRounds] Received for jobId:', jobId);
+    console.log('[createInterviewRounds] Incoming rounds data:', JSON.stringify(rounds, null, 2));
+    
     // Verify job belongs to employer
     const job = await Job.findOne({ _id: jobId, employerId: req.user._id });
     if (!job) {
@@ -3061,16 +3090,26 @@ exports.createInterviewRounds = async (req, res) => {
     // Create interview rounds
     const createdRounds = [];
     for (const round of rounds) {
+      console.log('[createInterviewRounds] Processing round:', round.name);
+      console.log('[createInterviewRounds] Round subStages:', JSON.stringify(round.subStages));
+      console.log('[createInterviewRounds] Round subStagesArray:', JSON.stringify(round.subStagesArray));
+      
       const interviewRound = await InterviewRound.create({
         jobId: jobId,
         key: round.key || `${round.name.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`,
         name: round.name,
+        roundType: round.roundType || 'others',
         fromdate: round.fromdate || round.fromDate || round.date,
         todate: round.todate || round.toDate || round.fromdate || round.fromDate || round.date,
         startTime: normalizeTimeFormat(round.startTime),
         endTime: normalizeTimeFormat(round.endTime),
-        description: round.description || '',
-        applicationLimit: round.applicationLimit || job.applicationLimit || 50
+        description: (round.description && round.description.trim()) ? round.description : (round.roundType !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
+        applicationLimit: round.applicationLimit || job.applicationLimit || 50,
+        subStages: (round.subStages || round.subStagesArray || []).map(sub => ({
+          fromDate: sub.fromDate || sub.fromdate || sub.date,
+          startTime: normalizeTimeFormat(sub.startTime),
+          endTime: normalizeTimeFormat(sub.endTime)
+        }))
       });
       createdRounds.push(interviewRound);
     }
@@ -3109,7 +3148,12 @@ exports.getInterviewRounds = async (req, res) => {
 exports.updateInterviewRound = async (req, res) => {
   try {
     const { roundId } = req.params;
-    const { name, date, startTime, endTime, applicationLimit } = req.body;
+    const { name, date, startTime, endTime, applicationLimit, roundType, subStages, subStagesArray } = req.body;
+    
+    console.log('[updateInterviewRound] Received for roundId:', roundId);
+    console.log('[updateInterviewRound] Incoming body:', JSON.stringify(req.body, null, 2));
+    console.log('[updateInterviewRound] subStages received:', JSON.stringify(subStages));
+    console.log('[updateInterviewRound] subStagesArray received:', JSON.stringify(subStagesArray));
     
     // Find the round and verify it belongs to employer's job
     const round = await InterviewRound.findById(roundId).populate('jobId');
@@ -3123,6 +3167,7 @@ exports.updateInterviewRound = async (req, res) => {
     
     // Update round
     if (name) round.name = name;
+    if (roundType) round.roundType = roundType;
     if (date) {
       round.fromdate = date;
       round.todate = date;
@@ -3130,6 +3175,14 @@ exports.updateInterviewRound = async (req, res) => {
     if (startTime) round.startTime = normalizeTimeFormat(startTime);
     if (endTime) round.endTime = normalizeTimeFormat(endTime);
     if (applicationLimit) round.applicationLimit = applicationLimit;
+    if (subStages || subStagesArray) {
+      const stagesToUse = subStages || subStagesArray || [];
+      round.subStages = stagesToUse.map(sub => ({
+        fromDate: sub.fromDate || sub.fromdate || sub.date,
+        startTime: normalizeTimeFormat(sub.startTime),
+        endTime: normalizeTimeFormat(sub.endTime)
+      }));
+    }
     if (req.body.description !== undefined) round.description = req.body.description;
     if (req.body.fromdate) round.fromdate = req.body.fromdate;
     if (req.body.todate) round.todate = req.body.todate;
