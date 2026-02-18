@@ -235,28 +235,119 @@ function CanStatusPage() {
 			
 			{/* Details Modal */}
 			{showAllDetails && selectedApplication && (
-				<div className="modal fade show" style={{display: 'block', backgroundColor: 'rgba(0,0,0,0.5)'}} onClick={() => setShowAllDetails(false)}>
-					<div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-						<div className="modal-content" style={{borderRadius: '12px', border: 'none'}}>
-							<div className="modal-header">
-								<h5 className="modal-title">Application Details</h5>
+				<div className="modal fade show" style={{display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100001, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%'}} onClick={(e) => { if (e.target === e.currentTarget) setShowAllDetails(false); }}>
+					<div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style={{maxHeight: 'calc(100vh - 40px)', margin: '20px auto'}} onClick={(e) => e.stopPropagation()}>
+						<div className="modal-content" style={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', maxHeight: '100%', display: 'flex', flexDirection: 'column'}}>
+							<div className="modal-header" style={{backgroundColor: '#f5f5f5', color: '#000', borderRadius: '12px 12px 0 0', flexShrink: 0}}>
+								<h5 className="modal-title">
+									<i className="fa fa-clipboard-list me-2"></i>
+									Interview Process Details
+								</h5>
 								<button type="button" className="btn-close" onClick={() => setShowAllDetails(false)}></button>
 							</div>
-							<div className="modal-body">
-								<div className="mb-3">
-									<strong>Company:</strong> {selectedApplication.employerId?.companyName || 'N/A'}
+							<div className="modal-body" style={{padding: '30px', overflowY: 'auto'}}>
+								{/* Job Information */}
+								<div className="mb-4 p-3" style={{backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #e0e0e0'}}>
+									<h6 className="mb-3" style={{color: '#232323', fontWeight: '600'}}>
+										<i className="fa fa-briefcase me-2" style={{color: '#ff6b35'}}></i>
+										Job Information
+									</h6>
+									<div className="row">
+										<div className="col-md-6 mb-2">
+											<strong>Company:</strong> {selectedApplication.employerId?.companyName || 'N/A'}
+										</div>
+										<div className="col-md-6 mb-2">
+											<strong>Position:</strong> {selectedApplication.jobId?.title || 'N/A'}
+										</div>
+										<div className="col-md-6 mb-2">
+											<strong>Location:</strong> {Array.isArray(selectedApplication.jobId?.location) ? selectedApplication.jobId.location.join(', ') : (selectedApplication.jobId?.location || 'N/A')}
+										</div>
+										<div className="col-md-6 mb-2">
+											<strong>Applied Date:</strong> {formatDate(selectedApplication.createdAt || selectedApplication.appliedAt)}
+										</div>
+										<div className="col-md-12 mb-2">
+											<strong>Status:</strong> 
+											<span className={
+												selectedApplication.status === 'pending' ? 'badge bg-warning ms-2' :
+												selectedApplication.status === 'shortlisted' ? 'badge bg-info ms-2' :
+												selectedApplication.status === 'interviewed' ? 'badge bg-primary ms-2' :
+												selectedApplication.status === 'hired' ? 'badge bg-success ms-2' :
+												selectedApplication.status === 'rejected' ? 'badge bg-danger ms-2' : 'badge bg-secondary ms-2'
+											}>
+												{selectedApplication.status?.charAt(0).toUpperCase() + selectedApplication.status?.slice(1) || 'Pending'}
+											</span>
+										</div>
+									</div>
 								</div>
+
+								{/* Interview Rounds with Sub-Stages */}
 								<div className="mb-3">
-									<strong>Position:</strong> {selectedApplication.jobId?.title || 'N/A'}
-								</div>
-								<div className="mb-3">
-									<strong>Status:</strong> {selectedApplication.status || 'N/A'}
-								</div>
-								<div className="mb-3">
-									<strong>Applied Date:</strong> {formatDate(selectedApplication.createdAt || selectedApplication.appliedAt)}
+									<h6 className="mb-3" style={{color: '#232323', fontWeight: '600'}}>
+										<i className="fa fa-tasks me-2" style={{color: '#ff6b35'}}></i>
+										Interview Rounds
+									</h6>
+									{selectedApplication.interviewProcess?.stages && selectedApplication.interviewProcess.stages.length > 0 ? (
+										selectedApplication.interviewProcess.stages.map((stage, stageIndex) => (
+											<div key={stageIndex} className="mb-3 p-3" style={{backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e0e0e0'}}>
+												<div className="d-flex justify-content-between align-items-center mb-2">
+													<h6 className="mb-0" style={{color: '#232323', fontWeight: '600'}}>
+														<i className="fa fa-circle me-2" style={{color: '#ff6b35', fontSize: '8px'}}></i>
+														{stage.stageName || stage.stageType}
+													</h6>
+													<span className="badge bg-info" style={{fontSize: '12px', padding: '4px 8px'}}>
+														{stage.status || 'Pending'}
+													</span>
+												</div>
+												
+												{/* Sub-Stages */}
+												{stage.subStages && stage.subStages.length > 0 && (
+													<div className="mt-3">
+														<small className="text-muted d-block mb-2">
+															<i className="fa fa-list me-1"></i>
+															<strong>Sub-Stages:</strong>
+														</small>
+														{stage.subStages.map((subStage, subIndex) => (
+															<div key={subIndex} className="mt-2 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
+																<div className="d-flex justify-content-between align-items-center mb-1">
+																	<strong>Scheduled Timing {subIndex + 1}</strong>
+																	{subStage.status && (
+																		<span className="badge bg-secondary" style={{fontSize: '10px'}}>
+																			{subStage.status}
+																		</span>
+																	)}
+																</div>
+																{subStage.fromDate && (
+																	<div><small><strong>Date:</strong> {formatDate(subStage.fromDate)}</small></div>
+																)}
+																{subStage.startTime && subStage.endTime && (
+																	<div><small><strong>Time:</strong> {subStage.startTime} - {subStage.endTime}</small></div>
+																)}
+																{subStage.description && (
+																	<div className="mt-1"><small>{subStage.description}</small></div>
+																)}
+															</div>
+														))}
+													</div>
+												)}
+												
+												{/* Stage Description */}
+												{stage.description && (
+													<div className="mt-2 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px'}}>
+														<small className="text-muted"><i className="fa fa-info-circle me-1"></i>Description:</small>
+														<div className="mt-1">{stage.description}</div>
+													</div>
+												)}
+											</div>
+										))
+									) : (
+										<div className="text-center py-3 text-muted">
+											<i className="fa fa-info-circle me-2"></i>
+											No interview rounds configured yet
+										</div>
+									)}
 								</div>
 							</div>
-							<div className="modal-footer">
+							<div className="modal-footer" style={{borderTop: '1px solid #e0e0e0', flexShrink: 0}}>
 								<button type="button" className="btn btn-secondary" onClick={() => setShowAllDetails(false)}>
 									Close
 								</button>

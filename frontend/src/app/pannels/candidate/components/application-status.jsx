@@ -1305,6 +1305,20 @@ function CanStatusPage() {
 																		</div>
 																	</div>
 																)}
+																{roundDetails.subStages && roundDetails.subStages.length > 0 && (
+																	<div className="mb-2">
+																		<small className="text-muted"><i className="fa fa-list me-1"></i>Sub-Stages:</small>
+																		{roundDetails.subStages.map((subStage, idx) => (
+																			<div key={idx} className="mt-2 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
+																				<div><strong>Scheduled Timing {idx + 1}:</strong></div>
+																				{subStage.fromDate && <div><strong>Date:</strong> {formatDate(subStage.fromDate)}</div>}
+																				{subStage.startTime && subStage.endTime && (
+																					<div><strong>Time:</strong> {formatTimeToAMPM(subStage.startTime)} - {formatTimeToAMPM(subStage.endTime)}</div>
+																				)}
+																			</div>
+																		))}
+																	</div>
+																)}
 																{!roundDetails.fromDate && !roundDetails.toDate && roundDetails.date && (
 																	<div className="mb-2">
 																		<small className="text-muted"><i className="fa fa-calendar me-1"></i>Date:</small>
