@@ -244,6 +244,7 @@ export default function EmpPostJob({ onNext }) {
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const isEditMode = Boolean(id);
+	const today = new Date().toISOString().split('T')[0];
 	const [formData, setFormData] = useState({
 		jobTitle: "",
 		jobLocation: [],
@@ -515,8 +516,8 @@ export default function EmpPostJob({ onNext }) {
 					jobTitle: job.title || '',
 					jobLocation: Array.isArray(job.location) ? job.location : (job.location ? [job.location] : []),
 					jobType: job.jobType || '',
-					netSalary: job.netSalary || '',
-					ctc: job.ctc ? (typeof job.ctc === 'object' ? `${job.ctc.min}-${job.ctc.max}` : job.ctc) : '',
+					netSalary: job.netSalary ? (typeof job.netSalary === 'object' ? (job.netSalary.min === job.netSalary.max ? `${job.netSalary.min}` : `${job.netSalary.min}-${job.netSalary.max}`) : job.netSalary) : '',
+					ctc: job.ctc ? (typeof job.ctc === 'object' ? (job.ctc.min === job.ctc.max ? `${job.ctc.min / 100000}` : `${job.ctc.min / 100000}-${job.ctc.max / 100000}`) : (job.ctc > 500 ? job.ctc / 100000 : job.ctc)) : '',
 					vacancies: job.vacancies || '',
 					applicationLimit: job.applicationLimit || '',
 					jobDescription: job.description || '',
@@ -803,7 +804,7 @@ export default function EmpPostJob({ onNext }) {
 
 		// Custom validation for CTC max value
 		if (formData.ctc) {
-			const ctcParts = formData.ctc.split('-');
+			const ctcParts = String(formData.ctc).split('-');
 			const maxCtcVal = parseFloat(ctcParts[ctcParts.length - 1]);
 			if (!isNaN(maxCtcVal) && maxCtcVal > 500) {
 				newErrors.ctc = ['CTC cannot exceed 500 lakhs'];
@@ -901,7 +902,7 @@ export default function EmpPostJob({ onNext }) {
 				};
 				const roundName = roundNames[roundType] || roundType;
 
-				if (!details?.description?.trim()) {
+				if (!details?.description?.trim() && roundType !== 'assessment') {
 					errorMessages.push(`Please enter description for ${roundName}`);
 				}
 				if (!details?.fromDate) {
@@ -2838,6 +2839,7 @@ export default function EmpPostJob({ onNext }) {
 						<input
 							style={input}
 							type="date"
+							min={today}
 							value={formData.offerLetterDate || ''}
 							onChange={(e) => update({ offerLetterDate: e.target.value })}
 							placeholder="DD/MM/YYYY"
@@ -2868,6 +2870,7 @@ export default function EmpPostJob({ onNext }) {
 										background: formData.lastDateOfApplication ? '#f0fdf4' : '#fff'
 									}}
 									type="date"
+									min={today}
 									value={formData.lastDateOfApplication || ''}
 									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
 									placeholder="DD/MM/YYYY"
@@ -3605,6 +3608,7 @@ export default function EmpPostJob({ onNext }) {
 															background: '#f8fafc'
 														}}
 														type="date"
+														min={today}
 														value={formData.interviewRoundDetails[assessmentKey]?.fromDate || ''}
 														onChange={(e) => updateRoundDetails(assessmentKey, 'fromDate', e.target.value)}
 													/>
@@ -4108,6 +4112,7 @@ export default function EmpPostJob({ onNext }) {
 															background: formData.interviewRoundDetails[uniqueKey]?.fromDate ? '#f0fdf4' : '#fff'
 														}}
 														type="date"
+														min={today}
 														value={formData.interviewRoundDetails[uniqueKey]?.fromDate || ''}
 														onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
 													/>
@@ -4139,7 +4144,7 @@ export default function EmpPostJob({ onNext }) {
 														<button style={{background: '#ef4444', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 600}} onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'} onMouseLeave={(e) => e.currentTarget.style.background = '#ef4444'} onClick={() => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.filter(s => s.id !== subStage.id); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}})); showSuccess('Sub-stage removed');}}><i className="fa fa-times"></i></button>
 													</div>
 													<div style={{display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: 12}}>
-														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>Date</label><input style={{...input, fontSize: 12}} type="date" value={subStage.fromDate || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, fromDate: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
+														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>Date</label><input style={{...input, fontSize: 12}} type="date" min={today} value={subStage.fromDate || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, fromDate: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
 														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>Start Time</label><input style={{...input, fontSize: 12}} type="time" value={subStage.startTime || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, startTime: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
 														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>End Time</label><input style={{...input, fontSize: 12}} type="time" value={subStage.endTime || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, endTime: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
 													</div>
