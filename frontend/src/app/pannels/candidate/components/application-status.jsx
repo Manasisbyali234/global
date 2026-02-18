@@ -1342,25 +1342,30 @@ function CanStatusPage() {
 												)}
 												
 												{/* Schedule Button - Below the card */}
-												{roundName !== 'Assessment' && (
-													<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
-														<a 
-															href={`https://schedule.taleglobal.net/scheduler/book/${selectedApplication.candidateId}/${roundStatus.interviewRoundId?._id || roundStatus.interviewRoundId}`}
-															target="_blank" 
-															rel="noopener noreferrer"
-															className="btn btn-primary"
-															style={{
-																fontSize: '14px',
-																padding: '8px 16px',
-																borderRadius: '6px',
-																whiteSpace: 'nowrap'
-															}}
-														>
-															<i className="fa fa-calendar me-2" style={{fontSize: '14px'}}></i>
-															Book Your Slot
-														</a>
-													</div>
-												)}
+												{roundName !== 'Assessment' && (() => {
+													const roundType = typeof round === 'object' ? round.roundType : round.toLowerCase();
+													const interviewRoundId = selectedApplication.interviewRoundIds?.[roundType] || uniqueKey;
+													
+													return (
+														<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
+															<a 
+																href={`https://schedule.taleglobal.net/scheduler/book/${selectedApplication.candidateId}/${interviewRoundId}`}
+																target="_blank" 
+																rel="noopener noreferrer"
+																className="btn btn-primary"
+																style={{
+																	fontSize: '14px',
+																	padding: '8px 16px',
+																	borderRadius: '6px',
+																	whiteSpace: 'nowrap'
+																}}
+															>
+																<i className="fa fa-calendar me-2" style={{fontSize: '14px'}}></i>
+																Book Your Slot
+															</a>
+														</div>
+													);
+												})()}
 											</div>
 										);
 									})}

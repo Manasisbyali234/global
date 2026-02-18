@@ -1268,10 +1268,24 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
 
     console.log(`Found ${applications.length} applications`);
 
+    const InterviewRound = require('../models/InterviewRound');
+
     const applicationsWithInterviewProcess = await Promise.all(
       applications.map(async (app) => {
         const interviewProcess = await InterviewProcess.findOne({ applicationId: app._id }).lean();
         const assessmentTimerInfo = getAssessmentTimerInfo(app.jobId);
+        
+        // Fetch InterviewRound IDs for this job
+        let interviewRoundIds = {};
+        if (app.jobId?._id) {
+          const interviewRounds = await InterviewRound.find({ jobId: app.jobId._id }).lean();
+          interviewRounds.forEach(round => {
+            const key = round.roundType || round.name;
+            if (key) {
+              interviewRoundIds[key] = round._id;
+            }
+          });
+        }
         
         // Log assessment ID for debugging
         if (app.jobId?.assessmentId) {
@@ -1301,7 +1315,8 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
           assessmentResult: app.assessmentResult || null,
           assessmentAttempt: assessmentAttempt,
           assessmentTimerInfo,
-          interviewProcess: interviewProcess
+          interviewProcess: interviewProcess,
+          interviewRoundIds: interviewRoundIds
         };
       })
     );
