@@ -1345,7 +1345,7 @@ function CanStatusPage() {
 												{roundName !== 'Assessment' && (
 													<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
 														<a 
-															href={`https://schedule.taleglobal.net/scheduler/book/${selectedApplication.candidateId}/${round.interviewRoundId?._id || round.interviewRoundId}`}
+															href={`https://schedule.taleglobal.net/scheduler/book/${selectedApplication.candidateId}/${roundStatus.interviewRoundId?._id || roundStatus.interviewRoundId}`}
 															target="_blank" 
 															rel="noopener noreferrer"
 															className="btn btn-primary"
