@@ -729,7 +729,7 @@ exports.createJob = async (req, res) => {
       });
     }
 
-    const jobData = { ...req.body, employerId: req.user._id, status: 'active' };
+    const jobData = { ...req.body, employerId: req.user._id, status: 'draft' };
     
     console.log('=== FULL REQUEST BODY DEBUG ===');
     console.log('Full req.body:', JSON.stringify(req.body, null, 2));

@@ -1206,7 +1206,8 @@ export default function EmpPostJob({ onNext }) {
 				workMode: formData.workMode,
 				companyLogo: formData.companyLogo,
 				companyName: formData.companyName,
-				companyDescription: formData.companyDescription
+				companyDescription: formData.companyDescription,
+				status: 'active' // Set to active when posting job on Step 2
 			};
 
 			// Add consultant-specific fields if employer is consultant
