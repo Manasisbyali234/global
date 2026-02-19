@@ -693,11 +693,11 @@ function CanStatusPage() {
 															<td className={`px-4 py-3 ${highlightCompanyPosition ? 'highlight-company-position' : ''}`} style={{transition: 'all 0.3s ease'}}>
 																<div className="d-flex align-items-center">
 																	<div className="me-3">
-																		<div className="rounded-circle d-flex align-items-center justify-content-center" style={{width: '45px', height: '45px', backgroundColor: '#fff3e0', border: '2px solid #ff6b35', overflow: 'hidden'}}>
+																		<div className="rounded-circle" style={{width: '45px', height: '45px', minWidth: '45px', minHeight: '45px', backgroundColor: '#fff3e0', border: '2px solid #ff6b35', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
 																			{app.jobId?.companyLogo ? (
 																				<img src={app.jobId.companyLogo} alt="Company Logo" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
 																			) : (
-																				<i className="fa fa-building" style={{color: '#ff6b35', fontSize: '18px'}}></i>
+																				<i className="fa fa-building" style={{color: '#ff6b35', fontSize: '18px', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0', padding: '0', lineHeight: '1'}}></i>
 																			)}
 																		</div>
 																	</div>
