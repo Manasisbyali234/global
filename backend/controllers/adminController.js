@@ -1303,29 +1303,37 @@ exports.getFileData = async (req, res) => {
       return res.json({ success: true, students: [] });
     }
     
-    const students = await Promise.all(jsonData.map(async row => {
-      const email = row.Email || row.email || row.EMAIL || '';
-      let candidateId = null;
-      
-      if (email) {
-        const candidate = await Candidate.findOne({ email: email.toLowerCase() });
-        if (candidate) {
-          candidateId = candidate._id;
-        }
-      }
+    const emails = jsonData.map(row => (row.Email || row.email || row.EMAIL || '').toLowerCase()).filter(email => email);
+    const existingCandidates = await Candidate.find({ email: { $in: emails } });
+    const candidateMap = new Map(existingCandidates.map(c => [c.email.toLowerCase(), c._id]));
+
+    // Get placement candidates for this file to identify who was actually processed/approved
+    const placementCandidates = await PlacementCandidate.find({ fileId: fileId });
+    const pcMap = new Map(placementCandidates.map(pc => [pc.studentEmail.toLowerCase(), pc]));
+
+    let students = jsonData.map((row, index) => {
+      const email = (row.Email || row.email || row.EMAIL || '').toLowerCase();
+      const candidateId = email ? candidateMap.get(email) : null;
+      const pcRecord = email ? pcMap.get(email) : null;
 
       return {
         id: row.ID || row.id || row.Id || '',
         name: row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['full name'] || row['FULL NAME'] || row['Student Name'] || row['student name'] || row['STUDENT NAME'] || '',
         collegeName: row['College Name'] || row['college name'] || row['COLLEGE NAME'] || row.College || row.college || row.COLLEGE || '',
-        email: email,
+        email: row.Email || row.email || row.EMAIL || '',
         phone: row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
         course: row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || 'Not Specified',
         password: row.Password || row.password || row.PASSWORD || '',
         credits: parseInt(row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || file.credits || 0),
-        candidateId: candidateId
+        candidateId: candidateId,
+        isProcessed: !!pcRecord
       };
-    }));
+    });
+
+    // If file is approved or processed, show only candidates who were actually processed for this file
+    if (file.status === 'approved' || file.status === 'processed') {
+      students = students.filter(student => student.isProcessed);
+    }
     
     res.json({ success: true, students });
   } catch (error) {
