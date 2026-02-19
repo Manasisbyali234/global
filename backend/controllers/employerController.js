@@ -1908,7 +1908,7 @@ exports.getApplicationDetails = async (req, res) => {
       _id: applicationId,
       employerId: req.user._id
     })
-    .populate('candidateId', 'name email phone')
+    .populate('candidateId', 'name email phone profilePicture profileImage')
     .populate('jobId', 'title location interviewRoundsCount interviewRoundTypes interviewRoundOrder interviewRoundDetails assessmentId');
 
     if (!application) {
@@ -1927,14 +1927,15 @@ exports.getApplicationDetails = async (req, res) => {
     }
 
     // Get candidate profile data with job preferences
-    const candidateProfile = await CandidateProfile.findOne({ candidateId: application.candidateId });
+    const candidateProfile = await CandidateProfile.findOne({ 
+      candidateId: application.candidateId._id || application.candidateId 
+    });
     
     // Get assessment attempt details if job has assessment
     let assessmentAttempt = null;
     if (application.jobId?.assessmentId) {
       assessmentAttempt = await AssessmentAttempt.findOne({
-        candidateId: application.candidateId._id,
-        assessmentId: application.jobId.assessmentId
+        applicationId: application._id
       }).populate('assessmentId', 'title timer totalQuestions passingPercentage');
     }
     
