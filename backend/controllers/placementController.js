@@ -1632,6 +1632,7 @@ exports.updateProfile = async (req, res) => {
       updateData.name = `${firstName.trim()} ${lastName.trim()}`;
     }
     
+    if (phone) updateData.phone = phone.trim();
     if (collegeName) updateData.collegeName = collegeName.trim();
     if (collegeAddress) updateData.collegeAddress = collegeAddress.trim();
     

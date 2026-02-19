@@ -434,7 +434,7 @@ function CanStatusPage() {
 		return [{ name: 'Technical', uniqueKey: 'technical', roundType: 'technical' }, { name: 'HR', uniqueKey: 'hr', roundType: 'hr' }, { name: 'Final', uniqueKey: 'final', roundType: 'final' }];
 	};
 
-	const getRoundStatus = (application, roundIndex, roundName) => {
+	const getRoundStatus = (application, roundIndex, roundName, isPopup = false) => {
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment' && application.assessmentStatus) {
 			const status = application.assessmentStatus?.toLowerCase?.() || application.assessmentStatus;
@@ -443,6 +443,11 @@ function CanStatusPage() {
 			const windowInfo = getAssessmentWindowInfo(application.jobId);
 			if (windowInfo.isAfterEnd && status !== 'completed' && status !== 'in_progress') {
 				return { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+			}
+			
+			// Check if assessment window hasn't started yet (only in popup)
+			if (isPopup && windowInfo.isBeforeStart && (status === 'available' || status === 'not_required' || status === 'pending')) {
+				return { text: 'Not Started', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
 			
 			// Map all possible assessment status values
@@ -1101,7 +1106,7 @@ function CanStatusPage() {
 											roundName = extractedType && stageNameMap[extractedType] ? stageNameMap[extractedType] : 'Interview Round';
 										}
 										
-										const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName);
+										const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName, true);
 										const roundType = (typeof round === 'object' ? round.roundType : round.toLowerCase()).replace(/[^a-z]/gi, '');
 										
 										// Find round details from job interviewRoundDetails
@@ -1197,7 +1202,19 @@ function CanStatusPage() {
 
 														{/* Assessment Action Buttons */}
 														<div className="mt-3 pt-2 border-top d-flex gap-2 flex-wrap">
-															{(selectedApplication.assessmentStatus === 'expired' || getAssessmentWindowInfo(selectedApplication.jobId).isAfterEnd) && !(selectedApplication.assessmentStatus === 'completed' || selectedApplication.assessmentStatus === 'expired' || selectedApplication.assessmentResult === 'pass' || selectedApplication.assessmentResult === 'fail') ? (
+															{(selectedApplication.assessmentStatus === 'completed' || selectedApplication.assessmentResult === 'pass' || selectedApplication.assessmentResult === 'fail') ? (
+																<button 
+																	className="btn btn-sm btn-success"
+																	onClick={() => {
+																		setShowAllDetails(false);
+																		navigate(canRoute(candidate.RESULT.replace(':applicationId', selectedApplication._id)));
+																	}}
+																	style={{borderRadius: '6px'}}
+																>
+																	<i className="fa fa-bar-chart me-1"></i>
+																	View Result
+																</button>
+															) : (selectedApplication.assessmentStatus === 'expired' || getAssessmentWindowInfo(selectedApplication.jobId).isAfterEnd) ? (
 																<div>
 																	<button 
 																		className="btn btn-sm btn-danger"
@@ -1212,18 +1229,6 @@ function CanStatusPage() {
 																		The assessment window has ended. You can no longer take this assessment.
 																	</div>
 																</div>
-															) : (selectedApplication.assessmentStatus === 'completed' || selectedApplication.assessmentStatus === 'expired' || selectedApplication.assessmentStatus === 'pass' || selectedApplication.assessmentResult === 'pass' || selectedApplication.assessmentResult === 'fail') ? (
-																<button 
-																	className="btn btn-sm btn-success"
-																	onClick={() => {
-																		setShowAllDetails(false);
-																		navigate(canRoute(candidate.RESULT.replace(':applicationId', selectedApplication._id)));
-																	}}
-																	style={{borderRadius: '6px'}}
-																>
-																	<i className="fa fa-bar-chart me-1"></i>
-																	View Result
-																</button>
 															) : selectedApplication.assessmentStatus === 'in_progress' ? (
 																<button 
 																	className="btn btn-sm btn-warning"
