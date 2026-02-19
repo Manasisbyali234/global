@@ -658,7 +658,7 @@ function JobDetail1Page() {
                                             <i className="feather-file-text" style={{marginRight: '10px', color: '#3498db'}}></i>
                                             Job Description
                                         </h4>
-                                        <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{__html: job.description || 'No job description available.'}}>
+                                        <div style={{lineHeight: '1.8', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{__html: job.description || 'No job description available.'}}>
                                         </div>
                                     </div>
 
@@ -668,7 +668,7 @@ function JobDetail1Page() {
                                                 <i className="feather-list" style={{marginRight: '10px', color: '#e74c3c'}}></i>
                                                 Roles and Responsibilities
                                             </h4>
-                                            <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{__html: job.rolesAndResponsibilities}}></div>
+                                            <div style={{lineHeight: '1.8', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{__html: job.rolesAndResponsibilities}}></div>
                                         </div>
                                     )}
 
@@ -747,7 +747,7 @@ function JobDetail1Page() {
                                             </h4>
                                             
                                             <div style={{marginBottom: '20px'}}>
-                                                <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
+                                                <div style={{lineHeight: '1.8', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
                                                     __html: (job.employerId?.employerType === 'consultant' && job.aboutCompany) 
                                                         ? job.aboutCompany 
                                                         : (job.employerProfile.description || 'No description available.')
@@ -757,7 +757,7 @@ function JobDetail1Page() {
                                             {(job.employerId?.employerType === 'consultant' ? job.companyDescription : job.employerProfile.whyJoinUs) && (
                                                 <div style={{marginBottom: '20px'}}>
                                                     <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>Why Join Us</h4>
-                                                    <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
+                                                    <div style={{lineHeight: '1.8', fontSize: '16px', color: '#495057'}} dangerouslySetInnerHTML={{
                                                         __html: (job.employerId?.employerType === 'consultant') 
                                                             ? job.companyDescription 
                                                             : job.employerProfile.whyJoinUs

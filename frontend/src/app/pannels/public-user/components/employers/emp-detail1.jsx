@@ -336,12 +336,12 @@ function EmployersDetail1Page() {
 													__html: (employer.employerId?.employerType === 'consultant' && employer.companyDescription) 
 														? employer.companyDescription 
 														: (employer.description || 'No company description available.')
-												}} />
+												}} style={{lineHeight: '1.8'}} />
 
 												<h4 className="twm-s-title">Why Join Us</h4>
 												<div dangerouslySetInnerHTML={{
 													__html: employer.whyJoinUs || 'No information available about why to join this company.'
-												}} />
+												}} style={{lineHeight: '1.8'}} />
 
 
 											</div>
