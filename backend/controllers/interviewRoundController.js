@@ -25,7 +25,8 @@ exports.createInterviewRound = async (req, res) => {
       subStages: (subStages || subStagesArray || []).map(sub => ({
         fromDate: sub.fromDate || sub.fromdate || sub.date,
         startTime: sub.startTime,
-        endTime: sub.endTime
+        endTime: sub.endTime,
+        breakTime: sub.breakTime || 0
       }))
     });
 

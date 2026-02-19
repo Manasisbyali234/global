@@ -887,11 +887,12 @@ exports.createJob = async (req, res) => {
             key: key,
             name: value.customType || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
             fromdate: fromDate,
-            todate: fromDate,
+            todate: value.toDate || value.todate || fromDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
-            applicationLimit: parseInt(jobData.applicationLimit) || 50
+            applicationLimit: parseInt(jobData.applicationLimit) || 50,
+            subStages: value.subStages || value.subStagesArray || []
           });
         }
       });
@@ -983,7 +984,12 @@ exports.createJob = async (req, res) => {
             endTime: round.endTime,
             description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
             applicationLimit: round.applicationLimit,
-            subStages: round.subStages || round.subStagesArray || []
+            subStages: (round.subStages || round.subStagesArray || []).map(sub => ({
+              fromDate: sub.fromDate || sub.fromdate || sub.date,
+              startTime: normalizeTimeFormat(sub.startTime),
+              endTime: normalizeTimeFormat(sub.endTime),
+              breakTime: sub.breakTime || 0
+            }))
           });
           console.log('[createJob] Interview round created successfully:', {
             id: createdRound._id,
@@ -1232,7 +1238,7 @@ exports.updateJob = async (req, res) => {
             key: key,
             name: value.customType || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
             fromdate: fromDate,
-            todate: fromDate,
+            todate: value.toDate || value.todate || fromDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
@@ -1266,7 +1272,8 @@ exports.updateJob = async (req, res) => {
               subStages: (round.subStages || []).map(sub => ({
                 fromDate: sub.fromDate || sub.fromdate || sub.date,
                 startTime: normalizeTimeFormat(sub.startTime),
-                endTime: normalizeTimeFormat(sub.endTime)
+                endTime: normalizeTimeFormat(sub.endTime),
+                breakTime: sub.breakTime || 0
               }))
             });
             console.log('[updateJob] Interview round created successfully:', {
@@ -3109,7 +3116,8 @@ exports.createInterviewRounds = async (req, res) => {
         subStages: (round.subStages || round.subStagesArray || []).map(sub => ({
           fromDate: sub.fromDate || sub.fromdate || sub.date,
           startTime: normalizeTimeFormat(sub.startTime),
-          endTime: normalizeTimeFormat(sub.endTime)
+          endTime: normalizeTimeFormat(sub.endTime),
+          breakTime: sub.breakTime || 0
         }))
       });
       createdRounds.push(interviewRound);
@@ -3181,7 +3189,8 @@ exports.updateInterviewRound = async (req, res) => {
       round.subStages = stagesToUse.map(sub => ({
         fromDate: sub.fromDate || sub.fromdate || sub.date,
         startTime: normalizeTimeFormat(sub.startTime),
-        endTime: normalizeTimeFormat(sub.endTime)
+        endTime: normalizeTimeFormat(sub.endTime),
+        breakTime: sub.breakTime || 0
       }));
     }
     if (req.body.description !== undefined) round.description = req.body.description;

@@ -735,6 +735,11 @@ export default function EmpPostJob({ onNext }) {
 				}
 			}
 
+			// Auto-set toDate to fromDate if fromDate is changed
+			if (field === 'fromDate' && value) {
+				additionalUpdates.toDate = value;
+			}
+
 			const updatedDetails = {
 				...s.interviewRoundDetails,
 				[roundType]: {
@@ -3919,69 +3924,280 @@ export default function EmpPostJob({ onNext }) {
 									const customType = roundType === 'others' ? formData.interviewRoundDetails[uniqueKey]?.customType : null;
 									const displayName = (roundType === 'others' && customType && customType.trim()) ? customType : (roundNames[roundType] || roundType);
 									const stageNumber = formData.interviewRoundOrder.indexOf(uniqueKey) + 1;
+									const details = formData.interviewRoundDetails[uniqueKey] || {};
+									const subStages = details.subStages || [];
+									
 									return (
-										<div key={uniqueKey} data-stage-key={uniqueKey} style={{ 
-											marginBottom: 16, 
-											padding: 16, 
-											border: '1px solid #e5e7eb', 
-											borderRadius: 12,
-											background: '#fff',
+										<div key={uniqueKey} style={{
+											background: '#f4f6f8',
+											borderRadius: '16px',
+											padding: '24px',
+											marginBottom: '24px',
 											boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-											transition: 'border 0.3s ease'
+											width: '100%'
 										}}>
-											<h5 style={{ 
-												margin: '0 0 12px 0', 
-												fontSize: 16, 
-												color: '#1f2937',
-												fontWeight: 600,
+											{/* Top Header Section */}
+											<div style={{
 												display: 'flex',
+												justifyContent: 'space-between',
 												alignItems: 'center',
-												gap: 8,
-												justifyContent: 'space-between'
+												marginBottom: '24px'
 											}}>
-												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-													<span style={{
-														fontSize: 12,
-														fontWeight: 700,
-														color: '#fff',
-														background: '#ff6b35',
+												<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+													<div style={{
+														background: 'linear-gradient(90deg, #ff8a00, #ff6a00)',
+														color: 'white',
+														width: '32px',
+														height: '32px',
 														borderRadius: '50%',
-														width: '24px',
-														height: '24px',
 														display: 'flex',
 														alignItems: 'center',
-														justifyContent: 'center'
+														justifyContent: 'center',
+														fontWeight: 'bold'
 													}}>
 														{stageNumber}
-													</span>
-													Stage {stageNumber}: {displayName}
+													</div>
+													<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+														Stage {stageNumber}: {displayName}
+													</h3>
 												</div>
-												<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+												<button
+													style={{
+														background: '#ff6b35',
+														color: 'white',
+														borderRadius: '8px',
+														padding: '10px 18px',
+														fontWeight: '600',
+														border: 'none',
+														cursor: 'pointer',
+														display: 'flex',
+														alignItems: 'center',
+														gap: '8px'
+													}}
+													onClick={async () => {
+														if (!details?.fromDate) {
+															showWarning(`Please set the Date Range for ${displayName}`);
+															return;
+														}
+														
+														// Prepare sub-stages data
+														const subStagesToSave = subStages.map(sub => ({
+															fromDate: sub.fromDate,
+															startTime: sub.startTime,
+															endTime: sub.endTime,
+															breakTime: sub.breakTime || 0
+														}));
+														
+														try {
+															const token = localStorage.getItem('employerToken');
+															const existingRoundId = interviewRoundIds[uniqueKey];
+															const url = existingRoundId 
+																? `http://localhost:5000/api/interview-rounds/${existingRoundId}`
+																: 'http://localhost:5000/api/interview-rounds';
+															const method = existingRoundId ? 'PUT' : 'POST';
+															
+															const response = await fetch(url, {
+																method: method,
+																headers: {
+																	'Content-Type': 'application/json',
+																	'Authorization': `Bearer ${token}`
+																},
+																body: JSON.stringify({
+																	jobId: id,
+																	name: displayName,
+																	roundType: roundType,
+																	fromdate: details.fromDate,
+																	todate: details.toDate || details.fromDate,
+																	startTime: details.startTime,
+																	endTime: details.endTime,
+																	description: details.description,
+																	subStages: subStagesToSave
+																})
+															});
+															
+															if (response.ok) {
+																const interviewRound = await response.json();
+																setInterviewRoundIds(prev => ({...prev, [uniqueKey]: interviewRound._id}));
+																showSuccess('Interview scheduled successfully!');
+																window.open(`https://schedule.taleglobal.net/scheduler/book/${id}/${interviewRound._id}`, '_blank');
+															} else {
+																showError('Failed to create interview round');
+															}
+														} catch (error) {
+															showError('Error creating interview round: ' + error.message);
+														}
+													}}
+												>
+													<i className="fa fa-calendar-check"></i>
+													Schedule Interview
+												</button>
+											</div>
+
+											{/* Description + Date Range + Lunch Break Section */}
+											<div style={{
+												display: 'flex',
+												gap: '20px',
+												alignItems: 'stretch',
+												flexWrap: 'nowrap'
+											}}>
+												{/* Description Card */}
+												<div style={{
+													padding: '16px',
+													borderRadius: '12px',
+													flex: '1',
+													minWidth: '200px',
+													display: 'flex',
+													flexDirection: 'column',
+													gap: '8px'
+												}}>
+													<label style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Description</label>
+													<textarea
+														style={{
+															border: '1px solid #e5e7eb',
+															fontSize: '14px',
+															resize: 'none',
+															width: '100%',
+															minHeight: '60px',
+															outline: 'none',
+															borderRadius: '8px',
+															padding: '8px'
+														}}
+														placeholder="Describe the interview round..."
+														value={details.description || ''}
+														onChange={(e) => updateRoundDetails(uniqueKey, 'description', e.target.value)}
+													/>
+												</div>
+
+												{/* Date Range Inputs */}
+												<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '1', minWidth: '200px' }}>
+													<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+														<label style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Date Range</label>
+														<span style={{
+															background: '#d1fae5',
+															color: '#059669',
+															padding: '2px 8px',
+															borderRadius: '12px',
+															fontSize: '11px',
+															fontWeight: '600'
+														}}>SYNCED</span>
+													</div>
+													<div style={{
+														border: '1px solid #e5e7eb',
+														borderRadius: '10px',
+														padding: '12px',
+														display: 'flex',
+														flexDirection: 'column',
+														gap: '8px'
+													}}>
+														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+															<span style={{ fontSize: '12px', color: '#9ca3af', width: '50px' }}>START:</span>
+															<input
+																type="date"
+																style={{
+																	border: 'none',
+																	fontSize: '14px',
+																	outline: 'none',
+																	width: '100%'
+																}}
+																min={today}
+																value={details.fromDate || ''}
+																onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
+															/>
+														</div>
+														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+															<span style={{ fontSize: '12px', color: '#9ca3af', width: '50px' }}>END:</span>
+															<input
+																type="date"
+																style={{
+																	border: 'none',
+																	fontSize: '14px',
+																	outline: 'none',
+																	width: '100%'
+																}}
+																min={details.fromDate || today}
+																value={details.toDate || ''}
+																onChange={(e) => updateRoundDetails(uniqueKey, 'toDate', e.target.value)}
+															/>
+														</div>
+													</div>
+												</div>
+
+												{/* Lunch Break Section */}
+												<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '1', minWidth: '200px' }}>
+													<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+														<i className="fa fa-utensils" style={{ color: '#ff8a00', fontSize: '14px' }}></i>
+														<label style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Lunch Break</label>
+													</div>
+													<div style={{
+														border: '1px solid #e5e7eb',
+														borderRadius: '10px',
+														padding: '12px',
+														display: 'flex',
+														flexDirection: 'column',
+														gap: '8px'
+													}}>
+														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+															<span style={{ fontSize: '12px', color: '#9ca3af', width: '50px' }}>START:</span>
+															<input
+																type="time"
+																style={{
+																	border: 'none',
+																	fontSize: '14px',
+																	outline: 'none',
+																	width: '100%'
+																}}
+																value={details.startTime || ''}
+																onChange={(e) => updateRoundDetails(uniqueKey, 'startTime', e.target.value)}
+															/>
+														</div>
+														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+															<span style={{ fontSize: '12px', color: '#9ca3af', width: '50px' }}>END:</span>
+															<input
+																type="time"
+																style={{
+																	border: 'none',
+																	fontSize: '14px',
+																	outline: 'none',
+																	width: '100%'
+																}}
+																value={details.endTime || ''}
+																onChange={(e) => updateRoundDetails(uniqueKey, 'endTime', e.target.value)}
+															/>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											{/* Divider Line */}
+											<div style={{ borderTop: '1px dashed #d1d5db', margin: '24px 0' }}></div>
+
+											{/* Populated Stages Section */}
+											<div>
+												<div style={{
+													display: 'flex',
+													justifyContent: 'space-between',
+													alignItems: 'center',
+													marginBottom: '16px'
+												}}>
+													<label style={{ fontSize: '12px', color: '#9ca3af', letterSpacing: '1px', fontWeight: 'bold' }}>POPULATED STAGES</label>
 													<button
 														style={{
-															background: '#3b82f6',
-															color: '#fff',
-															border: 'none',
-															padding: '6px 12px',
-															borderRadius: 6,
-															cursor: 'pointer',
-															fontSize: 12,
-															fontWeight: 600,
-															display: 'flex',
-															alignItems: 'center',
-															gap: 6,
-															transition: 'all 0.2s'
+															background: 'white',
+															border: '1px solid #ff8a00',
+															color: '#ff8a00',
+															borderRadius: '8px',
+															padding: '6px 14px',
+															fontSize: '12px',
+															fontWeight: '600',
+															cursor: 'pointer'
 														}}
-														onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
-														onMouseLeave={(e) => e.currentTarget.style.background = '#3b82f6'}
 														onClick={() => {
-															// Add a new sub-stage for this round
-															const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || [];
 															const newSubStage = {
 																id: `${uniqueKey}_sub_${Date.now()}`,
-																fromDate: '',
+																fromDate: details.fromDate || '',
 																startTime: '',
-																endTime: ''
+																endTime: '',
+																breakTime: 0
 															};
 															setFormData(prev => ({
 																...prev,
@@ -3993,163 +4209,154 @@ export default function EmpPostJob({ onNext }) {
 																	}
 																}
 															}));
-															showSuccess('Sub-stage added successfully!');
 														}}
 													>
-														<i className="fa fa-plus"></i>
-														Add Stage
-													</button>
-													<button
-														style={{
-															background: '#10b981',
-															color: '#fff',
-															border: 'none',
-															padding: '6px 12px',
-															borderRadius: 6,
-															cursor: 'pointer',
-															fontSize: 12,
-															fontWeight: 600,
-															display: 'flex',
-															alignItems: 'center',
-															gap: 6,
-															transition: 'all 0.2s'
-														}}
-														onMouseEnter={(e) => e.currentTarget.style.background = '#059669'}
-														onMouseLeave={(e) => e.currentTarget.style.background = '#10b981'}
-														onClick={async () => {
-															const details = formData.interviewRoundDetails[uniqueKey];
-															if (!details?.fromDate) {
-																showWarning(`Please set the Date for ${displayName}`);
-																return;
-															}
-															
-															// Prepare sub-stages data
-															const subStages = (details.subStages || []).map(sub => ({
-																fromDate: sub.fromDate,
-																startTime: sub.startTime,
-																endTime: sub.endTime
-															}));
-															
-															// Create or Update InterviewRound in DB
-															try {
-																const token = localStorage.getItem('employerToken');
-																const existingRoundId = interviewRoundIds[uniqueKey];
-																
-																const url = existingRoundId 
-																	? `http://localhost:5000/api/interview-rounds/${existingRoundId}`
-																	: 'http://localhost:5000/api/interview-rounds';
-																
-																const method = existingRoundId ? 'PUT' : 'POST';
-																
-																const response = await fetch(url, {
-																	method: method,
-																	headers: {
-																		'Content-Type': 'application/json',
-																		'Authorization': `Bearer ${token}`
-																	},
-																	body: JSON.stringify({
-																		jobId: id,
-																		name: displayName,
-																		roundType: roundType,
-																		fromdate: details.fromDate,
-																		startTime: details.startTime,
-																		endTime: details.endTime,
-																		description: details.description,
-																		subStages: subStages
-																	})
-																});
-																
-																if (response.ok) {
-																	const interviewRound = await response.json();
-																	setInterviewRoundIds(prev => ({...prev, [uniqueKey]: interviewRound._id}));
-																	window.open(`https://schedule.taleglobal.net/scheduler/book/${id}/${interviewRound._id}`, '_blank');
-																} else {
-																	showError('Failed to create interview round');
-																}
-															} catch (error) {
-																showError('Error creating interview round: ' + error.message);
-															}
-														}}
-													>
-														<i className="fa fa-calendar-check"></i>
-														Schedule Interview
+														+ Add Sub-Stage
 													</button>
 												</div>
-											</h5>
-											<div style={{ 
-												display: 'grid', 
-												gridTemplateColumns: isMobile ? '1fr' : '1.5fr 1fr 1fr 1fr 1fr', 
-												gap: isMobile ? 8 : 12, 
-												alignItems: 'start' 
-											}}>
-												<div>
-													<label style={{...label, marginBottom: 4}}>Description</label>
-													<textarea
-														style={{...input, minHeight: '60px', fontSize: 13}}
-														placeholder={`Describe the ${roundNames[roundType] ? roundNames[roundType].toLowerCase() : 'round'}...`}
-														value={formData.interviewRoundDetails[uniqueKey]?.description || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'description', e.target.value)}
-													/>
-												</div>
-												<div>
-													<div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4}}>
-														<label style={{...label, marginBottom: 0}}>
-															<i className="fa fa-calendar" style={{marginRight: 4, color: '#ff6b35'}}></i>
-															From Date
-														</label>
-														{formData.interviewRoundDetails[uniqueKey]?.fromDate && (
-															<div style={{fontSize: 10, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '2px 6px', borderRadius: 4, border: '1px solid #6b7280'}}>
-																<i className="fa fa-check-circle"></i>
-																Saved
+
+												{subStages.map((subStage, subIndex) => (
+													<div key={subStage.id} style={{
+														background: 'white',
+														padding: '16px',
+														borderRadius: '12px',
+														marginBottom: '16px'
+													}}>
+														<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+															<div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+																<span>📦 Sub-Stage {subIndex + 1}</span>
 															</div>
-														)}
+															<button
+																style={{
+																	border: '1px solid #f97316',
+																	color: '#f97316',
+																	borderRadius: '6px',
+																	padding: '4px',
+																	background: 'transparent',
+																	cursor: 'pointer',
+																	display: 'flex',
+																	alignItems: 'center',
+																	justifyContent: 'center'
+																}}
+																onClick={() => {
+																	const updatedSubStages = subStages.filter(s => s.id !== subStage.id);
+																	setFormData(prev => ({
+																		...prev,
+																		interviewRoundDetails: {
+																			...prev.interviewRoundDetails,
+																			[uniqueKey]: {
+																				...prev.interviewRoundDetails[uniqueKey],
+																				subStages: updatedSubStages
+																			}
+																		}
+																	}));
+																}}
+															>
+																<i className="fa fa-times"></i>
+															</button>
+														</div>
+														<div style={{
+															display: 'flex',
+															gap: '20px',
+															flexWrap: 'wrap'
+														}}>
+															<div style={{ flex: 1, minWidth: '150px' }}>
+																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+																	<i className="fa fa-calendar"></i> DATE
+																</label>
+																<div style={{ position: 'relative' }}>
+																	<input
+																		type="date"
+																		style={{
+																			background: '#f9fafb',
+																			border: '1px solid #e5e7eb',
+																			borderRadius: '10px',
+																			padding: '10px 14px',
+																			width: '100%',
+																			fontSize: '14px'
+																		}}
+																		min={today}
+																		value={subStage.fromDate || ''}
+																		onChange={(e) => {
+																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, fromDate: e.target.value } : s);
+																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages, toDate: e.target.value } } }));
+																		}}
+																	/>
+																</div>
+															</div>
+															<div style={{ flex: 1, minWidth: '150px' }}>
+																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+																	<i className="fa fa-clock"></i> START TIME
+																</label>
+																<div style={{ position: 'relative' }}>
+																	<input
+																		type="time"
+																		style={{
+																			background: '#f9fafb',
+																			border: '1px solid #e5e7eb',
+																			borderRadius: '10px',
+																			padding: '10px 14px',
+																			width: '100%',
+																			fontSize: '14px'
+																		}}
+																		value={subStage.startTime || ''}
+																		onChange={(e) => {
+																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, startTime: e.target.value } : s);
+																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages } } }));
+																		}}
+																	/>
+																</div>
+															</div>
+															<div style={{ flex: 1, minWidth: '150px' }}>
+																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+																	<i className="fa fa-clock"></i> END TIME
+																</label>
+																<div style={{ position: 'relative' }}>
+																	<input
+																		type="time"
+																		style={{
+																			background: '#f9fafb',
+																			border: '1px solid #e5e7eb',
+																			borderRadius: '10px',
+																			padding: '10px 14px',
+																			width: '100%',
+																			fontSize: '14px'
+																		}}
+																		value={subStage.endTime || ''}
+																		onChange={(e) => {
+																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, endTime: e.target.value } : s);
+																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages } } }));
+																		}}
+																	/>
+																</div>
+															</div>
+															<div style={{ flex: 1, minWidth: '150px' }}>
+																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+																	<i className="fa fa-coffee"></i> BREAK TIME (MINS)
+																</label>
+																<div style={{ position: 'relative' }}>
+																	<input
+																		type="number"
+																		style={{
+																			background: '#f9fafb',
+																			border: '1px solid #e5e7eb',
+																			borderRadius: '10px',
+																			padding: '10px 14px',
+																			width: '100%',
+																			fontSize: '14px'
+																		}}
+																		value={subStage.breakTime || 0}
+																		onChange={(e) => {
+																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, breakTime: parseInt(e.target.value) || 0 } : s);
+																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages } } }));
+																		}}
+																	/>
+																</div>
+															</div>
+														</div>
 													</div>
-													<input
-														style={{
-															...input, 
-															fontSize: 13,
-															borderColor: formData.interviewRoundDetails[uniqueKey]?.fromDate ? '#10b981' : '#d1d5db',
-															background: formData.interviewRoundDetails[uniqueKey]?.fromDate ? '#f0fdf4' : '#fff'
-														}}
-														type="date"
-														min={today}
-														value={formData.interviewRoundDetails[uniqueKey]?.fromDate || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
-													/>
-													<HolidayIndicator date={formData.interviewRoundDetails[uniqueKey]?.fromDate} />
-												</div>
-												<div>
-													<label style={{...label, marginBottom: 4}}>Start Time</label>
-													<input
-														style={{...input, fontSize: 13}}
-														type="time"
-														value={formData.interviewRoundDetails[uniqueKey]?.startTime || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'startTime', e.target.value)}
-													/>
-												</div>
-												<div>
-													<label style={{...label, marginBottom: 4}}>End Time</label>
-													<input
-														style={{...input, fontSize: 13}}
-														type="time"
-														value={formData.interviewRoundDetails[uniqueKey]?.endTime || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'endTime', e.target.value)}
-													/>
-												</div>
+												))}
 											</div>
-											{formData.interviewRoundDetails[uniqueKey]?.subStages?.map((subStage, subIndex) => (
-												<div key={subStage.id} style={{marginTop: 16, paddingTop: 16, borderTop: '2px dashed #e5e7eb'}}>
-													<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
-														<h6 style={{margin: 0, fontSize: 14, color: '#3b82f6', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8}}><i className="fa fa-layer-group" style={{fontSize: 12}}></i>Sub-Stage {subIndex + 1}</h6>
-														<button style={{background: '#ef4444', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 600}} onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'} onMouseLeave={(e) => e.currentTarget.style.background = '#ef4444'} onClick={() => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.filter(s => s.id !== subStage.id); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}})); showSuccess('Sub-stage removed');}}><i className="fa fa-times"></i></button>
-													</div>
-													<div style={{display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: 12}}>
-														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>Date</label><input style={{...input, fontSize: 12}} type="date" min={today} value={subStage.fromDate || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, fromDate: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
-														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>Start Time</label><input style={{...input, fontSize: 12}} type="time" value={subStage.startTime || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, startTime: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
-														<div><label style={{...label, marginBottom: 4, fontSize: 12}}>End Time</label><input style={{...input, fontSize: 12}} type="time" value={subStage.endTime || ''} onChange={(e) => {const subStages = formData.interviewRoundDetails[uniqueKey]?.subStages || []; const updatedSubStages = subStages.map(s => s.id === subStage.id ? {...s, endTime: e.target.value} : s); setFormData(prev => ({...prev, interviewRoundDetails: {...prev.interviewRoundDetails, [uniqueKey]: {...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages}}}));}} /></div>
-													</div>
-												</div>
-											))}
 										</div>
 									);
 								})

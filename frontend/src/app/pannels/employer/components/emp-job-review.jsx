@@ -254,57 +254,141 @@ function EmpJobReviewPage() {
                         <hr />
 
                         {/* Interview Round Details */}
-                        {jobDetails.interviewRounds && jobDetails.interviewRounds.length > 0 && (
+                        {((jobDetails.interviewRounds && jobDetails.interviewRounds.length > 0) || 
+                          (jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.length > 0)) && (
                             <div className="mt-4">
                                 <h5 className="mb-3">Interview Schedule Details</h5>
                                 <div className="row">
-                                    {jobDetails.interviewRounds.map((round, index) => (
-                                        <div key={round.id || index} className="col-lg-6 col-12 mb-3">
-                                            <div className="border rounded p-3 bg-light">
-                                                <h6 className="mb-2">
-                                                    <span className="badge bg-primary me-2">{index + 1}</span>
-                                                    {round.name}
-                                                </h6>
-                                                {(round.fromdate || round.fromDate || round.date) ? (
-                                                    <p className="mb-1"><strong>Date:</strong> {formatDate(round.fromdate || round.fromDate || round.date)}</p>
-                                                ) : (
-                                                    <p className="mb-1 text-muted"><strong>Date:</strong> Not scheduled yet</p>
-                                                )}
-                                                {round.startTime ? (
-                                                    <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(round.startTime)}</p>
-                                                ) : (
-                                                    <p className="mb-1 text-muted"><strong>Start Time:</strong> Not scheduled yet</p>
-                                                )}
-                                                {round.endTime && (
-                                                    <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(round.endTime)}</p>
-                                                )}
-                                                {round.applicationLimit && (
-                                                    <p className="mb-1"><strong>Application Limit:</strong> {round.applicationLimit}</p>
-                                                )}
-                                                
-                                                {/* Sub-stages */}
-                                                {round.subStages && round.subStages.length > 0 && (
-                                                    <div className="mt-3">
-                                                        <h6 className="mb-2 text-secondary">Sub-Stages:</h6>
-                                                        {round.subStages.map((subStage, subIndex) => (
-                                                            <div key={subIndex} className="ms-3 mb-2 p-2 bg-white rounded border">
-                                                                <p className="mb-1 small"><strong>Sub-Stage {subIndex + 1}</strong></p>
-                                                                {subStage.fromDate && (
-                                                                    <p className="mb-1 small"><strong>Date:</strong> {formatDate(subStage.fromDate)}</p>
-                                                                )}
-                                                                {subStage.startTime && (
-                                                                    <p className="mb-1 small"><strong>Start:</strong> {formatTimeToAMPM(subStage.startTime)}</p>
-                                                                )}
-                                                                {subStage.endTime && (
-                                                                    <p className="mb-0 small"><strong>End:</strong> {formatTimeToAMPM(subStage.endTime)}</p>
-                                                                )}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
+                                    {/* Display from interviewRounds array if available */}
+                                    {jobDetails.interviewRounds && jobDetails.interviewRounds.length > 0 ? (
+                                        jobDetails.interviewRounds.map((round, index) => (
+                                            <div key={round.id || index} className="col-lg-6 col-12 mb-3">
+                                                <div className="border rounded p-3 bg-light">
+                                                    <h6 className="mb-2">
+                                                        <span className="badge bg-primary me-2">{index + 1}</span>
+                                                        {round.name}
+                                                    </h6>
+                                                    {round.description && (
+                                                        <p className="mb-1"><strong>Description:</strong> {round.description}</p>
+                                                    )}
+                                                    {(round.fromdate || round.fromDate || round.date) ? (
+                                                        <p className="mb-1"><strong>Date:</strong> {formatDate(round.fromdate || round.fromDate || round.date)}</p>
+                                                    ) : (
+                                                        <p className="mb-1 text-muted"><strong>Date:</strong> Not scheduled yet</p>
+                                                    )}
+                                                    {(round.todate || round.toDate) && (
+                                                        <p className="mb-1"><strong>End Date:</strong> {formatDate(round.todate || round.toDate)}</p>
+                                                    )}
+                                                    {round.startTime ? (
+                                                        <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(round.startTime)}</p>
+                                                    ) : (
+                                                        <p className="mb-1 text-muted"><strong>Start Time:</strong> Not scheduled yet</p>
+                                                    )}
+                                                    {round.endTime && (
+                                                        <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(round.endTime)}</p>
+                                                    )}
+                                                    {round.applicationLimit && (
+                                                        <p className="mb-1"><strong>Application Limit:</strong> {round.applicationLimit}</p>
+                                                    )}
+                                                    
+                                                    {/* Sub-stages */}
+                                                    {round.subStages && round.subStages.length > 0 && (
+                                                        <div className="mt-3">
+                                                            <h6 className="mb-2 text-secondary">Sub-Stages:</h6>
+                                                            {round.subStages.map((subStage, subIndex) => (
+                                                                <div key={subIndex} className="ms-3 mb-2 p-2 bg-white rounded border">
+                                                                    <p className="mb-1 small"><strong>Sub-Stage {subIndex + 1}</strong></p>
+                                                                    {subStage.fromDate && (
+                                                                        <p className="mb-1 small"><strong>Date:</strong> {formatDate(subStage.fromDate)}</p>
+                                                                    )}
+                                                                    {subStage.startTime && (
+                                                                        <p className="mb-1 small"><strong>Start:</strong> {formatTimeToAMPM(subStage.startTime)}</p>
+                                                                    )}
+                                                                    {subStage.endTime && (
+                                                                        <p className="mb-1 small"><strong>End:</strong> {formatTimeToAMPM(subStage.endTime)}</p>
+                                                                    )}
+                                                                    {subStage.breakTime > 0 && (
+                                                                        <p className="mb-0 small"><strong>Break:</strong> {subStage.breakTime} mins</p>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))
+                                    ) : (
+                                        /* Display from interviewRoundDetails if interviewRounds not available */
+                                        jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.map((key, index) => {
+                                            const details = jobDetails.interviewRoundDetails?.[key];
+                                            const roundType = jobDetails.interviewRoundTypes?.[key];
+                                            const roundNames = {
+                                                technical: 'Technical',
+                                                managerial: 'Managerial Round',
+                                                hr: 'HR Round',
+                                                oneOnOnePanel: 'One-to-One / Panel',
+                                                group: 'Group',
+                                                situational: 'Situational / Behavioral',
+                                                assessment: 'Assessment',
+                                                others: 'Others'
+                                            };
+                                            const displayName = details?.customType || roundNames[roundType] || roundType;
+                                            
+                                            return (
+                                                <div key={key} className="col-lg-6 col-12 mb-3">
+                                                    <div className="border rounded p-3 bg-light">
+                                                        <h6 className="mb-2">
+                                                            <span className="badge bg-primary me-2">{index + 1}</span>
+                                                            {displayName}
+                                                        </h6>
+                                                        {details?.description && (
+                                                            <p className="mb-1"><strong>Description:</strong> {details.description}</p>
+                                                        )}
+                                                        {details?.fromDate ? (
+                                                            <p className="mb-1"><strong>Date:</strong> {formatDate(details.fromDate)}</p>
+                                                        ) : (
+                                                            <p className="mb-1 text-muted"><strong>Date:</strong> Not scheduled yet</p>
+                                                        )}
+                                                        {details?.toDate && (
+                                                            <p className="mb-1"><strong>End Date:</strong> {formatDate(details.toDate)}</p>
+                                                        )}
+                                                        {details?.startTime ? (
+                                                            <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(details.startTime)}</p>
+                                                        ) : (
+                                                            <p className="mb-1 text-muted"><strong>Start Time:</strong> Not scheduled yet</p>
+                                                        )}
+                                                        {details?.endTime && (
+                                                            <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(details.endTime)}</p>
+                                                        )}
+                                                        
+                                                        {/* Sub-stages */}
+                                                        {details?.subStages && details.subStages.length > 0 && (
+                                                            <div className="mt-3">
+                                                                <h6 className="mb-2 text-secondary">Sub-Stages:</h6>
+                                                                {details.subStages.map((subStage, subIndex) => (
+                                                                    <div key={subIndex} className="ms-3 mb-2 p-2 bg-white rounded border">
+                                                                        <p className="mb-1 small"><strong>Sub-Stage {subIndex + 1}</strong></p>
+                                                                        {subStage.fromDate && (
+                                                                            <p className="mb-1 small"><strong>Date:</strong> {formatDate(subStage.fromDate)}</p>
+                                                                        )}
+                                                                        {subStage.startTime && (
+                                                                            <p className="mb-1 small"><strong>Start:</strong> {formatTimeToAMPM(subStage.startTime)}</p>
+                                                                        )}
+                                                                        {subStage.endTime && (
+                                                                            <p className="mb-1 small"><strong>End:</strong> {formatTimeToAMPM(subStage.endTime)}</p>
+                                                                        )}
+                                                                        {subStage.breakTime > 0 && (
+                                                                            <p className="mb-0 small"><strong>Break:</strong> {subStage.breakTime} mins</p>
+                                                                        )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    )}
                                 </div>
                             </div>
                         )}
