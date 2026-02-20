@@ -181,82 +181,74 @@ function AdminDashboardPage() {
                 )}
 
                 {!isSubAdmin && (
-                <div className="twm-dash-b-blocks mb-5">
-                <div className="row">
-                    <div className="col-xl-3 col-lg-6 col-md-12 mb-4">
-                        <div className="panel panel-default dashboard-stats-card" onClick={() => navigate('/admin/registered-candidates')} style={{cursor: 'pointer'}}>
-                            <div className="panel-body wt-panel-body gradi-1">
-                                <div className="wt-card-wrap">
-                                    <div className="wt-card-icon">
-                                        <i className="fa fa-users" style={{color: '#fd7e14'}} />
+                <div className="twm-dash-b-blocks mb-5" style={{padding: '0 2rem'}}>
+                <div className="row" style={{marginBottom: '2rem'}}>
+                    <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
+                        <div className="panel panel-default" onClick={() => navigate('/admin/registered-candidates')} style={{cursor: 'pointer'}}>
+                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0'}}>
+                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem" }}>
+                                    <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
+                                        <i className="fa fa-users" />
                                     </div>
-
-                                    <div className="wt-card-right wt-total-active-listing counter">
-                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.completedProfileCandidates} duration={2} />}
-                                    </div>
-
-                                    <div className="wt-card-bottom">
-                                        <h4 className="m-b0">Total Candidates</h4>
+                                    <div>
+                                        <div className="counter fw-bold fs-4 text-orange">
+                                            {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.completedProfileCandidates} duration={2} />}
+                                        </div>
+                                        <h5 className="mb-0 mt-1">Total Candidates</h5>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="col-xl-3 col-lg-6 col-md-12 mb-4">
-                        <div className="panel panel-default dashboard-stats-card" onClick={() => navigate('/admin/admin-emp-approved')} style={{cursor: 'pointer'}}>
-                            <div className="panel-body wt-panel-body gradi-2">
-                                <div className="wt-card-wrap">
-                                    <div className="wt-card-icon">
-                                        <i className="fa fa-building" style={{color: '#fd7e14'}} />
+                    <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
+                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-emp-approved')} style={{cursor: 'pointer'}}>
+                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0'}}>
+                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem" }}>
+                                    <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
+                                        <i className="fa fa-building" />
                                     </div>
-
-                                    <div className="wt-card-right wt-total-listing-view counter">
-                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.approvedEmployers} duration={2} />}
-                                    </div>
-
-                                    <div className="wt-card-bottom">
-                                        <h4 className="m-b0">Approved Employers</h4>
+                                    <div>
+                                        <div className="counter fw-bold fs-4 text-orange">
+                                            {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.approvedEmployers} duration={2} />}
+                                        </div>
+                                        <h5 className="mb-0 mt-1">Approved Employers</h5>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="col-xl-3 col-lg-6 col-md-12 mb-4">
-                        <div className="panel panel-default dashboard-stats-card" onClick={() => navigate('/admin/admin-emp-approved')} style={{cursor: 'pointer'}}>
-                            <div className="panel-body wt-panel-body gradi-3">
-                                <div className="wt-card-wrap">
-                                    <div className="wt-card-icon">
-                                        <i className="fa fa-briefcase" style={{color: '#fd7e14'}} />
+                    <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
+                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-emp-approved')} style={{cursor: 'pointer'}}>
+                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0'}}>
+                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem" }}>
+                                    <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
+                                        <i className="fa fa-briefcase" />
                                     </div>
-                                    
-                                    <div className="wt-card-right wt-total-listing-review counter">
-                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.activeJobs} duration={2} />}
-                                    </div>
-
-                                    <div className="wt-card-bottom">
-                                        <h4 className="m-b0">Active Jobs</h4>
+                                    <div>
+                                        <div className="counter fw-bold fs-4 text-orange">
+                                            {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.activeJobs} duration={2} />}
+                                        </div>
+                                        <h5 className="mb-0 mt-1">Active Jobs</h5>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div className="col-xl-3 col-lg-6 col-md-12 mb-4">
-                        <div className="panel panel-default dashboard-stats-card" onClick={() => navigate('/admin/admin-placement-approved')} style={{cursor: 'pointer'}}>
-                            <div className="panel-body wt-panel-body gradi-4">
-                                <div className="wt-card-wrap">
-                                    <div className="wt-card-icon">
-                                        <i className="fa fa-graduation-cap" style={{color: '#fd7e14'}} />
+                    <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
+                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-placement-approved')} style={{cursor: 'pointer'}}>
+                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0'}}>
+                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem" }}>
+                                    <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
+                                        <i className="fa fa-graduation-cap" />
                                     </div>
-
-                                    <div className="wt-card-right wt-total-listing-bookmarked counter">
-                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.totalPlacements} duration={2} />}
-                                    </div>
-
-                                    <div className="wt-card-bottom">
-                                        <h4 className="m-b0">Number of Colleges</h4>
+                                    <div>
+                                        <div className="counter fw-bold fs-4 text-orange">
+                                            {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.totalPlacements} duration={2} />}
+                                        </div>
+                                        <h5 className="mb-0 mt-1">Number of Colleges</h5>
                                     </div>
                                 </div>
                             </div>

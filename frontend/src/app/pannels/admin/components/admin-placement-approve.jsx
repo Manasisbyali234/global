@@ -71,11 +71,10 @@ function AdminPlacementOfficersApproved() {
             
             <PlacementNavigationButtons />
 
-            <div className="panel panel-default site-bg-white">
+            <div className="panel panel-default site-bg-white" style={{marginTop: '20px'}}>
                 <div className="panel-heading wt-panel-heading p-a20">
-                    <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', gap: '15px', width: '100%'}}>
-                        <h4 className="panel-tittle m-a0" style={{marginRight: 'auto'}}>Approved Placement Officers ({filteredPlacements.length})</h4>
-                        <div className="search-section" style={{marginLeft: 'auto'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', width: '100%'}}>
+                        <div className="search-section">
                             <label className="search-label">
                                 <i className="fa fa-filter"></i> Search by Name or Email
                             </label>
@@ -85,6 +84,7 @@ function AdminPlacementOfficersApproved() {
                                 className="placement-search"
                             />
                         </div>
+                        <h4 className="panel-tittle m-a0">Approved Placement Officers ({filteredPlacements.length})</h4>
                     </div>
                 </div>
 

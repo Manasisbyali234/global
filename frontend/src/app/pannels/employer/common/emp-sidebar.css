@@ -265,7 +265,7 @@ nav#sidebar-admin-wraper.active,
 @media (max-width: 991px) {
     #sidebar-admin-wraper {
         transform: translateX(-100%) !important;
-        z-index: 10000 !important;
+        z-index: 1045 !important;
         box-shadow: 2px 0 20px rgba(0,0,0,0.3) !important;
         position: fixed !important;
         top: 0 !important;
@@ -323,7 +323,7 @@ nav#sidebar-admin-wraper.active,
         width: 100%;
         height: 100%;
         background: rgba(0,0,0,0.5);
-        z-index: 9998;
+        z-index: 1040;
         display: none;
         backdrop-filter: blur(2px);
     }
@@ -375,7 +375,7 @@ nav#sidebar-admin-wraper.active,
     position: fixed;
     top: 15px;
     left: 15px;
-    z-index: 10000;
+    z-index: 1050;
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
     color: white !important;
     border: none;
@@ -505,7 +505,7 @@ body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
   position: fixed !important;
   top: 15px !important;
   left: 15px !important;
-  z-index: 10001 !important;
+  z-index: 1050 !important;
 }
 
 @media (max-width: 767px) {
@@ -533,7 +533,7 @@ body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 9998;
+  z-index: 1040;
   display: none;
   backdrop-filter: blur(2px);
 }

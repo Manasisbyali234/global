@@ -531,6 +531,7 @@
     letter-spacing: 3px;
     text-transform: uppercase;
     margin-bottom: 8px;
+    text-align: left;
 }
 
 .officer-name {
@@ -1451,6 +1452,9 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    min-width: 32px;
+    min-height: 32px;
+    z-index: 10;
 }
 
 .dashboard-container .close-btn:hover {
@@ -1711,6 +1715,28 @@
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
     }
     
+    /* Mobile modal close button fix */
+    .dashboard-container .close-btn {
+        font-size: 24px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        padding: 8px !important;
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        border-radius: 50% !important;
+        color: #333 !important;
+        z-index: 1000 !important;
+        position: relative !important;
+    }
+    
+    .dashboard-container .close-btn:active {
+        background-color: rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .dashboard-container .modal-header {
+        padding: 16px 20px !important;
+        position: relative !important;
+    }
+    
     .notification-item {
         padding: 14px 12px !important;
         cursor: pointer;
@@ -1910,13 +1936,14 @@
     }
 
     .profile-center {
-        align-items: center;
+        align-items: flex-start;
         display: flex;
         flex-direction: column;
+        text-align: left;
     }
 
     .contact-info {
-        align-items: center;
+        align-items: flex-start;
     }
     
     .stats-grid {
@@ -2405,9 +2432,10 @@
 @media screen and (max-width: 768px) {
     /* Upload History Section Mobile Fixes */
     .upload-history-section {
-        width: calc(100% - 16px) !important;
-        margin: 16px 8px !important;
+        width: 100% !important;
+        margin: 16px 0 !important;
         padding: 12px !important;
+        overflow-x: hidden !important;
     }
     
     /* Mobile table fixes */
@@ -2415,68 +2443,21 @@
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch !important;
         width: 100% !important;
+        margin: 0 -12px !important;
+        padding: 0 12px !important;
     }
     
     .upload-history-table table {
-        min-width: 100% !important;
+        min-width: 900px !important;
         width: 100% !important;
-        table-layout: fixed !important;
         font-size: 11px !important;
     }
     
     .upload-history-table th,
     .upload-history-table td {
-        padding: 6px 4px !important;
-        font-size: 10px !important;
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-        hyphens: auto !important;
-        white-space: normal !important;
-        vertical-align: top !important;
-        line-height: 1.2 !important;
-    }
-    
-    /* Column width adjustments for mobile */
-    .upload-history-table th:nth-child(1),
-    .upload-history-table td:nth-child(1) {
-        width: 18% !important;
-        min-width: 60px !important;
-    }
-    
-    .upload-history-table th:nth-child(2),
-    .upload-history-table td:nth-child(2) {
-        width: 15% !important;
-        min-width: 50px !important;
-    }
-    
-    .upload-history-table th:nth-child(3),
-    .upload-history-table td:nth-child(3) {
-        width: 15% !important;
-        min-width: 50px !important;
-    }
-    
-    .upload-history-table th:nth-child(4),
-    .upload-history-table td:nth-child(4) {
-        width: 10% !important;
-        min-width: 40px !important;
-    }
-    
-    .upload-history-table th:nth-child(5),
-    .upload-history-table td:nth-child(5) {
-        width: 12% !important;
-        min-width: 45px !important;
-    }
-    
-    .upload-history-table th:nth-child(6),
-    .upload-history-table td:nth-child(6) {
-        width: 10% !important;
-        min-width: 40px !important;
-    }
-    
-    .upload-history-table th:nth-child(7),
-    .upload-history-table td:nth-child(7) {
-        width: 20% !important;
-        min-width: 70px !important;
+        padding: 8px 6px !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
     }
     
     /* Status badge mobile adjustments */

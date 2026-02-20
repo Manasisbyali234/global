@@ -259,11 +259,13 @@
     display: flex;
     flex-wrap: nowrap;
     width: 100%;
-    max-width: 100%;
+    max-width: 1400px;
     background: white;
     border-radius: 12px;
     padding: 6px;
     margin-bottom: 30px;
+    margin-left: 0;
+    margin-right: 50px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     gap: 5px;
     box-sizing: border-box;
@@ -840,7 +842,7 @@
 .document-actions {
     display: flex !important;
     gap: 10px !important;
-    justify-content: center !important;
+    justify-content: flex-start !important;
     flex-wrap: wrap !important;
 }
 

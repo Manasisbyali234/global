@@ -17,6 +17,7 @@
     box-shadow: 0 2px 8px rgba(253, 195, 96, 0.2);
     transition: all 0.3s ease;
     font-weight: 500;
+    text-align: left;
 }
 
 .employer-search .search-input:focus,

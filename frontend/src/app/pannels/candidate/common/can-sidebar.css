@@ -87,7 +87,7 @@
   position: fixed !important;
   top: 15px !important;
   left: 15px !important;
-  z-index: 10001 !important;
+  z-index: 1050 !important;
   background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
   color: white !important;
   border: none !important;
@@ -119,7 +119,7 @@
   width: 100% !important;
   height: 100% !important;
   background: rgba(0, 0, 0, 0.15) !important;
-  z-index: 9998 !important;
+  z-index: 1040 !important;
   backdrop-filter: blur(1px) !important;
   opacity: 0 !important;
   visibility: hidden !important;
@@ -151,7 +151,7 @@
     height: 100vh !important;
     transform: translateX(-100%) !important;
     transition: transform 0.3s ease !important;
-    z-index: 10000 !important;
+    z-index: 1045 !important;
     background: #ffffff !important;
     box-shadow: 0 4px 24px rgba(0,0,0,0.25) !important;
     margin-left: 0 !important;
