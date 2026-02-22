@@ -723,52 +723,6 @@ function JobDetail1Page() {
                                         </div>
                                     </div>
 
-                                    {/* Interview Schedule */}
-                                    {((job.interviewRounds && job.interviewRounds.length > 0) || 
-                                      (job.interviewRoundOrder && job.interviewRoundOrder.length > 0)) && (
-                                        <div style={{marginBottom: '20px'}}>
-                                            <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
-                                                <i className="feather-calendar" style={{marginRight: '10px', color: '#3498db'}}></i>
-                                                Interview Process
-                                            </h4>
-                                            <div style={{display: 'grid', gap: '15px'}}>
-                                                {job.interviewRounds && job.interviewRounds.length > 0 ? (
-                                                    job.interviewRounds.map((round, index) => (
-                                                        <div key={index} style={{padding: '15px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #e9ecef'}}>
-                                                            <h6 style={{margin: '0 0 10px 0', color: '#2c3e50', fontWeight: '600'}}>
-                                                                <span style={{background: '#3498db', color: '#fff', padding: '2px 8px', borderRadius: '4px', marginRight: '8px', fontSize: '12px'}}>{index + 1}</span>
-                                                                {round.name}
-                                                            </h6>
-                                                            {round.description && <p style={{margin: '5px 0', fontSize: '14px', color: '#6c757d'}}>{round.description}</p>}
-                                                            {round.fromdate && <p style={{margin: '5px 0', fontSize: '14px'}}><strong>Date:</strong> {new Date(round.fromdate).toLocaleDateString()}</p>}
-                                                            {round.startTime && <p style={{margin: '5px 0', fontSize: '14px'}}><strong>Time:</strong> {round.startTime} - {round.endTime || 'TBD'}</p>}
-                                                        </div>
-                                                    ))
-                                                ) : job.interviewRoundOrder && job.interviewRoundOrder.map((key, index) => {
-                                                    const details = job.interviewRoundDetails?.[key];
-                                                    const roundType = job.interviewRoundTypes?.[key];
-                                                    const roundNames = {
-                                                        technical: 'Technical', managerial: 'Managerial', hr: 'HR Round',
-                                                        oneOnOnePanel: 'One-to-One / Panel', group: 'Group',
-                                                        situational: 'Situational / Behavioral', assessment: 'Assessment', others: 'Others'
-                                                    };
-                                                    const displayName = details?.customType || roundNames[roundType] || roundType;
-                                                    return (
-                                                        <div key={key} style={{padding: '15px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #e9ecef'}}>
-                                                            <h6 style={{margin: '0 0 10px 0', color: '#2c3e50', fontWeight: '600'}}>
-                                                                <span style={{background: '#3498db', color: '#fff', padding: '2px 8px', borderRadius: '4px', marginRight: '8px', fontSize: '12px'}}>{index + 1}</span>
-                                                                {displayName}
-                                                            </h6>
-                                                            {details?.description && <p style={{margin: '5px 0', fontSize: '14px', color: '#6c757d'}}>{details.description}</p>}
-                                                            {details?.fromDate && <p style={{margin: '5px 0', fontSize: '14px'}}><strong>Date:</strong> {new Date(details.fromDate).toLocaleDateString()}</p>}
-                                                            {details?.startTime && <p style={{margin: '5px 0', fontSize: '14px'}}><strong>Time:</strong> {details.startTime} - {details.endTime || 'TBD'}</p>}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
-
                                     {job.responsibilities && job.responsibilities.length > 0 && (
                                         <div style={{marginBottom: '20px'}}>
                                             <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
