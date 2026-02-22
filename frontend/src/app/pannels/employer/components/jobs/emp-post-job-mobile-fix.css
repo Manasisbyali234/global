@@ -1,0 +1,106 @@
+@media (max-width: 767px) {
+  /* Fix Step Indicator */
+  [data-step-indicator] {
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 20px !important;
+  }
+
+  [data-step-indicator] > div {
+    gap: 6px !important;
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+  }
+
+  [data-step-indicator-connector] {
+    width: 20px !important;
+  }
+
+  /* Fix Interview Round Details Section */
+  [data-interview-round-details] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  [data-interview-round-details] > div {
+    min-width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  /* Fix Time Input Labels */
+  [data-time-label] {
+    width: auto !important;
+    min-width: auto !important;
+  }
+
+  /* Fix Date Range inputs */
+  [data-date-range-inputs] {
+    gap: 8px !important;
+  }
+
+  [data-date-range-inputs] input {
+    width: 100% !important;
+  }
+
+  /* Fix Dropdown positioning */
+  [data-dropdown-overlay] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+  }
+
+  [data-dropdown-menu] {
+    position: absolute !important;
+    max-width: 95vw !important;
+    max-height: 200px !important;
+  }
+
+  /* Fix modal width */
+  [data-confirm-modal] {
+    width: 95% !important;
+    margin: 0 auto !important;
+  }
+
+  /* Fix sub-stage layout */
+  [data-sub-stage-flex] {
+    flex-direction: column !important;
+  }
+
+  [data-sub-stage-flex] > div {
+    min-width: 100% !important;
+  }
+
+  /* Ensure proper scrolling on mobile */
+  * {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  input, textarea, select {
+    -webkit-user-select: text;
+    -webkit-touch-callout: default;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small device fixes */
+  [data-step-indicator] {
+    gap: 4px !important;
+  }
+
+  [data-step-indicator] > div {
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+  }
+
+  [data-step-indicator-connector] {
+    display: none !important;
+  }
+
+  [data-interview-round-details] {
+    gap: 8px !important;
+  }
+}

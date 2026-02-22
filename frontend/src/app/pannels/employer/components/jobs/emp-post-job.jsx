@@ -14,6 +14,7 @@ import RichTextEditor from "../../../../../components/RichTextEditor";
 import { formatTimeToAMPM } from "../../../../../utils/dateFormatter";
 
 import "../../../../../components/ErrorDisplay.css";
+import "./emp-post-job-mobile-fix.css";
 
 // Location options array
 const LOCATION_OPTIONS = [
@@ -1493,7 +1494,7 @@ export default function EmpPostJob({ onNext }) {
 					</span>
 					Job Information
 				</div>
-				<div style={{ width: 40, height: 2, background: '#e5e7eb' }}></div>
+				<div data-step-indicator-connector style={{ width: isMobile ? 20 : 40, height: 2, background: '#e5e7eb' }}></div>
 				<div 
 					onClick={() => currentStep === 1 && handleNext()}
 					style={{
@@ -4034,11 +4035,11 @@ export default function EmpPostJob({ onNext }) {
 											</div>
 
 											{/* Description + Date Range + Lunch Break Section */}
-											<div style={{
+											<div data-interview-round-details style={{
 												display: 'flex',
-												gap: '20px',
+												gap: isMobile ? '12px' : '20px',
 												alignItems: 'stretch',
-												flexWrap: 'nowrap'
+												flexWrap: isMobile ? 'wrap' : 'nowrap'
 											}}>
 												{/* Description Card */}
 												<div style={{
@@ -4090,7 +4091,7 @@ export default function EmpPostJob({ onNext }) {
 														gap: '8px'
 													}}>
 														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-															<span style={{ fontSize: '12px', color: '#9ca3af', width: '50px' }}>START:</span>
+															<span style={{ fontSize: '12px', color: '#9ca3af', width: isMobile ? 'auto' : '50px', minWidth: '45px' }}>START:</span>
 															<input
 																type="date"
 																style={{
@@ -4105,7 +4106,7 @@ export default function EmpPostJob({ onNext }) {
 															/>
 														</div>
 														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-															<span style={{ fontSize: '12px', color: '#9ca3af', width: '50px' }}>END:</span>
+															<span style={{ fontSize: '12px', color: '#9ca3af', width: isMobile ? 'auto' : '50px', minWidth: '45px' }}>END:</span>
 															<input
 																type="date"
 																style={{
@@ -4137,7 +4138,7 @@ export default function EmpPostJob({ onNext }) {
 														gap: '8px'
 													}}>
 														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-															<span style={{ fontSize: '12px', color: '#9ca3af', width: '50px' }}>START:</span>
+															<span style={{ fontSize: '12px', color: '#9ca3af', width: isMobile ? 'auto' : '50px', minWidth: '45px' }}>START:</span>
 															<input
 																type="time"
 																style={{
@@ -4151,7 +4152,7 @@ export default function EmpPostJob({ onNext }) {
 															/>
 														</div>
 														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-															<span style={{ fontSize: '12px', color: '#9ca3af', width: '50px' }}>END:</span>
+															<span style={{ fontSize: '12px', color: '#9ca3af', width: isMobile ? 'auto' : '50px', minWidth: '45px' }}>END:</span>
 															<input
 																type="time"
 																style={{
@@ -4255,12 +4256,12 @@ export default function EmpPostJob({ onNext }) {
 																<i className="fa fa-times"></i>
 															</button>
 														</div>
-														<div style={{
+														<div data-sub-stage-flex style={{
 															display: 'flex',
-															gap: '20px',
+															gap: isMobile ? '12px' : '20px',
 															flexWrap: 'wrap'
 														}}>
-															<div style={{ flex: 1, minWidth: '150px' }}>
+															<div style={{ flex: 1, minWidth: isMobile ? '100%' : '150px' }}>
 																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
 																	<i className="fa fa-calendar"></i> DATE
 																</label>
@@ -4284,7 +4285,7 @@ export default function EmpPostJob({ onNext }) {
 																	/>
 																</div>
 															</div>
-															<div style={{ flex: 1, minWidth: '150px' }}>
+															<div style={{ flex: 1, minWidth: isMobile ? '100%' : '150px' }}>
 																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
 																	<i className="fa fa-clock"></i> START TIME
 																</label>
@@ -4307,7 +4308,7 @@ export default function EmpPostJob({ onNext }) {
 																	/>
 																</div>
 															</div>
-															<div style={{ flex: 1, minWidth: '150px' }}>
+															<div style={{ flex: 1, minWidth: isMobile ? '100%' : '150px' }}>
 																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
 																	<i className="fa fa-clock"></i> END TIME
 																</label>
@@ -4330,7 +4331,7 @@ export default function EmpPostJob({ onNext }) {
 																	/>
 																</div>
 															</div>
-															<div style={{ flex: 1, minWidth: '150px' }}>
+															<div style={{ flex: 1, minWidth: isMobile ? '100%' : '150px' }}>
 																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
 																	<i className="fa fa-coffee"></i> BREAK TIME (MINS)
 																</label>
