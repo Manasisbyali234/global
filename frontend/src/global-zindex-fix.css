@@ -68,6 +68,7 @@ header,
 .captured-image-modal-overlay,
 .captured-images-modal-overlay,
 .image-modal-overlay,
+.image-modal,
 .confirmation-modal-overlay,
 .dialog-overlay {
   z-index: var(--z-index-modal-max) !important;

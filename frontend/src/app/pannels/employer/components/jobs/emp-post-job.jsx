@@ -254,7 +254,7 @@ export default function EmpPostJob({ onNext }) {
 		ctc: "",
 		vacancies: "",
 		applicationLimit: "",
-		jobDescription: "",
+		jobDescription: "We are looking for a talented professional to join our dynamic team. The ideal candidate will be responsible for key tasks and contribute to our company's growth and success.",
 		rolesAndResponsibilities: "",
 		education: [], // dropdown
 		backlogsAllowed: false,
@@ -336,6 +336,7 @@ export default function EmpPostJob({ onNext }) {
 	const [approvedCompanies, setApprovedCompanies] = useState([]);
 	const [applicationLimitWarning, setApplicationLimitWarning] = useState('');
 	const [ctcFormatError, setCtcFormatError] = useState('');
+	const [selectedDayCount, setSelectedDayCount] = useState({});
 	const [validationRules] = useState({
 		jobTitle: { required: true, minLength: 3 },
 		category: { required: true },
@@ -357,8 +358,8 @@ export default function EmpPostJob({ onNext }) {
 		interviewRoundsCount: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
 		offerLetterDate: { required: true },
 		lastDateOfApplication: { required: true },
-		jobDescription: { required: true },
-		rolesAndResponsibilities: { required: true }
+		jobDescription: { required: true, minLength: 50, patternMessage: 'Must be at least 50 characters' },
+		rolesAndResponsibilities: { required: true, minLength: 50, patternMessage: 'Must be at least 50 characters' }
 	});
 
 	/* Helpers */
@@ -769,6 +770,47 @@ export default function EmpPostJob({ onNext }) {
 		}
 	};
 
+	const generateSubStagesForDays = (uniqueKey, dayCount) => {
+		const details = formData.interviewRoundDetails[uniqueKey];
+		const startDate = details?.fromDate;
+
+		if (!startDate || !dayCount || dayCount <= 0) {
+			return;
+		}
+
+		const subStages = [];
+		let lastDate = startDate;
+		
+		for (let i = 0; i < dayCount; i++) {
+			const date = new Date(startDate);
+			date.setDate(date.getDate() + i);
+			const dateString = date.toISOString().split('T')[0];
+			lastDate = dateString;
+
+			subStages.push({
+				id: `${uniqueKey}_sub_${Date.now()}_${i}`,
+				fromDate: dateString,
+				startTime: '',
+				endTime: '',
+				breakTime: 0
+			});
+		}
+
+		setFormData(prev => ({
+			...prev,
+			interviewRoundDetails: {
+				...prev.interviewRoundDetails,
+				[uniqueKey]: {
+					...prev.interviewRoundDetails[uniqueKey],
+					subStages: subStages,
+					toDate: lastDate
+				}
+			}
+		}));
+
+		showSuccess(`Added ${dayCount} sub-stage(s) for ${dayCount} day(s)`);
+	};
+
 	const handleLogoUpload = (e) => {
 		const file = e.target.files[0];
 		if (file) {
@@ -778,6 +820,60 @@ export default function EmpPostJob({ onNext }) {
 				update({ companyLogo: e.target.result });
 			};
 			reader.readAsDataURL(file);
+		}
+	};
+
+	const fieldLabelMap = {
+		jobTitle: 'Job Title',
+		category: 'Job Category',
+		jobType: 'Job Type',
+		typeOfEmployment: 'Type of Employment',
+		workMode: 'Work Mode',
+		shift: 'Work Shift',
+		ctc: 'CTC',
+		netSalary: 'Net Salary',
+		jobLocation: 'Job Location',
+		vacancies: 'Number of Vacancies',
+		applicationLimit: 'Application Limit',
+		education: 'Education',
+		requiredSkills: 'Required Skills',
+		interviewRoundsCount: 'Number of Interview Rounds',
+		offerLetterDate: 'Offer Letter Date',
+		lastDateOfApplication: 'Last Date of Application',
+		jobDescription: 'Job Description',
+		rolesAndResponsibilities: 'Roles and Responsibilities',
+		minExperience: 'Minimum Experience',
+		maxExperience: 'Maximum Experience',
+		transportation: 'Transportation',
+		companyName: 'Company Name',
+		aboutCompany: 'About Company',
+		companyDescription: 'Company Description'
+	};
+
+	const scrollToField = (fieldName) => {
+		setTimeout(() => {
+			const fieldElement = document.querySelector(`[name="${fieldName}"]`) ||
+									document.querySelector(`[data-field="${fieldName}"]`) ||
+									document.getElementById(fieldName) ||
+									document.querySelector(`[aria-label*="${fieldLabelMap[fieldName] || fieldName}"]`);
+			
+			if (fieldElement) {
+				fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				fieldElement.focus?.();
+			} else {
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			}
+		}, 100);
+	};
+
+	const extractPlainText = (htmlContent) => {
+		if (!htmlContent) return '';
+		try {
+			const tempDiv = document.createElement('div');
+			tempDiv.innerHTML = htmlContent;
+			return tempDiv.textContent || tempDiv.innerText || '';
+		} catch (e) {
+			return htmlContent;
 		}
 	};
 
@@ -851,6 +947,22 @@ export default function EmpPostJob({ onNext }) {
 
 		if (!formData.transportation.oneWay && !formData.transportation.twoWay && !formData.transportation.noCab) {
 			newErrors.transportation = ['Please select a transportation option'];
+		}
+
+		// Explicit validation for Job Description (extract plain text from HTML)
+		const jobDescriptionPlainText = extractPlainText(formData.jobDescription).trim();
+		if (!jobDescriptionPlainText || jobDescriptionPlainText.length === 0) {
+			newErrors.jobDescription = ['Job Description is required'];
+		} else if (jobDescriptionPlainText.length < 50) {
+			newErrors.jobDescription = [`Job Description must be at least 50 characters (currently ${jobDescriptionPlainText.length})`];
+		}
+
+		// Explicit validation for Roles and Responsibilities (extract plain text from HTML)
+		const rolesPlainText = extractPlainText(formData.rolesAndResponsibilities).trim();
+		if (!rolesPlainText || rolesPlainText.length === 0) {
+			newErrors.rolesAndResponsibilities = ['Roles and Responsibilities is required'];
+		} else if (rolesPlainText.length < 50) {
+			newErrors.rolesAndResponsibilities = [`Roles and Responsibilities must be at least 50 characters (currently ${rolesPlainText.length})`];
 		}
 
 		// Logical date validation for Step 1
@@ -996,39 +1108,35 @@ export default function EmpPostJob({ onNext }) {
 		
 		// Check for CTC format error first
 		if (ctcFormatError) {
-			showError('Please fix the CTC format error before submitting.');
-			const ctcInput = document.querySelector('input[placeholder="e.g., 8 or 6-8"]');
-			if (ctcInput) {
-				ctcInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-				ctcInput.focus();
-			}
+			showError(`CTC: ${ctcFormatError}`);
+			scrollToField('ctc');
 			return;
 		}
 		
 		// Validate form first
 		const { valid: isValid, step1Errors, step2Errors } = validateJobForm();
 		if (!isValid) {
-			// Find first error field and scroll to it
-			const allErrors = { ...step1Errors, ...errors };
-			const errorFields = Object.keys(allErrors);
-			if (errorFields.length > 0) {
-				const firstErrorField = errorFields[0];
-				const fieldElement = document.querySelector(`[name="${firstErrorField}"]`) || 
-									 document.querySelector(`input, select, textarea`);
-				if (fieldElement) {
-					fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-					fieldElement.focus();
-				}
-			}
-			
-			// Show error message to user
+			// Show error message to user with field label
 			if (step1Errors && Object.keys(step1Errors).length > 0) {
 				const firstField = Object.keys(step1Errors)[0];
-				showError(`Please fix errors in Step 1: ${step1Errors[firstField][0]}`);
+				const errorMessage = step1Errors[firstField][0];
+				const fieldLabel = fieldLabelMap[firstField] || firstField;
+				
+				showError(`${fieldLabel}: ${errorMessage}`);
+				scrollToField(firstField);
 			} else if (step2Errors && step2Errors.length > 0) {
 				showError(step2Errors[0]);
+				// Try to scroll to interview rounds section
+				const interviewSection = document.querySelector('[data-step="2"]') || 
+										 document.querySelector('[id*="interview"]');
+				if (interviewSection) {
+					interviewSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				} else {
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				}
 			} else {
 				showError('Please fill all required fields correctly before submitting.');
+				window.scrollTo({ top: 0, behavior: 'smooth' });
 			}
 			return;
 		}
@@ -1052,14 +1160,14 @@ export default function EmpPostJob({ onNext }) {
 			const errorFields = Object.keys(step1Errors);
 			if (errorFields.length > 0) {
 				const firstErrorField = errorFields[0];
-				const fieldElement = document.querySelector(`[name="${firstErrorField}"]`) || 
-									 document.querySelector(`input, select, textarea`);
-				if (fieldElement) {
-					fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-					fieldElement.focus();
-				}
+				const errorMessage = step1Errors[firstErrorField]?.[0] || 'Invalid entry';
+				const fieldLabel = fieldLabelMap[firstErrorField] || firstErrorField;
+				
+				showError(`${fieldLabel}: ${errorMessage}`);
+				scrollToField(firstErrorField);
+			} else {
+				showError('Please fill all required fields correctly before moving to the next step.');
 			}
-			showError('Please fill all required fields correctly before moving to the next step.');
 			return;
 		}
 
@@ -2918,13 +3026,13 @@ export default function EmpPostJob({ onNext }) {
 							Job Description <span style={redAsterisk}>*</span>
 						</label>
 						<RichTextEditor
-							value={formData.jobDescription || 'We are looking for a talented professional to join our dynamic team. The ideal candidate will be responsible for key tasks and contribute to our company\'s growth and success.'}
+							value={formData.jobDescription}
 							onChange={(value) => update({ jobDescription: value })}
 							placeholder="Provide a detailed description of the job role, responsibilities, and expectations..."
 							className="form-control-editor"
 						/>
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>
-							Use the toolbar above to format your job description with bold, italic, lists, and alignment options
+							Must be at least 50 characters. Use the toolbar to format with bold, italic, lists, and alignment options
 						</small>
 					</div>
 
@@ -4120,6 +4228,36 @@ export default function EmpPostJob({ onNext }) {
 																onChange={(e) => updateRoundDetails(uniqueKey, 'toDate', e.target.value)}
 															/>
 														</div>
+														<div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '8px', marginTop: '4px' }}>
+															<label style={{ fontSize: '11px', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: '600' }}>GENERATE SUB-STAGES</label>
+															<select
+																value={selectedDayCount[uniqueKey] || ''}
+																onChange={(e) => {
+																	const dayCount = parseInt(e.target.value);
+																	setSelectedDayCount(prev => ({ ...prev, [uniqueKey]: dayCount }));
+																	if (dayCount > 0) {
+																		generateSubStagesForDays(uniqueKey, dayCount);
+																	}
+																}}
+																style={{
+																	padding: '8px 10px',
+																	borderRadius: '6px',
+																	border: '1px solid #e5e7eb',
+																	fontSize: '13px',
+																	fontWeight: '500',
+																	color: '#374151',
+																	background: '#fff',
+																	cursor: 'pointer',
+																	width: '100%',
+																	outline: 'none'
+																}}
+															>
+																<option value="">Select number of days...</option>
+																{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(day => (
+																	<option key={day} value={day}>{day} Day{day > 1 ? 's' : ''}</option>
+																))}
+															</select>
+														</div>
 													</div>
 												</div>
 
@@ -4181,39 +4319,6 @@ export default function EmpPostJob({ onNext }) {
 													marginBottom: '16px'
 												}}>
 													<label style={{ fontSize: '12px', color: '#9ca3af', letterSpacing: '1px', fontWeight: 'bold' }}>POPULATED STAGES</label>
-													<button
-														style={{
-															background: 'white',
-															border: '1px solid #ff8a00',
-															color: '#ff8a00',
-															borderRadius: '8px',
-															padding: '6px 14px',
-															fontSize: '12px',
-															fontWeight: '600',
-															cursor: 'pointer'
-														}}
-														onClick={() => {
-															const newSubStage = {
-																id: `${uniqueKey}_sub_${Date.now()}`,
-																fromDate: details.fromDate || '',
-																startTime: '',
-																endTime: '',
-																breakTime: 0
-															};
-															setFormData(prev => ({
-																...prev,
-																interviewRoundDetails: {
-																	...prev.interviewRoundDetails,
-																	[uniqueKey]: {
-																		...prev.interviewRoundDetails[uniqueKey],
-																		subStages: [...subStages, newSubStage]
-																	}
-																}
-															}));
-														}}
-													>
-														+ Add Sub-Stage
-													</button>
 												</div>
 
 												{subStages.map((subStage, subIndex) => (
@@ -4223,38 +4328,10 @@ export default function EmpPostJob({ onNext }) {
 														borderRadius: '12px',
 														marginBottom: '16px'
 													}}>
-														<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+														<div style={{ marginBottom: '12px' }}>
 															<div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
 																<span>📦 Sub-Stage {subIndex + 1}</span>
 															</div>
-															<button
-																style={{
-																	border: '1px solid #f97316',
-																	color: '#f97316',
-																	borderRadius: '6px',
-																	padding: '4px',
-																	background: 'transparent',
-																	cursor: 'pointer',
-																	display: 'flex',
-																	alignItems: 'center',
-																	justifyContent: 'center'
-																}}
-																onClick={() => {
-																	const updatedSubStages = subStages.filter(s => s.id !== subStage.id);
-																	setFormData(prev => ({
-																		...prev,
-																		interviewRoundDetails: {
-																			...prev.interviewRoundDetails,
-																			[uniqueKey]: {
-																				...prev.interviewRoundDetails[uniqueKey],
-																				subStages: updatedSubStages
-																			}
-																		}
-																	}));
-																}}
-															>
-																<i className="fa fa-times"></i>
-															</button>
 														</div>
 														<div data-sub-stage-flex style={{
 															display: 'flex',

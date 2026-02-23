@@ -59,7 +59,6 @@
 }
 
 /* Section containers */
-.admin-dashboard-container .panel,
 .admin-dashboard-container .wt-panel-body {
     background: #ffffff !important;
     border-radius: 12px !important;
@@ -118,160 +117,59 @@
 }
 
 /* Desktop styles */
-@media (min-width: 768px) {
+@media (min-width: 1200px) {
     .admin-dashboard-container .dashboard-card-2 {
-        padding: 2rem 1.5rem !important;
-    }
-
-    .admin-dashboard-container .dashboard-card-2 .d-flex {
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 0.75rem !important;
-        text-align: center !important;
-    }
-
-    .admin-dashboard-container .dashboard-card-2 .counter {
-        font-size: 2.5rem !important;
-        font-weight: 700 !important;
-        text-align: center !important;
-        display: block !important;
-        margin-bottom: 0.25rem !important;
-    }
-
-    .admin-dashboard-container .dashboard-card-2 h5 {
-        font-size: 1.1rem !important;
-        font-weight: 600 !important;
-        text-align: center !important;
-        display: block !important;
-        color: #111827 !important;
-    }
-
-    .admin-dashboard-container .wt-card-icon-2 {
-        font-size: 2.5rem !important;
-        opacity: 1;
-        flex-shrink: 0 !important;
-        margin: 0 !important;
-        position: relative !important;
-        z-index: 1 !important;
-    }
-
-    .admin-dashboard-container .dashboard-card-2 .d-flex > div {
-        width: 100% !important;
+        padding: 1.5rem !important;
     }
 }
 
-/* Tablet/Smaller Desktop */
-@media (max-width: 992px) {
-    .admin-dashboard-container .col-xl-3.col-lg-3.col-md-6 {
-        flex: 0 0 50% !important;
-        max-width: 50% !important;
-        margin-bottom: 1rem !important;
-    }
-    
-    .twm-dash-b-blocks {
-        padding: 0 1.5rem !important;
+/* Medium Desktop */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .admin-dashboard-container .dashboard-card-2 {
+        padding: 1.5rem !important;
     }
 }
+
+
 
 /* Tablet */
-@media (max-width: 767px) {
+@media (max-width: 991px) and (min-width: 768px) {
     .admin-dashboard-container {
-        background: #f7f7f7;
-        padding: 0.5rem !important;
+        padding: 1rem !important;
     }
     
     .admin-dashboard-header {
         padding: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .admin-dashboard-container .dashboard-card-2 {
+        padding: 1.25rem !important;
+    }
+
+    .chart-section {
+        padding: 1.5rem !important;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .admin-dashboard-container {
+        background: #f7f7f7;
+        padding: 0.75rem !important;
+    }
+    
+    .admin-dashboard-header {
+        padding: 1rem !important;
         margin-bottom: 1rem !important;
     }
     
     .admin-dashboard-header h2 {
         font-size: 1.25rem !important;
     }
-    
-    .twm-dash-b-blocks {
-        padding: 0.5rem !important;
-    }
-    
-    .admin-dashboard-container > div[style] {
-        padding: 0.5rem !important;
-    }
-
-    .admin-dashboard-container .row {
-        margin: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-    }
-
-    .admin-dashboard-container .row > div {
-        display: block !important;
-        width: 100% !important;
-        margin-bottom: 1rem !important;
-    }
-
-    .admin-dashboard-container .col-xl-3,
-    .admin-dashboard-container .col-lg-3,
-    .admin-dashboard-container .col-xl-8,
-    .admin-dashboard-container .col-lg-8,
-    .admin-dashboard-container .col-md-12 {
-        padding: 0 !important;
-        margin-bottom: 1rem !important;
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-        width: 100% !important;
-    }
 
     .admin-dashboard-container .dashboard-card-2 {
-        padding: 1.5rem 1rem !important;
-        text-align: center !important;
-    }
-
-    .admin-dashboard-container .dashboard-card-2 .d-flex {
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        text-align: center !important;
-    }
-
-    .admin-dashboard-container .dashboard-card-2 .d-flex > div {
-        text-align: center !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        flex: 1 !important;
-    }
-
-    .admin-dashboard-container .dashboard-card-2 .counter,
-    .admin-dashboard-container .dashboard-card-2 h5,
-    .admin-dashboard-container .dashboard-card-2 .fw-bold,
-    .admin-dashboard-container .dashboard-card-2 .text-orange {
-        text-align: center !important;
-        display: block !important;
-    }
-
-    .admin-dashboard-container .wt-card-icon-2 {
-        margin: 0 !important;
-        font-size: 2rem !important;
-    }
-
-    .admin-dashboard-container .counter {
-        font-size: 2rem !important;
-    }
-
-    .admin-dashboard-container h5 {
-        font-size: 0.9rem !important;
-    }
-
-    .admin-dashboard-container .col-xl-8 > div,
-    .admin-dashboard-container .col-xl-4 > div {
         padding: 1rem !important;
-    }
-
-    .admin-dashboard-container .wt-admin-right-page-header p {
-        font-size: 0.875rem !important;
     }
     
     .chart-section {
@@ -280,78 +178,12 @@
     }
     
     .chart-header {
-        margin-bottom: 1.25rem !important;
+        margin-bottom: 1rem !important;
         padding-bottom: 0.75rem !important;
     }
 }
 
-@media (max-width: 575px) {
-    .admin-dashboard-container .col-xl-3.col-lg-3.col-md-6 {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-        margin-bottom: 0.75rem !important;
-    }
-    
-    .admin-dashboard-container .dashboard-card-2 {
-        padding: 1.25rem 1rem !important;
-    }
-    
-    .admin-dashboard-container .dashboard-card-2 .d-flex {
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        text-align: center !important;
-    }
-    
-    .admin-dashboard-container .counter {
-        font-size: 2rem !important;
-        margin-bottom: 0.25rem !important;
-    }
-    
-    .admin-dashboard-container .wt-card-icon-2 {
-        font-size: 2.25rem !important;
-        margin: 0 !important;
-    }
-    
-    .admin-dashboard-container h5 {
-        font-size: 0.875rem !important;
-    }
-    
-    .twm-dash-b-blocks {
-        padding: 0 !important;
-    }
-    
-    .admin-dashboard-container .panel,
-    .admin-dashboard-container .wt-panel-body {
-        border-radius: 8px !important;
-    }
-}
 
-/* Animation for cards */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.admin-dashboard-container .panel {
-    animation: fadeInUp 0.6s ease-out;
-}
-
-.admin-dashboard-container .col-xl-4:nth-child(1) { animation-delay: 0.1s; }
-.admin-dashboard-container .col-xl-4:nth-child(2) { animation-delay: 0.2s; }
-.admin-dashboard-container .col-xl-4:nth-child(3) { animation-delay: 0.3s; }
-.admin-dashboard-container .col-xl-4:nth-child(4) { animation-delay: 0.4s; }
-.admin-dashboard-container .col-xl-3:nth-child(1) { animation-delay: 0.1s; }
-.admin-dashboard-container .col-xl-3:nth-child(2) { animation-delay: 0.2s; }
-.admin-dashboard-container .col-xl-3:nth-child(3) { animation-delay: 0.3s; }
-.admin-dashboard-container .col-xl-3:nth-child(4) { animation-delay: 0.4s; }
 
 /* Quick actions section */
 .quick-actions {

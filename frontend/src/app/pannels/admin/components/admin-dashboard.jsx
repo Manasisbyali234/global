@@ -181,81 +181,63 @@ function AdminDashboardPage() {
                 )}
 
                 {!isSubAdmin && (
-                <div className="twm-dash-b-blocks mb-5" style={{padding: '0 2rem'}}>
                 <div className="row" style={{marginBottom: '2rem'}}>
-                    <div className="col-xl-3 col-lg-3 col-md-6 mb-3" style={{display: 'flex'}}>
-                        <div className="panel panel-default" onClick={() => navigate('/admin/registered-candidates')} style={{cursor: 'pointer', width: '100%'}}>
-                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0', height: '100%'}}>
-                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem", height: '100%' }}>
-                                    <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
-                                        <i className="fa fa-users" />
+                    <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                        <div className="dashboard-card-2" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/registered-candidates')}>
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%'}}>
+                                <i className="fa fa-users text-orange" style={{fontSize: '2rem'}} />
+                                <div style={{textAlign: 'center'}}>
+                                    <div className="counter text-orange" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
+                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.completedProfileCandidates} duration={2} />}
                                     </div>
-                                    <div>
-                                        <div className="counter fw-bold fs-4 text-orange">
-                                            {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.completedProfileCandidates} duration={2} />}
-                                        </div>
-                                        <h5 className="mb-0 mt-1">Total Candidates</h5>
-                                    </div>
+                                    <h5 style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Total Candidates</h5>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="col-xl-3 col-lg-3 col-md-6 mb-3" style={{display: 'flex'}}>
-                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-emp-approved')} style={{cursor: 'pointer', width: '100%'}}>
-                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0', height: '100%'}}>
-                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem", height: '100%' }}>
-                                    <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
-                                        <i className="fa fa-building" />
+                    <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                        <div className="dashboard-card-2" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/admin-emp-approved')}>
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%'}}>
+                                <i className="fa fa-building text-orange" style={{fontSize: '2rem'}} />
+                                <div style={{textAlign: 'center'}}>
+                                    <div className="counter text-orange" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
+                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.approvedEmployers} duration={2} />}
                                     </div>
-                                    <div>
-                                        <div className="counter fw-bold fs-4 text-orange">
-                                            {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.approvedEmployers} duration={2} />}
-                                        </div>
-                                        <h5 className="mb-0 mt-1">Approved Employers</h5>
-                                    </div>
+                                    <h5 style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Approved Employers</h5>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="col-xl-3 col-lg-3 col-md-6 mb-3" style={{display: 'flex'}}>
-                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-emp-approved')} style={{cursor: 'pointer', width: '100%'}}>
-                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0', height: '100%'}}>
-                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem", height: '100%' }}>
-                                    <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
-                                        <i className="fa fa-briefcase" />
+                    <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                        <div className="dashboard-card-2" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/admin-emp-approved')}>
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%'}}>
+                                <i className="fa fa-briefcase text-orange" style={{fontSize: '2rem'}} />
+                                <div style={{textAlign: 'center'}}>
+                                    <div className="counter text-orange" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
+                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.activeJobs} duration={2} />}
                                     </div>
-                                    <div>
-                                        <div className="counter fw-bold fs-4 text-orange">
-                                            {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.activeJobs} duration={2} />}
-                                        </div>
-                                        <h5 className="mb-0 mt-1">Active Jobs</h5>
-                                    </div>
+                                    <h5 style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Active Jobs</h5>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div className="col-xl-3 col-lg-3 col-md-6 mb-3" style={{display: 'flex'}}>
-                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-placement-approved')} style={{cursor: 'pointer', width: '100%'}}>
-                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0', height: '100%'}}>
-                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem" }}>
-                                    <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
-                                        <i className="fa fa-graduation-cap" />
+                    <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                        <div className="dashboard-card-2" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/admin-placement-approved')}>
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%'}}>
+                                <i className="fa fa-graduation-cap text-orange" style={{fontSize: '2rem'}} />
+                                <div style={{textAlign: 'center'}}>
+                                    <div className="counter text-orange" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
+                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.totalPlacements} duration={2} />}
                                     </div>
-                                    <div>
-                                        <div className="counter fw-bold fs-4 text-orange">
-                                            {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.totalPlacements} duration={2} />}
-                                        </div>
-                                        <h5 className="mb-0 mt-1">Number of Colleges</h5>
-                                    </div>
+                                    <h5 style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Number of Colleges</h5>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
                 )}
 
                 <div className="row">
