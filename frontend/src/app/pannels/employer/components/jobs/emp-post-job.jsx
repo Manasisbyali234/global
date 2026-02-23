@@ -2527,8 +2527,20 @@ export default function EmpPostJob({ onNext }) {
 							placeholder="e.g., 100"
 							value={formData.applicationLimit}
 							onChange={(e) => {
-								const applicationLimit = parseInt(e.target.value) || 0;
+								const value = e.target.value;
+								const applicationLimit = parseInt(value) || 0;
 								const vacancies = parseInt(formData.vacancies) || 0;
+								
+								// Clear error if value is valid
+								if (value && applicationLimit > 0) {
+									if (errors.applicationLimit) {
+										setErrors(prev => {
+											const newErrors = { ...prev };
+											delete newErrors.applicationLimit;
+											return newErrors;
+										});
+									}
+								}
 								
 								// Set warning if application limit is less than vacancies
 								if (applicationLimit > 0 && vacancies > 0 && applicationLimit < vacancies) {
@@ -2537,7 +2549,7 @@ export default function EmpPostJob({ onNext }) {
 									setApplicationLimitWarning('');
 								}
 								
-								update({ applicationLimit: e.target.value });
+								update({ applicationLimit: value });
 							}}
 						/>
 						{errors.applicationLimit && (
@@ -2553,7 +2565,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Maximum number of applications to accept
+							Maximum number of applications can be set and changed if needed.
 						</small>
 					</div>
 

@@ -294,7 +294,7 @@ Line 722: showToast(`Upload timed out. Please try with smaller files or check yo
 Line 724: showToast(`Files too large. Please use smaller images (under 10MB each).`, 'error');
 Line 726: showToast(`Network error. Please check your connection and try again.`, 'error');
 Line 728: showToast(`Upload failed: ${fetchError.message}`, 'error');
-Line 737: showToast(`Successfully uploaded ${totalUploaded} images!`, 'success');
+Line 737: showToast(`Image Uploaded  ${totalUploaded} Successfully`, 'success');
 Line 742: showToast('Upload failed. Please try again.', 'error');
 Line 762: showToast('Image deleted', 'success');
 Line 765: showToast('Delete failed', 'error');

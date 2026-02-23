@@ -299,7 +299,7 @@ function SignupEmployer() {
                                 onBlur={handleBlur} 
                                 required
                             >
-                                <option value="">Select Employer Category*</option>
+                                <option value="">Select  Category</option>
                                 <option value="company">Company</option>
                                 <option value="consultancy">Consultancy</option>
                             </select>
