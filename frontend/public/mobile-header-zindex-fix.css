@@ -1,0 +1,77 @@
+/* ============================================================================
+ * MOBILE HEADER Z-INDEX FIX
+ * ============================================================================
+ * Fixes z-index stacking issues on mobile screens where toggle bar and bell
+ * notification dropdown were hidden behind other content.
+ * ============================================================================ */
+
+@media (max-width: 991px) {
+  /* Header wrapper fixed positioning */
+  #header-admin-wrap {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    z-index: 1025 !important;
+  }
+
+  /* Header relative positioning within wrapper */
+  #header-admin,
+  #header-admin.active {
+    z-index: 1 !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+
+  /* Notification dropdown - escape stacking context */
+  .notification-dropdown {
+    z-index: 9999 !important;
+    position: fixed !important;
+    top: 60px !important;
+    right: 10px !important;
+    width: calc(100vw - 20px) !important;
+    max-width: 360px !important;
+    left: 10px !important;
+    display: block !important;
+    visibility: visible !important;
+    overflow: visible !important;
+  }
+
+  /* Ensure sidebar doesn't overlap header dropdown */
+  #sidebar-admin-wraper,
+  .sidebar,
+  .admin-sidebar {
+    z-index: 1020 !important;
+  }
+
+  /* Mobile menu toggle button stays above */
+  .mobile-menu-toggle,
+  .hamburger-btn {
+    z-index: 1050 !important;
+    position: fixed !important;
+  }
+}
+
+@media (min-width: 992px) {
+  /* Desktop: notification dropdown as absolute */
+  .notification-dropdown {
+    position: absolute !important;
+    z-index: 9999 !important;
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 300px !important;
+    max-width: 300px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile phone specific - ensure dropdown stays above everything */
+  .notification-dropdown {
+    z-index: 9999 !important;
+  }
+
+  .mobile-menu-toggle {
+    z-index: 1050 !important;
+  }
+}

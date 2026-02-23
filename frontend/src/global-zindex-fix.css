@@ -23,14 +23,14 @@
   z-index: var(--z-index-fixed) !important;
 }
 
-/* Mobile sidebar should be higher but still below modals */
+/* Mobile sidebar should be above header */
 @media (max-width: 991px) {
   #sidebar-admin-wraper,
   .sidebar,
   .admin-sidebar,
   .emp-sidebar,
   .can-sidebar {
-    z-index: var(--z-index-modal-backdrop) !important;
+    z-index: 1045 !important;
   }
 }
 
@@ -48,7 +48,7 @@ header,
 .emp-header,
 .can-header,
 .admin-header {
-  z-index: var(--z-index-fixed) !important;
+  z-index: 100 !important;
 }
 
 /* Mobile menu toggle */

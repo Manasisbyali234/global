@@ -12015,6 +12015,21 @@ strong {
     width: calc(100% - 260px);
   }
 }
+@media (max-width: 1199px) {
+  #header-admin {
+    width: 100% !important;
+  }
+}
+@media (max-width: 991px) {
+  #header-admin {
+    width: 100% !important;
+  }
+}
+@media (max-width: 767px) {
+  #header-admin {
+    width: 100% !important;
+  }
+}
 #header-admin.active {
   width: 100%;
 }

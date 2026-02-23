@@ -1,4 +1,3 @@
-
 import Header1 from "../app/common/header/header1";
 import Header2 from "../app/common/header/header2";
 import Footer1 from "../app/common/footer/footer1";

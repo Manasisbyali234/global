@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const Employer = require('../models/Employer');
 const EmployerProfile = require('../models/EmployerProfile');
+const EmployerPublicProfile = require('../models/EmployerPublicProfile');
+const EmployerAdminProfile = require('../models/EmployerAdminProfile');
 const Job = require('../models/Job');
 const InterviewRound = require('../models/InterviewRound');
 const Application = require('../models/Application');
@@ -65,6 +67,20 @@ exports.registerEmployer = async (req, res) => {
       phone: phone,
       description: 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.',
       location: 'Bangalore, India'
+    });
+    
+    await EmployerPublicProfile.create({
+      employerId: employer._id,
+      companyName: companyName,
+      email: email,
+      phone: phone,
+      description: 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.',
+      location: 'Bangalore, India'
+    });
+    
+    await EmployerAdminProfile.create({
+      employerId: employer._id,
+      employerCategory: employerCategory || finalEmployerType
     });
     
     await Subscription.create({ employerId: employer._id });
@@ -142,12 +158,26 @@ exports.loginEmployer = async (req, res) => {
 // Profile Controllers
 exports.getProfile = async (req, res) => {
   try {
-    const profile = await EmployerProfile.findOne({ employerId: req.user._id })
-      .populate('employerId', 'name email phone companyName isApproved');
+    const [publicProfile, adminProfile, employer] = await Promise.all([
+      EmployerPublicProfile.findOne({ employerId: req.user._id }),
+      EmployerAdminProfile.findOne({ employerId: req.user._id }),
+      Employer.findById(req.user._id).select('isApproved profileSubmittedForReview employerType')
+    ]);
     
-    if (!profile) {
+    if (!publicProfile && !adminProfile) {
       return res.json({ success: true, profile: null });
     }
+
+    const profile = {
+      ...(publicProfile?.toObject() || {}),
+      ...(adminProfile?.toObject() || {}),
+      employerId: employer ? {
+        _id: employer._id,
+        isApproved: employer.isApproved,
+        profileSubmittedForReview: employer.profileSubmittedForReview,
+        employerType: employer.employerType
+      } : null
+    };
 
     res.json({ success: true, profile });
   } catch (error) {
@@ -164,6 +194,7 @@ exports.updateProfile = async (req, res) => {
     // Remove employerCategory from update data to prevent modification
     const updateData = { ...req.body };
     delete updateData.employerCategory;
+    delete updateData._id; // Remove _id to prevent immutable field error
     
     // Explicitly preserve text fields that should be saved
     // Use $set operator to ensure fields are actually updated
@@ -234,11 +265,41 @@ exports.updateProfile = async (req, res) => {
     console.log('Profile update - all updateData keys:', Object.keys(updateData));
     console.log('=== END DEBUG ===');
 
-    const profile = await EmployerProfile.findOneAndUpdate(
+    const publicFields = ['companyName', 'phone', 'email', 'website', 'establishedSince', 'teamSize', 'description', 'location', 'whyJoinUs', 'googleMapsEmbed'];
+    const publicData = {};
+    const adminData = {};
+    
+    Object.keys(updateData).forEach(key => {
+      if (publicFields.includes(key)) {
+        publicData[key] = updateData[key];
+      } else {
+        adminData[key] = updateData[key];
+      }
+    });
+    
+    const [publicProfile, adminProfile] = await Promise.all([
+      EmployerPublicProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        publicData,
+        { new: true, upsert: true, runValidators: false }
+      ),
+      EmployerAdminProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        adminData,
+        { new: true, upsert: true, runValidators: false }
+      )
+    ]);
+    
+    const profile = {
+      ...publicProfile.toObject(),
+      ...adminProfile.toObject()
+    };
+    
+    await EmployerProfile.findOneAndUpdate(
       { employerId: req.user._id },
       updateData,
       { new: true, upsert: true, runValidators: false }
-    ).populate('employerId', 'name email phone companyName');
+    );
 
     // Verify fields were saved to database
     console.log('=== SAVED PROFILE DEBUG ===');
@@ -356,16 +417,22 @@ exports.uploadLogo = async (req, res) => {
     const { fileToBase64 } = require('../middlewares/upload');
     const logoBase64 = fileToBase64(req.file);
 
-    const profile = await EmployerProfile.findOneAndUpdate(
-      { employerId: req.user._id },
-      { logo: logoBase64 },
-      { new: true, upsert: true }
-    );
+    await Promise.all([
+      EmployerPublicProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { logo: logoBase64 },
+        { new: true, upsert: true }
+      ),
+      EmployerProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { logo: logoBase64 },
+        { new: true, upsert: true }
+      )
+    ]);
 
-    // Clear employer grid caches when logo is updated
     cacheInvalidation.clearEmployerGridCaches();
 
-    res.json({ success: true, logo: logoBase64, profile });
+    res.json({ success: true, logo: logoBase64 });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -380,16 +447,22 @@ exports.uploadCover = async (req, res) => {
     const { fileToBase64 } = require('../middlewares/upload');
     const coverBase64 = fileToBase64(req.file);
 
-    const profile = await EmployerProfile.findOneAndUpdate(
-      { employerId: req.user._id },
-      { coverImage: coverBase64 },
-      { new: true, upsert: true }
-    );
+    await Promise.all([
+      EmployerPublicProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { coverImage: coverBase64 },
+        { new: true, upsert: true }
+      ),
+      EmployerProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { coverImage: coverBase64 },
+        { new: true, upsert: true }
+      )
+    ]);
 
-    // Clear employer grid caches when cover image is updated
     cacheInvalidation.clearEmployerGridCaches();
 
-    res.json({ success: true, coverImage: coverBase64, profile });
+    res.json({ success: true, coverImage: coverBase64 });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -429,26 +502,30 @@ exports.uploadDocument = async (req, res) => {
     const documentBase64 = fileToBase64(req.file);
     const updateData = { [fieldName]: documentBase64 };
 
-    // If it's a verifiable document, reset status to pending and set reuploadedAt timestamp
     if (documentStatusMap[fieldName]) {
       const { status, reuploadedAt } = documentStatusMap[fieldName];
       updateData[status] = 'pending';
-      // Only set reuploadedAt if the document was previously rejected
       if (existingProfile && existingProfile[fieldName] && existingProfile[status] === 'rejected') {
         updateData[reuploadedAt] = new Date();
       }
     }
 
-    const profile = await EmployerProfile.findOneAndUpdate(
-      { employerId: req.user._id },
-      updateData,
-      { new: true, upsert: true }
-    );
+    await Promise.all([
+      EmployerAdminProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        updateData,
+        { new: true, upsert: true }
+      ),
+      EmployerProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        updateData,
+        { new: true, upsert: true }
+      )
+    ]);
 
-    // Clear employer grid caches when document is updated
     cacheInvalidation.clearEmployerGridCaches();
 
-    res.json({ success: true, filePath: documentBase64, profile });
+    res.json({ success: true, filePath: documentBase64 });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -464,12 +541,13 @@ exports.uploadAuthorizationLetter = async (req, res) => {
     const documentBase64 = fileToBase64(req.file);
     const companyName = req.body.companyName || '';
     
+    const adminProfile = await EmployerAdminProfile.findOne({ employerId: req.user._id });
     const profile = await EmployerProfile.findOne({ employerId: req.user._id });
     
     // Check if there's an existing rejected document for the same company
     let existingDocIndex = -1;
-    if (profile && profile.authorizationLetters) {
-      existingDocIndex = profile.authorizationLetters.findIndex(
+    if (adminProfile && adminProfile.authorizationLetters) {
+      existingDocIndex = adminProfile.authorizationLetters.findIndex(
         letter => letter.companyName === companyName && letter.status === 'rejected'
       );
     }
@@ -485,13 +563,20 @@ exports.uploadAuthorizationLetter = async (req, res) => {
         isResubmitted: true
       };
       
-      const updatedProfile = await EmployerProfile.findOneAndUpdate(
-        { employerId: req.user._id },
-        { $set: { [`authorizationLetters.${existingDocIndex}`]: updatedDocument } },
-        { new: true, upsert: true }
-      );
+      await Promise.all([
+        EmployerAdminProfile.findOneAndUpdate(
+          { employerId: req.user._id },
+          { $set: { [`authorizationLetters.${existingDocIndex}`]: updatedDocument } },
+          { new: true, upsert: true }
+        ),
+        EmployerProfile.findOneAndUpdate(
+          { employerId: req.user._id },
+          { $set: { [`authorizationLetters.${existingDocIndex}`]: updatedDocument } },
+          { new: true, upsert: true }
+        )
+      ]);
       
-      res.json({ success: true, document: updatedDocument, profile: updatedProfile });
+      res.json({ success: true, document: updatedDocument, profile });
     } else {
       // Create new document
       const newDocument = {
@@ -503,13 +588,20 @@ exports.uploadAuthorizationLetter = async (req, res) => {
         isResubmitted: false
       };
 
-      const updatedProfile = await EmployerProfile.findOneAndUpdate(
-        { employerId: req.user._id },
-        { $push: { authorizationLetters: newDocument } },
-        { new: true, upsert: true }
-      );
+      await Promise.all([
+        EmployerAdminProfile.findOneAndUpdate(
+          { employerId: req.user._id },
+          { $push: { authorizationLetters: newDocument } },
+          { new: true, upsert: true }
+        ),
+        EmployerProfile.findOneAndUpdate(
+          { employerId: req.user._id },
+          { $push: { authorizationLetters: newDocument } },
+          { new: true, upsert: true }
+        )
+      ]);
 
-      res.json({ success: true, document: newDocument, profile: updatedProfile });
+      res.json({ success: true, document: newDocument, profile });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -573,7 +665,6 @@ exports.uploadGallery = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No files uploaded' });
     }
 
-    // Check file sizes before processing
     const oversizedFiles = req.files.filter(file => file.size > 10 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
       return res.status(413).json({ 
@@ -583,8 +674,8 @@ exports.uploadGallery = async (req, res) => {
     }
 
     const { fileToBase64 } = require('../middlewares/upload');
-    const profile = await EmployerProfile.findOne({ employerId: req.user._id });
-    const currentGallery = profile?.gallery || [];
+    const publicProfile = await EmployerPublicProfile.findOne({ employerId: req.user._id });
+    const currentGallery = publicProfile?.gallery || [];
 
     if (currentGallery.length + req.files.length > 10) {
       return res.status(400).json({ 
@@ -593,7 +684,6 @@ exports.uploadGallery = async (req, res) => {
       });
     }
 
-    // Process files one by one to manage memory better
     const newImages = [];
     for (const file of req.files) {
       try {
@@ -613,15 +703,22 @@ exports.uploadGallery = async (req, res) => {
       }
     }
 
-    const updatedProfile = await EmployerProfile.findOneAndUpdate(
-      { employerId: req.user._id },
-      { $push: { gallery: { $each: newImages } } },
-      { new: true, upsert: true }
-    );
+    const [updatedPublicProfile] = await Promise.all([
+      EmployerPublicProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { $push: { gallery: { $each: newImages } } },
+        { new: true, upsert: true }
+      ),
+      EmployerProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { $push: { gallery: { $each: newImages } } },
+        { new: true, upsert: true }
+      )
+    ]);
 
     res.json({ 
       success: true, 
-      gallery: updatedProfile.gallery,
+      gallery: updatedPublicProfile.gallery,
       message: `Successfully uploaded ${newImages.length} image(s)` 
     });
   } catch (error) {
@@ -638,17 +735,22 @@ exports.deleteGalleryImage = async (req, res) => {
   try {
     const { imageId } = req.params;
     
-    const profile = await EmployerProfile.findOneAndUpdate(
-      { employerId: req.user._id },
-      { $pull: { gallery: { _id: imageId } } },
-      { new: true }
-    );
+    await Promise.all([
+      EmployerPublicProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { $pull: { gallery: { _id: imageId } } },
+        { new: true }
+      ),
+      EmployerProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { $pull: { gallery: { _id: imageId } } },
+        { new: true }
+      )
+    ]);
 
-    if (!profile) {
-      return res.status(404).json({ success: false, message: 'Profile not found' });
-    }
+    const publicProfile = await EmployerPublicProfile.findOne({ employerId: req.user._id });
 
-    res.json({ success: true, message: 'Gallery image deleted successfully', gallery: profile.gallery });
+    res.json({ success: true, message: 'Gallery image deleted successfully', gallery: publicProfile?.gallery || [] });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
