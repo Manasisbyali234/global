@@ -1366,12 +1366,13 @@ function CanStatusPage() {
 												{/* Schedule Button - Below the card */}
 												{roundName !== 'Assessment' && (() => {
 													const roundType = typeof round === 'object' ? round.roundType : round.toLowerCase();
-													const interviewRoundId = selectedApplication.interviewRoundIds?.[roundType] || uniqueKey;
+													const roundId = selectedApplication.interviewRoundIds?.[roundType] || uniqueKey;
+													const candidateId = selectedApplication.candidateId;
 													
 													return (
 														<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
 															<a 
-																href={`https://schedule.taleglobal.net/scheduler/book/${selectedApplication.candidateId}/${interviewRoundId}`}
+																href={`https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`}
 																target="_blank" 
 																rel="noopener noreferrer"
 																className="btn btn-primary"
