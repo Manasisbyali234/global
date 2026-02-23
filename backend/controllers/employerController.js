@@ -174,10 +174,15 @@ exports.updateProfile = async (req, res) => {
       if (req.body[field] !== undefined) {
         let value = req.body[field];
         if (typeof value === 'string') {
-          // First decode HTML entities
-          value = value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-          // Then strip all HTML tags
-          value = value.replace(/<[^>]*>/g, '').trim();
+          // For googleMapsEmbed, preserve the HTML iframe code
+          if (field === 'googleMapsEmbed') {
+            // Just trim whitespace, don't strip HTML tags
+            value = value.trim();
+          } else {
+            // For other fields, decode HTML entities and strip tags
+            value = value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+            value = value.replace(/<[^>]*>/g, '').trim();
+          }
         }
         setOperations[field] = value;
       }
@@ -201,7 +206,8 @@ exports.updateProfile = async (req, res) => {
       updateData.whyJoinUs = req.body.whyJoinUs || '';
     }
     if (req.body.hasOwnProperty('googleMapsEmbed')) {
-      updateData.googleMapsEmbed = req.body.googleMapsEmbed || '';
+      // Preserve HTML iframe code for Google Maps embed
+      updateData.googleMapsEmbed = typeof req.body.googleMapsEmbed === 'string' ? req.body.googleMapsEmbed.trim() : '';
     }
     
     // Ensure description and location always have default values ONLY if they are undefined or null

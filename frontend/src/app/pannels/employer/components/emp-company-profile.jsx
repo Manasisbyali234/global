@@ -1020,10 +1020,11 @@ function EmpCompanyProfilePage() {
                 return html.replace(/<[^>]*>/g, '').trim();
             };
             
-            // Explicitly ensure whyJoinUs, googleMapsEmbed, and description are plain text
+            // Explicitly ensure whyJoinUs and description are plain text
             profileData.description = stripHtml(formData.description) || '';
             profileData.whyJoinUs = stripHtml(formData.whyJoinUs) || '';
-            profileData.googleMapsEmbed = stripHtml(formData.googleMapsEmbed) || '';
+            // Preserve HTML iframe code for Google Maps embed
+            profileData.googleMapsEmbed = typeof formData.googleMapsEmbed === 'string' ? formData.googleMapsEmbed.trim() : '';
 
             // Remove Base64 encoded files and UI-only fields from the request (these are uploaded separately)
             delete profileData.logo;
