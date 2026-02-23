@@ -227,7 +227,7 @@ function EmpCandidatesPage() {
               </div>
             </div>
           ) : (
-            <div className="row">
+            <div className="row" style={{maxWidth: '1200px', margin: '0 auto'}}>
               {filteredApplications.length === 0 ? (
                 <div className="col-12 text-center py-4">
                   <p className="text-muted">

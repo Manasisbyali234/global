@@ -1103,7 +1103,7 @@ function EmpCompanyProfilePage() {
             <div style={{ padding: '0 2rem 2rem 2rem' }}>
             <div className="panel panel-default">
                 <div className="panel-heading wt-panel-heading p-a20">
-                    <h4 className="panel-tittle m-a0"><ImageIcon size={18} className="me-2" /> Logo and Cover image</h4>
+                    <h4 className="panel-tittle m-a0"><ImageIcon size={18} className="me-2" /> Logo and Cover image <span style={{fontSize: '0.75rem', background: '#ff6b35', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '8px'}}>PUBLIC</span></h4>
                 </div>
                 
                 <div className="panel-body wt-panel-body p-a20 p-b0 m-b30">
@@ -1226,10 +1226,26 @@ function EmpCompanyProfilePage() {
             </div>
 
             <form onSubmit={handleSubmit}>
+                {/* ========== SECTION 1: PUBLIC PROFILE ========== */}
+                <div style={{
+                    background: '#fff5f0',
+                    padding: '1.5rem',
+                    borderRadius: '8px',
+                    marginBottom: '2rem',
+                    borderLeft: '4px solid #ff6b35'
+                }}>
+                    <h3 style={{color: '#ff6b35', marginBottom: '1rem', fontSize: '1.3rem', fontWeight: '600'}}>
+                        👥 PUBLIC PROFILE SECTION
+                    </h3>
+                    <p style={{color: '#555', marginBottom: '0', fontSize: '0.9rem'}}>
+                        ✓ Visible to candidates on your company profile page
+                    </p>
+                </div>
+
                 {/*Basic Information*/}
                 <div className="panel panel-default">
                     <div className="panel-heading wt-panel-heading p-a20">
-                        <h4 className="panel-tittle m-a0"><Briefcase size={18} className="me-2" /> Basic Informations</h4>
+                        <h4 className="panel-tittle m-a0"><Briefcase size={18} className="me-2" /> Basic Informations <span style={{fontSize: '0.75rem', background: '#ff6b35', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '8px'}}>PUBLIC</span></h4>
                     </div>
 
                     <div className="panel-body wt-panel-body p-a20 m-b30">
@@ -1463,7 +1479,7 @@ function EmpCompanyProfilePage() {
                 {formData.employerCategory === 'consultancy' && (
                     <div className="panel panel-default" id="hiring-companies">
                         <div className="panel-heading wt-panel-heading p-a20">
-                            <h4 className="panel-tittle m-a0"><Building size={18} className="me-2" /> Hiring Companies</h4>
+                            <h4 className="panel-tittle m-a0"><Building size={18} className="me-2" /> Hiring Companies <span style={{fontSize: '0.75rem', background: '#ff6b35', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '8px'}}>ADMIN ONLY</span></h4>
                         </div>
                         <div className="panel-body wt-panel-body p-a20 m-b30">
                             <div className="alert alert-info mb-3">
@@ -1602,10 +1618,26 @@ function EmpCompanyProfilePage() {
                     </div>
                 )}
 
+                {/* ========== SECTION 2: ADMIN ONLY SECTION ========== */}
+                <div style={{
+                    background: '#fff5f0',
+                    padding: '1.5rem',
+                    borderRadius: '8px',
+                    marginBottom: '2rem',
+                    borderLeft: '4px solid #ff6b35'
+                }}>
+                    <h3 style={{color: '#ff6b35', marginBottom: '1rem', fontSize: '1.3rem', fontWeight: '600'}}>
+                        🔐 ADMIN ONLY SECTION
+                    </h3>
+                    <p style={{color: '#555', marginBottom: '0', fontSize: '0.9rem'}}>
+                        ✓ Required for verification purposes • Not visible to candidates
+                    </p>
+                </div>
+
                 {/* Company Details */}
                 <div className="panel panel-default">
                     <div className="panel-heading wt-panel-heading p-a20">
-                        <h4 className="panel-tittle m-a0"><IdCard size={18} className="me-2" /> Company Details</h4>
+                        <h4 className="panel-tittle m-a0"><IdCard size={18} className="me-2" /> Company Details <span style={{fontSize: '0.75rem', background: '#ff6b35', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '8px'}}>ADMIN ONLY</span></h4>
                     </div>
 
                     <div className="panel-body wt-panel-body p-a20 m-b30">
@@ -2101,7 +2133,7 @@ function EmpCompanyProfilePage() {
                 {/* Primary Contact Person */}
                 <div className="panel panel-default">
                     <div className="panel-heading wt-panel-heading p-a20">
-                        <h4 className="panel-tittle m-a0"><UserIcon size={18} className="me-2" /> Primary Contact Person</h4>
+                        <h4 className="panel-tittle m-a0"><UserIcon size={18} className="me-2" /> Primary Contact Person <span style={{fontSize: '0.75rem', background: '#ff6b35', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '8px'}}>ADMIN ONLY</span></h4>
                     </div>
                     <div className="panel-body wt-panel-body p-a20 m-b30">
                         <div className="row">
@@ -2267,7 +2299,7 @@ function EmpCompanyProfilePage() {
                 {/* Gallery Section */}
                 <div className="panel panel-default">
                     <div className="panel-heading wt-panel-heading p-a20">
-                        <h4 className="panel-tittle m-a0"><Images size={18} className="me-2" /> Company Gallery</h4>
+                        <h4 className="panel-tittle m-a0"><Images size={18} className="me-2" /> Company Gallery <span style={{fontSize: '0.75rem', background: '#ff6b35', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '8px'}}>PUBLIC</span></h4>
                     </div>
                     <div className="panel-body wt-panel-body p-a20 m-b30">
                         <div className="row">

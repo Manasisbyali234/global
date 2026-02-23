@@ -188,7 +188,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                     <NavLink to={publicUser.INITIAL}><JobZImage id="skin_page_logo" src="images/logo-dark.png" alt="" /></NavLink>
                 </div>
 
-                <div className="admin-nav scrollbar-macosx">
+                <div className={`admin-nav scrollbar-macosx ${(openMenus.employers || openMenus.placement) ? 'has-open-dropdown' : ''}`}>
                     <ul>
                         <li
                             className={setMenuActive(currentpath, adminRoute(admin.DASHBOARD))}>

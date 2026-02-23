@@ -194,11 +194,37 @@ nav#sidebar-admin-wraper {
     -ms-overflow-style: none !important;
 }
 
+/* Allow scrolling when dropdowns are open */
+#sidebar-admin-wraper .admin-nav.has-open-dropdown {
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
+}
+
 #sidebar-admin-wraper::-webkit-scrollbar,
 #sidebar-admin-wraper .admin-nav::-webkit-scrollbar,
 #sidebar-admin-wraper .admin-nav.scrollbar-macosx::-webkit-scrollbar {
     display: none !important;
     width: 0 !important;
+}
+
+/* Show scrollbar when dropdowns are open */
+#sidebar-admin-wraper .admin-nav.has-open-dropdown::-webkit-scrollbar {
+    display: block !important;
+    width: 8px !important;
+}
+
+#sidebar-admin-wraper .admin-nav.has-open-dropdown::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+#sidebar-admin-wraper .admin-nav.has-open-dropdown::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 53, 0.4) !important;
+    border-radius: 4px !important;
+}
+
+#sidebar-admin-wraper .admin-nav.has-open-dropdown::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 53, 0.6) !important;
 }
 
 /* Layout responsiveness */
