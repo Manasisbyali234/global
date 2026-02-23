@@ -2353,7 +2353,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Maximum number of applications to accept
+							Maximum number of applications can be set and changed if needed.
 						</small>
 					</div>
 

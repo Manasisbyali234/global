@@ -835,7 +835,7 @@ function EmpCompanyProfilePage() {
             
             if (data.success) {
                 setFormData(prev => ({ ...prev, gallery: data.gallery }));
-                showSuccess(`Successfully uploaded ${files.length} images!`);
+                showSuccess(`Image Uploaded ${files.length} Successfully`);
                 e.target.value = '';
             } else {
                 showError(data.message || 'Upload failed');
