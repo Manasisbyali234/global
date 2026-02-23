@@ -1,0 +1,133 @@
+/* ============================================================================
+ * NOTIFICATION DROPDOWN ESCAPE - Breaks out of header stacking context
+ * ============================================================================ */
+
+/* On all screens: Break out of header stacking context */
+.notification-dropdown {
+  position: fixed !important;
+  z-index: 1100 !important;
+  background: #ffffff !important;
+  border: 1px solid #ddd !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+  display: block !important;
+  visibility: visible !important;
+  top: auto !important;
+  overflow: visible !important;
+}
+
+/* Mobile screens - position below header */
+@media (max-width: 991px) {
+  .notification-dropdown {
+    position: fixed !important;
+    z-index: 1100 !important;
+    top: 65px !important;
+    right: 10px !important;
+    left: 10px !important;
+    width: calc(100vw - 20px) !important;
+    max-width: 360px !important;
+  }
+}
+
+/* Tablets and above */
+@media (min-width: 992px) {
+  .notification-dropdown {
+    position: absolute !important;
+    z-index: 1100 !important;
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 300px !important;
+    max-width: 300px !important;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 480px) {
+  .notification-dropdown {
+    top: 60px !important;
+    right: 5px !important;
+    left: 5px !important;
+    width: calc(100vw - 10px) !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Notification dropdown content styling */
+.notification-dropdown-content {
+  max-height: 350px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Notification items */
+.notification-item {
+  border-bottom: 1px solid #f0f0f0 !important;
+  padding: 12px 16px !important;
+  transition: background-color 0.2s !important;
+}
+
+.notification-item:hover {
+  background-color: #f5f5f5 !important;
+}
+
+.notification-item:last-child {
+  border-bottom: none !important;
+}
+
+/* Notification header */
+.notification-dropdown > div:first-child {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #eee !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+/* Notification header h4 */
+.notification-dropdown h4 {
+  margin: 0 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  flex: 1 !important;
+}
+
+/* Ensure bell button doesn't interfere */
+[class*="NotificationBell"],
+[class*="notification-bell"],
+.header-notification-button {
+  position: relative !important;
+  z-index: 1050 !important;
+}
+
+/* Hamburger menu stays above notification dropdown */
+.mobile-menu-toggle,
+.hamburger-btn {
+  z-index: 9999 !important;
+}
+
+/* Close button in dropdown */
+.notification-close-btn,
+.mark-all-read-btn {
+  z-index: 1100 !important;
+}
+
+/* Scrollbar styling for dropdown */
+.notification-dropdown-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

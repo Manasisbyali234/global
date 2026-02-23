@@ -5,7 +5,7 @@ import { memo } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import HamburgerMenu from "../../../components/HamburgerMenu";
 import { useHamburgerMenu } from "../../../components/useHamburgerMenu";
-import "../../../header-responsive.css";
+import "../../../header-styles.css";
 
 const Header2 = memo(function Header2({ _config }) {
     const { user, userType, isAuthenticated } = useAuth();

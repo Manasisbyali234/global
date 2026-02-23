@@ -59,9 +59,24 @@ export default function EmpPostedJobs() {
             
             if (profileResponse.ok) {
                 const profileData = await profileResponse.json();
-                const employerData = profileData.profile?.employerId;
-                setIsApproved(employerData?.isApproved || false);
-                setEmployerType(employerData?.employerType || 'company');
+                console.log('Profile data:', profileData);
+                
+                // If profile is null, fetch employer data directly
+                if (!profileData.profile) {
+                    const employerResponse = await fetch('http://localhost:5000/api/employer/profile/completion', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (employerResponse.ok) {
+                        const completionData = await employerResponse.json();
+                        setIsApproved(completionData.isApproved || false);
+                        setEmployerType('company');
+                    }
+                } else {
+                    const employerData = profileData.profile?.employerId;
+                    console.log('Employer data:', employerData);
+                    setIsApproved(employerData?.isApproved || false);
+                    setEmployerType(employerData?.employerType || 'company');
+                }
             }
 
             const response = await fetch('http://localhost:5000/api/employer/jobs', {

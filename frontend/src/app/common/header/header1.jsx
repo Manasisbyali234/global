@@ -1,4 +1,3 @@
-
 import JobZImage from "../jobz-img";
 import { NavLink } from "react-router-dom";
 import { publicUser } from "../../../globals/route-names";
@@ -6,7 +5,7 @@ import { memo } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import HamburgerMenu from "../../../components/HamburgerMenu";
 import { useHamburgerMenu } from "../../../components/useHamburgerMenu";
-import "../../../header-responsive.css";
+import "../../../header-styles.css";
 import "../../../navbar-active-highlight.css";
 
 const Header1 = memo(function Header1({ _config }) {

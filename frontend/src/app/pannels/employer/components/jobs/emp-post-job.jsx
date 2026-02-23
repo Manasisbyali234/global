@@ -712,6 +712,89 @@ export default function EmpPostJob({ onNext }) {
 			let updatedValue = value;
 			let additionalUpdates = {};
 
+			// Validate time constraints
+			if (field === 'startTime' && value) {
+				const currentDetails = s.interviewRoundDetails[roundType] || {};
+				const endTime = currentDetails.endTime;
+				
+				if (endTime && value >= endTime) {
+					showError('Start time must be earlier than end time.');
+					return s;
+				}
+			}
+
+			if (field === 'endTime' && value) {
+				const currentDetails = s.interviewRoundDetails[roundType] || {};
+				const startTime = currentDetails.startTime;
+				
+				if (startTime && value <= startTime) {
+					showError('End time must be later than start time.');
+					return s;
+				}
+			}
+
+			// Validate date constraints when fromDate is changed
+			if (field === 'fromDate' && value) {
+				const currentRoundIndex = s.interviewRoundOrder.indexOf(roundType);
+				
+				// Check if next round can only start after previous round's end date
+				if (currentRoundIndex > 0) {
+					const prevRoundKey = s.interviewRoundOrder[currentRoundIndex - 1];
+					const prevRoundDetails = s.interviewRoundDetails[prevRoundKey];
+					
+					if (prevRoundDetails?.fromDate) {
+						const prevRoundDate = new Date(prevRoundDetails.fromDate);
+						const currentRoundDate = new Date(value);
+						
+						if (currentRoundDate < prevRoundDate) {
+							const prevRoundType = s.interviewRoundTypes[prevRoundKey];
+							const roundNames = {
+								technical: 'Technical',
+								managerial: 'Managerial Round',
+								hr: 'HR Round',
+								oneOnOnePanel: 'One-to-One / Panel',
+								group: 'Group',
+								situational: 'Situational / Behavioral',
+								assessment: 'MCQ/Aptitude/Assessment',
+								others: prevRoundDetails.customType || 'Others'
+							};
+							const prevRoundName = roundNames[prevRoundType] || prevRoundType;
+							
+							showError(`This round cannot be scheduled before the previous round. ${prevRoundName} (Stage ${currentRoundIndex}) is scheduled for ${formatDate(prevRoundDetails.fromDate)}. Please select a date on or after ${formatDate(prevRoundDetails.fromDate)}.`);
+							return s;
+						}
+					}
+				}
+				
+				// Check for overlapping dates with other rounds
+				for (let i = 0; i < s.interviewRoundOrder.length; i++) {
+					if (i === currentRoundIndex) continue; // Skip current round
+					
+					const otherRoundKey = s.interviewRoundOrder[i];
+					const otherRoundDetails = s.interviewRoundDetails[otherRoundKey];
+					
+					if (otherRoundDetails?.fromDate === value) {
+						const otherRoundType = s.interviewRoundTypes[otherRoundKey];
+						const roundNames = {
+							technical: 'Technical',
+							managerial: 'Managerial Round',
+							hr: 'HR Round',
+							oneOnOnePanel: 'One-to-One / Panel',
+							group: 'Group',
+							situational: 'Situational / Behavioral',
+							assessment: 'MCQ/Aptitude/Assessment',
+							others: otherRoundDetails.customType || 'Others'
+						};
+						const otherRoundName = roundNames[otherRoundType] || otherRoundType;
+						
+						showError(`Cannot schedule on ${formatDate(value)}. This date conflicts with ${otherRoundName} (Stage ${i + 1}). Interview rounds cannot have overlapping dates.`);
+						return s;
+					}
+				}
+			}
+
+
+
 			// Auto-calculate end time for assessments if startTime is changed
 			if ((s.interviewRoundTypes[roundType] === 'assessment' || roundType === 'assessment' || String(roundType).startsWith('assessment_')) && field === 'startTime' && value) {
 				const currentAssessmentId = selectedAssessment || s.assignedAssessment || s.assessmentId;
@@ -1001,6 +1084,7 @@ export default function EmpPostJob({ onNext }) {
 		// Logical date validation for Step 2
 		const lastAppDate = formData.lastDateOfApplication ? new Date(formData.lastDateOfApplication) : null;
 		const allRoundDates = [];
+		const roundDatesMap = {}; // Track dates for each round
 
 		if (!isSchedulingMeeting) {
 			const selectedRounds = formData.interviewRoundOrder;
@@ -1027,7 +1111,15 @@ export default function EmpPostJob({ onNext }) {
 					errorMessages.push(`Please select Date for ${roundName}`);
 				} else {
 					const roundDate = new Date(details.fromDate);
+					const dateStr = details.fromDate;
 					allRoundDates.push(roundDate);
+					
+					// Check for duplicate dates with previous rounds
+					if (roundDatesMap[dateStr]) {
+						errorMessages.push(`${roundName} cannot be scheduled on ${formatDate(dateStr)} as it conflicts with ${roundDatesMap[dateStr]}`);
+					} else {
+						roundDatesMap[dateStr] = roundName;
+					}
 				}
 				if (!details?.startTime) {
 					errorMessages.push(`Please select Start Time for ${roundName}`);
@@ -4242,7 +4334,12 @@ export default function EmpPostJob({ onNext }) {
 														</div>
 														<div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '8px', marginTop: '4px' }}>
 															<label style={{ fontSize: '11px', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: '600' }}>GENERATE SUB-STAGES</label>
-															<select
+															<input
+																type="number"
+																min="1"
+																max="100"
+																placeholder="Enter number of days..."
+																list={`days-list-${uniqueKey}`}
 																value={selectedDayCount[uniqueKey] || ''}
 																onChange={(e) => {
 																	const dayCount = parseInt(e.target.value);
@@ -4259,16 +4356,15 @@ export default function EmpPostJob({ onNext }) {
 																	fontWeight: '500',
 																	color: '#374151',
 																	background: '#fff',
-																	cursor: 'pointer',
 																	width: '100%',
 																	outline: 'none'
 																}}
-															>
-																<option value="">Select number of days...</option>
+															/>
+															<datalist id={`days-list-${uniqueKey}`}>
 																{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(day => (
-																	<option key={day} value={day}>{day} Day{day > 1 ? 's' : ''}</option>
+																	<option key={day} value={day} />
 																))}
-															</select>
+															</datalist>
 														</div>
 													</div>
 												</div>
@@ -4330,7 +4426,7 @@ export default function EmpPostJob({ onNext }) {
 													alignItems: 'center',
 													marginBottom: '16px'
 												}}>
-													<label style={{ fontSize: '12px', color: '#9ca3af', letterSpacing: '1px', fontWeight: 'bold' }}>POPULATED STAGES</label>
+													<label style={{ fontSize: '12px', color: '#9ca3af', letterSpacing: '1px', fontWeight: 'bold', display: 'none' }}>POPULATED STAGES</label>
 												</div>
 
 												{subStages.map((subStage, subIndex) => (

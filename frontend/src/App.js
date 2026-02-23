@@ -22,7 +22,7 @@ import "./tab-icon-fix.css";
 // SCROLL LOCK STYLES - Disable background scrolling when modals are open
 import "./styles/scroll-lock.css";
 // CANDIDATE HEADER MOBILE FIX - Fix header display on mobile screens
-import "./candidate-header-mobile-fix.css";
+import "./header-styles.css";
 // ENHANCED MOBILE RESPONSIVE - Comprehensive mobile fixes for all pages
 import "./mobile-responsive-enhancements.css";
 // MOBILE RESPONSIVE FIXES - Targeted fixes for specific alignment issues

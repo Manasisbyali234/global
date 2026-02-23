@@ -1,0 +1,103 @@
+/* ============================================================================
+ * HAMBURGER MENU Z-INDEX FIX - Ensures hamburger button always visible
+ * ============================================================================ */
+
+@media (max-width: 991px) {
+  /* Hamburger button - ALWAYS visible and clickable */
+  .mobile-menu-toggle,
+  .hamburger-btn,
+  [class*="hamburger"],
+  [class*="menu-toggle"],
+  button[aria-label*="menu"],
+  button[aria-label*="Menu"] {
+    position: fixed !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    top: 12px !important;
+    left: 12px !important;
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  /* Ensure nothing clips the hamburger button */
+  body,
+  html {
+    overflow: visible !important;
+    overflow-x: hidden !important;
+    clip-path: none !important;
+  }
+
+  /* Prevent any parent from clipping hamburger */
+  body > *,
+  #root,
+  main,
+  [role="main"] {
+    overflow: visible !important;
+    clip-path: none !important;
+  }
+
+  /* Header should not clip hamburger */
+  #header-admin-wrap,
+  #header-admin,
+  .header,
+  .site-header,
+  [class*="header"] {
+    overflow: visible !important;
+    clip-path: none !important;
+  }
+
+  /* Hamburger specific styling */
+  .mobile-menu-toggle {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 10px 12px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    font-size: 16px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+    cursor: pointer !important;
+    transition: transform 0.2s !important;
+  }
+
+  .mobile-menu-toggle:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  }
+
+  .mobile-menu-toggle:active {
+    transform: scale(0.95) !important;
+  }
+
+  /* Hamburger icon */
+  .mobile-menu-toggle i,
+  .mobile-menu-toggle span {
+    pointer-events: none !important;
+  }
+
+  /* Extra small phones */
+  @media (max-width: 480px) {
+    .mobile-menu-toggle,
+    .hamburger-btn {
+      top: 10px !important;
+      left: 10px !important;
+      padding: 8px 10px !important;
+      min-width: 38px !important;
+      min-height: 38px !important;
+      font-size: 14px !important;
+    }
+  }
+}
+
+/* Desktop - hide hamburger */
+@media (min-width: 992px) {
+  .mobile-menu-toggle,
+  .hamburger-btn {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
