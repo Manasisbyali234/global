@@ -7,6 +7,7 @@ import { canRoute, candidate } from "../../../../globals/route-names";
 import { api } from "../../../../utils/api";
 import NotificationBell from "../../../../components/NotificationBell";
 import "../../../../notification-bell-visibility-fix.css";
+import "./can-header-mobile-fix.css";
 
 function CanHeaderSection(props) {
     const [profileData, setProfileData] = useState(null);

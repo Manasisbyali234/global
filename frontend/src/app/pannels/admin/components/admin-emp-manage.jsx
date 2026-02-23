@@ -5,6 +5,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
+import './admin-header-mobile-fix.css';
 import SearchBar from '../../../../components/SearchBar';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';

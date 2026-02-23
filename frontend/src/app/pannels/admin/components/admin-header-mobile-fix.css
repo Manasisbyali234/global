@@ -1,0 +1,13 @@
+@media (max-width: 991px) {
+  #header-admin-wrap {
+    display: none !important;
+  }
+
+  #header-admin .header-left {
+    display: none !important;
+  }
+
+  #header-admin .container {
+    padding: 0 15px !important;
+  }
+}

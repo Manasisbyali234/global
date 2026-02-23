@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import JobZImage from "../../../common/jobz-img";
 import NotificationBell from "../../../../components/NotificationBell";
+import '../components/admin-header-mobile-fix.css';
 
 function AdminHeaderSection(props) {
     const [adminData, setAdminData] = useState(null);

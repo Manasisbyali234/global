@@ -1,0 +1,6 @@
+/* Hide employer header on mobile */
+@media (max-width: 991px) {
+  #header-admin-wrap {
+    display: none !important;
+  }
+}

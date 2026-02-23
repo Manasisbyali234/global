@@ -624,6 +624,9 @@
     .admin-emp-manage-container .panel-tittle {
         font-size: 14px !important;
         text-align: center;
+        margin-right: 0 !important;
+        width: 100%;
+        margin-bottom: 15px;
     }
     
     .admin-emp-manage-container .panel-body {
@@ -639,6 +642,36 @@
         font-size: 0.65rem !important;
         min-width: 80px !important;
         line-height: 1.2 !important;
+    }
+
+    /* Header responsive fixes */
+    .panel-heading > div {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .status-filter {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        margin-bottom: 15px;
+    }
+
+    .status-filter label {
+        margin-bottom: 5px;
+    }
+
+    .status-filter select {
+        width: 100% !important;
+    }
+
+    .search-section {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+
+    .search-section > div {
+        width: 100% !important;
     }
 }
 
@@ -668,6 +701,18 @@
     
     .admin-emp-manage-container .panel {
         margin: 0 5px 10px 5px;
+    }
+
+    .admin-emp-manage-container .panel-heading {
+        padding: 10px !important;
+    }
+
+    .search-label {
+        font-size: 0.8rem !important;
+    }
+
+    .status-filter label {
+        font-size: 0.8rem !important;
     }
 }
 

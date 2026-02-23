@@ -3,10 +3,11 @@ import YesNoPopup from "../app/common/popups/popup-yes-no";
 import { popupType } from "../globals/constants";
 import { useState, useEffect } from "react";
 import CanHeaderSection from "../app/pannels/candidate/common/can-header";
+import UnifiedHeader from "../components/UnifiedHeader";
 import CanSidebarSection from "../app/pannels/candidate/common/can-sidebar";
 import CandidateRoutes from "../routing/candidate-routes";
 import "../logout-modal-fix.css";
-import "../logout-modal-fix.css";
+import "./candidate-mobile-header.css";
 
 function CandidateLayout() {
 
@@ -29,11 +30,7 @@ function CandidateLayout() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    const handleSidebarCollapse = () => {
-        setSidebarActive(!sidebarActive);
-    }
-
-    const handleMobileMenuToggle = () => {
+    const handleMenuToggle = () => {
         const newState = !sidebarActive;
         setSidebarActive(newState);
         if (newState) {
@@ -59,16 +56,6 @@ function CandidateLayout() {
         <>
             <div className="page-wraper">
 
-                {isMobile && !sidebarActive && (
-                    <button
-                        className="mobile-menu-toggle"
-                        onClick={handleMobileMenuToggle}
-                        aria-label="Toggle Menu"
-                    >
-                        <i className="fas fa-bars"></i>
-                    </button>
-                )}
-
                 {isMobile && (
                     <div 
                         className={`sidebar-overlay ${sidebarActive ? "active" : ""}`}
@@ -76,7 +63,12 @@ function CandidateLayout() {
                     ></div>
                 )}
 
-                <CanHeaderSection onClick={handleSidebarCollapse} sidebarActive={sidebarActive} isMobile={isMobile} />
+                <CanHeaderSection onClick={handleMenuToggle} sidebarActive={sidebarActive} isMobile={isMobile} />
+                <UnifiedHeader 
+                    userRole="candidate"
+                    onMenuToggle={handleMenuToggle}
+                    isSidebarOpen={sidebarActive}
+                />
                 <CanSidebarSection sidebarActive={sidebarActive} isMobile={isMobile} onLinkClick={isMobile ? closeSidebar : undefined} />
 
                 <div id="content" className={contentClasses}>

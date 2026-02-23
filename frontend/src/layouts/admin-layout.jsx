@@ -1,11 +1,13 @@
 
 import YesNoPopup from "../app/common/popups/popup-yes-no";
 import AdminHeaderSection from "../app/pannels/admin/common/admin-header";
+import UnifiedHeader from "../components/UnifiedHeader";
 import AdminSidebarSection from "../app/pannels/admin/common/admin-sidebar";
 
 import { popupType } from "../globals/constants";
 import { useState, useEffect } from "react";
 import AdminRoutes from "../routing/admin-routes";
+import "./admin-mobile-header.css";
 
 function AdminLayout() {
 
@@ -28,18 +30,8 @@ function AdminLayout() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    const handleSidebarCollapse = () => {
+    const handleMenuToggle = () => {
         setSidebarActive(!sidebarActive);
-    }
-
-    const handleMobileMenuToggle = () => {
-        setSidebarActive(!sidebarActive);
-    }
-
-    const handleOverlayClick = () => {
-        if (isMobile) {
-            setSidebarActive(false);
-        }
     }
 
     const contentClasses = [
@@ -51,24 +43,19 @@ function AdminLayout() {
         <>
             <div className="page-wraper">
 
-                {isMobile && !sidebarActive && (
-                    <button 
-                        className="mobile-menu-toggle"
-                        onClick={handleMobileMenuToggle}
-                        aria-label="Toggle Menu"
-                    >
-                        <i className="fas fa-bars"></i>
-                    </button>
-                )}
-
                 {isMobile && sidebarActive && (
                     <div 
                         className="sidebar-overlay active"
-                        onClick={handleOverlayClick}
+                        onClick={() => setSidebarActive(false)}
                     ></div>
                 )}
 
-                <AdminHeaderSection onClick={handleSidebarCollapse} sidebarActive={sidebarActive} isMobile={isMobile} />
+                <AdminHeaderSection onClick={handleMenuToggle} sidebarActive={sidebarActive} isMobile={isMobile} />
+                <UnifiedHeader 
+                    userRole="admin"
+                    onMenuToggle={handleMenuToggle}
+                    isSidebarOpen={sidebarActive}
+                />
                 <AdminSidebarSection sidebarActive={sidebarActive} isMobile={isMobile} />
 
                 <div id="content" className={contentClasses}>

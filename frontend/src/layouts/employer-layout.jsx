@@ -1,9 +1,11 @@
 import EmpHeaderSection from "../app/pannels/employer/common/emp-header";
+import UnifiedHeader from "../components/UnifiedHeader";
 import EmpSidebarSection from "../app/pannels/employer/common/emp-sidebar";
 import YesNoPopup from "../app/common/popups/popup-yes-no";
 import EmployerRoutes from "../routing/employer-routes";
 import { popupType } from "../globals/constants";
 import { useState, useEffect } from "react";
+import "./employer-mobile-header.css";
 
 function EmployerLayout() {
     const [sidebarActive, setSidebarActive] = useState(true);
@@ -25,18 +27,8 @@ function EmployerLayout() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    const handleSidebarCollapse = () => {
+    const handleMenuToggle = () => {
         setSidebarActive(!sidebarActive);
-    }
-    
-    const handleMobileMenuToggle = () => {
-        setSidebarActive(!sidebarActive);
-    }
-    
-    const handleOverlayClick = () => {
-        if (isMobile) {
-            setSidebarActive(false);
-        }
     }
 
     const contentClasses = [
@@ -47,35 +39,10 @@ function EmployerLayout() {
     return (
         <>
             <div className="page-wraper">
-                {isMobile && !sidebarActive && (
-                    <button 
-                        className="mobile-menu-toggle"
-                        onClick={handleMobileMenuToggle}
-                        aria-label="Toggle Menu"
-                        style={{
-                            display: 'block',
-                            position: 'fixed',
-                            top: '15px',
-                            left: '15px',
-                            zIndex: 10001,
-                            background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
-                            color: 'white',
-                            border: 'none',
-                            padding: '12px 15px',
-                            borderRadius: '8px',
-                            fontSize: '18px',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <i className="fas fa-bars"></i>
-                    </button>
-                )}
-                
                 {isMobile && sidebarActive && (
                     <div 
                         className="sidebar-overlay active"
-                        onClick={handleOverlayClick}
+                        onClick={() => setSidebarActive(false)}
                         style={{
                             position: 'fixed',
                             top: 0,
@@ -91,7 +58,12 @@ function EmployerLayout() {
                 
                 <EmpSidebarSection sidebarActive={sidebarActive} isMobile={isMobile} onClose={() => setSidebarActive(false)} />
 
-                <EmpHeaderSection sidebarActive={sidebarActive} onClick={handleSidebarCollapse} isMobile={isMobile} />
+                <EmpHeaderSection sidebarActive={sidebarActive} onClick={handleMenuToggle} isMobile={isMobile} />
+                <UnifiedHeader 
+                    userRole="employer"
+                    onMenuToggle={handleMenuToggle}
+                    isSidebarOpen={sidebarActive}
+                />
 
                 <div id="content" className={contentClasses}>
                     <div className="content-admin-main" style={{

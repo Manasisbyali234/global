@@ -1,0 +1,17 @@
+/* Admin Layout - Mobile Unified Header Support */
+
+@media (max-width: 991px) {
+    #content.mobile-view {
+        margin-top: 60px !important;
+    }
+
+    #content.mobile-view .content-admin-main {
+        padding-top: 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #content.mobile-view {
+        margin-top: 56px !important;
+    }
+}

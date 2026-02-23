@@ -6,6 +6,7 @@ import NotificationBell from "../../../../components/NotificationBell";
 import { api } from "../../../../utils/api";
 import "../../../../header-styles.css";
 import "../../../../notification-badge-transparency-fix.css";
+import "./emp-header-mobile-fix.css";
 
 function EmpHeaderSection(props) {
     const [profileData, setProfileData] = useState(null);

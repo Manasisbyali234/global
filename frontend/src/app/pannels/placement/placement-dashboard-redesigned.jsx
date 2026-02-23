@@ -4,6 +4,7 @@ import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { debugAuth, testAPIConnection, testPlacementAuth } from '../../../utils/authDebug';
 import PlacementNotificationsRedesigned from './sections/PlacementNotificationsRedesigned';
+import UnifiedHeader from '../../../components/UnifiedHeader';
 import './placement-dashboard-redesigned.css';
 import '../../../placement-rejection-styles.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../utils/popupNotification';
@@ -632,7 +633,7 @@ function PlacementDashboardRedesigned() {
 
             {/* Main Content */}
             <div className="main-content">
-                {/* Top Header */}
+                {/* Desktop Header */}
                 <div className="top-header">
                     <button className="mobile-toggle" onClick={() => setIsSidebarOpen(true)}>
                         <i className="fa fa-bars"></i>
@@ -654,6 +655,14 @@ function PlacementDashboardRedesigned() {
                         </div>
                     </div>
                 </div>
+
+                {/* Mobile Header */}
+                <UnifiedHeader 
+                    userRole="placement"
+                    userData={placementData}
+                    onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                    isSidebarOpen={isSidebarOpen}
+                />
 
                 {/* Content Area */}
                 <div className="content-area">
