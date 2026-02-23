@@ -17,6 +17,7 @@ import "../../../../../emp-detail-responsive-fix.css";
 import "../../../../../emp-detail-form-fix.css";
 import "../../../../../emp-detail-review-mobile-fix.css";
 import "../../../../../emp-detail-white-container.css";
+import "../../../../../review-posted-alignment-fix.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 function EmployersDetail1Page() {
@@ -559,8 +560,8 @@ function EmployersDetail1Page() {
 																</div>
 																<div className="card-body p-4">
 																	{review.image && (
-																		<div className="mb-3 d-flex align-items-center">
-																			<h6 className="fw-semibold mb-0 me-2" style={{ whiteSpace: 'nowrap' }}>Attached Image:</h6>
+																		<div className="mb-3">
+																			<h6 className="fw-semibold mb-0 me-2">Attached Image:</h6>
 																			<img 
 																				src={review.image} 
 																				alt="Review" 
@@ -570,13 +571,13 @@ function EmployersDetail1Page() {
 																			/>
 																		</div>
 																	)}
-																	<div className="mb-3 d-flex align-items-center">
-																		<h6 className="fw-semibold mb-0 me-2" style={{ whiteSpace: 'nowrap' }}>Rating:</h6>
+																	<div className="mb-3">
+																		<h6 className="fw-semibold mb-0 me-2">Rating:</h6>
 																		{renderStars(review.rating)}
 																		<span className="ms-2 text-muted">({review.rating}/5)</span>
 																	</div>
-																	<div className="mb-3 d-flex align-items-start">
-																		<h6 className="fw-semibold mb-0 me-2" style={{ whiteSpace: 'nowrap' }}>Review:</h6>
+																	<div className="mb-3">
+																		<h6 className="fw-semibold mb-0 me-2">Review:</h6>
 																		<p className="text-dark mb-0" style={{lineHeight: '1.6'}}>{review.description}</p>
 																	</div>
 																</div>

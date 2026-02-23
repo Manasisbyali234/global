@@ -183,10 +183,10 @@ function AdminDashboardPage() {
                 {!isSubAdmin && (
                 <div className="twm-dash-b-blocks mb-5" style={{padding: '0 2rem'}}>
                 <div className="row" style={{marginBottom: '2rem'}}>
-                    <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
-                        <div className="panel panel-default" onClick={() => navigate('/admin/registered-candidates')} style={{cursor: 'pointer'}}>
-                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0'}}>
-                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem" }}>
+                    <div className="col-xl-3 col-lg-3 col-md-6 mb-3" style={{display: 'flex'}}>
+                        <div className="panel panel-default" onClick={() => navigate('/admin/registered-candidates')} style={{cursor: 'pointer', width: '100%'}}>
+                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0', height: '100%'}}>
+                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem", height: '100%' }}>
                                     <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
                                         <i className="fa fa-users" />
                                     </div>
@@ -201,10 +201,10 @@ function AdminDashboardPage() {
                         </div>
                     </div>
 
-                    <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
-                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-emp-approved')} style={{cursor: 'pointer'}}>
-                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0'}}>
-                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem" }}>
+                    <div className="col-xl-3 col-lg-3 col-md-6 mb-3" style={{display: 'flex'}}>
+                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-emp-approved')} style={{cursor: 'pointer', width: '100%'}}>
+                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0', height: '100%'}}>
+                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem", height: '100%' }}>
                                     <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
                                         <i className="fa fa-building" />
                                     </div>
@@ -219,10 +219,10 @@ function AdminDashboardPage() {
                         </div>
                     </div>
 
-                    <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
-                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-emp-approved')} style={{cursor: 'pointer'}}>
-                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0'}}>
-                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem" }}>
+                    <div className="col-xl-3 col-lg-3 col-md-6 mb-3" style={{display: 'flex'}}>
+                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-emp-approved')} style={{cursor: 'pointer', width: '100%'}}>
+                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0', height: '100%'}}>
+                                <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem", height: '100%' }}>
                                     <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
                                         <i className="fa fa-briefcase" />
                                     </div>
@@ -237,9 +237,9 @@ function AdminDashboardPage() {
                         </div>
                     </div>
                     
-                    <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
-                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-placement-approved')} style={{cursor: 'pointer'}}>
-                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0'}}>
+                    <div className="col-xl-3 col-lg-3 col-md-6 mb-3" style={{display: 'flex'}}>
+                        <div className="panel panel-default" onClick={() => navigate('/admin/admin-placement-approved')} style={{cursor: 'pointer', width: '100%'}}>
+                            <div className="panel-body wt-panel-body dashboard-card-2" style={{backgroundColor: '#fff3e0', height: '100%'}}>
                                 <div className="d-flex flex-column align-items-center justify-content-center" style={{ display: "flex", textAlign: "center", gap: "0.5rem" }}>
                                     <div className="wt-card-icon-2 fs-2 text-orange" style={{ lineHeight: "1" }}>
                                         <i className="fa fa-graduation-cap" />

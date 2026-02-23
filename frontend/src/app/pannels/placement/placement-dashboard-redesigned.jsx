@@ -254,11 +254,15 @@ function PlacementDashboardRedesigned() {
 
     const handleEditProfile = () => {
         const nameParts = (placementData?.name || '').split(' ');
+        // Remove +91 prefix from phone number if present
+        const phoneNumber = placementData?.phone || '';
+        const cleanPhone = phoneNumber.startsWith('+91') ? phoneNumber.substring(3) : phoneNumber;
+        
         setEditFormData({
             firstName: nameParts[0] || '',
             lastName: nameParts.slice(1).join(' ') || '',
             email: placementData?.email || '',
-            phone: placementData?.phone || '',
+            phone: cleanPhone,
             collegeName: placementData?.collegeName || '',
             collegeAddress: placementData?.collegeAddress || '',
             collegeOfficialEmail: placementData?.collegeOfficialEmail || '',

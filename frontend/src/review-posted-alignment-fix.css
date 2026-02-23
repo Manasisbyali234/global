@@ -1,0 +1,55 @@
+/* Review Posted Section Alignment Fix */
+
+/* Review card body sections */
+.tab-pane#review-post .card-body .mb-3 {
+    display: block !important;
+    margin-bottom: 20px !important;
+}
+
+/* Labels */
+.tab-pane#review-post .card-body h6.fw-semibold {
+    display: block !important;
+    margin-bottom: 8px !important;
+    font-weight: 600 !important;
+    color: #333 !important;
+}
+
+/* Image */
+.tab-pane#review-post .card-body img.rounded-circle {
+    display: block !important;
+    margin-top: 0 !important;
+}
+
+/* Rating container */
+.tab-pane#review-post .card-body .mb-3:has(.star) {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+.tab-pane#review-post .card-body .mb-3:has(.star) h6 {
+    margin-right: 8px !important;
+    margin-bottom: 0 !important;
+}
+
+/* Review text */
+.tab-pane#review-post .card-body p.text-dark {
+    display: block !important;
+    margin-top: 0 !important;
+    width: 100% !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .tab-pane#review-post .card-body .mb-3 {
+        margin-bottom: 15px !important;
+    }
+    
+    .tab-pane#review-post .card-body h6.fw-semibold {
+        font-size: 14px !important;
+    }
+    
+    .tab-pane#review-post .card-body p.text-dark {
+        font-size: 14px !important;
+    }
+}
