@@ -1390,8 +1390,7 @@ exports.updateJob = async (req, res) => {
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
             applicationLimit: parseInt(req.body.applicationLimit) || 50,
-            subStages: value.subStages || value.subStagesArray || [],
-            _id: value._id // Preserve existing ID if present
+            subStages: value.subStages || value.subStagesArray || []
           });
         }
       });
@@ -1400,10 +1399,19 @@ exports.updateJob = async (req, res) => {
       
       // Get existing rounds to update instead of deleting
       const existingRounds = await InterviewRound.find({ jobId: oldJob._id });
+      console.log('[updateJob] Existing rounds from DB:', existingRounds.map(r => ({ id: r._id, key: r.key, name: r.name })));
+      
       const existingRoundsByKey = {};
+      const existingRoundsById = {};
       existingRounds.forEach(round => {
-        existingRoundsByKey[round.key] = round;
+        if (round.key) {
+          existingRoundsByKey[round.key] = round;
+        }
+        existingRoundsById[round._id.toString()] = round;
       });
+      console.log('[updateJob] Existing rounds by key:', Object.keys(existingRoundsByKey));
+      console.log('[updateJob] Incoming round keys:', interviewRounds.map(r => r.key));
+      console.log('[updateJob] Full incoming rounds:', JSON.stringify(interviewRounds, null, 2));
       
       // Track which rounds are being updated
       const updatedKeys = new Set();
@@ -1412,10 +1420,29 @@ exports.updateJob = async (req, res) => {
         // Update existing rounds or create new ones
         for (const round of interviewRounds) {
           try {
+            if (!round.key) {
+              console.error('[updateJob] Round missing key field:', round);
+              continue;
+            }
+            
             updatedKeys.add(round.key);
-            const existingRound = existingRoundsByKey[round.key];
+            
+            // Try to find by key first, then by _id as fallback
+            let existingRound = existingRoundsByKey[round.key];
+            if (!existingRound && round._id) {
+              existingRound = existingRoundsById[round._id];
+              console.log(`[updateJob] Key '${round.key}' not found, trying _id: ${round._id} - Found: ${!!existingRound}`);
+            }
+            
+            console.log(`[updateJob] Looking for key '${round.key}' - Found: ${!!existingRound}`);
             
             if (existingRound) {
+              // Update the key if it changed
+              if (existingRound.key !== round.key) {
+                console.log(`[updateJob] Updating key from '${existingRound.key}' to '${round.key}'`);
+                existingRound.key = round.key;
+              }
+              console.log(`[updateJob] UPDATING existing round with _id: ${existingRound._id}, key: ${round.key}`);
               // Update existing round to preserve _id
               existingRound.name = round.name;
               existingRound.fromdate = round.fromdate;
@@ -1431,35 +1458,14 @@ exports.updateJob = async (req, res) => {
                 breakTime: sub.breakTime || 0
               }));
               await existingRound.save();
-              console.log('[updateJob] Interview round updated successfully:', {
+              console.log('[updateJob] Interview round UPDATED successfully - _id preserved:', {
                 id: existingRound._id,
                 key: existingRound.key,
                 name: existingRound.name
               });
+              console.log('[updateJob] Saved round _id:', existingRound._id.toString());
             } else {
-              // Create new round
-              const createdRound = await InterviewRound.create({
-                jobId: oldJob._id,
-                key: round.key,
-                name: round.name,
-                fromdate: round.fromdate,
-                todate: round.todate,
-                startTime: round.startTime,
-                endTime: round.endTime,
-                description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
-                applicationLimit: round.applicationLimit,
-                subStages: (round.subStages || []).map(sub => ({
-                  fromDate: sub.fromDate || sub.fromdate || sub.date,
-                  startTime: normalizeTimeFormat(sub.startTime),
-                  endTime: normalizeTimeFormat(sub.endTime),
-                  breakTime: sub.breakTime || 0
-                }))
-              });
-              console.log('[updateJob] Interview round created successfully:', {
-                id: createdRound._id,
-                key: createdRound.key,
-                name: createdRound.name
-              });
+              console.warn(`[updateJob] WARNING: Round with key '${round.key}' not found in database. Skipping creation to preserve existing _id.`);
             }
           } catch (roundError) {
             console.error('[updateJob] Error updating/creating interview round:', roundError);
