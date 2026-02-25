@@ -18,7 +18,8 @@ import "./emp-post-job-mobile-fix.css";
 
 // Location options array
 const LOCATION_OPTIONS = [
-	"Bangalore", "Mumbai", "Delhi", "Hyderabad", "Chennai", "Pune", "Kolkata", "Ahmedabad",
+	"Bangalore", "Bangalore - Yeshwantpur", "Bangalore - Whitefield", "Bangalore - Koramangala", "Bangalore - Indiranagar", "Bangalore - Electronic City", "Bangalore - Marathahalli", "Bangalore - BTM Layout", "Bangalore - Jayanagar", "Bangalore - HSR Layout", "Bangalore - Hebbal", "Bangalore - Yelahanka", "Bangalore - Banashankari", "Bangalore - JP Nagar", "Bangalore - Rajajinagar", "Bangalore - Malleshwaram",
+	"Mumbai", "Delhi", "Hyderabad", "Chennai", "Pune", "Kolkata", "Ahmedabad",
 	"Surat", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", "Bhopal",
 	"Visakhapatnam", "Pimpri-Chinchwad", "Patna", "Vadodara", "Ghaziabad", "Ludhiana",
 	"Agra", "Nashik", "Faridabad", "Meerut", "Rajkot", "Kalyan-Dombivali", "Vasai-Virar",
@@ -793,7 +794,7 @@ export default function EmpPostJob({ onNext }) {
 						};
 						const otherRoundName = roundNames[otherRoundType] || otherRoundType;
 						
-						showError(`Cannot schedule on ${formatDate(value)}. This date conflicts with ${otherRoundName} (Stage ${i + 1}). Interview rounds cannot have overlapping dates.`);
+						showError(`You cannot schedule it on ${formatDate(value)} because it clashes with ${otherRoundName} (Stage ${i + 1}). Interview rounds should not overlap.`);
 						return s;
 					}
 				}
@@ -1092,85 +1093,92 @@ export default function EmpPostJob({ onNext }) {
 		const allRoundDates = [];
 		const roundDatesMap = {}; // Track dates for each round
 
-		if (!isSchedulingMeeting) {
-			const selectedRounds = formData.interviewRoundOrder;
+		// Validate all selected interview rounds (including assessment rounds)
+		const selectedRounds = formData.interviewRoundOrder;
 
-			for (const uniqueKey of selectedRounds) {
-				const roundType = formData.interviewRoundTypes[uniqueKey];
-				const details = formData.interviewRoundDetails[uniqueKey];
-				const roundNames = {
-					technical: 'Technical',
-					managerial: 'Managerial Round',
-					hr: 'HR Round',
-					oneOnOnePanel: 'One-to-One / Panel',
-					group: 'Group',
-					situational: 'Situational / Behavioral',
-					assessment: 'Assessment',
-					others: 'Others – Specify.'
-				};
-				const roundName = roundNames[roundType] || roundType;
+		for (const uniqueKey of selectedRounds) {
+			const roundType = formData.interviewRoundTypes[uniqueKey];
+			const details = formData.interviewRoundDetails[uniqueKey];
+			const roundNames = {
+				technical: 'Technical',
+				managerial: 'Managerial Round',
+				hr: 'HR Round',
+				oneOnOnePanel: 'One-to-One / Panel',
+				group: 'Group',
+				situational: 'Situational / Behavioral',
+				assessment: 'Assessment',
+				others: 'Others – Specify.'
+			};
+			const customType = roundType === 'others' ? details?.customType : null;
+			const roundName = (roundType === 'others' && customType && customType.trim()) ? customType : (roundNames[roundType] || roundType);
 
-				if (!details?.description?.trim() && roundType !== 'assessment') {
-					errorMessages.push(`Please enter description for ${roundName}`);
-				}
-				if (!details?.fromDate) {
-					errorMessages.push(`Please select Date for ${roundName}`);
-				} else {
-					const roundDate = new Date(details.fromDate);
-					const dateStr = details.fromDate;
-					allRoundDates.push(roundDate);
-					
-					// Check for duplicate dates with previous rounds
-					if (roundDatesMap[dateStr]) {
-						errorMessages.push(`${roundName} cannot be scheduled on ${formatDate(dateStr)} as it conflicts with ${roundDatesMap[dateStr]}`);
-					} else {
-						roundDatesMap[dateStr] = roundName;
-					}
-				}
-				if (!details?.startTime) {
-					errorMessages.push(`Please select Start Time for ${roundName}`);
-				}
-				if (!details?.endTime) {
-					errorMessages.push(`Please select End Time for ${roundName}`);
-				}
+			// Validate description for non-assessment rounds
+			if (!details?.description?.trim() && roundType !== 'assessment') {
+				errorMessages.push(`Please enter description for ${roundName}`);
+			}
+			
+			// Validate date for all rounds (including assessment)
+			if (!details?.fromDate) {
+				errorMessages.push(`Please select Date for ${roundName}`);
+			} else {
+				const roundDate = new Date(details.fromDate);
+				const dateStr = details.fromDate;
+				allRoundDates.push(roundDate);
 				
-				// Validate sub-stages if they exist
-				if (details?.subStages && Array.isArray(details.subStages)) {
-					details.subStages.forEach((subStage, index) => {
-						if (!subStage.fromDate) {
-							errorMessages.push(`Please select Date for ${roundName} - Sub-Stage ${index + 1}`);
-						}
-						if (!subStage.startTime) {
-							errorMessages.push(`Please select Start Time for ${roundName} - Sub-Stage ${index + 1}`);
-						}
-						if (!subStage.endTime) {
-							errorMessages.push(`Please select End Time for ${roundName} - Sub-Stage ${index + 1}`);
-						}
-						
-						// Check for time conflicts with other sub-stages in the same round
-						if (subStage.fromDate && subStage.startTime && subStage.endTime) {
-							const currentStart = new Date(`${subStage.fromDate}T${subStage.startTime}`);
-							const currentEnd = new Date(`${subStage.fromDate}T${subStage.endTime}`);
-							
-							details.subStages.forEach((otherStage, otherIndex) => {
-								if (index !== otherIndex && otherStage.fromDate && otherStage.startTime && otherStage.endTime) {
-									const otherStart = new Date(`${otherStage.fromDate}T${otherStage.startTime}`);
-									const otherEnd = new Date(`${otherStage.fromDate}T${otherStage.endTime}`);
-									
-									if ((currentStart >= otherStart && currentStart < otherEnd) || (currentEnd > otherStart && currentEnd <= otherEnd) || (currentStart <= otherStart && currentEnd >= otherEnd)) {
-										errorMessages.push(`${roundName} - Sub-Stage ${index + 1} has time conflict with Sub-Stage ${otherIndex + 1}`);
-									}
-								}
-							});
-						}
-					});
+				// Check for duplicate dates with previous rounds (skip for scheduling meeting types)
+				if (!isSchedulingMeeting && roundDatesMap[dateStr]) {
+					errorMessages.push(`${roundName} cannot be scheduled on ${formatDate(dateStr)} as it conflicts with ${roundDatesMap[dateStr]}`);
+				} else {
+					roundDatesMap[dateStr] = roundName;
 				}
 			}
-
-			// Special check for assessment selection if assessment rounds exist
-			if (formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'assessment') && !selectedAssessment) {
-				errorMessages.push('Please select an Assessment for your assessment rounds');
+			
+			// Validate start time for all rounds
+			if (!details?.startTime) {
+				errorMessages.push(`Please select Start Time for ${roundName}`);
 			}
+			
+			// Validate end time for all rounds
+			if (!details?.endTime) {
+				errorMessages.push(`Please select End Time for ${roundName}`);
+			}
+			
+			// Validate sub-stages if they exist
+			if (details?.subStages && Array.isArray(details.subStages) && details.subStages.length > 0) {
+				details.subStages.forEach((subStage, index) => {
+					if (!subStage.fromDate) {
+						errorMessages.push(`Please select Date for ${roundName} - Sub-Stage ${index + 1}`);
+					}
+					if (!subStage.startTime) {
+						errorMessages.push(`Please select Start Time for ${roundName} - Sub-Stage ${index + 1}`);
+					}
+					if (!subStage.endTime) {
+						errorMessages.push(`Please select End Time for ${roundName} - Sub-Stage ${index + 1}`);
+					}
+					
+					// Check for time conflicts with other sub-stages in the same round
+					if (subStage.fromDate && subStage.startTime && subStage.endTime) {
+						const currentStart = new Date(`${subStage.fromDate}T${subStage.startTime}`);
+						const currentEnd = new Date(`${subStage.fromDate}T${subStage.endTime}`);
+						
+						details.subStages.forEach((otherStage, otherIndex) => {
+							if (index !== otherIndex && otherStage.fromDate && otherStage.startTime && otherStage.endTime) {
+								const otherStart = new Date(`${otherStage.fromDate}T${otherStage.startTime}`);
+								const otherEnd = new Date(`${otherStage.fromDate}T${otherStage.endTime}`);
+								
+								if ((currentStart >= otherStart && currentStart < otherEnd) || (currentEnd > otherStart && currentEnd <= otherEnd) || (currentStart <= otherStart && currentEnd >= otherEnd)) {
+									errorMessages.push(`${roundName} - Sub-Stage ${index + 1} has time conflict with Sub-Stage ${otherIndex + 1}`);
+								}
+							}
+						});
+					}
+				});
+			}
+		}
+
+		// Special check for assessment selection if assessment rounds exist
+		if (formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'assessment') && !selectedAssessment) {
+			errorMessages.push('Please select an Assessment for your assessment rounds');
 		}
 
 		// Validate Offer Letter Date vs Interview Rounds
@@ -3870,6 +3878,17 @@ export default function EmpPostJob({ onNext }) {
 													<label style={{...label, marginBottom: 0, color: '#475569', fontWeight: 600}}>
 														<i className="fa fa-hourglass-end" style={{marginRight: 8, color: '#ff6b35'}}></i>
 														End Time
+														<span style={{
+															fontSize: 11,
+															color: '#10b981',
+															fontWeight: 500,
+															marginLeft: 8,
+															background: '#d1fae5',
+															padding: '2px 8px',
+															borderRadius: 4,
+														}}>
+															✓ Auto-calculated
+														</span>
 													</label>
 													<input
 														style={{
@@ -3878,12 +3897,18 @@ export default function EmpPostJob({ onNext }) {
 															padding: '10px 12px',
 															borderRadius: '8px',
 															border: '1px solid #cbd5e1',
-															background: '#f8fafc'
+															background: '#f0fdf4',
+															cursor: 'not-allowed'
 														}}
 														type="time"
 														value={formData.interviewRoundDetails[assessmentKey]?.endTime || ''}
-														onChange={(e) => updateRoundDetails(assessmentKey, 'endTime', e.target.value)}
+														readOnly
+														disabled
 													/>
+													<small style={{color: '#10b981', fontSize: 11, marginTop: 4, display: 'block'}}>
+														<i className="fa fa-info-circle" style={{marginRight: 4}}></i>
+														Auto-calculated based on assessment duration
+													</small>
 												</div>
 											</div>
 										</div>
@@ -4182,19 +4207,29 @@ export default function EmpPostJob({ onNext }) {
 													</h3>
 												</div>
 												<button
+													disabled={roundType === 'assessment' || !subStages || subStages.length === 0}
 													style={{
-														background: '#ff6b35',
+														background: (roundType !== 'assessment' && subStages && subStages.length > 0) ? '#ff6b35' : '#d1d5db',
 														color: 'white',
 														borderRadius: '8px',
 														padding: '10px 18px',
 														fontWeight: '600',
 														border: 'none',
-														cursor: 'pointer',
+														cursor: (roundType !== 'assessment' && subStages && subStages.length > 0) ? 'pointer' : 'not-allowed',
 														display: 'flex',
 														alignItems: 'center',
-														gap: '8px'
+														gap: '8px',
+														opacity: (roundType !== 'assessment' && subStages && subStages.length > 0) ? 1 : 0.5
 													}}
 													onClick={async () => {
+														if (roundType === 'assessment') {
+															showWarning('Schedule Interview button is not available for assessment rounds. Assessment rounds are scheduled separately.');
+															return;
+														}
+														if (!subStages || subStages.length === 0) {
+															showWarning(`Please generate sub-stages first by entering a number of days in the 'Generate Sub-Stages' field for ${displayName}`);
+															return;
+														}
 														if (!details?.fromDate) {
 															showWarning(`Please set the Date Range for ${displayName}`);
 															return;

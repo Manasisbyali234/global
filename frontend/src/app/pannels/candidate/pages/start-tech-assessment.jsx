@@ -16,7 +16,7 @@ const StartAssessment = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const navigationState = location.state || {};
-    const { popup, showSuccess, hidePopup } = usePopupNotification();
+    const { popup, showSuccess, showError, hidePopup } = usePopupNotification();
 
     const getSessionInfo = () => {
         const params = new URLSearchParams(location.search);
@@ -112,7 +112,15 @@ const StartAssessment = () => {
 
     // Violation detection functions
     const logViolation = useCallback(async (violationType, details = '') => {
-        if (!attemptId || assessmentState !== 'in_progress') return;
+        if (!attemptId || assessmentState !== 'in_progress') {
+            console.warn('Cannot log violation: missing attemptId or invalid state');
+            return;
+        }
+
+        if (!violationType) {
+            console.error('Cannot log violation: violationType is required');
+            return;
+        }
 
         try {
             const timestamp = new Date().toISOString();
@@ -127,7 +135,7 @@ const StartAssessment = () => {
                 console.log('Violation logged successfully:', violationType);
             }
         } catch (error) {
-            console.error('Failed to log violation:', error);
+            console.error('Failed to log violation:', error.message || error);
         }
     }, [attemptId, assessmentState]);
 
@@ -725,6 +733,45 @@ const StartAssessment = () => {
 		}, 500);
 	};
 
+	const handleFileUpload = async (e) => {
+		const file = e.target.files[0];
+		if (!file) return;
+
+		const maxSize = 15 * 1024 * 1024; // 15MB
+		if (file.size > maxSize) {
+			showError('File size exceeds 15MB limit. Please upload a smaller file.');
+			e.target.value = '';
+			return;
+		}
+
+		try {
+			const formData = new FormData();
+			formData.append('answerFile', file);
+			formData.append('attemptId', attemptId);
+			formData.append('questionIndex', currentQuestionIndex);
+
+			const token = localStorage.getItem('candidateToken');
+			const response = await axios.post('http://localhost:5000/api/candidate/assessments/upload-answer', formData, {
+				headers: {
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': 'multipart/form-data'
+				}
+			});
+
+			if (response.data.success) {
+				const updated = [...answers];
+				updated[currentQuestionIndex] = { uploaded: true, fileName: file.name };
+				setAnswers(updated);
+				showSuccess('File uploaded successfully!');
+			} else {
+				showError(response.data.message || 'Failed to upload file');
+			}
+		} catch (err) {
+			console.error('File upload error:', err);
+			showError('Failed to upload file. Please try again.');
+		}
+	};
+
 	const handleSubmit = async () => {
 		if (isSubmitted) return;
 		
@@ -939,6 +986,10 @@ const StartAssessment = () => {
 							<img 
 								src={question.imageUrl} 
 								alt="Question illustration" 
+								onError={(e) => {
+									console.error('Failed to load image:', question.imageUrl);
+									e.target.style.display = 'none';
+								}}
 								style={{
 									maxWidth: "100%",
 									maxHeight: "400px",
@@ -976,7 +1027,7 @@ const StartAssessment = () => {
 									padding: "30px",
 									textAlign: "center",
 									marginBottom: "15px",
-									backgroundColor: "#f9f9f9",
+									backgroundColor: answers[currentQuestionIndex]?.uploaded ? "#e8f5e9" : "#f9f9f9",
 									cursor: "pointer",
 									boxSizing: "border-box"
 								}}>
@@ -985,12 +1036,23 @@ const StartAssessment = () => {
 										id="file-upload"
 										style={{ display: "none" }}
 										accept=".pdf,.doc,.docx,image/*"
+										onChange={handleFileUpload}
 										disabled={isSubmitted}
 									/>
 									<label htmlFor="file-upload" style={{ cursor: "pointer", display: "block", width: "100%" }}>
-										<i className="fa fa-cloud-upload" style={{ fontSize: "48px", color: "#999", marginBottom: "10px", display: "block" }}></i>
-										<p style={{ margin: "10px 0", color: "#666", fontSize: "16px" }}>Click to upload or drag and drop</p>
-										<small style={{ color: "#999" }}>PDF, DOC, DOCX, JPG, PNG, GIF (Max: 100MB)</small>
+										{answers[currentQuestionIndex]?.uploaded ? (
+											<>
+												<i className="fa fa-check-circle" style={{ fontSize: "48px", color: "#4CAF50", marginBottom: "10px", display: "block" }}></i>
+												<p style={{ margin: "10px 0", color: "#4CAF50", fontSize: "16px", fontWeight: "bold" }}>File Uploaded: {answers[currentQuestionIndex]?.fileName}</p>
+												<small style={{ color: "#666" }}>Click to upload a different file</small>
+											</>
+										) : (
+											<>
+												<i className="fa fa-cloud-upload" style={{ fontSize: "48px", color: "#999", marginBottom: "10px", display: "block" }}></i>
+												<p style={{ margin: "10px 0", color: "#666", fontSize: "16px" }}>Click to upload or drag and drop</p>
+												<small style={{ color: "#999" }}>PDF, DOC, DOCX, JPG, PNG, GIF (Max: 15MB)</small>
+											</>
+										)}
 									</label>
 								</div>
 								<div style={{ marginBottom: "15px" }}>
@@ -1008,7 +1070,7 @@ const StartAssessment = () => {
 											boxSizing: "border-box"
 										}}
 										placeholder="Type your answer here..."
-										value={answers[currentQuestionIndex] || ''}
+										value={typeof answers[currentQuestionIndex] === 'string' ? answers[currentQuestionIndex] : ''}
 										onChange={(e) => handleTextAnswerChange(e.target.value)}
 										disabled={isSubmitted}
 									/>

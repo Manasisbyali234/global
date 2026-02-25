@@ -294,7 +294,7 @@ export default function ViewAnswers() {
                     </div>
                   )}
                   
-                  {(question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') ? (
+                  {(question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       {question.options.map((option, idx) => {
                         const isSelected = parseInt(answer.selectedAnswer) === idx;
@@ -534,6 +534,23 @@ export default function ViewAnswers() {
                                     <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
                                       {answer.uploadedFile.size ? `${(answer.uploadedFile.size / 1024).toFixed(1)} KB` : 'Unknown size'}
                                     </div>
+                                    {answer.uploadedFile.data && (
+                                      <a 
+                                        href={answer.uploadedFile.data} 
+                                        download={answer.uploadedFile.originalName || 'file'}
+                                        style={{ 
+                                          display: 'inline-block',
+                                          marginTop: '0.5rem',
+                                          color: '#3b82f6', 
+                                          fontWeight: '600',
+                                          textDecoration: 'none',
+                                          cursor: 'pointer'
+                                        }}
+                                      >
+                                        <i className="fa fa-download" style={{ marginRight: '0.4rem' }}></i>
+                                        Download File
+                                      </a>
+                                    )}
                                   </div>
                                 </div>
                               )}
