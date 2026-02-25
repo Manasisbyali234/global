@@ -1133,13 +1133,13 @@ export default function EmpPostJob({ onNext }) {
 				}
 			}
 			
-			// Validate start time for all rounds
-			if (!details?.startTime) {
+			// Validate start time for all rounds except One-to-One / Panel
+			if (!details?.startTime && roundType !== 'oneOnOnePanel') {
 				errorMessages.push(`Please select Start Time for ${roundName}`);
 			}
 			
-			// Validate end time for all rounds
-			if (!details?.endTime) {
+			// Validate end time for all rounds except One-to-One / Panel
+			if (!details?.endTime && roundType !== 'oneOnOnePanel') {
 				errorMessages.push(`Please select End Time for ${roundName}`);
 			}
 			

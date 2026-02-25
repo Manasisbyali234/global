@@ -22,6 +22,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const [isMinimized, setIsMinimized] = useState(false);
 	const [isMaximized, setIsMaximized] = useState(false);
 	const [showPreview, setShowPreview] = useState(false);
+	const [optionErrors, setOptionErrors] = useState({});
 
 	useEffect(() => {
 		disableBodyScroll();
@@ -92,6 +93,16 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		const updated = [...questions];
 		updated[qIndex].options[optIndex] = value;
 		setQuestions(updated);
+		
+		// Clear error for this option when user starts typing
+		if (value.trim()) {
+			const errorKey = `${qIndex}-${optIndex}`;
+			if (optionErrors[errorKey]) {
+				const newErrors = { ...optionErrors };
+				delete newErrors[errorKey];
+				setOptionErrors(newErrors);
+			}
+		}
 	};
 
 	const handleCorrectAnswerChange = (qIndex, optIndex) => {
@@ -104,6 +115,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		// Validate the last question before adding a new one
 		if (questions.length > 0) {
 			const lastQuestion = questions[questions.length - 1];
+			const lastQIndex = questions.length - 1;
 			const questionText = (lastQuestion.question || "").replace(/<[^>]*>/g, '').trim();
 			
 			if (!questionText) {
@@ -116,12 +128,33 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				return;
 			}
 			
-			if (["mcq", "visual-mcq", "questionary-image-mcq", "image-mcq"].includes(lastQuestion.type) && (lastQuestion.correctAnswer === null || lastQuestion.correctAnswer === undefined)) {
-				showWarning("Please select a correct answer before adding a new question");
-				return;
+			// Validate options for MCQ type questions
+			if (["mcq", "visual-mcq", "questionary-image-mcq", "image-mcq"].includes(lastQuestion.type)) {
+				const errors = {};
+				let hasEmptyOptions = false;
+				
+				for (let j = 0; j < lastQuestion.options.length; j++) {
+					if (!lastQuestion.options[j] || !lastQuestion.options[j].trim()) {
+						errors[`${lastQIndex}-${j}`] = true;
+						hasEmptyOptions = true;
+					}
+				}
+				
+				if (hasEmptyOptions) {
+					setOptionErrors(errors);
+					showWarning("Please fill all options before adding a new question");
+					return;
+				}
+				
+				if (lastQuestion.correctAnswer === null || lastQuestion.correctAnswer === undefined) {
+					showWarning("Please select a correct answer before adding a new question");
+					return;
+				}
 			}
 		}
 		
+		// Clear errors when adding new question
+		setOptionErrors({});
 		setQuestions([
 			...questions,
 			{ question: "", type: "mcq", options: ["", "", "", ""], optionImages: [], correctAnswer: null, marks: 1, imageUrl: "" },
@@ -798,17 +831,29 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 													}}
 												/>
 												{q.type !== "questionary-image-mcq" ? (
-													<input
-														type="text"
-														className="form-control"
-														placeholder={`Option ${String.fromCharCode(
-															65 + optIndex
-														)}`}
-														value={opt}
-														onChange={(e) =>
-															handleOptionChange(qIndex, optIndex, e.target.value)
-														}
-													/>
+													<div style={{ flex: 1 }}>
+														<input
+															type="text"
+															className="form-control"
+															placeholder={`Option ${String.fromCharCode(
+																65 + optIndex
+															)}`}
+															value={opt}
+															onChange={(e) =>
+																handleOptionChange(qIndex, optIndex, e.target.value)
+															}
+															style={{
+																borderColor: optionErrors[`${qIndex}-${optIndex}`] ? '#dc2626' : '#dee2e6',
+																borderWidth: optionErrors[`${qIndex}-${optIndex}`] ? 2 : 1
+															}}
+														/>
+														{optionErrors[`${qIndex}-${optIndex}`] && (
+															<small style={{color: '#dc2626', fontSize: 11, marginTop: 4, display: 'block'}}>
+																<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
+																Please fill this option
+															</small>
+														)}
+													</div>
 												) : (
 													<input
 														type="file"
