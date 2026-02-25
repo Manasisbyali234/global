@@ -4586,31 +4586,7 @@ export default function EmpPostJob({ onNext }) {
 																	/>
 																</div>
 															</div>
-															<div style={{ flex: 1, minWidth: isMobile ? '100%' : '150px' }}>
-																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-																	<i className="fa fa-users"></i> SLOTS
-																</label>
-																<div style={{ position: 'relative' }}>
-																	<input
-																		type="number"
-																		min="1"
-																		style={{
-																			background: '#f9fafb',
-																			border: '1px solid #e5e7eb',
-																			borderRadius: '10px',
-																			padding: '10px 14px',
-																			width: '100%',
-																			fontSize: '14px'
-																		}}
-																		placeholder="Number of slots"
-																		value={subStage.applicationLimit || ''}
-																		onChange={(e) => {
-																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, applicationLimit: parseInt(e.target.value) || 0 } : s);
-																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages } } }));
-																		}}
-																	/>
-																</div>
-															</div>
+
 														</div>
 													</div>
 												))}
