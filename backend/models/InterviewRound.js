@@ -16,7 +16,19 @@ const interviewRoundSchema = new mongoose.Schema({
     startTime: { type: String },
     endTime: { type: String },
     applicationLimit: { type: Number }
-  }]
+  }],
+  // Scheduler fields
+  scheduleObject: { type: Object },
+  schedulesArray: { type: Array },
+  daySchedulesArray: { type: Array },
+  date: { type: String },
+  roomsArray: { type: Array },
+  numStudents: { type: Number },
+  numHRs: { type: Number },
+  remainingStudents: { type: Number },
+  maxPossibleInterviews: { type: Number },
+  formDataObject: { type: Object },
+  savedAt: { type: Date }
 }, {
   timestamps: true
 });

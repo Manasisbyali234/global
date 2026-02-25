@@ -1039,7 +1039,19 @@ exports.createJob = async (req, res) => {
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
             applicationLimit: parseInt(jobData.applicationLimit) || 50,
-            subStages: value.subStages || value.subStagesArray || []
+            subStages: value.subStages || value.subStagesArray || [],
+            // Preserve scheduler fields if they exist in the incoming data
+            scheduleObject: value.scheduleObject,
+            schedulesArray: value.schedulesArray,
+            daySchedulesArray: value.daySchedulesArray,
+            date: value.date,
+            roomsArray: value.roomsArray,
+            numStudents: value.numStudents,
+            numHRs: value.numHRs,
+            remainingStudents: value.remainingStudents,
+            maxPossibleInterviews: value.maxPossibleInterviews,
+            formDataObject: value.formDataObject,
+            savedAt: value.savedAt
           });
         }
       });
@@ -1136,7 +1148,19 @@ exports.createJob = async (req, res) => {
               startTime: normalizeTimeFormat(sub.startTime),
               endTime: normalizeTimeFormat(sub.endTime),
               breakTime: sub.breakTime || 0
-            }))
+            })),
+            // Include scheduler fields
+            scheduleObject: round.scheduleObject,
+            schedulesArray: round.schedulesArray,
+            daySchedulesArray: round.daySchedulesArray,
+            date: round.date,
+            roomsArray: round.roomsArray,
+            numStudents: round.numStudents,
+            numHRs: round.numHRs,
+            remainingStudents: round.remainingStudents,
+            maxPossibleInterviews: round.maxPossibleInterviews,
+            formDataObject: round.formDataObject,
+            savedAt: round.savedAt
           });
           console.log('[createJob] Interview round created successfully:', {
             id: createdRound._id,
@@ -1390,7 +1414,20 @@ exports.updateJob = async (req, res) => {
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
             applicationLimit: parseInt(req.body.applicationLimit) || 50,
-            subStages: value.subStages || value.subStagesArray || []
+            subStages: value.subStages || value.subStagesArray || [],
+            _id: value._id, // Preserve existing ID if present
+            // Preserve scheduler fields if they exist in the incoming data
+            scheduleObject: value.scheduleObject,
+            schedulesArray: value.schedulesArray,
+            daySchedulesArray: value.daySchedulesArray,
+            date: value.date,
+            roomsArray: value.roomsArray,
+            numStudents: value.numStudents,
+            numHRs: value.numHRs,
+            remainingStudents: value.remainingStudents,
+            maxPossibleInterviews: value.maxPossibleInterviews,
+            formDataObject: value.formDataObject,
+            savedAt: value.savedAt
           });
         }
       });
@@ -1402,16 +1439,13 @@ exports.updateJob = async (req, res) => {
       console.log('[updateJob] Existing rounds from DB:', existingRounds.map(r => ({ id: r._id, key: r.key, name: r.name })));
       
       const existingRoundsByKey = {};
-      const existingRoundsById = {};
       existingRounds.forEach(round => {
         if (round.key) {
           existingRoundsByKey[round.key] = round;
         }
-        existingRoundsById[round._id.toString()] = round;
       });
       console.log('[updateJob] Existing rounds by key:', Object.keys(existingRoundsByKey));
       console.log('[updateJob] Incoming round keys:', interviewRounds.map(r => r.key));
-      console.log('[updateJob] Full incoming rounds:', JSON.stringify(interviewRounds, null, 2));
       
       // Track which rounds are being updated
       const updatedKeys = new Set();
@@ -1426,22 +1460,9 @@ exports.updateJob = async (req, res) => {
             }
             
             updatedKeys.add(round.key);
-            
-            // Try to find by key first, then by _id as fallback
-            let existingRound = existingRoundsByKey[round.key];
-            if (!existingRound && round._id) {
-              existingRound = existingRoundsById[round._id];
-              console.log(`[updateJob] Key '${round.key}' not found, trying _id: ${round._id} - Found: ${!!existingRound}`);
-            }
-            
-            console.log(`[updateJob] Looking for key '${round.key}' - Found: ${!!existingRound}`);
+            const existingRound = existingRoundsByKey[round.key];
             
             if (existingRound) {
-              // Update the key if it changed
-              if (existingRound.key !== round.key) {
-                console.log(`[updateJob] Updating key from '${existingRound.key}' to '${round.key}'`);
-                existingRound.key = round.key;
-              }
               console.log(`[updateJob] UPDATING existing round with _id: ${existingRound._id}, key: ${round.key}`);
               // Update existing round to preserve _id
               existingRound.name = round.name;
@@ -1457,15 +1478,63 @@ exports.updateJob = async (req, res) => {
                 endTime: normalizeTimeFormat(sub.endTime),
                 breakTime: sub.breakTime || 0
               }));
+
+              // Preserve or update scheduler fields
+              if (round.scheduleObject !== undefined) existingRound.scheduleObject = round.scheduleObject;
+              if (round.schedulesArray !== undefined) existingRound.schedulesArray = round.schedulesArray;
+              if (round.daySchedulesArray !== undefined) existingRound.daySchedulesArray = round.daySchedulesArray;
+              if (round.date !== undefined) existingRound.date = round.date;
+              if (round.roomsArray !== undefined) existingRound.roomsArray = round.roomsArray;
+              if (round.numStudents !== undefined) existingRound.numStudents = round.numStudents;
+              if (round.numHRs !== undefined) existingRound.numHRs = round.numHRs;
+              if (round.remainingStudents !== undefined) existingRound.remainingStudents = round.remainingStudents;
+              if (round.maxPossibleInterviews !== undefined) existingRound.maxPossibleInterviews = round.maxPossibleInterviews;
+              if (round.formDataObject !== undefined) existingRound.formDataObject = round.formDataObject;
+              if (round.savedAt !== undefined) existingRound.savedAt = round.savedAt;
+
               await existingRound.save();
               console.log('[updateJob] Interview round UPDATED successfully - _id preserved:', {
                 id: existingRound._id,
                 key: existingRound.key,
                 name: existingRound.name
               });
-              console.log('[updateJob] Saved round _id:', existingRound._id.toString());
             } else {
-              console.warn(`[updateJob] WARNING: Round with key '${round.key}' not found in database. Skipping creation to preserve existing _id.`);
+              console.log(`[updateJob] CREATING new round with key: ${round.key}`);
+              // Create new round
+              const createdRound = await InterviewRound.create({
+                jobId: oldJob._id,
+                key: round.key,
+                name: round.name,
+                fromdate: round.fromdate,
+                todate: round.todate,
+                startTime: round.startTime,
+                endTime: round.endTime,
+                description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
+                applicationLimit: round.applicationLimit,
+                subStages: (round.subStages || []).map(sub => ({
+                  fromDate: sub.fromDate || sub.fromdate || sub.date,
+                  startTime: normalizeTimeFormat(sub.startTime),
+                  endTime: normalizeTimeFormat(sub.endTime),
+                  breakTime: sub.breakTime || 0
+                })),
+                // Include scheduler fields
+                scheduleObject: round.scheduleObject,
+                schedulesArray: round.schedulesArray,
+                daySchedulesArray: round.daySchedulesArray,
+                date: round.date,
+                roomsArray: round.roomsArray,
+                numStudents: round.numStudents,
+                numHRs: round.numHRs,
+                remainingStudents: round.remainingStudents,
+                maxPossibleInterviews: round.maxPossibleInterviews,
+                formDataObject: round.formDataObject,
+                savedAt: round.savedAt
+              });
+              console.log('[updateJob] Interview round CREATED successfully - new _id:', {
+                id: createdRound._id,
+                key: createdRound.key,
+                name: createdRound.name
+              });
             }
           } catch (roundError) {
             console.error('[updateJob] Error updating/creating interview round:', roundError);
@@ -2535,6 +2604,20 @@ exports.scheduleInterviewRound = async (req, res) => {
           endTime: normalizeTimeFormat(sub.endTime)
         }));
       }
+
+      // Preserve or update scheduler fields
+      if (req.body.scheduleObject !== undefined) interviewRound.scheduleObject = req.body.scheduleObject;
+      if (req.body.schedulesArray !== undefined) interviewRound.schedulesArray = req.body.schedulesArray;
+      if (req.body.daySchedulesArray !== undefined) interviewRound.daySchedulesArray = req.body.daySchedulesArray;
+      if (req.body.date !== undefined) interviewRound.date = req.body.date;
+      if (req.body.roomsArray !== undefined) interviewRound.roomsArray = req.body.roomsArray;
+      if (req.body.numStudents !== undefined) interviewRound.numStudents = req.body.numStudents;
+      if (req.body.numHRs !== undefined) interviewRound.numHRs = req.body.numHRs;
+      if (req.body.remainingStudents !== undefined) interviewRound.remainingStudents = req.body.remainingStudents;
+      if (req.body.maxPossibleInterviews !== undefined) interviewRound.maxPossibleInterviews = req.body.maxPossibleInterviews;
+      if (req.body.formDataObject !== undefined) interviewRound.formDataObject = req.body.formDataObject;
+      if (req.body.savedAt !== undefined) interviewRound.savedAt = req.body.savedAt;
+
       await interviewRound.save();
     } else {
       interviewRound = await InterviewRound.create({
@@ -2550,7 +2633,19 @@ exports.scheduleInterviewRound = async (req, res) => {
           fromDate: sub.fromDate || sub.fromdate || sub.date,
           startTime: normalizeTimeFormat(sub.startTime),
           endTime: normalizeTimeFormat(sub.endTime)
-        }))
+        })),
+        // Include scheduler fields
+        scheduleObject: req.body.scheduleObject,
+        schedulesArray: req.body.schedulesArray,
+        daySchedulesArray: req.body.daySchedulesArray,
+        date: req.body.date,
+        roomsArray: req.body.roomsArray,
+        numStudents: req.body.numStudents,
+        numHRs: req.body.numHRs,
+        remainingStudents: req.body.remainingStudents,
+        maxPossibleInterviews: req.body.maxPossibleInterviews,
+        formDataObject: req.body.formDataObject,
+        savedAt: req.body.savedAt
       });
     }
     
@@ -3314,7 +3409,19 @@ exports.createInterviewRounds = async (req, res) => {
           startTime: normalizeTimeFormat(sub.startTime),
           endTime: normalizeTimeFormat(sub.endTime),
           breakTime: sub.breakTime || 0
-        }))
+        })),
+        // Include scheduler fields
+        scheduleObject: round.scheduleObject,
+        schedulesArray: round.schedulesArray,
+        daySchedulesArray: round.daySchedulesArray,
+        date: round.date,
+        roomsArray: round.roomsArray,
+        numStudents: round.numStudents,
+        numHRs: round.numHRs,
+        remainingStudents: round.remainingStudents,
+        maxPossibleInterviews: round.maxPossibleInterviews,
+        formDataObject: round.formDataObject,
+        savedAt: round.savedAt
       });
       createdRounds.push(interviewRound);
     }
