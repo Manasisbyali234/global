@@ -1382,8 +1382,8 @@ exports.updateJob = async (req, res) => {
       const interviewRounds = [];
       Object.entries(req.body.interviewRoundDetails).forEach(([key, value]) => {
         if (value && typeof value === 'object') {
-          // Determine round type from key or interviewRoundTypes
-          const roundType = req.body.interviewRoundTypes?.[key] || key.replace(/_\d+$/, '');
+          // Determine round type from value, key or interviewRoundTypes
+          const roundType = value.roundType || req.body.interviewRoundTypes?.[key] || key.replace(/_\d+$/, '');
           
           // For assessment rounds, only require date/time (description is optional)
           // For oneOnOnePanel and group types, description is optional (scheduled via scheduler)
@@ -1407,13 +1407,14 @@ exports.updateJob = async (req, res) => {
 
           interviewRounds.push({
             key: key,
-            name: value.customType || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
+            name: value.customType || value.name || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
+            roundType: roundType,
             fromdate: fromDate,
             todate: value.toDate || value.todate || fromDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
-            applicationLimit: parseInt(req.body.applicationLimit) || 50,
+            applicationLimit: parseInt(req.body.applicationLimit) || parseInt(value.applicationLimit) || 50,
             subStages: value.subStages || value.subStagesArray || [],
             _id: value._id || value.id, // Preserve existing ID if present
             // Preserve scheduler fields if they exist in the incoming data
@@ -1480,12 +1481,35 @@ exports.updateJob = async (req, res) => {
                 console.log(`[updateJob] Matched by name fallback: ${round.name}, _id: ${existingRound._id}`);
               }
             }
+
+            // More aggressive fallback: match by base key (type)
+            if (!existingRound && round.key) {
+              const baseKey = round.key.split('_')[0];
+              const matches = existingRounds.filter(r => {
+                const rBaseKey = (r.key && r.key.split('_')[0]) || r.roundType;
+                return rBaseKey === baseKey && !updatedIds.has(r._id.toString());
+              });
+              if (matches.length === 1) {
+                existingRound = matches[0];
+                console.log(`[updateJob] Matched by base key fallback: ${baseKey}, _id: ${existingRound._id}`);
+              }
+            }
+
+            // Last resort: match by roundType
+            if (!existingRound && round.roundType) {
+              const matches = existingRounds.filter(r => r.roundType === round.roundType && !updatedIds.has(r._id.toString()));
+              if (matches.length === 1) {
+                existingRound = matches[0];
+                console.log(`[updateJob] Matched by roundType fallback: ${round.roundType}, _id: ${existingRound._id}`);
+              }
+            }
             
             if (existingRound) {
               updatedIds.add(existingRound._id.toString());
               console.log(`[updateJob] UPDATING existing round with _id: ${existingRound._id}, key: ${round.key}`);
               // Update existing round to preserve _id
               existingRound.name = round.name;
+              existingRound.roundType = round.roundType || existingRound.roundType;
               existingRound.fromdate = round.fromdate;
               existingRound.todate = round.todate;
               existingRound.startTime = round.startTime;
@@ -1548,6 +1572,7 @@ exports.updateJob = async (req, res) => {
                 jobId: oldJob._id,
                 key: round.key,
                 name: round.name,
+                roundType: round.roundType,
                 fromdate: round.fromdate,
                 todate: round.todate,
                 startTime: round.startTime,
