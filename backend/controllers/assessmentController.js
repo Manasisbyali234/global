@@ -504,7 +504,7 @@ exports.submitAnswer = async (req, res) => {
     const question = assessment.questions[questionIndex];
     
     // Validate answer based on question type
-    if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') {
+    if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') {
       if (selectedAnswer === null || selectedAnswer === undefined) {
         return res.status(400).json({ success: false, message: 'Please select an answer' });
       }
@@ -518,7 +518,7 @@ exports.submitAnswer = async (req, res) => {
     const existingAnswerIndex = attempt.answers.findIndex(a => a.questionIndex === questionIndex);
     const answerData = {
       questionIndex,
-      selectedAnswer: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') ? parseInt(selectedAnswer) : null,
+      selectedAnswer: (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') ? parseInt(selectedAnswer) : null,
       textAnswer: (question.type === 'subjective' || question.type === 'image' || question.type === 'upload') && textAnswer ? textAnswer : null,
       timeSpent: timeSpent || 0,
       answeredAt: new Date()
@@ -764,7 +764,7 @@ exports.submitAssessment = async (req, res) => {
       totalAnswered++;
       
       // Handle different question types
-      if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') {
+      if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') {
         // Ensure both values are integers for accurate comparison
         const selectedAnswer = parseInt(answer.selectedAnswer);
         const correctAnswer = parseInt(question.correctAnswer);
@@ -908,7 +908,7 @@ exports.getAssessmentResult = async (req, res) => {
           const question = attempt.assessmentId.questions[a.questionIndex];
           if (!question) return false;
 
-          if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') {
+          if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') {
             return !isNaN(parseInt(a.selectedAnswer)) && parseInt(a.selectedAnswer) === parseInt(question.correctAnswer);
           } else if (question.type === 'subjective' || question.type === 'image' || question.type === 'upload') {
             return (a.textAnswer && a.textAnswer.trim()) || a.uploadedFile;
@@ -1117,7 +1117,7 @@ exports.getAssessmentResultByApplication = async (req, res) => {
             const question = attempt.assessmentId.questions[a.questionIndex];
             if (!question) return false;
 
-            if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') {
+            if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') {
               return !isNaN(parseInt(a.selectedAnswer)) && parseInt(a.selectedAnswer) === parseInt(question.correctAnswer);
             } else if (question.type === 'subjective' || question.type === 'image' || question.type === 'upload') {
               return (a.textAnswer && a.textAnswer.trim()) || a.uploadedFile;
