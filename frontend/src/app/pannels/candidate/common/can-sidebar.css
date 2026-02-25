@@ -88,20 +88,25 @@
   top: 15px !important;
   left: 15px !important;
   z-index: 1050 !important;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+  background: #ff8c00 !important;
   color: white !important;
   border: none !important;
-  padding: 12px 15px !important;
+  padding: 10px 14px !important;
   border-radius: 8px !important;
-  font-size: 18px !important;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+  font-size: 20px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
   cursor: pointer !important;
   transition: all 0.3s ease !important;
+  width: 44px !important;
+  height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .mobile-menu-toggle:hover {
   transform: translateY(-1px) !important;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
 }
 
 /* Adjust button position when sidebar is active */
@@ -118,7 +123,7 @@
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  background: rgba(0, 0, 0, 0.15) !important;
+  background: rgba(0, 0, 0, 0.3) !important;
   z-index: 1040 !important;
   backdrop-filter: blur(1px) !important;
   opacity: 0 !important;
@@ -166,13 +171,8 @@
     transform: translateX(-100%) !important;
   }
 
-  #sidebar-admin-wraper.active ~ .mobile-menu-toggle,
-  body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
-    display: none !important;
-  }
-
   .mobile-menu-toggle {
-    display: block !important;
+    display: flex !important;
   }
 
   #content {

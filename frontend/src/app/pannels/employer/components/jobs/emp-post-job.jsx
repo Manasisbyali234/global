@@ -245,6 +245,7 @@ export default function EmpPostJob({ onNext }) {
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const isEditMode = Boolean(id);
+	const [currentJobId, setCurrentJobId] = useState(id);
 	const today = new Date().toISOString().split('T')[0];
 	const [formData, setFormData] = useState({
 		jobTitle: "",
@@ -328,6 +329,7 @@ export default function EmpPostJob({ onNext }) {
 	const [globalErrors, setGlobalErrors] = useState([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
+	const [showSubStageConfirm, setShowSubStageConfirm] = useState(null);
 	const [scheduledRounds, setScheduledRounds] = useState({});
 	const [interviewRoundIds, setInterviewRoundIds] = useState({}); // Store created InterviewRound IDs
 	const [locationSearchTerm, setLocationSearchTerm] = useState('');
@@ -439,6 +441,10 @@ export default function EmpPostJob({ onNext }) {
 	useEffect(() => {
 		// Reset scroll position
 		window.scrollTo(0, 0);
+		
+		if (id) {
+			setCurrentJobId(id);
+		}
 		
 		if (isEditMode) {
 			fetchJobData();
@@ -891,7 +897,7 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}));
 
-		showSuccess(`Added ${dayCount} sub-stage(s) for ${dayCount} day(s)`);
+		showSuccess(`Added ${dayCount} sub-stage${dayCount > 1 ? 's' : ''} for ${dayCount} day${dayCount > 1 ? 's' : ''}`);
 	};
 
 	const handleLogoUpload = (e) => {
@@ -1323,6 +1329,7 @@ export default function EmpPostJob({ onNext }) {
 
 			if (data.success) {
 				const jobId = data.job?._id || data.jobId || id;
+				setCurrentJobId(jobId);
 				showSuccess(isEditMode ? 'Job information updated!' : 'Job information saved! Now set up the interview process.');
 				
 				// Move to step 2 and update URL if it's a new job
@@ -4202,6 +4209,12 @@ export default function EmpPostJob({ onNext }) {
 														}));
 														
 														try {
+															const activeJobId = currentJobId || id;
+															if (!activeJobId) {
+																showError('Please save the job information first (Step 1) before scheduling interviews.');
+																return;
+															}
+															
 															const token = localStorage.getItem('employerToken');
 															const existingRoundId = interviewRoundIds[uniqueKey];
 															const url = existingRoundId 
@@ -4216,7 +4229,7 @@ export default function EmpPostJob({ onNext }) {
 																	'Authorization': `Bearer ${token}`
 																},
 																body: JSON.stringify({
-																	jobId: id,
+																	jobId: activeJobId,
 																	name: displayName,
 																	roundType: roundType,
 																	fromdate: details.fromDate,
@@ -4369,50 +4382,7 @@ export default function EmpPostJob({ onNext }) {
 													</div>
 												</div>
 
-												{/* Lunch Break Section */}
-												<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '1', minWidth: '200px' }}>
-													<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-														<i className="fa fa-utensils" style={{ color: '#ff8a00', fontSize: '14px' }}></i>
-														<label style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Lunch Break</label>
-													</div>
-													<div style={{
-														border: '1px solid #e5e7eb',
-														borderRadius: '10px',
-														padding: '12px',
-														display: 'flex',
-														flexDirection: 'column',
-														gap: '8px'
-													}}>
-														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-															<span style={{ fontSize: '12px', color: '#9ca3af', width: isMobile ? 'auto' : '50px', minWidth: '45px' }}>START:</span>
-															<input
-																type="time"
-																style={{
-																	border: 'none',
-																	fontSize: '14px',
-																	outline: 'none',
-																	width: '100%'
-																}}
-																value={details.startTime || ''}
-																onChange={(e) => updateRoundDetails(uniqueKey, 'startTime', e.target.value)}
-															/>
-														</div>
-														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-															<span style={{ fontSize: '12px', color: '#9ca3af', width: isMobile ? 'auto' : '50px', minWidth: '45px' }}>END:</span>
-															<input
-																type="time"
-																style={{
-																	border: 'none',
-																	fontSize: '14px',
-																	outline: 'none',
-																	width: '100%'
-																}}
-																value={details.endTime || ''}
-																onChange={(e) => updateRoundDetails(uniqueKey, 'endTime', e.target.value)}
-															/>
-														</div>
-													</div>
-												</div>
+
 											</div>
 
 											{/* Divider Line */}
@@ -4464,8 +4434,10 @@ export default function EmpPostJob({ onNext }) {
 																		min={today}
 																		value={subStage.fromDate || ''}
 																		onChange={(e) => {
-																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, fromDate: e.target.value } : s);
-																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages, toDate: e.target.value } } }));
+																			const selectedDate = e.target.value;
+																			if (selectedDate) {
+																				setShowSubStageConfirm({ uniqueKey, subStage, subIndex, selectedDate });
+																			}
 																		}}
 																	/>
 																</div>
@@ -4487,7 +4459,22 @@ export default function EmpPostJob({ onNext }) {
 																		}}
 																		value={subStage.startTime || ''}
 																		onChange={(e) => {
-																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, startTime: e.target.value } : s);
+																			const startTime = e.target.value;
+																			const endTime = subStage.endTime;
+																			
+																			if (startTime && endTime) {
+																				const [startHour, startMin] = startTime.split(':').map(Number);
+																				const [endHour, endMin] = endTime.split(':').map(Number);
+																				const startMinutes = startHour * 60 + startMin;
+																				const endMinutes = endHour * 60 + endMin;
+																				
+																				if (startMinutes >= endMinutes) {
+																					showError('Start time must be before end time');
+																					return;
+																				}
+																			}
+																			
+																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, startTime } : s);
 																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages } } }));
 																		}}
 																	/>
@@ -4510,7 +4497,32 @@ export default function EmpPostJob({ onNext }) {
 																		}}
 																		value={subStage.endTime || ''}
 																		onChange={(e) => {
-																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, endTime: e.target.value } : s);
+																			const endTime = e.target.value;
+																			const startTime = subStage.startTime;
+																			
+																			if (startTime && endTime) {
+																				const [startHour, startMin] = startTime.split(':').map(Number);
+																				const [endHour, endMin] = endTime.split(':').map(Number);
+																				const totalMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin) - (subStage.breakTime || 0);
+																				
+																				if (totalMinutes <= 0) {
+																					showError('End time must be after start time (including break time)');
+																					return;
+																				}
+																				
+																				const slots = subStage.applicationLimit;
+																				if (slots && slots > 0) {
+																					const interviewDuration = 60;
+																					const requiredMinutes = slots * interviewDuration;
+																					
+																					if (totalMinutes < requiredMinutes) {
+																						showError(`Total interview time (${(totalMinutes/60).toFixed(1)} hours) must be ≥ ${(requiredMinutes/60).toFixed(1)} hours (${slots} slots × 1 hour per candidate)`);
+																						return;
+																					}
+																				}
+																			}
+																			
+																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, endTime } : s);
 																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages } } }));
 																		}}
 																	/>
@@ -4534,6 +4546,31 @@ export default function EmpPostJob({ onNext }) {
 																		value={subStage.breakTime || 0}
 																		onChange={(e) => {
 																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, breakTime: parseInt(e.target.value) || 0 } : s);
+																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages } } }));
+																		}}
+																	/>
+																</div>
+															</div>
+															<div style={{ flex: 1, minWidth: isMobile ? '100%' : '150px' }}>
+																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+																	<i className="fa fa-users"></i> SLOTS
+																</label>
+																<div style={{ position: 'relative' }}>
+																	<input
+																		type="number"
+																		min="1"
+																		style={{
+																			background: '#f9fafb',
+																			border: '1px solid #e5e7eb',
+																			borderRadius: '10px',
+																			padding: '10px 14px',
+																			width: '100%',
+																			fontSize: '14px'
+																		}}
+																		placeholder="Number of slots"
+																		value={subStage.applicationLimit || ''}
+																		onChange={(e) => {
+																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, applicationLimit: parseInt(e.target.value) || 0 } : s);
 																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages } } }));
 																		}}
 																	/>
@@ -4824,6 +4861,98 @@ export default function EmpPostJob({ onNext }) {
 								onMouseLeave={(e) => e.currentTarget.style.background = '#ff6b35'}
 							>
 								{currentStep === 2 ? 'Yes, Post Job' : (isEditMode ? 'Yes, Update' : 'Yes, Submit')}
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+			
+			{/* SubStage Date Confirmation Modal */}
+			{showSubStageConfirm && (
+				<div style={{
+					position: 'fixed',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					background: 'rgba(0, 0, 0, 0.5)',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					zIndex: 9999
+				}}>
+					<div style={{
+						background: '#fff',
+						borderRadius: 12,
+						padding: '32px',
+						maxWidth: '500px',
+						width: '90%',
+						boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+					}}>
+						<div style={{textAlign: 'center', marginBottom: 24}}>
+							<div style={{
+								width: 60,
+								height: 60,
+								background: '#dbeafe',
+								borderRadius: '50%',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								margin: '0 auto 16px'
+							}}>
+								<i className="fa fa-calendar-check" style={{fontSize: 28, color: '#3b82f6'}}></i>
+							</div>
+							<h3 style={{margin: 0, fontSize: 22, color: '#1f2937', fontWeight: 700}}>
+								Confirm Date Selection
+							</h3>
+						</div>
+						<p style={{fontSize: 15, color: '#4b5563', lineHeight: 1.6, marginBottom: 24, textAlign: 'center'}}>
+							Are you sure you want to set the date to <strong>{formatDate(showSubStageConfirm.selectedDate)}</strong> for Sub-Stage {showSubStageConfirm.subIndex + 1}?
+						</p>
+						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
+							<button
+								onClick={() => setShowSubStageConfirm(null)}
+								style={{
+									background: '#e5e7eb',
+									color: '#374151',
+									border: 'none',
+									padding: '12px 24px',
+									borderRadius: 8,
+									cursor: 'pointer',
+									fontSize: 15,
+									fontWeight: 600,
+									transition: 'all 0.2s'
+								}}
+								onMouseEnter={(e) => e.currentTarget.style.background = '#d1d5db'}
+								onMouseLeave={(e) => e.currentTarget.style.background = '#e5e7eb'}
+							>
+								No
+							</button>
+							<button
+								onClick={() => {
+									const { uniqueKey, subStage, subIndex, selectedDate } = showSubStageConfirm;
+									const details = formData.interviewRoundDetails[uniqueKey];
+									const subStages = details?.subStages || [];
+									const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, fromDate: selectedDate } : s);
+									setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages, toDate: selectedDate } } }));
+									showSuccess(`Date set to ${formatDate(selectedDate)} for Sub-Stage ${subIndex + 1}`);
+									setShowSubStageConfirm(null);
+								}}
+								style={{
+									background: '#3b82f6',
+									color: '#fff',
+									border: 'none',
+									padding: '12px 24px',
+									borderRadius: 8,
+									cursor: 'pointer',
+									fontSize: 15,
+									fontWeight: 600,
+									transition: 'all 0.2s'
+								}}
+								onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
+								onMouseLeave={(e) => e.currentTarget.style.background = '#3b82f6'}
+							>
+								Yes
 							</button>
 						</div>
 					</div>

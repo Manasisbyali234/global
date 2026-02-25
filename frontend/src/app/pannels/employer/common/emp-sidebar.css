@@ -282,12 +282,10 @@ nav#sidebar-admin-wraper.active,
         margin-left: 0 !important;
     }
     
-    #sidebar-admin-wraper.active ~ .mobile-menu-toggle,
-    body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
-        display: none !important;
+    .mobile-menu-toggle {
+        display: flex !important;
     }
-}
-
+    
     #sidebar-admin-wraper.collapsed {
         transform: translateX(-100%) !important;
         margin-left: 0 !important;
@@ -309,10 +307,6 @@ nav#sidebar-admin-wraper.active,
         width: 100% !important;
         left: 0;
         right: 0;
-    }
-    
-    .mobile-menu-toggle {
-        display: block !important;
     }
     
     /* Overlay for mobile menu */
@@ -376,20 +370,24 @@ nav#sidebar-admin-wraper.active,
     top: 15px;
     left: 15px;
     z-index: 1050;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    background: #ff8c00 !important;
     color: white !important;
     border: none;
-    padding: 12px 15px;
+    padding: 10px 14px;
     border-radius: 8px;
-    font-size: 18px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-size: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     cursor: pointer;
     transition: all 0.3s ease;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
 }
 
 .mobile-menu-toggle i {
     color: white !important;
-    font-size: 18px !important;
+    font-size: 20px !important;
 }
 
 body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
@@ -397,9 +395,8 @@ body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
 }
 
 .mobile-menu-toggle:hover {
-    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .mobile-menu-toggle:active {

@@ -308,16 +308,20 @@ nav#sidebar-admin-wraper {
     top: 15px !important;
     left: 15px !important;
     z-index: 1050 !important;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    background: #ff8c00 !important;
     color: #ffffff !important;
     border: none !important;
-    padding: 12px 15px !important;
+    padding: 10px 14px !important;
     border-radius: 8px !important;
-    font-size: 18px !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+    font-size: 20px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
     display: none !important;
+    width: 44px !important;
+    height: 44px !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .mobile-menu-toggle:hover {
@@ -384,36 +388,13 @@ nav#sidebar-admin-wraper {
         visibility: visible !important;
     }
 
-    #sidebar-admin-wraper.active ~ .mobile-menu-toggle,
-    body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
-        display: none !important;
-    }
-
-    #content {
-        margin-left: 0 !important;
-        width: 100% !important;
-        overflow-x: hidden !important;
-    }
-
     .mobile-menu-toggle {
-        position: fixed !important;
-        top: 15px !important;
-        left: 15px !important;
-        z-index: 1050 !important;
-        width: 50px !important;
-        height: 50px !important;
         display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        border-radius: 8px !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
-        transition: all 0.3s ease !important;
-        display: block !important;
     }
     
     .mobile-menu-toggle:hover {
         transform: translateY(-1px) !important;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
     }
   
     .mobile-menu-toggle:active {
@@ -424,66 +405,6 @@ nav#sidebar-admin-wraper {
         width: 100% !important;
         left: 0;
         right: 0;
-    }
-
-    /* Hide all hamburger buttons except the first one */
-    .page-wraper .mobile-menu-toggle:not(:first-of-type) {
-        display: none !important;
-    }
-  
-    /* Hamburger button styling */
-    .page-wraper > .mobile-menu-toggle:first-child {
-        display: flex !important;
-        position: fixed;
-        top: 15px;
-        right: 15px;
-        z-index: 10001;
-        width: 44px;
-        height: 44px;
-        background: #fd7e14 !important;
-        border: none !important;
-        border-radius: 8px;
-        color: white !important;
-        font-size: 18px;
-    }
-  
-    .page-wraper > .mobile-menu-toggle:first-child i,
-    .page-wraper > .mobile-menu-toggle:first-child .fa,
-    .page-wraper > .mobile-menu-toggle:first-child .fas {
-        color: white !important;
-    }
-  
-    .page-wraper > .mobile-menu-toggle:first-child:hover,
-    .page-wraper > .mobile-menu-toggle:first-child:active,
-    .page-wraper > .mobile-menu-toggle:first-child:focus {
-        color: white !important;
-    }
-  
-    .page-wraper > .mobile-menu-toggle:first-child:hover i,
-    .page-wraper > .mobile-menu-toggle:first-child:active i,
-    .page-wraper > .mobile-menu-toggle:first-child:focus i {
-        color: white !important;
-    }
-
-    /* Prevent any dark overlays from other sources */
-    .page-wraper::before,
-    .page-wraper::after {
-        display: none !important;
-    }
-
-    /* Ensure proper stacking context */
-    .page-wraper {
-        position: relative !important;
-        z-index: 1 !important;
-    }
-
-    /* Fix for any potential Bootstrap conflicts */
-    .fade {
-        opacity: 1 !important;
-    }
-
-    .fade.show {
-        opacity: 1 !important;
     }
 
     /* Ensure sidebar content is scrollable */
@@ -518,34 +439,6 @@ nav#sidebar-admin-wraper {
         -ms-user-select: none !important;
         user-select: none !important;
         -webkit-tap-highlight-color: transparent !important;
-    }
-
-    /* Ensure no conflicting modal backdrops */
-    .modal-backdrop {
-        display: none !important;
-    }
-
-    /* Prevent Bootstrap modal interference */
-    body.modal-open {
-        overflow: auto !important;
-        padding-right: 0 !important;
-    }
-
-    /* Additional safety measures */
-    .modal,
-    .modal-backdrop,
-    .offcanvas-backdrop {
-        z-index: 1050 !important;
-    }
-
-    /* Ensure sidebar overlay doesn't interfere with modals */
-    .sidebar-overlay {
-        z-index: 999 !important;
-    }
-
-    /* When modal is open, hide sidebar overlay */
-    body.modal-open .sidebar-overlay {
-        display: none !important;
     }
 }
 

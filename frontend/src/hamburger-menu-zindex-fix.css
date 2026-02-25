@@ -17,7 +17,7 @@
     opacity: 1 !important;
     pointer-events: auto !important;
     top: 12px !important;
-    left: 12px !important;
+    right: 12px !important;
     width: 40px !important;
     height: 40px !important;
   }
@@ -84,7 +84,7 @@
     .mobile-menu-toggle,
     .hamburger-btn {
       top: 10px !important;
-      left: 10px !important;
+      right: 10px !important;
       padding: 8px 10px !important;
       min-width: 38px !important;
       min-height: 38px !important;

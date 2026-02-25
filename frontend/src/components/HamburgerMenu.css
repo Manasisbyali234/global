@@ -65,17 +65,18 @@
   padding: 20px !important;
   border-bottom: 1px solid #e0e0e0 !important;
   display: flex !important;
-  justify-content: space-between !important;
+  justify-content: flex-end !important;
   align-items: center !important;
   background: #f8f9fa !important;
-  height: 70px !important;
+  min-height: 70px !important;
   flex-shrink: 0 !important;
 }
 
 .hamburger-logo {
   height: 32px !important;
   width: auto !important;
-  display: block !important;
+  display: none !important;
+  margin-right: auto !important;
 }
 
 .hamburger-menu .close-btn {
@@ -88,15 +89,20 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  margin-left: auto !important;
 }
 
 .hamburger-content {
-  flex: 1 !important;
-  display: flex !important;
-  flex-direction: column !important;
+  flex: 1 1 auto !important;
   overflow-y: auto !important;
+  overflow-x: hidden !important;
   background: #fff !important;
   width: 100% !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: block !important;
+  position: relative !important;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
 }
 
 .hamburger-menu .menu-list {
@@ -130,10 +136,10 @@
 
 /* Auth Section Styles */
 .auth-section {
-  padding: 10px 20px !important;
+  padding: 20px !important;
   border-top: 1px solid #e0e0e0 !important;
   background: #f8f9fa !important;
-  flex-shrink: 0 !important;
+  margin-top: 10px !important;
 }
 
 .auth-group-accordion {
@@ -220,7 +226,37 @@
 
 /* Mobile display rules */
 @media (max-width: 1199px) {
+  html body .hamburger-menu {
+    overflow: hidden !important;
+  }
+  
+  html body .hamburger-menu.open .hamburger-content {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    display: block !important;
+  }
+  
   .hamburger-btn { display: flex !important; }
+}
+
+/* Force proper layout */
+html body .hamburger-menu {
+  overflow: hidden !important;
+}
+
+html body .hamburger-menu .hamburger-header {
+  position: relative !important;
+  z-index: 1 !important;
+  justify-content: space-between !important;
+}
+
+html body .hamburger-menu .hamburger-logo {
+  order: 1 !important;
+}
+
+html body .hamburger-menu .close-btn {
+  order: 2 !important;
+  margin-left: auto !important;
 }
 
 @media (max-width: 480px) {
