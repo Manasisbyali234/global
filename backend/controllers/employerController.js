@@ -1350,50 +1350,93 @@ exports.updateJob = async (req, res) => {
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
             applicationLimit: parseInt(req.body.applicationLimit) || 50,
-            subStages: value.subStages || value.subStagesArray || []
+            subStages: value.subStages || value.subStagesArray || [],
+            _id: value._id // Preserve existing ID if present
           });
         }
       });
       
       console.log(`[updateJob] Built ${interviewRounds.length} interview rounds`);
       
-      // Update interview rounds in new collection
-      // ALWAYS delete old rounds if interviewRoundDetails is provided (even if no new rounds built)
-      await InterviewRound.deleteMany({ jobId: oldJob._id });
-      console.log('[updateJob] Deleted old interview rounds');
+      // Update interview rounds in new collection - UPDATE instead of DELETE and CREATE
+      const existingRounds = await InterviewRound.find({ jobId: oldJob._id });
+      const existingRoundsByKey = {};
+      existingRounds.forEach(round => {
+        existingRoundsByKey[round.key] = round;
+      });
 
       if (interviewRounds.length > 0) {
-        // Create new rounds
+        const processedKeys = new Set();
+        
+        // Update or create rounds
         for (const round of interviewRounds) {
           try {
-            const createdRound = await InterviewRound.create({
-              jobId: oldJob._id,
-              key: round.key,
-              name: round.name,
-              fromdate: round.fromdate,
-              todate: round.todate,
-              startTime: round.startTime,
-              endTime: round.endTime,
-              description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
-              applicationLimit: round.applicationLimit,
-              subStages: (round.subStages || []).map(sub => ({
-                fromDate: sub.fromDate || sub.fromdate || sub.date,
-                startTime: normalizeTimeFormat(sub.startTime),
-                endTime: normalizeTimeFormat(sub.endTime),
-                breakTime: sub.breakTime || 0
-              }))
-            });
-            console.log('[updateJob] Interview round created successfully:', {
-              id: createdRound._id,
-              key: createdRound.key,
-              name: createdRound.name
-            });
+            processedKeys.add(round.key);
+            const existingRound = existingRoundsByKey[round.key];
+            
+            if (existingRound) {
+              // Update existing round to preserve _id
+              await InterviewRound.findByIdAndUpdate(existingRound._id, {
+                name: round.name,
+                fromdate: round.fromdate,
+                todate: round.todate,
+                startTime: round.startTime,
+                endTime: round.endTime,
+                description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
+                applicationLimit: round.applicationLimit,
+                subStages: (round.subStages || []).map(sub => ({
+                  fromDate: sub.fromDate || sub.fromdate || sub.date,
+                  startTime: normalizeTimeFormat(sub.startTime),
+                  endTime: normalizeTimeFormat(sub.endTime),
+                  breakTime: sub.breakTime || 0
+                }))
+              });
+              console.log('[updateJob] Interview round updated successfully:', {
+                id: existingRound._id,
+                key: round.key,
+                name: round.name
+              });
+            } else {
+              // Create new round
+              const createdRound = await InterviewRound.create({
+                jobId: oldJob._id,
+                key: round.key,
+                name: round.name,
+                fromdate: round.fromdate,
+                todate: round.todate,
+                startTime: round.startTime,
+                endTime: round.endTime,
+                description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
+                applicationLimit: round.applicationLimit,
+                subStages: (round.subStages || []).map(sub => ({
+                  fromDate: sub.fromDate || sub.fromdate || sub.date,
+                  startTime: normalizeTimeFormat(sub.startTime),
+                  endTime: normalizeTimeFormat(sub.endTime),
+                  breakTime: sub.breakTime || 0
+                }))
+              });
+              console.log('[updateJob] Interview round created successfully:', {
+                id: createdRound._id,
+                key: createdRound.key,
+                name: createdRound.name
+              });
+            }
           } catch (roundError) {
-            console.error('[updateJob] Error creating interview round:', roundError);
+            console.error('[updateJob] Error updating/creating interview round:', roundError);
+          }
+        }
+        
+        // Delete rounds that are no longer in the update
+        for (const existingRound of existingRounds) {
+          if (!processedKeys.has(existingRound.key)) {
+            await InterviewRound.findByIdAndDelete(existingRound._id);
+            console.log('[updateJob] Deleted removed round:', existingRound.key);
           }
         }
       } else {
-        console.log('[updateJob] No interview rounds to create');
+        // If no rounds provided, delete all existing rounds
+        await InterviewRound.deleteMany({ jobId: oldJob._id });
+        console.log('[updateJob] Deleted all interview rounds (no rounds in update)');
       }
     }
     
