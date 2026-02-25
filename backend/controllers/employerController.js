@@ -1449,6 +1449,7 @@ exports.updateJob = async (req, res) => {
       
       // Track which rounds are being updated
       const updatedKeys = new Set();
+      const updatedIds = new Set();
 
       if (interviewRounds.length > 0) {
         // Update existing rounds or create new ones
@@ -1460,9 +1461,19 @@ exports.updateJob = async (req, res) => {
             }
             
             updatedKeys.add(round.key);
-            const existingRound = existingRoundsByKey[round.key];
+            
+            // Try to match by _id first, then by key
+            let existingRound = null;
+            if (round._id) {
+              existingRound = existingRounds.find(r => r._id.toString() === round._id.toString());
+            }
+            
+            if (!existingRound && round.key) {
+              existingRound = existingRoundsByKey[round.key];
+            }
             
             if (existingRound) {
+              updatedIds.add(existingRound._id.toString());
               console.log(`[updateJob] UPDATING existing round with _id: ${existingRound._id}, key: ${round.key}`);
               // Update existing round to preserve _id
               existingRound.name = round.name;
@@ -1480,16 +1491,31 @@ exports.updateJob = async (req, res) => {
               }));
 
               // Preserve or update scheduler fields
-              if (round.scheduleObject !== undefined) existingRound.scheduleObject = round.scheduleObject;
-              if (round.schedulesArray !== undefined) existingRound.schedulesArray = round.schedulesArray;
-              if (round.daySchedulesArray !== undefined) existingRound.daySchedulesArray = round.daySchedulesArray;
+              if (round.scheduleObject !== undefined) {
+                existingRound.scheduleObject = round.scheduleObject;
+                existingRound.markModified('scheduleObject');
+              }
+              if (round.schedulesArray !== undefined) {
+                existingRound.schedulesArray = round.schedulesArray;
+                existingRound.markModified('schedulesArray');
+              }
+              if (round.daySchedulesArray !== undefined) {
+                existingRound.daySchedulesArray = round.daySchedulesArray;
+                existingRound.markModified('daySchedulesArray');
+              }
               if (round.date !== undefined) existingRound.date = round.date;
-              if (round.roomsArray !== undefined) existingRound.roomsArray = round.roomsArray;
+              if (round.roomsArray !== undefined) {
+                existingRound.roomsArray = round.roomsArray;
+                existingRound.markModified('roomsArray');
+              }
               if (round.numStudents !== undefined) existingRound.numStudents = round.numStudents;
               if (round.numHRs !== undefined) existingRound.numHRs = round.numHRs;
               if (round.remainingStudents !== undefined) existingRound.remainingStudents = round.remainingStudents;
               if (round.maxPossibleInterviews !== undefined) existingRound.maxPossibleInterviews = round.maxPossibleInterviews;
-              if (round.formDataObject !== undefined) existingRound.formDataObject = round.formDataObject;
+              if (round.formDataObject !== undefined) {
+                existingRound.formDataObject = round.formDataObject;
+                existingRound.markModified('formDataObject');
+              }
               if (round.savedAt !== undefined) existingRound.savedAt = round.savedAt;
 
               await existingRound.save();
@@ -1543,9 +1569,11 @@ exports.updateJob = async (req, res) => {
         
         // Delete rounds that are no longer in the update
         for (const existingRound of existingRounds) {
-          if (!updatedKeys.has(existingRound.key)) {
+          const roundId = existingRound._id.toString();
+          // Match by ID if possible, otherwise by key
+          if (!updatedIds.has(roundId) && !updatedKeys.has(existingRound.key)) {
             await InterviewRound.findByIdAndDelete(existingRound._id);
-            console.log('[updateJob] Deleted removed round:', existingRound.key);
+            console.log('[updateJob] Deleted removed round:', existingRound.key, 'ID:', roundId);
           }
         }
       } else {
@@ -2606,16 +2634,31 @@ exports.scheduleInterviewRound = async (req, res) => {
       }
 
       // Preserve or update scheduler fields
-      if (req.body.scheduleObject !== undefined) interviewRound.scheduleObject = req.body.scheduleObject;
-      if (req.body.schedulesArray !== undefined) interviewRound.schedulesArray = req.body.schedulesArray;
-      if (req.body.daySchedulesArray !== undefined) interviewRound.daySchedulesArray = req.body.daySchedulesArray;
+      if (req.body.scheduleObject !== undefined) {
+        interviewRound.scheduleObject = req.body.scheduleObject;
+        interviewRound.markModified('scheduleObject');
+      }
+      if (req.body.schedulesArray !== undefined) {
+        interviewRound.schedulesArray = req.body.schedulesArray;
+        interviewRound.markModified('schedulesArray');
+      }
+      if (req.body.daySchedulesArray !== undefined) {
+        interviewRound.daySchedulesArray = req.body.daySchedulesArray;
+        interviewRound.markModified('daySchedulesArray');
+      }
       if (req.body.date !== undefined) interviewRound.date = req.body.date;
-      if (req.body.roomsArray !== undefined) interviewRound.roomsArray = req.body.roomsArray;
+      if (req.body.roomsArray !== undefined) {
+        interviewRound.roomsArray = req.body.roomsArray;
+        interviewRound.markModified('roomsArray');
+      }
       if (req.body.numStudents !== undefined) interviewRound.numStudents = req.body.numStudents;
       if (req.body.numHRs !== undefined) interviewRound.numHRs = req.body.numHRs;
       if (req.body.remainingStudents !== undefined) interviewRound.remainingStudents = req.body.remainingStudents;
       if (req.body.maxPossibleInterviews !== undefined) interviewRound.maxPossibleInterviews = req.body.maxPossibleInterviews;
-      if (req.body.formDataObject !== undefined) interviewRound.formDataObject = req.body.formDataObject;
+      if (req.body.formDataObject !== undefined) {
+        interviewRound.formDataObject = req.body.formDataObject;
+        interviewRound.markModified('formDataObject');
+      }
       if (req.body.savedAt !== undefined) interviewRound.savedAt = req.body.savedAt;
 
       await interviewRound.save();
