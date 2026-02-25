@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const interviewRoundSchema = new mongoose.Schema({
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
+  key: { type: String },
   name: { type: String },
   roundType: { type: String },
   fromdate: { type: Date },
@@ -22,6 +23,7 @@ const interviewRoundSchema = new mongoose.Schema({
 
 // Index for faster queries
 interviewRoundSchema.index({ jobId: 1, createdAt: -1 });
+interviewRoundSchema.index({ jobId: 1, key: 1 });
 
 // Static method to check if job has scheduled rounds
 interviewRoundSchema.statics.hasScheduledRounds = async function(jobId) {
