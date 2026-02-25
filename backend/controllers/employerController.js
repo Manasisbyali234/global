@@ -1415,7 +1415,7 @@ exports.updateJob = async (req, res) => {
             description: value.description || '',
             applicationLimit: parseInt(req.body.applicationLimit) || 50,
             subStages: value.subStages || value.subStagesArray || [],
-            _id: value._id, // Preserve existing ID if present
+            _id: value._id || value.id, // Preserve existing ID if present
             // Preserve scheduler fields if they exist in the incoming data
             scheduleObject: value.scheduleObject,
             schedulesArray: value.schedulesArray,
@@ -1471,6 +1471,15 @@ exports.updateJob = async (req, res) => {
             if (!existingRound && round.key) {
               existingRound = existingRoundsByKey[round.key];
             }
+
+            // Fallback matching: if only one round of this name exists, match it
+            if (!existingRound && round.name) {
+              const matches = existingRounds.filter(r => r.name === round.name && !updatedIds.has(r._id.toString()));
+              if (matches.length === 1) {
+                existingRound = matches[0];
+                console.log(`[updateJob] Matched by name fallback: ${round.name}, _id: ${existingRound._id}`);
+              }
+            }
             
             if (existingRound) {
               updatedIds.add(existingRound._id.toString());
@@ -1491,28 +1500,36 @@ exports.updateJob = async (req, res) => {
               }));
 
               // Preserve or update scheduler fields
-              if (round.scheduleObject !== undefined) {
+              // Only update if the incoming field is NOT undefined and has content (for arrays/objects)
+              const hasContent = (val) => {
+                if (val === undefined || val === null) return false;
+                if (Array.isArray(val)) return val.length > 0;
+                if (typeof val === 'object') return Object.keys(val).length > 0;
+                return true;
+              };
+
+              if (hasContent(round.scheduleObject)) {
                 existingRound.scheduleObject = round.scheduleObject;
                 existingRound.markModified('scheduleObject');
               }
-              if (round.schedulesArray !== undefined) {
+              if (hasContent(round.schedulesArray)) {
                 existingRound.schedulesArray = round.schedulesArray;
                 existingRound.markModified('schedulesArray');
               }
-              if (round.daySchedulesArray !== undefined) {
+              if (hasContent(round.daySchedulesArray)) {
                 existingRound.daySchedulesArray = round.daySchedulesArray;
                 existingRound.markModified('daySchedulesArray');
               }
-              if (round.date !== undefined) existingRound.date = round.date;
-              if (round.roomsArray !== undefined) {
+              if (round.date !== undefined && round.date !== '') existingRound.date = round.date;
+              if (hasContent(round.roomsArray)) {
                 existingRound.roomsArray = round.roomsArray;
                 existingRound.markModified('roomsArray');
               }
-              if (round.numStudents !== undefined) existingRound.numStudents = round.numStudents;
-              if (round.numHRs !== undefined) existingRound.numHRs = round.numHRs;
+              if (round.numStudents !== undefined && round.numStudents !== 0) existingRound.numStudents = round.numStudents;
+              if (round.numHRs !== undefined && round.numHRs !== 0) existingRound.numHRs = round.numHRs;
               if (round.remainingStudents !== undefined) existingRound.remainingStudents = round.remainingStudents;
               if (round.maxPossibleInterviews !== undefined) existingRound.maxPossibleInterviews = round.maxPossibleInterviews;
-              if (round.formDataObject !== undefined) {
+              if (hasContent(round.formDataObject)) {
                 existingRound.formDataObject = round.formDataObject;
                 existingRound.markModified('formDataObject');
               }
@@ -1765,7 +1782,19 @@ exports.getEmployerJobs = async (req, res) => {
           description: round.description,
           applicationLimit: round.applicationLimit,
           subStages: round.subStages || [],
-          subStagesArray: round.subStages || []
+          subStagesArray: round.subStages || [],
+          // Scheduler fields
+          scheduleObject: round.scheduleObject,
+          schedulesArray: round.schedulesArray,
+          daySchedulesArray: round.daySchedulesArray,
+          date: round.date,
+          roomsArray: round.roomsArray,
+          numStudents: round.numStudents,
+          numHRs: round.numHRs,
+          remainingStudents: round.remainingStudents,
+          maxPossibleInterviews: round.maxPossibleInterviews,
+          formDataObject: round.formDataObject,
+          savedAt: round.savedAt
         }));
       }
       
@@ -1853,7 +1882,19 @@ exports.getJob = async (req, res) => {
         description: round.description,
         applicationLimit: round.applicationLimit,
         subStages: round.subStages || [],
-        subStagesArray: round.subStages || []
+        subStagesArray: round.subStages || [],
+        // Scheduler fields
+        scheduleObject: round.scheduleObject,
+        schedulesArray: round.schedulesArray,
+        daySchedulesArray: round.daySchedulesArray,
+        date: round.date,
+        roomsArray: round.roomsArray,
+        numStudents: round.numStudents,
+        numHRs: round.numHRs,
+        remainingStudents: round.remainingStudents,
+        maxPossibleInterviews: round.maxPossibleInterviews,
+        formDataObject: round.formDataObject,
+        savedAt: round.savedAt
       }));
     }
     
