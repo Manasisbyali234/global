@@ -4911,15 +4911,20 @@ export default function EmpPostJob({ onNext }) {
 								justifyContent: 'center',
 								margin: '0 auto 16px'
 							}}>
-								<i className="fa fa-calendar-check" style={{fontSize: 28, color: '#3b82f6'}}></i>
+								<i className="fa fa-clock" style={{fontSize: 28, color: '#3b82f6'}}></i>
 							</div>
 							<h3 style={{margin: 0, fontSize: 22, color: '#1f2937', fontWeight: 700}}>
-								Confirm Date Selection
+								Confirm Sub-Stage Starting Time
 							</h3>
 						</div>
-						<p style={{fontSize: 15, color: '#4b5563', lineHeight: 1.6, marginBottom: 24, textAlign: 'center'}}>
+						<p style={{fontSize: 15, color: '#4b5563', lineHeight: 1.6, marginBottom: 16, textAlign: 'center'}}>
 							Are you sure you want to set the date to <strong>{formatDate(showSubStageConfirm.selectedDate)}</strong> for Sub-Stage {showSubStageConfirm.subIndex + 1}?
 						</p>
+						<div style={{fontSize: 13, color: '#dc2626', lineHeight: 1.5, marginBottom: 24, textAlign: 'left', background: '#fef2f2', padding: '12px', borderRadius: 8, border: '1px solid #fecaca'}}>
+							<strong>⚠️ Important:</strong> The total interview time (start time − end time) must be greater than or equal to the total required duration.<br/><br/>
+							<strong>Total required duration</strong> = total slots × interview duration per candidate.<br/><br/>
+							<strong>Example:</strong> If total slots = 10 and interview duration = 1 hour, then total interview time must be ≥ 10 hours.
+						</div>
 						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
 							<button
 								onClick={() => setShowSubStageConfirm(null)}

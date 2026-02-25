@@ -14,7 +14,6 @@ const interviewRoundSchema = new mongoose.Schema({
     fromDate: { type: Date },
     startTime: { type: String },
     endTime: { type: String },
-    breakTime: { type: Number, default: 0 },
     applicationLimit: { type: Number }
   }]
 }, {

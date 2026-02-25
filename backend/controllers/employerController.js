@@ -542,7 +542,6 @@ exports.uploadAuthorizationLetter = async (req, res) => {
     const companyName = req.body.companyName || '';
     
     const adminProfile = await EmployerAdminProfile.findOne({ employerId: req.user._id });
-    const profile = await EmployerProfile.findOne({ employerId: req.user._id });
     
     // Check if there's an existing rejected document for the same company
     let existingDocIndex = -1;
@@ -563,7 +562,7 @@ exports.uploadAuthorizationLetter = async (req, res) => {
         isResubmitted: true
       };
       
-      await Promise.all([
+      const [updatedAdminProfile] = await Promise.all([
         EmployerAdminProfile.findOneAndUpdate(
           { employerId: req.user._id },
           { $set: { [`authorizationLetters.${existingDocIndex}`]: updatedDocument } },
@@ -576,7 +575,7 @@ exports.uploadAuthorizationLetter = async (req, res) => {
         )
       ]);
       
-      res.json({ success: true, document: updatedDocument, profile });
+      res.json({ success: true, document: updatedDocument, profile: { authorizationLetters: updatedAdminProfile.authorizationLetters } });
     } else {
       // Create new document
       const newDocument = {
@@ -588,7 +587,7 @@ exports.uploadAuthorizationLetter = async (req, res) => {
         isResubmitted: false
       };
 
-      await Promise.all([
+      const [updatedAdminProfile] = await Promise.all([
         EmployerAdminProfile.findOneAndUpdate(
           { employerId: req.user._id },
           { $push: { authorizationLetters: newDocument } },
@@ -601,7 +600,7 @@ exports.uploadAuthorizationLetter = async (req, res) => {
         )
       ]);
 
-      res.json({ success: true, document: newDocument, profile });
+      res.json({ success: true, document: newDocument, profile: { authorizationLetters: updatedAdminProfile.authorizationLetters } });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
