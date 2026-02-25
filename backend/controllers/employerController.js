@@ -1042,14 +1042,6 @@ exports.createJob = async (req, res) => {
             subStages: value.subStages || value.subStagesArray || [],
             // Preserve scheduler fields if they exist in the incoming data
             scheduleObject: value.scheduleObject,
-            schedulesArray: value.schedulesArray,
-            daySchedulesArray: value.daySchedulesArray,
-            date: value.date,
-            roomsArray: value.roomsArray,
-            numStudents: value.numStudents,
-            numHRs: value.numHRs,
-            remainingStudents: value.remainingStudents,
-            maxPossibleInterviews: value.maxPossibleInterviews,
             formDataObject: value.formDataObject,
             savedAt: value.savedAt
           });
@@ -1151,14 +1143,6 @@ exports.createJob = async (req, res) => {
             })),
             // Include scheduler fields
             scheduleObject: round.scheduleObject,
-            schedulesArray: round.schedulesArray,
-            daySchedulesArray: round.daySchedulesArray,
-            date: round.date,
-            roomsArray: round.roomsArray,
-            numStudents: round.numStudents,
-            numHRs: round.numHRs,
-            remainingStudents: round.remainingStudents,
-            maxPossibleInterviews: round.maxPossibleInterviews,
             formDataObject: round.formDataObject,
             savedAt: round.savedAt
           });
@@ -1419,14 +1403,6 @@ exports.updateJob = async (req, res) => {
             _id: value._id || value.id, // Preserve existing ID if present
             // Preserve scheduler fields if they exist in the incoming data
             scheduleObject: value.scheduleObject,
-            schedulesArray: value.schedulesArray,
-            daySchedulesArray: value.daySchedulesArray,
-            date: value.date,
-            roomsArray: value.roomsArray,
-            numStudents: value.numStudents,
-            numHRs: value.numHRs,
-            remainingStudents: value.remainingStudents,
-            maxPossibleInterviews: value.maxPossibleInterviews,
             formDataObject: value.formDataObject,
             savedAt: value.savedAt
           });
@@ -1536,23 +1512,6 @@ exports.updateJob = async (req, res) => {
                 existingRound.scheduleObject = round.scheduleObject;
                 existingRound.markModified('scheduleObject');
               }
-              if (hasContent(round.schedulesArray)) {
-                existingRound.schedulesArray = round.schedulesArray;
-                existingRound.markModified('schedulesArray');
-              }
-              if (hasContent(round.daySchedulesArray)) {
-                existingRound.daySchedulesArray = round.daySchedulesArray;
-                existingRound.markModified('daySchedulesArray');
-              }
-              if (round.date !== undefined && round.date !== '') existingRound.date = round.date;
-              if (hasContent(round.roomsArray)) {
-                existingRound.roomsArray = round.roomsArray;
-                existingRound.markModified('roomsArray');
-              }
-              if (round.numStudents !== undefined && round.numStudents !== 0) existingRound.numStudents = round.numStudents;
-              if (round.numHRs !== undefined && round.numHRs !== 0) existingRound.numHRs = round.numHRs;
-              if (round.remainingStudents !== undefined) existingRound.remainingStudents = round.remainingStudents;
-              if (round.maxPossibleInterviews !== undefined) existingRound.maxPossibleInterviews = round.maxPossibleInterviews;
               if (hasContent(round.formDataObject)) {
                 existingRound.formDataObject = round.formDataObject;
                 existingRound.markModified('formDataObject');
@@ -1587,14 +1546,6 @@ exports.updateJob = async (req, res) => {
                 })),
                 // Include scheduler fields
                 scheduleObject: round.scheduleObject,
-                schedulesArray: round.schedulesArray,
-                daySchedulesArray: round.daySchedulesArray,
-                date: round.date,
-                roomsArray: round.roomsArray,
-                numStudents: round.numStudents,
-                numHRs: round.numHRs,
-                remainingStudents: round.remainingStudents,
-                maxPossibleInterviews: round.maxPossibleInterviews,
                 formDataObject: round.formDataObject,
                 savedAt: round.savedAt
               });

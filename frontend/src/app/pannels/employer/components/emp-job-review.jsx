@@ -291,7 +291,16 @@ function EmpJobReviewPage() {
                                                         <p className="mb-1"><strong>Application Limit:</strong> {round.applicationLimit}</p>
                                                     )}
                                                     
-                                                    {/* Sub-stages */}
+                                                    {round._id && (
+                                                        <button 
+                                                            className="btn btn-primary btn-sm mt-2"
+                                                            onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round._id}`, '_blank')}
+                                                        >
+                                                            Join now
+                                                        </button>
+                                                    )}
+                                                    
+                                                    {/* Sub-stages */
                                                     {round.subStages && round.subStages.length > 0 && (
                                                         <div className="mt-3">
                                                             <h6 className="mb-2 text-secondary">Sub-Stages:</h6>
@@ -361,7 +370,16 @@ function EmpJobReviewPage() {
                                                             <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(details.endTime)}</p>
                                                         )}
                                                         
-                                                        {/* Sub-stages */}
+                                                        {details?._id && (
+                                                            <button 
+                                                                className="btn btn-primary btn-sm mt-2"
+                                                                onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${details._id}`, '_blank')}
+                                                            >
+                                                                Join now
+                                                            </button>
+                                                        )}
+                                                        
+                                                        {/* Sub-stages */
                                                         {details?.subStages && details.subStages.length > 0 && (
                                                             <div className="mt-3">
                                                                 <h6 className="mb-2 text-secondary">Sub-Stages:</h6>

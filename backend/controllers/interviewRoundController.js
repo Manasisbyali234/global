@@ -4,7 +4,7 @@ const Job = require('../models/Job');
 // Create interview round
 exports.createInterviewRound = async (req, res) => {
   try {
-    const { jobId, name, roundType, date, startTime, endTime, applicationLimit, description, subStages, subStagesArray } = req.body;
+    const { jobId, name, roundType, date, startTime, endTime, applicationLimit, description, subStages, subStagesArray, scheduleObject, formDataObject, savedAt } = req.body;
 
     // Verify job exists
     const job = await Job.findById(jobId);
@@ -27,7 +27,10 @@ exports.createInterviewRound = async (req, res) => {
         startTime: sub.startTime,
         endTime: sub.endTime,
         breakTime: sub.breakTime || 0
-      }))
+      })),
+      scheduleObject,
+      formDataObject,
+      savedAt
     });
 
     await interviewRound.save();
