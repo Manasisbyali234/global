@@ -1390,19 +1390,25 @@ exports.updateJob = async (req, res) => {
             endTime: normalizeTimeFormat(String(value.endTime || '')),
             description: value.description || '',
             applicationLimit: parseInt(req.body.applicationLimit) || 50,
-            subStages: value.subStages || value.subStagesArray || []
+            subStages: value.subStages || value.subStagesArray || [],
+            _id: value._id // Preserve existing ID if present
           });
         }
       });
       
       console.log(`[updateJob] Built ${interviewRounds.length} interview rounds`);
       
+<<<<<<< HEAD
       // Get existing rounds to update instead of deleting
+=======
+      // Update interview rounds in new collection - UPDATE instead of DELETE and CREATE
+>>>>>>> 479ef74110906264fcda6d29e7af6c3bdf1d2ee0
       const existingRounds = await InterviewRound.find({ jobId: oldJob._id });
       const existingRoundsByKey = {};
       existingRounds.forEach(round => {
         existingRoundsByKey[round.key] = round;
       });
+<<<<<<< HEAD
       
       // Track which rounds are being updated
       const updatedKeys = new Set();
@@ -1412,10 +1418,21 @@ exports.updateJob = async (req, res) => {
         for (const round of interviewRounds) {
           try {
             updatedKeys.add(round.key);
+=======
+
+      if (interviewRounds.length > 0) {
+        const processedKeys = new Set();
+        
+        // Update or create rounds
+        for (const round of interviewRounds) {
+          try {
+            processedKeys.add(round.key);
+>>>>>>> 479ef74110906264fcda6d29e7af6c3bdf1d2ee0
             const existingRound = existingRoundsByKey[round.key];
             
             if (existingRound) {
               // Update existing round to preserve _id
+<<<<<<< HEAD
               existingRound.name = round.name;
               existingRound.fromdate = round.fromdate;
               existingRound.todate = round.todate;
@@ -1434,6 +1451,27 @@ exports.updateJob = async (req, res) => {
                 id: existingRound._id,
                 key: existingRound.key,
                 name: existingRound.name
+=======
+              await InterviewRound.findByIdAndUpdate(existingRound._id, {
+                name: round.name,
+                fromdate: round.fromdate,
+                todate: round.todate,
+                startTime: round.startTime,
+                endTime: round.endTime,
+                description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
+                applicationLimit: round.applicationLimit,
+                subStages: (round.subStages || []).map(sub => ({
+                  fromDate: sub.fromDate || sub.fromdate || sub.date,
+                  startTime: normalizeTimeFormat(sub.startTime),
+                  endTime: normalizeTimeFormat(sub.endTime),
+                  breakTime: sub.breakTime || 0
+                }))
+              });
+              console.log('[updateJob] Interview round updated successfully:', {
+                id: existingRound._id,
+                key: round.key,
+                name: round.name
+>>>>>>> 479ef74110906264fcda6d29e7af6c3bdf1d2ee0
               });
             } else {
               // Create new round
@@ -1467,7 +1505,11 @@ exports.updateJob = async (req, res) => {
         
         // Delete rounds that are no longer in the update
         for (const existingRound of existingRounds) {
+<<<<<<< HEAD
           if (!updatedKeys.has(existingRound.key)) {
+=======
+          if (!processedKeys.has(existingRound.key)) {
+>>>>>>> 479ef74110906264fcda6d29e7af6c3bdf1d2ee0
             await InterviewRound.findByIdAndDelete(existingRound._id);
             console.log('[updateJob] Deleted removed round:', existingRound.key);
           }
@@ -1475,7 +1517,11 @@ exports.updateJob = async (req, res) => {
       } else {
         // If no rounds provided, delete all existing rounds
         await InterviewRound.deleteMany({ jobId: oldJob._id });
+<<<<<<< HEAD
         console.log('[updateJob] Deleted all interview rounds (no new rounds provided)');
+=======
+        console.log('[updateJob] Deleted all interview rounds (no rounds in update)');
+>>>>>>> 479ef74110906264fcda6d29e7af6c3bdf1d2ee0
       }
     }
     
