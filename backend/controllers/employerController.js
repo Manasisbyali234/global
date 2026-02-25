@@ -158,10 +158,11 @@ exports.loginEmployer = async (req, res) => {
 // Profile Controllers
 exports.getProfile = async (req, res) => {
   try {
-    const [publicProfile, adminProfile, employer] = await Promise.all([
+    const [publicProfile, adminProfile, employer, employerProfile] = await Promise.all([
       EmployerPublicProfile.findOne({ employerId: req.user._id }),
       EmployerAdminProfile.findOne({ employerId: req.user._id }),
-      Employer.findById(req.user._id).select('isApproved profileSubmittedForReview employerType')
+      Employer.findById(req.user._id).select('isApproved profileSubmittedForReview employerType'),
+      EmployerProfile.findOne({ employerId: req.user._id })
     ]);
     
     if (!publicProfile && !adminProfile) {
@@ -171,6 +172,18 @@ exports.getProfile = async (req, res) => {
     const profile = {
       ...(publicProfile?.toObject() || {}),
       ...(adminProfile?.toObject() || {}),
+      panCardVerified: employerProfile?.panCardVerified,
+      panCardReuploadedAt: employerProfile?.panCardReuploadedAt,
+      cinVerified: employerProfile?.cinVerified,
+      cinReuploadedAt: employerProfile?.cinReuploadedAt,
+      gstVerified: employerProfile?.gstVerified,
+      gstReuploadedAt: employerProfile?.gstReuploadedAt,
+      incorporationVerified: employerProfile?.incorporationVerified,
+      incorporationReuploadedAt: employerProfile?.incorporationReuploadedAt,
+      authorizationVerified: employerProfile?.authorizationVerified,
+      authorizationReuploadedAt: employerProfile?.authorizationReuploadedAt,
+      companyIdCardVerified: employerProfile?.companyIdCardVerified,
+      companyIdCardReuploadedAt: employerProfile?.companyIdCardReuploadedAt,
       employerId: employer ? {
         _id: employer._id,
         isApproved: employer.isApproved,
@@ -504,13 +517,15 @@ exports.uploadDocument = async (req, res) => {
 
     if (documentStatusMap[fieldName]) {
       const { status, reuploadedAt } = documentStatusMap[fieldName];
+      // Always set status to pending when document is uploaded/reuploaded
       updateData[status] = 'pending';
-      if (existingProfile && existingProfile[fieldName] && existingProfile[status] === 'rejected') {
+      // Track reupload timestamp if document was previously rejected
+      if (existingProfile && existingProfile[status] === 'rejected') {
         updateData[reuploadedAt] = new Date();
       }
     }
 
-    await Promise.all([
+    const [updatedAdminProfile] = await Promise.all([
       EmployerAdminProfile.findOneAndUpdate(
         { employerId: req.user._id },
         updateData,
@@ -522,6 +537,31 @@ exports.uploadDocument = async (req, res) => {
         { new: true, upsert: true }
       )
     ]);
+
+    // Create notification for admin when document is resubmitted after rejection
+    if (existingProfile && existingProfile[documentStatusMap[fieldName]?.status] === 'rejected') {
+      try {
+        const documentNames = {
+          'panCardImage': 'PAN Card',
+          'cinImage': 'CIN Document',
+          'gstImage': 'GST Certificate',
+          'certificateOfIncorporation': 'Certificate of Incorporation',
+          'authorizationLetter': 'Authorization Letter',
+          'companyIdCardPicture': 'Company ID Card'
+        };
+        
+        await createNotification({
+          title: 'Document Resubmitted for Review',
+          message: `${req.user.companyName || 'An employer'} has resubmitted their ${documentNames[fieldName]} after rejection. Please review the updated document.`,
+          type: 'document_resubmitted',
+          role: 'admin',
+          relatedId: req.user._id,
+          createdBy: req.user._id
+        });
+      } catch (notifError) {
+        console.error('Failed to create resubmission notification:', notifError);
+      }
+    }
 
     cacheInvalidation.clearEmployerGridCaches();
 
