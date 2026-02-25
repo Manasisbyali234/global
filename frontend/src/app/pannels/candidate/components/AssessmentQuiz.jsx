@@ -745,45 +745,76 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
             </div>
           )}
         </div>
-        <div className="card-footer d-flex justify-content-between align-items-center">
-          {/* Debug capture button - remove in production */}
-          <button 
-            className="btn btn-sm btn-outline-secondary"
-            onClick={() => {
-              console.log('🧪 Manual capture test');
-              captureImage();
-            }}
-            type="button"
-          >
-            🧪 Test Capture ({captureCount}/5)
-          </button>
+        <div className="card-footer">
+          {/* Pagination */}
+          {assessment.questions.length > 1 && (
+            <div className="d-flex justify-content-center mb-3 flex-wrap gap-1">
+              <button 
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
+                disabled={currentQuestion === 0}
+              >
+                <i className="fa fa-chevron-left"></i>
+              </button>
+              {assessment.questions.map((_, index) => (
+                <button
+                  key={index}
+                  className={`btn btn-sm ${currentQuestion === index ? 'btn-primary' : 'btn-outline-secondary'}`}
+                  onClick={() => setCurrentQuestion(index)}
+                  style={{minWidth: '35px'}}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button 
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setCurrentQuestion(Math.min(assessment.questions.length - 1, currentQuestion + 1))}
+                disabled={currentQuestion === assessment.questions.length - 1}
+              >
+                <i className="fa fa-chevron-right"></i>
+              </button>
+            </div>
+          )}
           
-          <div>
-            {currentQuestion === assessment.questions.length - 1 ? (
-              <button 
-                className="btn btn-success"
-                onClick={handleSubmit}
-                disabled={uploading}
-              >
-                Submit Assessment
-                <i className="fa fa-check ms-2"></i>
-              </button>
-            ) : (
-              <button 
-                className="btn btn-primary"
-                onClick={handleNext}
-                disabled={
-                  ((question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && selectedAnswer === null) ||
-                  (question.type === 'subjective' && !textAnswer.trim() && !uploadedFile) ||
-                  (question.type === 'upload' && !uploadedFile && !textAnswer.trim()) ||
-                  (question.type === 'image' && !uploadedFile) ||
-                  uploading
-                }
-              >
-                Next Question
-                <i className="fa fa-arrow-right ms-2"></i>
-              </button>
-            )}
+          <div className="d-flex justify-content-between align-items-center">
+            <button 
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => {
+                console.log('🧪 Manual capture test');
+                captureImage();
+              }}
+              type="button"
+            >
+              🧪 Test Capture ({captureCount}/5)
+            </button>
+            
+            <div>
+              {currentQuestion === assessment.questions.length - 1 ? (
+                <button 
+                  className="btn btn-success"
+                  onClick={handleSubmit}
+                  disabled={uploading}
+                >
+                  Submit Assessment
+                  <i className="fa fa-check ms-2"></i>
+                </button>
+              ) : (
+                <button 
+                  className="btn btn-primary"
+                  onClick={handleNext}
+                  disabled={
+                    ((question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && selectedAnswer === null) ||
+                    (question.type === 'subjective' && !textAnswer.trim() && !uploadedFile) ||
+                    (question.type === 'upload' && !uploadedFile && !textAnswer.trim()) ||
+                    (question.type === 'image' && !uploadedFile) ||
+                    uploading
+                  }
+                >
+                  Next Question
+                  <i className="fa fa-arrow-right ms-2"></i>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
