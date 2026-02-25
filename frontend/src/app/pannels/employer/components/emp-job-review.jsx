@@ -290,10 +290,10 @@ function EmpJobReviewPage() {
                                                         <p className="mb-1"><strong>Application Limit:</strong> {round.applicationLimit}</p>
                                                     )}
                                                     
-                                                    {round._id && (
+                                                    {(round._id || round.id) && (
                                                         <button 
                                                             className="btn btn-primary btn-sm mt-2"
-                                                            onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round._id}`, '_blank')}
+                                                            onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round._id || round.id}`, '_blank')}
                                                         >
                                                             Join now
                                                         </button>
@@ -369,10 +369,10 @@ function EmpJobReviewPage() {
                                                             <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(details.endTime)}</p>
                                                         )}
                                                         
-                                                        {details?._id && (
+                                                        {(details?._id || details?.id) && (
                                                             <button 
                                                                 className="btn btn-primary btn-sm mt-2"
-                                                                onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${details._id}`, '_blank')}
+                                                                onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${details._id || details.id}`, '_blank')}
                                                             >
                                                                 Join now
                                                             </button>
