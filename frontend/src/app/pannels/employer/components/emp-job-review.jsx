@@ -292,7 +292,7 @@ function EmpJobReviewPage() {
                                                     
                                                     {(round._id || round.id) && (
                                                         <button 
-                                                            className="btn btn-primary btn-sm mt-2"
+                                                            className="btn site-button-secondry btn-sm mt-2"
                                                             onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round._id || round.id}`, '_blank')}
                                                         >
                                                             Join now
@@ -371,7 +371,7 @@ function EmpJobReviewPage() {
                                                         
                                                         {(details?._id || details?.id) && (
                                                             <button 
-                                                                className="btn btn-primary btn-sm mt-2"
+                                                                className="btn site-button-secondry btn-sm mt-2"
                                                                 onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${details._id || details.id}`, '_blank')}
                                                             >
                                                                 Join now
