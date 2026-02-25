@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
 import JobZImage from "../../../common/jobz-img";
@@ -300,7 +299,7 @@ function EmpJobReviewPage() {
                                                         </button>
                                                     )}
                                                     
-                                                    {/* Sub-stages */
+                                                    {/* Sub-stages */}
                                                     {round.subStages && round.subStages.length > 0 && (
                                                         <div className="mt-3">
                                                             <h6 className="mb-2 text-secondary">Sub-Stages:</h6>
@@ -379,7 +378,7 @@ function EmpJobReviewPage() {
                                                             </button>
                                                         )}
                                                         
-                                                        {/* Sub-stages */
+                                                        {/* Sub-stages */}
                                                         {details?.subStages && details.subStages.length > 0 && (
                                                             <div className="mt-3">
                                                                 <h6 className="mb-2 text-secondary">Sub-Stages:</h6>
