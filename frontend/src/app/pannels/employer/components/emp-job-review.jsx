@@ -290,7 +290,7 @@ function EmpJobReviewPage() {
                                                         <p className="mb-1"><strong>Application Limit:</strong> {round.applicationLimit}</p>
                                                     )}
                                                     
-                                                    {(round._id || round.id) && (
+                                                    {(round._id || round.id) && round.name?.toLowerCase() !== 'assessment' && (
                                                         <button 
                                                             className="btn site-button-secondry btn-sm mt-2"
                                                             onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round._id || round.id}`, '_blank')}
@@ -369,7 +369,7 @@ function EmpJobReviewPage() {
                                                             <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(details.endTime)}</p>
                                                         )}
                                                         
-                                                        {(details?._id || details?.id) && (
+                                                        {(details?._id || details?.id) && roundType !== 'assessment' && (
                                                             <button 
                                                                 className="btn site-button-secondry btn-sm mt-2"
                                                                 onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${details._id || details.id}`, '_blank')}
