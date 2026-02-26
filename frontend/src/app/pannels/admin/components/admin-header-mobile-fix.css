@@ -7,6 +7,10 @@
     display: none !important;
   }
 
+  #header-admin .header-right {
+    display: none !important;
+  }
+
   #header-admin .container {
     padding: 0 15px !important;
   }

@@ -2,7 +2,6 @@
 import YesNoPopup from "../app/common/popups/popup-yes-no";
 import { popupType } from "../globals/constants";
 import { useState, useEffect } from "react";
-import CanHeaderSection from "../app/pannels/candidate/common/can-header";
 import UnifiedHeader from "../components/UnifiedHeader";
 import CanSidebarSection from "../app/pannels/candidate/common/can-sidebar";
 import CandidateRoutes from "../routing/candidate-routes";
@@ -63,7 +62,6 @@ function CandidateLayout() {
                     ></div>
                 )}
 
-                <CanHeaderSection onClick={handleMenuToggle} sidebarActive={sidebarActive} isMobile={isMobile} />
                 <UnifiedHeader 
                     userRole="candidate"
                     onMenuToggle={handleMenuToggle}

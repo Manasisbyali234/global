@@ -344,7 +344,7 @@ function AdminCandidateReviewPage() {
             <div className="tab-content">
                 {/* Personal Information Tab */}
                 {activeTab === 'personal' && (
-                    <div className="tab-panel personal-info">
+                    <div className="tab-panel personal-info" style={{backgroundColor: 'transparent'}}>
                         <div className="info-section">
                             <div className="info-rows">
                                 <div className="info-row">
@@ -514,7 +514,7 @@ function AdminCandidateReviewPage() {
 
                 {/* Education Tab */}
                 {activeTab === 'education' && (
-                    <div className="tab-panel education-info">
+                    <div className="tab-panel education-info" style={{backgroundColor: 'transparent'}}>
                         {!candidate.education || candidate.education.length === 0 ? (
                             <div className="no-applications">
                                 <div className="no-data-content text-center py-5">
@@ -600,7 +600,7 @@ function AdminCandidateReviewPage() {
 
                 {/* Skills & Summary Tab */}
                 {activeTab === 'skills' && (
-                    <div className="tab-panel skills-info">
+                    <div className="tab-panel skills-info" style={{backgroundColor: 'transparent'}}>
                         {(!candidate.skills || candidate.skills.length === 0) && !candidate.profileSummary && !candidate.resumeHeadline ? (
                             <div className="no-applications">
                                 <div className="no-data-content">
@@ -657,7 +657,7 @@ function AdminCandidateReviewPage() {
 
                 {/* Documents Tab */}
                 {activeTab === 'documents' && (
-                    <div className="tab-panel documents-info">
+                    <div className="tab-panel documents-info" style={{backgroundColor: 'transparent'}}>
                         {!candidate.resume && (!candidate.education || !candidate.education.some(edu => edu.marksheet)) ? (
                             <div className="no-applications">
                                 <div className="no-data-content">
@@ -722,7 +722,7 @@ function AdminCandidateReviewPage() {
 
                 {/* Company Details Tab */}
                 {activeTab === 'company' && (
-                    <div className="tab-panel company-info">
+                    <div className="tab-panel company-info" style={{backgroundColor: 'transparent'}}>
                         <div className="section-header">
                             <i className="fas fa-building"></i>
                             <h4>Job Applications & Company Details</h4>
@@ -787,7 +787,7 @@ function AdminCandidateReviewPage() {
 
                 {/* Employment Tab */}
                 {activeTab === 'employment' && (
-                    <div className="tab-panel employment-info">
+                    <div className="tab-panel employment-info" style={{backgroundColor: 'transparent'}}>
                         <div className="section-header d-flex justify-content-between align-items-center">
                             <h4><i className="fas fa-briefcase"></i> Employment History</h4>
                             {candidate.totalExperience && (

@@ -79,7 +79,7 @@ html body .hamburger-overlay {
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  background: rgba(0, 0, 0, 0.5) !important;
+  background: transparent !important; /* Made transparent */
   z-index: 9999997 !important;
   display: none !important;
   opacity: 0 !important;

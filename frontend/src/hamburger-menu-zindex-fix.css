@@ -16,10 +16,11 @@
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
-    top: 12px !important;
-    right: 12px !important;
-    width: 40px !important;
-    height: 40px !important;
+    top: 15px !important;
+    left: 15px !important;
+    right: auto !important;
+    width: 44px !important;
+    height: 44px !important;
   }
 
   /* Ensure nothing clips the hamburger button */
@@ -84,7 +85,8 @@
     .mobile-menu-toggle,
     .hamburger-btn {
       top: 10px !important;
-      right: 10px !important;
+      left: 10px !important;
+      right: auto !important;
       padding: 8px 10px !important;
       min-width: 38px !important;
       min-height: 38px !important;

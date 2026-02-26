@@ -41,9 +41,9 @@ function UnifiedHeader({ userRole, userData, onMenuToggle, isSidebarOpen }) {
     };
 
     return (
-        <header className="unified-header">
+        <header className={`unified-header ${isSidebarOpen ? 'is-sidebar-open' : ''}`}>
             <div className="unified-header-container">
-                {/* Mobile Menu Toggle */}
+                {/* Mobile Menu Toggle - Absolute positioned to the left */}
                 <button 
                     className="unified-menu-toggle" 
                     onClick={onMenuToggle}
@@ -52,7 +52,7 @@ function UnifiedHeader({ userRole, userData, onMenuToggle, isSidebarOpen }) {
                     <i className={`fa ${isSidebarOpen ? 'fa-times' : 'fa-bars'}`}></i>
                 </button>
 
-                {/* Logo - Only on mobile */}
+                {/* Logo - Center absolutely */}
                 <div className="unified-header-logo">
                     <JobZImage 
                         id="unified_header_logo" 
@@ -61,7 +61,7 @@ function UnifiedHeader({ userRole, userData, onMenuToggle, isSidebarOpen }) {
                     />
                 </div>
 
-                {/* Right Side Actions */}
+                {/* Right Side Actions - Notifications & Profile */}
                 <div className="unified-header-actions">
                     {/* Notification Bell */}
                     <div className="unified-header-notification">

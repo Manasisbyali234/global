@@ -1,4 +1,3 @@
-import EmpHeaderSection from "../app/pannels/employer/common/emp-header";
 import UnifiedHeader from "../components/UnifiedHeader";
 import EmpSidebarSection from "../app/pannels/employer/common/emp-sidebar";
 import YesNoPopup from "../app/common/popups/popup-yes-no";
@@ -58,7 +57,6 @@ function EmployerLayout() {
                 
                 <EmpSidebarSection sidebarActive={sidebarActive} isMobile={isMobile} onClose={() => setSidebarActive(false)} />
 
-                <EmpHeaderSection sidebarActive={sidebarActive} onClick={handleMenuToggle} isMobile={isMobile} />
                 <UnifiedHeader 
                     userRole="employer"
                     onMenuToggle={handleMenuToggle}
