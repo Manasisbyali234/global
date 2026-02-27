@@ -968,7 +968,7 @@ function EmpCandidateReviewPage() {
                             <h4><i className="fas fa-briefcase"></i> Employment History</h4>
                             {candidate.totalExperience && (
                                 <div className="total-exp-badge">
-                                    <span className="text-muted">Total Experience:</span>
+                                    <span className="text-muted">Total Experience:   </span>
                                     <span className="badge badge-info ml-2">{candidate.totalExperience}</span>
                                 </div>
                             )}
