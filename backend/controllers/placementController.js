@@ -1562,11 +1562,70 @@ exports.uploadLogo = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Logo data is required' });
     }
     
+    // Validate image format
+    if (!logo.startsWith('data:image/')) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid image format. Please upload a valid image file (JPG, PNG, GIF, etc.)' 
+      });
+    }
+    
+    // Extract base64 data and validate size
+    const base64Data = logo.split(',')[1];
+    if (!base64Data) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid image data. Please try uploading the image again.' 
+      });
+    }
+    
+    // Calculate image size (base64 is ~33% larger than actual file)
+    const sizeInBytes = (base64Data.length * 3) / 4;
+    const sizeInMB = sizeInBytes / (1024 * 1024);
+    
+    // Check if image is too large (max 5MB)
+    if (sizeInMB > 5) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `College logo image is too large (${sizeInMB.toFixed(2)}MB). Please upload an image smaller than 5MB. You can compress the image using online tools or reduce its dimensions.` 
+      });
+    }
+    
+    // Check if image is too small (min 1KB)
+    if (sizeInBytes < 1024) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'College logo image is too small or corrupted. Please upload a valid image file.' 
+      });
+    }
+    
+    // Validate image dimensions by checking if it's a valid image
+    try {
+      const buffer = Buffer.from(base64Data, 'base64');
+      // Basic validation - check if buffer has image header signatures
+      const isPNG = buffer[0] === 0x89 && buffer[1] === 0x50;
+      const isJPEG = buffer[0] === 0xFF && buffer[1] === 0xD8;
+      const isGIF = buffer[0] === 0x47 && buffer[1] === 0x49;
+      const isWebP = buffer[8] === 0x57 && buffer[9] === 0x45;
+      
+      if (!isPNG && !isJPEG && !isGIF && !isWebP) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'College logo file is not a valid image. Please upload a proper image file (JPG, PNG, GIF, or WebP format).' 
+        });
+      }
+    } catch (bufferError) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Failed to process college logo image. The file may be corrupted. Please try a different image.' 
+      });
+    }
+    
     await Placement.findByIdAndUpdate(placementId, {
       $set: { logo: logo }
     });
     
-    res.json({ success: true, message: 'Logo uploaded successfully' });
+    res.json({ success: true, message: 'College logo uploaded successfully' });
   } catch (error) {
     console.error('Error uploading logo:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -1581,6 +1640,65 @@ exports.uploadIdCard = async (req, res) => {
     
     if (!idCard) {
       return res.status(400).json({ success: false, message: 'ID card data is required' });
+    }
+    
+    // Validate image format
+    if (!idCard.startsWith('data:image/')) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid image format. Please upload a valid image file (JPG, PNG, GIF, etc.)' 
+      });
+    }
+    
+    // Extract base64 data and validate size
+    const base64Data = idCard.split(',')[1];
+    if (!base64Data) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid image data. Please try uploading the image again.' 
+      });
+    }
+    
+    // Calculate image size (base64 is ~33% larger than actual file)
+    const sizeInBytes = (base64Data.length * 3) / 4;
+    const sizeInMB = sizeInBytes / (1024 * 1024);
+    
+    // Check if image is too large (max 5MB)
+    if (sizeInMB > 5) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `ID card image is too large (${sizeInMB.toFixed(2)}MB). Please upload an image smaller than 5MB. You can compress the image using online tools or reduce its dimensions.` 
+      });
+    }
+    
+    // Check if image is too small (min 1KB)
+    if (sizeInBytes < 1024) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'ID card image is too small or corrupted. Please upload a valid image file.' 
+      });
+    }
+    
+    // Validate image dimensions by checking if it's a valid image
+    try {
+      const buffer = Buffer.from(base64Data, 'base64');
+      // Basic validation - check if buffer has image header signatures
+      const isPNG = buffer[0] === 0x89 && buffer[1] === 0x50;
+      const isJPEG = buffer[0] === 0xFF && buffer[1] === 0xD8;
+      const isGIF = buffer[0] === 0x47 && buffer[1] === 0x49;
+      const isWebP = buffer[8] === 0x57 && buffer[9] === 0x45;
+      
+      if (!isPNG && !isJPEG && !isGIF && !isWebP) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'ID card file is not a valid image. Please upload a proper image file (JPG, PNG, GIF, or WebP format).' 
+        });
+      }
+    } catch (bufferError) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Failed to process ID card image. The file may be corrupted. Please try a different image.' 
+      });
     }
     
     await Placement.findByIdAndUpdate(placementId, {

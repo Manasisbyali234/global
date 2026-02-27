@@ -278,10 +278,8 @@ function EmpJobReviewPage() {
                                                     {(round.todate || round.toDate) && (
                                                         <p className="mb-1"><strong>End Date:</strong> {formatDate(round.todate || round.toDate)}</p>
                                                     )}
-                                                    {round.startTime ? (
+                                                    {round.startTime && (
                                                         <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(round.startTime)}</p>
-                                                    ) : (
-                                                        <p className="mb-1 text-muted"><strong>Start Time:</strong> Not scheduled yet</p>
                                                     )}
                                                     {round.endTime && (
                                                         <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(round.endTime)}</p>
@@ -360,10 +358,8 @@ function EmpJobReviewPage() {
                                                         {details?.toDate && (
                                                             <p className="mb-1"><strong>End Date:</strong> {formatDate(details.toDate)}</p>
                                                         )}
-                                                        {details?.startTime ? (
+                                                        {details?.startTime && (
                                                             <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(details.startTime)}</p>
-                                                        ) : (
-                                                            <p className="mb-1 text-muted"><strong>Start Time:</strong> Not scheduled yet</p>
                                                         )}
                                                         {details?.endTime && (
                                                             <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(details.endTime)}</p>
