@@ -241,7 +241,7 @@ function JobDetail1Page() {
 
             if (isPlacementCandidate && hasCredits) {
                 console.log('Placement candidate with credits detected. Using credit-based application.');
-                showInfo(`Applying using 1 credit. Remaining credits: ${credits}`);
+                showInfo(`Applying using 1 credit. Remaining credits: ${credits - 1}`);
                 handleCreditApplication();
             } else {
                 // Payment is required for every job application

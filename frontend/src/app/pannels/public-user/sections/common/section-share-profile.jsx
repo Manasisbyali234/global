@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 function SectionShareProfile() {
     const [showSharePopup, setShowSharePopup] = useState(false);
@@ -60,20 +61,23 @@ function SectionShareProfile() {
                 </button>
             </div>
             
-            {showSharePopup && (
+            {showSharePopup && createPortal(
                 <div 
                     style={{
                         position: 'fixed',
                         top: 0,
                         left: 0,
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        zIndex: 9999,
+                        right: 0,
+                        bottom: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        backgroundColor: 'rgba(0,0,0,0.6)',
+                        zIndex: 999999,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: '20px'
+                        padding: '20px',
+                        overflow: 'auto'
                     }}
                     onClick={() => setShowSharePopup(false)}
                 >
@@ -82,19 +86,37 @@ function SectionShareProfile() {
                             backgroundColor: 'white',
                             borderRadius: '12px',
                             padding: '30px',
-                            maxWidth: '400px',
+                            maxWidth: '450px',
                             width: '100%',
-                            maxHeight: '80vh',
+                            maxHeight: '90vh',
                             overflow: 'auto',
-                            boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                            position: 'relative'
+                            boxShadow: '0 10px 40px rgba(0,0,0,0.4)',
+                            position: 'relative',
+                            animation: 'fadeIn 0.3s ease-in-out'
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <h3 style={{ textAlign: 'center', marginBottom: '25px', color: '#333' }}>Share this Job</h3>
+                        <button
+                            onClick={() => setShowSharePopup(false)}
+                            style={{
+                                position: 'absolute',
+                                top: '15px',
+                                right: '15px',
+                                background: 'transparent',
+                                border: 'none',
+                                fontSize: '24px',
+                                cursor: 'pointer',
+                                color: '#999',
+                                lineHeight: '1',
+                                padding: '5px 10px'
+                            }}
+                        >
+                            ×
+                        </button>
+                        <h3 style={{ textAlign: 'center', marginBottom: '25px', color: '#333', fontSize: '22px', fontWeight: '600' }}>Share this Job</h3>
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))',
                             gap: '20px',
                             justifyItems: 'center'
                         }}>
@@ -107,20 +129,27 @@ function SectionShareProfile() {
                                         flexDirection: 'column',
                                         alignItems: 'center',
                                         cursor: 'pointer',
-                                        padding: '10px',
-                                        borderRadius: '8px',
-                                        transition: 'transform 0.2s'
+                                        padding: '15px',
+                                        borderRadius: '10px',
+                                        transition: 'all 0.2s ease',
+                                        backgroundColor: '#f8f9fa'
                                     }}
-                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.transform = 'scale(1.1)';
+                                        e.currentTarget.style.backgroundColor = '#e9ecef';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = 'scale(1)';
+                                        e.currentTarget.style.backgroundColor = '#f8f9fa';
+                                    }}
                                 >
                                     {option.svg}
-                                    <span style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>{option.name}</span>
+                                    <span style={{ marginTop: '10px', fontSize: '13px', color: '#495057', fontWeight: '500' }}>{option.name}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
-                </div>
+                </div>, document.body
             )}
         </>
     )

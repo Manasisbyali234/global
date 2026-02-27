@@ -1,7 +1,6 @@
 import JobZImage from "../../../../common/jobz-img";
 import { formatDate } from '../../../../../utils/dateFormatter';
 import SectionEmployersCandidateSidebar from "../../sections/common/section-emp-can-sidebar";
-import SectionShareProfile from "../../sections/common/section-share-profile";
 import SectionOfficePhotos1 from "../../sections/common/section-office-photos1";
 import SectionOfficeVideo1 from "../../sections/common/section-office-video1";
 import SectionAvailableJobsList from "../../sections/employers/detail/section-available-jobs-list";
@@ -598,8 +597,6 @@ function EmployersDetail1Page() {
 												)}
 											</div>
 										</div>
-
-										<SectionShareProfile />
 
 										<div className="twm-two-part-section">
 											<div className="row">
