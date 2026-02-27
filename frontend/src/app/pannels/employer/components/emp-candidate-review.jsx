@@ -563,7 +563,10 @@ function EmpCandidateReviewPage() {
                                 {interviewProcesses.length > 0 && (
                                     <div className="section-card mt-4">
                                         <div className="section-header">
-                                            <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4>
+                                              <div style={{ display: "flex", flexDirection: "column" }}>
+                                               <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4><br></br>
+                                               <h6 style={{ color: "red" }}><i className="fas fa-exclamation-triangle" style={{ marginRight: "6px" }}></i>All checkboxes required to enable button.</h6>
+                                        </div>
                                         </div>
                                         <div className="section-body">
                                             <div className="processes-grid">
