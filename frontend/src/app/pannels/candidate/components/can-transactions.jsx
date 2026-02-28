@@ -108,31 +108,32 @@ function CanTransactionsPage() {
             minHeight: '100vh'
         }}>
             {/* Header */}
-            <div style={{ padding: '2rem 2rem 1rem 2rem' }}>
-                <div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem 2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                    <h2 className="m-0">My Transactions</h2>
-                    <p className="text-muted m-0 mt-1">View and download receipts for your job applications</p>
+            <div style={{ padding: 'clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem) clamp(0.5rem, 2vw, 1rem) clamp(1rem, 4vw, 2rem)' }}>
+                <div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: 'clamp(1rem, 3vw, 1.5rem) clamp(1rem, 4vw, 2rem)', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                    <h2 className="m-0" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>My Transactions</h2>
+                    <p className="text-muted m-0 mt-1" style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>View and download receipts for your job applications</p>
                 </div>
             </div>
 
             {/* Content */}
-            <div style={{ padding: '0 2rem 2rem 2rem' }}>
-                <div className="panel panel-default site-bg-white p-4" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
+            <div style={{ padding: '0 clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem)' }}>
+                <div className="panel panel-default site-bg-white" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0, padding: 'clamp(1rem, 3vw, 1.5rem)' }}>
                     
-                    <div className="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <div className="input-group" style={{ maxWidth: 400 }}>
+                    <div className="mb-3 mb-md-4 d-flex justify-content-between align-items-center flex-wrap gap-2 gap-md-3">
+                        <div className="input-group" style={{ maxWidth: '100%', width: '100%' }} className="input-group" style={{ flex: '1 1 auto', minWidth: '250px', maxWidth: '400px' }}>
                             <span className="input-group-text bg-white border-end-0">
                                 <Search size={18} style={{ color: "#f97316" }} />
                             </span>
                             <input
                                 type="text"
                                 className="form-control border-start-0 ps-0"
-                                placeholder="Search by job, company or payment ID..."
+                                placeholder="Search transactions..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
+                                style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}
                             />
                         </div>
-                        <div className="text-muted">
+                        <div className="text-muted" style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
                             Total: <strong>{filteredTransactions.length}</strong>
                         </div>
                     </div>
@@ -144,17 +145,17 @@ function CanTransactionsPage() {
                             </div>
                         </div>
                     ) : (
-                        <div className="table-responsive">
-                            <table className="table table-hover twm-table">
+                        <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                            <table className="table table-hover twm-table" style={{ minWidth: '700px', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>
                                 <thead className="table-light">
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Job Role</th>
-                                        <th>Company</th>
-                                        <th>Payment ID</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
+                                        <th style={{ minWidth: '100px' }}>Date</th>
+                                        <th style={{ minWidth: '150px' }}>Job Role</th>
+                                        <th className="d-none d-md-table-cell" style={{ minWidth: '120px' }}>Company</th>
+                                        <th className="d-none d-lg-table-cell" style={{ minWidth: '120px' }}>Payment ID</th>
+                                        <th style={{ minWidth: '80px' }}>Amount</th>
+                                        <th style={{ minWidth: '80px' }}>Status</th>
+                                        <th style={{ minWidth: '70px' }}>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -168,19 +169,20 @@ function CanTransactionsPage() {
                                         filteredTransactions.map((t) => (
                                             <tr key={t._id}>
                                                 <td>
-                                                    <div className="text-nowrap">{formatDate(t.createdAt)}</div>
-                                                    <small className="text-muted">{new Date(t.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                                                    <div className="text-nowrap" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>{formatDate(t.createdAt)}</div>
+                                                    <small className="text-muted d-none d-sm-block">{new Date(t.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
                                                 </td>
                                                 <td>
-                                                    <div className="fw-bold">{t.jobId?.title || 'N/A'}</div>
+                                                    <div className="fw-bold" style={{ fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>{t.jobId?.title || 'N/A'}</div>
+                                                    <small className="text-muted d-md-none">{t.employerId?.companyName || 'N/A'}</small>
                                                 </td>
-                                                <td>{t.employerId?.companyName || 'N/A'}</td>
-                                                <td><code className="text-primary">{t.paymentId}</code></td>
+                                                <td className="d-none d-md-table-cell">{t.employerId?.companyName || 'N/A'}</td>
+                                                <td className="d-none d-lg-table-cell"><code className="text-primary" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.85rem)' }}>{t.paymentId}</code></td>
                                                 <td>
                                                     <span className="fw-bold">₹{t.paymentAmount || 129}</span>
                                                 </td>
                                                 <td>
-                                                    <span className="badge bg-success-light text-success text-uppercase" style={{backgroundColor: '#e6f4ea', color: '#1e7e34', padding: '5px 10px', borderRadius: '4px'}}>
+                                                    <span className="badge bg-success-light text-success text-uppercase" style={{backgroundColor: '#e6f4ea', color: '#1e7e34', padding: '4px 8px', borderRadius: '4px', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)'}}>
                                                         {t.paymentStatus}
                                                     </span>
                                                 </td>
@@ -218,38 +220,39 @@ function CanTransactionsPage() {
                     top: 0,
                     left: 0,
                     width: '100%',
-                    height: '100%'
+                    height: '100%',
+                    overflowY: 'auto'
                 }}>
-                    <div className="modal-dialog modal-lg modal-dialog-centered">
+                    <div className="modal-dialog modal-lg modal-dialog-centered" style={{ margin: 'clamp(0.5rem, 2vw, 1.75rem) auto', maxWidth: 'calc(100% - 1rem)' }}>
                         <div className="modal-content border-0 shadow-lg">
-                            <div className="modal-header bg-light">
-                                <h5 className="modal-title d-flex align-items-center gap-2">
+                            <div className="modal-header bg-light" style={{ padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem)' }}>
+                                <h5 className="modal-title d-flex align-items-center gap-2" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>
                                     <Receipt size={20} className="text-primary" />
                                     Transaction Receipt
                                 </h5>
                                 <button type="button" className="btn-close" onClick={() => setShowInvoiceModal(false)}></button>
                             </div>
-                            <div className="modal-body p-4">
+                            <div className="modal-body" style={{ padding: 'clamp(1rem, 4vw, 1.5rem)' }}>
                                 {fetchingDetails ? (
                                     <div className="text-center py-5">
                                         <div className="spinner-border text-primary" role="status"></div>
                                         <p className="mt-2 text-muted">Fetching Razorpay details...</p>
                                     </div>
                                 ) : (
-                                    <div id="invoice-content" className="p-2">
-                                        <div className="d-flex justify-content-between mb-4 align-items-start border-bottom pb-4">
-                                            <div>
-                                                <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '45px', marginBottom: '15px' }} />
-                                                <div className="text-muted small">
+                                    <div id="invoice-content" style={{ padding: 'clamp(0.5rem, 2vw, 1rem)' }}>
+                                        <div className="d-flex flex-column flex-md-row justify-content-between mb-3 mb-md-4 align-items-start border-bottom pb-3 pb-md-4 gap-3">
+                                            <div style={{ flex: '1 1 auto' }}>
+                                                <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: 'clamp(30px, 8vw, 45px)', marginBottom: 'clamp(10px, 3vw, 15px)' }} />
+                                                <div className="text-muted" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
                                                     <p className="mb-1 fw-bold text-dark">TALEGLOBAL PLATFORM</p>
                                                     <p className="mb-1">Whitefield, Bengaluru, Karnataka 560066</p>
                                                     <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1Z</p>
                                                     <p className="mb-0"><strong>Support:</strong> help@taleglobal.com</p>
                                                 </div>
                                             </div>
-                                            <div className="text-end">
-                                                <h3 className="mb-2 text-primary fw-bold">PAYMENT RECEIPT</h3>
-                                                <div className="text-muted small">
+                                            <div className="text-start text-md-end" style={{ flex: '1 1 auto' }}>
+                                                <h3 className="mb-2 text-primary fw-bold" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.75rem)' }}>PAYMENT RECEIPT</h3>
+                                                <div className="text-muted" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
                                                     <p className="mb-1"><strong>Receipt No:</strong> REC-{selectedTransaction?.paymentId?.slice(-8).toUpperCase()}</p>
                                                     <p className="mb-1"><strong>Date:</strong> {formatDate(selectedTransaction?.createdAt)}</p>
                                                     <p className="mb-0"><strong>Status:</strong> <span className="badge bg-success text-uppercase">Paid</span></p>
@@ -257,18 +260,18 @@ function CanTransactionsPage() {
                                             </div>
                                         </div>
 
-                                        <div className="row mb-5">
-                                            <div className="col-6">
-                                                <p className="text-muted small mb-2 fw-bold text-uppercase border-bottom pb-1">Billed To (Candidate)</p>
-                                                <h6 className="mb-1 fw-bold text-dark">{selectedTransaction?.candidateId?.name || candidateInfo?.name}</h6>
-                                                <p className="text-muted small mb-1"><i className="fa fa-envelope me-1"></i> {selectedTransaction?.candidateId?.email || candidateInfo?.email}</p>
+                                        <div className="row mb-3 mb-md-5">
+                                            <div className="col-12 col-md-6 mb-3 mb-md-0">
+                                                <p className="text-muted mb-2 fw-bold text-uppercase border-bottom pb-1" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.875rem)' }}>Billed To (Candidate)</p>
+                                                <h6 className="mb-1 fw-bold text-dark" style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>{selectedTransaction?.candidateId?.name || candidateInfo?.name}</h6>
+                                                <p className="text-muted mb-1" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}><i className="fa fa-envelope me-1"></i> {selectedTransaction?.candidateId?.email || candidateInfo?.email}</p>
                                                 {(selectedTransaction?.candidateId?.phone || candidateInfo?.phone) && (
-                                                    <p className="text-muted small mb-0"><i className="fa fa-phone me-1"></i> {selectedTransaction?.candidateId?.phone || candidateInfo?.phone}</p>
+                                                    <p className="text-muted mb-0" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}><i className="fa fa-phone me-1"></i> {selectedTransaction?.candidateId?.phone || candidateInfo?.phone}</p>
                                                 )}
                                             </div>
-                                            <div className="col-6 text-end">
-                                                <p className="text-muted small mb-2 fw-bold text-uppercase border-bottom pb-1">Payment Info</p>
-                                                <div className="small">
+                                            <div className="col-12 col-md-6 text-start text-md-end">
+                                                <p className="text-muted mb-2 fw-bold text-uppercase border-bottom pb-1" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.875rem)' }}>Payment Info</p>
+                                                <div style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
                                                     <div className="d-flex justify-content-end mb-1">
                                                         <span className="text-muted" style={{ minWidth: '100px' }}>Method:</span>
                                                         <span className="text-dark fw-bold ms-2">{getPaymentMethodInfo(paymentDetails)}</span>
@@ -285,11 +288,11 @@ function CanTransactionsPage() {
                                             </div>
                                         </div>
 
-                                        <div className="table-responsive mb-4">
-                                            <table className="table table-bordered align-middle">
-                                                <thead className="table-light text-uppercase small">
+                                        <div className="table-responsive mb-3 mb-md-4" style={{ overflowX: 'auto' }}>
+                                            <table className="table table-bordered align-middle" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', minWidth: '500px' }}>
+                                                <thead className="table-light text-uppercase" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
                                                     <tr>
-                                                        <th style={{ width: '60%' }}>Item Description</th>
+                                                        <th style={{ minWidth: '200px' }}>Item Description</th>
                                                         <th className="text-center">Applied</th>
                                                         <th className="text-end">Price</th>
                                                         <th className="text-end">Total</th>
@@ -299,7 +302,7 @@ function CanTransactionsPage() {
                                                     <tr>
                                                         <td>
                                                             <div className="fw-bold text-dark">Job Application Fee</div>
-                                                            <div className="text-muted small mt-1">
+                                                            <div className="text-muted mt-1" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
                                                                 <strong>Position:</strong> {selectedTransaction?.jobId?.title}<br />
                                                                 <strong>Employer:</strong> {selectedTransaction?.employerId?.companyName}<br />
                                                                 {selectedTransaction?.jobId?.jobCategory && (
@@ -314,40 +317,40 @@ function CanTransactionsPage() {
                                                 </tbody>
                                                 <tfoot className="table-light">
                                                     <tr>
-                                                        <th colSpan="3" className="text-end small text-uppercase">Total Amount Paid</th>
-                                                        <th className="text-end text-primary fw-bold fs-5">₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</th>
+                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>Total Amount Paid</th>
+                                                        <th className="text-end text-primary fw-bold" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
 
-                                        <div className="row mt-5">
-                                            <div className="col-6">
+                                        <div className="row mt-3 mt-md-5">
+                                            <div className="col-12 col-md-6 mb-3 mb-md-0">
                                                 <div className="p-3 rounded border bg-light">
-                                                    <p className="mb-0 small text-muted">
+                                                    <p className="mb-0 text-muted" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
                                                         <strong>Note:</strong> This is a computer-generated document and does not require a physical signature. Thank you for using TaleGlobal.
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="col-6 text-end d-flex flex-column align-items-end justify-content-end">
+                                            <div className="col-12 col-md-6 text-start text-md-end d-flex flex-column align-items-start align-items-md-end justify-content-end">
                                                 <div style={{ width: '200px', borderTop: '1px solid #dee2e6', paddingTop: '10px' }}>
-                                                    <p className="mb-0 fw-bold small text-dark">Authorized Signatory</p>
-                                                    <p className="mb-0 small text-muted">TaleGlobal Platform</p>
+                                                    <p className="mb-0 fw-bold text-dark" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>Authorized Signatory</p>
+                                                    <p className="mb-0 text-muted" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>TaleGlobal Platform</p>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="invoice-footer d-none d-print-block mt-5 pt-3 border-top text-center text-muted small">
+                                        <div className="invoice-footer d-none d-print-block mt-5 pt-3 border-top text-center text-muted" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
                                             <p className="mb-1">© {new Date().getFullYear()} TaleGlobal Platform. All rights reserved.</p>
                                             <p className="mb-0">www.taleglobal.com | Whitefield, Bengaluru, Karnataka 560066</p>
                                         </div>
                                     </div>
                                 )}
                             </div>
-                            <div className="modal-footer bg-light">
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowInvoiceModal(false)}>Close</button>
-                                <button type="button" className="btn btn-primary d-flex align-items-center gap-2 receipt-print-btn" onClick={() => window.print()}>
-                                    <Download size={16} /> Print Receipt
+                            <div className="modal-footer bg-light" style={{ padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem)', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                <button type="button" className="btn btn-secondary" onClick={() => setShowInvoiceModal(false)} style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>Close</button>
+                                <button type="button" className="btn btn-primary d-flex align-items-center gap-2 receipt-print-btn" onClick={() => window.print()} style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
+                                    <Download size={16} /> <span className="d-none d-sm-inline">Print Receipt</span><span className="d-inline d-sm-none">Print</span>
                                 </button>
                             </div>
                         </div>

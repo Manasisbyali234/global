@@ -1,4 +1,5 @@
 import UnifiedHeader from "../components/UnifiedHeader";
+import EmpHeaderSection from "../app/pannels/employer/common/emp-header";
 import EmpSidebarSection from "../app/pannels/employer/common/emp-sidebar";
 import YesNoPopup from "../app/common/popups/popup-yes-no";
 import EmployerRoutes from "../routing/employer-routes";
@@ -62,6 +63,7 @@ function EmployerLayout() {
                     onMenuToggle={handleMenuToggle}
                     isSidebarOpen={sidebarActive}
                 />
+                <EmpHeaderSection onClick={handleMenuToggle} sidebarActive={sidebarActive} isMobile={isMobile} />
 
                 <div id="content" className={contentClasses}>
                     <div className="content-admin-main" style={{

@@ -249,7 +249,7 @@ const EmployersGridPage = memo(() => {
                         </div>
 
                         <div className="twm-employer-list-wrap">
-                            <Row style={{'--bs-gutter-x': '6px'}}>
+                            <Row className="justify-content-start" style={{'--bs-gutter-x': '6px'}}>
                                 {loading && isFirstLoad && skeletonCards}
 
                                 {!loading && employers.length > 0 ? 

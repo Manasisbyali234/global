@@ -282,7 +282,9 @@ nav#sidebar-admin-wraper.active,
         margin-left: 0 !important;
     }
     
-/* Mobile menu toggle removed - handled by UnifiedHeader */
+    .mobile-menu-toggle {
+        display: flex !important;
+    }
     
     #sidebar-admin-wraper.collapsed {
         transform: translateX(-100%) !important;
@@ -361,9 +363,44 @@ nav#sidebar-admin-wraper.active,
     animation-delay: 0.5s;
 }
 
-/* Mobile Menu Toggle Button removed */
-.mobile-menu-toggle-removed {
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1050;
+    background: #ff8c00 !important;
+    color: white !important;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-menu-toggle i {
+    color: white !important;
+    font-size: 20px !important;
+}
+
+body:has(#sidebar-admin-wraper.active) .mobile-menu-toggle {
     display: none !important;
+}
+
+.mobile-menu-toggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.mobile-menu-toggle:active {
+    transform: translateY(0);
 }
 
 
@@ -460,9 +497,12 @@ nav#sidebar-admin-wraper.active,
   width: 100% !important;
 }
 
-/* Mobile menu toggle positioning removed */
-.mobile-menu-toggle-removed {
+/* Mobile menu toggle positioning */
+.mobile-menu-toggle {
   position: fixed !important;
+  top: 15px !important;
+  left: 15px !important;
+  z-index: 1050 !important;
 }
 
 @media (max-width: 767px) {
@@ -470,8 +510,9 @@ nav#sidebar-admin-wraper.active,
     padding: 15px !important;
   }
   
-  .mobile-menu-toggle-removed {
-    display: none !important;
+  .mobile-menu-toggle {
+    top: 10px !important;
+    left: 10px !important;
   }
 }
 

@@ -1729,12 +1729,14 @@
         width: 100% !important;
         max-width: 100% !important;
         overflow-x: hidden !important;
+        box-sizing: border-box !important;
     }
     
     .dashboard-container .upload-container {
         width: 100% !important;
         max-width: 100% !important;
         padding: 0 !important;
+        box-sizing: border-box !important;
     }
     
     .dashboard-container .config-form-card {
@@ -1743,16 +1745,21 @@
         margin: 16px 0 !important;
         padding: 16px !important;
         box-sizing: border-box !important;
+        overflow: hidden !important;
     }
     
     .dashboard-container .form-content {
         width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
     }
     
     .dashboard-container .file-upload-area {
         width: 100% !important;
         padding: 20px 12px !important;
         box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
     }
     
     .dashboard-container .form-fields {
@@ -1760,18 +1767,32 @@
         display: flex !important;
         flex-direction: column !important;
         gap: 16px !important;
+        box-sizing: border-box !important;
     }
     
     .dashboard-container .field-group {
         width: 100% !important;
         margin-bottom: 16px !important;
+        box-sizing: border-box !important;
     }
     
-    .dashboard-container .form-input {
+    .dashboard-container .field-label,
+    .dashboard-container .form-input,
+    .dashboard-container select.form-input {
         width: 100% !important;
+        max-width: 100% !important;
         padding: 12px !important;
         font-size: 14px !important;
         box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .dashboard-container .upload-text {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
     }
     
     .dashboard-container .form-actions {
@@ -1780,6 +1801,7 @@
         flex-direction: column !important;
         gap: 12px !important;
         margin-top: 20px !important;
+        box-sizing: border-box !important;
     }
     
     .dashboard-container .btn-cancel,
@@ -1788,6 +1810,8 @@
         padding: 12px !important;
         font-size: 14px !important;
         box-sizing: border-box !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
     }
     
     .dashboard-container .upload-history-section {
@@ -1795,6 +1819,15 @@
         margin-top: 20px !important;
         padding: 16px !important;
         overflow-x: auto !important;
+        box-sizing: border-box !important;
+    }
+    
+    .dashboard-container .helper-text,
+    .dashboard-container .sample-download {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
     }
     
     .profile-card {

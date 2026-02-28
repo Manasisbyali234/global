@@ -55,7 +55,7 @@ const EmploymentCard = ({
                             }}
                         >
                             <i className="fa fa-trash-alt me-1"></i>
-                            Delete
+                            <span className="delete-btn-text">Delete</span>
                         </button>
                     )}
                     <i className={`fa ${isOpen ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>

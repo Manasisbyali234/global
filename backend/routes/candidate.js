@@ -306,9 +306,16 @@ router.put('/applications/:applicationId/interview-process/stage/:stageIndex', c
 // Optimized endpoints
 router.get('/applications/status/:jobId', async (req, res) => {
   try {
+    // Set cache-control headers to prevent browser caching
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+
     const Application = require('../models/Application');
     const application = await Application.findOne({
-      candidateId: req.user.id,
+      candidateId: req.user._id,
       jobId: req.params.jobId
     }).select('_id').lean();
     

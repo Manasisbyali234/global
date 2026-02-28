@@ -1,49 +1,11 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { publicUser } from "../../../../../globals/route-names";
 import { useState, useEffect } from "react";
 import "../../../../../job-categories-consolidated.css";
 
 
-// Category Roles Modal Component
-function CategoryRolesModal({ category, roles, isOpen, onClose }) {
-    if (!isOpen || !category) return null;
-
-    return (
-        <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-            <div className="modal-dialog modal-lg">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">{category} Job Roles</h5>
-                        <button type="button" className="btn-close" onClick={onClose}></button>
-                    </div>
-                    <div className="modal-body">
-                        {roles.length > 0 ? (
-                            <div className="row">
-                                {roles.map((role, index) => (
-                                    <div key={index} className="col-md-6 mb-2">
-                                        <div className="p-2 border rounded">
-                                            <h6 className="mb-1">{role}</h6>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p>No job roles found for this category.</p>
-                        )}
-                    </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" onClick={onClose}>Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
 function SectionJobCategories() {
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [categoryRoles, setCategoryRoles] = useState([]);
-    const [showRolesModal, setShowRolesModal] = useState(false);
+    const navigate = useNavigate();
     const [categoryCounts, setCategoryCounts] = useState({});
 
     const categories = [
@@ -76,18 +38,8 @@ function SectionJobCategories() {
         }
     };
 
-    const handleCategoryClick = async (categoryName) => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/public/jobs/category/${categoryName}`);
-            const data = await response.json();
-            if (data.success) {
-                setSelectedCategory(categoryName);
-                setCategoryRoles(data.roles || []);
-                setShowRolesModal(true);
-            }
-        } catch (error) {
-            
-        }
+    const handleCategoryClick = (categoryName) => {
+        navigate(`${publicUser.jobs.GRID}?category=${encodeURIComponent(categoryName)}`);
     };
 
     return (
@@ -133,12 +85,7 @@ function SectionJobCategories() {
                     </div>
                 </div>
 
-                <CategoryRolesModal 
-                    category={selectedCategory}
-                    roles={categoryRoles}
-                    isOpen={showRolesModal}
-                    onClose={() => setShowRolesModal(false)}
-                />
+
             </div>
         </>
     )

@@ -36,7 +36,7 @@ function JobDetail1Page() {
         const token = localStorage.getItem('candidateToken');
         const storedCandidateId = localStorage.getItem('candidateId');
         return { token, candidateId: storedCandidateId, isLoggedIn: !!token };
-    }, []);
+    }, [localStorage.getItem('candidateToken'), localStorage.getItem('candidateId')]);
 
     const { limitReached, isEnded, isExpired } = useMemo(() => {
         if (!job) return { limitReached: false, isEnded: false, isExpired: false };
@@ -61,12 +61,12 @@ function JobDetail1Page() {
     }, [jobId]);
 
     const checkApplicationStatus = useCallback(async () => {
-        if (!authState.token || !jobId) return;
+        const token = localStorage.getItem('candidateToken');
+        if (!token || !jobId) return;
         
         try {
-            const token = localStorage.getItem('candidateToken');
             const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
-            const response = await fetch(`${baseUrl}/api/candidate/applications/status/${jobId}`, {
+            const response = await fetch(`${baseUrl}/api/candidate/applications/status/${jobId}?t=${Date.now()}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -76,7 +76,7 @@ function JobDetail1Page() {
         } catch (error) {
             console.error('Error checking application status:', error);
         }
-    }, [jobId, authState.token]);
+    }, [jobId]);
 
     const fetchCandidateData = useCallback(async () => {
         try {
@@ -101,19 +101,47 @@ function JobDetail1Page() {
         }
     }, []);
 
+    const fetchRazorpayKey = useCallback(async () => {
+        try {
+            const token = localStorage.getItem('candidateToken');
+            if (!token) return;
+            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+            const response = await fetch(`${baseUrl}/api/payments/key`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) {
+                setRazorpayKey(data.publicKey);
+            }
+        } catch (error) {
+            console.error('Error fetching Razorpay key:', error);
+        }
+    }, []);
+
     useEffect(() => {
-        setIsLoggedIn(authState.isLoggedIn);
-        setCandidateId(authState.candidateId);
+        if (!jobId) return;
+
+        // Reset states for new job
+        setHasApplied(false);
+        setJob(null);
+        setLoading(true);
+
+        // Fetch public job details
+        fetchJobDetails();
+
+        // Check authentication and fetch private data
+        const token = localStorage.getItem('candidateToken');
+        const storedCandidateId = localStorage.getItem('candidateId');
         
-        if (authState.token && authState.candidateId && jobId) {
+        setIsLoggedIn(!!token);
+        setCandidateId(storedCandidateId);
+
+        if (token) {
             checkApplicationStatus();
             fetchCandidateData();
+            fetchRazorpayKey();
         }
-    }, [jobId, authState.token, authState.candidateId, authState.isLoggedIn, checkApplicationStatus, fetchCandidateData]);
-
-    const sidebarConfig = {
-        showJobInfo: true
-    };
+    }, [jobId, fetchJobDetails, checkApplicationStatus, fetchCandidateData, fetchRazorpayKey]);
 
     const handleScroll = useCallback(() => {
         const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -124,32 +152,6 @@ function JobDetail1Page() {
     useEffect(() => {
         loadScript("js/custom.js");
         loadScript("https://checkout.razorpay.com/v1/checkout.js", false);
-        
-        const fetchRazorpayKey = async () => {
-            try {
-                const token = localStorage.getItem('candidateToken');
-                if (!token) return;
-                const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
-                const response = await fetch(`${baseUrl}/api/payments/key`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    setRazorpayKey(data.publicKey);
-                }
-            } catch (error) {
-                console.error('Error fetching Razorpay key:', error);
-            }
-        };
-
-        if (jobId) {
-            fetchJobDetails();
-            fetchRazorpayKey();
-            // Check application status after job details are loaded
-            if (authState.token && authState.candidateId) {
-                checkApplicationStatus();
-            }
-        }
         
         let ticking = false;
         const throttledScroll = () => {
@@ -164,7 +166,7 @@ function JobDetail1Page() {
         
         window.addEventListener('scroll', throttledScroll, { passive: true });
         return () => window.removeEventListener('scroll', throttledScroll);
-    }, [jobId, handleScroll, fetchJobDetails, authState.token, authState.candidateId, checkApplicationStatus]);
+    }, [handleScroll]);
 
     useEffect(() => {
         const pending = pendingPaymentManager.getPendingPayment();
@@ -173,6 +175,10 @@ function JobDetail1Page() {
             setShowPendingPaymentBanner(true);
         }
     }, []);
+
+    const sidebarConfig = {
+        showJobInfo: true
+    };
 
     if (loading) {
         return (

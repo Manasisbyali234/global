@@ -128,8 +128,8 @@ function SectionRecommendedJobs() {
                     </span>
                 </p>
             </div>
-            <div className="panel-body wt-panel-body p-0">
-                <div className="job-recommendations-list">
+            <div className="panel-body wt-panel-body p-0" style={{ overflow: 'hidden' }}>
+                <div className="job-recommendations-list" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
                     {jobs.map((job, index) => (
                         <div 
                             key={job._id} 

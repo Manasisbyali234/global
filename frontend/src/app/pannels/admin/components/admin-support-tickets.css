@@ -498,6 +498,12 @@
   color: #2563eb;
   font-weight: 600;
   cursor: pointer;
+  text-align: left;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0;
 }
 
 .attachment-link:hover {

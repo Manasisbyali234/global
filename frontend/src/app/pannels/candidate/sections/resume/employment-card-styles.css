@@ -18,11 +18,21 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid transparent;
+    border-bottom: none;
+}
+
+.employment-card-header .d-flex {
+    gap: 10px;
+    align-items: center;
+    overflow: visible !important;
+}
+
+.employment-card-header .delete-btn {
+    flex-shrink: 0;
 }
 
 .employment-card.open .employment-card-header {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: none;
     background: #fff;
 }
 
@@ -31,6 +41,10 @@
     font-size: 16px;
     font-weight: 600;
     color: #333;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .employment-card-body {
@@ -62,15 +76,38 @@
 }
 
 .delete-btn {
-    color: #dc3545;
-    background: none;
-    border: none;
+    color: #dc3545 !important;
+    background: none !important;
+    border: none !important;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+    width: auto !important;
+    min-width: 70px !important;
+    padding: 0 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .delete-btn:hover {
     text-decoration: underline;
+}
+
+@media (max-width: 576px) {
+    .delete-btn {
+        font-size: 12px !important;
+        min-width: 65px !important;
+        padding: 0 6px !important;
+    }
+    
+    .delete-btn .fa {
+        margin-right: 0 !important;
+    }
+    
+    .delete-btn-text {
+        display: none !important;
+    }
 }
 
 .employment-table-container {

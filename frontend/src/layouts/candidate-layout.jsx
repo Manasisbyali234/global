@@ -3,6 +3,7 @@ import YesNoPopup from "../app/common/popups/popup-yes-no";
 import { popupType } from "../globals/constants";
 import { useState, useEffect } from "react";
 import UnifiedHeader from "../components/UnifiedHeader";
+import CanHeaderSection from "../app/pannels/candidate/common/can-header";
 import CanSidebarSection from "../app/pannels/candidate/common/can-sidebar";
 import CandidateRoutes from "../routing/candidate-routes";
 import "../logout-modal-fix.css";
@@ -67,6 +68,7 @@ function CandidateLayout() {
                     onMenuToggle={handleMenuToggle}
                     isSidebarOpen={sidebarActive}
                 />
+                <CanHeaderSection onClick={handleMenuToggle} sidebarActive={sidebarActive} isMobile={isMobile} />
                 <CanSidebarSection sidebarActive={sidebarActive} isMobile={isMobile} onLinkClick={isMobile ? closeSidebar : undefined} />
 
                 <div id="content" className={contentClasses}>

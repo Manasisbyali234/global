@@ -1,6 +1,16 @@
 .job-recommendations-list {
     max-height: 500px;
-    overflow-y: auto;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+.panel-body.wt-panel-body.p-0 {
+    overflow: hidden !important;
+}
+
+.panel-body.wt-panel-body.p-0 .job-recommendations-list {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
 }
 
 .job-recommendation-card {
@@ -53,6 +63,8 @@
 @media (max-width: 992px) {
     .job-recommendations-list {
         max-height: 450px;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
     }
     
     .job-recommendation-card {
@@ -67,15 +79,24 @@
     
     .job-recommendations-list {
         max-height: 400px;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
     }
     
     .job-recommendation-card h6 {
         font-size: 0.9rem !important;
+        line-height: 1.4 !important;
     }
     
     .job-recommendation-card .d-flex.justify-content-between {
-        flex-wrap: wrap !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
         gap: 0.5rem !important;
+    }
+    
+    .job-recommendation-card .d-flex.justify-content-between .d-flex.align-items-center.gap-2 {
+        width: 100% !important;
+        justify-content: flex-start !important;
     }
     
     .job-recommendation-card .badge {
@@ -85,6 +106,8 @@
     
     .job-recommendation-card .d-flex.flex-wrap.gap-2 {
         gap: 0.5rem !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
     }
 }
 
@@ -114,11 +137,15 @@
     
     .job-recommendations-list {
         max-height: 350px;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
     }
     
     .job-recommendation-card h6 {
         font-size: 0.85rem !important;
         word-break: break-word !important;
+        line-height: 1.4 !important;
+        max-width: 100% !important;
     }
     
     .job-recommendation-card p {
@@ -128,7 +155,18 @@
     .job-recommendation-card .d-flex.justify-content-between {
         flex-direction: column !important;
         align-items: flex-start !important;
-        gap: 0.4rem !important;
+        gap: 0.5rem !important;
+    }
+    
+    .job-recommendation-card .d-flex.justify-content-between .flex-grow-1 {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .job-recommendation-card .d-flex.justify-content-between .d-flex.align-items-center.gap-2 {
+        width: 100% !important;
+        justify-content: flex-start !important;
+        flex-wrap: wrap !important;
     }
     
     .job-recommendation-card .d-flex.align-items-center {
@@ -138,9 +176,28 @@
     .job-recommendation-card .badge {
         font-size: 0.6rem !important;
         padding: 0.15rem 0.35rem !important;
+        white-space: nowrap !important;
     }
     
     .job-recommendation-card .d-flex.flex-wrap.gap-2 {
-        gap: 0.35rem !important;
+        gap: 0.4rem !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+    
+    .job-recommendation-card .d-flex.flex-wrap.gap-1 {
+        gap: 0.3rem !important;
+    }
+    
+    .panel-body .p-3.text-center {
+        padding: 0.75rem 0.85rem !important;
+    }
+    
+    .panel-body .p-3.text-center .btn {
+        width: calc(100% - 0.5rem) !important;
+        max-width: 100% !important;
+        font-size: 0.8rem !important;
+        padding: 0.5rem 1rem !important;
+        box-sizing: border-box !important;
     }
 }
