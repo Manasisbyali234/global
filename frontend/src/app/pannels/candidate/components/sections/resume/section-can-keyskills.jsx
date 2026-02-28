@@ -85,16 +85,16 @@ function SectionCanKeySkills({ profile }) {
     
     return (
         <>
-            <div className="panel-heading wt-panel-heading p-a20">
+            <div className="panel-heading wt-panel-heading p-a20" style={{position: 'relative', zIndex: 100, backgroundColor: 'white'}}>
                 <h4 className="panel-tittle m-a0 mb-3">
                     <i className="fa fa-cogs site-text-primary me-2"></i>
                     Key Skills*
                 </h4>
                 
-                <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                <div className="d-flex align-items-center gap-2 mb-3 flex-wrap" style={{position: 'relative', zIndex: 100}}>
                     <select 
                         className="form-select" 
-                        style={{width: '300px', height: '40px', fontSize: '13px', padding: '8px 12px'}}
+                        style={{width: '300px', height: '40px', fontSize: '13px', padding: '8px 12px', position: 'relative', zIndex: 1000}}
                         value={selectedSkill}
                         onChange={(e) => setSelectedSkill(e.target.value)}
                         disabled={loading}

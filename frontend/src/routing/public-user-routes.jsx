@@ -54,6 +54,7 @@ function PublicUserRoutes() {
         <Suspense fallback={<div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px'}}><div>Loading...</div></div>}>
             <Routes>
             <Route path={publicUser.INITIAL} element={<Home16Page />} />
+            <Route path={publicUser.HOME} element={<Home16Page />} />
 
             <Route path={publicUser.jobs.GRID} element={<JobsGridPage />} />
             <Route path={publicUser.jobs.GRID_MAP} element={<JobsGridMapPage />} />

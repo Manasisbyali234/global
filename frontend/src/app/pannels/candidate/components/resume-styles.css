@@ -26,6 +26,37 @@ select:focus {
     position: relative;
 }
 
+/* Ensure all parent containers allow overflow */
+.twm-right-section-panel,
+.resume-content-container,
+.row,
+.col-12 {
+    overflow: visible !important;
+}
+
+/* Key Skills section - ensure dropdown appears above other sections */
+.panel:has(.fa-cogs) {
+    position: relative !important;
+    z-index: 1000 !important;
+    overflow: visible !important;
+}
+
+.panel:has(.fa-cogs) .panel-heading {
+    position: relative !important;
+    z-index: 1001 !important;
+    overflow: visible !important;
+}
+
+.panel:has(.fa-cogs) .panel-body {
+    overflow: visible !important;
+}
+
+.panel:has(.fa-cogs) select,
+.panel:has(.fa-cogs) .form-select {
+    position: relative !important;
+    z-index: 1002 !important;
+}
+
 /* Education section specific z-index and overflow fixes */
 .education-panel-container,
 .education-section-body,
@@ -661,7 +692,16 @@ body.modal-open {
 }
 
 .panel:focus-within {
-    z-index: 20 !important;
+    z-index: 100 !important;
+}
+
+/* Key Skills panel needs higher z-index for dropdown */
+.panel:has(.panel-heading .fa-cogs) {
+    z-index: 1000 !important;
+}
+
+.panel:has(.panel-heading .fa-cogs):focus-within {
+    z-index: 1000 !important;
 }
 
 .panel-heading {

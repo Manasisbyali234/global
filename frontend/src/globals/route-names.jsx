@@ -12,16 +12,17 @@ export const base = {
 
 export const publicUser = {
     INITIAL: "/",
+    HOME: "/:slug?",
 
     jobs: {
-        GRID: "/job-grid",
+        GRID: "/job-grid/:slug?",
         GRID_MAP: "/job-grid-with-map",
         LIST: "/job-list",
         DETAIL1: "/job-detail/1",
         APPLY: "/apply-job"
     },
     employer: {
-        GRID: "/emp-grid",
+        GRID: "/emp-grid/:slug?",
         LIST: "/emp-list",
         DETAIL1: "/emp-detail/:id",
     },
