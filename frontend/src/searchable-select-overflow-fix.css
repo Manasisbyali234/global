@@ -1,5 +1,28 @@
 /* Fix for SearchableSelect overflow when multiple locations are selected */
 
+/* Ensure parent container has proper positioning and z-index */
+.twm-panel-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* When dropdown is open, increase z-index of the work location section */
+.panel-body.wt-panel-body {
+  position: relative;
+  z-index: auto;
+}
+
+/* Specific fix for work location section to ensure dropdown appears above other sections */
+.panel:has(.form-select) {
+  position: relative;
+  z-index: auto;
+}
+
+.panel:has(.form-select:focus-within),
+.panel:has([style*="position: absolute"]) {
+  z-index: 100 !important;
+}
+
 /* Desktop - allow expansion */
 @media (min-width: 769px) {
   .form-select {

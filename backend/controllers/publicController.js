@@ -103,7 +103,7 @@ exports.getJobs = async (req, res) => {
 
     // Optimized query for better performance
     const jobs = await Job.find(query)
-      .select('title location jobType vacancies category ctc createdAt employerId companyName companyLogo education shift lastDateOfApplication lastDateOfApplicationTime')
+      .select('title location jobType applicationLimit category ctc createdAt employerId companyName companyLogo education shift lastDateOfApplication lastDateOfApplicationTime')
       .sort(sortCriteria)
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))
@@ -144,10 +144,10 @@ exports.getJobs = async (req, res) => {
     const filteredJobs = jobs.filter(job => {
       const employer = employerMap.get(job.employerId.toString());
       const applicationCount = applicationCountMap.get(job._id.toString()) || 0;
-      const vacancies = parseInt(job.vacancies) || 0;
+      const applicationLimit = parseInt(job.applicationLimit) || 0;
       
-      // Filter out jobs where applications have reached vacancies
-      const hasAvailableVacancies = vacancies === 0 || applicationCount < vacancies;
+      // Filter out jobs where applications have reached the limit (0 = unlimited)
+      const hasAvailableSlots = applicationLimit === 0 || applicationCount < applicationLimit;
       
       // Filter out jobs past application deadline
       const now = new Date();
@@ -163,7 +163,7 @@ exports.getJobs = async (req, res) => {
         isBeforeDeadline = now <= deadline;
       }
       
-      return employer && employer.status === 'active' && employer.isApproved && hasAvailableVacancies && isBeforeDeadline;
+      return employer && employer.status === 'active' && employer.isApproved && hasAvailableSlots && isBeforeDeadline;
     });
     
     const jobsWithProfiles = filteredJobs.map(job => {
@@ -188,8 +188,8 @@ exports.getJobs = async (req, res) => {
       hasPrevPage: parseInt(page) > 1
     };
     
-    // Cache for 10 minutes for faster responses
-    cache.set(cacheKey, response, 600000);
+    // Cache for 2 minutes for faster responses (reduced from 10 minutes to show updates faster)
+    cache.set(cacheKey, response, 120000);
     
     res.json(response);
   } catch (error) {
