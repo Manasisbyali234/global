@@ -295,10 +295,21 @@ function PlacementDashboardRedesigned() {
         try {
             // Upload images first if they exist
             if (logoPreview || idCardPreview) {
-                const uploadPromises = [];
-                if (logoPreview) uploadPromises.push(api.uploadLogo(logoPreview));
-                if (idCardPreview) uploadPromises.push(api.uploadIdCard(idCardPreview));
-                await Promise.all(uploadPromises);
+                if (logoPreview) {
+                    try {
+                        await api.uploadLogo(logoPreview);
+                    } catch (logoError) {
+                        throw new Error(logoError.message || 'Failed to upload college logo');
+                    }
+                }
+                
+                if (idCardPreview) {
+                    try {
+                        await api.uploadIdCard(idCardPreview);
+                    } catch (idCardError) {
+                        throw new Error(idCardError.message || 'Failed to upload ID card');
+                    }
+                }
             }
 
             const response = await api.updatePlacementProfile(editFormData);
@@ -314,25 +325,7 @@ function PlacementDashboardRedesigned() {
                 showError(response?.message || 'Failed to update profile');
             }
         } catch (error) {
-            if (error.message) {
-                try {
-                    const decoded = error.message.replace(/&quot;/g, '"');
-                    const jsonMatch = decoded.match(/\{.*"errors"\s*:\s*\[.*?\].*\}/s);
-                    
-                    if (jsonMatch) {
-                        const errorObj = JSON.parse(jsonMatch[0]);
-                        if (errorObj.errors && errorObj.errors.length > 0) {
-                            const errors = {};
-                            errorObj.errors.forEach(err => {
-                                errors[err.path] = err.msg;
-                            });
-                            setFormErrors(errors);
-                            return;
-                        }
-                    }
-                } catch (parseError) {}
-            }
-            showError('Error updating profile. Please try again.');
+            showError(error.message || 'Error updating profile. Please try again.');
         } finally {
             setUpdating(false);
         }
@@ -389,17 +382,21 @@ function PlacementDashboardRedesigned() {
 
         setUploadingImages(true);
         try {
-            const uploadPromises = [];
-
             if (logoPreview) {
-                uploadPromises.push(api.uploadLogo(logoPreview));
+                try {
+                    await api.uploadLogo(logoPreview);
+                } catch (logoError) {
+                    throw new Error(logoError.message || 'Failed to upload college logo');
+                }
             }
 
             if (idCardPreview) {
-                uploadPromises.push(api.uploadIdCard(idCardPreview));
+                try {
+                    await api.uploadIdCard(idCardPreview);
+                } catch (idCardError) {
+                    throw new Error(idCardError.message || 'Failed to upload ID card');
+                }
             }
-
-            await Promise.all(uploadPromises);
             
             showSuccess('Images uploaded successfully!');
             setLogoPreview(null);

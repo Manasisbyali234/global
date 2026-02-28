@@ -333,6 +333,11 @@ function EmpCandidateReviewPage() {
         return interviewProcesses.some(p => p.isCompleted);
     };
 
+    const allStagesHaveRemarks = () => {
+        if (interviewProcesses.length === 0) return false;
+        return interviewProcesses.every(p => processRemarks[p.id] && processRemarks[p.id].trim() !== '');
+    };
+
     const updateProcessCompletion = (processId, isCompleted) => {
         setInterviewProcesses(prev => 
             prev.map(p => p.id === processId ? { ...p, isCompleted } : p)
@@ -563,7 +568,10 @@ function EmpCandidateReviewPage() {
                                 {interviewProcesses.length > 0 && (
                                     <div className="section-card mt-4">
                                         <div className="section-header">
-                                            <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4>
+                                              <div style={{ display: "flex", flexDirection: "column" }}>
+                                               <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4><br></br>
+                                               <h6 style={{ color: "red" }}><i className="fas fa-exclamation-triangle" style={{ marginRight: "5px" }}></i>Please select all required checkboxes and enter the stage remark to <span className="ms-4">enable the button.</span></h6>
+                                        </div>
                                         </div>
                                         <div className="section-body">
                                             <div className="processes-grid">
@@ -703,7 +711,7 @@ function EmpCandidateReviewPage() {
                                             </button>
                                         </div>
                                         <div className="action-buttons">
-                                            {allProcessesCompleted() && (
+                                            {allProcessesCompleted() && allStagesHaveRemarks() && (
                                                 <>
                                                     <button 
                                                         className={`${application.status === 'shortlisted' ? 'active shortlisted-btn' : ''}`}
@@ -719,7 +727,7 @@ function EmpCandidateReviewPage() {
                                                     </button>
                                                 </>
                                             )}
-                                            {application.status !== 'hired' && hasAnyStageTracked() && (
+                                            {application.status !== 'hired' && hasAnyStageTracked() && allStagesHaveRemarks() && (
                                                 <button 
                                                     className={`${application.status === 'offer_sent' ? 'active' : ''}`}
                                                     onClick={() => updateApplicationStatus('offer_sent')}
@@ -727,7 +735,7 @@ function EmpCandidateReviewPage() {
                                                     <i className="fas fa-envelope"></i> Offer Letter Sent
                                                 </button>
                                             )}
-                                            {application.status !== 'shortlisted' && application.status !== 'hired' && hasAnyStageTracked() && (
+                                            {application.status !== 'shortlisted' && application.status !== 'hired' && hasAnyStageTracked() && allStagesHaveRemarks() && (
                                                 <button 
                                                     className={`${application.status === 'rejected' ? 'active' : ''}`}
                                                     onClick={() => updateApplicationStatus('rejected')}
@@ -736,8 +744,12 @@ function EmpCandidateReviewPage() {
                                                 </button>
                                             )}
                                         </div>
-                                        {!allProcessesCompleted() && (
-                                            <p className="warning-text">Complete all interview stages to enable shortlist and hire actions.</p>
+                                        {(!allProcessesCompleted() || !allStagesHaveRemarks()) && (
+                                            <p className="warning-text">
+                                                {!allStagesHaveRemarks() 
+                                                    ? 'Please add remarks for all stages to enable actions.' 
+                                                    : 'Complete all interview stages to enable shortlist and hire actions.'}
+                                            </p>
                                         )}
                                     </div>
                                 </div>
@@ -956,7 +968,7 @@ function EmpCandidateReviewPage() {
                             <h4><i className="fas fa-briefcase"></i> Employment History</h4>
                             {candidate.totalExperience && (
                                 <div className="total-exp-badge">
-                                    <span className="text-muted">Total Experience:</span>
+                                    <span className="text-muted">Total Experience:   </span>
                                     <span className="badge badge-info ml-2">{candidate.totalExperience}</span>
                                 </div>
                             )}

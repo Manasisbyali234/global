@@ -48,7 +48,7 @@ const PREDEFINED_JOB_TITLES = [
 ];
 
 const PREDEFINED_CATEGORIES = [
-	"IT", "Sales", "Marketing", "Sales & Marketing", "Finance", "HR", "Operations", 
+	"IT", "Sales & Marketing", "Finance", "HR", "Operations", 
 	"Design", "Content", "Healthcare", "Education"
 ];
 

@@ -1700,11 +1700,15 @@ exports.getEmployerJobs = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
     
-    // Fetch interview rounds for all jobs
+    // Fetch interview rounds for all jobs and update application counts
     const jobsWithRounds = await Promise.all(jobs.map(async (job) => {
       if (!job.companyName && job.employerId?.companyName) {
         job.companyName = job.employerId.companyName;
       }
+      
+      // Get actual application count from database
+      const actualApplicationCount = await Application.countDocuments({ jobId: job._id });
+      job.applicationCount = actualApplicationCount;
       
       // Remove old embedded interviewRounds
       delete job.interviewRounds;
@@ -1800,6 +1804,10 @@ exports.getJob = async (req, res) => {
     if (!job) {
       return res.status(404).json({ success: false, message: 'Job not found' });
     }
+    
+    // Get actual application count from database
+    const actualApplicationCount = await Application.countDocuments({ jobId: req.params.jobId });
+    job.applicationCount = actualApplicationCount;
     
     // Get interview rounds from new collection
     const { ObjectId } = require('mongoose').Types;

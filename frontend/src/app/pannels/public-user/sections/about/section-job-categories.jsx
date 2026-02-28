@@ -28,7 +28,15 @@ function SectionJobCategories() {
                 const counts = {};
                 data.jobs.forEach(job => {
                     if (job.category) {
-                        counts[job.category] = (counts[job.category] || 0) + 1;
+                        // Normalize category name for matching
+                        const normalizedCategory = job.category.trim();
+                        // Find matching category from our list (case-insensitive)
+                        const matchingCategory = categories.find(cat => 
+                            cat.name.toLowerCase() === normalizedCategory.toLowerCase()
+                        );
+                        if (matchingCategory) {
+                            counts[matchingCategory.name] = (counts[matchingCategory.name] || 0) + 1;
+                        }
                     }
                 });
                 setCategoryCounts(counts);

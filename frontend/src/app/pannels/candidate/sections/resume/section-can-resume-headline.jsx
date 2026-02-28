@@ -1,25 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { api } from "../../../../../utils/api";
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 function SectionCanResumeHeadline({ profile }) {
     const [headline, setHeadline] = useState('');
     const [loading, setLoading] = useState(false);
+    const debounceTimer = useRef(null);
 
     useEffect(() => {
         setHeadline(profile?.resumeHeadline || '');
     }, [profile]);
 
-    const handleSave = async () => {
-        if (!headline.trim()) {
-            showError('Resume headline cannot be empty');
-            return;
+    useEffect(() => {
+        if (headline && headline !== profile?.resumeHeadline) {
+            if (debounceTimer.current) clearTimeout(debounceTimer.current);
+            debounceTimer.current = setTimeout(() => {
+                handleSave();
+            }, 1000);
         }
+        return () => {
+            if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        };
+    }, [headline]);
+
+    const handleSave = async () => {
+        if (!headline.trim()) return;
 
         setLoading(true);
         try {
             const token = localStorage.getItem('candidateToken');
+            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
             
-            const response = await fetch('http://localhost:5000/api/candidate/profile', {
+            const response = await fetch(`${baseUrl}/api/candidate/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -31,13 +42,10 @@ function SectionCanResumeHeadline({ profile }) {
             const data = await response.json();
             
             if (response.ok && data.success) {
-                showSuccess('Resume headline updated successfully!');
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
-            } else {
-                showError('Failed to update resume headline: ' + (data.message || 'Unknown error'));
             }
         } catch (error) {
-            showError('Failed to update resume headline: ' + error.message);
+            console.error('Autosave failed:', error);
         } finally {
             setLoading(false);
         }
@@ -66,22 +74,14 @@ function SectionCanResumeHeadline({ profile }) {
                                     maxLength={200}
                                     required
                                 />
-                                <small className="text-muted">{headline.length}/200 characters</small>
+                                <small className="text-muted">
+                                    {headline.length}/200 characters
+                                    {loading && <span className="ms-2 text-info"><i className="fa fa-spinner fa-spin"></i> Saving...</span>}
+                                </small>
                             </div>
                         </div>
 
-                        <div className="text-left mt-4">
-                            <button 
-                                type="button" 
-                                onClick={handleSave} 
-                                className="btn btn-outline-primary" 
-                                disabled={loading}
-                                style={{backgroundColor: 'transparent'}}
-                            >
-                                <i className="fa fa-save me-1"></i>
-                                {loading ? 'Saving...' : 'Save Changes'}
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             </form>

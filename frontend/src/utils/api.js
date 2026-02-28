@@ -661,8 +661,15 @@ export const api = {
         console.error('API: Error response body:', errorText);
         try {
           const errorJson = JSON.parse(errorText);
+          // Extract clean error message from validation errors
+          if (errorJson.errors && errorJson.errors.length > 0) {
+            throw new Error(errorJson.errors[0].msg);
+          }
           throw new Error(errorJson.message || `HTTP ${response.status}`);
         } catch (parseError) {
+          if (parseError.message && !parseError.message.includes('Unexpected')) {
+            throw parseError;
+          }
           throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
       }
@@ -686,6 +693,7 @@ export const api = {
     }).then(async (response) => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Upload failed' }));
+        // Return the exact error message from backend without modification
         throw new Error(errorData.message || 'Logo upload failed');
       }
       return response.json();
@@ -702,6 +710,7 @@ export const api = {
     }).then(async (response) => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Upload failed' }));
+        // Return the exact error message from backend without modification
         throw new Error(errorData.message || 'ID card upload failed');
       }
       return response.json();
