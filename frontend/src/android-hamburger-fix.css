@@ -126,7 +126,7 @@
     opacity: 1 !important;
     padding: 20px !important;
     border-bottom: 1px solid #e0e0e0 !important;
-    background: #f8f9fa !important;
+    background: #ffffff !important;
     height: 70px !important;
     flex-shrink: 0 !important;
     align-items: center !important;
@@ -182,7 +182,7 @@
     opacity: 1 !important;
     padding: 20px !important;
     border-top: 1px solid #e0e0e0 !important;
-    background: #f8f9fa !important;
+    background: #ffffff !important;
   }
 
   html body .hamburger-menu.open .auth-btn {

@@ -1,0 +1,184 @@
+/* Mobile Fixes for Admin Sub-Admin Management Page */
+
+.mobile-scroll-instruction {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  /* Prevent horizontal scroll on the whole page */
+  .admin-sub-admin-page {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    position: relative;
+    box-sizing: border-box !important;
+    padding: 10px !important;
+  }
+
+  /* Header adjustments */
+  .wt-admin-right-page-header {
+    padding: 15px 0 !important;
+    margin-bottom: 10px !important;
+  }
+
+  .wt-admin-right-page-header h2 {
+    font-size: 1.4rem !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Panel body padding */
+  .wt-panel-body {
+    padding: 15px !important;
+  }
+
+  /* Sub Admin List Header */
+  .admin-sub-admin-page .d-flex.justify-content-between.align-items-center.mb-4 {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 15px !important;
+  }
+
+  .admin-sub-admin-page .d-flex.justify-content-between.align-items-center.mb-4 h4 {
+    font-size: 1.1rem !important;
+  }
+
+  .admin-sub-admin-page .btn-outline-primary,
+  .admin-sub-admin-page .btn-outline-secondary {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 10px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .mobile-scroll-instruction {
+    display: flex !important;
+    align-items: center !important;
+    font-size: 0.8rem !important;
+    color: #6c757d !important;
+    background-color: #f8f9fa !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    margin-bottom: 10px !important;
+    border-left: 3px solid #fd7e14 !important;
+  }
+
+  /* Table Container and Table - CRITICAL FIX FOR SCROLLING */
+  .admin-sub-admin-page .table-container {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    display: block !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin-top: 15px !important;
+    border: 1px solid #eee !important;
+    border-radius: 8px !important;
+    position: relative !important;
+  }
+
+  .admin-sub-admin-page .emp-table {
+    min-width: 900px !important; /* Force the table to be wider than the container */
+    width: 100% !important;
+    margin-bottom: 0 !important;
+    table-layout: auto !important;
+  }
+
+  /* Ensure rows and cells don't shrink too much */
+  .admin-sub-admin-page .emp-table th, 
+  .admin-sub-admin-page .emp-table td {
+    white-space: nowrap !important;
+    padding: 12px 15px !important;
+  }
+
+  /* Specific width for permissions column to prevent it from being too squeezed */
+  .admin-sub-admin-page .emp-table td:nth-child(5) {
+    min-width: 250px !important;
+    white-space: normal !important;
+  }
+
+  /* Ensure actions column doesn't wrap or get cut off */
+  .admin-sub-admin-page .emp-table td:last-child {
+    min-width: 180px !important;
+  }
+
+  /* Action Buttons in Table */
+  .action-buttons {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .action-btn {
+    width: 100% !important;
+    min-width: 100px !important;
+    max-width: none !important;
+    padding: 8px !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* Forms */
+  .admin-sub-admin-page form .row.g-4 {
+    --bs-gutter-y: 1rem !important;
+  }
+
+  .admin-sub-admin-page .form-control {
+    padding: 12px !important;
+    font-size: 0.95rem !important;
+  }
+
+  /* Permissions Cards */
+  .admin-sub-admin-permissions {
+    margin-top: 25px !important;
+  }
+
+  .admin-sub-admin-permissions .row.g-3 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .admin-sub-admin-permissions .col-md-4,
+  .admin-sub-admin-permissions .col-md-3 {
+    width: 100% !important;
+  }
+
+  .admin-sub-admin-permissions .card {
+    border-radius: 12px !important;
+  }
+
+  .admin-sub-admin-permissions .card-body {
+    padding: 20px !important;
+  }
+
+  .admin-sub-admin-permissions .card-body i {
+    font-size: 1.5rem !important;
+  }
+
+  .admin-sub-admin-permissions .card-body .fw-medium {
+    font-size: 1rem !important;
+  }
+
+  /* Password Toggle Icons */
+  .password-toggle-icon {
+    right: 15px !important;
+  }
+
+  /* Submit Button */
+  .admin-sub-admin-page form button[type="submit"] {
+    width: 100% !important;
+    padding: 14px !important;
+    font-size: 1rem !important;
+    margin-top: 20px !important;
+    border-radius: 10px !important;
+  }
+}
+
+/* Extra Small Screens */
+@media (max-width: 480px) {
+  .wt-admin-right-page-header h2 {
+    font-size: 1.2rem !important;
+  }
+
+  .wt-panel-body {
+    padding: 12px !important;
+  }
+}

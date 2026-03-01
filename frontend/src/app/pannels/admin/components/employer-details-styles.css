@@ -1732,15 +1732,15 @@
 }
 
 .gallery-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    width: 100%;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 12px !important;
+    width: 100% !important;
 }
 
 .gallery-item {
-    width: 150px;
-    height: 150px;
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
     transition: all 0.3s ease;
     border-radius: 8px;
     overflow: hidden;
@@ -1748,18 +1748,11 @@
     flex-shrink: 0;
 }
 
-.gallery-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.gallery-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    cursor: pointer;
+.gallery-item img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
 }
 
 /* Responsive design for authorization letters */

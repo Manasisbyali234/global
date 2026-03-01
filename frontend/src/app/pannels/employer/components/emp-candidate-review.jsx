@@ -7,6 +7,7 @@ import './emp-candidate-review-back-button-mobile-fix.css';
 import './emp-candidate-review-profile-card-mobile-fix.css';
 import './emp-candidate-review-button-size-fix.css';
 import './emp-candidate-review-stage-text-mobile-fix.css';
+import './emp-candidate-review-mobile-fix.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
 
 function EmpCandidateReviewPage() {
@@ -490,7 +491,7 @@ function EmpCandidateReviewPage() {
     }
 
     return (
-        <div className="candidate-review-container">
+        <div className="candidate-review-container emp-candidate-review-page">
             <div className="candidate-review-header">
                 <button className="back-btn" onClick={() => navigate(-1)}>
                     <i className="fas fa-arrow-left"></i>

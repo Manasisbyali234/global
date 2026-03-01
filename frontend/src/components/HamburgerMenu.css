@@ -67,7 +67,7 @@
   display: flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
-  background: #f8f9fa !important;
+  background: #ffffff !important;
   min-height: 70px !important;
   flex-shrink: 0 !important;
 }
@@ -138,7 +138,7 @@
 .auth-section {
   padding: 20px !important;
   border-top: 1px solid #e0e0e0 !important;
-  background: #f8f9fa !important;
+  background: #ffffff !important;
   margin-top: 10px !important;
 }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import SearchBar from "../../../../components/SearchBar";
 import './admin-sub-admin-permission-cards-fix.css';
+import './admin-sub-admin-mobile-fix.css';
 
 import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
 const API_BASE_URL = 'http://localhost:5000/api';
@@ -356,7 +357,7 @@ function AdminSubAdmin() {
     return (
         <>
         <style>{passwordInputStyle}</style>
-        <div className="dashboard-content">
+        <div className="dashboard-content admin-sub-admin-page">
             <div className="wt-admin-right-page-header">
                 <h2>Sub Admin Management</h2>
             </div>
@@ -386,6 +387,11 @@ function AdminSubAdmin() {
                                     className="mb-3"
                                 />
                                 
+                                <div className="mobile-scroll-instruction">
+                                    <i className="fa fa-info-circle me-2"></i>
+                                    Scroll horizontally to see the full table
+                                </div>
+
                                 <div className="table-container">
                                     <table className="table emp-table">
                                         <thead>
