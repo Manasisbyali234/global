@@ -36,6 +36,8 @@ export function showHeader(currentpath) {
     if (currentpath === publicUser.pages.MAINTENANCE ||
         currentpath === publicUser.pages.COMING ||
         currentpath === publicUser.pages.LOGIN ||
+        currentpath === publicUser.pages.ADMIN_LOGIN ||
+        currentpath === publicUser.pages.SUB_ADMIN_LOGIN ||
         currentpath === publicUser.pages.AFTER_LOGIN) {
         return false;
     }

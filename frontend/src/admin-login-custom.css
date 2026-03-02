@@ -2,11 +2,32 @@
 .twm-login-reg {
     padding-top: 20px !important;
     padding-bottom: 20px !important;
+    pointer-events: auto !important;
 }
 
 .twm-login-reg-inner {
     padding-top: 20px !important;
     padding-bottom: 20px !important;
+    pointer-events: auto !important;
+}
+
+/* Prevent unwanted navigation on mobile */
+@media (max-width: 768px) {
+    .twm-login-reg-head,
+    .twm-login-reg-title,
+    .twm-login-reg-title h4,
+    .twm-login-reg-title p {
+        pointer-events: none !important;
+        user-select: none !important;
+    }
+    
+    .form-control,
+    .site-button,
+    form,
+    .form-group {
+        pointer-events: auto !important;
+        user-select: auto !important;
+    }
 }
 
 /* Desktop positioning - move login form down */
@@ -31,8 +52,8 @@
         min-height: auto !important;
         height: auto !important;
         margin-top: 0 !important;
-        padding-top: 5px !important;
-        padding-bottom: 10px !important;
+        padding-top: 20px !important; /* Increased from 5px to give space after removing header */
+        padding-bottom: 20px !important;
     }
 
     /* 3. Decrease vertical spacing for sections */

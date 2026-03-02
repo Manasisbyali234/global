@@ -59,95 +59,93 @@ export default function AdminLogin() {
     };
 
     return (
-        <div className="page-wraper">
-            <div className="twm-login-reg">
-                <div className="twm-login-reg-inner">
-                    <div className="container">
-                        <div className="row">
-                            <div className="col-md-6 col-sm-12 m-auto">
-                                <div className="twm-login-reg-head">
-                                    <div className="twm-login-reg-logo">
-                                        <div className="twm-login-reg-title">
-                                            <h4>Admin Login</h4>
-                                            <p>Access Admin Panel</p>
-                                        </div>
+        <div className="twm-login-reg">
+            <div className="twm-login-reg-inner">
+                <div className="container">
+                    <div className="row">
+                        <div className="col-md-6 col-sm-12 m-auto">
+                            <div className="twm-login-reg-head">
+                                <div className="twm-login-reg-logo">
+                                    <div className="twm-login-reg-title">
+                                        <h4>Admin Login</h4>
+                                        <p>Access Admin Panel</p>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div className="twm-tabs-style-2">
-                                    <div className="tab-content" id="myTab2Content">
-                                        <div className="tab-pane fade show active" id="login">
-                                            <div className="row">
-                                                <div className="col-lg-12">
-                                                    <div className="twm-tabs-style-2">
-                                                        <form onSubmit={handleSubmit}>
-                                                            <div className="twm-tabs-style-2-content">
-                                                                {error && (
-                                                                    <div className="alert alert-danger" role="alert">
-                                                                        {error}
-                                                                    </div>
-                                                                )}
-
-                                                                <div className="form-group mb-3">
-                                                                    <input
-                                                                        name="email"
-                                                                        type="email"
-                                                                        required
-                                                                        className="form-control"
-                                                                        placeholder="Admin Email"
-                                                                        value={formData.email}
-                                                                        onChange={handleChange}
-                                                                    />
+                            <div className="twm-tabs-style-2">
+                                <div className="tab-content" id="myTab2Content">
+                                    <div className="tab-pane fade show active" id="login">
+                                        <div className="row">
+                                            <div className="col-lg-12">
+                                                <div className="twm-tabs-style-2">
+                                                    <form onSubmit={handleSubmit}>
+                                                        <div className="twm-tabs-style-2-content">
+                                                            {error && (
+                                                                <div className="alert alert-danger" role="alert">
+                                                                    {error}
                                                                 </div>
+                                                            )}
 
-                                                                <div className="form-group mb-3" style={{ position: 'relative' }}>
-                                                                    <input
-                                                                        name="password"
-                                                                        type={showPassword ? "text" : "password"}
-                                                                        required
-                                                                        className="form-control"
-                                                                        placeholder="Password"
-                                                                        value={formData.password}
-                                                                        onChange={handleChange}
-                                                                        style={{ paddingRight: '60px' }}
-                                                                    />
-                                                                    <span
-                                                                        onClick={() => setShowPassword(!showPassword)}
-                                                                        style={{
-                                                                            position: 'absolute',
-                                                                            right: '10px',
-                                                                            top: '50%',
-                                                                            transform: 'translateY(-50%)',
-                                                                            cursor: 'pointer',
-                                                                            color: '#6c757d',
-                                                                            fontSize: '16px',
-                                                                            zIndex: '10',
-                                                                            userSelect: 'none',
-                                                                            display: 'inline-block',
-                                                                            width: '20px',
-                                                                            height: '20px',
-                                                                            textAlign: 'center',
-                                                                            lineHeight: '20px'
-                                                                        }}
-                                                                    >
-                                                                        <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
-                                                                    </span>
-                                                                </div>
-
-                                                                <div className="form-group">
-                                                                    <button
-                                                                        type="submit"
-                                                                        className="site-button"
-                                                                        disabled={loading}
-                                                                        style={{transition: 'none'}}
-                                                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'none'}
-                                                                    >
-                                                                        {loading ? "Logging in..." : "Login"}
-                                                                    </button>
-                                                                </div>
+                                                            <div className="form-group mb-3">
+                                                                <input
+                                                                    name="email"
+                                                                    type="email"
+                                                                    required
+                                                                    className="form-control"
+                                                                    placeholder="Admin Email"
+                                                                    value={formData.email}
+                                                                    onChange={handleChange}
+                                                                />
                                                             </div>
-                                                        </form>
-                                                    </div>
+
+                                                            <div className="form-group mb-3" style={{ position: 'relative' }}>
+                                                                <input
+                                                                    name="password"
+                                                                    type={showPassword ? "text" : "password"}
+                                                                    required
+                                                                    className="form-control"
+                                                                    placeholder="Password"
+                                                                    value={formData.password}
+                                                                    onChange={handleChange}
+                                                                    style={{ paddingRight: '60px' }}
+                                                                />
+                                                                <span
+                                                                    onClick={() => setShowPassword(!showPassword)}
+                                                                    style={{
+                                                                        position: 'absolute',
+                                                                        right: '10px',
+                                                                        top: '50%',
+                                                                        transform: 'translateY(-50%)',
+                                                                        cursor: 'pointer',
+                                                                        color: '#6c757d',
+                                                                        fontSize: '16px',
+                                                                        zIndex: '10',
+                                                                        userSelect: 'none',
+                                                                        display: 'inline-block',
+                                                                        width: '20px',
+                                                                        height: '20px',
+                                                                        textAlign: 'center',
+                                                                        lineHeight: '20px'
+                                                                    }}
+                                                                >
+                                                                    <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="form-group">
+                                                                <button
+                                                                    type="submit"
+                                                                    className="site-button"
+                                                                    disabled={loading}
+                                                                    style={{transition: 'none'}}
+                                                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'none'}
+                                                                >
+                                                                    {loading ? "Logging in..." : "Login"}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
