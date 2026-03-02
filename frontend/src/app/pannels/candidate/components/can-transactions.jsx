@@ -316,8 +316,12 @@ function CanTransactionsPage() {
                                                         <span className="text-dark fw-bold ms-2">{getPaymentMethodInfo(paymentDetails)}</span>
                                                     </div>
                                                     <div className="d-flex justify-content-end mb-1">
-                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Transaction ID:</span>
-                                                        <span className="text-dark fw-bold ms-2">{selectedTransaction?.paymentId}</span>
+                                                        <div className="d-flex flex-column">
+                                                       <span className="text-muted">Transaction ID:</span>
+                                                         <span className="text-dark fw-bold">
+                                                          {selectedTransaction?.paymentId}
+                                                          </span>
+                                                     </div>
                                                     </div>
                                                     <div className="d-flex justify-content-end mb-0">
                                                         <span className="text-muted" style={{ minWidth: '100px' }}>Order ID:</span>

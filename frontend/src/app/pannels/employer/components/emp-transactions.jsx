@@ -269,11 +269,11 @@ function EmpTransactionsPage() {
                                                         <span className="text-dark fw-bold ms-2">{getPaymentMethodInfo(paymentDetails)}</span>
                                                     </div>
                                                     <div className="d-flex justify-content-end mb-1">
-                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Transaction ID:</span>
+                                                        <span className="text-muted" style={{ minWidth: '90px' }}>Transaction ID:</span>
                                                         <span className="text-dark fw-bold ms-2">{selectedTransaction?.paymentId}</span>
                                                     </div>
                                                     <div className="d-flex justify-content-end mb-0">
-                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Order ID:</span>
+                                                        <span className="text-muted" style={{ minWidth: '90px' }}>Order ID:</span>
                                                         <span className="text-dark fw-bold ms-2">{selectedTransaction?.orderId}</span>
                                                     </div>
                                                 </div>
