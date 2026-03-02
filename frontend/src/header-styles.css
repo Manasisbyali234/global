@@ -22,7 +22,7 @@ header,
 
 #header-admin-wrap,
 #header-admin {
-  z-index: 1000 !important;
+  z-index: 100 !important;
 }
 
 #header-admin-wrap.header-admin-fixed {
@@ -31,7 +31,7 @@ header,
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
-  z-index: 9999 !important;
+  z-index: 100 !important;
   background: #ffffff !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
@@ -243,7 +243,7 @@ header,
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    z-index: 1001 !important;
+    z-index: 100 !important;
     background: #ffffff !important;
     border-bottom: 1px solid #ddd !important;
     overflow: visible !important;

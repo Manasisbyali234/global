@@ -1,0 +1,28 @@
+/* MODAL Z-INDEX FIX - Ensure modals appear above all headers */
+
+.site-header,
+.sticky-header,
+.main-bar-wraper,
+.main-bar,
+header,
+.site-header.header-style-3,
+.site-header.header-style-1,
+.site-header.header-style-2,
+.navbar-scrolled,
+.header-fixed {
+  z-index: 100 !important;
+}
+
+.modal-backdrop {
+  z-index: 10000 !important;
+}
+
+.modal,
+.modal.show,
+.modal.fade.show {
+  z-index: 10001 !important;
+}
+
+body.modal-open .modal {
+  z-index: 10001 !important;
+}
