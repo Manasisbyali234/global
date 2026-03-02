@@ -515,6 +515,7 @@ function AdminSupportTickets() {
                 onHide={handleCloseModal}
                 size="lg"
                 centered
+                backdropClassName="support-ticket-modal-backdrop"
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Ticket details</Modal.Title>
