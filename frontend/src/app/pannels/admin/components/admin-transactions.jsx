@@ -76,6 +76,39 @@ function AdminTransactionsPage() {
         }
     };
 
+    const handlePrintReceipt = () => {
+        const printContent = document.getElementById('invoice-content');
+        if (!printContent) return;
+        
+        const printWindow = window.open('', '', 'width=800,height=600');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Payment Receipt</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <style>
+                        body { padding: 20px; font-family: Arial, sans-serif; }
+                        @media print {
+                            body { padding: 0; }
+                            .no-print { display: none; }
+                        }
+                        .text-primary { color: #f97316 !important; }
+                        .badge { padding: 4px 8px; border-radius: 4px; }
+                        .bg-success { background-color: #e6f4ea !important; color: #1e7e34 !important; }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.innerHTML}
+                    <div class="no-print" style="margin-top: 20px; text-align: center;">
+                        <button onclick="window.print()" class="btn btn-primary">Print</button>
+                        <button onclick="window.close()" class="btn btn-secondary">Close</button>
+                    </div>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    };
+
     const filteredTransactions = useMemo(() => {
         const q = searchText.trim().toLowerCase();
         return transactions.filter((t) => {
@@ -348,7 +381,7 @@ function AdminTransactionsPage() {
                             </div>
                             <div className="modal-footer bg-light">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowInvoiceModal(false)}>Close</button>
-                                <button type="button" className="btn btn-primary d-flex align-items-center gap-2 receipt-print-btn" onClick={() => window.print()}>
+                                <button type="button" className="btn btn-primary d-flex align-items-center gap-2 receipt-print-btn" onClick={handlePrintReceipt}>
                                     <Download size={16} /> Print Record
                                 </button>
                             </div>

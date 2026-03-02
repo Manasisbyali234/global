@@ -1,66 +1,41 @@
 /* Professional Print Styles for Transaction Receipts */
 
 @media print {
-    /* Hide everything in the root application */
-    #root, 
-    header, 
-    footer, 
-    .site-header, 
-    .wt-admin-right-page-header, 
-    .twm-right-section-panel,
-    .panel,
-    .modal-backdrop {
-        display: none !important;
+    /* Hide everything except the invoice */
+    body * {
+        visibility: hidden !important;
     }
 
-    /* Force the modal portal to be visible */
+    /* Force the modal and invoice content to be visible */
     body {
         background: white !important;
         padding: 0 !important;
         margin: 0 !important;
     }
 
-    /* Show only the modal that contains our invoice */
-    body > .modal {
-        display: block !important;
-        position: static !important;
-        width: 100% !important;
-        height: auto !important;
-        overflow: visible !important;
+    /* Show only the invoice content */
+    #invoice-content,
+    #invoice-content * {
+        visibility: visible !important;
     }
 
-    /* Target the modal content structure */
-    .modal-dialog {
-        margin: 0 !important;
-        max-width: 100% !important;
-        width: 100% !important;
-    }
-
-    .modal-content {
-        border: none !important;
-        box-shadow: none !important;
-    }
-
-    /* Hide the modal header and footer (chrome) */
-    .modal-header, 
-    .modal-footer, 
-    .btn-close {
-        display: none !important;
-    }
-
-    .modal-body {
-        padding: 0 !important;
-        margin: 0 !important;
-        overflow: visible !important;
-    }
-
-    /* Ensure the invoice content is the only thing printed */
     #invoice-content {
-        display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
         width: 100% !important;
-        padding: 0 !important;
+        padding: 20px !important;
         margin: 0 !important;
         background: white !important;
+    }
+
+    /* Hide modal chrome */
+    .modal-header, 
+    .modal-footer, 
+    .btn-close,
+    .modal-backdrop {
+        display: none !important;
+        visibility: hidden !important;
     }
 
     /* Print color adjustments */
@@ -73,16 +48,19 @@
     /* Professional layout for print */
     .row {
         display: flex !important;
-        flex-wrap: nowrap !important;
+        flex-wrap: wrap !important;
+        page-break-inside: avoid !important;
     }
     
-    .col-6 {
+    .col-6,
+    .col-md-6 {
         width: 50% !important;
         flex: 0 0 50% !important;
         max-width: 50% !important;
     }
 
-    .col-12 {
+    .col-12,
+    .col-md-12 {
         width: 100% !important;
         flex: 0 0 100% !important;
         max-width: 100% !important;
@@ -132,14 +110,27 @@
 
     /* Footer at bottom of page */
     .invoice-footer {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        text-align: center;
-        font-size: 10px;
-        color: #6c757d;
-        border-top: 1px solid #dee2e6;
-        padding-top: 10px;
+        display: block !important;
+        visibility: visible !important;
+        position: relative !important;
+        width: 100% !important;
+        text-align: center !important;
+        font-size: 10px !important;
+        color: #6c757d !important;
+        border-top: 1px solid #dee2e6 !important;
+        padding-top: 10px !important;
+        margin-top: 30px !important;
+    }
+
+    /* Ensure images print */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* Page break control */
+    .table-responsive {
+        page-break-inside: avoid !important;
     }
 }
 
