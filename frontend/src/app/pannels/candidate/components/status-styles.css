@@ -518,9 +518,7 @@ td .text-success {
     }
 
     .table thead th:first-child {
-        position: sticky !important;
-        left: 0 !important;
-        z-index: 21 !important;
+        position: static !important;
         background-color: #f8f9fa !important;
     }
 
