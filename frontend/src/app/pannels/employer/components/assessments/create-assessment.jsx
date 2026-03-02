@@ -79,6 +79,12 @@ function CreateAssessmentPage() {
                 },
                 body: JSON.stringify(assessmentData)
             });
+            
+            if (response.status === 413) {
+                showError('Assessment data is too large. This usually happens when images are too big. Please use smaller images (max 2MB each recommended).');
+                return;
+            }
+            
             if (response.ok) {
                 setShowModal(false);
                 setEditingAssessment(null);
@@ -90,7 +96,7 @@ function CreateAssessmentPage() {
             }
         } catch (error) {
             console.error(`Error ${assessmentData.id ? 'updating' : 'creating'} assessment:`, error);
-            showError(`Failed to ${assessmentData.id ? 'update' : 'create'} assessment`);
+            showError(`Failed to ${assessmentData.id ? 'update' : 'create'} assessment. Please try again.`);
         }
     };
 

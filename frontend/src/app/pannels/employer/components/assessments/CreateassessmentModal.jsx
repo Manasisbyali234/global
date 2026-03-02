@@ -4,6 +4,7 @@ import './CreateassessmentModal.css';
 import { disableBodyScroll, enableBodyScroll } from "../../../../../utils/scrollUtils";
 import RichTextEditor from "../../../../../components/RichTextEditor";
 import AssessmentPreview from "./AssessmentPreview";
+import { resizeImage } from "../../../../../utils/imageResizer";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 export default function CreateAssessmentModal({ onClose, onCreate, editData = null }) {
@@ -183,10 +184,14 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const handleOptionImageUpload = async (qIndex, optIndex, file) => {
 		if (!file) return;
 		
-		const formData = new FormData();
-		formData.append('image', file);
-		
 		try {
+			// Resize image before upload
+			showInfo('Compressing image...');
+			const resizedFile = await resizeImage(file, 2);
+			
+			const formData = new FormData();
+			formData.append('image', resizedFile);
+			
 			const token = localStorage.getItem('employerToken');
 			const response = await fetch('/api/employer/assessments/upload-option-image', {
 				method: 'POST',
@@ -195,6 +200,11 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				},
 				body: formData
 			});
+			
+			if (response.status === 413) {
+				showError('Image is too large. Please use a smaller image (max 2MB recommended).');
+				return;
+			}
 			
 			const data = await response.json();
 			if (data.success) {
@@ -212,17 +222,21 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				showError(data.message || 'Failed to upload option image');
 			}
 		} catch (error) {
-			showError('Failed to upload option image');
+			showError('Failed to upload option image. Please try again.');
 		}
 	};
 
 	const handleImageUpload = async (qIndex, file) => {
 		if (!file) return;
 		
-		const formData = new FormData();
-		formData.append('image', file);
-		
 		try {
+			// Resize image before upload
+			showInfo('Compressing image...');
+			const resizedFile = await resizeImage(file, 2);
+			
+			const formData = new FormData();
+			formData.append('image', resizedFile);
+			
 			const token = localStorage.getItem('employerToken');
 			const response = await fetch('/api/employer/assessments/upload-question-image', {
 				method: 'POST',
@@ -232,6 +246,11 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				body: formData
 			});
 			
+			if (response.status === 413) {
+				showError('Image is too large. Please use a smaller image (max 2MB recommended).');
+				return;
+			}
+			
 			const data = await response.json();
 			if (data.success) {
 				handleQuestionChange(qIndex, "imageUrl", data.imageUrl);
@@ -240,7 +259,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				showError(data.message || 'Failed to upload file');
 			}
 		} catch (error) {
-			showError('Failed to upload file');
+			showError('Failed to upload file. Please try again.');
 		}
 	};
 
@@ -743,7 +762,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 											<div>
 												<i className="fa fa-cloud-upload" style={{ fontSize: '24px', color: '#6b7280', marginBottom: '8px' }}></i>
 												<p className="mb-0 small text-muted">Click to upload or drag and drop</p>
-												<p className="mb-0 extra-small text-muted" style={{ fontSize: '10px' }}>PNG, JPG or GIF (max. 100MB)</p>
+												<p className="mb-0 extra-small text-muted" style={{ fontSize: '10px' }}>PNG, JPG or GIF (max. 2MB recommended)</p>
 											</div>
 										) : (
 											<div className="position-relative d-inline-block">
@@ -916,7 +935,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 											)}
 										</div>
 										<div className="mt-2 p-2 border rounded" style={{backgroundColor: '#f8f9fa'}}>
-											<small className="text-info">📎 Accepted file types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF, WEBP, BMP, SVG (Max: 100MB)</small>
+											<small className="text-info">📎 Accepted file types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF, WEBP, BMP, SVG (Max: 2MB recommended)</small>
 										</div>
 									</div>
 									<div className="row mb-3">
@@ -946,7 +965,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 								<div className="mb-3">
 									<small className="text-muted">This is an image upload question. Candidates will upload images as their answer.</small>
 									<div className="mt-2 p-2 border rounded" style={{backgroundColor: '#f8f9fa'}}>
-										<small className="text-info">🖼️ Accepted image types: JPG, JPEG, PNG, GIF, WEBP (Max: 100MB)</small>
+										<small className="text-info">🖼️ Accepted image types: JPG, JPEG, PNG, GIF, WEBP (Max: 2MB recommended)</small>
 									</div>
 								</div>
 							) : (
