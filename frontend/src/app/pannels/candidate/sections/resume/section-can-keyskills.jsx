@@ -201,8 +201,9 @@ function SectionCanKeySkills({ profile }) {
                                             borderTop: 'none',
                                             maxHeight: '250px',
                                             overflowY: 'auto',
-                                            zIndex: 1000,
-                                            borderRadius: '0 0 4px 4px'
+                                            zIndex: 2000,
+                                            borderRadius: '0 0 4px 4px',
+                                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
                                         }}>
                                             {/* Select All / Clear All Controls */}
                                             {predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())).length > 0 && (
