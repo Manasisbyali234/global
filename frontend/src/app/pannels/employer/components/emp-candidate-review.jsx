@@ -571,7 +571,7 @@ function EmpCandidateReviewPage() {
                                         <div className="section-header">
                                               <div style={{ display: "flex", flexDirection: "column" }}>
                                                <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4><br></br>
-                                               <h6 style={{ color: "red" }}><i className="fas fa-exclamation-triangle" style={{ marginRight: "5px" }}></i>Please select all required checkboxes and enter the stage remark to <span className="ms-4">enable the button.</span></h6>
+                                               <h6 style={{ color: "red" }}><i className="fas fa-exclamation-triangle" style={{ marginRight: "5px" }}></i>Please check all required boxes and enter remark.</h6>
                                         </div>
                                         </div>
                                         <div className="section-body">

@@ -35,26 +35,38 @@ select:focus {
 }
 
 /* Key Skills section - ensure dropdown appears above other sections */
+.panel:has(.panel-tittle:contains("Key Skills")),
+.panel:has([class*="keyskill"]),
 .panel:has(.fa-cogs) {
     position: relative !important;
-    z-index: 1000 !important;
+    z-index: 1050 !important;
     overflow: visible !important;
 }
 
+.panel:has(.panel-tittle:contains("Key Skills")) .panel-heading,
+.panel:has([class*="keyskill"]) .panel-heading,
 .panel:has(.fa-cogs) .panel-heading {
     position: relative !important;
-    z-index: 1001 !important;
+    z-index: 1051 !important;
     overflow: visible !important;
 }
 
+.panel:has(.panel-tittle:contains("Key Skills")) .panel-body,
+.panel:has([class*="keyskill"]) .panel-body,
 .panel:has(.fa-cogs) .panel-body {
     overflow: visible !important;
+    position: relative !important;
+    z-index: 1052 !important;
 }
 
+.panel:has(.panel-tittle:contains("Key Skills")) select,
+.panel:has([class*="keyskill"]) select,
 .panel:has(.fa-cogs) select,
+.panel:has(.panel-tittle:contains("Key Skills")) .form-select,
+.panel:has([class*="keyskill"]) .form-select,
 .panel:has(.fa-cogs) .form-select {
     position: relative !important;
-    z-index: 1002 !important;
+    z-index: 1053 !important;
 }
 
 /* Education section specific z-index and overflow fixes */
@@ -82,6 +94,11 @@ select:focus {
 .panel-heading {
     position: relative;
     z-index: 10;
+}
+
+/* Personal Details and other panels should have lower z-index than Key Skills */
+.panel:not(:has(.fa-cogs)) {
+    z-index: 1 !important;
 }
 
 /* Resume Page Layout Classes */
@@ -697,11 +714,11 @@ body.modal-open {
 
 /* Key Skills panel needs higher z-index for dropdown */
 .panel:has(.panel-heading .fa-cogs) {
-    z-index: 1000 !important;
+    z-index: 1050 !important;
 }
 
 .panel:has(.panel-heading .fa-cogs):focus-within {
-    z-index: 1000 !important;
+    z-index: 1050 !important;
 }
 
 .panel-heading {

@@ -1103,11 +1103,19 @@ button.btn-danger:hover i.fas {
   animation: fadeInUp 0.6s ease-out;
 }
 
+.gallery-preview .d-flex {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+  gap: 1rem !important;
+}
+
 .gallery-item {
   transition: all 0.3s ease;
   border-radius: 8px;
   overflow: hidden;
   position: relative;
+  width: 100% !important;
+  aspect-ratio: 1 / 1;
 }
 
 .gallery-item:hover {
@@ -1118,6 +1126,9 @@ button.btn-danger:hover i.fas {
 
 .gallery-item img {
   transition: all 0.3s ease;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
 }
 
 .gallery-item:hover img {
@@ -1441,9 +1452,8 @@ button.btn-danger:hover i.fas {
     max-height: 100px;
   }
   
-  .gallery-item {
-    width: 100px !important;
-    height: 100px !important;
+  .gallery-preview .d-flex {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
   }
   
   .edit-overlay .btn {
@@ -1475,9 +1485,8 @@ button.btn-danger:hover i.fas {
     max-height: 85px;
   }
   
-  .gallery-item {
-    width: 80px !important;
-    height: 80px !important;
+  .gallery-preview .d-flex {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
   }
 }
 

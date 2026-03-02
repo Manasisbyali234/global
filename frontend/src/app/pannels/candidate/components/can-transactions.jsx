@@ -89,6 +89,39 @@ function CanTransactionsPage() {
         }
     };
 
+    const handlePrintReceipt = () => {
+        const printContent = document.getElementById('invoice-content');
+        if (!printContent) return;
+        
+        const printWindow = window.open('', '', 'width=800,height=600');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Payment Receipt</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <style>
+                        body { padding: 20px; font-family: Arial, sans-serif; }
+                        @media print {
+                            body { padding: 0; }
+                            .no-print { display: none; }
+                        }
+                        .text-primary { color: #f97316 !important; }
+                        .badge { padding: 4px 8px; border-radius: 4px; }
+                        .bg-success { background-color: #e6f4ea !important; color: #1e7e34 !important; }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.innerHTML}
+                    <div class="no-print" style="margin-top: 20px; text-align: center;">
+                        <button onclick="window.print()" class="btn btn-primary">Print</button>
+                        <button onclick="window.close()" class="btn btn-secondary">Close</button>
+                    </div>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    };
+
     const filteredTransactions = useMemo(() => {
         const q = searchText.trim().toLowerCase();
         return transactions.filter((t) => {
@@ -120,7 +153,7 @@ function CanTransactionsPage() {
                 <div className="panel panel-default site-bg-white" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0, padding: 'clamp(1rem, 3vw, 1.5rem)' }}>
                     
                     <div className="mb-3 mb-md-4 d-flex justify-content-between align-items-center flex-wrap gap-2 gap-md-3">
-                        <div className="input-group" style={{ maxWidth: '100%', width: '100%' }} className="input-group" style={{ flex: '1 1 auto', minWidth: '250px', maxWidth: '400px' }}>
+                        <div className="input-group" style={{ maxWidth: '100%', width: '100%' }}>
                             <span className="input-group-text bg-white border-end-0">
                                 <Search size={18} style={{ color: "#f97316" }} />
                             </span>
@@ -192,7 +225,13 @@ function CanTransactionsPage() {
                                                             <li>
                                                                 <button 
                                                                     title="View Details" 
-                                                                    onClick={() => handleViewInvoice(t)}
+                                                                     onClick={() => handleViewInvoice(t)}
+                                                                      style={{
+                                                                           display: "flex",
+                                                                          alignItems: "center",
+                                                                          justifyContent: "center"
+                                                                       }}
+                                    
                                                                 >
                                                                     <span className="fa fa-eye" />
                                                                 </button>
@@ -277,8 +316,12 @@ function CanTransactionsPage() {
                                                         <span className="text-dark fw-bold ms-2">{getPaymentMethodInfo(paymentDetails)}</span>
                                                     </div>
                                                     <div className="d-flex justify-content-end mb-1">
-                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Transaction ID:</span>
-                                                        <span className="text-dark fw-bold ms-2">{selectedTransaction?.paymentId}</span>
+                                                        <div className="d-flex flex-column">
+                                                       <span className="text-muted">Transaction ID:</span>
+                                                         <span className="text-dark fw-bold">
+                                                          {selectedTransaction?.paymentId}
+                                                          </span>
+                                                     </div>
                                                     </div>
                                                     <div className="d-flex justify-content-end mb-0">
                                                         <span className="text-muted" style={{ minWidth: '100px' }}>Order ID:</span>
@@ -349,7 +392,7 @@ function CanTransactionsPage() {
                             </div>
                             <div className="modal-footer bg-light" style={{ padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem)', gap: '0.5rem', flexWrap: 'wrap' }}>
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowInvoiceModal(false)} style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>Close</button>
-                                <button type="button" className="btn btn-primary d-flex align-items-center gap-2 receipt-print-btn" onClick={() => window.print()} style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
+                                <button type="button" className="btn btn-primary d-flex align-items-center gap-2 receipt-print-btn" onClick={handlePrintReceipt} style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
                                     <Download size={16} /> <span className="d-none d-sm-inline">Print Receipt</span><span className="d-inline d-sm-none">Print</span>
                                 </button>
                             </div>
