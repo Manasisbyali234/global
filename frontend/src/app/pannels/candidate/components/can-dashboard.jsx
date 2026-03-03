@@ -10,6 +10,16 @@ import './can-dashboard.css';
 function CanDashboardPage() {
   const [candidate, setCandidate] = useState({ name: 'Loading...', location: '', profilePicture: null });
   const [isLoading, setIsLoading] = useState(true);
+  const getProfileImageSrc = (imageValue) => {
+    if (!imageValue || typeof imageValue !== 'string') return '';
+    if (imageValue.startsWith('data:')) return imageValue;
+    if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) return imageValue;
+    if (imageValue.startsWith('/uploads') || imageValue.startsWith('uploads/')) {
+      const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
+      return `http://localhost:5000${normalizedPath}`;
+    }
+    return imageValue;
+  };
 
   useEffect(() => {
     loadScript("js/custom.js");
@@ -150,7 +160,7 @@ function CanDashboardPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               {candidate.profilePicture ? (
                 <img 
-                  src={candidate.profilePicture} 
+                  src={getProfileImageSrc(candidate.profilePicture)} 
                   alt="Profile" 
                   style={{
                     width: '60px', 

@@ -16,6 +16,17 @@ const indianCities = [
 
 
 function SectionCandicateBasicInfo() {
+    const getImagePreviewSrc = (imageValue) => {
+        if (!imageValue || typeof imageValue !== 'string') return '';
+        if (imageValue.startsWith('data:')) return imageValue;
+        if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) return imageValue;
+        if (imageValue.startsWith('/uploads') || imageValue.startsWith('uploads/')) {
+            const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
+            return `http://localhost:5000${normalizedPath}`;
+        }
+        return imageValue;
+    };
+
     const [formData, setFormData] = useState({
         firstName: '',
         middleName: '',
@@ -533,7 +544,7 @@ function SectionCandicateBasicInfo() {
                                         />
                                     ) : currentProfilePicture ? (
                                         <img 
-                                            src={currentProfilePicture} 
+                                            src={getImagePreviewSrc(currentProfilePicture)} 
                                             alt="Current Profile" 
                                             className="profile-image-preview rounded-circle"
                                             style={{width: '120px', height: '120px', objectFit: 'cover', border: '3px solid #ff6b35'}}

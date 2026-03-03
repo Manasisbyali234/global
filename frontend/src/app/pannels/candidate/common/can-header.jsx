@@ -11,6 +11,16 @@ import "./can-header-mobile-fix.css";
 
 function CanHeaderSection(props) {
     const [profileData, setProfileData] = useState(null);
+    const getProfileImageSrc = (imageValue) => {
+        if (!imageValue || typeof imageValue !== 'string') return '';
+        if (imageValue.startsWith('data:')) return imageValue;
+        if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) return imageValue;
+        if (imageValue.startsWith('/uploads') || imageValue.startsWith('uploads/')) {
+            const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
+            return `http://localhost:5000${normalizedPath}`;
+        }
+        return imageValue;
+    };
 
     useEffect(() => {
         fetchProfile();
@@ -91,7 +101,7 @@ function CanHeaderSection(props) {
                                             <span>
                                                 {profileData?.profilePicture ? (
                                                     <img 
-                                                        src={profileData.profilePicture} 
+                                                        src={getProfileImageSrc(profileData.profilePicture)} 
                                                         alt="Profile" 
                                                         style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
                                                     />

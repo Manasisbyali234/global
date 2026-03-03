@@ -64,6 +64,17 @@ function PlacementDashboardRedesigned() {
         coursesCovered: 0
     });
 
+    const getImagePreviewSrc = (imageValue) => {
+        if (!imageValue || typeof imageValue !== 'string') return '';
+        if (imageValue.startsWith('data:')) return imageValue;
+        if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) return imageValue;
+        if (imageValue.startsWith('/uploads') || imageValue.startsWith('uploads/')) {
+            const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
+            return `http://localhost:5000${normalizedPath}`;
+        }
+        return `data:image/jpeg;base64,${imageValue}`;
+    };
+
     useEffect(() => {
         const initializeDashboard = async () => {
             if (!authLoading && isAuthenticated() && userType === 'placement') {
@@ -636,7 +647,7 @@ function PlacementDashboardRedesigned() {
                             <div className="profile-avatar">
                                 {placementData?.logo ? (
                                     <img 
-                                        src={placementData.logo.startsWith('data:') ? placementData.logo : `data:image/jpeg;base64,${placementData.logo}`} 
+                                        src={getImagePreviewSrc(placementData.logo)} 
                                         alt="Profile" 
                                     />
                                 ) : (
@@ -675,7 +686,7 @@ function PlacementDashboardRedesigned() {
                                                     <div className="profile-image">
                                                         {placementData?.logo ? (
                                                             <img 
-                                                                src={placementData.logo.startsWith('data:') ? placementData.logo : `data:image/jpeg;base64,${placementData.logo}`} 
+                                                                src={getImagePreviewSrc(placementData.logo)} 
                                                                 alt="College Logo" 
                                                             />
                                                         ) : (
@@ -688,7 +699,7 @@ function PlacementDashboardRedesigned() {
                                                     <div className="id-card-image">
                                                         {placementData?.idCard ? (
                                                             <img 
-                                                                src={placementData.idCard.startsWith('data:') ? placementData.idCard : `data:image/jpeg;base64,${placementData.idCard}`} 
+                                                                src={getImagePreviewSrc(placementData.idCard)} 
                                                                 alt="ID Card" 
                                                             />
                                                         ) : (
