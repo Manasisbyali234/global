@@ -213,6 +213,20 @@ function CanStatusPage() {
 	};
 
 	const getInterviewRounds = (job, application) => {
+		const normalizeRoundDisplayName = (name) => {
+			if (!name || typeof name !== 'string') return name;
+			const normalized = name.trim().toLowerCase();
+			if (
+				normalized === 'one-to-one/panel' ||
+				normalized === 'one-to-one / panel' ||
+				normalized === 'one-on-one/panel' ||
+				normalized === 'one-on-one / panel'
+			) {
+				return 'One-on-One / Panel';
+			}
+			return name;
+		};
+
 		// Helper function to extract proper round name from uniqueKey
 		const getRoundNameFromKey = (key) => {
 			const roundNames = {
@@ -268,7 +282,7 @@ function CanStatusPage() {
 			const isGenericStageName = !normalizedStageName || genericStageNames.has(normalizedStageNameLower);
 			
 			if (!isGenericStageName && !normalizedStageName.includes('_') && !normalizedStageName.match(/^[0-9a-f]{24}$/i) && !/^\d+$/.test(normalizedStageName)) {
-				return normalizedStageName;
+				return normalizeRoundDisplayName(normalizedStageName);
 			}
 			
 			// Extract actual type if stageType looks like a unique key (e.g., "assessment_1234" -> "assessment")
@@ -278,7 +292,7 @@ function CanStatusPage() {
 			}
 			
 			// Fallback to stageType mapping
-			return roundNames[actualStageType] || roundNames[stageType] || 'Interview Round';
+			return normalizeRoundDisplayName(roundNames[actualStageType] || roundNames[stageType] || 'Interview Round');
 		};
 		
 		// PRIORITY 1: Check if application has interviewProcess.stages from InterviewProcessManager
@@ -334,7 +348,7 @@ function CanStatusPage() {
 				}
 				
 				return {
-					name: name,
+					name: normalizeRoundDisplayName(name),
 					uniqueKey: process.id || process.type,
 					roundType: process.type
 				};
@@ -400,7 +414,7 @@ function CanStatusPage() {
 				}
 				
 				rounds.push({
-					name: name,
+					name: normalizeRoundDisplayName(name),
 					uniqueKey: uniqueKey,
 					roundType: finalRoundType
 				});
@@ -1311,20 +1325,6 @@ function CanStatusPage() {
 																			})()}
 																			{roundDetails.time && <div className="mt-1"><strong>Time:</strong> {formatInterviewTime(roundDetails.time, roundDetails.fromDate)} - This timing continues until {roundDetails.toDate ? formatDate(roundDetails.toDate) : 'end date'}</div>}
 																		</div>
-																	</div>
-																)}
-																{roundDetails.subStages && roundDetails.subStages.length > 0 && (
-																	<div className="mb-2">
-																		<small className="text-muted"><i className="fa fa-list me-1"></i>Sub-Stages:</small>
-																		{roundDetails.subStages.map((subStage, idx) => (
-																			<div key={idx} className="mt-2 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-																				<div><strong>Scheduled Timing {idx + 1}:</strong></div>
-																				{subStage.fromDate && <div><strong>Date:</strong> {formatDate(subStage.fromDate)}</div>}
-																				{subStage.startTime && subStage.endTime && (
-																					<div><strong>Time:</strong> {formatTimeToAMPM(subStage.startTime)} - {formatTimeToAMPM(subStage.endTime)}</div>
-																				)}
-																			</div>
-																		))}
 																	</div>
 																)}
 																{!roundDetails.fromDate && !roundDetails.toDate && roundDetails.date && (

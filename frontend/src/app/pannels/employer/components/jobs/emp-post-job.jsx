@@ -4505,7 +4505,7 @@ export default function EmpPostJob({ onNext }) {
 													}}>
 														<div style={{ marginBottom: '12px' }}>
 															<div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
-																<span>📦 Sub-Stage {subIndex + 1}</span>
+																<span><i className="fa fa-layer-group" style={{ marginRight: '6px', color: '#ff6b35' }}></i>Sub-Stage {subIndex + 1}</span>
 															</div>
 														</div>
 														<div data-sub-stage-flex style={{
@@ -5039,4 +5039,5 @@ export default function EmpPostJob({ onNext }) {
 		</div>
 	);
 }
+
 
