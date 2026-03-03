@@ -390,9 +390,6 @@ function CanSupport() {
                             <i className="fa fa-headset me-2" style={{color: '#f97316'}}></i>
                             Get Support
                         </h2>
-                        <p style={{ color: '#6b7280', margin: 0 }}>
-                            Need help? Contact our support team and we'll get back to you within 24 hours
-                        </p>
                     </div>
                 </div>
             </div>
