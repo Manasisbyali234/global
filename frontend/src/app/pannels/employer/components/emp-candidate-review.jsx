@@ -99,7 +99,7 @@ function EmpCandidateReviewPage() {
                 } else if (data.application.jobId?.interviewRoundOrder && data.application.jobId.interviewRoundOrder.length > 0) {
                     const roundNames = {
                         oneOnOne: 'One-to-One',
-                        oneOnOnePanel: 'One-to-One / Panel',
+                        oneOnOnePanel: 'One-on-One / Panel',
                         panel: 'Panel',
                         group: 'Group',
                         technical: 'Technical',

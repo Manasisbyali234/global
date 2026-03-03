@@ -759,7 +759,7 @@ export default function EmpPostJob({ onNext }) {
 								technical: 'Technical',
 								managerial: 'Managerial Round',
 								hr: 'HR Round',
-								oneOnOnePanel: 'One-to-One / Panel',
+								oneOnOnePanel: 'One-on-One / Panel',
 								group: 'Group',
 								situational: 'Situational / Behavioral',
 								assessment: 'MCQ/Aptitude/Assessment',
@@ -786,7 +786,7 @@ export default function EmpPostJob({ onNext }) {
 							technical: 'Technical',
 							managerial: 'Managerial Round',
 							hr: 'HR Round',
-							oneOnOnePanel: 'One-to-One / Panel',
+							oneOnOnePanel: 'One-on-One / Panel',
 							group: 'Group',
 							situational: 'Situational / Behavioral',
 							assessment: 'MCQ/Aptitude/Assessment',
@@ -984,7 +984,7 @@ export default function EmpPostJob({ onNext }) {
 		const step1Fields = [
 			'jobTitle', 'category', 'jobType', 'typeOfEmployment', 'workMode', 'shift', 
 			'ctc', 'netSalary', 'jobLocation', 'vacancies', 'applicationLimit', 
-			'education', 'requiredSkills', 'offerLetterDate', 'lastDateOfApplication',
+			'education', 'requiredSkills',
 			'jobDescription', 'rolesAndResponsibilities'
 		];
 		
@@ -1072,6 +1072,18 @@ export default function EmpPostJob({ onNext }) {
 
 		// Validate Interview Rounds Count using basic rules
 		const basicErrors = validateForm(formData, validationRules);
+		if (basicErrors.offerLetterDate) {
+			newErrors.offerLetterDate = basicErrors.offerLetterDate;
+			errorMessages.push(basicErrors.offerLetterDate[0]);
+		} else {
+			delete newErrors.offerLetterDate;
+		}
+		if (basicErrors.lastDateOfApplication) {
+			newErrors.lastDateOfApplication = basicErrors.lastDateOfApplication;
+			errorMessages.push(basicErrors.lastDateOfApplication[0]);
+		} else {
+			delete newErrors.lastDateOfApplication;
+		}
 		if (basicErrors.interviewRoundsCount) {
 			newErrors.interviewRoundsCount = basicErrors.interviewRoundsCount;
 			errorMessages.push(basicErrors.interviewRoundsCount[0]);
@@ -1103,7 +1115,7 @@ export default function EmpPostJob({ onNext }) {
 				technical: 'Technical',
 				managerial: 'Managerial Round',
 				hr: 'HR Round',
-				oneOnOnePanel: 'One-to-One / Panel',
+				oneOnOnePanel: 'One-on-One / Panel',
 				group: 'Group',
 				situational: 'Situational / Behavioral',
 				assessment: 'Assessment',
@@ -1208,8 +1220,47 @@ export default function EmpPostJob({ onNext }) {
 		);
 	};
 
+	const isNonEmptyArray = (value) => Array.isArray(value) && value.length > 0;
 
-	const handleSubmitClick = () => {
+	const hasDbScheduleData = (round = {}) => {
+		const scheduleObject = round.scheduleObject || round.schedule || {};
+		const nestedSchedule = scheduleObject.schedule || {};
+
+		const schedules = round.schedulesArray || round.schedules || scheduleObject.schedulesArray || scheduleObject.schedules || nestedSchedule.schedules;
+		const daySchedules = round.daySchedulesArray || round.daySchedules || scheduleObject.daySchedulesArray || scheduleObject.daySchedules || nestedSchedule.daySchedules;
+		const rooms = round.roomsArray || round.rooms || scheduleObject.roomsArray || scheduleObject.rooms || nestedSchedule.rooms;
+
+		return isNonEmptyArray(schedules) || isNonEmptyArray(daySchedules) || isNonEmptyArray(rooms);
+	};
+
+	const verifyDbInterviewScheduling = async () => {
+		const activeJobId = currentJobId || id;
+		if (!activeJobId) return false;
+
+		const token = localStorage.getItem('employerToken');
+		if (!token) return false;
+
+		const data = await safeApiCall(`http://localhost:5000/api/employer/jobs/${activeJobId}`, {
+			headers: { 'Authorization': `Bearer ${token}` }
+		});
+
+		const requiredNonAssessmentCount = (formData.interviewRoundOrder || []).filter(
+			(key) => String(formData.interviewRoundTypes?.[key] || '').toLowerCase() !== 'assessment'
+		).length;
+		if (requiredNonAssessmentCount === 0) {
+			return true;
+		}
+
+		const dbRounds = data?.job?.interviewRounds || [];
+		const scheduledNonAssessmentCount = dbRounds.filter((round) =>
+			String(round?.roundType || '').toLowerCase() !== 'assessment' && hasDbScheduleData(round)
+		).length;
+
+		return scheduledNonAssessmentCount >= requiredNonAssessmentCount;
+	};
+
+
+	const handleSubmitClick = async () => {
 		if (isSubmitting) return;
 		
 		// Check for CTC format error first
@@ -1244,6 +1295,17 @@ export default function EmpPostJob({ onNext }) {
 				showError('Please fill all required fields correctly before submitting.');
 				window.scrollTo({ top: 0, behavior: 'smooth' });
 			}
+			return;
+		}
+
+		try {
+			const hasScheduledDataInDb = await verifyDbInterviewScheduling();
+			if (!hasScheduledDataInDb) {
+				showWarning('please Schedule the interview on Port First to post the Job');
+				return;
+			}
+		} catch (error) {
+			showError('Unable to verify interview schedule. Please try again.');
 			return;
 		}
 		
@@ -3063,7 +3125,53 @@ export default function EmpPostJob({ onNext }) {
 						</h3>
 					</div>
 
-					{/* Dates */}
+					{/* Job Description */}
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-align-left" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Job Description <span style={redAsterisk}>*</span>
+						</label>
+						<RichTextEditor
+							value={formData.jobDescription}
+							onChange={(value) => update({ jobDescription: value })}
+							placeholder="Provide a detailed description of the job role, responsibilities, and expectations..."
+							className="form-control-editor"
+						/>
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>
+							Must be at least 50 characters. Use the toolbar to format with bold, italic, lists, and alignment options
+						</small>
+					</div>
+
+					{/* Roles and Responsibilities */}
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-tasks" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Roles and Responsibilities <span style={redAsterisk}>*</span>
+						</label>
+						<RichTextEditor
+							value={formData.rolesAndResponsibilities || ''}
+							onChange={(value) => update({ rolesAndResponsibilities: value })}
+							placeholder="List the key roles and responsibilities for this position..."
+							className="form-control-editor"
+						/>
+						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>
+							Use bullet points or numbered lists to clearly outline the main responsibilities
+						</small>
+					</div>
+					</>
+					)}
+
+					{currentStep === 2 && (
+						<>
+					{/* Interview Process Section */}
+					<div style={fullRow}>
+						<h3 style={sectionHeader}>
+							<i className="fa fa-clipboard-list" style={{color: '#ff6b35'}}></i>
+							Interview Process
+						</h3>
+					</div>
+
+					{/* Application Timeline */}
 					<div>
 						<label style={label}>
 							<i className="fa fa-calendar-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
@@ -3136,52 +3244,6 @@ export default function EmpPostJob({ onNext }) {
 							Manually set the deadline for job applications
 						</small>
 						<HolidayIndicator date={formData.lastDateOfApplication} />
-					</div>
-
-					{/* Job Description */}
-					<div style={fullRow}>
-						<label style={label}>
-							<i className="fa fa-align-left" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Job Description <span style={redAsterisk}>*</span>
-						</label>
-						<RichTextEditor
-							value={formData.jobDescription}
-							onChange={(value) => update({ jobDescription: value })}
-							placeholder="Provide a detailed description of the job role, responsibilities, and expectations..."
-							className="form-control-editor"
-						/>
-						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>
-							Must be at least 50 characters. Use the toolbar to format with bold, italic, lists, and alignment options
-						</small>
-					</div>
-
-					{/* Roles and Responsibilities */}
-					<div style={fullRow}>
-						<label style={label}>
-							<i className="fa fa-tasks" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Roles and Responsibilities <span style={redAsterisk}>*</span>
-						</label>
-						<RichTextEditor
-							value={formData.rolesAndResponsibilities || ''}
-							onChange={(value) => update({ rolesAndResponsibilities: value })}
-							placeholder="List the key roles and responsibilities for this position..."
-							className="form-control-editor"
-						/>
-						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>
-							Use bullet points or numbered lists to clearly outline the main responsibilities
-						</small>
-					</div>
-					</>
-					)}
-
-					{currentStep === 2 && (
-						<>
-					{/* Interview Process Section */}
-					<div style={fullRow}>
-						<h3 style={sectionHeader}>
-							<i className="fa fa-clipboard-list" style={{color: '#ff6b35'}}></i>
-							Interview Process
-						</h3>
 					</div>
 
 					<div style={fullRow}>
@@ -3304,7 +3366,7 @@ export default function EmpPostJob({ onNext }) {
 						>
 							<option value="">-- Select Round Type --</option>
 							<option value="assessment">MCQ/Aptitude/Assessment</option>
-							<option value="oneOnOnePanel">One-to-One / Panel</option>
+							<option value="oneOnOnePanel">One-on-One / Panel</option>
 							<option value="group">Group</option>
 							<option value="managerial">Managerial Round</option>
 							<option value="technical">Technical</option>
@@ -3393,7 +3455,7 @@ export default function EmpPostJob({ onNext }) {
 									technical: 'Technical',
 									managerial: 'Managerial Round',
 									hr: 'HR Round',
-									oneOnOnePanel: 'One-to-One / Panel',
+									oneOnOnePanel: 'One-on-One / Panel',
 									group: 'Group',
 									situational: 'Situational / Behavioral',
 									assessment: 'MCQ/Aptitude/Assessment Schedule',
@@ -4160,7 +4222,7 @@ export default function EmpPostJob({ onNext }) {
 										technical: 'Technical',
 										managerial: 'Managerial Round',
 										hr: 'HR Round',
-										oneOnOnePanel: 'One-to-One / Panel',
+										oneOnOnePanel: 'One-on-One / Panel',
 										group: 'Group',
 										situational: 'Situational / Behavioral',
 										assessment: 'Assessment',
@@ -4631,7 +4693,7 @@ export default function EmpPostJob({ onNext }) {
 											technical: 'Technical',
 											managerial: 'Managerial Round',
 											hr: 'HR Round',
-											oneOnOnePanel: 'One-to-One / Panel',
+											oneOnOnePanel: 'One-on-One / Panel',
 											group: 'Group',
 											situational: 'Situational / Behavioral',
 											assessment: 'Assessment',

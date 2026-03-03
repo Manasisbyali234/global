@@ -332,7 +332,7 @@ function EmpJobReviewPage() {
                                                 technical: 'Technical',
                                                 managerial: 'Managerial Round',
                                                 hr: 'HR Round',
-                                                oneOnOnePanel: 'One-to-One / Panel',
+                                                oneOnOnePanel: 'One-on-One / Panel',
                                                 group: 'Group',
                                                 situational: 'Situational / Behavioral',
                                                 assessment: 'Assessment',

@@ -85,9 +85,12 @@ export default function EmpPostedJobs() {
             
             if (response.ok) {
                 const data = await response.json();
-                setJobs(data.jobs || []);
-                setFilteredJobs(data.jobs || []);
-                fetchApplicationCounts(data.jobs || []);
+                const nonDraftJobs = (data.jobs || []).filter(
+                    (job) => (job?.status || '').toLowerCase() !== 'draft'
+                );
+                setJobs(nonDraftJobs);
+                setFilteredJobs(nonDraftJobs);
+                fetchApplicationCounts(nonDraftJobs);
             }
         } catch (error) {
             

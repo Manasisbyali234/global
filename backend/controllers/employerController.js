@@ -1558,6 +1558,41 @@ exports.updateJob = async (req, res) => {
         console.log('[updateJob] Deleted all interview rounds (no new rounds provided)');
       }
     }
+
+    const shouldActivateJob = String(req.body.status || '').toLowerCase() === 'active';
+    if (shouldActivateJob) {
+      const interviewRoundOrderForValidation = Array.isArray(req.body.interviewRoundOrder)
+        ? req.body.interviewRoundOrder
+        : (oldJob.interviewRoundOrder || []);
+      const interviewRoundTypesForValidation = req.body.interviewRoundTypes || oldJob.interviewRoundTypes || {};
+      const requiredNonAssessmentRounds = interviewRoundOrderForValidation.filter((roundKey) =>
+        String(interviewRoundTypesForValidation[roundKey] || '').toLowerCase() !== 'assessment'
+      );
+
+      if (requiredNonAssessmentRounds.length > 0) {
+        const dbRoundsForValidation = await InterviewRound.find({ jobId: oldJob._id }).lean();
+        const hasSchedulePayload = (round) => {
+          const hasItems = (val) => Array.isArray(val) && val.length > 0;
+          const scheduleObject = round?.scheduleObject || round?.schedule || {};
+          const nestedSchedule = scheduleObject?.schedule || {};
+          const schedules = round?.schedulesArray || round?.schedules || scheduleObject?.schedulesArray || scheduleObject?.schedules || nestedSchedule?.schedules;
+          const daySchedules = round?.daySchedulesArray || round?.daySchedules || scheduleObject?.daySchedulesArray || scheduleObject?.daySchedules || nestedSchedule?.daySchedules;
+          const rooms = round?.roomsArray || round?.rooms || scheduleObject?.roomsArray || scheduleObject?.rooms || nestedSchedule?.rooms;
+          return hasItems(schedules) || hasItems(daySchedules) || hasItems(rooms);
+        };
+
+        const scheduledNonAssessmentCount = dbRoundsForValidation.filter((round) =>
+          String(round?.roundType || '').toLowerCase() !== 'assessment' && hasSchedulePayload(round)
+        ).length;
+
+        if (scheduledNonAssessmentCount < requiredNonAssessmentRounds.length) {
+          return res.status(400).json({
+            success: false,
+            message: 'please Schedule the interview on Port First to post the Job'
+          });
+        }
+      }
+    }
     
     // Update interviewScheduled flag based on database
     const hasScheduledRoundsAfterUpdate = await InterviewRound.hasScheduledRounds(oldJob._id);
@@ -1678,7 +1713,10 @@ exports.deleteJob = async (req, res) => {
 
 exports.getEmployerJobs = async (req, res) => {
   try {
-    const jobs = await Job.find({ employerId: req.user._id })
+    const jobs = await Job.find({
+      employerId: req.user._id,
+      status: { $ne: 'draft' }
+    })
       .populate('employerId', 'companyName')
       .sort({ createdAt: -1 })
       .lean();
@@ -3584,8 +3622,6 @@ exports.deleteInterviewRound = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
 
 
 
