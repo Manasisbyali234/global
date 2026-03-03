@@ -225,6 +225,29 @@ function ContactUsPage() {
                 </div>
             </div>
 
+            <div className="section-full" style={{ padding: '0 0 40px 0' }}>
+                <div className="container">
+                    <div style={{ marginBottom: '14px' }}>
+                        <h3 className="wt-title" style={{ marginBottom: '6px' }}>Our Location</h3>
+                        <p style={{ margin: 0, color: '#6c757d' }}>
+                            Visit us at our Bengaluru office.
+                        </p>
+                    </div>
+                    <div style={{ width: '100%', height: '400px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 6px 20px rgba(0,0,0,0.08)' }}>
+                        <iframe
+                            title="TaleGlobal Office Location"
+                            src="https://maps.google.com/maps?q=midas%20school&hl=en&z=14&output=embed"
+                            width="100%"
+                            height="400"
+                            style={{ border: 0 }}
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            allowFullScreen
+                        />
+                    </div>
+                </div>
+            </div>
+
         </>
     )
 }
