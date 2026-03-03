@@ -17,12 +17,13 @@ const indianCities = [
 
 function SectionCandicateBasicInfo() {
     const getImagePreviewSrc = (imageValue) => {
+        const backendBaseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
         if (!imageValue || typeof imageValue !== 'string') return '';
         if (imageValue.startsWith('data:')) return imageValue;
         if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) return imageValue;
         if (imageValue.startsWith('/uploads') || imageValue.startsWith('uploads/')) {
             const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
-            return `http://localhost:5000${normalizedPath}`;
+            return `${backendBaseUrl}${normalizedPath}`;
         }
         return imageValue;
     };
