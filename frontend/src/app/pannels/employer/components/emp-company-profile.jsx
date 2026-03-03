@@ -2216,7 +2216,7 @@ function EmpCompanyProfilePage() {
                                     {formData.companyIdCardPicture && (
                                         <div className="mt-2">
                                             <img 
-                                                src={formData.companyIdCardPicture.startsWith('data:') ? formData.companyIdCardPicture : `data:image/jpeg;base64,${formData.companyIdCardPicture}`} 
+                                                src={getImagePreviewSrc(formData.companyIdCardPicture)} 
                                                 alt="Company ID Card" 
                                                 style={{
                                                     width: '200px', 
