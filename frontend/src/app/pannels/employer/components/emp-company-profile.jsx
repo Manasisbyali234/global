@@ -678,8 +678,17 @@ function EmpCompanyProfilePage() {
             const blob = await response.blob();
             
             const formData = new FormData();
-            formData.append('document', blob, `${fieldName}.jpg`);
-            formData.append('fieldName', fieldName);
+            let endpoint = `${API_BASE_URL}/employer/profile/document`;
+            if (fieldName === 'logo') {
+                formData.append('logo', blob, 'logo.jpg');
+                endpoint = `${API_BASE_URL}/employer/profile/logo`;
+            } else if (fieldName === 'coverImage') {
+                formData.append('cover', blob, 'coverImage.jpg');
+                endpoint = `${API_BASE_URL}/employer/profile/cover`;
+            } else {
+                formData.append('document', blob, `${fieldName}.jpg`);
+                formData.append('fieldName', fieldName);
+            }
             
             const token = localStorage.getItem('employerToken');
             if (!token) {
@@ -687,7 +696,7 @@ function EmpCompanyProfilePage() {
                 return;
             }
             
-            const uploadResponse = await fetch(`${API_BASE_URL}/employer/profile/document`, {
+            const uploadResponse = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -698,7 +707,10 @@ function EmpCompanyProfilePage() {
             const data = await uploadResponse.json();
             
             if (data.success) {
-                handleInputChange(fieldName, data.filePath);
+                const savedPath = data.logo || data.coverImage || data.filePath;
+                if (savedPath) {
+                    handleInputChange(fieldName, savedPath);
+                }
                 showSuccess('Image processed and uploaded successfully!');
             } else {
                 showError(data.message || 'Image upload failed');
