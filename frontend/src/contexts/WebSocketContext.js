@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import { BACKEND_URL } from '../utils/api';
 
 const WebSocketContext = createContext();
 
@@ -16,8 +17,8 @@ export const WebSocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Always use localhost for development
-    const socketUrl = 'http://localhost:5000';
+    // Use BACKEND_URL for socket connection
+    const socketUrl = BACKEND_URL;
     
     const newSocket = io(socketUrl, {
       transports: ['websocket', 'polling']

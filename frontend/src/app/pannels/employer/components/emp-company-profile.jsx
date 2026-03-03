@@ -126,6 +126,17 @@ function EmpCompanyProfilePage() {
         employerCode: { required: true, minLength: 3, maxLength: 20 }
     });
 
+    const getImagePreviewSrc = (imageValue) => {
+        if (!imageValue || typeof imageValue !== 'string') return '';
+        if (imageValue.startsWith('data:')) return imageValue;
+        if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) return imageValue;
+        if (imageValue.startsWith('/uploads') || imageValue.startsWith('uploads/')) {
+            const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
+            return `http://localhost:5000${normalizedPath}`;
+        }
+        return `data:image/jpeg;base64,${imageValue}`;
+    };
+
     useEffect(() => {
         loadScript("js/custom.js");
         fetchProfile();
@@ -1121,7 +1132,7 @@ function EmpCompanyProfilePage() {
                                     <div className="mt-2">
                                         <div className="d-inline-block">
                                             <img 
-                                                src={formData.logo.startsWith('data:') ? formData.logo : `data:image/jpeg;base64,${formData.logo}`} 
+                                                src={getImagePreviewSrc(formData.logo)} 
                                                 alt="Company Logo" 
                                                 style={{
                                                     width: '150px', 
@@ -1148,7 +1159,7 @@ function EmpCompanyProfilePage() {
                                                     fontSize: '12px'
                                                 }}
                                                 onClick={() => {
-                                                    const imgSrc = formData.logo.startsWith('data:') ? formData.logo : `data:image/jpeg;base64,${formData.logo}`;
+                                                    const imgSrc = getImagePreviewSrc(formData.logo);
                                                     openLogoResizer(imgSrc, (processedImage) => {
                                                         uploadProcessedImage(processedImage, 'logo');
                                                     });
@@ -1178,7 +1189,7 @@ function EmpCompanyProfilePage() {
                                     <div className="mt-2">
                                         <div className="d-inline-block">
                                             <img 
-                                                src={formData.coverImage.startsWith('data:') ? formData.coverImage : `data:image/jpeg;base64,${formData.coverImage}`} 
+                                                src={getImagePreviewSrc(formData.coverImage)} 
                                                 alt="Background Banner" 
                                                 style={{
                                                     width: '200px', 
@@ -1205,7 +1216,7 @@ function EmpCompanyProfilePage() {
                                                     fontSize: '12px'
                                                 }}
                                                 onClick={() => {
-                                                    const imgSrc = formData.coverImage.startsWith('data:') ? formData.coverImage : `data:image/jpeg;base64,${formData.coverImage}`;
+                                                    const imgSrc = getImagePreviewSrc(formData.coverImage);
                                                     openBannerResizer(imgSrc, (processedImage) => {
                                                         uploadProcessedImage(processedImage, 'coverImage');
                                                     });

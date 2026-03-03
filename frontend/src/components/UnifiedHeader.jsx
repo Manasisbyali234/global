@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import NotificationBell from './NotificationBell';
 import JobZImage from '../app/common/jobz-img';
+import { BACKEND_URL } from '../utils/api';
 import './UnifiedHeader.css';
 
 function UnifiedHeader({ userRole, userData, onMenuToggle, isSidebarOpen }) {
@@ -28,11 +29,21 @@ function UnifiedHeader({ userRole, userData, onMenuToggle, isSidebarOpen }) {
 
     const getProfileImage = () => {
         if (userRole === 'placement' && profileData?.logo) {
-            return profileData.logo.startsWith('data:') 
-                ? profileData.logo 
-                : `data:image/jpeg;base64,${profileData.logo}`;
+            if (profileData.logo.startsWith('data:')) return profileData.logo;
+            if (profileData.logo.startsWith('/uploads') || profileData.logo.startsWith('uploads')) {
+                const path = profileData.logo.startsWith('/') ? profileData.logo : `/${profileData.logo}`;
+                return `${BACKEND_URL}${path}`;
+            }
+            return `data:image/jpeg;base64,${profileData.logo}`;
         }
-        if (profileData?.profileImage) return profileData.profileImage;
+        if (profileData?.profileImage) {
+            if (profileData.profileImage.startsWith('data:') || profileData.profileImage.startsWith('http')) return profileData.profileImage;
+            if (profileData.profileImage.startsWith('/uploads') || profileData.profileImage.startsWith('uploads')) {
+                const path = profileData.profileImage.startsWith('/') ? profileData.profileImage : `/${profileData.profileImage}`;
+                return `${BACKEND_URL}${path}`;
+            }
+            return profileData.profileImage;
+        }
         return null;
     };
 

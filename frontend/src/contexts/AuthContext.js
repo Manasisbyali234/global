@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '../utils/api';
+import { api, BACKEND_URL } from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -59,10 +59,10 @@ export const AuthProvider = ({ children }) => {
             if (token) {
               try {
                 let endpoint;
-                if (type === 'employer') endpoint = 'http://localhost:5000/api/employer/profile';
-                else if (type === 'candidate') endpoint = 'http://localhost:5000/api/candidate/profile';
-                else if (type === 'placement') endpoint = 'http://localhost:5000/api/placement/profile';
-                else if (type === 'admin') endpoint = 'http://localhost:5000/api/admin/profile';
+                if (type === 'employer') endpoint = `${BACKEND_URL}/api/employer/profile`;
+                else if (type === 'candidate') endpoint = `${BACKEND_URL}/api/candidate/profile`;
+                else if (type === 'placement') endpoint = `${BACKEND_URL}/api/placement/profile`;
+                else if (type === 'admin') endpoint = `${BACKEND_URL}/api/admin/profile`;
                 
                 if (endpoint) {
                   const response = await fetch(endpoint, {

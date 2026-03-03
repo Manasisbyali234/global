@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 const Admin = require('../models/Admin');
 const SubAdmin = require('../models/SubAdmin');
 const Candidate = require('../models/Candidate');
@@ -667,6 +669,23 @@ exports.updateEmployerProfile = async (req, res) => {
   }
 };
 
+// Helper to get MIME type from file extension
+const getMimeType = (filePath) => {
+  const ext = path.extname(filePath).toLowerCase();
+  const mimeTypes = {
+    '.pdf': 'application/pdf',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.doc': 'application/msword',
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.xls': 'application/vnd.ms-excel',
+    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  };
+  return mimeTypes[ext] || 'application/octet-stream';
+};
+
 // Download Base64 document
 exports.downloadDocument = async (req, res) => {
   try {
@@ -677,12 +696,34 @@ exports.downloadDocument = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Profile not found' });
     }
 
-    const base64Data = profile[documentType];
-    if (!base64Data) {
+    const documentData = profile[documentType];
+    if (!documentData) {
       return res.status(404).json({ success: false, message: 'Document not found' });
     }
 
-    const { buffer, mimeType, extension } = base64ToBuffer(base64Data);
+    // Check if it's a file path or base64 data
+    const isFilePath = typeof documentData === 'string' && 
+                      (documentData.startsWith('/') || documentData.startsWith('uploads') || documentData.includes('\\') || documentData.includes('/')) &&
+                      !documentData.startsWith('data:');
+
+    if (isFilePath) {
+      let fullPath = documentData;
+      if (documentData.startsWith('/uploads')) {
+        fullPath = path.join(__dirname, '..', documentData);
+      } else if (!path.isAbsolute(documentData)) {
+        fullPath = path.join(__dirname, '..', documentData);
+      }
+
+      if (fs.existsSync(fullPath)) {
+        const mimeType = getMimeType(fullPath);
+        const filename = path.basename(fullPath);
+        res.setHeader('Content-Type', mimeType);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        return fs.createReadStream(fullPath).pipe(res);
+      }
+    }
+
+    const { buffer, mimeType, extension } = base64ToBuffer(documentData);
     const filename = generateFilename(documentType, extension);
 
     res.setHeader('Content-Type', mimeType);
@@ -706,26 +747,57 @@ exports.viewDocument = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Profile not found' });
     }
 
-    let base64Data = profile[documentType];
-    if (!base64Data) {
+    let documentData = profile[documentType];
+    if (!documentData) {
       console.log(`Document ${documentType} not found in profile`);
       return res.status(404).json({ success: false, message: 'Document not found' });
     }
 
-    console.log(`Document found, data length: ${base64Data.length}`);
-    console.log(`Document starts with: ${base64Data.substring(0, 50)}`);
+    // Check if it's a file path or base64 data
+    const isFilePath = typeof documentData === 'string' && 
+                      (documentData.startsWith('/') || documentData.startsWith('uploads') || documentData.includes('\\') || documentData.includes('/')) &&
+                      !documentData.startsWith('data:');
+
+    if (isFilePath) {
+      let fullPath = documentData;
+      if (documentData.startsWith('/uploads')) {
+        fullPath = path.join(__dirname, '..', documentData);
+      } else if (!path.isAbsolute(documentData)) {
+        fullPath = path.join(__dirname, '..', documentData);
+      }
+
+      if (fs.existsSync(fullPath)) {
+        const mimeType = getMimeType(fullPath);
+        const stats = fs.statSync(fullPath);
+
+        res.setHeader('Content-Type', mimeType);
+        res.setHeader('Content-Length', stats.size);
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        
+        if (mimeType === 'application/pdf') {
+          res.setHeader('Content-Disposition', `inline; filename="${path.basename(fullPath)}"`);
+          res.setHeader('X-Content-Type-Options', 'nosniff');
+        }
+        
+        return fs.createReadStream(fullPath).pipe(res);
+      }
+    }
+
+    console.log(`Document found, data length: ${documentData.length}`);
+    console.log(`Document starts with: ${documentData.substring(0, 50)}`);
 
     let buffer, mimeType;
     
     try {
-      if (base64Data.startsWith('data:')) {
-        const result = base64ToBuffer(base64Data);
+      if (documentData.startsWith('data:')) {
+        const result = base64ToBuffer(documentData);
         buffer = result.buffer;
         mimeType = result.mimeType;
         console.log(`Processed with base64ToBuffer, mimeType: ${mimeType}`);
       } else {
         // Handle legacy base64 without data URL prefix
-        buffer = Buffer.from(base64Data, 'base64');
+        buffer = Buffer.from(documentData, 'base64');
         mimeType = 'image/jpeg'; // Default fallback
         console.log('Processed as legacy base64, using default mimeType: image/jpeg');
       }

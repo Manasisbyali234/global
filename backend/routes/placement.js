@@ -250,10 +250,10 @@ router.get('/data', auth(['placement']), async (req, res) => {
 router.post('/save-dashboard-state', auth(['placement']), placementController.saveDashboardState);
 
 // Upload logo
-router.post('/upload-logo', auth(['placement']), placementController.uploadLogo);
+router.post('/upload-logo', auth(['placement']), upload.single('logo'), placementController.uploadLogo);
 
 // Upload ID card
-router.post('/upload-id-card', auth(['placement']), placementController.uploadIdCard);
+router.post('/upload-id-card', auth(['placement']), upload.single('idCard'), placementController.uploadIdCard);
 
 // Update placement profile
 router.put('/profile', auth(['placement']), [

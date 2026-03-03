@@ -9,6 +9,7 @@ import './emp-candidate-review-button-size-fix.css';
 import './emp-candidate-review-stage-text-mobile-fix.css';
 import './emp-candidate-review-mobile-fix.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
+import { BACKEND_URL } from '../../../../utils/api';
 
 function EmpCandidateReviewPage() {
     const navigate = useNavigate();
@@ -201,7 +202,9 @@ function EmpCandidateReviewPage() {
             const blob = new Blob([byteArray], { type: mimeType });
             documentUrl = URL.createObjectURL(blob);
         } else {
-            documentUrl = `http://localhost:5000/${fileData}`;
+            // Check if fileData is a path (starts with /uploads or uploads)
+            const path = fileData.startsWith('/') ? fileData : `/${fileData}`;
+            documentUrl = `${BACKEND_URL}${path}`;
         }
         
         setDocumentModal({ isOpen: true, url: documentUrl, title });

@@ -19,10 +19,10 @@ const employerAdminProfileSchema = new mongoose.Schema({
   panNumber: { type: String },
   
   // Documents (ADMIN ONLY)
-  panCardImage: { type: String },
-  cinImage: { type: String },
-  gstImage: { type: String },
-  certificateOfIncorporation: { type: String },
+  panCardImage: { type: String }, // File path to PAN card image
+  cinImage: { type: String }, // File path to CIN image
+  gstImage: { type: String }, // File path to GST image
+  certificateOfIncorporation: { type: String }, // File path to incorporation document
   
   // Document verification status
   panCardVerified: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
@@ -39,7 +39,7 @@ const employerAdminProfileSchema = new mongoose.Schema({
   // Authorization Letters (ADMIN ONLY)
   authorizationLetters: [{
     fileName: { type: String },
-    fileData: { type: String },
+    fileData: { type: String }, // File path to authorization letter document
     uploadedAt: { type: Date, default: Date.now },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
     isResubmitted: { type: Boolean, default: false },
@@ -57,7 +57,7 @@ const employerAdminProfileSchema = new mongoose.Schema({
   contactDesignation: { type: String },
   contactOfficialEmail: { type: String },
   contactMobile: { type: String },
-  companyIdCardPicture: { type: String },
+  companyIdCardPicture: { type: String }, // File path to ID card image
   alternateContact: { type: String },
   employerCode: { type: String },
   agreeTerms: { type: String }

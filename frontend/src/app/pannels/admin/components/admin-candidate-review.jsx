@@ -3,6 +3,7 @@ import { formatDate } from '../../../../utils/dateFormatter';
 import JobZImage from "../../../common/jobz-img";
 import { useNavigate, useParams } from "react-router-dom";
 import './admin-candidate-review.css';
+import { BACKEND_URL } from '../../../../utils/api';
 
 function AdminCandidateReviewPage() {
     const navigate = useNavigate();
@@ -21,7 +22,7 @@ function AdminCandidateReviewPage() {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
 
-            const response = await fetch(`http://localhost:5000/api/admin/candidates/${candidateId}`, {
+            const response = await fetch(`${BACKEND_URL}/api/admin/candidates/${candidateId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -86,7 +87,8 @@ function AdminCandidateReviewPage() {
             const blob = new Blob([byteArray], { type: mimeType });
             documentUrl = URL.createObjectURL(blob);
         } else {
-            documentUrl = `http://localhost:5000/${fileData}`;
+            const path = fileData.startsWith('/') ? fileData : `/${fileData}`;
+            documentUrl = `${BACKEND_URL}${path}`;
         }
         
         setDocumentModal({ isOpen: true, url: documentUrl, title });

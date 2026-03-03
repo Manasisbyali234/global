@@ -12,6 +12,25 @@ const { base64ToBuffer } = require('../utils/base64Helper');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
 const { checkEmailExists } = require('../utils/authUtils');
 
+const getWorkbook = (fileData, fileType) => {
+  const XLSX = require('xlsx');
+  if (fileData.startsWith('/uploads/')) {
+    const path = require('path');
+    const absolutePath = path.join(__dirname, '..', fileData);
+    return XLSX.readFile(absolutePath);
+  } else {
+    const { base64ToBuffer } = require('../utils/base64Helper');
+    const result = base64ToBuffer(fileData);
+    const buffer = result.buffer;
+    if (fileType && fileType.includes('csv')) {
+      const csvData = buffer.toString('utf8');
+      return XLSX.read(csvData, { type: 'string' });
+    } else {
+      return XLSX.read(buffer, { type: 'buffer' });
+    }
+  }
+};
+
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 };
@@ -241,7 +260,7 @@ exports.uploadStudentData = async (req, res) => {
 
     // Validate file content before processing
     const { validateExcelContent } = require('../middlewares/upload');
-    const validation = validateExcelContent(req.file.buffer, req.file.mimetype);
+    const validation = validateExcelContent(req.file.path, req.file.mimetype);
     
     if (!validation.valid) {
       return res.status(400).json({ 
@@ -254,13 +273,7 @@ exports.uploadStudentData = async (req, res) => {
 
     // Check for duplicate emails and IDs in the uploaded file
     const XLSX = require('xlsx');
-    let workbook;
-    if (req.file.mimetype.includes('csv')) {
-      const csvData = req.file.buffer.toString('utf8');
-      workbook = XLSX.read(csvData, { type: 'string' });
-    } else {
-      workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
-    }
+    const workbook = XLSX.readFile(req.file.path);
     
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
@@ -316,12 +329,11 @@ exports.uploadStudentData = async (req, res) => {
       });
     }
 
-    const { fileToBase64 } = require('../middlewares/upload');
-    const studentData = fileToBase64(req.file);
+    const studentDataPath = `/uploads/${req.file.filename}`;
     
     // Removed console debug line for security;
     
-    // Add to file history with file data, custom name, university, and batch
+    // Add to file history with file path, custom name, university, and batch
     const updatedPlacement = await Placement.findByIdAndUpdate(placementId, {
       $push: {
         fileHistory: {
@@ -331,7 +343,7 @@ exports.uploadStudentData = async (req, res) => {
           batch: batch && batch.trim() ? batch.trim() : null,
           uploadedAt: new Date(),
           status: 'pending',
-          fileData: studentData,
+          fileData: studentDataPath,
           fileType: req.file.mimetype,
           credits: 0
         }
@@ -445,16 +457,7 @@ exports.getPlacementData = async (req, res) => {
     }
 
     // Always parse Excel file to show data
-    const result = base64ToBuffer(placement.studentData);
-    const buffer = result.buffer;
-
-    let workbook;
-    if (placement.fileType && placement.fileType.includes('csv')) {
-      const csvData = buffer.toString('utf8');
-      workbook = XLSX.read(csvData, { type: 'string' });
-    } else {
-      workbook = XLSX.read(buffer, { type: 'buffer' });
-    }
+    const workbook = getWorkbook(placement.studentData, placement.fileType);
     
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
@@ -501,23 +504,9 @@ exports.processPlacementApproval = async (req, res) => {
     }
 
     // Parse Excel file
-    let buffer;
-    try {
-      const result = base64ToBuffer(placement.studentData);
-      buffer = result.buffer;
-    } catch (bufferError) {
-      console.error('Buffer conversion error:', bufferError);
-      return res.status(400).json({ success: false, message: 'Invalid file format' });
-    }
-
     let workbook;
     try {
-      if (placement.fileType && placement.fileType.includes('csv')) {
-        const csvData = buffer.toString('utf8');
-        workbook = XLSX.read(csvData, { type: 'string' });
-      } else {
-        workbook = XLSX.read(buffer, { type: 'buffer' });
-      }
+      workbook = getWorkbook(placement.studentData, placement.fileType);
     } catch (xlsxError) {
       console.error('XLSX parsing error:', xlsxError);
       return res.status(400).json({ success: false, message: 'Failed to parse Excel file' });
@@ -707,16 +696,7 @@ exports.getFileData = async (req, res) => {
     }
 
     // Parse the specific file data
-    const result = base64ToBuffer(file.fileData);
-    const buffer = result.buffer;
-
-    let workbook;
-    if (file.fileType && file.fileType.includes('csv')) {
-      const csvData = buffer.toString('utf8');
-      workbook = XLSX.read(csvData, { type: 'string' });
-    } else {
-      workbook = XLSX.read(buffer, { type: 'buffer' });
-    }
+    const workbook = getWorkbook(file.fileData, file.fileType);
     
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
@@ -802,16 +782,7 @@ exports.updateFileCredits = async (req, res) => {
     // Update the file data with new credits
     if (file.fileData) {
       try {
-        const result = base64ToBuffer(file.fileData);
-        const buffer = result.buffer;
-
-        let workbook;
-        if (file.fileType && file.fileType.includes('csv')) {
-          const csvData = buffer.toString('utf8');
-          workbook = XLSX.read(csvData, { type: 'string' });
-        } else {
-          workbook = XLSX.read(buffer, { type: 'buffer' });
-        }
+        const workbook = getWorkbook(file.fileData, file.fileType);
         
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
@@ -835,18 +806,31 @@ exports.updateFileCredits = async (req, res) => {
         const newWorkbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, sheetName);
         
-        let newBuffer;
-        let mimeType;
-        if (file.fileType && file.fileType.includes('csv')) {
-          const csvOutput = XLSX.utils.sheet_to_csv(newWorksheet);
-          newBuffer = Buffer.from(csvOutput, 'utf8');
-          mimeType = 'text/csv';
+        if (file.fileData.startsWith('/uploads/')) {
+          const path = require('path');
+          const fs = require('fs');
+          const absolutePath = path.join(__dirname, '..', file.fileData);
+          
+          if (file.fileType && file.fileType.includes('csv')) {
+            const csvOutput = XLSX.utils.sheet_to_csv(newWorksheet);
+            fs.writeFileSync(absolutePath, csvOutput, 'utf8');
+          } else {
+            XLSX.writeFile(newWorkbook, absolutePath);
+          }
         } else {
-          newBuffer = XLSX.write(newWorkbook, { type: 'buffer', bookType: 'xlsx' });
-          mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          let newBuffer;
+          let mimeType;
+          if (file.fileType && file.fileType.includes('csv')) {
+            const csvOutput = XLSX.utils.sheet_to_csv(newWorksheet);
+            newBuffer = Buffer.from(csvOutput, 'utf8');
+            mimeType = 'text/csv';
+          } else {
+            newBuffer = XLSX.write(newWorkbook, { type: 'buffer', bookType: 'xlsx' });
+            mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          }
+          
+          file.fileData = `data:${mimeType};base64,${newBuffer.toString('base64')}`;
         }
-        
-        file.fileData = `data:${mimeType};base64,${newBuffer.toString('base64')}`;
       } catch (fileError) {
         console.error('Error updating file data with credits:', fileError);
       }
@@ -919,16 +903,7 @@ exports.processFileApproval = async (req, res) => {
     }
 
     // Parse the specific file
-    const result = base64ToBuffer(file.fileData);
-    const buffer = result.buffer;
-
-    let workbook;
-    if (file.fileType && file.fileType.includes('csv')) {
-      const csvData = buffer.toString('utf8');
-      workbook = XLSX.read(csvData, { type: 'string' });
-    } else {
-      workbook = XLSX.read(buffer, { type: 'buffer' });
-    }
+    const workbook = getWorkbook(file.fileData, file.fileType);
     
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
@@ -1244,7 +1219,7 @@ exports.resubmitFile = async (req, res) => {
 
     // Validate file content
     const { validateExcelContent } = require('../middlewares/upload');
-    const validation = validateExcelContent(req.file.buffer, req.file.mimetype);
+    const validation = validateExcelContent(req.file.path, req.file.mimetype);
     
     if (!validation.valid) {
       return res.status(400).json({ 
@@ -1255,13 +1230,7 @@ exports.resubmitFile = async (req, res) => {
 
     // Check for duplicate emails and IDs
     const XLSX = require('xlsx');
-    let workbook;
-    if (req.file.mimetype.includes('csv')) {
-      const csvData = req.file.buffer.toString('utf8');
-      workbook = XLSX.read(csvData, { type: 'string' });
-    } else {
-      workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
-    }
+    const workbook = XLSX.readFile(req.file.path);
     
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
@@ -1315,8 +1284,7 @@ exports.resubmitFile = async (req, res) => {
       });
     }
 
-    const { fileToBase64 } = require('../middlewares/upload');
-    const studentData = fileToBase64(req.file);
+    const studentDataPath = `/uploads/${req.file.filename}`;
     
     // Update the rejected file with new data
     await Placement.findOneAndUpdate(
@@ -1327,7 +1295,7 @@ exports.resubmitFile = async (req, res) => {
           'fileHistory.$.customName': customFileName && customFileName.trim() ? customFileName.trim() : file.customName,
           'fileHistory.$.university': university && university.trim() ? university.trim() : file.university,
           'fileHistory.$.batch': batch && batch.trim() ? batch.trim() : file.batch,
-          'fileHistory.$.fileData': studentData,
+          'fileHistory.$.fileData': studentDataPath,
           'fileHistory.$.fileType': req.file.mimetype,
           'fileHistory.$.status': 'pending',
           'fileHistory.$.isResubmitted': true,
@@ -1384,16 +1352,7 @@ exports.viewFileData = async (req, res) => {
     }
 
     // Parse the specific file data
-    const result = base64ToBuffer(file.fileData);
-    const buffer = result.buffer;
-
-    let workbook;
-    if (file.fileType && file.fileType.includes('csv')) {
-      const csvData = buffer.toString('utf8');
-      workbook = XLSX.read(csvData, { type: 'string' });
-    } else {
-      workbook = XLSX.read(buffer, { type: 'buffer' });
-    }
+    const workbook = getWorkbook(file.fileData, file.fileType);
     
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
@@ -1556,76 +1515,18 @@ exports.getPlacementCandidates = async (req, res) => {
 exports.uploadLogo = async (req, res) => {
   try {
     const placementId = req.user.id;
-    const { logo } = req.body;
     
-    if (!logo) {
-      return res.status(400).json({ success: false, message: 'Logo data is required' });
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Logo file is required' });
     }
     
-    // Validate image format
-    if (!logo.startsWith('data:image/')) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid image format. Please upload a valid image file (JPG, PNG, GIF, etc.)' 
-      });
-    }
-    
-    // Extract base64 data and validate size
-    const base64Data = logo.split(',')[1];
-    if (!base64Data) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid image data. Please try uploading the image again.' 
-      });
-    }
-    
-    // Calculate image size (base64 is ~33% larger than actual file)
-    const sizeInBytes = (base64Data.length * 3) / 4;
-    const sizeInMB = sizeInBytes / (1024 * 1024);
-    
-    // Check if image is too large (max 5MB)
-    if (sizeInMB > 5) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `College logo image is too large (${sizeInMB.toFixed(2)}MB). Please upload an image smaller than 5MB. You can compress the image using online tools or reduce its dimensions.` 
-      });
-    }
-    
-    // Check if image is too small (min 1KB)
-    if (sizeInBytes < 1024) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'College logo image is too small or corrupted. Please upload a valid image file.' 
-      });
-    }
-    
-    // Validate image dimensions by checking if it's a valid image
-    try {
-      const buffer = Buffer.from(base64Data, 'base64');
-      // Basic validation - check if buffer has image header signatures
-      const isPNG = buffer[0] === 0x89 && buffer[1] === 0x50;
-      const isJPEG = buffer[0] === 0xFF && buffer[1] === 0xD8;
-      const isGIF = buffer[0] === 0x47 && buffer[1] === 0x49;
-      const isWebP = buffer[8] === 0x57 && buffer[9] === 0x45;
-      
-      if (!isPNG && !isJPEG && !isGIF && !isWebP) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'College logo file is not a valid image. Please upload a proper image file (JPG, PNG, GIF, or WebP format).' 
-        });
-      }
-    } catch (bufferError) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Failed to process college logo image. The file may be corrupted. Please try a different image.' 
-      });
-    }
+    const logoPath = `/uploads/${req.file.filename}`;
     
     await Placement.findByIdAndUpdate(placementId, {
-      $set: { logo: logo }
+      $set: { logo: logoPath }
     });
     
-    res.json({ success: true, message: 'College logo uploaded successfully' });
+    res.json({ success: true, message: 'College logo uploaded successfully', logo: logoPath });
   } catch (error) {
     console.error('Error uploading logo:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -1636,76 +1537,18 @@ exports.uploadLogo = async (req, res) => {
 exports.uploadIdCard = async (req, res) => {
   try {
     const placementId = req.user.id;
-    const { idCard } = req.body;
     
-    if (!idCard) {
-      return res.status(400).json({ success: false, message: 'ID card data is required' });
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'ID card file is required' });
     }
     
-    // Validate image format
-    if (!idCard.startsWith('data:image/')) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid image format. Please upload a valid image file (JPG, PNG, GIF, etc.)' 
-      });
-    }
-    
-    // Extract base64 data and validate size
-    const base64Data = idCard.split(',')[1];
-    if (!base64Data) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid image data. Please try uploading the image again.' 
-      });
-    }
-    
-    // Calculate image size (base64 is ~33% larger than actual file)
-    const sizeInBytes = (base64Data.length * 3) / 4;
-    const sizeInMB = sizeInBytes / (1024 * 1024);
-    
-    // Check if image is too large (max 5MB)
-    if (sizeInMB > 5) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `ID card image is too large (${sizeInMB.toFixed(2)}MB). Please upload an image smaller than 5MB. You can compress the image using online tools or reduce its dimensions.` 
-      });
-    }
-    
-    // Check if image is too small (min 1KB)
-    if (sizeInBytes < 1024) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'ID card image is too small or corrupted. Please upload a valid image file.' 
-      });
-    }
-    
-    // Validate image dimensions by checking if it's a valid image
-    try {
-      const buffer = Buffer.from(base64Data, 'base64');
-      // Basic validation - check if buffer has image header signatures
-      const isPNG = buffer[0] === 0x89 && buffer[1] === 0x50;
-      const isJPEG = buffer[0] === 0xFF && buffer[1] === 0xD8;
-      const isGIF = buffer[0] === 0x47 && buffer[1] === 0x49;
-      const isWebP = buffer[8] === 0x57 && buffer[9] === 0x45;
-      
-      if (!isPNG && !isJPEG && !isGIF && !isWebP) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'ID card file is not a valid image. Please upload a proper image file (JPG, PNG, GIF, or WebP format).' 
-        });
-      }
-    } catch (bufferError) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Failed to process ID card image. The file may be corrupted. Please try a different image.' 
-      });
-    }
+    const idCardPath = `/uploads/${req.file.filename}`;
     
     await Placement.findByIdAndUpdate(placementId, {
-      $set: { idCard: idCard }
+      $set: { idCard: idCardPath }
     });
     
-    res.json({ success: true, message: 'ID card uploaded successfully' });
+    res.json({ success: true, message: 'ID card uploaded successfully', idCard: idCardPath });
   } catch (error) {
     console.error('Error uploading ID card:', error);
     res.status(500).json({ success: false, message: error.message });

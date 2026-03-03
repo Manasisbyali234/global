@@ -19,8 +19,17 @@ const diskStorage = multer.diskStorage({
   }
 });
 
-// Store files in memory for Base64 conversion
-const storage = multer.memoryStorage();
+// General disk storage for all uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const prefix = file.fieldname || 'file';
+    cb(null, prefix + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
 
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === 'resume') {
@@ -170,16 +179,29 @@ const fileToBase64 = (file) => {
 };
 
 // Helper function to validate Excel/CSV content
-const validateExcelContent = (buffer, mimetype) => {
+const validateExcelContent = (source, mimetype) => {
   try {
     const XLSX = require('xlsx');
     let workbook;
     
+    // Check if source is a buffer or a file path
+    const isBuffer = Buffer.isBuffer(source);
+    
     if (mimetype.includes('csv')) {
-      const csvData = buffer.toString('utf8');
-      workbook = XLSX.read(csvData, { type: 'string' });
+      if (isBuffer) {
+        const csvData = source.toString('utf8');
+        workbook = XLSX.read(csvData, { type: 'string' });
+      } else {
+        // Assume source is a file path
+        workbook = XLSX.readFile(source);
+      }
     } else {
-      workbook = XLSX.read(buffer, { type: 'buffer' });
+      if (isBuffer) {
+        workbook = XLSX.read(source, { type: 'buffer' });
+      } else {
+        // Assume source is a file path
+        workbook = XLSX.readFile(source);
+      }
     }
     
     const sheetName = workbook.SheetNames[0];

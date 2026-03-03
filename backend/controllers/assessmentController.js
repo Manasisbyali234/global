@@ -593,8 +593,8 @@ exports.uploadFileAnswer = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Question is not an upload type' });
     }
     
-    // Convert file to Base64
-    const base64File = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    // Store file path
+    const filePath = req.file.path;
     
     const existingAnswerIndex = attempt.answers.findIndex(a => a.questionIndex === parseInt(questionIndex));
     const answerData = {
@@ -602,11 +602,11 @@ exports.uploadFileAnswer = async (req, res) => {
       selectedAnswer: null,
       textAnswer: null,
       uploadedFile: {
-        filename: req.file.originalname,
+        filename: req.file.filename,
         originalName: req.file.originalname,
         mimetype: req.file.mimetype,
         size: req.file.size,
-        data: base64File, // Store Base64 data instead of path
+        path: filePath, // Store file path instead of Base64
         uploadedAt: new Date()
       },
       timeSpent: timeSpent || 0,
@@ -673,8 +673,8 @@ exports.uploadCapture = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Assessment is not in progress' });
     }
     
-    // Convert image to Base64
-    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    // Store file path
+    const filePath = req.file.path;
     
     if (!attempt.captures) {
       attempt.captures = [];
@@ -689,10 +689,10 @@ exports.uploadCapture = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Maximum captures reached' });
     }
     
-    attempt.captures.push(base64Image);
+    attempt.captures.push(filePath);
     await attempt.save();
     
-    console.log('✅ Capture uploaded successfully as Base64:', {
+    console.log('✅ Capture uploaded successfully as file path:', {
       attemptId,
       totalCaptures: attempt.captures.length,
       fileSize: req.file.size
@@ -700,7 +700,7 @@ exports.uploadCapture = async (req, res) => {
     
     res.json({ 
       success: true, 
-      captureData: base64Image,
+      captureData: filePath,
       captureCount: attempt.captures.length,
       message: `Capture ${attempt.captures.length}/5 uploaded successfully`
     });
@@ -1145,11 +1145,7 @@ exports.uploadQuestionImage = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No image uploaded' });
     }
     
-    const fs = require('fs');
-    const imageBuffer = fs.readFileSync(req.file.path);
-    const base64Image = `data:${req.file.mimetype};base64,${imageBuffer.toString('base64')}`;
-    fs.unlinkSync(req.file.path);
-    const imageUrl = base64Image;
+    const imageUrl = `/uploads/${req.file.filename}`;
     res.json({ success: true, imageUrl });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -1163,11 +1159,7 @@ exports.uploadOptionImage = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No image uploaded' });
     }
     
-    const fs = require('fs');
-    const imageBuffer = fs.readFileSync(req.file.path);
-    const base64Image = `data:${req.file.mimetype};base64,${imageBuffer.toString('base64')}`;
-    fs.unlinkSync(req.file.path);
-    const imageUrl = base64Image;
+    const imageUrl = `/uploads/${req.file.filename}`;
     res.json({ success: true, imageUrl });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

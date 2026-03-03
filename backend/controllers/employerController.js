@@ -427,25 +427,24 @@ exports.uploadLogo = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    const { fileToBase64 } = require('../middlewares/upload');
-    const logoBase64 = fileToBase64(req.file);
+    const logoPath = `/uploads/${req.file.filename}`;
 
     await Promise.all([
       EmployerPublicProfile.findOneAndUpdate(
         { employerId: req.user._id },
-        { logo: logoBase64 },
+        { logo: logoPath },
         { new: true, upsert: true }
       ),
       EmployerProfile.findOneAndUpdate(
         { employerId: req.user._id },
-        { logo: logoBase64 },
+        { logo: logoPath },
         { new: true, upsert: true }
       )
     ]);
 
     cacheInvalidation.clearEmployerGridCaches();
 
-    res.json({ success: true, logo: logoBase64 });
+    res.json({ success: true, logo: logoPath });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -457,25 +456,24 @@ exports.uploadCover = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    const { fileToBase64 } = require('../middlewares/upload');
-    const coverBase64 = fileToBase64(req.file);
+    const coverPath = `/uploads/${req.file.filename}`;
 
     await Promise.all([
       EmployerPublicProfile.findOneAndUpdate(
         { employerId: req.user._id },
-        { coverImage: coverBase64 },
+        { coverImage: coverPath },
         { new: true, upsert: true }
       ),
       EmployerProfile.findOneAndUpdate(
         { employerId: req.user._id },
-        { coverImage: coverBase64 },
+        { coverImage: coverPath },
         { new: true, upsert: true }
       )
     ]);
 
     cacheInvalidation.clearEmployerGridCaches();
 
-    res.json({ success: true, coverImage: coverBase64 });
+    res.json({ success: true, coverImage: coverPath });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -487,7 +485,6 @@ exports.uploadDocument = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    const { fileToBase64 } = require('../middlewares/upload');
     const { fieldName } = req.body;
     
     // Mapping for document verification fields and reupload timestamps
@@ -512,8 +509,8 @@ exports.uploadDocument = async (req, res) => {
       }
     }
 
-    const documentBase64 = fileToBase64(req.file);
-    const updateData = { [fieldName]: documentBase64 };
+    const documentPath = `/uploads/${req.file.filename}`;
+    const updateData = { [fieldName]: documentPath };
 
     if (documentStatusMap[fieldName]) {
       const { status, reuploadedAt } = documentStatusMap[fieldName];
@@ -565,7 +562,7 @@ exports.uploadDocument = async (req, res) => {
 
     cacheInvalidation.clearEmployerGridCaches();
 
-    res.json({ success: true, filePath: documentBase64 });
+    res.json({ success: true, filePath: documentPath });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -577,8 +574,7 @@ exports.uploadAuthorizationLetter = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    const { fileToBase64 } = require('../middlewares/upload');
-    const documentBase64 = fileToBase64(req.file);
+    const documentPath = `/uploads/${req.file.filename}`;
     const companyName = req.body.companyName || '';
     
     const adminProfile = await EmployerAdminProfile.findOne({ employerId: req.user._id });
@@ -595,7 +591,7 @@ exports.uploadAuthorizationLetter = async (req, res) => {
       // Replace the existing rejected document
       const updatedDocument = {
         fileName: req.file.originalname,
-        fileData: documentBase64,
+        fileData: documentPath,
         uploadedAt: new Date(),
         companyName: companyName,
         status: 'pending',
@@ -620,7 +616,7 @@ exports.uploadAuthorizationLetter = async (req, res) => {
       // Create new document
       const newDocument = {
         fileName: req.file.originalname,
-        fileData: documentBase64,
+        fileData: documentPath,
         uploadedAt: new Date(),
         companyName: companyName,
         status: 'pending',
@@ -712,7 +708,6 @@ exports.uploadGallery = async (req, res) => {
       });
     }
 
-    const { fileToBase64 } = require('../middlewares/upload');
     const publicProfile = await EmployerPublicProfile.findOne({ employerId: req.user._id });
     const currentGallery = publicProfile?.gallery || [];
 
@@ -723,24 +718,12 @@ exports.uploadGallery = async (req, res) => {
       });
     }
 
-    const newImages = [];
-    for (const file of req.files) {
-      try {
-        const base64Data = fileToBase64(file);
-        newImages.push({
-          url: base64Data,
-          fileName: file.originalname,
-          uploadedAt: new Date(),
-          fileSize: file.size
-        });
-      } catch (conversionError) {
-        console.error(`Error converting file ${file.originalname}:`, conversionError);
-        return res.status(500).json({ 
-          success: false, 
-          message: `Failed to process file: ${file.originalname}. Please try with a smaller file.` 
-        });
-      }
-    }
+    const newImages = req.files.map(file => ({
+      url: `/uploads/${file.filename}`,
+      fileName: file.originalname,
+      uploadedAt: new Date(),
+      fileSize: file.size
+    }));
 
     const [updatedPublicProfile] = await Promise.all([
       EmployerPublicProfile.findOneAndUpdate(

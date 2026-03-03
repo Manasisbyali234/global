@@ -36,14 +36,14 @@ const employerProfileSchema = new mongoose.Schema({
   gstNumber: { type: String },
   industrySector: { type: String },
   panNumber: { type: String },
-  panCardImage: { type: String }, // Base64 encoded image
-  cinImage: { type: String }, // Base64 encoded image
-  gstImage: { type: String }, // Base64 encoded image
-  certificateOfIncorporation: { type: String }, // Base64 encoded document
-  authorizationLetter: { type: String }, // Base64 encoded document (legacy)
+  panCardImage: { type: String }, // File path to PAN card image
+  cinImage: { type: String }, // File path to CIN image
+  gstImage: { type: String }, // File path to GST image
+  certificateOfIncorporation: { type: String }, // File path to incorporation document
+  authorizationLetter: { type: String }, // File path to authorization letter (legacy)
   authorizationLetters: [{
     fileName: { type: String },
-    fileData: { type: String }, // Base64 encoded document
+    fileData: { type: String }, // File path to authorization letter document
     uploadedAt: { type: Date, default: Date.now },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
     isResubmitted: { type: Boolean, default: false }, // Track if document was resubmitted after rejection
@@ -76,7 +76,7 @@ const employerProfileSchema = new mongoose.Schema({
   contactDesignation: { type: String },
   contactOfficialEmail: { type: String },
   contactMobile: { type: String },
-  companyIdCardPicture: { type: String }, // Base64 encoded image
+  companyIdCardPicture: { type: String }, // File path to ID card image
   alternateContact: { type: String },
   employerCode: { type: String }, // Employer code for primary contact
   
@@ -89,8 +89,8 @@ const employerProfileSchema = new mongoose.Schema({
   
   // Legacy fields
   companyDescription: { type: String },
-  logo: { type: String }, // Base64 encoded image
-  coverImage: { type: String }, // Base64 encoded image
+  logo: { type: String }, // File path to logo image
+  coverImage: { type: String }, // File path to cover image
   industry: { type: String },
   companySize: { type: String, enum: ['1-10', '11-50', '51-200', '201-500', '500+'] },
   location: { type: String },

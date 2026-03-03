@@ -267,8 +267,7 @@ exports.updateProfile = async (req, res) => {
     if (middleName !== undefined) updateData.middleName = middleName.trim();
     if (lastName !== undefined) updateData.lastName = lastName.trim();
     if (req.file) {
-      const { fileToBase64 } = require('../middlewares/upload');
-      updateData.profilePicture = fileToBase64(req.file);
+      updateData.profilePicture = `/uploads/${req.file.filename}`;
     }
     
     // Handle skills validation - remove duplicates and empty values
@@ -405,13 +404,12 @@ exports.uploadResume = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Only PDF, DOC, and DOCX files are allowed' });
     }
 
-    const { fileToBase64 } = require('../middlewares/upload');
-    const resumeBase64 = fileToBase64(req.file);
+    const resumePath = `/uploads/${req.file.filename}`;
 
     const profile = await CandidateProfile.findOneAndUpdate(
       { candidateId: req.user._id },
       {
-        resume: resumeBase64,
+        resume: resumePath,
         resumeFileName: req.file.originalname,
         resumeMimeType: req.file.mimetype
       },
@@ -434,7 +432,7 @@ exports.uploadResume = async (req, res) => {
     }
 
     console.log('Resume upload successful');
-    res.json({ success: true, resume: resumeBase64, profile, profileCompletion: completionPercentage, profileCompletionDetails });
+    res.json({ success: true, resume: resumePath, profile, profileCompletion: completionPercentage, profileCompletionDetails });
   } catch (error) {
     console.error('Resume upload error:', error);
     
@@ -528,10 +526,9 @@ exports.uploadMarksheet = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Only PDF and image files are allowed for marksheet' });
     }
 
-    const { fileToBase64 } = require('../middlewares/upload');
-    const marksheetBase64 = fileToBase64(req.file);
+    const marksheetPath = `/uploads/${req.file.filename}`;
 
-    res.json({ success: true, filePath: marksheetBase64 });
+    res.json({ success: true, filePath: marksheetPath });
   } catch (error) {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({ success: false, message: 'File uploaded successfully' }); // No size limit for marksheet
@@ -561,10 +558,9 @@ exports.uploadEducationDocument = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Only PDF files are allowed' });
     }
 
-    const { fileToBase64 } = require('../middlewares/upload');
-    const documentBase64 = fileToBase64(req.file);
+    const documentPath = `/uploads/${req.file.filename}`;
 
-    res.json({ success: true, document: documentBase64 });
+    res.json({ success: true, document: documentPath });
   } catch (error) {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({ success: false, message: 'File size must be less than 50MB' });
@@ -577,7 +573,7 @@ exports.uploadEducationDocument = async (req, res) => {
 exports.updateEducationWithMarksheet = async (req, res) => {
   try {
     const { educationIndex, educationData } = req.body;
-    let marksheetBase64 = null;
+    let marksheetPath = null;
 
     if (req.file) {
       // Additional file validation - 50MB limit for education documents
@@ -589,8 +585,7 @@ exports.updateEducationWithMarksheet = async (req, res) => {
         });
       }
 
-      const { fileToBase64 } = require('../middlewares/upload');
-      marksheetBase64 = fileToBase64(req.file);
+      marksheetPath = `/uploads/${req.file.filename}`;
     }
 
     // Get current profile
@@ -612,8 +607,8 @@ exports.updateEducationWithMarksheet = async (req, res) => {
     }
 
     // Add marksheet to education data if uploaded
-    if (marksheetBase64) {
-      parsedEducationData.marksheet = marksheetBase64;
+    if (marksheetPath) {
+      parsedEducationData.marksheet = marksheetPath;
     }
 
     // Update the specific education entry
@@ -635,7 +630,7 @@ exports.updateEducationWithMarksheet = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    res.json({ success: true, profile: updatedProfile, marksheet: marksheetBase64 });
+    res.json({ success: true, profile: updatedProfile, marksheet: marksheetPath });
   } catch (error) {
     console.error('Error updating education with marksheet:', error);
     
@@ -1553,7 +1548,7 @@ exports.addEducation = async (req, res) => {
       return res.status(400).json({ success: false, message: 'All required fields must be provided' });
     }
 
-    let marksheetBase64 = null;
+    let marksheetPath = null;
     if (req.file) {
       // Additional file validation - 50MB limit for education documents
       const maxSize = 50 * 1024 * 1024; // 50MB
@@ -1564,8 +1559,7 @@ exports.addEducation = async (req, res) => {
         });
       }
 
-      const { fileToBase64 } = require('../middlewares/upload');
-      marksheetBase64 = fileToBase64(req.file);
+      marksheetPath = `/uploads/${req.file.filename}`;
     }
 
     const educationData = {
@@ -1576,7 +1570,7 @@ exports.addEducation = async (req, res) => {
       cgpa,
       sgpa,
       grade,
-      marksheet: marksheetBase64
+      marksheet: marksheetPath
     };
 
     const profile = await CandidateProfile.findOneAndUpdate(

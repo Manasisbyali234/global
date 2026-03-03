@@ -1054,8 +1054,6 @@ exports.submitSupportTicket = async (req, res) => {
     }
     let attachments = [];
     if (req.files && req.files.length > 0) {
-      const { fileToBase64 } = require('../middlewares/upload');
-      
       // Check total file size
       const totalSize = req.files.reduce((sum, file) => sum + file.size, 0);
       const maxTotalSize = 30 * 1024 * 1024; // 30MB total limit
@@ -1081,15 +1079,15 @@ exports.submitSupportTicket = async (req, res) => {
         attachments = req.files.map(file => ({
           filename: file.originalname,
           originalName: file.originalname,
-          data: fileToBase64(file),
+          data: `/uploads/${file.filename}`,
           size: file.size,
           mimetype: file.mimetype
         }));
       } catch (conversionError) {
-        console.error('File conversion error:', conversionError);
+        console.error('File process error:', conversionError);
         return res.status(400).json({
           success: false,
-          message: 'Failed to process uploaded files. Please try with smaller files.'
+          message: 'Failed to process uploaded files. Please try again.'
         });
       }
     }
