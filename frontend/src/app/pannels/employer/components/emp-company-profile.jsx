@@ -14,6 +14,12 @@ import '../../../../remove-profile-hover-effects.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 import ConfirmationDialog from '../../../../components/ConfirmationDialog';
 function EmpCompanyProfilePage() {
+    const API_BASE_URL = process.env.REACT_APP_API_URL
+        || (window.location.hostname === 'localhost'
+            ? 'http://localhost:5000/api'
+            : `${window.location.origin}/api`);
+    const BACKEND_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, '');
+
     const {
         isResizerOpen,
         currentImage,
@@ -127,13 +133,12 @@ function EmpCompanyProfilePage() {
     });
 
     const getImagePreviewSrc = (imageValue) => {
-        const backendBaseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
         if (!imageValue || typeof imageValue !== 'string') return '';
         if (imageValue.startsWith('data:')) return imageValue;
         if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) return imageValue;
         if (imageValue.startsWith('/uploads') || imageValue.startsWith('uploads/')) {
             const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
-            return `${backendBaseUrl}${normalizedPath}`;
+            return `${BACKEND_BASE_URL}${normalizedPath}`;
         }
         return `data:image/jpeg;base64,${imageValue}`;
     };
@@ -162,7 +167,7 @@ function EmpCompanyProfilePage() {
                 return;
             }
             
-            const data = await safeApiCall('http://localhost:5000/api/employer/profile', {
+            const data = await safeApiCall(`${API_BASE_URL}/employer/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -470,7 +475,7 @@ function EmpCompanyProfilePage() {
                 return;
             }
             
-            const response = await fetch(`http://localhost:5000/api/employer/gst/${gstNumber}`, {
+            const response = await fetch(`${API_BASE_URL}/employer/gst/${gstNumber}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -631,7 +636,7 @@ function EmpCompanyProfilePage() {
                 return;
             }
             
-            const response = await fetch('http://localhost:5000/api/employer/profile/document', {
+            const response = await fetch(`${API_BASE_URL}/employer/profile/document`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -682,7 +687,7 @@ function EmpCompanyProfilePage() {
                 return;
             }
             
-            const uploadResponse = await fetch('http://localhost:5000/api/employer/profile/document', {
+            const uploadResponse = await fetch(`${API_BASE_URL}/employer/profile/document`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -745,7 +750,7 @@ function EmpCompanyProfilePage() {
                 return;
             }
             
-            const response = await fetch('http://localhost:5000/api/employer/profile/authorization-letter', {
+            const response = await fetch(`${API_BASE_URL}/employer/profile/authorization-letter`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -781,7 +786,7 @@ function EmpCompanyProfilePage() {
                 return;
             }
             
-            const data = await safeApiCall(`http://localhost:5000/api/employer/profile/authorization-letter/${documentId}`, {
+            const data = await safeApiCall(`${API_BASE_URL}/employer/profile/authorization-letter/${documentId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -837,7 +842,7 @@ function EmpCompanyProfilePage() {
             const formDataObj = new FormData();
             files.forEach(file => formDataObj.append('gallery', file));
 
-            const response = await fetch('http://localhost:5000/api/employer/profile/gallery', {
+            const response = await fetch(`${API_BASE_URL}/employer/profile/gallery`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formDataObj
@@ -867,7 +872,7 @@ function EmpCompanyProfilePage() {
             formDataObj.append('gallery', blob, originalFileName);
 
             const token = localStorage.getItem('employerToken');
-            const uploadResponse = await fetch('http://localhost:5000/api/employer/profile/gallery', {
+            const uploadResponse = await fetch(`${API_BASE_URL}/employer/profile/gallery`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formDataObj
@@ -896,7 +901,7 @@ function EmpCompanyProfilePage() {
         
         try {
             const token = localStorage.getItem('employerToken');
-            const response = await fetch(`http://localhost:5000/api/employer/profile/gallery/${imageToDelete}`, {
+            const response = await fetch(`${API_BASE_URL}/employer/profile/gallery/${imageToDelete}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -992,7 +997,7 @@ function EmpCompanyProfilePage() {
                 });
                 
                 // Update authorization letters with company names
-                await fetch('http://localhost:5000/api/employer/profile/update-authorization-companies', {
+                await fetch(`${API_BASE_URL}/employer/profile/update-authorization-companies`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1065,7 +1070,7 @@ function EmpCompanyProfilePage() {
             console.log('Full googleMapsEmbed:', profileData.googleMapsEmbed);
             console.log('All profile data keys:', Object.keys(profileData));
             
-            const data = await safeApiCall('http://localhost:5000/api/employer/profile', {
+            const data = await safeApiCall(`${API_BASE_URL}/employer/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
