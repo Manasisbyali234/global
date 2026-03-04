@@ -3868,7 +3868,6 @@ export default function EmpPostJob({ onNext }) {
 															}
 														}}
 													>
-														<i className="fa fa-eye" style={{fontSize: 16}} />
 													</div>
 												</div>
 											</div>
