@@ -14,9 +14,7 @@ const NOTICE_PERIOD_OPTIONS = [
 const EmploymentCard = ({ 
     emp, 
     index, 
-    isOnly, 
     onUpdate, 
-    onDelete,
     autoOpen 
 }) => {
     const [isOpen, setIsOpen] = useState(index === 0 || autoOpen);
@@ -45,19 +43,6 @@ const EmploymentCard = ({
                     </h4>
                 </div>
                 <div className="d-flex align-items-center">
-                    {!isOnly && (
-                        <button 
-                            type="button"
-                            className="btn btn-link text-danger p-0 me-3 delete-btn" 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onDelete(index);
-                            }}
-                        >
-                            <i className="fa fa-trash-alt me-1"></i>
-                            <span className="delete-btn-text">Delete</span>
-                        </button>
-                    )}
                     <i className={`fa ${isOpen ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
                 </div>
             </div>
@@ -264,10 +249,53 @@ function SectionCanEmployment({ profile, onUpdate }) {
         setEmploymentList(newList);
     };
 
-    const handleDelete = (index) => {
-        if (employmentList.length > 1) {
-            const newList = employmentList.filter((_, i) => i !== index);
-            setEmploymentList(newList);
+    const handleDeleteFromTable = async (index) => {
+        if (!window.confirm("Are you sure you want to delete this employment entry?")) {
+            return;
+        }
+
+        const previousList = [...employmentList];
+        const emptyEmploymentRow = {
+            organizationName: "",
+            designation: "",
+            isCurrentCompany: false,
+            yearsOfExperience: 0,
+            monthsOfExperience: 0,
+            presentCTC: "",
+            expectedCTC: "",
+            noticePeriod: "",
+            customNoticePeriod: "",
+            description: "",
+            projectDetails: ""
+        };
+
+        const updatedList = employmentList.length <= 1
+            ? [emptyEmploymentRow]
+            : employmentList.filter((_, i) => i !== index);
+        setEmploymentList(updatedList);
+        setLoading(true);
+
+        try {
+            const response = await api.updateCandidateProfile({
+                employment: updatedList.map(emp => ({
+                    ...emp,
+                    organization: emp.organizationName || emp.organization
+                }))
+            });
+
+            if (response && (response.success || response.candidate)) {
+                showSuccess("Employment entry deleted successfully!");
+                if (onUpdate) onUpdate();
+                window.dispatchEvent(new CustomEvent('profileUpdated'));
+            } else {
+                setEmploymentList(previousList);
+                showError(response?.message || "Failed to delete employment entry");
+            }
+        } catch (error) {
+            setEmploymentList(previousList);
+            showError("An error occurred while deleting employment entry");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -393,14 +421,18 @@ function SectionCanEmployment({ profile, onUpdate }) {
                                     <th>Compensation (Annual)</th>
                                     <th>Notice Period</th>
                                     <th className="text-center">Details</th>
+                                    <th className="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {[...employmentList].sort((a, b) => {
-                                    if (a.isCurrentCompany) return -1;
-                                    if (b.isCurrentCompany) return 1;
-                                    return 0; // Maintain relative order for previous companies
-                                }).map((emp, index) => (
+                                {employmentList
+                                    .map((emp, originalIndex) => ({ emp, originalIndex }))
+                                    .sort((a, b) => {
+                                        if (a.emp.isCurrentCompany) return -1;
+                                        if (b.emp.isCurrentCompany) return 1;
+                                        return 0; // Maintain relative order for previous companies
+                                    })
+                                    .map(({ emp, originalIndex }, index) => (
                                     <tr key={index} className={emp.isCurrentCompany ? 'table-success-light' : ''}>
                                         <td>
                                             <div className="font-weight-bold text-primary">
@@ -436,6 +468,17 @@ function SectionCanEmployment({ profile, onUpdate }) {
                                                 </button>
                                             ) : "—"}
                                         </td>
+                                        <td className="text-center">
+                                            <button
+                                                type="button"
+                                                className="btn btn-link p-0 text-danger"
+                                                onClick={() => handleDeleteFromTable(originalIndex)}
+                                                disabled={loading}
+                                                title="Delete entry"
+                                            >
+                                                <i className="fa fa-trash-alt" style={{fontSize: '17px'}}></i>
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -449,9 +492,7 @@ function SectionCanEmployment({ profile, onUpdate }) {
                                     key={index}
                                     emp={emp}
                                     index={index}
-                                    isOnly={employmentList.length === 1}
                                     onUpdate={handleUpdate}
-                                    onDelete={handleDelete}
                                     autoOpen={index === newCardIndex}
                                 />
                             ))}
@@ -522,3 +563,4 @@ function SectionCanEmployment({ profile, onUpdate }) {
 }
 
 export default memo(SectionCanEmployment);
+

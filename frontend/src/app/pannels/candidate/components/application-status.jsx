@@ -1074,7 +1074,9 @@ function CanStatusPage() {
 										<i className="fa fa-tasks me-2" style={{color: '#ff6b35'}}></i>
 										Interview Rounds
 									</h6>
-									{getInterviewRounds(selectedApplication.jobId, selectedApplication).map((round, roundIndex) => {
+									{(() => {
+										const roundsList = getInterviewRounds(selectedApplication.jobId, selectedApplication);
+										return roundsList.map((round, roundIndex) => {
 										let roundName = typeof round === 'string' ? round : round.name;
 										const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round.uniqueKey;
 										
@@ -1368,30 +1370,60 @@ function CanStatusPage() {
 													const roundType = typeof round === 'object' ? round.roundType : round.toLowerCase();
 													const roundId = selectedApplication.interviewRoundIds?.[roundType] || uniqueKey;
 													const candidateId = selectedApplication.candidateId;
+													let canBookThisRound = true;
+
+													if (roundIndex > 0) {
+														const previousRound = roundsList[roundIndex - 1];
+														const previousRoundName = typeof previousRound === 'string' ? previousRound : previousRound.name;
+														const previousRoundStatus = getRoundStatus(selectedApplication, roundIndex - 1, previousRoundName, true);
+														const previousStatusText = (previousRoundStatus?.text || '').toLowerCase();
+														const completedStates = ['completed', 'passed', 'failed', 'rejected', 'expired'];
+														canBookThisRound = completedStates.includes(previousStatusText);
+													}
 													
 													return (
 														<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
-															<a 
-																href={`https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`}
-																target="_blank" 
-																rel="noopener noreferrer"
-																className="btn btn-primary"
-																style={{
-																	fontSize: '14px',
-																	padding: '8px 16px',
-																	borderRadius: '6px',
-																	whiteSpace: 'nowrap'
-																}}
-															>
-																<i className="fa fa-calendar me-2" style={{fontSize: '14px'}}></i>
-																Book Your Slot
-															</a>
+															{canBookThisRound ? (
+																<a 
+																	href={`https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`}
+																	target="_blank" 
+																	rel="noopener noreferrer"
+																	className="btn btn-primary"
+																	style={{
+																		fontSize: '14px',
+																		padding: '8px 16px',
+																		borderRadius: '6px',
+																		whiteSpace: 'nowrap'
+																	}}
+																>
+																	<i className="fa fa-calendar me-2" style={{fontSize: '14px'}}></i>
+																	Book Your Slot
+																</a>
+															) : (
+																<button
+																	type="button"
+																	className="btn btn-secondary"
+																	disabled
+																	title="Complete the previous interview round first"
+																	style={{
+																		fontSize: '14px',
+																		padding: '8px 16px',
+																		borderRadius: '6px',
+																		whiteSpace: 'nowrap',
+																		cursor: 'not-allowed'
+																	}}
+																>
+																	<i className="fa fa-lock me-2" style={{fontSize: '14px'}}></i>
+																	Book Your Slot
+																</button>
+															)}
 														</div>
 													);
 												})()}
 											</div>
 										);
-									})}
+									});
+									})()}
 								</div>
 								
 								{/* Overall Employer Remarks */}
