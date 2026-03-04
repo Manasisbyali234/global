@@ -1592,7 +1592,7 @@ exports.updateJob = async (req, res) => {
         if (scheduledNonAssessmentCount < requiredNonAssessmentRounds.length) {
           return res.status(400).json({
             success: false,
-            message: 'please Schedule the interview on Port First to post the Job'
+            message: 'Kindly complete the interview scheduling process before posting the job.'
           });
         }
       }

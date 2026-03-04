@@ -855,7 +855,8 @@ export default function EmpPostJob({ onNext }) {
 		if (field === 'fromDate' && value) {
 			const holidayCheck = await holidaysApi.checkHoliday(value);
 			if (holidayCheck.success && holidayCheck.isHoliday) {
-				showWarning(`Note: ${value} is a public holiday (${holidayCheck.holidayInfo.name}). Consider selecting a different date.`);
+				showWarning(`Note: ${value} is a public holiday (${holidayCheck.holidayInfo.name}). Please consider selecting a different date. Would you like to continue?`
+           );
 			}
 		}
 	};
@@ -1305,7 +1306,7 @@ export default function EmpPostJob({ onNext }) {
 		try {
 			const hasScheduledDataInDb = await verifyDbInterviewScheduling();
 			if (!hasScheduledDataInDb) {
-				showWarning('please Schedule the interview on Port First to post the Job');
+				showWarning('Kindly complete the interview scheduling process before posting the job.');
 				return;
 			}
 		} catch (error) {

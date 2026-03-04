@@ -215,6 +215,8 @@ function SectionCanEmployment({ profile, onUpdate }) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedEmployment, setSelectedEmployment] = useState(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deleteIndex, setDeleteIndex] = useState(null);
 
     const handleViewDetails = (emp) => {
         setSelectedEmployment(emp);
@@ -250,37 +252,21 @@ function SectionCanEmployment({ profile, onUpdate }) {
     };
 
     const handleDeleteFromTable = async (index) => {
-        if (!window.confirm("Are you sure you want to delete this employment entry?")) {
-            return;
-        }
+        setDeleteIndex(index);
+        setShowDeleteConfirm(true);
+    };
 
+    const confirmDelete = async () => {
+        setShowDeleteConfirm(false);
+        const index = deleteIndex;
         const previousList = [...employmentList];
-        const emptyEmploymentRow = {
-            organizationName: "",
-            designation: "",
-            isCurrentCompany: false,
-            yearsOfExperience: 0,
-            monthsOfExperience: 0,
-            presentCTC: "",
-            expectedCTC: "",
-            noticePeriod: "",
-            customNoticePeriod: "",
-            description: "",
-            projectDetails: ""
-        };
-
-        const updatedList = employmentList.length <= 1
-            ? [emptyEmploymentRow]
-            : employmentList.filter((_, i) => i !== index);
+        const updatedList = employmentList.filter((_, i) => i !== index);
         setEmploymentList(updatedList);
         setLoading(true);
 
         try {
             const response = await api.updateCandidateProfile({
-                employment: updatedList.map(emp => ({
-                    ...emp,
-                    organization: emp.organizationName || emp.organization
-                }))
+                employment: updatedList
             });
 
             if (response && (response.success || response.candidate)) {
@@ -296,6 +282,7 @@ function SectionCanEmployment({ profile, onUpdate }) {
             showError("An error occurred while deleting employment entry");
         } finally {
             setLoading(false);
+            setDeleteIndex(null);
         }
     };
 
@@ -412,78 +399,80 @@ function SectionCanEmployment({ profile, onUpdate }) {
             
             <div className="panel-body wt-panel-body p-a20">
                 {!isEditMode ? (
-                    <div className="table-responsive employment-table-container">
-                        <table className="table table-bordered custom-employment-table">
-                            <thead className="table-light">
-                                <tr>
-                                    <th>Organization & Designation</th>
-                                    <th>Experience</th>
-                                    <th>Compensation (Annual)</th>
-                                    <th>Notice Period</th>
-                                    <th className="text-center">Details</th>
-                                    <th className="text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {employmentList
-                                    .map((emp, originalIndex) => ({ emp, originalIndex }))
-                                    .sort((a, b) => {
-                                        if (a.emp.isCurrentCompany) return -1;
-                                        if (b.emp.isCurrentCompany) return 1;
-                                        return 0; // Maintain relative order for previous companies
-                                    })
-                                    .map(({ emp, originalIndex }, index) => (
-                                    <tr key={index} className={emp.isCurrentCompany ? 'table-success-light' : ''}>
-                                        <td>
-                                            <div className="font-weight-bold text-primary">
-                                                {emp.organizationName || emp.organization || 'N/A'}
-                                            </div>
-                                            <div className="small text-muted">{emp.designation || 'N/A'}</div>
-                                            {emp.isCurrentCompany && <span className="badge-current mt-1">Current</span>}
-                                        </td>
-                                        <td style={{fontSize: '13px'}}>
-                                            {emp.yearsOfExperience || 0}y {emp.monthsOfExperience || 0}m
-                                        </td>
-                                        <td>
-                                            {emp.isCurrentCompany ? (
-                                                <div className="small">
-                                                    <div><span className="text-muted">Pres:</span> {emp.presentCTC ? `₹${emp.presentCTC} LPA` : '—'}</div>
-                                                    <div><span className="text-muted">Exp:</span> {emp.expectedCTC ? `₹${emp.expectedCTC} LPA` : '—'}</div>
-                                                </div>
-                                            ) : '—'}
-                                        </td>
-                                        <td style={{fontSize: '13px'}}>
-                                            {emp.isCurrentCompany ? (
-                                                emp.noticePeriod === 'Custom' ? emp.customNoticePeriod : (emp.noticePeriod || '—')
-                                            ) : '—'}
-                                        </td>
-                                        <td className="text-center">
-                                            {(emp.description || emp.projectDetails) ? (
-                                                <button 
-                                                    className="btn btn-link p-0" 
-                                                    onClick={() => handleViewDetails(emp)}
-                                                    title="View Details"
-                                                >
-                                                    <i className="fa fa-eye" style={{fontSize: '18px', color: '#1967d2'}}></i>
-                                                </button>
-                                            ) : "—"}
-                                        </td>
-                                        <td className="text-center">
-                                            <button
-                                                type="button"
-                                                className="btn btn-link p-0 text-danger"
-                                                onClick={() => handleDeleteFromTable(originalIndex)}
-                                                disabled={loading}
-                                                title="Delete entry"
-                                            >
-                                                <i className="fa fa-trash-alt" style={{fontSize: '17px'}}></i>
-                                            </button>
-                                        </td>
+                    employmentList.length > 0 ? (
+                        <div className="table-responsive employment-table-container">
+                            <table className="table table-bordered custom-employment-table">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>Organization & Designation</th>
+                                        <th>Experience</th>
+                                        <th>Compensation (Annual)</th>
+                                        <th>Notice Period</th>
+                                        <th className="text-center">Details</th>
+                                        <th className="text-center">Action</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {employmentList
+                                        .map((emp, originalIndex) => ({ emp, originalIndex }))
+                                        .sort((a, b) => {
+                                            if (a.emp.isCurrentCompany) return -1;
+                                            if (b.emp.isCurrentCompany) return 1;
+                                            return 0;
+                                        })
+                                        .map(({ emp, originalIndex }, index) => (
+                                        <tr key={index} className={emp.isCurrentCompany ? 'table-success-light' : ''}>
+                                            <td>
+                                                <div className="font-weight-bold text-primary">
+                                                    {emp.organizationName || emp.organization || 'N/A'}
+                                                </div>
+                                                <div className="small text-muted">{emp.designation || 'N/A'}</div>
+                                                {emp.isCurrentCompany && <span className="badge-current mt-1">Current</span>}
+                                            </td>
+                                            <td style={{fontSize: '13px'}}>
+                                                {emp.yearsOfExperience || 0}y {emp.monthsOfExperience || 0}m
+                                            </td>
+                                            <td>
+                                                {emp.isCurrentCompany ? (
+                                                    <div className="small">
+                                                        <div><span className="text-muted">Pres:</span> {emp.presentCTC ? `₹${emp.presentCTC} LPA` : '—'}</div>
+                                                        <div><span className="text-muted">Exp:</span> {emp.expectedCTC ? `₹${emp.expectedCTC} LPA` : '—'}</div>
+                                                    </div>
+                                                ) : '—'}
+                                            </td>
+                                            <td style={{fontSize: '13px'}}>
+                                                {emp.isCurrentCompany ? (
+                                                    emp.noticePeriod === 'Custom' ? emp.customNoticePeriod : (emp.noticePeriod || '—')
+                                                ) : '—'}
+                                            </td>
+                                            <td className="text-center">
+                                                {(emp.description || emp.projectDetails) ? (
+                                                    <button 
+                                                        className="btn btn-link p-0" 
+                                                        onClick={() => handleViewDetails(emp)}
+                                                        title="View Details"
+                                                    >
+                                                        <i className="fa fa-eye" style={{fontSize: '18px', color: '#1967d2'}}></i>
+                                                    </button>
+                                                ) : "—"}
+                                            </td>
+                                            <td className="text-center">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-link p-0 text-danger"
+                                                    onClick={() => handleDeleteFromTable(originalIndex)}
+                                                    disabled={loading}
+                                                    title="Delete entry"
+                                                >
+                                                    <i className="fa fa-trash-alt" style={{fontSize: '17px'}}></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : null
                 ) : (
                     <>
                         <div className="employment-flow-container mb-4">
@@ -511,6 +500,37 @@ function SectionCanEmployment({ profile, onUpdate }) {
                     </>
                 )}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirm && ReactDOM.createPortal(
+                <div className="modal fade show" style={{
+                    display: 'block',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 99999
+                }} onClick={() => setShowDeleteConfirm(false)}>
+                    <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Confirm Delete</h5>
+                                <button type="button" className="btn-close" onClick={() => setShowDeleteConfirm(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <p>Are you sure you want to delete this employment entry?</p>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
+                                <button type="button" className="btn btn-danger" onClick={confirmDelete}>Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
 
             {/* Details Modal */}
             {showDetailsModal && selectedEmployment && ReactDOM.createPortal(
