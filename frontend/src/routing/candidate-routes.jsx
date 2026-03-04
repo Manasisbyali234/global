@@ -23,14 +23,14 @@ import CanTransactionsPage from "../app/pannels/candidate/components/can-transac
 
 // Component to protect transactions route from placement candidates
 function ProtectedTransactions() {
-	const [isPlacementCandidate, setIsPlacementCandidate] = useState(null);
+	const [canAccessTransactions, setCanAccessTransactions] = useState(null);
 
 	useEffect(() => {
 		const checkPlacementStatus = async () => {
 			try {
 				const token = localStorage.getItem('candidateToken');
 				if (!token) {
-					setIsPlacementCandidate(false);
+					setCanAccessTransactions(true);
 					return;
 				}
 
@@ -41,24 +41,27 @@ function ProtectedTransactions() {
 				if (response.ok) {
 					const data = await response.json();
 					if (data.success && data.candidate) {
-						setIsPlacementCandidate(!!data.candidate.placement);
+						const isPlacementCandidate = !!data.candidate.placement;
+						const credits = Number(data.candidate?.credits ?? 0);
+						// Allow transactions for non-placement candidates OR placement candidates with 0 credits
+						setCanAccessTransactions(!isPlacementCandidate || credits === 0);
 						return;
 					}
 				}
-				setIsPlacementCandidate(false);
+				setCanAccessTransactions(true);
 			} catch (error) {
-				setIsPlacementCandidate(false);
+				setCanAccessTransactions(true);
 			}
 		};
 
 		checkPlacementStatus();
 	}, []);
 
-	if (isPlacementCandidate === null) {
+	if (canAccessTransactions === null) {
 		return <div>Loading...</div>;
 	}
 	
-	if (isPlacementCandidate) {
+	if (!canAccessTransactions) {
 		return <Navigate to="/candidate/dashboard" replace />;
 	}
 	return <CanTransactionsPage />;
