@@ -686,15 +686,30 @@ export const api = {
 
   uploadLogo: (logoBase64) => {
     console.log('API: Uploading logo');
-    const headers = getAuthHeaders('placement');
-    return fetch(`${API_BASE_URL}/placement/upload-logo`, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({ logo: logoBase64 }),
+    const token = localStorage.getItem('placementToken');
+    const toBlob = async (value) => {
+      if (value instanceof Blob) return value;
+      if (typeof value === 'string' && value.startsWith('data:')) {
+        const res = await fetch(value);
+        return res.blob();
+      }
+      throw new Error('Invalid logo data. Please select the image again.');
+    };
+
+    return toBlob(logoBase64).then((blob) => {
+      const formData = new FormData();
+      const extension = blob.type?.split('/')[1] || 'png';
+      formData.append('logo', blob, `logo.${extension}`);
+      return fetch(`${API_BASE_URL}/placement/upload-logo`, {
+        method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
     }).then(async (response) => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Upload failed' }));
-        // Return the exact error message from backend without modification
         throw new Error(errorData.message || 'Logo upload failed');
       }
       return response.json();
@@ -703,15 +718,30 @@ export const api = {
 
   uploadIdCard: (idCardBase64) => {
     console.log('API: Uploading ID card');
-    const headers = getAuthHeaders('placement');
-    return fetch(`${API_BASE_URL}/placement/upload-id-card`, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({ idCard: idCardBase64 }),
+    const token = localStorage.getItem('placementToken');
+    const toBlob = async (value) => {
+      if (value instanceof Blob) return value;
+      if (typeof value === 'string' && value.startsWith('data:')) {
+        const res = await fetch(value);
+        return res.blob();
+      }
+      throw new Error('Invalid ID card data. Please select the image again.');
+    };
+
+    return toBlob(idCardBase64).then((blob) => {
+      const formData = new FormData();
+      const extension = blob.type?.split('/')[1] || 'png';
+      formData.append('idCard', blob, `id-card.${extension}`);
+      return fetch(`${API_BASE_URL}/placement/upload-id-card`, {
+        method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
     }).then(async (response) => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Upload failed' }));
-        // Return the exact error message from backend without modification
         throw new Error(errorData.message || 'ID card upload failed');
       }
       return response.json();

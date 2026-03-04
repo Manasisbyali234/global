@@ -244,7 +244,7 @@ exports.uploadStudentData = async (req, res) => {
     if (!placement.logo) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Please upload your College Logo to continue.',
+        message: 'Please upload your College Logo in Edit Profile to continue (max 20MB image).',
         requiresLogo: true
       });
     }
