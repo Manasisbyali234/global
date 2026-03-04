@@ -2251,7 +2251,7 @@ function EmpCompanyProfilePage() {
                                             <p className="text-success mt-1 mb-0">✓ Company ID Card uploaded</p>
                                         </div>
                                     )}
-                                    <p className="text-muted mt-1">Upload any company identification document (Max 5MB)</p>
+                                    <p className="text-muted mt-1">Upload the company ID card (Max 5MB)</p>
                                 </div>
                             </div>
 
