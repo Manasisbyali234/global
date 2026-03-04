@@ -719,26 +719,7 @@ export default function EmpPostJob({ onNext }) {
 			let updatedValue = value;
 			let additionalUpdates = {};
 
-			// Validate time constraints
-			if (field === 'startTime' && value) {
-				const currentDetails = s.interviewRoundDetails[roundType] || {};
-				const endTime = currentDetails.endTime;
-				
-				if (endTime && value >= endTime) {
-					showError('Start time must be earlier than end time.');
-					return s;
-				}
-			}
 
-			if (field === 'endTime' && value) {
-				const currentDetails = s.interviewRoundDetails[roundType] || {};
-				const startTime = currentDetails.startTime;
-				
-				if (startTime && value <= startTime) {
-					showError('End time must be later than start time.');
-					return s;
-				}
-			}
 
 			// Validate date constraints when fromDate is changed
 			if (field === 'fromDate' && value) {
