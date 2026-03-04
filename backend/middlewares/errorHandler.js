@@ -4,9 +4,13 @@ const errorHandler = (err, req, res, next) => {
 
   // Handle multer errors
   if (err.code === 'LIMIT_FILE_SIZE') {
+    const limitBytes = Number(err.limit);
+    const limitMB = Number.isFinite(limitBytes) && limitBytes > 0
+      ? (limitBytes / (1024 * 1024)).toFixed(2).replace(/\.00$/, '')
+      : '10';
     return res.status(400).json({
       success: false,
-      message: 'File size exceeds the limit. Please upload a file smaller than 10MB.'
+      message: `File size exceeds the limit. Please upload a file smaller than ${limitMB}MB.`
     });
   }
 

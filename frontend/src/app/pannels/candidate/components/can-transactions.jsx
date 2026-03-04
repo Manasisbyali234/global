@@ -215,7 +215,7 @@ function CanTransactionsPage() {
                                                     <span className="fw-bold">₹{t.paymentAmount || 129}</span>
                                                 </td>
                                                 <td>
-                                                    <span className="badge bg-success-light text-success text-uppercase" style={{backgroundColor: '#e6f4ea', color: '#1e7e34', padding: '4px 8px', borderRadius: '4px', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)'}}>
+                                                    <span className="badge bg-success-light text-success text-uppercase" style={{backgroundColor: '#e6f4ea', color: '#1e7e34', padding: '6px 12px', borderRadius: '999px', fontSize: 'clamp(0.78rem, 2vw, 0.88rem)', fontWeight: 600, letterSpacing: '0.3px'}}>
                                                         {t.paymentStatus}
                                                     </span>
                                                 </td>

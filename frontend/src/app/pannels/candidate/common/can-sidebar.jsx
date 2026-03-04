@@ -24,9 +24,8 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.candidate) {
-            const isPlacement = !!data.candidate.placement;
-            const credits = data.candidate.credits || 0;
-            setShowTransactions(!isPlacement || credits === 0);
+            const credits = Number(data.candidate?.credits ?? 0);
+            setShowTransactions(credits === 0);
           }
         }
       } catch (error) {
@@ -115,3 +114,5 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
 }
 
 export default CanSidebarSection;
+
+

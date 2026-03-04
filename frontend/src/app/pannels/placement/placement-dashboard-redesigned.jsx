@@ -14,6 +14,27 @@ import YesNoPopup from '../../common/popups/popup-yes-no';
 import { popupType } from '../../../globals/constants';
 
 function PlacementDashboardRedesigned() {
+    const MAX_PROFILE_IMAGE_SIZE_MB = 20;
+    const MAX_PROFILE_IMAGE_SIZE_BYTES = MAX_PROFILE_IMAGE_SIZE_MB * 1024 * 1024;
+
+    const isFileSizeError = (message = '') => /file size|too large|exceeds|smaller than\s+\d+(\.\d+)?\s*mb|limit/i.test(String(message));
+
+    const normalizeImageUploadErrorMessage = (message = '') => {
+        const safeMessage = String(message || '').trim();
+        if (!isFileSizeError(safeMessage)) return safeMessage;
+        if (/\d+(\.\d+)?\s*mb/i.test(safeMessage)) return safeMessage;
+        return `File size exceeds the limit. Please upload an image smaller than ${MAX_PROFILE_IMAGE_SIZE_MB}MB.`;
+    };
+
+    const showImageUploadError = (message, fallbackMessage) => {
+        const normalizedMessage = normalizeImageUploadErrorMessage(message || fallbackMessage);
+        if (isFileSizeError(normalizedMessage)) {
+            showWarning(normalizedMessage);
+            return;
+        }
+        showError(normalizedMessage || fallbackMessage);
+    };
+
     const { user, userType, isAuthenticated, loading: authLoading } = useAuth();
     const [placementData, setPlacementData] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -337,7 +358,7 @@ function PlacementDashboardRedesigned() {
                 showError(response?.message || 'Failed to update profile');
             }
         } catch (error) {
-            showError(error.message || 'Error updating profile. Please try again.');
+            showImageUploadError(error.message, 'Error updating profile. Please try again.');
         } finally {
             setUpdating(false);
         }
@@ -361,6 +382,12 @@ function PlacementDashboardRedesigned() {
             return;
         }
 
+        if (file.size > MAX_PROFILE_IMAGE_SIZE_BYTES) {
+            showWarning(`File size exceeds the limit. Please upload an image smaller than ${MAX_PROFILE_IMAGE_SIZE_MB}MB.`);
+            e.target.value = '';
+            return;
+        }
+
         try {
             const base64 = await fileToBase64(file);
             setLogoPreview(base64);
@@ -375,6 +402,12 @@ function PlacementDashboardRedesigned() {
 
         if (!file.type.startsWith('image/')) {
             showError('Please select a valid image file');
+            return;
+        }
+
+        if (file.size > MAX_PROFILE_IMAGE_SIZE_BYTES) {
+            showWarning(`File size exceeds the limit. Please upload an image smaller than ${MAX_PROFILE_IMAGE_SIZE_MB}MB.`);
+            e.target.value = '';
             return;
         }
 
@@ -415,7 +448,7 @@ function PlacementDashboardRedesigned() {
             setIdCardPreview(null);
             await fetchPlacementDetails();
         } catch (error) {
-            showError(error.message || 'Error uploading images. Please try again.');
+            showImageUploadError(error.message, 'Error uploading images. Please try again.');
         } finally {
             setUploadingImages(false);
         }

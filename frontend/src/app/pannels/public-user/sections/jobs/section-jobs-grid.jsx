@@ -9,6 +9,21 @@ import { performanceMonitor } from "../../../../../utils/performanceMonitor";
 import "../../../../../new-job-card.css";
 
 const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
+    const API_ORIGIN = ((process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, ""));
+
+    const resolveLogoSrc = (logoValue) => {
+        if (!logoValue || typeof logoValue !== "string") return "";
+        const trimmed = logoValue.trim();
+        if (!trimmed) return "";
+        if (trimmed.startsWith("data:")) return trimmed;
+        if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
+        if (trimmed.startsWith("/uploads") || trimmed.startsWith("uploads/")) {
+            const normalizedPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+            return `${API_ORIGIN}${normalizedPath}`;
+        }
+        return `data:image/jpeg;base64,${trimmed}`;
+    };
+
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -227,12 +242,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                             <div className="company-logo">
                                 {(job.companyLogo || job.employerProfile?.logo) ? (
                                     <img
-                                        src={
-                                            job.companyLogo ||
-                                            (job.employerProfile.logo?.startsWith("data:")
-                                                ? job.employerProfile.logo
-                                                : `data:image/jpeg;base64,${job.employerProfile.logo}`)
-                                        }
+                                        src={resolveLogoSrc(job.companyLogo || job.employerProfile?.logo)}
                                         alt="Company Logo"
                                     />
                                 ) : (
