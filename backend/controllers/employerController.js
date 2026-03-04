@@ -1578,7 +1578,11 @@ exports.updateJob = async (req, res) => {
           const schedules = round?.schedulesArray || round?.schedules || scheduleObject?.schedulesArray || scheduleObject?.schedules || nestedSchedule?.schedules;
           const daySchedules = round?.daySchedulesArray || round?.daySchedules || scheduleObject?.daySchedulesArray || scheduleObject?.daySchedules || nestedSchedule?.daySchedules;
           const rooms = round?.roomsArray || round?.rooms || scheduleObject?.roomsArray || scheduleObject?.rooms || nestedSchedule?.rooms;
-          return hasItems(schedules) || hasItems(daySchedules) || hasItems(rooms);
+          const subStages = round?.subStages || round?.subStagesArray || [];
+          const hasTimedSubStages = Array.isArray(subStages) && subStages.some((sub) =>
+            (sub?.fromDate || sub?.fromdate || sub?.date) && sub?.startTime && sub?.endTime
+          );
+          return hasItems(schedules) || hasItems(daySchedules) || hasItems(rooms) || hasTimedSubStages;
         };
 
         const scheduledNonAssessmentCount = dbRoundsForValidation.filter((round) =>
@@ -3622,7 +3626,3 @@ exports.deleteInterviewRound = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
-
-

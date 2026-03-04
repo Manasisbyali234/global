@@ -1229,8 +1229,12 @@ export default function EmpPostJob({ onNext }) {
 		const schedules = round.schedulesArray || round.schedules || scheduleObject.schedulesArray || scheduleObject.schedules || nestedSchedule.schedules;
 		const daySchedules = round.daySchedulesArray || round.daySchedules || scheduleObject.daySchedulesArray || scheduleObject.daySchedules || nestedSchedule.daySchedules;
 		const rooms = round.roomsArray || round.rooms || scheduleObject.roomsArray || scheduleObject.rooms || nestedSchedule.rooms;
+		const subStages = round.subStages || round.subStagesArray || [];
+		const hasTimedSubStages = Array.isArray(subStages) && subStages.some((sub) =>
+			(sub?.fromDate || sub?.fromdate || sub?.date) && sub?.startTime && sub?.endTime
+		);
 
-		return isNonEmptyArray(schedules) || isNonEmptyArray(daySchedules) || isNonEmptyArray(rooms);
+		return isNonEmptyArray(schedules) || isNonEmptyArray(daySchedules) || isNonEmptyArray(rooms) || hasTimedSubStages;
 	};
 
 	const verifyDbInterviewScheduling = async () => {
@@ -4246,7 +4250,6 @@ export default function EmpPostJob({ onNext }) {
 											{/* Top Header Section */}
 											<div style={{
 												display: 'flex',
-												justifyContent: 'space-between',
 												alignItems: 'center',
 												marginBottom: '24px'
 											}}>
@@ -4268,92 +4271,6 @@ export default function EmpPostJob({ onNext }) {
 														Stage {stageNumber}: {displayName}
 													</h3>
 												</div>
-												<button
-													disabled={roundType === 'assessment' || !subStages || subStages.length === 0}
-													style={{
-														background: (roundType !== 'assessment' && subStages && subStages.length > 0) ? '#ff6b35' : '#d1d5db',
-														color: 'white',
-														borderRadius: '8px',
-														padding: '10px 18px',
-														fontWeight: '600',
-														border: 'none',
-														cursor: (roundType !== 'assessment' && subStages && subStages.length > 0) ? 'pointer' : 'not-allowed',
-														display: 'flex',
-														alignItems: 'center',
-														gap: '8px',
-														opacity: (roundType !== 'assessment' && subStages && subStages.length > 0) ? 1 : 0.5
-													}}
-													onClick={async () => {
-														if (roundType === 'assessment') {
-															showWarning('Schedule Interview button is not available for assessment rounds. Assessment rounds are scheduled separately.');
-															return;
-														}
-														if (!subStages || subStages.length === 0) {
-															showWarning(`Please generate sub-stages first by entering a number of days in the 'Generate Sub-Stages' field for ${displayName}`);
-															return;
-														}
-														if (!details?.fromDate) {
-															showWarning(`Please set the Date Range for ${displayName}`);
-															return;
-														}
-														
-														// Prepare sub-stages data
-														const subStagesToSave = subStages.map(sub => ({
-															fromDate: sub.fromDate,
-															startTime: sub.startTime,
-															endTime: sub.endTime,
-															breakTime: sub.breakTime || 0
-														}));
-														
-														try {
-															const activeJobId = currentJobId || id;
-															if (!activeJobId) {
-																showError('Please save the job information first (Step 1) before scheduling interviews.');
-																return;
-															}
-															
-															const token = localStorage.getItem('employerToken');
-															const existingRoundId = interviewRoundIds[uniqueKey];
-															const url = existingRoundId 
-																? `http://localhost:5000/api/interview-rounds/${existingRoundId}`
-																: 'http://localhost:5000/api/interview-rounds';
-															const method = existingRoundId ? 'PUT' : 'POST';
-															
-															const response = await fetch(url, {
-																method: method,
-																headers: {
-																	'Content-Type': 'application/json',
-																	'Authorization': `Bearer ${token}`
-																},
-																body: JSON.stringify({
-																	jobId: activeJobId,
-																	name: displayName,
-																	roundType: roundType,
-																	fromdate: details.fromDate,
-																	todate: details.toDate || details.fromDate,
-																	startTime: details.startTime,
-																	endTime: details.endTime,
-																	description: details.description,
-																	subStages: subStagesToSave
-																})
-															});
-															
-															if (response.ok) {
-																const interviewRound = await response.json();
-																setInterviewRoundIds(prev => ({...prev, [uniqueKey]: interviewRound._id}));
-																showSuccess('Interview scheduled successfully!');
-																window.open(`https://schedule.taleglobal.net/rounds/${interviewRound._id}`, '_blank');
-															} else {
-																showError('Failed to create interview round');
-															}
-														} catch (error) {
-															showError('Error creating interview round: ' + error.message);
-														}
-													}}
-												>
-													<i className="fa fa-calendar-check"></i>
-													Schedule Interview
-												</button>
 											</div>
 
 											{/* Description + Date Range + Lunch Break Section */}
@@ -4652,6 +4569,93 @@ export default function EmpPostJob({ onNext }) {
 														</div>
 													</div>
 												))}
+											</div>
+											<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+												<button
+													disabled={roundType === 'assessment' || !subStages || subStages.length === 0}
+													style={{
+														background: (roundType !== 'assessment' && subStages && subStages.length > 0) ? '#ff6b35' : '#d1d5db',
+														color: 'white',
+														borderRadius: '8px',
+														padding: '10px 18px',
+														fontWeight: '600',
+														border: 'none',
+														cursor: (roundType !== 'assessment' && subStages && subStages.length > 0) ? 'pointer' : 'not-allowed',
+														display: 'flex',
+														alignItems: 'center',
+														gap: '8px',
+														opacity: (roundType !== 'assessment' && subStages && subStages.length > 0) ? 1 : 0.5
+													}}
+													onClick={async () => {
+														if (roundType === 'assessment') {
+															showWarning('Schedule Interview button is not available for assessment rounds. Assessment rounds are scheduled separately.');
+															return;
+														}
+														if (!subStages || subStages.length === 0) {
+															showWarning(`Please generate sub-stages first by entering a number of days in the 'Generate Sub-Stages' field for ${displayName}`);
+															return;
+														}
+														if (!details?.fromDate) {
+															showWarning(`Please set the Date Range for ${displayName}`);
+															return;
+														}
+
+														const subStagesToSave = subStages.map(sub => ({
+															fromDate: sub.fromDate,
+															startTime: sub.startTime,
+															endTime: sub.endTime,
+															breakTime: sub.breakTime || 0
+														}));
+
+														try {
+															const activeJobId = currentJobId || id;
+															if (!activeJobId) {
+																showError('Please save the job information first (Step 1) before scheduling interviews.');
+																return;
+															}
+
+															const token = localStorage.getItem('employerToken');
+															const existingRoundId = interviewRoundIds[uniqueKey];
+															const url = existingRoundId
+																? `http://localhost:5000/api/interview-rounds/${existingRoundId}`
+																: 'http://localhost:5000/api/interview-rounds';
+															const method = existingRoundId ? 'PUT' : 'POST';
+
+															const response = await fetch(url, {
+																method,
+																headers: {
+																	'Content-Type': 'application/json',
+																	'Authorization': `Bearer ${token}`
+																},
+																body: JSON.stringify({
+																	jobId: activeJobId,
+																	name: displayName,
+																	roundType,
+																	fromdate: details.fromDate,
+																	todate: details.toDate || details.fromDate,
+																	startTime: details.startTime,
+																	endTime: details.endTime,
+																	description: details.description,
+																	subStages: subStagesToSave
+																})
+															});
+
+															if (response.ok) {
+																const interviewRound = await response.json();
+																setInterviewRoundIds(prev => ({ ...prev, [uniqueKey]: interviewRound._id }));
+																showSuccess('Interview scheduled successfully!');
+																window.open(`https://schedule.taleglobal.net/rounds/${interviewRound._id}`, '_blank');
+															} else {
+																showError('Failed to create interview round');
+															}
+														} catch (error) {
+															showError('Error creating interview round: ' + error.message);
+														}
+													}}
+												>
+													<i className="fa fa-calendar-check"></i>
+													Schedule Interview
+												</button>
 											</div>
 										</div>
 									);
