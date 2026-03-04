@@ -1170,9 +1170,14 @@ function PlacementDashboardRedesigned() {
                                                         <input 
                                                             type="text" 
                                                             className="form-input"
-                                                            placeholder="Enter batch information (e.g., 2024, Spring 2024)"
+                                                            placeholder="Enter batch information (e.g., 2024)"
                                                             value={batch}
-                                                            onChange={(e) => setBatch(e.target.value)}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                if (value === '' || /^[0-9]+$/.test(value)) {
+                                                                    setBatch(value);
+                                                                }
+                                                            }}
                                                         />
                                                     </div>
                                                 </div>
@@ -1210,7 +1215,7 @@ function PlacementDashboardRedesigned() {
 
                                                 <div className="helper-text">
                                                     <i className="fa fa-info-circle"></i>
-                                                    Files will be processed automatically after admin approval. Default naming will be used if custom name is not provided.
+                                                    Files will be processed automatically after admin approval.
                                                 </div>
                                                 
                                                 <div className="sample-download">
