@@ -215,7 +215,7 @@ function CanTransactionsPage() {
                                                     <span className="fw-bold">₹{t.paymentAmount || 129}</span>
                                                 </td>
                                                 <td>
-                                                    <span className="badge bg-success-light text-success text-uppercase" style={{backgroundColor: '#e6f4ea', color: '#1e7e34', padding: '6px 12px', borderRadius: '999px', fontSize: 'clamp(0.78rem, 2vw, 0.88rem)', fontWeight: 600, letterSpacing: '0.3px'}}>
+                                                    <span className="badge bg-success-light text-success text-uppercase" style={{backgroundColor: '#e6f4ea', color: '#1e7e34', padding: '7px 14px', borderRadius: '999px', fontSize: '0.92rem', fontWeight: 700, letterSpacing: '0.35px', minWidth: '72px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1}}>
                                                         {t.paymentStatus}
                                                     </span>
                                                 </td>
@@ -294,7 +294,7 @@ function CanTransactionsPage() {
                                                 <div className="text-muted" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
                                                     <p className="mb-1"><strong>Receipt No:</strong> REC-{selectedTransaction?.paymentId?.slice(-8).toUpperCase()}</p>
                                                     <p className="mb-1"><strong>Date:</strong> {formatDate(selectedTransaction?.createdAt)}</p>
-                                                    <p className="mb-0"><strong>Status:</strong> <span className="badge bg-success text-uppercase">Paid</span></p>
+                                                    <p className="mb-0"><strong>Status:</strong> <span className="badge bg-success text-uppercase" style={{padding: '6px 12px', borderRadius: '999px', fontSize: '0.88rem', fontWeight: 700, letterSpacing: '0.3px'}}>Paid</span></p>
                                                 </div>
                                             </div>
                                         </div>
