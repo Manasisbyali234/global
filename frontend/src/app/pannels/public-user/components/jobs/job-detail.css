@@ -767,13 +767,13 @@ a.site-text-primary:hover {
 
 .twm-job-hilites2 li,
 .twm-job-hilites li {
-  margin-bottom: 6px !important;
-  padding-bottom: 3px !important;
+  margin-bottom: 2px !important;
+  padding-bottom: 2px !important;
 }
 
 .twm-s-info-inner {
-  margin-bottom: 6px !important;
-  padding-bottom: 3px !important;
+  margin-bottom: 2px !important;
+  padding-bottom: 2px !important;
 }
 
 /* Performance Optimizations */

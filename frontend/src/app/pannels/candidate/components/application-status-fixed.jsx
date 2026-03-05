@@ -240,7 +240,7 @@ function CanStatusPage() {
 						<div className="modal-content" style={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', maxHeight: '100%', display: 'flex', flexDirection: 'column'}}>
 							<div className="modal-header" style={{backgroundColor: '#f5f5f5', color: '#000', borderRadius: '12px 12px 0 0', flexShrink: 0}}>
 								<h5 className="modal-title">
-									<i className="fa fa-clipboard-list me-2"></i>
+									<i className="fa fa-clipboard-list me-2" style={{color: '#ff6b35'}}></i>
 									Interview Process Details
 								</h5>
 								<button type="button" className="btn-close" onClick={() => setShowAllDetails(false)}></button>
