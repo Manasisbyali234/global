@@ -449,6 +449,39 @@ function CanStatusPage() {
 	};
 
 	const getRoundStatus = (application, roundIndex, roundName, isPopup = false) => {
+		const mapProcessStatusToBadge = (rawStatus) => {
+			const status = String(rawStatus || '').toLowerCase();
+			const mappings = {
+				shortlisted: { text: 'Shortlisted', class: 'bg-info bg-opacity-10 text-info border border-info' },
+				under_review: { text: 'Under Review', class: 'bg-warning bg-opacity-10 text-warning border border-warning' },
+				interview_scheduled: { text: 'Interview Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info' },
+				interview_completed: { text: 'Interview Completed', class: 'bg-success bg-opacity-10 text-success border border-success' },
+				selected: { text: 'Selected', class: 'bg-success bg-opacity-10 text-success border border-success' },
+				rejected: { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
+				on_hold: { text: 'On Hold', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' },
+				scheduled: { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info' },
+				in_progress: { text: 'In Progress', class: 'bg-warning bg-opacity-10 text-warning border border-warning' },
+				completed: { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success' },
+				pending: { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' }
+			};
+			return mappings[status] || null;
+		};
+
+		const getRoundTypeFromName = (name = '') => {
+			const n = String(name).toLowerCase();
+			if (n.includes('assessment')) return 'assessment';
+			if (n.includes('one-to-one') || n.includes('one on one')) return 'oneOnOne';
+			if (n.includes('panel')) return 'panel';
+			if (n.includes('group')) return 'group';
+			if (n.includes('technical')) return 'technical';
+			if (n.includes('situational')) return 'situational';
+			if (n.includes('behavioral')) return 'situational';
+			if (n.includes('hr')) return 'hr';
+			if (n.includes('final')) return 'final';
+			if (n.includes('other')) return 'others';
+			return '';
+		};
+
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment' && application.assessmentStatus) {
 			const status = application.assessmentStatus?.toLowerCase?.() || application.assessmentStatus;
@@ -508,6 +541,20 @@ function CanStatusPage() {
 							feedback: round.feedback || ''
 						};
 				}
+			}
+		}
+
+		// Use current interview process status when available
+		if (Array.isArray(application.interviewProcesses) && application.interviewProcesses.length > 0) {
+			const roundType = getRoundTypeFromName(roundName);
+			const relatedProcess =
+				application.interviewProcesses.find((p) => p?.type === roundType) ||
+				application.interviewProcesses.find((p) => String(p?.name || '').toLowerCase().includes(String(roundName || '').toLowerCase())) ||
+				application.interviewProcesses[roundIndex];
+
+			const mapped = mapProcessStatusToBadge(relatedProcess?.status);
+			if (mapped) {
+				return { ...mapped, feedback: '' };
 			}
 		}
 		
@@ -1013,8 +1060,8 @@ function CanStatusPage() {
 
 			{/* All Interview Details Modal */}
 			{showAllDetails && selectedApplication && (
-				<div className="modal fade show" style={{display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100001, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%'}} onClick={(e) => { if (e.target === e.currentTarget) setShowAllDetails(false); }}>
-					<div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style={{maxHeight: 'calc(100vh - 40px)', margin: '20px auto'}} onClick={(e) => e.stopPropagation()}>
+				<div className="modal fade show interview-details-modal" style={{display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100001, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%'}} onClick={(e) => { if (e.target === e.currentTarget) setShowAllDetails(false); }}>
+					<div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style={{maxWidth: '1200px', width: '95vw', maxHeight: 'calc(100vh - 40px)', margin: '20px auto'}} onClick={(e) => e.stopPropagation()}>
 						<div className="modal-content" style={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', maxHeight: '100%', display: 'flex', flexDirection: 'column'}}>
 							<div className="modal-header" style={{backgroundColor: '#f5f5f5', color: '#000', borderRadius: '12px 12px 0 0', flexShrink: 0}}>
 								<h5 className="modal-title">
@@ -1431,10 +1478,49 @@ function CanStatusPage() {
 													if (roundIndex > 0) {
 														const previousRound = roundsList[roundIndex - 1];
 														const previousRoundName = typeof previousRound === 'string' ? previousRound : previousRound.name;
+														const previousRoundTypeRaw = typeof previousRound === 'object' ? previousRound.roundType : previousRoundName.toLowerCase();
+														const previousRoundType = (previousRoundTypeRaw || '').toString().split('_')[0];
+														const previousRoundKey = typeof previousRound === 'object' ? previousRound.uniqueKey : previousRoundType;
+														
+														const previousRelatedProcess = selectedApplication.interviewProcesses?.find((process) => {
+															const processType = (process?.type || '').toString().split('_')[0];
+															return processType === previousRoundType || String(process?.id) === String(previousRoundKey);
+														});
+														
+														const previousRelatedStage = selectedApplication.interviewProcess?.stages?.find((stage) => {
+															const stageType = (stage?.stageType || '').toString().split('_')[0];
+															return String(stage?._id) === String(previousRoundKey) || stageType === previousRoundType;
+														});
+														
+														const previousProcessStatus = (previousRelatedProcess?.status || '').toLowerCase();
+														const previousStageStatus = (previousRelatedStage?.status || '').toLowerCase();
 														const previousRoundStatus = getRoundStatus(selectedApplication, roundIndex - 1, previousRoundName, true);
 														const previousStatusText = (previousRoundStatus?.text || '').toLowerCase();
+
+														const invalidStatusStates = ['', 'pending', 'under_review'];
+														const hasValidProcessStatus =
+															Boolean(previousProcessStatus) && !invalidStatusStates.includes(previousProcessStatus);
+														const hasValidStageStatus =
+															Boolean(previousStageStatus) && !invalidStatusStates.includes(previousStageStatus);
+														const previousStatusUpdated = hasValidProcessStatus || hasValidStageStatus;
+
+														const previousRemarks =
+															(previousRelatedProcess?.id && selectedApplication.processRemarks?.[previousRelatedProcess.id]) ||
+															previousRelatedProcess?.remarks ||
+															previousRelatedProcess?.feedback ||
+															previousRelatedStage?.remarks ||
+															previousRelatedStage?.feedback ||
+															'';
+														const previousRemarksUpdated = typeof previousRemarks === 'string' && previousRemarks.trim().length > 0;
+
+														// For assessment, remarks may not exist; allow progression when status is completed.
+														const isPreviousAssessment = previousRoundName === 'Assessment';
 														const completedStates = ['completed', 'passed', 'failed', 'rejected', 'expired'];
-														canBookThisRound = completedStates.includes(previousStatusText);
+														const previousCompleted = completedStates.includes(previousStatusText);
+
+														canBookThisRound = isPreviousAssessment
+															? previousCompleted
+															: (previousCompleted && previousStatusUpdated && previousRemarksUpdated);
 													}
 													
 													return (

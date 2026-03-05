@@ -44,6 +44,22 @@ const LOCATION_OPTIONS = [
 	"Maheshtala", "Remote", "Work From Home", "Hybrid"
 ];
 
+const formatDateForInput = (dateObj) => {
+	const y = dateObj.getFullYear();
+	const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+	const d = String(dateObj.getDate()).padStart(2, '0');
+	return `${y}-${m}-${d}`;
+};
+
+const getNextDayDateString = (dateString) => {
+	if (!dateString) return '';
+	const [y, m, d] = String(dateString).split('-').map(Number);
+	if (!y || !m || !d) return '';
+	const date = new Date(y, m - 1, d);
+	date.setDate(date.getDate() + 1);
+	return formatDateForInput(date);
+};
+
 const PREDEFINED_JOB_TITLES = [
 	"Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", 
 	"Full Stack Developer", "Data Scientist", "Data Analyst", "Product Manager", 
@@ -319,6 +335,7 @@ export default function EmpPostJob({ onNext }) {
 		// Work Mode
 		workMode: ""
 	});
+	const minInterviewDate = formData.lastDateOfApplication ? getNextDayDateString(formData.lastDateOfApplication) : today;
 
 	const [employerType, setEmployerType] = useState('company');
 	const [currentStep, setCurrentStep] = useState(parseInt(searchParams.get('step')) || 1);
@@ -341,6 +358,10 @@ export default function EmpPostJob({ onNext }) {
 	const [showSubStageConfirm, setShowSubStageConfirm] = useState(null);
 	const [scheduledRounds, setScheduledRounds] = useState({});
 	const [interviewRoundIds, setInterviewRoundIds] = useState({}); // Store created InterviewRound IDs
+	const isAssessmentFirst = Boolean(
+		formData?.interviewRoundOrder?.length &&
+		formData.interviewRoundTypes?.[formData.interviewRoundOrder[0]] === 'assessment'
+	);
 	const [locationSearchTerm, setLocationSearchTerm] = useState('');
 	const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 	const [showEducationDropdown, setShowEducationDropdown] = useState(false);
@@ -731,6 +752,12 @@ export default function EmpPostJob({ onNext }) {
 
 			// Validate date constraints when fromDate is changed
 			if (field === 'fromDate' && value) {
+				const minAllowedInterviewDate = s.lastDateOfApplication ? getNextDayDateString(s.lastDateOfApplication) : '';
+				if (minAllowedInterviewDate && value < minAllowedInterviewDate) {
+					showError(`Interview date must be after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
+					return s;
+				}
+
 				const currentRoundIndex = s.interviewRoundOrder.indexOf(roundType);
 				
 				// Check if next round can only start after previous round's end date
@@ -1126,6 +1153,12 @@ export default function EmpPostJob({ onNext }) {
 				const roundDate = new Date(details.fromDate);
 				const dateStr = details.fromDate;
 				allRoundDates.push(roundDate);
+				if (lastAppDate) {
+					const minAllowedInterviewDate = getNextDayDateString(formData.lastDateOfApplication);
+					if (dateStr < minAllowedInterviewDate) {
+						errorMessages.push(`${roundName} date must be after Last Date of Application. Select ${formatDate(minAllowedInterviewDate)} or later.`);
+					}
+				}
 				
 				// Check for duplicate dates with previous rounds (skip for scheduling meeting types)
 				if (!isSchedulingMeeting && roundDatesMap[dateStr]) {
@@ -1150,6 +1183,11 @@ export default function EmpPostJob({ onNext }) {
 				details.subStages.forEach((subStage, index) => {
 					if (!subStage.fromDate) {
 						errorMessages.push(`Please select Date for ${roundName} - Day ${index + 1}`);
+					} else if (lastAppDate) {
+						const minAllowedInterviewDate = getNextDayDateString(formData.lastDateOfApplication);
+						if (subStage.fromDate < minAllowedInterviewDate) {
+							errorMessages.push(`${roundName} - Day ${index + 1} date must be after Last Date of Application. Select ${formatDate(minAllowedInterviewDate)} or later.`);
+						}
 					}
 					if (!subStage.startTime) {
 						errorMessages.push(`Please select Start Time for ${roundName} - Day ${index + 1}`);
@@ -3970,6 +4008,237 @@ export default function EmpPostJob({ onNext }) {
 						</div>
 					</div>
 
+					{/* Individual Assessment Scheduling for each Assessment instance (render first if assessment is first stage) */}
+					{isAssessmentFirst && formData.interviewRoundOrder
+						.filter(key => formData.interviewRoundTypes[key] === 'assessment')
+						.map((assessmentKey, assessmentIndex) => {
+							const stageNumber = formData.interviewRoundOrder.indexOf(assessmentKey) + 1;
+							return (
+								<div key={assessmentKey} style={{
+									...fullRow,
+									margin: "24px 0",
+									background: "#fff",
+									borderRadius: "12px",
+									border: "1px solid #e2e8f0",
+									overflow: "hidden",
+									boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+								}}>
+									<div style={{
+										padding: "12px 16px",
+										background: "#f8fafc",
+										borderBottom: "1px solid #e2e8f0",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "space-between",
+										flexWrap: "wrap",
+										gap: 12
+									}}>
+										<div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+											<span style={{
+												fontSize: 14,
+												fontWeight: 700,
+												color: '#fff',
+												background: '#ff6b35',
+												borderRadius: '8px',
+												width: '32px',
+												height: '32px',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center'
+											}}>
+												{stageNumber}
+											</span>
+											<div>
+												<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
+													Stage {stageNumber}: Assessment Schedule {assessmentIndex + 1}
+												</h4>
+												<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
+											</div>
+										</div>
+										<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+											<button
+												style={{
+													background: '#10b981',
+													color: '#fff',
+													border: 'none',
+													padding: '8px 16px',
+													borderRadius: 8,
+													cursor: 'pointer',
+													fontSize: 13,
+													fontWeight: 600,
+													display: 'flex',
+													alignItems: 'center',
+													gap: 6,
+													transition: 'all 0.2s',
+													boxShadow: '0 1px 2px rgba(16, 185, 129, 0.2)'
+												}}
+												onMouseEnter={(e) => e.currentTarget.style.background = '#059669'}
+												onMouseLeave={(e) => e.currentTarget.style.background = '#10b981'}
+												onClick={() => {
+													const assessmentDetails = formData.interviewRoundDetails[assessmentKey];
+													
+													if (!selectedAssessment) {
+														showWarning('Please select an assessment first');
+														return;
+													}
+													
+													if (!assessmentDetails?.fromDate) {
+														showWarning(`Please set the Date for Assessment ${assessmentIndex + 1}`);
+														return;
+													}
+													
+													setScheduledRounds(prev => ({...prev, [assessmentKey]: true}));
+													showSuccess(`Assessment ${assessmentIndex + 1} details saved locally!`);
+												}}
+											>
+												<i className="fa fa-save"></i>
+												Save Schedule
+											</button>
+											<div 
+												style={{
+													width: '32px',
+													height: '32px',
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													borderRadius: '8px',
+													background: '#eff6ff',
+													color: '#3b82f6',
+													cursor: 'pointer',
+													transition: 'all 0.2s'
+												}}
+												onMouseEnter={(e) => e.currentTarget.style.background = '#dbeafe'}
+												onMouseLeave={(e) => e.currentTarget.style.background = '#eff6ff'}
+												title="View in timeline"
+												onClick={() => {
+													const assessmentSection = document.querySelector(`[data-assessment-key="${assessmentKey}"]`);
+													if (assessmentSection) {
+														assessmentSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+														const parent = assessmentSection.parentElement;
+														if (parent) {
+															parent.style.borderColor = '#3b82f6';
+															parent.style.ring = '2px solid #3b82f6';
+															setTimeout(() => {
+																parent.style.borderColor = '#e2e8f0';
+																parent.style.ring = 'none';
+															}, 2000);
+														}
+													}
+												}}
+											>
+											</div>
+										</div>
+									</div>
+									<div 
+										data-assessment-key={assessmentKey}
+										style={{ 
+											display: 'grid', 
+											gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
+											gap: 20,
+											padding: 20,
+											background: '#fff',
+										}}>
+										<div style={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: 8
+										}}>
+											<div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+												<label style={{...label, marginBottom: 0, color: '#475569', fontWeight: 600}}>
+													<i className="fa fa-calendar" style={{marginRight: 8, color: '#ff6b35'}}></i>
+													Assessment Date
+												</label>
+												{formData.interviewRoundDetails[assessmentKey]?.fromDate && (
+													<div style={{fontSize: 11, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '2px 8px', borderRadius: 12, border: '1px solid #bbf7d0'}}>
+														<i className="fa fa-check"></i>
+														Saved
+													</div>
+												)}
+											</div>
+											<input
+												style={{
+													...input, 
+													fontSize: 14, 
+													padding: '10px 12px',
+													borderRadius: '8px',
+													border: '1px solid #cbd5e1',
+													background: '#f8fafc'
+												}}
+												type="date"
+												min={minInterviewDate}
+												value={formData.interviewRoundDetails[assessmentKey]?.fromDate || ''}
+												onChange={(e) => updateRoundDetails(assessmentKey, 'fromDate', e.target.value)}
+											/>
+											<HolidayIndicator date={formData.interviewRoundDetails[assessmentKey]?.fromDate} />
+										</div>
+										<div style={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: 8
+										}}>
+											<label style={{...label, marginBottom: 0, color: '#475569', fontWeight: 600}}>
+												<i className="fa fa-clock" style={{marginRight: 8, color: '#ff6b35'}}></i>
+												Start Time
+											</label>
+											<input
+												style={{
+													...input, 
+													fontSize: 14, 
+													padding: '10px 12px',
+													borderRadius: '8px',
+													border: '1px solid #cbd5e1',
+													background: '#f8fafc'
+												}}
+												type="time"
+												value={formData.interviewRoundDetails[assessmentKey]?.startTime || ''}
+												onChange={(e) => updateRoundDetails(assessmentKey, 'startTime', e.target.value)}
+											/>
+										</div>
+										<div style={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: 8
+										}}>
+											<label style={{...label, marginBottom: 0, color: '#475569', fontWeight: 600}}>
+												<i className="fa fa-hourglass-end" style={{marginRight: 8, color: '#ff6b35'}}></i>
+												End Time
+												<span style={{
+													fontSize: 11,
+													color: '#10b981',
+													fontWeight: 500,
+													marginLeft: 8,
+													background: '#d1fae5',
+													padding: '2px 8px',
+													borderRadius: 4,
+												}}>
+													✓ Auto-calculated
+												</span>
+											</label>
+											<input
+												style={{
+													...input, 
+													fontSize: 14, 
+													padding: '10px 12px',
+													borderRadius: '8px',
+													border: '1px solid #cbd5e1',
+													background: '#f0fdf4',
+													cursor: 'not-allowed'
+												}}
+												type="time"
+												value={formData.interviewRoundDetails[assessmentKey]?.endTime || ''}
+												readOnly
+												disabled
+											/>
+											<small style={{color: '#10b981', fontSize: 11, marginTop: 4, display: 'block'}}>
+												<i className="fa fa-info-circle" style={{marginRight: 4}}></i>
+												Auto-calculated based on assessment duration
+											</small>
+										</div>
+									</div>
+								</div>
+							);
+						})}
+
 					{/* Interview Round Details - Only show for non-assessment rounds */}
 					{formData.interviewRoundOrder.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment').length > 0 && (
 						<>
@@ -4098,7 +4367,7 @@ export default function EmpPostJob({ onNext }) {
 																	outline: 'none',
 																	width: '100%'
 																}}
-																min={today}
+																min={minInterviewDate}
 																value={details.fromDate || ''}
 																onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
 															/>
@@ -4204,7 +4473,7 @@ export default function EmpPostJob({ onNext }) {
 																			width: '100%',
 																			fontSize: '14px'
 																		}}
-																		min={today}
+																		min={minInterviewDate}
 																		value={subStage.fromDate || ''}
 																		onChange={(e) => {
 																			const selectedDate = e.target.value;
@@ -4428,7 +4697,7 @@ export default function EmpPostJob({ onNext }) {
 					)}
 
 							{/* Individual Assessment Scheduling for each Assessment instance */}
-							{formData.interviewRoundOrder
+							{!isAssessmentFirst && formData.interviewRoundOrder
 								.filter(key => formData.interviewRoundTypes[key] === 'assessment')
 								.map((assessmentKey, assessmentIndex) => {
 									const stageNumber = formData.interviewRoundOrder.indexOf(assessmentKey) + 1;
@@ -4584,7 +4853,7 @@ export default function EmpPostJob({ onNext }) {
 															background: '#f8fafc'
 														}}
 														type="date"
-														min={today}
+														min={minInterviewDate}
 														value={formData.interviewRoundDetails[assessmentKey]?.fromDate || ''}
 														onChange={(e) => updateRoundDetails(assessmentKey, 'fromDate', e.target.value)}
 													/>

@@ -926,17 +926,23 @@ exports.getJobFilterCounts = async (req, res) => {
       });
     }
 
-    const cacheKey = 'job_filter_counts';
+    const cacheKey = 'job_filter_counts_v2_active_only';
     const cached = cache.get(cacheKey);
     
     if (cached) {
       return res.json(cached);
     }
 
-    // Get all active jobs with approved employers
+    // Get only currently active (non-expired) jobs with approved employers
+    const now = new Date();
     const jobs = await Job.find({
-      status: { $in: ['active', 'pending'] },
-      'employerId': { $exists: true }
+      status: 'active',
+      employerId: { $exists: true },
+      $or: [
+        { lastDateOfApplication: { $exists: false } },
+        { lastDateOfApplication: null },
+        { lastDateOfApplication: { $gte: now } }
+      ]
     })
     .populate({
       path: 'employerId',

@@ -721,6 +721,24 @@ td .text-success {
     flex: 1 1 auto !important;
 }
 
+/* Interview Process Details modal width override */
+.interview-details-modal .modal-dialog.modal-dialog-centered.modal-dialog-scrollable {
+    max-width: 1200px !important;
+    width: min(95vw, 1200px) !important;
+}
+
+.interview-details-modal .modal-content {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+@media (max-width: 768px) {
+    .interview-details-modal .modal-dialog.modal-dialog-centered.modal-dialog-scrollable {
+        width: 98vw !important;
+        max-width: 98vw !important;
+    }
+}
+
 /* Fix for header overlap */
 .modal-backdrop {
     z-index: 100000 !important;

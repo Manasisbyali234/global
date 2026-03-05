@@ -28,6 +28,26 @@ const { checkEmailExists } = require('../utils/authUtils');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+const getWorkbookFromStoredFile = (fileData, fileType) => {
+  if (!fileData) {
+    throw new Error('File data not available');
+  }
+
+  // Newer uploads store a relative file path in /uploads.
+  if (typeof fileData === 'string' && fileData.startsWith('/uploads/')) {
+    const absolutePath = path.join(__dirname, '..', fileData);
+    return XLSX.readFile(absolutePath);
+  }
+
+  // Legacy uploads store Base64 data URL.
+  const { buffer } = base64ToBuffer(fileData);
+  if (fileType && fileType.includes('csv')) {
+    const csvData = buffer.toString('utf8');
+    return XLSX.read(csvData, { type: 'string' });
+  }
+  return XLSX.read(buffer, { type: 'buffer' });
+};
+
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 };
@@ -1357,16 +1377,7 @@ exports.getFileData = async (req, res) => {
       return res.json({ success: true, students: [] });
     }
 
-    const result = base64ToBuffer(file.fileData);
-    const buffer = result.buffer;
-
-    let workbook;
-    if (file.fileType && file.fileType.includes('csv')) {
-      const csvData = buffer.toString('utf8');
-      workbook = XLSX.read(csvData, { type: 'string' });
-    } else {
-      workbook = XLSX.read(buffer, { type: 'buffer' });
-    }
+    const workbook = getWorkbookFromStoredFile(file.fileData, file.fileType);
     
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
@@ -2111,20 +2122,9 @@ exports.approveIndividualFile = async (req, res) => {
     }
 
     // Process the file data
-    const XLSX = require('xlsx');
-    const { base64ToBuffer } = require('../utils/base64Helper');
     
     try {
-      const result = base64ToBuffer(file.fileData);
-      const buffer = result.buffer;
-
-      let workbook;
-      if (file.fileType && file.fileType.includes('csv')) {
-        const csvData = buffer.toString('utf8');
-        workbook = XLSX.read(csvData, { type: 'string' });
-      } else {
-        workbook = XLSX.read(buffer, { type: 'buffer' });
-      }
+      const workbook = getWorkbookFromStoredFile(file.fileData, file.fileType);
       
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];

@@ -602,7 +602,13 @@ function JobDetail1Page() {
                                                         </p>
                                                     )}
 
-                                                    <p className="twm-job-address" style={{marginTop: '12px'}}><i className="feather-map-pin" />{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}</p>
+                                                    <p className="twm-job-shift" style={{marginTop: '12px'}}>
+                                                        <i className="feather-map-pin" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+                                                        <strong>Location: </strong>
+                                                        <span style={{color: '#495057', textTransform: 'none'}}>
+                                                            {Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}
+                                                        </span>
+                                                    </p>
                                                     
                                                     <div className="hiring-type-badge" style={{marginTop: '15px', marginBottom: '10px'}}>
                                                         <span className={`badge ${job.employerId?.employerType === 'consultant' ? 'badge-warning' : 'badge-success'}`} 
