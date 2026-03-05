@@ -14,6 +14,10 @@ import { BACKEND_URL } from '../../../../utils/api';
 function EmpCandidateReviewPage() {
     const navigate = useNavigate();
     const { applicationId } = useParams();
+    const API_BASE_URL = process.env.REACT_APP_API_URL
+        || (window.location.hostname === 'localhost'
+            ? 'http://localhost:5000/api'
+            : `${window.location.origin}/api`);
     const [application, setApplication] = useState(null);
     const [candidate, setCandidate] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -56,7 +60,7 @@ function EmpCandidateReviewPage() {
             const token = localStorage.getItem('employerToken');
             if (!token) return;
 
-            const response = await fetch(`http://localhost:5000/api/employer/applications/${applicationId}`, {
+            const response = await fetch(`${API_BASE_URL}/employer/applications/${applicationId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -229,7 +233,7 @@ function EmpCandidateReviewPage() {
                 result: p.result || null
             }));
             
-            const response = await fetch(`http://localhost:5000/api/employer/applications/${applicationId}/review`, {
+            const response = await fetch(`${API_BASE_URL}/employer/applications/${applicationId}/review`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -268,7 +272,7 @@ function EmpCandidateReviewPage() {
                 result: p.result || null
             }));
             
-            await fetch(`http://localhost:5000/api/employer/applications/${applicationId}/review`, {
+            await fetch(`${API_BASE_URL}/employer/applications/${applicationId}/review`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -287,7 +291,7 @@ function EmpCandidateReviewPage() {
     const updateApplicationStatus = async (status) => {
         try {
             const token = localStorage.getItem('employerToken');
-            const response = await fetch(`http://localhost:5000/api/employer/applications/${applicationId}/status`, {
+            const response = await fetch(`${API_BASE_URL}/employer/applications/${applicationId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1189,7 +1193,7 @@ function EmpCandidateReviewPage() {
                                     {capturesModal.captures.map((capture, index) => (
                                         <div key={index} className="capture-item">
                                             <img 
-                                                src={capture.startsWith('data:') ? capture : `http://localhost:5000/${capture}`} 
+                                                src={capture.startsWith('data:') ? capture : `${BACKEND_URL}/${capture.replace(/^\/+/, '')}`} 
                                                 alt={`Capture ${index + 1}`}
                                                 onClick={() => viewDocument(capture, `Capture ${index + 1}`)}
                                             />

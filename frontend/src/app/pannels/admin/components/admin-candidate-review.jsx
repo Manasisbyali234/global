@@ -101,6 +101,16 @@ function AdminCandidateReviewPage() {
         setDocumentModal({ isOpen: false, url: '', title: '' });
     };
 
+    const getProfileImageSrc = () => {
+        const imageValue = candidate?.profilePicture || candidate?.profileImage;
+        if (!imageValue || typeof imageValue !== 'string') return '';
+        if (imageValue.startsWith('data:') || imageValue.startsWith('http://') || imageValue.startsWith('https://')) {
+            return imageValue;
+        }
+        const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
+        return `${BACKEND_URL}${normalizedPath}`;
+    };
+
     if (loading) {
         return (
             <div className="candidate-review-loading">
@@ -250,6 +260,8 @@ function AdminCandidateReviewPage() {
         return 3; // Default for Degrees/Diplomas
     };
 
+    const profileImageSrc = getProfileImageSrc();
+
     return (
         <div className="candidate-review-container">
             {/* Header Section */}
@@ -268,8 +280,8 @@ function AdminCandidateReviewPage() {
             <div className="profile-card">
                 <div className="profile-header">
                     <div className="profile-avatar">
-                        {candidate.profilePicture ? (
-                            <img src={candidate.profilePicture.startsWith('data:') ? candidate.profilePicture : `http://localhost:5000/${candidate.profilePicture}`} alt={candidate.name} />
+                        {profileImageSrc ? (
+                            <img src={profileImageSrc} alt={candidate.name} />
                         ) : (
                             <div className="avatar-placeholder">
                                 <i className="fas fa-user"></i>

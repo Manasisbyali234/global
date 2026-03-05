@@ -103,7 +103,7 @@ exports.getJobs = async (req, res) => {
 
     // Optimized query for better performance
     const jobs = await Job.find(query)
-      .select('title location jobType applicationLimit category ctc createdAt employerId companyName companyLogo education shift lastDateOfApplication lastDateOfApplicationTime')
+      .select('title location jobType applicationLimit category ctc createdAt employerId companyName companyLogo education shift lastDateOfApplication lastDateOfApplicationTime vacancies')
       .sort(sortCriteria)
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))

@@ -371,8 +371,8 @@ const StartAssessment = () => {
                         attemptIdLength: attemptId?.length
                     });
                     
-                    // Use backend URL
-                    const response = await axios.post('http://localhost:5000/api/candidate/assessments/capture', formData, {
+                    // Use backend URL (will be rewritten by axios interceptor)
+                    const response = await axios.post('/api/candidate/assessments/capture', formData, {
                         headers: { 
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data'
@@ -751,7 +751,7 @@ const StartAssessment = () => {
 			formData.append('questionIndex', currentQuestionIndex);
 
 			const token = localStorage.getItem('candidateToken');
-			const response = await axios.post('http://localhost:5000/api/candidate/assessments/upload-answer', formData, {
+			const response = await axios.post('/api/candidate/assessments/upload-answer', formData, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
 					'Content-Type': 'multipart/form-data'

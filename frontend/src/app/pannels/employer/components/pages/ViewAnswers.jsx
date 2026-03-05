@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { BACKEND_URL } from '../../../../../utils/api';
 
 export default function ViewAnswers() {
   const { attemptId } = useParams();
   const navigate = useNavigate();
+  const API_BASE_URL = process.env.REACT_APP_API_URL
+    || (window.location.hostname === 'localhost'
+      ? 'http://localhost:5000/api'
+      : `${window.location.origin}/api`);
   const [attempt, setAttempt] = useState(null);
   const [assessment, setAssessment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const resolveFileUrl = (path) => {
+    if (!path || typeof path !== 'string') return '';
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${BACKEND_URL}${normalizedPath}`;
+  };
 
   useEffect(() => {
     fetchAnswers();
@@ -20,7 +32,7 @@ export default function ViewAnswers() {
       console.log('Fetching answers for attemptId:', attemptId);
       console.log('Using token:', token ? 'Token exists' : 'No token found');
       
-      const response = await axios.get(`http://localhost:5000/api/employer/assessment-attempts/${attemptId}`, {
+      const response = await axios.get(`${API_BASE_URL}/employer/assessment-attempts/${attemptId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -388,7 +400,7 @@ export default function ViewAnswers() {
                           {question.type === 'image' ? (
                             <div style={{ marginTop: '1rem' }}>
                               <img 
-                                src={answer.uploadedFile.path.startsWith('http') ? answer.uploadedFile.path : `http://localhost:5000${answer.uploadedFile.path}`} 
+                                src={resolveFileUrl(answer.uploadedFile.path)} 
                                 alt="Candidate's upload" 
                                 style={{
                                   maxWidth: '100%',
@@ -414,7 +426,7 @@ export default function ViewAnswers() {
                               </div>
                               <div style={{ marginTop: '0.5rem' }}>
                                 <a 
-                                  href={answer.uploadedFile.path.startsWith('http') ? answer.uploadedFile.path : `http://localhost:5000${answer.uploadedFile.path}`} 
+                                  href={resolveFileUrl(answer.uploadedFile.path)} 
                                   target="_blank" 
                                   rel="noopener noreferrer"
                                   style={{ color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'underline' }}
@@ -440,7 +452,7 @@ export default function ViewAnswers() {
                                   {(answer.uploadedFile.size / 1024).toFixed(1)} KB • {new Date(answer.uploadedFile.uploadedAt).toLocaleString()}
                                 </div>
                                 <a 
-                                  href={answer.uploadedFile.path.startsWith('http') ? answer.uploadedFile.path : `http://localhost:5000${answer.uploadedFile.path}`} 
+                                  href={resolveFileUrl(answer.uploadedFile.path)} 
                                   target="_blank" 
                                   rel="noopener noreferrer"
                                   style={{ 
@@ -507,7 +519,7 @@ export default function ViewAnswers() {
                               {question.type === 'image' ? (
                                 <div style={{ marginTop: '1rem' }}>
                                   <img 
-                                    src={answer.uploadedFile.data || (answer.uploadedFile.path?.startsWith('http') ? answer.uploadedFile.path : `http://localhost:5000${answer.uploadedFile.path}`)} 
+                                    src={answer.uploadedFile.data || resolveFileUrl(answer.uploadedFile.path)} 
                                     alt="Candidate's upload" 
                                     style={{
                                       maxWidth: '100%',
