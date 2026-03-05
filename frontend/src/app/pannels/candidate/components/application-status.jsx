@@ -1372,6 +1372,22 @@ function CanStatusPage() {
 													const candidateId = selectedApplication.candidateId;
 													const normalizedRoundType = (roundType || '').toString().split('_')[0];
 													const bookSlotUrl = `https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`;
+													const bookingKey = `candidate_slot_booked_${selectedApplication._id}_${roundId}_${candidateId}`;
+													const isLocallyMarkedBooked = (() => {
+														try {
+															return localStorage.getItem(bookingKey) === '1';
+														} catch (error) {
+															return false;
+														}
+													})();
+													const hasCandidateRef = (payload) => {
+														if (!payload || !candidateId) return false;
+														try {
+															return JSON.stringify(payload).includes(String(candidateId));
+														} catch (error) {
+															return false;
+														}
+													};
 													
 													const relatedProcess = selectedApplication.interviewProcesses?.find((process) => {
 														const processType = (process?.type || '').toString().split('_')[0];
@@ -1386,12 +1402,19 @@ function CanStatusPage() {
 													const processStatus = (relatedProcess?.status || '').toLowerCase();
 													const stageStatus = (relatedStage?.status || '').toLowerCase();
 													const hasBookedSlot = Boolean(
+														isLocallyMarkedBooked ||
 														['interview_scheduled', 'scheduled', 'in_progress'].includes(processStatus) ||
 														['scheduled', 'in_progress'].includes(stageStatus) ||
+														roundDetails?.candidateSlotBooked ||
 														relatedStage?.meetingLink ||
 														roundDetails?.meetingLink ||
 														roundDetails?.joinLink ||
 														roundDetails?.meetingUrl ||
+														hasCandidateRef(roundDetails?.scheduleObject) ||
+														hasCandidateRef(roundDetails?.formDataObject) ||
+														hasCandidateRef(roundDetails?.schedulesArray) ||
+														hasCandidateRef(roundDetails?.daySchedulesArray) ||
+														hasCandidateRef(roundDetails?.roomsArray) ||
 														roundDetails?.isBooked ||
 														roundDetails?.bookingConfirmed
 													);
@@ -1421,6 +1444,11 @@ function CanStatusPage() {
 																	href={joinUrl}
 																	target="_blank" 
 																	rel="noopener noreferrer"
+																	onClick={() => {
+																		try {
+																			localStorage.setItem(bookingKey, '1');
+																		} catch (error) {}
+																	}}
 																	className="btn btn-primary"
 																	style={{
 																		fontSize: '14px',
