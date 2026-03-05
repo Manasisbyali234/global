@@ -590,8 +590,6 @@ function JobDetail1Page() {
                                                             <span>{job.companyName || job.employerId?.companyName || 'Not specified'}</span>
                                                         )}
                                                     </p>
-                                                    <p className="twm-job-address"><i className="feather-map-pin" />{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}</p>
-                                                    
                                                     {job.shift && (
                                                         <p className="twm-job-shift" style={{marginTop: '10px'}}>
                                                             <i className="feather-clock" style={{marginRight: '8px', color: '#ff6b35'}}></i>
@@ -637,6 +635,8 @@ function JobDetail1Page() {
                                                             )}
                                                         </div>
                                                     )}
+
+                                                    <p className="twm-job-address" style={{marginTop: '12px'}}><i className="feather-map-pin" />{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'Location not specified')}</p>
 
                                                     <div className="twm-job-self-bottom" style={{marginTop: '40px', paddingTop: '20px', textAlign: 'right', paddingRight: '20px'}}>
                                                         <button
