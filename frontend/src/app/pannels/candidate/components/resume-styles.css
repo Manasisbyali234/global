@@ -96,6 +96,33 @@ select:focus {
     z-index: 10;
 }
 
+/* Resume dropdown layering fix:
+   keep heading readable by default, but raise body while interacting with fields/dropdowns */
+.resume-content-container .panel-heading {
+    z-index: 5 !important;
+}
+
+.resume-content-container .panel-body {
+    z-index: 1 !important;
+}
+
+.resume-content-container .panel-body:focus-within,
+.resume-content-container .wt-panel-body:focus-within,
+.resume-content-container .twm-panel-inner:focus-within {
+    position: relative;
+    z-index: 20 !important;
+}
+
+.resume-content-container .panel.dropdown-open-panel {
+    position: relative;
+    z-index: 3000 !important;
+}
+
+.resume-content-container .dropdown-open-container {
+    position: relative;
+    z-index: 3001 !important;
+}
+
 /* Personal Details and other panels should have lower z-index than Key Skills */
 .panel:not(:has(.fa-cogs)) {
     z-index: 1 !important;

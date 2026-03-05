@@ -19,14 +19,43 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
     useEffect(() => {
         if (isOpen && wrapperRef.current) {
             const rect = wrapperRef.current.getBoundingClientRect();
+            const spaceAbove = rect.top;
             const spaceBelow = window.innerHeight - rect.bottom;
-            // If less than 300px below, drop up
-            if (spaceBelow < 300 && rect.top > 300) {
+            const visibleOptionCount = options.filter(opt =>
+                opt.label.toLowerCase().includes(search.toLowerCase())
+            ).length;
+            const preferredMenuHeight = Math.min(300, Math.max(180, visibleOptionCount * 36 + 60));
+
+            // Prefer opening downward. Only drop up if:
+            // 1) not enough space below for the menu, and
+            // 2) there is more space above than below.
+            if (spaceBelow < preferredMenuHeight && spaceAbove > spaceBelow) {
                 setDropUp(true);
             } else {
                 setDropUp(false);
             }
         }
+    }, [isOpen, options, search]);
+
+    useEffect(() => {
+        const wrapper = wrapperRef.current;
+        if (!wrapper) return undefined;
+
+        const panel = wrapper.closest('.panel');
+        const panelContainer = wrapper.closest('.panel-body, .wt-panel-body, .twm-panel-inner');
+
+        if (isOpen) {
+            panel?.classList.add('dropdown-open-panel');
+            panelContainer?.classList.add('dropdown-open-container');
+        } else {
+            panel?.classList.remove('dropdown-open-panel');
+            panelContainer?.classList.remove('dropdown-open-container');
+        }
+
+        return () => {
+            panel?.classList.remove('dropdown-open-panel');
+            panelContainer?.classList.remove('dropdown-open-container');
+        };
     }, [isOpen]);
 
     const filtered = options.filter(opt => 
