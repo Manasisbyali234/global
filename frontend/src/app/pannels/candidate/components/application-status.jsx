@@ -1433,6 +1433,15 @@ function CanStatusPage() {
 													
 													const processStatus = (relatedProcess?.status || '').toLowerCase();
 													const stageStatus = (relatedStage?.status || '').toLowerCase();
+													const currentRoundStatusText = (roundStatus?.text || '').toLowerCase();
+													const currentRoundCompletedStates = [
+														'interview_completed', 'completed', 'selected', 'rejected',
+														'failed', 'passed', 'expired'
+													];
+													const isCurrentRoundCompleted =
+														currentRoundCompletedStates.includes(processStatus) ||
+														currentRoundCompletedStates.includes(stageStatus) ||
+														currentRoundCompletedStates.includes(currentRoundStatusText);
 													const hasBookedSlot = Boolean(
 														isLocallyMarkedBooked ||
 														['interview_scheduled', 'scheduled', 'in_progress'].includes(processStatus) ||
@@ -1463,17 +1472,23 @@ function CanStatusPage() {
 													if (roundIndex > 0) {
 														const previousRound = roundsList[roundIndex - 1];
 														const previousRoundName = typeof previousRound === 'string' ? previousRound : previousRound.name;
+														const normalizeType = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
 														const previousRoundTypeRaw = typeof previousRound === 'object' ? previousRound.roundType : previousRoundName.toLowerCase();
-														const previousRoundType = (previousRoundTypeRaw || '').toString().split('_')[0];
+														const previousRoundType = normalizeType(previousRoundTypeRaw);
 														const previousRoundKey = typeof previousRound === 'object' ? previousRound.uniqueKey : previousRoundType;
 														
 														const previousRelatedProcess = selectedApplication.interviewProcesses?.find((process) => {
-															const processType = (process?.type || '').toString().split('_')[0];
-															return processType === previousRoundType || String(process?.id) === String(previousRoundKey);
+															const processType = normalizeType(process?.type || '');
+															const processName = normalizeType(process?.name || '');
+															const roundNameNorm = normalizeType(previousRoundName || '');
+															return processType === previousRoundType ||
+																processName.includes(roundNameNorm) ||
+																String(process?.id) === String(previousRoundKey) ||
+																String(process?._id) === String(previousRoundKey);
 														});
 														
 														const previousRelatedStage = selectedApplication.interviewProcess?.stages?.find((stage) => {
-															const stageType = (stage?.stageType || '').toString().split('_')[0];
+															const stageType = normalizeType(stage?.stageType || '');
 															return String(stage?._id) === String(previousRoundKey) || stageType === previousRoundType;
 														});
 														
@@ -1482,7 +1497,7 @@ function CanStatusPage() {
 														const previousRoundStatus = getRoundStatus(selectedApplication, roundIndex - 1, previousRoundName, true);
 														const previousStatusText = (previousRoundStatus?.text || '').toLowerCase();
 
-														const invalidStatusStates = ['', 'pending', 'under_review'];
+														const invalidStatusStates = ['', 'pending'];
 														const hasValidProcessStatus =
 															Boolean(previousProcessStatus) && !invalidStatusStates.includes(previousProcessStatus);
 														const hasValidStageStatus =
@@ -1491,6 +1506,7 @@ function CanStatusPage() {
 
 														const previousRemarks =
 															(previousRelatedProcess?.id && selectedApplication.processRemarks?.[previousRelatedProcess.id]) ||
+															(previousRelatedProcess?._id && selectedApplication.processRemarks?.[previousRelatedProcess._id]) ||
 															previousRelatedProcess?.remarks ||
 															previousRelatedProcess?.feedback ||
 															previousRelatedStage?.remarks ||
@@ -1498,16 +1514,20 @@ function CanStatusPage() {
 															'';
 														const previousRemarksUpdated = typeof previousRemarks === 'string' && previousRemarks.trim().length > 0;
 
-														// For assessment, remarks may not exist; allow progression when status is completed.
+														// For assessment, remarks may not exist; keep completion-based gating.
 														const isPreviousAssessment = previousRoundName === 'Assessment';
 														const completedStates = ['completed', 'passed', 'failed', 'rejected', 'expired'];
 														const previousCompleted = completedStates.includes(previousStatusText);
 
 														canBookThisRound = isPreviousAssessment
 															? previousCompleted
-															: (previousCompleted && previousStatusUpdated && previousRemarksUpdated);
+															: (previousStatusUpdated && previousRemarksUpdated);
 													}
 													
+													if (isCurrentRoundCompleted) {
+														return null;
+													}
+
 													return (
 														<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
 															{canBookThisRound ? (

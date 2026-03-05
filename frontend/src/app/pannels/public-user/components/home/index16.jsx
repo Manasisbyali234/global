@@ -1060,9 +1060,6 @@ function Home16Page() {
                                                         <div className="company-name">
                                                             {job.employerId?.companyName || "Company"}
                                                         </div>
-                                                        <div className="poster-type">
-                                                            {job.postedBy || (job.employerId?.employerType === "consultant" ? "Consultancy" : "Company")}
-                                                        </div>
                                                     </div>
                                                     <button
                                                         className="apply-now-btn"
