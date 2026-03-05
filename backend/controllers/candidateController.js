@@ -1278,9 +1278,11 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             const key = round.roundType || round.name;
             if (key) {
               interviewRoundIds[key] = round._id;
-              // Merge subStages into interviewRoundDetails if they exist
+              // Merge day stages into interviewRoundDetails if they exist
               if (app.jobId.interviewRoundDetails && app.jobId.interviewRoundDetails[key] && round.subStages) {
                 app.jobId.interviewRoundDetails[key].subStages = round.subStages;
+                app.jobId.interviewRoundDetails[key].days = round.subStages;
+                app.jobId.interviewRoundDetails[key].daysArray = round.subStages;
               }
             }
           });

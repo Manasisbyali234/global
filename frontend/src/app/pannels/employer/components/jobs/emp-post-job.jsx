@@ -880,7 +880,7 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}));
 
-		showSuccess(`Added ${dayCount} sub-stage${dayCount > 1 ? 's' : ''} for ${dayCount} day${dayCount > 1 ? 's' : ''}`);
+		showSuccess(`Added ${dayCount} day${dayCount > 1 ? 's' : ''} for scheduling`);
 	};
 
 	const handleLogoUpload = (e) => {
@@ -1141,13 +1141,13 @@ export default function EmpPostJob({ onNext }) {
 			if (details?.subStages && Array.isArray(details.subStages) && details.subStages.length > 0) {
 				details.subStages.forEach((subStage, index) => {
 					if (!subStage.fromDate) {
-						errorMessages.push(`Please select Date for ${roundName} - Sub-Stage ${index + 1}`);
+						errorMessages.push(`Please select Date for ${roundName} - Day ${index + 1}`);
 					}
 					if (!subStage.startTime) {
-						errorMessages.push(`Please select Start Time for ${roundName} - Sub-Stage ${index + 1}`);
+						errorMessages.push(`Please select Start Time for ${roundName} - Day ${index + 1}`);
 					}
 					if (!subStage.endTime) {
-						errorMessages.push(`Please select End Time for ${roundName} - Sub-Stage ${index + 1}`);
+						errorMessages.push(`Please select End Time for ${roundName} - Day ${index + 1}`);
 					}
 					
 					// Check for time conflicts with other sub-stages in the same round
@@ -1161,7 +1161,7 @@ export default function EmpPostJob({ onNext }) {
 								const otherEnd = new Date(`${otherStage.fromDate}T${otherStage.endTime}`);
 								
 								if ((currentStart >= otherStart && currentStart < otherEnd) || (currentEnd > otherStart && currentEnd <= otherEnd) || (currentStart <= otherStart && currentEnd >= otherEnd)) {
-									errorMessages.push(`${roundName} - Sub-Stage ${index + 1} has time conflict with Sub-Stage ${otherIndex + 1}`);
+									errorMessages.push(`${roundName} - Day ${index + 1} has time conflict with Day ${otherIndex + 1}`);
 								}
 							}
 						});
@@ -4111,7 +4111,7 @@ export default function EmpPostJob({ onNext }) {
 															/>
 														</div>
 														<div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '8px', marginTop: '4px' }}>
-															<label style={{ fontSize: '11px', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: '600' }}>GENERATE SUB-STAGES</label>
+															<label style={{ fontSize: '11px', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: '600' }}>GENERATE DAYS</label>
 															<input
 																type="number"
 																min="1"
@@ -4173,7 +4173,7 @@ export default function EmpPostJob({ onNext }) {
 													}}>
 														<div style={{ marginBottom: '12px' }}>
 															<div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
-																<span><i className="fa fa-layer-group" style={{ marginRight: '6px', color: '#ff6b35' }}></i>Sub-Stage {subIndex + 1}</span>
+																<span><i className="fa fa-layer-group" style={{ marginRight: '6px', color: '#ff6b35' }}></i>Day {subIndex + 1}</span>
 															</div>
 														</div>
 														<div data-sub-stage-flex style={{
@@ -4343,7 +4343,7 @@ export default function EmpPostJob({ onNext }) {
 															return;
 														}
 														if (!subStages || subStages.length === 0) {
-															showWarning(`Please generate sub-stages first by entering a number of days in the 'Generate Sub-Stages' field for ${displayName}`);
+															showWarning(`Please generate days first by entering a number of days in the 'Generate Days' field for ${displayName}`);
 															return;
 														}
 														if (!details?.fromDate) {
@@ -4387,7 +4387,8 @@ export default function EmpPostJob({ onNext }) {
 																	startTime: details.startTime,
 																	endTime: details.endTime,
 																	description: details.description,
-																	subStages: subStagesToSave
+																	subStages: subStagesToSave,
+																	days: subStagesToSave
 																})
 															});
 
@@ -4961,11 +4962,11 @@ export default function EmpPostJob({ onNext }) {
 								<i className="fa fa-clock" style={{fontSize: 28, color: '#3b82f6'}}></i>
 							</div>
 							<h3 style={{margin: 0, fontSize: 22, color: '#1f2937', fontWeight: 700}}>
-								Confirm Sub-Stage Starting Time
+								Confirm Day Starting Time
 							</h3>
 						</div>
 						<p style={{fontSize: 15, color: '#4b5563', lineHeight: 1.6, marginBottom: 16, textAlign: 'center'}}>
-							Are you sure you want to set the date to <strong>{formatDate(showSubStageConfirm.selectedDate)}</strong> for Sub-Stage {showSubStageConfirm.subIndex + 1}?
+							Are you sure you want to set the date to <strong>{formatDate(showSubStageConfirm.selectedDate)}</strong> for Day {showSubStageConfirm.subIndex + 1}?
 						</p>
 						<div style={{fontSize: 13, color: '#dc2626', lineHeight: 1.5, marginBottom: 24, textAlign: 'left', background: '#fef2f2', padding: '12px', borderRadius: 8, border: '1px solid #fecaca'}}>
 							<strong>⚠️ Important:</strong> The total interview time (start time − end time) must be greater than or equal to the total required duration.<br/><br/>
@@ -4998,7 +4999,7 @@ export default function EmpPostJob({ onNext }) {
 									const subStages = details?.subStages || [];
 									const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, fromDate: selectedDate } : s);
 									setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages, toDate: selectedDate } } }));
-									showSuccess(`Date set to ${formatDate(selectedDate)} for Sub-Stage ${subIndex + 1}`);
+									showSuccess(`Date set to ${formatDate(selectedDate)} for Day ${subIndex + 1}`);
 									setShowSubStageConfirm(null);
 								}}
 								style={{

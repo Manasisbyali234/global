@@ -1370,6 +1370,39 @@ function CanStatusPage() {
 													const roundType = typeof round === 'object' ? round.roundType : round.toLowerCase();
 													const roundId = selectedApplication.interviewRoundIds?.[roundType] || uniqueKey;
 													const candidateId = selectedApplication.candidateId;
+													const normalizedRoundType = (roundType || '').toString().split('_')[0];
+													const bookSlotUrl = `https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`;
+													
+													const relatedProcess = selectedApplication.interviewProcesses?.find((process) => {
+														const processType = (process?.type || '').toString().split('_')[0];
+														return processType === normalizedRoundType || String(process?.id) === String(uniqueKey);
+													});
+													
+													const relatedStage = selectedApplication.interviewProcess?.stages?.find((stage) => {
+														const stageType = (stage?.stageType || '').toString().split('_')[0];
+														return String(stage?._id) === String(uniqueKey) || stageType === normalizedRoundType;
+													});
+													
+													const processStatus = (relatedProcess?.status || '').toLowerCase();
+													const stageStatus = (relatedStage?.status || '').toLowerCase();
+													const hasBookedSlot = Boolean(
+														['interview_scheduled', 'scheduled', 'in_progress'].includes(processStatus) ||
+														['scheduled', 'in_progress'].includes(stageStatus) ||
+														relatedStage?.meetingLink ||
+														roundDetails?.meetingLink ||
+														roundDetails?.joinLink ||
+														roundDetails?.meetingUrl ||
+														roundDetails?.isBooked ||
+														roundDetails?.bookingConfirmed
+													);
+													const joinUrl =
+														relatedStage?.meetingLink ||
+														roundDetails?.meetingLink ||
+														roundDetails?.joinLink ||
+														roundDetails?.meetingUrl ||
+														bookSlotUrl;
+													const buttonLabel = hasBookedSlot ? 'Join Now' : 'Book Your Slot';
+													const buttonIcon = hasBookedSlot ? 'fa-video-camera' : 'fa-calendar';
 													let canBookThisRound = true;
 
 													if (roundIndex > 0) {
@@ -1385,7 +1418,7 @@ function CanStatusPage() {
 														<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
 															{canBookThisRound ? (
 																<a 
-																	href={`https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`}
+																	href={joinUrl}
 																	target="_blank" 
 																	rel="noopener noreferrer"
 																	className="btn btn-primary"
@@ -1396,8 +1429,8 @@ function CanStatusPage() {
 																		whiteSpace: 'nowrap'
 																	}}
 																>
-																	<i className="fa fa-calendar me-2" style={{fontSize: '14px'}}></i>
-																	Book Your Slot
+																	<i className={`fa ${buttonIcon} me-2`} style={{fontSize: '14px'}}></i>
+																	{buttonLabel}
 																</a>
 															) : (
 																<button
@@ -1414,7 +1447,7 @@ function CanStatusPage() {
 																	}}
 																>
 																	<i className="fa fa-lock me-2" style={{fontSize: '14px'}}></i>
-																	Book Your Slot
+																	{buttonLabel}
 																</button>
 															)}
 														</div>
