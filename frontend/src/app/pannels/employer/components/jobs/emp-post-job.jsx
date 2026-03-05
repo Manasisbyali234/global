@@ -19,18 +19,26 @@ import "./emp-post-job-mobile-fix.css";
 // Location options array
 const LOCATION_OPTIONS = [
 	"Bangalore", "Bangalore - Yeshwantpur", "Bangalore - Whitefield", "Bangalore - Koramangala", "Bangalore - Indiranagar", "Bangalore - Electronic City", "Bangalore - Marathahalli", "Bangalore - BTM Layout", "Bangalore - Jayanagar", "Bangalore - HSR Layout", "Bangalore - Hebbal", "Bangalore - Yelahanka", "Bangalore - Banashankari", "Bangalore - JP Nagar", "Bangalore - Rajajinagar", "Bangalore - Malleshwaram",
-	"Mumbai", "Delhi", "Hyderabad", "Chennai", "Pune", "Kolkata", "Ahmedabad",
-	"Surat", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", "Bhopal",
-	"Visakhapatnam", "Pimpri-Chinchwad", "Patna", "Vadodara", "Ghaziabad", "Ludhiana",
+	"Mumbai", "Mumbai - Andheri", "Mumbai - Bandra", "Mumbai - Borivali", "Mumbai - Powai", "Mumbai - Goregaon", "Mumbai - Malad", "Mumbai - Kandivali", "Mumbai - Dadar", "Mumbai - Kurla", "Mumbai - Vikhroli", "Mumbai - Mulund",
+	"Delhi", "Delhi - Connaught Place", "Delhi - Dwarka", "Delhi - Rohini", "Delhi - Saket", "Delhi - Lajpat Nagar", "Delhi - Karol Bagh", "Delhi - Nehru Place", "Delhi - Janakpuri", "Delhi - Pitampura",
+	"Hyderabad", "Hyderabad - Hitech City", "Hyderabad - Gachibowli", "Hyderabad - Madhapur", "Hyderabad - Kukatpally", "Hyderabad - Secunderabad", "Hyderabad - Banjara Hills", "Hyderabad - Jubilee Hills", "Hyderabad - Ameerpet",
+	"Chennai", "Chennai - Anna Nagar", "Chennai - T Nagar", "Chennai - Velachery", "Chennai - Adyar", "Chennai - Tambaram", "Chennai - Porur", "Chennai - OMR", "Chennai - Guindy",
+	"Pune", "Pune - Hinjewadi", "Pune - Kharadi", "Pune - Wakad", "Pune - Baner", "Pune - Viman Nagar", "Pune - Aundh", "Pune - Hadapsar", "Pune - Magarpatta",
+	"Kolkata", "Kolkata - Salt Lake", "Kolkata - Rajarhat", "Kolkata - Park Street", "Kolkata - Howrah", "Kolkata - Ballygunge", "Kolkata - New Town", "Kolkata - Dum Dum",
+	"Ahmedabad", "Ahmedabad - Satellite", "Ahmedabad - Vastrapur", "Ahmedabad - Maninagar", "Ahmedabad - Bopal", "Ahmedabad - Prahlad Nagar", "Ahmedabad - Navrangpura",
+	"Surat", "Jaipur", "Jaipur - Malviya Nagar", "Jaipur - Vaishali Nagar", "Jaipur - Mansarovar", "Jaipur - C Scheme",
+	"Lucknow", "Lucknow - Gomti Nagar", "Lucknow - Hazratganj", "Lucknow - Indira Nagar",
+	"Kanpur", "Nagpur", "Indore", "Indore - Vijay Nagar", "Indore - Palasia", "Indore - Rau",
+	"Thane", "Bhopal", "Visakhapatnam", "Pimpri-Chinchwad", "Patna", "Vadodara", "Ghaziabad", "Ludhiana",
 	"Agra", "Nashik", "Faridabad", "Meerut", "Rajkot", "Kalyan-Dombivali", "Vasai-Virar",
-	"Varanasi", "Srinagar", "Aurangabad", "Dhanbad", "Amritsar", "Navi Mumbai", "Allahabad",
-	"Ranchi", "Howrah", "Coimbatore", "Jabalpur", "Gwalior", "Vijayawada", "Jodhpur",
+	"Varanasi", "Srinagar", "Aurangabad", "Dhanbad", "Amritsar", "Navi Mumbai", "Navi Mumbai - Vashi", "Navi Mumbai - Kharghar", "Navi Mumbai - Nerul", "Navi Mumbai - Belapur",
+	"Allahabad", "Ranchi", "Howrah", "Coimbatore", "Jabalpur", "Gwalior", "Vijayawada", "Jodhpur",
 	"Madurai", "Raipur", "Kota", "Guwahati", "Chandigarh", "Thiruvananthapuram", "Solapur",
-	"Hubballi-Dharwad", "Tiruchirappalli", "Bareilly", "Mysore", "Tiruppur", "Gurgaon",
+	"Hubballi-Dharwad", "Tiruchirappalli", "Bareilly", "Mysore", "Tiruppur", "Gurgaon", "Gurgaon - Cyber City", "Gurgaon - DLF Phase 1", "Gurgaon - DLF Phase 2", "Gurgaon - Sohna Road", "Gurgaon - Golf Course Road",
 	"Aligarh", "Jalandhar", "Bhubaneswar", "Salem", "Warangal", "Guntur", "Bhiwandi",
-	"Saharanpur", "Gorakhpur", "Bikaner", "Amravati", "Noida", "Jamshedpur", "Bhilai Nagar",
-	"Cuttack", "Firozabad", "Kochi", "Bhavnagar", "Dehradun", "Durgapur", "Asansol",
-	"Nanded", "Kolhapur", "Ajmer", "Gulbarga", "Jamnagar", "Ujjain", "Loni", "Siliguri",
+	"Saharanpur", "Gorakhpur", "Bikaner", "Amravati", "Noida", "Noida - Sector 62", "Noida - Sector 18", "Noida - Sector 16", "Noida - Greater Noida",
+	"Jamshedpur", "Bhilai Nagar", "Cuttack", "Firozabad", "Kochi", "Kochi - Kakkanad", "Kochi - Edappally",
+	"Bhavnagar", "Dehradun", "Durgapur", "Asansol", "Nanded", "Kolhapur", "Ajmer", "Gulbarga", "Jamnagar", "Ujjain", "Loni", "Siliguri",
 	"Jhansi", "Ulhasnagar", "Jammu", "Sangli-Miraj & Kupwad", "Mangalore", "Erode",
 	"Belgaum", "Ambattur", "Tirunelveli", "Malegaon", "Gaya", "Jalgaon", "Udaipur",
 	"Maheshtala", "Remote", "Work From Home", "Hybrid"
@@ -2703,7 +2711,7 @@ export default function EmpPostJob({ onNext }) {
 									maxHeight: '300px',
 									overflowY: 'auto'
 								}}>
-									{["Any", "10th Pass", "12th Pass", "Diploma", "B.E", "B.Tech", "B.Sc", "BCA", "BBA", "B.Com", "BA", "M.E", "M.Tech", "M.Sc", "MCA", "MBA", "M.Com", "MA", "PhD"].map(level => (
+									{["Any", "10th Pass", "12th Pass", "Diploma", "ITI", "Polytechnic", "B.E", "B.Tech", "B.Sc", "BCA", "BBA", "B.Com", "BA", "B.Arch", "B.Pharm", "B.Ed", "BDS", "BAMS", "BHMS", "BPT", "B.Des", "BFA", "LLB", "MBBS", "M.E", "M.Tech", "M.Sc", "MCA", "MBA", "M.Com", "MA", "M.Arch", "M.Pharm", "M.Ed", "MDS", "MS", "MD", "LLM", "M.Des", "MFA", "PhD", "D.Pharm", "Postgraduate Diploma", "Certificate Course"].map(level => (
 										<label key={level} style={{
 											display: 'flex',
 											alignItems: 'center',
