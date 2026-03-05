@@ -18,6 +18,7 @@ const FAQ = require('../models/FAQ');
 const Partner = require('../models/Partner');
 const SiteSettings = require('../models/SiteSettings');
 const EmployerProfile = require('../models/EmployerProfile');
+const EmployerAdminProfile = require('../models/EmployerAdminProfile');
 const { base64ToBuffer, generateFilename } = require('../utils/base64Helper');
 const { createNotification } = require('./notificationController');
 const mongoose = require('mongoose');
@@ -1960,30 +1961,50 @@ exports.approveAuthorizationLetter = async (req, res) => {
   try {
     const { employerId, letterId } = req.params;
     
-    const profile = await EmployerProfile.findOne({ employerId });
-    if (!profile) {
+    const [profile, adminProfile] = await Promise.all([
+      EmployerProfile.findOne({ employerId }),
+      EmployerAdminProfile.findOne({ employerId })
+    ]);
+
+    if (!profile && !adminProfile) {
       return res.status(404).json({ success: false, message: 'Employer profile not found' });
     }
 
     // Find the authorization letter
-    const letterIndex = profile.authorizationLetters.findIndex(letter => letter._id.toString() === letterId);
-    if (letterIndex === -1) {
+    const letterIndex = profile?.authorizationLetters?.findIndex(letter => letter._id.toString() === letterId) ?? -1;
+    const adminLetterIndex = adminProfile?.authorizationLetters?.findIndex(letter => letter._id.toString() === letterId) ?? -1;
+    if (letterIndex === -1 && adminLetterIndex === -1) {
       return res.status(404).json({ success: false, message: 'Authorization letter not found' });
     }
 
     // Update the letter status
-    profile.authorizationLetters[letterIndex].status = 'approved';
-    profile.authorizationLetters[letterIndex].approvedAt = new Date();
-    profile.authorizationLetters[letterIndex].approvedBy = req.user.id;
-    profile.authorizationLetters[letterIndex].isResubmitted = false; // Reset resubmitted flag
-    
-    await profile.save();
+    if (letterIndex !== -1 && profile) {
+      profile.authorizationLetters[letterIndex].status = 'approved';
+      profile.authorizationLetters[letterIndex].approvedAt = new Date();
+      profile.authorizationLetters[letterIndex].approvedBy = req.user.id;
+      profile.authorizationLetters[letterIndex].isResubmitted = false; // Reset resubmitted flag
+    }
+    if (adminLetterIndex !== -1 && adminProfile) {
+      adminProfile.authorizationLetters[adminLetterIndex].status = 'approved';
+      adminProfile.authorizationLetters[adminLetterIndex].approvedAt = new Date();
+      adminProfile.authorizationLetters[adminLetterIndex].approvedBy = req.user.id;
+      adminProfile.authorizationLetters[adminLetterIndex].isResubmitted = false; // Reset resubmitted flag
+    }
+
+    await Promise.all([
+      profile ? profile.save() : Promise.resolve(),
+      adminProfile ? adminProfile.save() : Promise.resolve()
+    ]);
 
     // Create notification for employer
     try {
+      const approvedLetter = (profile && letterIndex !== -1)
+        ? profile.authorizationLetters[letterIndex]
+        : adminProfile.authorizationLetters[adminLetterIndex];
+
       const notificationData = {
         title: 'Authorization Letter Approved',
-        message: `Your authorization letter "${profile.authorizationLetters[letterIndex].fileName}" has been approved by admin. You can now proceed with the next steps.`,
+        message: `Your authorization letter "${approvedLetter.fileName}" has been approved by admin. You can now proceed with the next steps.`,
         type: 'document_approved',
         role: 'employer',
         relatedId: new mongoose.Types.ObjectId(employerId),
@@ -2006,30 +2027,50 @@ exports.rejectAuthorizationLetter = async (req, res) => {
   try {
     const { employerId, letterId } = req.params;
     
-    const profile = await EmployerProfile.findOne({ employerId });
-    if (!profile) {
+    const [profile, adminProfile] = await Promise.all([
+      EmployerProfile.findOne({ employerId }),
+      EmployerAdminProfile.findOne({ employerId })
+    ]);
+
+    if (!profile && !adminProfile) {
       return res.status(404).json({ success: false, message: 'Employer profile not found' });
     }
 
     // Find the authorization letter
-    const letterIndex = profile.authorizationLetters.findIndex(letter => letter._id.toString() === letterId);
-    if (letterIndex === -1) {
+    const letterIndex = profile?.authorizationLetters?.findIndex(letter => letter._id.toString() === letterId) ?? -1;
+    const adminLetterIndex = adminProfile?.authorizationLetters?.findIndex(letter => letter._id.toString() === letterId) ?? -1;
+    if (letterIndex === -1 && adminLetterIndex === -1) {
       return res.status(404).json({ success: false, message: 'Authorization letter not found' });
     }
 
     // Update the letter status
-    profile.authorizationLetters[letterIndex].status = 'rejected';
-    profile.authorizationLetters[letterIndex].rejectedAt = new Date();
-    profile.authorizationLetters[letterIndex].rejectedBy = req.user.id;
-    profile.authorizationLetters[letterIndex].isResubmitted = false; // Reset resubmitted flag
-    
-    await profile.save();
+    if (letterIndex !== -1 && profile) {
+      profile.authorizationLetters[letterIndex].status = 'rejected';
+      profile.authorizationLetters[letterIndex].rejectedAt = new Date();
+      profile.authorizationLetters[letterIndex].rejectedBy = req.user.id;
+      profile.authorizationLetters[letterIndex].isResubmitted = false; // Reset resubmitted flag
+    }
+    if (adminLetterIndex !== -1 && adminProfile) {
+      adminProfile.authorizationLetters[adminLetterIndex].status = 'rejected';
+      adminProfile.authorizationLetters[adminLetterIndex].rejectedAt = new Date();
+      adminProfile.authorizationLetters[adminLetterIndex].rejectedBy = req.user.id;
+      adminProfile.authorizationLetters[adminLetterIndex].isResubmitted = false; // Reset resubmitted flag
+    }
+
+    await Promise.all([
+      profile ? profile.save() : Promise.resolve(),
+      adminProfile ? adminProfile.save() : Promise.resolve()
+    ]);
 
     // Create notification for employer
     try {
+      const rejectedLetter = (profile && letterIndex !== -1)
+        ? profile.authorizationLetters[letterIndex]
+        : adminProfile.authorizationLetters[adminLetterIndex];
+
       const notificationData = {
         title: 'Authorization Letter Rejected',
-        message: `Your authorization letter "${profile.authorizationLetters[letterIndex].fileName}" has been rejected by admin. Please resubmit the document with correct information or contact support for assistance.`,
+        message: `Your authorization letter "${rejectedLetter.fileName}" has been rejected by admin. Please resubmit the document with correct information or contact support for assistance.`,
         type: 'document_rejected',
         role: 'employer',
         relatedId: new mongoose.Types.ObjectId(employerId),

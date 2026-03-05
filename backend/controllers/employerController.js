@@ -25,11 +25,17 @@ const generateToken = (id, role) => {
 
 const dedupeAuthorizationLetters = (letters = []) => {
   const latestByKey = new Map();
+  const lettersWithoutCompany = [];
 
   for (const letter of letters) {
     if (!letter) continue;
     const companyKey = (letter.companyName || '').trim().toLowerCase();
-    const key = companyKey ? `company:${companyKey}` : '__no_company__';
+    if (!companyKey) {
+      lettersWithoutCompany.push(letter);
+      continue;
+    }
+
+    const key = `company:${companyKey}`;
 
     if (!latestByKey.has(key)) {
       latestByKey.set(key, letter);
@@ -44,7 +50,7 @@ const dedupeAuthorizationLetters = (letters = []) => {
     }
   }
 
-  return Array.from(latestByKey.values());
+  return [...Array.from(latestByKey.values()), ...lettersWithoutCompany];
 };
 
 // Authentication Controllers
@@ -611,13 +617,10 @@ exports.uploadAuthorizationLetter = async (req, res) => {
     const existingLetters = dedupeAuthorizationLetters(adminProfile?.authorizationLetters || []);
     const normalizedCompanyName = companyName.trim().toLowerCase();
 
-    const existingDocIndex = existingLetters.findIndex(letter => {
+    const existingDocIndex = normalizedCompanyName ? existingLetters.findIndex(letter => {
       const letterCompany = (letter.companyName || '').trim().toLowerCase();
-      if (!normalizedCompanyName) {
-        return !letterCompany;
-      }
       return letterCompany === normalizedCompanyName;
-    });
+    }) : -1;
 
     if (existingDocIndex !== -1 && existingLetters[existingDocIndex]?.status === 'approved') {
       return res.status(400).json({
