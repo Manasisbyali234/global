@@ -246,7 +246,7 @@ function EmployersDetail1Page() {
 														</h4>
 														<p className="twm-employer-industry" style={{color: '#6b7280', marginBottom: '10px'}}>
 															<i className="feather-briefcase" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-															{employer.industrySector || employer.industry || 'Various Industries'}
+															{(employer.industrySector || employer.industry || 'Various Industries').replace(/\bit\b/gi, 'IT')}
 														</p>
 														<div className="hiring-type-badge" style={{marginBottom: '15px'}}>
 															<span className={`badge ${employer.employerId?.employerType === 'consultant' ? 'badge-warning' : 'badge-success'}`} 
