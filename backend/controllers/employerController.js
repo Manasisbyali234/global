@@ -23,6 +23,30 @@ const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 };
 
+const dedupeAuthorizationLetters = (letters = []) => {
+  const latestByKey = new Map();
+
+  for (const letter of letters) {
+    if (!letter) continue;
+    const companyKey = (letter.companyName || '').trim().toLowerCase();
+    const key = companyKey ? `company:${companyKey}` : '__no_company__';
+
+    if (!latestByKey.has(key)) {
+      latestByKey.set(key, letter);
+      continue;
+    }
+
+    const existing = latestByKey.get(key);
+    const existingTime = new Date(existing.uploadedAt || 0).getTime();
+    const currentTime = new Date(letter.uploadedAt || 0).getTime();
+    if (currentTime >= existingTime) {
+      latestByKey.set(key, letter);
+    }
+  }
+
+  return Array.from(latestByKey.values());
+};
+
 // Authentication Controllers
 exports.registerEmployer = async (req, res) => {
   try {
@@ -169,9 +193,15 @@ exports.getProfile = async (req, res) => {
       return res.json({ success: true, profile: null });
     }
 
+    const publicProfileObj = publicProfile?.toObject() || {};
+    const adminProfileObj = adminProfile?.toObject() || {};
+    if (Array.isArray(adminProfileObj.authorizationLetters)) {
+      adminProfileObj.authorizationLetters = dedupeAuthorizationLetters(adminProfileObj.authorizationLetters);
+    }
+
     const profile = {
-      ...(publicProfile?.toObject() || {}),
-      ...(adminProfile?.toObject() || {}),
+      ...publicProfileObj,
+      ...adminProfileObj,
       panCardVerified: employerProfile?.panCardVerified,
       panCardReuploadedAt: employerProfile?.panCardReuploadedAt,
       cinVerified: employerProfile?.cinVerified,
@@ -578,66 +608,58 @@ exports.uploadAuthorizationLetter = async (req, res) => {
     const companyName = req.body.companyName || '';
     
     const adminProfile = await EmployerAdminProfile.findOne({ employerId: req.user._id });
-    
-    // Check if there's an existing rejected document for the same company
-    let existingDocIndex = -1;
-    if (adminProfile && adminProfile.authorizationLetters) {
-      existingDocIndex = adminProfile.authorizationLetters.findIndex(
-        letter => letter.companyName === companyName && letter.status === 'rejected'
-      );
+    const existingLetters = dedupeAuthorizationLetters(adminProfile?.authorizationLetters || []);
+    const normalizedCompanyName = companyName.trim().toLowerCase();
+
+    const existingDocIndex = existingLetters.findIndex(letter => {
+      const letterCompany = (letter.companyName || '').trim().toLowerCase();
+      if (!normalizedCompanyName) {
+        return !letterCompany;
+      }
+      return letterCompany === normalizedCompanyName;
+    });
+
+    if (existingDocIndex !== -1 && existingLetters[existingDocIndex]?.status === 'approved') {
+      return res.status(400).json({
+        success: false,
+        message: 'Approved authorization letter cannot be overwritten.'
+      });
     }
-    
+
+    const updatedDocument = {
+      fileName: req.file.originalname,
+      fileData: documentPath,
+      uploadedAt: new Date(),
+      companyName: companyName,
+      status: 'pending',
+      isResubmitted: existingDocIndex !== -1 && existingLetters[existingDocIndex]?.status === 'rejected'
+    };
+
+    const nextLetters = [...existingLetters];
     if (existingDocIndex !== -1) {
-      // Replace the existing rejected document
-      const updatedDocument = {
-        fileName: req.file.originalname,
-        fileData: documentPath,
-        uploadedAt: new Date(),
-        companyName: companyName,
-        status: 'pending',
-        isResubmitted: true
-      };
-      
-      const [updatedAdminProfile] = await Promise.all([
-        EmployerAdminProfile.findOneAndUpdate(
-          { employerId: req.user._id },
-          { $set: { [`authorizationLetters.${existingDocIndex}`]: updatedDocument } },
-          { new: true, upsert: true }
-        ),
-        EmployerProfile.findOneAndUpdate(
-          { employerId: req.user._id },
-          { $set: { [`authorizationLetters.${existingDocIndex}`]: updatedDocument } },
-          { new: true, upsert: true }
-        )
-      ]);
-      
-      res.json({ success: true, document: updatedDocument, profile: { authorizationLetters: updatedAdminProfile.authorizationLetters } });
+      nextLetters[existingDocIndex] = updatedDocument;
     } else {
-      // Create new document
-      const newDocument = {
-        fileName: req.file.originalname,
-        fileData: documentPath,
-        uploadedAt: new Date(),
-        companyName: companyName,
-        status: 'pending',
-        isResubmitted: false
-      };
-
-      const [updatedAdminProfile] = await Promise.all([
-        EmployerAdminProfile.findOneAndUpdate(
-          { employerId: req.user._id },
-          { $push: { authorizationLetters: newDocument } },
-          { new: true, upsert: true }
-        ),
-        EmployerProfile.findOneAndUpdate(
-          { employerId: req.user._id },
-          { $push: { authorizationLetters: newDocument } },
-          { new: true, upsert: true }
-        )
-      ]);
-
-      res.json({ success: true, document: newDocument, profile: { authorizationLetters: updatedAdminProfile.authorizationLetters } });
+      nextLetters.push(updatedDocument);
     }
+
+    const [updatedAdminProfile] = await Promise.all([
+      EmployerAdminProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { $set: { authorizationLetters: nextLetters } },
+        { new: true, upsert: true }
+      ),
+      EmployerProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { $set: { authorizationLetters: nextLetters } },
+        { new: true, upsert: true }
+      )
+    ]);
+
+    res.json({
+      success: true,
+      document: updatedDocument,
+      profile: { authorizationLetters: updatedAdminProfile?.authorizationLetters || [] }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -646,29 +668,49 @@ exports.uploadAuthorizationLetter = async (req, res) => {
 exports.deleteAuthorizationLetter = async (req, res) => {
   try {
     const { documentId } = req.params;
-    
-    // First find the profile to check if the document is approved
-    const profile = await EmployerProfile.findOne({ employerId: req.user._id });
-    if (!profile) {
+
+    const [adminProfile, employerProfile] = await Promise.all([
+      EmployerAdminProfile.findOne({ employerId: req.user._id }),
+      EmployerProfile.findOne({ employerId: req.user._id })
+    ]);
+
+    if (!adminProfile && !employerProfile) {
       return res.status(404).json({ success: false, message: 'Profile not found' });
     }
 
-    const letter = profile.authorizationLetters.id(documentId);
-    if (letter && letter.status === 'approved') {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'This authorization letter has already been approved and cannot be deleted. Please contact support if you need to change it.' 
+    const adminLetter = adminProfile?.authorizationLetters?.id(documentId);
+    const employerLetter = employerProfile?.authorizationLetters?.id(documentId);
+    const letter = adminLetter || employerLetter;
+
+    if (!letter) {
+      return res.status(404).json({ success: false, message: 'Authorization letter not found' });
+    }
+
+    if (letter.status === 'approved') {
+      return res.status(400).json({
+        success: false,
+        message: 'This authorization letter has already been approved and cannot be deleted. Please contact support if you need to change it.'
       });
     }
-    
-    // If not approved or doesn't exist, proceed with deletion
-    const updatedProfile = await EmployerProfile.findOneAndUpdate(
-      { employerId: req.user._id },
-      { $pull: { authorizationLetters: { _id: documentId } } },
-      { new: true }
-    );
 
-    res.json({ success: true, message: 'Authorization letter deleted successfully', profile: updatedProfile });
+    const [updatedAdminProfile] = await Promise.all([
+      EmployerAdminProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { $pull: { authorizationLetters: { _id: documentId } } },
+        { new: true }
+      ),
+      EmployerProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { $pull: { authorizationLetters: { _id: documentId } } },
+        { new: true }
+      )
+    ]);
+
+    res.json({
+      success: true,
+      message: 'Authorization letter deleted successfully',
+      profile: { authorizationLetters: updatedAdminProfile?.authorizationLetters || [] }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
