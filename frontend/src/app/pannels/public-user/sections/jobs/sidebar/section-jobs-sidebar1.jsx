@@ -649,7 +649,7 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                                                 style={{marginRight: '8px', marginTop: '0', flexShrink: 0}}
                                             />
                                             <label className="form-check-label" htmlFor={`category${index}`} style={{fontSize: '14px', color: '#333', fontWeight: filters.category.includes(category) ? '600' : 'normal', marginBottom: '0', lineHeight: '1.2'}}>
-                                                {category}
+                                                {category.toUpperCase() === 'IT' ? 'IT' : category}
                                             </label>
                                         </div>
                                         <span className="twm-job-type-count" style={{fontSize: '14px', color: '#000', backgroundColor: '#f0f0f0', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold'}}>{count}</span>

@@ -573,7 +573,7 @@ function JobDetail1Page() {
                                                         )}
                                                     </div>
 
-                                                    <h4 className="twm-job-title">
+                                                    <h4 className="twm-job-title" style={{fontSize: '1.5rem', fontWeight: '700'}}>
                                                         {job.title}
                                                     </h4>
                                                     <p className="twm-job-company">

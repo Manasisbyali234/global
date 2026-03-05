@@ -697,7 +697,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
             type: roundType,
             description: roundDetails.description || `${roundNames[roundType]} interview`,
             dateRange: `${new Date(roundDetails.fromDate).toLocaleDateString('en-GB')} - ${new Date(roundDetails.toDate).toLocaleDateString('en-GB')}`,
-            time: roundDetails.time ? formatTimeToAMPM(roundDetails.time) : 'Time will be communicated'
+            time: roundDetails.time ? formatTimeToAMPM(roundDetails.time) : ''
           });
           console.log(`Added round: ${roundNames[roundType] || roundType}`);
         } else {

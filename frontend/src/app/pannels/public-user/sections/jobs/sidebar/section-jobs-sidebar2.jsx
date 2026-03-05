@@ -76,7 +76,7 @@ function SectionJobsSidebar2 ({ _config, job }) {
 										<i className="fa-solid fa-tags" />
 										<span className="twm-title">Job Category</span>
 										<div className="twm-s-info-discription">
-											{job?.category || 'Not specified'}
+											{job?.category ? (job.category.toUpperCase() === 'IT' ? 'IT' : job.category) : 'Not specified'}
 										</div>
 									</div>
 								</li>

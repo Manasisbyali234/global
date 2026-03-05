@@ -233,12 +233,13 @@ function EmpJobReviewPage() {
                                                 const roundType = jobDetails.interviewRoundTypes?.[key];
                                                 const roundNames = {
                                                     technical: 'Technical',
-                                                    oneOnOne: 'One-to-One',
+                                                    oneOnOne: 'One-on-One',
                                                     panel: 'Panel',
                                                     group: 'Group',
                                                     situational: 'Situational / Behavioral',
                                                     others: 'Others – Specify.',
-                                                    assessment: 'Assessment'
+                                                    assessment: 'Assessment',
+                                                    oneOnOnePanel: 'One-on-One / Panel'
                                                 };
                                                 return `${index + 1}. ${roundNames[roundType] || roundType}`;
                                             }).join(', ')
@@ -260,12 +261,26 @@ function EmpJobReviewPage() {
                                 <div className="row">
                                     {/* Display from interviewRounds array if available */}
                                     {jobDetails.interviewRounds && jobDetails.interviewRounds.length > 0 ? (
-                                        jobDetails.interviewRounds.map((round, index) => (
+                                        jobDetails.interviewRounds.map((round, index) => {
+                                            const roundNames = {
+                                                technical: 'Technical',
+                                                oneOnOne: 'One-on-One',
+                                                panel: 'Panel',
+                                                group: 'Group',
+                                                situational: 'Situational / Behavioral',
+                                                others: 'Others',
+                                                assessment: 'Assessment',
+                                                oneOnOnePanel: 'One-on-One / Panel',
+                                                managerial: 'Managerial Round',
+                                                hr: 'HR Round'
+                                            };
+                                            const displayName = roundNames[round.name] || round.name;
+                                            return (
                                             <div key={round.id || index} className="col-lg-6 col-12 mb-3">
                                                 <div className="border rounded p-3 bg-light">
                                                     <h6 className="mb-2">
                                                         <span className="badge bg-primary me-2">{index + 1}</span>
-                                                        {round.name}
+                                                        {displayName}
                                                     </h6>
                                                     {round.description && (
                                                         <p className="mb-1"><strong>Description:</strong> {round.description}</p>
@@ -322,7 +337,8 @@ function EmpJobReviewPage() {
                                                     )}
                                                 </div>
                                             </div>
-                                        ))
+                                        );
+                                        })
                                     ) : (
                                         /* Display from interviewRoundDetails if interviewRounds not available */
                                         jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.map((key, index) => {

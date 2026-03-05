@@ -118,7 +118,7 @@ exports.registerEmployer = async (req, res) => {
     // If OTP verification is skipped, send welcome email immediately
     if (skipOtpVerification) {
       try {
-        await sendWelcomeEmail(employer.email, employer.companyName || employer.name, employer.employerType);
+        await sendWelcomeEmail(employer.email, employer.companyName || employer.name || 'Employer', employer.employerType);
         console.log('Welcome email sent successfully to:', employer.email);
       } catch (emailError) {
         console.error('Welcome email failed:', emailError);
@@ -3470,7 +3470,7 @@ exports.verifyMobileOTP = async (req, res) => {
 
     // Send welcome email with password creation link only after OTP verification
     try {
-      await sendWelcomeEmail(employer.email, employer.companyName || employer.name, employer.employerType);
+      await sendWelcomeEmail(employer.email, employer.companyName || employer.name || 'Employer', employer.employerType);
       console.log('Welcome email sent successfully to:', employer.email);
     } catch (emailError) {
       console.error('Welcome email failed:', emailError);

@@ -1018,7 +1018,7 @@ function CanStatusPage() {
 						<div className="modal-content" style={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', maxHeight: '100%', display: 'flex', flexDirection: 'column'}}>
 							<div className="modal-header" style={{backgroundColor: '#f5f5f5', color: '#000', borderRadius: '12px 12px 0 0', flexShrink: 0}}>
 								<h5 className="modal-title">
-									<i className="fa fa-clipboard-list me-2"></i>
+									<i className="fa fa-clipboard-list me-2" style={{color: '#ff6b35'}}></i>
 									Interview Process Details
 								</h5>
 								<button type="button" className="btn-close" onClick={() => setShowAllDetails(false)}></button>
@@ -1281,7 +1281,7 @@ function CanStatusPage() {
 															<>
 																{roundDetails.description && typeof roundDetails.description === 'string' && (
 																	<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-																		<small className="text-muted d-block mb-1"><i className></i><strong>Interview Process Description:</strong></small>
+																		<small className="text-muted d-block mb-1"><i className="fa fa-clipboard-check me-1" style={{color: '#ff6b35'}}></i><strong>Interview Process Description:</strong></small>
 																		<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>{roundDetails.description}</div>
 																	</div>
 																)}
