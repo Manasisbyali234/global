@@ -192,7 +192,7 @@ const EmployersGridPage = memo(() => {
                     </div>
 
                     <div className="industry-tag-pill">
-                        {employer.profile?.industry || employer.profile?.industrySector || 'Industry'}
+                        {(employer.profile?.industry || employer.profile?.industrySector || 'Industry').replace(/\bit\b/gi, 'IT')}
                     </div>
 
                     <div className="company-stats-row">

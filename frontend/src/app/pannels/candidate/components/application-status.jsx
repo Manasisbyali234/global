@@ -917,21 +917,6 @@ function CanStatusPage() {
 																						)}
 
 																						{/* Show assessment remarks if available - removed from table, only in modal */}
-
-																						{/* Show non-assessment round employer remarks */}
-																						{(() => {
-																							if (roundName === 'Assessment') return null;
-																							const process = app.interviewProcesses?.find(p => p.type === (typeof round === 'object' ? round.roundType : round.toLowerCase()));
-																							const processRemarks = process?.id ? app.processRemarks?.[process.id] : null;
-																							const remarks = roundDetails?.employerRemarks || processRemarks;
-																							if (!remarks || typeof remarks !== 'string') return null;
-																							return (
-																								<div style={{fontSize: '8px', color: '#e65100', textAlign: 'center', padding: '2px 4px', backgroundColor: '#fff3e0', borderRadius: '3px', marginTop: '2px', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={remarks}>
-																									<i className="fa fa-comment me-1" style={{fontSize: '7px'}}></i>
-																									{remarks.length > 12 ? remarks.substring(0, 12) + '...' : remarks}
-																								</div>
-																							);
-																						})()}
 																					</div>
 																				</div>
 																			);

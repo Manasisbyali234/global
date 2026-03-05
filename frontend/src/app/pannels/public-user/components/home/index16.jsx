@@ -1357,7 +1357,7 @@ function Home16Page() {
                             </div>
                         </Col>
                         <Col lg={4} className="text-end">
-                            <NavLink to="/login?tab=employer" className="btn-dark-pill">
+                            <NavLink to="/login-employer" className="btn-dark-pill">
                                 Start recruiting now
                             </NavLink>
                         </Col>
