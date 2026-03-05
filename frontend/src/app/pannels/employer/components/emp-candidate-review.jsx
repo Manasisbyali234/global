@@ -574,13 +574,13 @@ function EmpCandidateReviewPage() {
                         <div className="review-grid">
                             <div className="review-main">
                                 {interviewProcesses.length > 0 && (
-                                    <div className="section-card mt-4">
+                                    <div className="section-card">
                                         <div className="section-header">
                                               <div style={{ display: "flex", flexDirection: "column" }}>
-                                               <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4><br></br>
+                                               <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4>
                                                <h6 style={{ color: "red" }}><i className="fas fa-exclamation-triangle" style={{ marginRight: "5px" }}></i>Please check all required boxes and enter remark.</h6>
-                                        </div>
-                                        </div>
+                                         </div>
+                                         </div>
                                         <div className="section-body">
                                             <div className="processes-grid">
                                                 {interviewProcesses.map((process, index) => {
