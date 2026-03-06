@@ -161,9 +161,6 @@ function SectionAvailableJobsList({ employerId }) {
 										<div className="company-name">
 											{job.employerId?.companyName || job.companyName || "Company"}
 										</div>
-										<div className="poster-type">
-											{job.postedBy || (job.employerId?.employerType === "consultant" ? "Consultancy" : "Company")}
-										</div>
 									</div>
 									<button
 										className="apply-now-btn"
