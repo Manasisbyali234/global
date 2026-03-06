@@ -174,6 +174,19 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
 
     const JobCard = memo(({ job, index }) => {
         const cardRef = useRef(null);
+        const { limitReached, isExpired, isEnded } = useMemo(() => {
+            const applicationCount = Number(job?.applicationCount || 0);
+            const applicationLimit = Number(job?.applicationLimit || 0);
+            const limitReachedNow = applicationLimit > 0 && applicationCount >= applicationLimit;
+            const isExpiredNow = !!job?.lastDateOfApplication && new Date(job.lastDateOfApplication) < new Date();
+            const normalizedStatus = (job?.status || "").toString().trim().toLowerCase();
+            const isClosedByStatus = normalizedStatus && normalizedStatus !== "active";
+            return {
+                limitReached: limitReachedNow,
+                isExpired: isExpiredNow,
+                isEnded: isClosedByStatus || limitReachedNow || isExpiredNow
+            };
+        }, [job]);
         
         // Intersection observer for lazy loading
         useEffect(() => {
@@ -328,6 +341,15 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                                 style={{backgroundColor: '#6c757d', cursor: 'not-allowed'}}
                             >
                                 Already Applied
+                            </button>
+                        ) : isEnded ? (
+                            <button
+                                className="apply-now-btn"
+                                disabled
+                                style={{backgroundColor: '#6c757d', cursor: 'not-allowed'}}
+                                title={limitReached ? 'Application limit reached' : (isExpired ? 'Last date of application has passed' : 'Applications are closed for this job')}
+                            >
+                                Application Closed
                             </button>
                         ) : (
                             <button

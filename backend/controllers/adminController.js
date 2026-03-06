@@ -1270,6 +1270,13 @@ exports.updatePlacementStatus = async (req, res) => {
       if (normalized === 'approved') {
         updateData.status = 'active';
       } else if (normalized === 'rejected') {
+        try {
+          const { sendPlacementRejectionEmail } = require('../utils/emailService');
+          await sendPlacementRejectionEmail(currentPlacement.email, currentPlacement.collegeOfficialEmail);
+        } catch (emailError) {
+          console.error('Failed to send placement rejection email:', emailError);
+        }
+
         // On rejection, permanently remove placement officer data from DB.
         const placementObjectId = new mongoose.Types.ObjectId(req.params.id);
 

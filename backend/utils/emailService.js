@@ -1181,6 +1181,33 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
   await transporter.sendMail(mailOptions);
 };
 
+const sendPlacementRejectionEmail = async (email, officialEmail = null) => {
+  const transporter = createTransport();
+
+  const template = `
+    <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
+      <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <p>Dear Employer,</p>
+        <p>Thank you for submitting your application to our platform.</p>
+        <p>After reviewing the details, we regret to inform you that your application has been rejected by the admin due to not meeting the required verification criteria.</p>
+        <p>You may review the submitted details and reapply after making the necessary corrections or providing the required documents.</p>
+        <p>If you need any assistance, please feel free to contact our support team.</p>
+        <p>Thank you for your understanding.</p>
+        <p>Best regards,<br/>Admin Team</p>
+      </div>
+    </div>
+  `;
+
+  const mailOptions = {
+    from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
+    to: officialEmail ? `${email}, ${officialEmail}` : email,
+    subject: 'Employer Application Rejection Notification',
+    html: template
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
 module.exports = { 
   sendWelcomeEmail, 
   sendResetEmail, 
@@ -1196,5 +1223,6 @@ module.exports = {
   sendPlacementOfficerApprovalEmail,
   sendCandidateDetailsUpdatedEmail,
   sendEmployerAccountApprovalEmail,
-  sendConsultantApprovalEmail
+  sendConsultantApprovalEmail,
+  sendPlacementRejectionEmail
 };

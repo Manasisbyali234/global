@@ -1354,9 +1354,9 @@ function Home16Page() {
                             </div>
                         </Col>
                         <Col lg={4} className="text-end">
-                            <NavLink to="/login-employer" className="btn-dark-pill">
+                            <a href="https://taleglobal.net/login-employer" className="btn-dark-pill">
                                 Start recruiting now
-                            </NavLink>
+                            </a>
                         </Col>
                     </div>
 

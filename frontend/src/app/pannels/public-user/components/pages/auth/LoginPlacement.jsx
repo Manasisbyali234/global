@@ -13,9 +13,23 @@ function LoginPlacement() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const createCaptcha = () => {
+        const a = Math.floor(Math.random() * 9) + 1;
+        const b = Math.floor(Math.random() * 9) + 1;
+        return { a, b, sum: a + b };
+    };
+    const [captcha, setCaptcha] = useState(() => createCaptcha());
+    const [captchaAnswer, setCaptchaAnswer] = useState('');
 
     const handleLogin = async (event) => {
         event.preventDefault();
+        if (Number(captchaAnswer) !== captcha.sum) {
+            setError('Please solve the math captcha correctly.');
+            setCaptcha(createCaptcha());
+            setCaptchaAnswer('');
+            return;
+        }
+
         setLoading(true);
         setError('');
         
@@ -112,6 +126,19 @@ function LoginPlacement() {
                                     <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"} />
                                 </span>
                             </div>
+                        </div>
+
+                        <div className="auth-form-group">
+                            <label className="captcha-label">{captcha.a} + {captcha.b} = ?</label>
+                            <input
+                                name="captcha"
+                                type="number"
+                                required
+                                className="auth-input"
+                                placeholder="Enter captcha answer"
+                                value={captchaAnswer}
+                                onChange={(e) => setCaptchaAnswer(e.target.value)}
+                            />
                         </div>
 
                         <NavLink to={publicUser.pages.FORGOT} className="forgot-link site-text-primary">

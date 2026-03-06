@@ -126,6 +126,14 @@
   margin-bottom: 15px;
 }
 
+.captcha-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
 .auth-input {
   width: 100%;
   padding: 14px 18px;
