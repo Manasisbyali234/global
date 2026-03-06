@@ -13,6 +13,7 @@ function LoginEmployer() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [captchaError, setCaptchaError] = useState("");
     const createAlphabeticCaptcha = () => {
         const letters = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz";
         let value = "";
@@ -26,15 +27,17 @@ function LoginEmployer() {
 
     const handleLogin = async (event) => {
         event.preventDefault();
+        setError('');
+        setCaptchaError("");
+
         if (captchaAnswer.trim() !== captcha) {
-            setError("Please enter the alphabetic captcha exactly as shown (case-sensitive).");
+            setCaptchaError("Wrong captcha. Please enter it exactly as shown.");
             setCaptcha(createAlphabeticCaptcha());
             setCaptchaAnswer("");
             return;
         }
 
         setLoading(true);
-        setError('');
         
         const result = await login({
             email: email.trim(),
@@ -115,12 +118,15 @@ function LoginEmployer() {
                                 <button
                                     type="button"
                                     className="captcha-refresh-btn"
+                                    title="Refresh captcha"
+                                    aria-label="Refresh captcha"
                                     onClick={() => {
                                         setCaptcha(createAlphabeticCaptcha());
                                         setCaptchaAnswer("");
+                                        setCaptchaError("");
                                     }}
                                 >
-                                    Refresh
+                                    <i className="fas fa-sync-alt" aria-hidden="true" />
                                 </button>
                             </div>
                             <input
@@ -130,8 +136,14 @@ function LoginEmployer() {
                                 className="auth-input"
                                 placeholder="Type captcha letters"
                                 value={captchaAnswer}
-                                onChange={(e) => setCaptchaAnswer(e.target.value)}
+                                onChange={(e) => {
+                                    setCaptchaAnswer(e.target.value);
+                                    if (captchaError) {
+                                        setCaptchaError("");
+                                    }
+                                }}
                             />
+                            {captchaError && <small className="captcha-error">{captchaError}</small>}
                         </div>
 
                         <NavLink to={publicUser.pages.FORGOT} className="forgot-link site-text-primary">

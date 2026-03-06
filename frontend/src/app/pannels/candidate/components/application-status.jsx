@@ -5,7 +5,7 @@ import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
 // Route: /candidate/status
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
 import { pubRoute, publicUser, canRoute, candidate } from "../../../../globals/route-names";
@@ -16,6 +16,8 @@ import "../../../../table-overflow-fix.css";
 
 function CanStatusPage() {
 	const navigate = useNavigate();
+	const { applicationId } = useParams();
+	const isInterviewDetailsPage = !!applicationId;
 	const [applications, setApplications] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState('applications');
@@ -25,7 +27,6 @@ function CanStatusPage() {
 	const [selectedRoundDetails, setSelectedRoundDetails] = useState(null);
 	const [selectedRoundType, setSelectedRoundType] = useState(null);
 	const [selectedAssessmentId, setSelectedAssessmentId] = useState(null);
-	const [showAllDetails, setShowAllDetails] = useState(false);
 	const [selectedApplication, setSelectedApplication] = useState(null);
 
 	const getAssessmentWindowInfo = (job) => {
@@ -174,6 +175,14 @@ function CanStatusPage() {
 		
 
 	}, []);
+
+	useEffect(() => {
+		if (!applicationId || applications.length === 0) return;
+		const matchedApplication = applications.find((app) => String(app._id) === String(applicationId));
+		if (matchedApplication) {
+			setSelectedApplication(matchedApplication);
+		}
+	}, [applicationId, applications]);
 
 	const fetchApplications = async () => {
 		setLoading(true);
@@ -589,8 +598,8 @@ function CanStatusPage() {
 	};
 
 	const handleViewAllDetails = (application) => {
-		setSelectedApplication(application);
-		setShowAllDetails(true);
+		if (!application?._id) return;
+		navigate(canRoute(candidate.STATUS) + `/interview-details/${application._id}`);
 	};
 
 	const handleStartAssessment = (application) => {
@@ -628,8 +637,26 @@ function CanStatusPage() {
 		}
 	};
 
+	const getRoundStatusPillStyle = (statusText = '') => {
+		const status = String(statusText).toLowerCase();
+		if (['selected', 'completed', 'passed'].includes(status)) {
+			return { backgroundColor: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' };
+		}
+		if (['rejected', 'failed', 'expired'].includes(status)) {
+			return { backgroundColor: '#fdeaea', color: '#c82333', border: '1px solid #c82333' };
+		}
+		if (['scheduled', 'started', 'interview scheduled'].includes(status)) {
+			return { backgroundColor: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' };
+		}
+		if (['in progress', 'under review', 'shortlisted'].includes(status)) {
+			return { backgroundColor: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' };
+		}
+		return { backgroundColor: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' };
+	};
+
 	return (
 		<>
+			{!isInterviewDetailsPage && (
 			<div className="twm-right-section-panel site-bg-gray">
 				{/* Status Page Header */}
 				<div className="status-page-header-container">
@@ -1033,6 +1060,33 @@ function CanStatusPage() {
 					</div>
 				</div>
 			</div>
+			)}
+
+			{isInterviewDetailsPage && !selectedApplication && (
+				<div className="twm-right-section-panel site-bg-gray">
+					<div style={{padding: '16px 20px'}}>
+						<button
+							type="button"
+							className="btn btn-outline-secondary mb-3"
+							onClick={() => navigate(canRoute(candidate.STATUS))}
+						>
+							<i className="fa fa-arrow-left me-2"></i>
+							Back to Status
+						</button>
+						{loading ? (
+							<div className="text-center py-4">
+								<i className="fa fa-spinner fa-spin fa-2x mb-3" style={{color: '#ff6b35'}}></i>
+								<p className="mb-0 text-muted">Loading interview process details...</p>
+							</div>
+						) : (
+							<div className="text-center py-4">
+								<i className="fa fa-info-circle fa-2x mb-3" style={{color: '#ff6b35'}}></i>
+								<p className="mb-0 text-muted">Interview process details not found for this application.</p>
+							</div>
+						)}
+						</div>
+					</div>
+			)}
 			
 			{/* Interview Round Details Popup */}
 			<PopupInterviewRoundDetails
@@ -1044,18 +1098,27 @@ function CanStatusPage() {
 			/>
 
 			{/* All Interview Details Modal */}
-			{showAllDetails && selectedApplication && (
-				<div className="modal fade show interview-details-modal" style={{display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100001, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%'}} onClick={(e) => { if (e.target === e.currentTarget) setShowAllDetails(false); }}>
-					<div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style={{maxWidth: '1200px', width: '95vw', maxHeight: 'calc(100vh - 40px)', margin: '20px auto'}} onClick={(e) => e.stopPropagation()}>
-						<div className="modal-content" style={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', maxHeight: '100%', display: 'flex', flexDirection: 'column'}}>
-							<div className="modal-header" style={{backgroundColor: '#f5f5f5', color: '#000', borderRadius: '12px 12px 0 0', flexShrink: 0}}>
-								<h5 className="modal-title">
+			{isInterviewDetailsPage && selectedApplication && (
+				<div
+					className="twm-right-section-panel site-bg-gray"
+					style={{ display: 'block' }}
+				>
+					<div style={{ padding: '16px 20px' }}>
+						<div style={{backgroundColor: '#f5f5f5', color: '#000', borderRadius: '8px', marginBottom: '16px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+							<h5 style={{margin: 0, fontWeight: '600'}}>
 									<i className="fa fa-clipboard-list me-2" style={{color: '#ff6b35'}}></i>
 									Interview Process Details
-								</h5>
-								<button type="button" className="btn-close" onClick={() => setShowAllDetails(false)}></button>
-							</div>
-							<div className="modal-body" style={{padding: '30px', overflowY: 'auto'}}>
+							</h5>
+							<button
+								type="button"
+								className="btn btn-outline-secondary btn-sm"
+								onClick={() => navigate(canRoute(candidate.STATUS))}
+							>
+								<i className="fa fa-arrow-left me-2"></i>
+								Back to Status
+							</button>
+						</div>
+						<div style={{padding: '0'}}>
 								{/* Job Information */}
 								<div className="mb-4 p-3" style={{backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #e0e0e0'}}>
 									<h6 className="mb-3" style={{color: '#232323', fontWeight: '600'}}>
@@ -1192,7 +1255,7 @@ function CanStatusPage() {
 														{roundName}
 													</h6>
 													<div className="d-flex gap-2 align-items-center">
-														<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px', minWidth: '60px', textAlign: 'center'}}>
+														<span style={{fontSize: '13px', fontWeight: '600', padding: '6px 10px', minWidth: '84px', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1.2, borderRadius: '999px', ...getRoundStatusPillStyle(roundStatus.text)}}>
 															{roundStatus.text}
 														</span>
 													</div>
@@ -1254,7 +1317,6 @@ function CanStatusPage() {
 																<button 
 																	className="btn btn-sm btn-success"
 																	onClick={() => {
-																		setShowAllDetails(false);
 																		navigate(canRoute(candidate.RESULT.replace(':applicationId', selectedApplication._id)));
 																	}}
 																	style={{borderRadius: '6px'}}
@@ -1281,7 +1343,6 @@ function CanStatusPage() {
 																<button 
 																	className="btn btn-sm btn-warning"
 																	onClick={() => {
-																		setShowAllDetails(false);
 																		handleStartAssessment(selectedApplication);
 																	}}
 																	style={{borderRadius: '6px'}}
@@ -1293,7 +1354,6 @@ function CanStatusPage() {
 																<button 
 																	className="btn btn-sm btn-primary"
 																	onClick={() => {
-																		setShowAllDetails(false);
 																		handleStartAssessment(selectedApplication);
 																	}}
 																	style={{borderRadius: '6px'}}
@@ -1591,14 +1651,8 @@ function CanStatusPage() {
 									</div>
 								)}
 							</div>
-							<div className="modal-footer" style={{borderTop: '1px solid #e0e0e0', flexShrink: 0}}>
-								<button type="button" className="btn btn-secondary" onClick={() => setShowAllDetails(false)}>
-									Close
-								</button>
-							</div>
 						</div>
 					</div>
-				</div>
 			)}
 		</>
 	);

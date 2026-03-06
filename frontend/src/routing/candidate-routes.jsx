@@ -75,6 +75,7 @@ function CandidateRoutes() {
 				<Route path={candidate.PROFILE} element={<CanProfilePage />} />
 				<Route path={candidate.APPLIED_JOBS} element={<CanAppliedJobs />} />
 				<Route path={candidate.STATUS} element={<CanStatusPage />} />
+				<Route path={candidate.INTERVIEW_DETAILS} element={<CanStatusPage />} />
 				<Route path={candidate.RESUME} element={<CanMyResumePage />} />
 
 				<Route path={candidate.STEP} element={<Stepper />} />

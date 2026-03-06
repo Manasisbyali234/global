@@ -265,7 +265,7 @@ function EmployersDetail1Page() {
 										</div>
 
 										{/* Tabs Navigation */}
-										<ul className="nav nav-tabs mt-4" role="tablist">
+										<ul className="nav nav-tabs mt-4" role="tablist" style={{justifyContent: 'flex-start', alignItems: 'center', width: '100%'}}>
 											<li className="nav-item">
 												<a
 													className="nav-link active"
@@ -462,15 +462,15 @@ function EmployersDetail1Page() {
 											
 											{isLoggedIn && (
 												<div className="tab-pane fade" id="reviews" role="tabpanel">
+													<h4 className="twm-s-title" style={{display: 'block', width: '100%', textAlign: 'left', marginLeft: 0, paddingLeft: '28px'}}>Add Your Review</h4>
 													<div className="row justify-content-center">
 														<div className="col-md-8">
-															<h4 className="twm-s-title">Add Your Review</h4>
 														<form onSubmit={handleReviewSubmit} className="review-form">
 															<div className="mb-3">
-																<label className="form-label">Your Name <span style={{ color: 'red' }}>*</span></label>
 																<input
 																	type="text"
 																	className="form-control"
+																	placeholder="Your Name *"
 																	value={reviewForm.reviewerName}
 																	onChange={(e) => setReviewForm({...reviewForm, reviewerName: e.target.value})}
 																	required
@@ -478,10 +478,10 @@ function EmployersDetail1Page() {
 															</div>
 															
 															<div className="mb-3">
-																<label className="form-label">Your Email <span style={{ color: 'red' }}>*</span></label>
 																<input
 																	type="email"
 																	className="form-control"
+																	placeholder="Your Email *"
 																	value={reviewForm.reviewerEmail}
 																	onChange={(e) => setReviewForm({...reviewForm, reviewerEmail: e.target.value})}
 																	required
@@ -496,19 +496,17 @@ function EmployersDetail1Page() {
 															</div>
 															
 															<div className="mb-3">
-																<label className="form-label">Your Review <span style={{ color: 'red' }}>*</span></label>
 																<textarea
 																	className="form-control"
 																	rows="4"
 																	value={reviewForm.description}
 																	onChange={(e) => setReviewForm({...reviewForm, description: e.target.value})}
-																	placeholder="Share your experience with this company..."
+																	placeholder="Your Review * (Share your experience with this company...)"
 																	required
 																/>
 															</div>
 															
 															<div className="mb-3">
-																<label className="form-label">Add Image (Optional)</label>
 																<input
 																	type="file"
 																	className="form-control"
