@@ -467,7 +467,7 @@ function SectionCanEducation({ profile, onUpdate }) {
         setEditingEntry(null);
         setErrors({});
 
-        showSuccess('Education entry updated successfully! Please click "Save All Education Details" to save changes.');
+        showSuccess('Academic details updated successfully');
     };
 
     const handleDeleteEntry = (id) => {

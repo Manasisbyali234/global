@@ -189,7 +189,7 @@ function SectionCanWorkLocation({ profile, onUpdate }) {
             if (response.success) {
                 setEditMode(false);
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
-                showSuccess('Work location preferences saved successfully!');
+                showSuccess('Preferred work location updated successfully');
                 if (onUpdate) onUpdate();
             } else {
                 showError(response.message || 'Failed to save work location preferences');

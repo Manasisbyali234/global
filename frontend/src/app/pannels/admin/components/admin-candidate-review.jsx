@@ -711,7 +711,7 @@ function AdminCandidateReviewPage() {
                                     return (
                                         <div key={index} className="document-card">
                                             <div className="document-icon">
-                                                <i className="fas fa-certificate"></i>
+                                                <i className="fas fa-file-alt"></i>
                                             </div>
                                             <div className="document-info">
                                                 <h5>{eduLevelLabel} Marksheet</h5>

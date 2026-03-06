@@ -204,7 +204,7 @@ function SectionEmployerSidebar({ onFilterChange }) {
                                             }}
                                         />
                                         <label className="form-check-label" htmlFor={`industry${index}`}>
-                                            {industry}
+                                            {industry.replace(/\bit\b/gi, 'IT')}
                                         </label>
                                     </div>
                                 </li>
