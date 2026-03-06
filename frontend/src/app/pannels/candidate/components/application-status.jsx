@@ -1014,36 +1014,25 @@ function CanStatusPage() {
 																	 app.status?.charAt(0).toUpperCase() + app.status?.slice(1) || 'Pending'}
 																</span>
 															</td>
-															<td className="px-4 py-3 text-center" style={{ verticalAlign: 'middle', textAlign: 'center', minWidth: '100px' }}>
+															<td className="px-4 py-3 text-center" style={{ verticalAlign: 'middle', textAlign: 'center', minWidth: '92px', width: '92px' }}>
 																<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
-																	<button
-																		className="btn btn-sm"
-																		style={{
-																			width: '40px',
-																			height: '40px',
-																			borderRadius: '50%',
-																			backgroundColor: '#fff3e0',
-																			border: '2px solid #ff6b35',
-																			display: 'flex',
-																			alignItems: 'center',
-																			justifyContent: 'center',
-																			padding: '0',
-																			transition: 'all 0.3s ease',
-																			margin: '0 auto'
-																		}}
+																	<div
+																		className="status-view-interviews-action"
+																		role="button"
+																		tabIndex={0}
 																		onClick={() => handleViewAllDetails(app)}
+																		onKeyDown={(e) => {
+																			if (e.key === 'Enter' || e.key === ' ') {
+																				e.preventDefault();
+																				handleViewAllDetails(app);
+																			}
+																		}}
 																		title="View all interview process details"
-																		onMouseEnter={(e) => {
-																			e.currentTarget.style.backgroundColor = '#ff6b35';
-																			e.currentTarget.querySelector('i').style.color = 'white';
-																		}}
-																		onMouseLeave={(e) => {
-																			e.currentTarget.style.backgroundColor = '#fff3e0';
-																			e.currentTarget.querySelector('i').style.color = '#ff6b35';
-																		}}
+																		aria-label="View interviews"
 																	>
-																		<i className="fa fa-eye" style={{color: '#ff6b35', fontSize: '18px', transition: 'color 0.3s ease'}}></i>
-																	</button>
+																		<span>View</span>
+																		<span>Interviews</span>
+																	</div>
 																</div>
 															</td>
 														</tr>

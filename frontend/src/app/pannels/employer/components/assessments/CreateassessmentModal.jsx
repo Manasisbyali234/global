@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import './CreateassessmentModal.css';
 import { disableBodyScroll, enableBodyScroll } from "../../../../../utils/scrollUtils";
@@ -24,6 +24,13 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const [isMaximized, setIsMaximized] = useState(false);
 	const [showPreview, setShowPreview] = useState(false);
 	const [optionErrors, setOptionErrors] = useState({});
+	const descriptionTextareaRef = useRef(null);
+
+	const autoResizeTextarea = (textarea) => {
+		if (!textarea) return;
+		textarea.style.height = "auto";
+		textarea.style.height = `${textarea.scrollHeight}px`;
+	};
 
 	useEffect(() => {
 		disableBodyScroll();
@@ -69,6 +76,10 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		fetchApprovedCompanies();
 		return () => enableBodyScroll();
 	}, []);
+
+	useEffect(() => {
+		autoResizeTextarea(descriptionTextareaRef.current);
+	}, [description, isMinimized, showPreview]);
 
 	const handleQuestionChange = (index, field, value) => {
 		const updated = [...questions];
@@ -652,15 +663,21 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							Instructions <span style={{color: '#dc2626'}}>*</span>
 						</label>
 						<textarea
+							ref={descriptionTextareaRef}
 							className="form-control"
 							placeholder="Provide instructions for this assessment..."
 							rows={3}
 							value={description}
-							onChange={(e) => setDescription(e.target.value)}
+							onChange={(e) => {
+								setDescription(e.target.value);
+								autoResizeTextarea(e.target);
+							}}
 							required
 							style={{
 								borderColor: description ? '#10b981' : '#dc2626',
-								borderWidth: 2
+								borderWidth: 2,
+								resize: 'none',
+								overflowY: 'hidden'
 							}}
 						/>
 						{!description && (

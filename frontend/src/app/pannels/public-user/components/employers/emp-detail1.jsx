@@ -462,9 +462,9 @@ function EmployersDetail1Page() {
 											
 											{isLoggedIn && (
 												<div className="tab-pane fade" id="reviews" role="tabpanel">
-													<h4 className="twm-s-title" style={{display: 'block', width: '100%', textAlign: 'left', marginLeft: 0, paddingLeft: '28px'}}>Add Your Review</h4>
-													<div className="row justify-content-center">
-														<div className="col-md-8">
+													<h4 className="twm-s-title" style={{ display: 'block', width: '100%', textAlign: 'left', margin: '0 0 16px 0', paddingLeft: 0 }}>Add Your Review</h4>
+													<div className="row justify-content-start" style={{ marginLeft: 0, marginRight: 0 }}>
+														<div className="col-md-8" style={{ paddingLeft: 0 }}>
 														<form onSubmit={handleReviewSubmit} className="review-form">
 															<div className="mb-3">
 																<input
