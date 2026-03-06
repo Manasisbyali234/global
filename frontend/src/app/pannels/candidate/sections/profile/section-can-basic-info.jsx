@@ -99,6 +99,10 @@ function SectionCandicateBasicInfo() {
             if (response.success && response.profile) {
                 const profile = response.profile;
                 const candidate = profile.candidateId || {};
+                const candidateFullName = (candidate.name || '').trim();
+                const candidateNameParts = candidateFullName ? candidateFullName.split(/\s+/) : [];
+                const derivedFirstName = candidate.firstName || profile.firstName || candidateNameParts[0] || '';
+                const derivedLastName = profile.lastName || candidate.lastName || candidateNameParts.slice(1).join(' ') || '';
                 
                 // Handle phone number splitting for country code
                 let phoneNumber = candidate.phone || '';
@@ -121,7 +125,7 @@ function SectionCandicateBasicInfo() {
                 
                 // Check if profile is empty (first time login) and signup data exists
                 const signupData = localStorage.getItem('candidateSignupData');
-                const isProfileEmpty = !profile.firstName && !profile.lastName && !profile.location;
+                const isProfileEmpty = !derivedFirstName && !derivedLastName && !profile.location;
                 
                 if (isProfileEmpty && signupData) {
                     // Auto-fill from signup data
@@ -144,9 +148,9 @@ function SectionCandicateBasicInfo() {
                 } else {
                     // Use existing profile data
                     setFormData({
-                        firstName: candidate.firstName || profile.firstName || '',
+                        firstName: derivedFirstName,
                         middleName: profile.middleName || '',
-                        lastName: profile.lastName || '',
+                        lastName: derivedLastName,
                         phone: phoneNumber,
                         phoneCountryCode: countryCode,
                         email: candidate.email || '',
