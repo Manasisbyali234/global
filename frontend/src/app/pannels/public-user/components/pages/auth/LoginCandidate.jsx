@@ -13,20 +13,23 @@ function LoginCandidate() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const createCaptcha = () => {
-        const a = Math.floor(Math.random() * 9) + 1;
-        const b = Math.floor(Math.random() * 9) + 1;
-        return { a, b, sum: a + b };
+    const createAlphabeticCaptcha = () => {
+        const letters = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz";
+        let value = "";
+        for (let i = 0; i < 5; i += 1) {
+            value += letters[Math.floor(Math.random() * letters.length)];
+        }
+        return value;
     };
-    const [captcha, setCaptcha] = useState(() => createCaptcha());
-    const [captchaAnswer, setCaptchaAnswer] = useState('');
+    const [captcha, setCaptcha] = useState(() => createAlphabeticCaptcha());
+    const [captchaAnswer, setCaptchaAnswer] = useState("");
 
     const handleLogin = async (event) => {
         event.preventDefault();
-        if (Number(captchaAnswer) !== captcha.sum) {
-            setError('Please solve the math captcha correctly.');
-            setCaptcha(createCaptcha());
-            setCaptchaAnswer('');
+        if (captchaAnswer.trim() !== captcha) {
+            setError("Please enter the alphabetic captcha exactly as shown (case-sensitive).");
+            setCaptcha(createAlphabeticCaptcha());
+            setCaptchaAnswer("");
             return;
         }
 
@@ -106,13 +109,26 @@ function LoginCandidate() {
                         </div>
 
                         <div className="auth-form-group">
-                            <label className="captcha-label">{captcha.a} + {captcha.b} = ?</label>
+                            <label className="captcha-label">Enter the letters shown below</label>
+                            <div className="captcha-display-row">
+                                <span className="captcha-display">{captcha}</span>
+                                <button
+                                    type="button"
+                                    className="captcha-refresh-btn"
+                                    onClick={() => {
+                                        setCaptcha(createAlphabeticCaptcha());
+                                        setCaptchaAnswer("");
+                                    }}
+                                >
+                                    Refresh
+                                </button>
+                            </div>
                             <input
                                 name="captcha"
-                                type="number"
+                                type="text"
                                 required
                                 className="auth-input"
-                                placeholder="Enter captcha answer"
+                                placeholder="Type captcha letters"
                                 value={captchaAnswer}
                                 onChange={(e) => setCaptchaAnswer(e.target.value)}
                             />
