@@ -1177,7 +1177,7 @@ export default function EmpPostJob({ onNext }) {
 										<span>{s}</span>
 										<span 
 											style={chipX} 
-											onClick={() => removeSkill(s)}
+											onClick={() => removeSkill}
 											title="Remove skill"
 										>
 											×
