@@ -19,6 +19,7 @@ const Partner = require('../models/Partner');
 const SiteSettings = require('../models/SiteSettings');
 const EmployerProfile = require('../models/EmployerProfile');
 const EmployerAdminProfile = require('../models/EmployerAdminProfile');
+const Notification = require('../models/Notification');
 const { base64ToBuffer, generateFilename } = require('../utils/base64Helper');
 const { createNotification } = require('./notificationController');
 const mongoose = require('mongoose');
@@ -1269,7 +1270,25 @@ exports.updatePlacementStatus = async (req, res) => {
       if (normalized === 'approved') {
         updateData.status = 'active';
       } else if (normalized === 'rejected') {
-        updateData.status = 'inactive';
+        // On rejection, permanently remove placement officer data from DB.
+        const placementObjectId = new mongoose.Types.ObjectId(req.params.id);
+
+        await Promise.all([
+          Placement.findByIdAndDelete(req.params.id),
+          PlacementCandidate.deleteMany({ placementId: placementObjectId }),
+          Notification.deleteMany({
+            $or: [
+              { placementId: placementObjectId },
+              { relatedId: placementObjectId },
+              { relatedId: req.params.id }
+            ]
+          })
+        ]);
+
+        return res.json({
+          success: true,
+          message: 'Placement officer rejected and removed from database'
+        });
       }
     }
 

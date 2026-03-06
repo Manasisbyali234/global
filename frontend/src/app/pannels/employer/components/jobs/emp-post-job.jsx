@@ -5132,9 +5132,9 @@ export default function EmpPostJob({ onNext }) {
 					<div style={{
 						background: '#fff',
 						borderRadius: 12,
-						padding: '32px',
-						maxWidth: '500px',
-						width: '90%',
+						padding: '24px',
+						maxWidth: '420px',
+						width: 'min(92vw, 420px)',
 						boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
 					}}>
 						<div style={{textAlign: 'center', marginBottom: 24}}>

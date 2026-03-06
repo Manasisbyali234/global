@@ -310,6 +310,7 @@ function PlacementDashboardRedesigned() {
 
     const handleUpdateProfile = async () => {
         const errors = {};
+        const normalizePhone = (value) => String(value || '').replace(/\D/g, '');
         if (!editFormData.firstName.trim()) errors.firstName = 'First Name is required';
         if (!editFormData.lastName.trim()) errors.lastName = 'Last Name is required';
         if (!editFormData.phone.trim()) errors.phone = 'Phone Number is required';
@@ -317,6 +318,14 @@ function PlacementDashboardRedesigned() {
         if (!editFormData.collegeAddress.trim()) errors.collegeAddress = 'College Address is required';
         if (!editFormData.collegeOfficialEmail.trim()) errors.collegeOfficialEmail = 'College Official Email is required';
         if (!editFormData.collegeOfficialPhone.trim()) errors.collegeOfficialPhone = 'College Official Phone is required';
+
+        const primaryPhone = normalizePhone(editFormData.phone);
+        const officialPhone = normalizePhone(editFormData.collegeOfficialPhone);
+        if (primaryPhone && officialPhone && primaryPhone === officialPhone) {
+            const phoneConflictMessage = 'College official phone and primary phone should be different';
+            errors.phone = phoneConflictMessage;
+            errors.collegeOfficialPhone = phoneConflictMessage;
+        }
         
         if (Object.keys(errors).length > 0) {
             setFormErrors(errors);
@@ -486,7 +495,6 @@ function PlacementDashboardRedesigned() {
                     setViewingFileId(fileId);
                     setViewingFileName(fileName);
                     setActiveTab('students');
-                    showSuccess(`Loaded data from ${fileName}`);
                 } else {
                     showWarning('File data not available or file not processed yet.');
                 }
@@ -1469,8 +1477,8 @@ function PlacementDashboardRedesigned() {
                                     value={editFormData.phone || ''}
                                     onChange={(e) => {
                                         setEditFormData({...editFormData, phone: e.target.value});
-                                        if (formErrors.phone) {
-                                            setFormErrors({...formErrors, phone: ''});
+                                        if (formErrors.phone || formErrors.collegeOfficialPhone) {
+                                            setFormErrors({...formErrors, phone: '', collegeOfficialPhone: ''});
                                         }
                                     }}
                                     placeholder="Enter your phone number"
@@ -1552,8 +1560,8 @@ function PlacementDashboardRedesigned() {
                                     value={editFormData.collegeOfficialPhone || ''}
                                     onChange={(e) => {
                                         setEditFormData({...editFormData, collegeOfficialPhone: e.target.value});
-                                        if (formErrors.collegeOfficialPhone) {
-                                            setFormErrors({...formErrors, collegeOfficialPhone: ''});
+                                        if (formErrors.collegeOfficialPhone || formErrors.phone) {
+                                            setFormErrors({...formErrors, collegeOfficialPhone: '', phone: ''});
                                         }
                                     }}
                                     placeholder="Enter college official phone"

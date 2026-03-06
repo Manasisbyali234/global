@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { formatDate } from '../../../../utils/dateFormatter';
+import { formatDate as formatDateValue } from '../../../../utils/dateFormatter';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../../../utils/api';
 import './admin-emp-manage-styles.css';
@@ -68,8 +68,8 @@ function AdminExcelUploads() {
         setFilteredUploads(filtered);
     };
 
-    const formatDate = (dateString) => {
-        return formatDate(dateString);
+    const formatDisplayDate = (dateString) => {
+        return formatDateValue(dateString);
     };
 
     const getStatusBadge = (status) => {
@@ -154,7 +154,7 @@ function AdminExcelUploads() {
                                             </td>
                                             <td style={{textAlign: 'center', fontFamily: 'monospace', fontSize: '0.85rem'}}>{upload.email}</td>
                                             <td style={{textAlign: 'center', fontFamily: 'monospace', fontSize: '0.85rem'}}>{upload.phone}</td>
-                                            <td style={{textAlign: 'center', fontSize: '0.85rem'}}>{formatDate(upload.joinDate)}</td>
+                                            <td style={{textAlign: 'center', fontSize: '0.85rem'}}>{formatDisplayDate(upload.joinDate)}</td>
                                             <td style={{textAlign: 'center'}}>
                                                 {getStatusBadge(upload.status)}
                                             </td>

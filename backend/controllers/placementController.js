@@ -1581,6 +1581,23 @@ exports.updateProfile = async (req, res) => {
         message: 'Official college email and official phone number cannot be the same'
       });
     }
+
+    // Check if placement exists first
+    const existingPlacement = await Placement.findById(placementId);
+    if (!existingPlacement) {
+      console.log('Placement not found:', placementId);
+      return res.status(404).json({ success: false, message: 'no account found with this email address' });
+    }
+
+    const normalizePhone = (value) => String(value || '').replace(/\D/g, '');
+    const primaryPhoneNormalized = normalizePhone(phone || existingPlacement.phone);
+    const officialPhoneNormalized = normalizePhone(collegeOfficialPhone);
+    if (primaryPhoneNormalized && officialPhoneNormalized && primaryPhoneNormalized === officialPhoneNormalized) {
+      return res.status(400).json({
+        success: false,
+        message: 'College official phone and primary phone should be different'
+      });
+    }
     
     const updateData = {};
     
@@ -1600,7 +1617,6 @@ exports.updateProfile = async (req, res) => {
     // Check if collegeOfficialEmail is same as primary email
     if (collegeOfficialEmail) {
       const email = collegeOfficialEmail.toLowerCase().trim();
-      const existingPlacement = await Placement.findById(placementId);
       if (existingPlacement && existingPlacement.email === email) {
         return res.status(400).json({ 
           success: false, 
@@ -1612,8 +1628,7 @@ exports.updateProfile = async (req, res) => {
     
     if (collegeOfficialPhone) {
       const phoneVal = collegeOfficialPhone.trim();
-      const existingPlacement = await Placement.findById(placementId);
-      if (existingPlacement && existingPlacement.phone === phoneVal) {
+      if (existingPlacement && normalizePhone(existingPlacement.phone) === normalizePhone(phoneVal)) {
         return res.status(400).json({ 
           success: false, 
           message: 'Official college phone cannot be the same as your primary login phone' 
@@ -1627,13 +1642,6 @@ exports.updateProfile = async (req, res) => {
     }
     
     console.log('Constructed update data (restricted):', updateData);
-    
-    // Check if placement exists first
-    const existingPlacement = await Placement.findById(placementId);
-    if (!existingPlacement) {
-      console.log('Placement not found:', placementId);
-      return res.status(404).json({ success: false, message: 'no account found with this email address' });
-    }
     
     console.log('Found existing placement:', existingPlacement.name);
     

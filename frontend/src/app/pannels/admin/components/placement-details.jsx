@@ -261,13 +261,7 @@ function PlacementDetails() {
             
             const data = await response.json();
             if (data.success) {
-                const count = data.candidatesUpdated || 0;
-                let message = `File credits updated to ${fileCredits}.`;
-                if (count > 0) {
-                    message += ` ${count} candidates updated successfully.`;
-                } else {
-                    message += ` Credits will be applied when file is processed.`;
-                }
+                const message = `${fileCredits} credit assigned .Once,approved credits will be processed successfully`;
                 showSuccess(message);
                 setShowCreditsModal(false);
                 fetchPlacementDetails();
