@@ -450,6 +450,12 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
         <p><strong>🎯 Credits Assigned:</strong> As a final-year student, you have been provided with ${credits} free job application credits, valid for 1 year from the date of assignment. You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
         
         <p>Take the next step and explore opportunities through completely online interviews.</p>
+        <p><strong>Important Information:</strong></p>
+        <p>
+          * No payment or fees have been collected from your college or Placement Officer<br>
+          * TaleGlobal does not assure or guarantee 100% placement<br>
+          * Placement opportunities depend on your skills, eligibility, and performance
+        </p>
         
         <div style="text-align: center; margin: 30px 0;">
           <a href="${resetPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Reset Password</a>
@@ -1019,11 +1025,17 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
         
         <p>Your details have been successfully updated on the TaleGlobal platform by your placement officer.</p>
         
-        <p>To proceed, please log in to your account using the credentials provided by your placement officer. After logging in, you can update your personal, educational, and skill-related information.</p>
+        <p>To proceed, please reset your password and log in to your account to complete your profile. After logging in, you can update your personal, educational, and skill-related information.</p>
         
-        <p>You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
+        <p><strong>?? Credits Assigned:</strong> As a final-year student, you have been provided with ${credits} free job application credits, valid for 1 year from the date of assignment. You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
         
         <p>Take the next step and explore opportunities through completely online interviews.</p>
+        <p><strong>Important Information:</strong></p>
+        <p>
+          * No payment or fees have been collected from your college or Placement Officer<br>
+          * TaleGlobal does not assure or guarantee 100% placement<br>
+          * Placement opportunities depend on your skills, eligibility, and performance
+        </p>
         
         <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
           <p style="color: #1565c0; margin: 0; font-size: 14px;">
