@@ -137,8 +137,7 @@ function EmpDashboardPage() {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                                     <MapPin size={isMobile ? 14 : 16} style={{ color: '#f97316', flexShrink: 0 }} />
                                     <span style={{ color: '#f97316', fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: '500' }}>Bangalore</span>
-                                </div>
-                                <p style={{ color: '#6b7280', margin: 0, fontSize: isMobile ? '0.813rem' : '0.875rem' }}>Here's an overview of your job postings and applications</p>
+                             </div>
                             </div>
                         </div>
 

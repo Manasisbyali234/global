@@ -348,6 +348,7 @@ function SectionCanEmployment({ profile, onUpdate }) {
 
     return (
         <div className="wt-admin-dashboard-msg p-a20 mb-4">
+            <p style={{ color: 'red', marginBottom: '15px', fontWeight: '500' }}>Note: Not applicable for freshers.</p>
             <div className="panel-heading wt-panel-heading p-a20 panel-heading-with-btn">
                 <h4 className="panel-tittle m-a0">Employment History</h4>
                 <div className="d-flex gap-2">

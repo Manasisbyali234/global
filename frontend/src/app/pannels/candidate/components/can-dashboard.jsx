@@ -201,7 +201,6 @@ function CanDashboardPage() {
                     <span style={{ color: '#f97316', fontSize: '0.875rem', fontWeight: '500', wordBreak: 'break-word' }}>{candidate.location}</span>
                   </div>
                 )}
-                <p style={{ color: '#6b7280', margin: 0, fontSize: '0.9rem' }}>Here&apos;s an overview of your job applications and profile</p>
               </div>
             </div>
           </div>
