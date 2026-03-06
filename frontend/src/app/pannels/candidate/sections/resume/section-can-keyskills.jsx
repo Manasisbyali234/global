@@ -169,7 +169,7 @@ function SectionCanKeySkills({ profile }) {
                                     <input 
                                         type="text"
                                         className="form-control"
-                                        placeholder={selectedSkills.length > 0 ? `${selectedSkills.length} skill(s) selected` : "Search and select skills..."}
+                                        placeholder={selectedSkills.length > 0 ? `${selectedSkills.length} skill selected` : "Search and select skills..."}
                                         value={searchTerm}
                                         onChange={(e) => {
                                             setSearchTerm(e.target.value);
