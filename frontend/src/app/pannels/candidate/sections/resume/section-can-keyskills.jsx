@@ -76,7 +76,6 @@ function SectionCanKeySkills({ profile }) {
                 setSelectedSkills([]);
                 setCustomSkill('');
                 setShowCustomInput(false);
-                showSuccess(`${newSkills.length} skill(s) added successfully!`);
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
             }
         } catch (error) {
@@ -104,7 +103,6 @@ function SectionCanKeySkills({ profile }) {
                 setSkills(updatedSkills);
                 setCustomSkill('');
                 setShowCustomInput(false);
-                showSuccess(`Skill "${skillToAdd}" added successfully!`);
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
             }
         } catch (error) {
@@ -121,7 +119,6 @@ function SectionCanKeySkills({ profile }) {
             const response = await api.updateCandidateProfile({ skills: updatedSkills });
             if (response.success) {
                 setSkills(updatedSkills);
-                showSuccess(`Skill "${skillToRemove}" removed successfully!`);
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
             }
         } catch (error) {

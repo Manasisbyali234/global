@@ -313,7 +313,7 @@ function SectionCanPersonalDetail({ profile }) {
                             </div>
 
                             <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-user me-1"></i> Middle Name <span style={{color: 'red'}}>*</span></label>
+                                <label><i className="fa fa-user me-1"></i> Middle Name</label>
                                 <input
                                     className="form-control"
                                     type="text"
