@@ -225,6 +225,18 @@ function SectionCanKeySkills({ profile }) {
                                                     >
                                                         Clear All
                                                     </button>
+                                                    <button
+                                                        type="button"
+                                                        className="dropdown-clear-all"
+                                                        onMouseDown={(e) => {
+                                                            e.preventDefault();
+                                                            handleAddFromDropdown();
+                                                            setShowDropdown(false);
+                                                        }}
+                                                        disabled={selectedSkills.length === 0 || loading}
+                                                    >
+                                                        Add Skills ({selectedSkills.length})
+                                                    </button>
                                                 </div>
                                             )}
                                             {predefinedSkills
@@ -276,19 +288,6 @@ function SectionCanKeySkills({ profile }) {
                                 </div>
                             </div>
                             <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-stretch align-items-md-end gap-2">
-                                <button 
-                                    type="button"
-                                    className="btn btn-outline-primary flex-fill"
-                                    onClick={() => {
-                                        handleAddFromDropdown();
-                                        setShowDropdown(false);
-                                    }}
-                                    disabled={selectedSkills.length === 0 || loading}
-                                    style={{backgroundColor: 'transparent'}}
-                                >
-                                    <i className="fa fa-plus me-1"></i>
-                                    Add Skills ({selectedSkills.length})
-                                </button>
                                 <button 
                                     type="button" 
                                     onClick={() => setShowCustomInput(!showCustomInput)}
