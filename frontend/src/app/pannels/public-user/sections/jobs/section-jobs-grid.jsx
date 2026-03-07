@@ -131,7 +131,11 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                 performanceMonitor.monitorAPICall(url, apiStartTime);
                 
                 if (data.success) {
-                    const jobList = data.jobs || [];
+                    const jobList = (data.jobs || []).filter((job) => {
+                        const applicationCount = Number(job?.applicationCount || 0);
+                        const applicationLimit = Number(job?.applicationLimit || 0);
+                        return applicationCount < applicationLimit;
+                    });
                     setJobs(jobList);
                     setTotalPages(data.totalPages || 1);
                     // Show count of jobs on current page, not total
@@ -177,7 +181,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
         const { limitReached, isExpired, isEnded } = useMemo(() => {
             const applicationCount = Number(job?.applicationCount || 0);
             const applicationLimit = Number(job?.applicationLimit || 0);
-            const limitReachedNow = applicationLimit > 0 && applicationCount >= applicationLimit;
+            const limitReachedNow = applicationCount >= applicationLimit;
             const now = new Date();
             const deadlineDate = job?.lastDateOfApplication ? new Date(job.lastDateOfApplication) : null;
             if (deadlineDate && !Number.isNaN(deadlineDate.getTime())) {

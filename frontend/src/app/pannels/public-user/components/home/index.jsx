@@ -12,6 +12,12 @@ import "../../../../../categories-mobile-grid-fix.css";
 import "../../../../../remove-carousel-hover-effects.css";
 import "../../../../../home-location-fix.css";
 
+const isJobWithinApplicationLimit = (job) => {
+    const applicationCount = Number(job?.applicationCount || 0);
+    const applicationLimit = Number(job?.applicationLimit || 0);
+    return applicationCount < applicationLimit;
+};
+
 function TopRecruitersSection() {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -26,7 +32,7 @@ function TopRecruitersSection() {
             const data = await response.json();
             
             if (data.success) {
-                setJobs(data.jobs);
+                setJobs((data.jobs || []).filter(isJobWithinApplicationLimit));
             }
         } catch (error) {
             
@@ -105,8 +111,8 @@ function HomeJobsList() {
             const response = await fetch('http://localhost:5000/api/public/jobs?limit=5');
             const data = await response.json();
             if (data.success) {
-                
-                setJobs(data.jobs.slice(0, 5));
+                const filteredJobs = (data.jobs || []).filter(isJobWithinApplicationLimit);
+                setJobs(filteredJobs.slice(0, 5));
             }
         } catch (error) {
             

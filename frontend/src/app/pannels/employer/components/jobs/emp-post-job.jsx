@@ -4008,8 +4008,8 @@ export default function EmpPostJob({ onNext }) {
 						</div>
 					</div>
 
-					{/* Individual Assessment Scheduling for each Assessment instance (render first if assessment is first stage) */}
-					{isAssessmentFirst && formData.interviewRoundOrder
+					{/* Individual Assessment Scheduling for each Assessment instance */}
+					{false && formData.interviewRoundOrder
 						.filter(key => formData.interviewRoundTypes[key] === 'assessment')
 						.map((assessmentKey, assessmentIndex) => {
 							const stageNumber = formData.interviewRoundOrder.indexOf(assessmentKey) + 1;
@@ -4265,62 +4265,178 @@ export default function EmpPostJob({ onNext }) {
 									const details = formData.interviewRoundDetails[uniqueKey] || {};
 									const subStages = details.subStages || [];
 									const isAssessmentRound = roundType === 'assessment';
+									const assessmentIndex = formData.interviewRoundOrder
+										.filter(key => formData.interviewRoundTypes[key] === 'assessment')
+										.indexOf(uniqueKey) + 1;
 
 									if (isAssessmentRound) {
-										const selectedAssessmentDetails = availableAssessments.find(
-											a => (a._id === selectedAssessment || a.id === selectedAssessment)
-										);
 										return (
 											<div key={uniqueKey} style={{
-												background: '#f4f6f8',
-												borderRadius: '16px',
-												padding: '24px',
+												background: '#fff',
+												borderRadius: '12px',
+												border: '1px solid #e2e8f0',
+												overflow: 'hidden',
 												marginBottom: '24px',
-												boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+												boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
 												width: '100%'
 											}}>
-												<div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-													<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-														<div style={{
-															background: 'linear-gradient(90deg, #ff8a00, #ff6a00)',
-															color: 'white',
+												<div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+													<div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+														<span style={{
+															fontSize: 14,
+															fontWeight: 700,
+															color: '#fff',
+															background: '#ff6b35',
+															borderRadius: '8px',
 															width: '32px',
 															height: '32px',
-															borderRadius: '50%',
 															display: 'flex',
 															alignItems: 'center',
-															justifyContent: 'center',
-															fontWeight: 'bold'
+															justifyContent: 'center'
 														}}>
 															{stageNumber}
+														</span>
+														<div>
+															<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
+																Stage {stageNumber}: Assessment Schedule {assessmentIndex}
+															</h4>
+															<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 														</div>
-														<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-															Stage {stageNumber}: {displayName}
-														</h3>
 													</div>
+													<button
+														style={{
+															background: '#10b981',
+															color: '#fff',
+															border: 'none',
+															padding: '8px 16px',
+															borderRadius: 8,
+															cursor: 'pointer',
+															fontSize: 13,
+															fontWeight: 600
+														}}
+														onClick={() => {
+															if (!selectedAssessment) {
+																showWarning('Please select an assessment first');
+																return;
+															}
+															if (!details?.fromDate) {
+																showWarning(`Please set the Date for Assessment ${assessmentIndex}`);
+																return;
+															}
+															setScheduledRounds(prev => ({ ...prev, [uniqueKey]: true }));
+															showSuccess(`Assessment ${assessmentIndex} details saved locally!`);
+														}}
+													>
+														<i className="fa fa-save" style={{ marginRight: 6 }}></i>
+														Save Schedule
+													</button>
 												</div>
-												<div style={{
-													background: '#fff',
-													border: '1px solid #e5e7eb',
-													borderRadius: '12px',
-													padding: '16px',
-													display: 'flex',
-													flexDirection: 'column',
-													gap: '8px'
-												}}>
-													<div style={{ fontSize: '14px', color: '#374151' }}>
-														<strong>Assessment:</strong> {selectedAssessmentDetails?.title || 'Not selected'}
+
+												<div
+													data-assessment-key={uniqueKey}
+													style={{
+														display: 'grid',
+														gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+														gap: '20px',
+														padding: '20px',
+														background: '#fff'
+													}}
+												>
+													<div style={{
+														display: 'flex',
+														flexDirection: 'column',
+														gap: 8
+													}}>
+														<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+															<label style={{ ...label, marginBottom: 0, color: '#475569', fontWeight: 600 }}>
+																<i className="fa fa-calendar" style={{ marginRight: 8, color: '#ff6b35' }}></i>
+																Assessment Date
+															</label>
+															{details?.fromDate && (
+																<div style={{ fontSize: 11, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '2px 8px', borderRadius: 12, border: '1px solid #bbf7d0' }}>
+																	<i className="fa fa-check"></i>
+																	Saved
+																</div>
+															)}
+														</div>
+														<input
+															style={{
+																...input,
+																fontSize: 14,
+																padding: '10px 12px',
+																borderRadius: '8px',
+																border: '1px solid #cbd5e1',
+																background: '#f8fafc'
+															}}
+															type="date"
+															min={minInterviewDate}
+															value={details.fromDate || ''}
+															onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
+														/>
+														<HolidayIndicator date={details.fromDate} />
 													</div>
-													<div style={{ fontSize: '14px', color: '#374151' }}>
-														<strong>Date:</strong> {details.fromDate ? formatDate(details.fromDate) : 'Not set'}
+													<div style={{
+														display: 'flex',
+														flexDirection: 'column',
+														gap: 8
+													}}>
+														<label style={{ ...label, marginBottom: 0, color: '#475569', fontWeight: 600 }}>
+															<i className="fa fa-clock" style={{ marginRight: 8, color: '#ff6b35' }}></i>
+															Start Time
+														</label>
+														<input
+															style={{
+																...input,
+																fontSize: 14,
+																padding: '10px 12px',
+																borderRadius: '8px',
+																border: '1px solid #cbd5e1',
+																background: '#f8fafc'
+															}}
+															type="time"
+															value={details.startTime || ''}
+															onChange={(e) => updateRoundDetails(uniqueKey, 'startTime', e.target.value)}
+														/>
 													</div>
-													<div style={{ fontSize: '14px', color: '#374151' }}>
-														<strong>Time:</strong> {(details.startTime && details.endTime)
-															? `${formatTimeToAMPM(details.startTime)} - ${formatTimeToAMPM(details.endTime)}`
-															: 'Not set'}
-													</div>
-													<div style={{ fontSize: '12px', color: '#6b7280' }}>
-														Assessment schedule is managed in the Assessment Schedule section for this stage.
+													<div style={{
+														display: 'flex',
+														flexDirection: 'column',
+														gap: 8
+													}}>
+														<label style={{ ...label, marginBottom: 0, color: '#475569', fontWeight: 600 }}>
+															<i className="fa fa-hourglass-end" style={{ marginRight: 8, color: '#ff6b35' }}></i>
+															End Time
+															<span style={{
+																fontSize: 11,
+																color: '#10b981',
+																fontWeight: 500,
+																marginLeft: 8,
+																background: '#d1fae5',
+																padding: '2px 8px',
+																borderRadius: 4,
+															}}>
+																Auto-calculated
+															</span>
+														</label>
+														<input
+															style={{
+																...input,
+																fontSize: 14,
+																padding: '10px 12px',
+																borderRadius: '8px',
+																border: '1px solid #cbd5e1',
+																background: '#f0fdf4',
+																cursor: 'not-allowed'
+															}}
+															type="time"
+															value={details.endTime || ''}
+															readOnly
+															disabled
+														/>
+														<small style={{ color: '#10b981', fontSize: 11, marginTop: 4, display: 'block' }}>
+															<i className="fa fa-info-circle" style={{ marginRight: 4 }}></i>
+															Auto-calculated based on assessment duration
+														</small>
 													</div>
 												</div>
 											</div>
@@ -4329,39 +4445,47 @@ export default function EmpPostJob({ onNext }) {
 									
 									return (
 										<div key={uniqueKey} style={{
-											background: '#f4f6f8',
-											borderRadius: '16px',
-											padding: '24px',
+											background: '#fff',
+											borderRadius: '12px',
+											border: '1px solid #e2e8f0',
+											overflow: 'hidden',
 											marginBottom: '24px',
-											boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+											boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
 											width: '100%'
 										}}>
-											{/* Top Header Section */}
 											<div style={{
+												padding: "12px 16px",
+												background: "#f8fafc",
+												borderBottom: "1px solid #e2e8f0",
 												display: 'flex',
 												alignItems: 'center',
-												marginBottom: '24px'
+												justifyContent: 'space-between',
+												gap: 12,
+												flexWrap: 'wrap'
 											}}>
 												<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-													<div style={{
-														background: 'linear-gradient(90deg, #ff8a00, #ff6a00)',
-														color: 'white',
+													<span style={{
+														fontSize: 14,
+														fontWeight: 700,
+														color: '#fff',
+														background: '#ff6b35',
+														borderRadius: '8px',
 														width: '32px',
 														height: '32px',
-														borderRadius: '50%',
 														display: 'flex',
 														alignItems: 'center',
 														justifyContent: 'center',
-														fontWeight: 'bold'
+														flexShrink: 0
 													}}>
 														{stageNumber}
-													</div>
-													<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+													</span>
+													<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
 														Stage {stageNumber}: {displayName}
-													</h3>
+													</h4>
 												</div>
 											</div>
 
+											<div style={{ padding: '20px', background: '#fff' }}>
 											{/* Description + Date Range + Lunch Break Section */}
 											<div data-interview-round-details style={{
 												display: 'flex',
@@ -4423,10 +4547,13 @@ export default function EmpPostJob({ onNext }) {
 															<input
 																type="date"
 																style={{
-																	border: 'none',
+																	border: '1px solid #e5e7eb',
 																	fontSize: '14px',
 																	outline: 'none',
-																	width: '100%'
+																	width: '100%',
+																	padding: '8px 10px',
+																	borderRadius: '6px',
+																	background: '#fff'
 																}}
 																min={minInterviewDate}
 																value={details.fromDate || ''}
@@ -4438,10 +4565,13 @@ export default function EmpPostJob({ onNext }) {
 															<input
 																type="date"
 																style={{
-																	border: 'none',
+																	border: '1px solid #e5e7eb',
 																	fontSize: '14px',
 																	outline: 'none',
-																	width: '100%'
+																	width: '100%',
+																	padding: '8px 10px',
+																	borderRadius: '6px',
+																	background: '#fff'
 																}}
 																min={details.fromDate || today}
 																value={details.toDate || ''}
@@ -4747,6 +4877,7 @@ export default function EmpPostJob({ onNext }) {
 													Schedule Interview
 												</button>
 											</div>
+											</div>
 										</div>
 									);
 								})
@@ -4757,8 +4888,8 @@ export default function EmpPostJob({ onNext }) {
 					</>
 					)}
 
-							{/* Individual Assessment Scheduling for each Assessment instance */}
-							{!isAssessmentFirst && formData.interviewRoundOrder
+							{/* Disabled duplicate assessment scheduling block */}
+							{false && !isAssessmentFirst && formData.interviewRoundOrder
 								.filter(key => formData.interviewRoundTypes[key] === 'assessment')
 								.map((assessmentKey, assessmentIndex) => {
 									const stageNumber = formData.interviewRoundOrder.indexOf(assessmentKey) + 1;

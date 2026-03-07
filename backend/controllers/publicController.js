@@ -20,14 +20,6 @@ exports.getJobs = async (req, res) => {
     
     const { location, jobType, category, search, title, employerId, employmentType, skills, keyword, jobTitle, education, page = 1, limit = 10, sortBy } = req.query;
     
-    // Create cache key for this specific query
-    const cacheKey = `jobs_${JSON.stringify({ location, jobType, category, search, title, employerId, employmentType, skills, keyword, jobTitle, education, page, limit, sortBy })}`;
-    const cached = cache.get(cacheKey);
-    
-    if (cached) {
-      return res.json(cached);
-    }
-
     // Optimized query building
     let query = { 
       status: { $in: ['active', 'pending'] },
@@ -121,7 +113,7 @@ exports.getJobs = async (req, res) => {
         .select('companyName employerType status isApproved')
         .lean(),
       require('../models/Application').aggregate([
-        { $match: { jobId: { $in: jobIds } } },
+        { $match: { jobId: { $in: jobIds }, paymentStatus: 'paid' } },
         { $group: { _id: '$jobId', count: { $sum: 1 } } }
       ])
     ]);
@@ -144,10 +136,9 @@ exports.getJobs = async (req, res) => {
     const filteredJobs = jobs.filter(job => {
       const employer = employerMap.get(job.employerId.toString());
       const applicationCount = applicationCountMap.get(job._id.toString()) || 0;
-      const applicationLimit = parseInt(job.applicationLimit) || 0;
-      
-      // Filter out jobs where applications have reached the limit (0 = unlimited)
-      const hasAvailableSlots = applicationLimit === 0 || applicationCount < applicationLimit;
+      const applicationLimit = parseInt(job.applicationLimit, 10) || 0;
+      // Filter out jobs where applications have reached the limit (0 means closed)
+      const hasAvailableSlots = applicationCount < applicationLimit;
       
       // Filter out jobs past application deadline
       const now = new Date();
@@ -187,9 +178,6 @@ exports.getJobs = async (req, res) => {
       hasNextPage: parseInt(page) < Math.ceil(totalJobs / parseInt(limit)),
       hasPrevPage: parseInt(page) > 1
     };
-    
-    // Cache for 2 minutes for faster responses (reduced from 10 minutes to show updates faster)
-    cache.set(cacheKey, response, 120000);
     
     res.json(response);
   } catch (error) {
