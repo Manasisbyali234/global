@@ -45,6 +45,82 @@ function EmpJobReviewPage() {
     if (loading) return <div>Loading...</div>;
     if (!jobDetails) return <div>Job not found</div>;
 
+    const roundNames = {
+        technical: 'Technical',
+        oneOnOne: 'One-on-One',
+        panel: 'Panel',
+        group: 'Group',
+        situational: 'Situational / Behavioral',
+        others: 'Others',
+        assessment: 'Assessment',
+        oneOnOnePanel: 'One-on-One / Panel',
+        managerial: 'Managerial Round',
+        hr: 'HR Round'
+    };
+
+    const normalizeRoundType = (value) => String(value || '').toLowerCase().replace(/[\s_-]/g, '');
+    const getRoundTypeFromRound = (round) => round?.roundType || round?.type || round?.name;
+    const getRoundDisplayName = (roundType, customType) => (
+        (customType && customType.trim()) || roundNames[roundType] || roundType || 'Interview Round'
+    );
+
+    const interviewRoundsArray = Array.isArray(jobDetails.interviewRounds) ? jobDetails.interviewRounds : [];
+    const interviewRoundOrder = Array.isArray(jobDetails.interviewRoundOrder) ? jobDetails.interviewRoundOrder : [];
+    const interviewRoundTypes = jobDetails.interviewRoundTypes || {};
+    const interviewRoundDetails = jobDetails.interviewRoundDetails || {};
+
+    const roundsByTypeQueue = interviewRoundsArray.reduce((acc, round) => {
+        const normalizedType = normalizeRoundType(getRoundTypeFromRound(round));
+        if (!normalizedType) return acc;
+        if (!acc[normalizedType]) acc[normalizedType] = [];
+        acc[normalizedType].push(round);
+        return acc;
+    }, {});
+
+    const orderedInterviewRounds = interviewRoundOrder.length > 0
+        ? interviewRoundOrder.map((key, index) => {
+            const roundType = interviewRoundTypes[key];
+            const normalizedType = normalizeRoundType(roundType);
+            const matchedRound = roundsByTypeQueue[normalizedType]?.shift() || null;
+            const details = interviewRoundDetails[key] || {};
+            const isAssessment = normalizedType === 'assessment';
+
+            return {
+                key,
+                stageNumber: index + 1,
+                roundType,
+                displayName: getRoundDisplayName(roundType, details.customType),
+                description: details.description || matchedRound?.description || '',
+                fromDate: details.fromDate || matchedRound?.fromDate || matchedRound?.fromdate || matchedRound?.date || (isAssessment ? jobDetails.assessmentStartDate : null),
+                toDate: details.toDate || matchedRound?.toDate || matchedRound?.todate || (isAssessment ? jobDetails.assessmentEndDate : null),
+                startTime: details.startTime || matchedRound?.startTime || (isAssessment ? jobDetails.assessmentStartTime : null),
+                endTime: details.endTime || matchedRound?.endTime || (isAssessment ? jobDetails.assessmentEndTime : null),
+                applicationLimit: details.applicationLimit || matchedRound?.applicationLimit,
+                roundId: matchedRound?._id || matchedRound?.id || details?._id || details?.id,
+                subStages: (details.subStages && details.subStages.length > 0) ? details.subStages : (matchedRound?.subStages || []),
+                isAssessment
+            };
+        })
+        : interviewRoundsArray.map((round, index) => {
+            const roundType = getRoundTypeFromRound(round);
+            const normalizedType = normalizeRoundType(roundType);
+            return {
+                key: round?._id || round?.id || `${normalizedType}-${index}`,
+                stageNumber: index + 1,
+                roundType,
+                displayName: getRoundDisplayName(roundType, ''),
+                description: round?.description || '',
+                fromDate: round?.fromDate || round?.fromdate || round?.date || (normalizedType === 'assessment' ? jobDetails.assessmentStartDate : null),
+                toDate: round?.toDate || round?.todate || (normalizedType === 'assessment' ? jobDetails.assessmentEndDate : null),
+                startTime: round?.startTime || (normalizedType === 'assessment' ? jobDetails.assessmentStartTime : null),
+                endTime: round?.endTime || (normalizedType === 'assessment' ? jobDetails.assessmentEndTime : null),
+                applicationLimit: round?.applicationLimit,
+                roundId: round?._id || round?.id,
+                subStages: round?.subStages || [],
+                isAssessment: normalizedType === 'assessment'
+            };
+        });
+
     return (
         <div className="emp-job-review-page">
             <div className="panel panel-default site-bg-white p-3">
@@ -254,44 +330,28 @@ function EmpJobReviewPage() {
                         <hr />
 
                         {/* Interview Round Details */}
-                        {((jobDetails.interviewRounds && jobDetails.interviewRounds.length > 0) || 
-                          (jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.length > 0)) && (
+                        {orderedInterviewRounds.length > 0 && (
                             <div className="mt-4">
                                 <h5 className="mb-3">Interview Schedule Details</h5>
                                 <div className="row">
-                                    {/* Display from interviewRounds array if available */}
-                                    {jobDetails.interviewRounds && jobDetails.interviewRounds.length > 0 ? (
-                                        jobDetails.interviewRounds.map((round, index) => {
-                                            const roundNames = {
-                                                technical: 'Technical',
-                                                oneOnOne: 'One-on-One',
-                                                panel: 'Panel',
-                                                group: 'Group',
-                                                situational: 'Situational / Behavioral',
-                                                others: 'Others',
-                                                assessment: 'Assessment',
-                                                oneOnOnePanel: 'One-on-One / Panel',
-                                                managerial: 'Managerial Round',
-                                                hr: 'HR Round'
-                                            };
-                                            const displayName = roundNames[round.name] || round.name;
-                                            return (
-                                            <div key={round.id || index} className="col-lg-6 col-12 mb-3">
+                                    {orderedInterviewRounds.map((round) => {
+                                        return (
+                                            <div key={round.key} className="col-lg-6 col-12 mb-3">
                                                 <div className="border rounded p-3 bg-light">
                                                     <h6 className="mb-2">
-                                                        <span className="badge bg-primary me-2">{index + 1}</span>
-                                                        {displayName}
+                                                        <span className="badge bg-primary me-2">{round.stageNumber}</span>
+                                                        {round.displayName}
                                                     </h6>
                                                     {round.description && (
                                                         <p className="mb-1"><strong>Description:</strong> {round.description}</p>
                                                     )}
-                                                    {(round.fromdate || round.fromDate || round.date) ? (
-                                                        <p className="mb-1"><strong>Date:</strong> {formatDate(round.fromdate || round.fromDate || round.date)}</p>
+                                                    {round.fromDate ? (
+                                                        <p className="mb-1"><strong>Date:</strong> {formatDate(round.fromDate)}</p>
                                                     ) : (
                                                         <p className="mb-1 text-muted"><strong>Date:</strong> Not scheduled yet</p>
                                                     )}
-                                                    {(round.todate || round.toDate) && (
-                                                        <p className="mb-1"><strong>End Date:</strong> {formatDate(round.todate || round.toDate)}</p>
+                                                    {round.toDate && (
+                                                        <p className="mb-1"><strong>End Date:</strong> {formatDate(round.toDate)}</p>
                                                     )}
                                                     {round.startTime && (
                                                         <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(round.startTime)}</p>
@@ -303,10 +363,10 @@ function EmpJobReviewPage() {
                                                         <p className="mb-1"><strong>Application Limit:</strong> {round.applicationLimit}</p>
                                                     )}
                                                     
-                                                    {(round._id || round.id) && round.name?.toLowerCase() !== 'assessment' && (
+                                                    {round.roundId && !round.isAssessment && (
                                                         <button 
                                                             className="btn site-button-secondry btn-sm mt-2"
-                                                            onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round._id || round.id}`, '_blank')}
+                                                            onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round.roundId}`, '_blank')}
                                                         >
                                                             Join now
                                                         </button>
@@ -338,86 +398,7 @@ function EmpJobReviewPage() {
                                                 </div>
                                             </div>
                                         );
-                                        })
-                                    ) : (
-                                        /* Display from interviewRoundDetails if interviewRounds not available */
-                                        jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.map((key, index) => {
-                                            const details = jobDetails.interviewRoundDetails?.[key];
-                                            const roundType = jobDetails.interviewRoundTypes?.[key];
-                                            const roundNames = {
-                                                technical: 'Technical',
-                                                managerial: 'Managerial Round',
-                                                hr: 'HR Round',
-                                                oneOnOnePanel: 'One-on-One / Panel',
-                                                group: 'Group',
-                                                situational: 'Situational / Behavioral',
-                                                assessment: 'Assessment',
-                                                others: 'Others'
-                                            };
-                                            const displayName = details?.customType || roundNames[roundType] || roundType;
-                                            
-                                            return (
-                                                <div key={key} className="col-lg-6 col-12 mb-3">
-                                                    <div className="border rounded p-3 bg-light">
-                                                        <h6 className="mb-2">
-                                                            <span className="badge bg-primary me-2">{index + 1}</span>
-                                                            {displayName}
-                                                        </h6>
-                                                        {details?.description && (
-                                                            <p className="mb-1"><strong>Description:</strong> {details.description}</p>
-                                                        )}
-                                                        {details?.fromDate ? (
-                                                            <p className="mb-1"><strong>Date:</strong> {formatDate(details.fromDate)}</p>
-                                                        ) : (
-                                                            <p className="mb-1 text-muted"><strong>Date:</strong> Not scheduled yet</p>
-                                                        )}
-                                                        {details?.toDate && (
-                                                            <p className="mb-1"><strong>End Date:</strong> {formatDate(details.toDate)}</p>
-                                                        )}
-                                                        {details?.startTime && (
-                                                            <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(details.startTime)}</p>
-                                                        )}
-                                                        {details?.endTime && (
-                                                            <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(details.endTime)}</p>
-                                                        )}
-                                                        
-                                                        {(details?._id || details?.id) && roundType !== 'assessment' && (
-                                                            <button 
-                                                                className="btn site-button-secondry btn-sm mt-2"
-                                                                onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${details._id || details.id}`, '_blank')}
-                                                            >
-                                                                Join now
-                                                            </button>
-                                                        )}
-                                                        
-                                                        {/* Sub-stages */}
-                                                        {details?.subStages && details.subStages.length > 0 && (
-                                                            <div className="mt-3">
-                                                                <h6 className="mb-2 text-secondary">Sub-Stages:</h6>
-                                                                {details.subStages.map((subStage, subIndex) => (
-                                                                    <div key={subIndex} className="ms-3 mb-2 p-2 bg-white rounded border">
-                                                                        <p className="mb-1 small"><strong>Sub-Stage {subIndex + 1}</strong></p>
-                                                                        {subStage.fromDate && (
-                                                                            <p className="mb-1 small"><strong>Date:</strong> {formatDate(subStage.fromDate)}</p>
-                                                                        )}
-                                                                        {subStage.startTime && (
-                                                                            <p className="mb-1 small"><strong>Start:</strong> {formatTimeToAMPM(subStage.startTime)}</p>
-                                                                        )}
-                                                                        {subStage.endTime && (
-                                                                            <p className="mb-1 small"><strong>End:</strong> {formatTimeToAMPM(subStage.endTime)}</p>
-                                                                        )}
-                                                                        {subStage.breakTime > 0 && (
-                                                                            <p className="mb-0 small"><strong>Break:</strong> {subStage.breakTime} mins</p>
-                                                                        )}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    )}
+                                    })}
                                 </div>
                             </div>
                         )}

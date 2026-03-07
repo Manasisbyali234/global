@@ -4239,16 +4239,15 @@ export default function EmpPostJob({ onNext }) {
 							);
 						})}
 
-					{/* Interview Round Details - Only show for non-assessment rounds */}
-					{formData.interviewRoundOrder.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment').length > 0 && (
+					{/* Interview Round Details - Show all selected rounds in configured order */}
+					{formData.interviewRoundOrder.length > 0 && (
 						<>
 						<div style={fullRow}>
 							<h4 style={{ margin: "16px 0 12px 0", fontSize: 15, color: "#0f172a" }}>
 								Interview Round Details
 							</h4>
 							{formData.interviewRoundOrder
-								.filter(uniqueKey => formData.interviewRoundTypes[uniqueKey] !== 'assessment')
-								.map((uniqueKey, index) => {
+								.map((uniqueKey) => {
 									const roundType = formData.interviewRoundTypes[uniqueKey];
 									const roundNames = {
 										technical: 'Technical',
@@ -4265,6 +4264,68 @@ export default function EmpPostJob({ onNext }) {
 									const stageNumber = formData.interviewRoundOrder.indexOf(uniqueKey) + 1;
 									const details = formData.interviewRoundDetails[uniqueKey] || {};
 									const subStages = details.subStages || [];
+									const isAssessmentRound = roundType === 'assessment';
+
+									if (isAssessmentRound) {
+										const selectedAssessmentDetails = availableAssessments.find(
+											a => (a._id === selectedAssessment || a.id === selectedAssessment)
+										);
+										return (
+											<div key={uniqueKey} style={{
+												background: '#f4f6f8',
+												borderRadius: '16px',
+												padding: '24px',
+												marginBottom: '24px',
+												boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+												width: '100%'
+											}}>
+												<div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+													<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+														<div style={{
+															background: 'linear-gradient(90deg, #ff8a00, #ff6a00)',
+															color: 'white',
+															width: '32px',
+															height: '32px',
+															borderRadius: '50%',
+															display: 'flex',
+															alignItems: 'center',
+															justifyContent: 'center',
+															fontWeight: 'bold'
+														}}>
+															{stageNumber}
+														</div>
+														<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+															Stage {stageNumber}: {displayName}
+														</h3>
+													</div>
+												</div>
+												<div style={{
+													background: '#fff',
+													border: '1px solid #e5e7eb',
+													borderRadius: '12px',
+													padding: '16px',
+													display: 'flex',
+													flexDirection: 'column',
+													gap: '8px'
+												}}>
+													<div style={{ fontSize: '14px', color: '#374151' }}>
+														<strong>Assessment:</strong> {selectedAssessmentDetails?.title || 'Not selected'}
+													</div>
+													<div style={{ fontSize: '14px', color: '#374151' }}>
+														<strong>Date:</strong> {details.fromDate ? formatDate(details.fromDate) : 'Not set'}
+													</div>
+													<div style={{ fontSize: '14px', color: '#374151' }}>
+														<strong>Time:</strong> {(details.startTime && details.endTime)
+															? `${formatTimeToAMPM(details.startTime)} - ${formatTimeToAMPM(details.endTime)}`
+															: 'Not set'}
+													</div>
+													<div style={{ fontSize: '12px', color: '#6b7280' }}>
+														Assessment schedule is managed in the Assessment Schedule section for this stage.
+													</div>
+												</div>
+											</div>
+										);
+									}
 									
 									return (
 										<div key={uniqueKey} style={{

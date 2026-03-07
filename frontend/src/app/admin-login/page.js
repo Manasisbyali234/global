@@ -108,25 +108,26 @@ export default function AdminLogin() {
                                                                     placeholder="Password"
                                                                     value={formData.password}
                                                                     onChange={handleChange}
-                                                                    style={{ paddingRight: '60px' }}
+                                                                    style={{ paddingRight: '48px' }}
                                                                 />
                                                                 <span
                                                                     onClick={() => setShowPassword(!showPassword)}
                                                                     style={{
                                                                         position: 'absolute',
-                                                                        right: '10px',
-                                                                        top: '50%',
-                                                                        transform: 'translateY(-50%)',
+                                                                        right: '8px',
+                                                                        top: 0,
+                                                                        bottom: 0,
                                                                         cursor: 'pointer',
                                                                         color: '#6c757d',
                                                                         fontSize: '16px',
                                                                         zIndex: '10',
                                                                         userSelect: 'none',
-                                                                        display: 'inline-block',
-                                                                        width: '20px',
-                                                                        height: '20px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        width: '32px',
                                                                         textAlign: 'center',
-                                                                        lineHeight: '20px'
+                                                                        lineHeight: 1
                                                                     }}
                                                                 >
                                                                     <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>

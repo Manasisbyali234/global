@@ -83,14 +83,21 @@ exports.verifyPayment = async (req, res) => {
         return res.status(404).json({ success: false, message: 'Job not found' });
       }
 
-      const existingApplication = await Application.findOne({
+      const existingPaidApplication = await Application.findOne({
         jobId,
-        candidateId: req.user._id
+        candidateId: req.user._id,
+        paymentStatus: 'paid'
       });
 
-      if (existingApplication) {
+      if (existingPaidApplication) {
         return res.status(400).json({ success: false, message: 'Already applied to this job' });
       }
+
+      const existingUnpaidApplication = await Application.findOne({
+        jobId,
+        candidateId: req.user._id,
+        paymentStatus: { $ne: 'paid' }
+      });
 
       const profile = await CandidateProfile.findOne({ candidateId: req.user._id });
       
@@ -113,10 +120,15 @@ exports.verifyPayment = async (req, res) => {
         };
       }
       
-      const application = await Application.create(applicationData);
-
-      // Update job application count
-      await Job.findByIdAndUpdate(jobId, { $inc: { applicationCount: 1 } });
+      let application;
+      if (existingUnpaidApplication) {
+        Object.assign(existingUnpaidApplication, applicationData);
+        application = await existingUnpaidApplication.save();
+      } else {
+        application = await Application.create(applicationData);
+        // Update job application count only for brand new application
+        await Job.findByIdAndUpdate(jobId, { $inc: { applicationCount: 1 } });
+      }
 
       // Invalidate job cache
       const { cache } = require('../utils/cache');
@@ -213,14 +225,21 @@ exports.applyWithCredits = async (req, res) => {
     }
 
     // 3. Check for existing application
-    const existingApplication = await Application.findOne({
+    const existingPaidApplication = await Application.findOne({
       jobId,
-      candidateId: candidateId
+      candidateId: candidateId,
+      paymentStatus: 'paid'
     });
 
-    if (existingApplication) {
+    if (existingPaidApplication) {
       return res.status(400).json({ success: false, message: 'Already applied to this job' });
     }
+
+    const existingUnpaidApplication = await Application.findOne({
+      jobId,
+      candidateId: candidateId,
+      paymentStatus: { $ne: 'paid' }
+    });
 
     // 4. Deduct credit
     candidate.credits -= 1;
@@ -249,10 +268,15 @@ exports.applyWithCredits = async (req, res) => {
       };
     }
     
-    const application = await Application.create(applicationData);
-
-    // 6. Update job application count
-    await Job.findByIdAndUpdate(jobId, { $inc: { applicationCount: 1 } });
+    let application;
+    if (existingUnpaidApplication) {
+      Object.assign(existingUnpaidApplication, applicationData);
+      application = await existingUnpaidApplication.save();
+    } else {
+      application = await Application.create(applicationData);
+      // 6. Update job application count only for brand new application
+      await Job.findByIdAndUpdate(jobId, { $inc: { applicationCount: 1 } });
+    }
 
     // 7. Invalidate job cache
     const { cache } = require('../utils/cache');

@@ -116,3 +116,11 @@
         padding-bottom: 10px !important;
     }
 }
+
+/* Hide Safari/macOS credentials key icon on admin password field */
+.twm-login-reg input[type="password"]::-webkit-credentials-auto-fill-button,
+.twm-login-reg input[type="password"]::-webkit-contacts-auto-fill-button {
+    visibility: hidden !important;
+    display: none !important;
+    pointer-events: none !important;
+}

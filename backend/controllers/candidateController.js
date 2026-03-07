@@ -678,7 +678,10 @@ exports.getAppliedJobs = async (req, res) => {
       'Expires': '0'
     });
 
-    const applications = await Application.find({ candidateId: req.user._id })
+    const applications = await Application.find({
+      candidateId: req.user._id,
+      paymentStatus: 'paid'
+    })
       .populate({
         path: 'jobId',
         select: 'title location jobType status interviewRoundsCount interviewRoundTypes employerId',

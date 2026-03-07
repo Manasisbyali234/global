@@ -643,26 +643,23 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
     console.log('interviewRoundTypes:', jobDetails.interviewRoundTypes);
     console.log('interviewRoundDetails keys:', jobDetails.interviewRoundDetails ? Object.keys(jobDetails.interviewRoundDetails) : 'null');
     
-    // Build interview rounds section
+    // Build interview rounds section in the exact selected order
     const rounds = [];
-    
-    // Add assessment if explicitly enabled
-    if (jobDetails.assessmentEnabled && jobDetails.assessmentId) {
-      rounds.push({
-        name: 'Assessment',
-        type: 'assessment',
-        description: 'Complete the online technical assessment',
-        dateRange: jobDetails.assessmentStartDate && jobDetails.assessmentEndDate ? 
-          `${new Date(jobDetails.assessmentStartDate).toLocaleDateString('en-GB')} - ${new Date(jobDetails.assessmentEndDate).toLocaleDateString('en-GB')}` : 
-          'Date will be communicated',
-        time: jobDetails.assessmentStartTime && jobDetails.assessmentEndTime ? 
-          `${formatTimeToAMPM(jobDetails.assessmentStartTime)} - ${formatTimeToAMPM(jobDetails.assessmentEndTime)}` : 
-          'Available 24/7 during assessment period'
-      });
-    }
-    
-    // Add interview rounds based on order - only if they are enabled and NOT assessment type
-    if (jobDetails.interviewRoundOrder && jobDetails.interviewRoundDetails) {
+    const formatDateSafe = (d) => {
+      if (!d) return null;
+      const parsed = new Date(d);
+      return Number.isNaN(parsed.getTime()) ? null : parsed.toLocaleDateString('en-GB');
+    };
+    const formatDateRange = (fromDate, toDate) => {
+      const from = formatDateSafe(fromDate);
+      const to = formatDateSafe(toDate);
+      if (from && to) return `${from} - ${to}`;
+      if (from) return from;
+      if (to) return to;
+      return 'Date will be communicated';
+    };
+
+    if (jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.length > 0) {
       const roundNames = {
         technical: 'Technical',
         managerial: 'Managerial Round',
@@ -677,38 +674,58 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
       };
       
       jobDetails.interviewRoundOrder.forEach((roundKey, index) => {
-        const roundType = jobDetails.interviewRoundTypes[roundKey];
-        const roundDetails = jobDetails.interviewRoundDetails[roundKey];
+        const roundType = jobDetails.interviewRoundTypes?.[roundKey];
+        const roundDetails = jobDetails.interviewRoundDetails?.[roundKey] || {};
+        const isAssessment = roundType === 'assessment';
         
         console.log(`Processing round ${index + 1}: key=${roundKey}, type=${roundType}, hasDetails=${!!roundDetails}`);
-        if (roundDetails) {
-          console.log(`Round details:`, {
-            description: roundDetails.description,
-            fromDate: roundDetails.fromDate,
-            toDate: roundDetails.toDate,
-            time: roundDetails.time
-          });
-        }
-        
-        // Skip assessment type rounds if assessment is already added
-        if (roundType === 'assessment' && jobDetails.assessmentEnabled && jobDetails.assessmentId) {
-          console.log(`Skipped duplicate assessment round`);
-          return;
-        }
-        
-        // Only add rounds that have both dates scheduled
-        if (roundType && roundDetails && roundDetails.fromDate && roundDetails.toDate) {
-          rounds.push({
-            name: roundNames[roundType] || roundType,
-            type: roundType,
-            description: roundDetails.description || `${roundNames[roundType]} interview`,
-            dateRange: `${new Date(roundDetails.fromDate).toLocaleDateString('en-GB')} - ${new Date(roundDetails.toDate).toLocaleDateString('en-GB')}`,
-            time: roundDetails.time ? formatTimeToAMPM(roundDetails.time) : ''
-          });
-          console.log(`Added round: ${roundNames[roundType] || roundType}`);
-        } else {
-          console.log(`Skipped round ${roundKey} - no dates scheduled`);
-        }
+
+        const customType = roundType === 'others' ? roundDetails.customType : '';
+        const displayName = (customType && customType.trim()) || roundNames[roundType] || roundType || 'Interview Round';
+
+        const fromDate = isAssessment
+          ? (roundDetails.fromDate || jobDetails.assessmentStartDate)
+          : roundDetails.fromDate;
+        const toDate = isAssessment
+          ? (roundDetails.toDate || jobDetails.assessmentEndDate || fromDate)
+          : (roundDetails.toDate || fromDate);
+
+        const startTime = isAssessment
+          ? (roundDetails.startTime || jobDetails.assessmentStartTime)
+          : roundDetails.startTime;
+        const endTime = isAssessment
+          ? (roundDetails.endTime || jobDetails.assessmentEndTime)
+          : roundDetails.endTime;
+
+        const timeLabel = (startTime && endTime)
+          ? `${formatTimeToAMPM(startTime)} - ${formatTimeToAMPM(endTime)}`
+          : (startTime ? formatTimeToAMPM(startTime) : 'Time will be communicated');
+
+        rounds.push({
+          name: displayName,
+          type: roundType,
+          description: roundDetails.description || (isAssessment ? 'Complete the online technical assessment' : `${displayName} interview`),
+          dateRange: formatDateRange(fromDate, toDate),
+          time: timeLabel
+        });
+
+        console.log(`Added round in order: ${displayName}`);
+      });
+    } else if (jobDetails.interviewRounds && jobDetails.interviewRounds.length > 0) {
+      // Fallback for old data without interviewRoundOrder
+      jobDetails.interviewRounds.forEach((round) => {
+        const name = round?.name || round?.roundType || round?.type || 'Interview Round';
+        const dateRange = formatDateRange(round?.fromdate || round?.fromDate || round?.date, round?.todate || round?.toDate || round?.fromdate || round?.fromDate || round?.date);
+        const time = (round?.startTime && round?.endTime)
+          ? `${formatTimeToAMPM(round.startTime)} - ${formatTimeToAMPM(round.endTime)}`
+          : (round?.startTime ? formatTimeToAMPM(round.startTime) : 'Time will be communicated');
+        rounds.push({
+          name,
+          type: round?.roundType || round?.type || round?.name,
+          description: round?.description || `${name} interview`,
+          dateRange,
+          time
+        });
       });
     }
     

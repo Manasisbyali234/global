@@ -84,12 +84,14 @@ function CanStatusPage() {
 			const updateTimer = () => {
 				const now = new Date().getTime();
 				
-				if (timerInfo.isBeforeStart && timerInfo.timeUntilStart) {
-					const remaining = Math.max(0, timerInfo.timeUntilStart - (now - new Date(timerInfo.startDate).getTime()) + timerInfo.timeUntilStart);
+				if (timerInfo.isBeforeStart && timerInfo.startDate) {
+					const startTs = new Date(timerInfo.startDate).getTime();
+					const remaining = Math.max(0, startTs - now);
 					setTimeLeft(remaining);
 					setIsActive(false);
-				} else if (timerInfo.isActive && timerInfo.timeRemaining) {
-					const remaining = Math.max(0, timerInfo.timeRemaining - (now - new Date(timerInfo.endDate).getTime()) + timerInfo.timeRemaining);
+				} else if (timerInfo.isActive && timerInfo.endDate) {
+					const endTs = new Date(timerInfo.endDate).getTime();
+					const remaining = Math.max(0, endTs - now);
 					setTimeLeft(remaining);
 					setIsActive(true);
 					if (remaining <= 0 && onTimerEnd) {

@@ -316,7 +316,8 @@ router.get('/applications/status/:jobId', async (req, res) => {
     const Application = require('../models/Application');
     const application = await Application.findOne({
       candidateId: req.user._id,
-      jobId: req.params.jobId
+      jobId: req.params.jobId,
+      paymentStatus: 'paid'
     }).select('_id').lean();
     
     res.json({ success: true, hasApplied: !!application });
