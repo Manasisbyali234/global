@@ -455,7 +455,7 @@ function JobDetail1Page() {
     const handleApplyClick = async () => {
         if (isEnded) return;
         if (!isLoggedIn) {
-            showWarning('Please login first to apply for jobs!');
+            showWarning('Please sign in or create an account to apply for this job');
             localStorage.setItem('redirectAfterLogin', window.location.pathname);
             navigate(publicUser.pages.LOGIN_CANDIDATE);
             return;
