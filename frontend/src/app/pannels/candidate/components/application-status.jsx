@@ -675,7 +675,7 @@ function CanStatusPage() {
 		if (!windowInfo.isWithinWindow) {
 			if (windowInfo.isBeforeStart) {
 				const startLabel = windowInfo.startDate ? windowInfo.startDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : null;
-				showWarning(startLabel ? `⏰ Assessment Not Yet Available\n\nThe assessment will open on ${startLabel}. Please check back at the scheduled time.` : '⏰ Assessment is not yet available. Please wait for the scheduled time.');
+				showWarning(startLabel ? `⏰ Assessment Not Yet Available\n\nThe assessment will open on ${startLabel}. Please log in 5 minutes before the scheduled time.` : '⏰ Assessment is not yet available. Please wait for the scheduled time.');
 				return;
 			}
 			const endLabel = windowInfo.endDate ? windowInfo.endDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : null;
