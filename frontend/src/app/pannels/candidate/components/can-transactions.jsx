@@ -132,6 +132,42 @@ function CanTransactionsPage() {
         });
     }, [transactions, searchText]);
 
+    const getReceiptAmountBreakdown = (amount) => {
+        const totalPaid = Number(amount || 129);
+        const roundTo2 = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+        const taxableValue = roundTo2(totalPaid / 1.18);
+        const cgst = roundTo2(taxableValue * 0.09);
+        const sgst = roundTo2(totalPaid - taxableValue - cgst);
+        return { totalPaid, taxableValue, cgst, sgst };
+    };
+
+    const getTransactionStatusDisplay = (transaction) => {
+        const isCreditTransaction =
+            String(transaction?.paymentId || '').startsWith('credit_') ||
+            String(transaction?.paymentCurrency || '').toUpperCase() === 'CREDITS' ||
+            Number(transaction?.paymentAmount) === 0;
+
+        if (isCreditTransaction) {
+            return {
+                label: 'Free Credit Used',
+                style: {
+                    backgroundColor: '#0d6efd',
+                    color: '#ffffff',
+                    boxShadow: '0 2px 4px rgba(13, 110, 253, 0.2)'
+                }
+            };
+        }
+
+        return {
+            label: transaction?.paymentStatus || 'Paid',
+            style: {
+                backgroundColor: '#10b981',
+                color: '#ffffff',
+                boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+            }
+        };
+    };
+
     return (
         <div className="twm-right-section-panel site-bg-gray" style={{
             width: '100%',
@@ -201,6 +237,10 @@ function CanTransactionsPage() {
                                     ) : (
                                         filteredTransactions.map((t) => (
                                             <tr key={t._id}>
+                                                {(() => {
+                                                    const statusDisplay = getTransactionStatusDisplay(t);
+                                                    return (
+                                                        <>
                                                 <td>
                                                     <div className="text-nowrap" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>{formatDate(t.createdAt)}</div>
                                                     <small className="text-muted d-none d-sm-block">{new Date(t.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
@@ -212,11 +252,11 @@ function CanTransactionsPage() {
                                                 <td className="d-none d-md-table-cell">{t.employerId?.companyName || 'N/A'}</td>
                                                 <td className="d-none d-lg-table-cell"><code className="text-primary" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.85rem)' }}>{t.paymentId}</code></td>
                                                 <td>
-                                                    <span className="fw-bold">₹{t.paymentAmount || 129}</span>
+                                                    <span className="fw-bold">₹{t.paymentAmount ?? 129}</span>
                                                 </td>
                                                 <td>
-                                                    <span className="badge text-uppercase" style={{backgroundColor: '#10b981', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '0.95rem', fontWeight: 600, letterSpacing: '0.5px', minWidth: '80px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'}}>
-                                                        {t.paymentStatus}
+                                                    <span className="badge" style={{...statusDisplay.style, padding: '10px 16px', borderRadius: '6px', fontSize: '0.95rem', fontWeight: 600, letterSpacing: '0.5px', minWidth: '80px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1}}>
+                                                        {statusDisplay.label}
                                                     </span>
                                                 </td>
                                                 <td>
@@ -239,6 +279,9 @@ function CanTransactionsPage() {
                                                         </ul>
                                                     </div>
                                                 </td>
+                                                        </>
+                                                    );
+                                                })()}
                                             </tr>
                                         ))
                                     )}
@@ -294,7 +337,17 @@ function CanTransactionsPage() {
                                                 <div className="text-muted" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
                                                     <p className="mb-1"><strong>Receipt No:</strong> REC-{selectedTransaction?.paymentId?.slice(-8).toUpperCase()}</p>
                                                     <p className="mb-1"><strong>Date:</strong> {formatDate(selectedTransaction?.createdAt)}</p>
-                                                    <p className="mb-0"><strong>Status:</strong> <span className="badge bg-success text-uppercase" style={{padding: '6px 12px', borderRadius: '999px', fontSize: '0.88rem', fontWeight: 700, letterSpacing: '0.3px'}}>Paid</span></p>
+                                                    <p className="mb-0">
+                                                        <strong>Status:</strong>{' '}
+                                                        {(() => {
+                                                            const receiptStatus = getTransactionStatusDisplay(selectedTransaction);
+                                                            return (
+                                                                <span className="badge" style={{...receiptStatus.style, padding: '6px 12px', borderRadius: '999px', fontSize: '0.88rem', fontWeight: 700, letterSpacing: '0.3px'}}>
+                                                                    {receiptStatus.label}
+                                                                </span>
+                                                            );
+                                                        })()}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -332,20 +385,21 @@ function CanTransactionsPage() {
                                         </div>
 
                                         <div className="table-responsive mb-3 mb-md-4" style={{ overflowX: 'auto' }}>
-                                            <table className="table table-bordered align-middle" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', minWidth: '500px' }}>
-                                                <thead className="table-light text-uppercase" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
+                                            <table className="table table-bordered align-middle receipt-table" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', minWidth: '500px' }}>
+                                                <thead className="receipt-table-head text-uppercase" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
                                                     <tr>
-                                                        <th style={{ minWidth: '200px' }}>Item Description</th>
-                                                        <th className="text-center">Applied</th>
-                                                        <th className="text-end">Price</th>
-                                                        <th className="text-end">Total</th>
+                                                        <th style={{ minWidth: '200px' }}>Description</th>
+                                                        <th className="text-center">Qty</th>
+                                                        <th className="text-end">Rate</th>
+                                                        <th className="text-end">Subtotal</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
+                                                    <tr className="receipt-item-row">
                                                         <td>
                                                             <div className="fw-bold text-dark">Job Application Fee</div>
                                                             <div className="text-muted mt-1" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
+                                                                <strong>Description:</strong> Payment for submitting this job application.<br />
                                                                 <strong>Position:</strong> {selectedTransaction?.jobId?.title}<br />
                                                                 <strong>Employer:</strong> {selectedTransaction?.employerId?.companyName}<br />
                                                                 {selectedTransaction?.jobId?.jobCategory && (
@@ -354,28 +408,34 @@ function CanTransactionsPage() {
                                                             </div>
                                                         </td>
                                                         <td className="text-center">1</td>
-                                                        <td className="text-end">₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</td>
-                                                        <td className="text-end fw-bold">₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</td>
+                                                        <td className="text-end">Application Fee</td>
+                                                        <td className="text-end fw-bold">Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).taxableValue.toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
-                                                <tfoot className="table-light">
+                                                <tfoot className="receipt-table-foot">
+                                                    <tr>
+                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>CGST (9%)</th>
+                                                        <th className="text-end fw-bold" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).cgst.toFixed(2)}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>SGST (9%)</th>
+                                                        <th className="text-end fw-bold" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).sgst.toFixed(2)}</th>
+                                                    </tr>
                                                     <tr>
                                                         <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>Total Amount Paid</th>
-                                                        <th className="text-end text-primary fw-bold" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</th>
+                                                        <th className="text-end text-primary fw-bold" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).totalPaid.toFixed(2)}</th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
+                                        <div className="p-2 p-md-3 rounded border bg-light mb-3 mb-md-4">
+                                            <p className="mb-0 text-muted" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
+                                                <strong>Note:</strong> This is a computer-generated document and does not require a physical signature. Thank you for using TaleGlobal.
+                                            </p>
+                                        </div>
 
                                         <div className="row mt-3 mt-md-5">
-                                            <div className="col-12 col-md-6 mb-3 mb-md-0">
-                                                <div className="p-3 rounded border bg-light">
-                                                    <p className="mb-0 text-muted" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
-                                                        <strong>Note:</strong> This is a computer-generated document and does not require a physical signature. Thank you for using TaleGlobal.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="col-12 col-md-6 text-start text-md-end d-flex flex-column align-items-start align-items-md-end justify-content-end">
+                                            <div className="col-12 text-start text-md-end d-flex flex-column align-items-start align-items-md-end justify-content-end">
                                                 <div style={{ width: '200px', borderTop: '1px solid #dee2e6', paddingTop: '10px' }}>
                                                     <p className="mb-0 fw-bold text-dark" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>Authorized Signatory</p>
                                                     <p className="mb-0 text-muted" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>TaleGlobal Platform</p>

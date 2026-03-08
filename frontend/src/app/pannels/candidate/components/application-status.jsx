@@ -73,6 +73,69 @@ function CanStatusPage() {
 		};
 	};
 
+	const getInterviewRoundWindowInfo = (roundDetails) => {
+		const now = new Date();
+		if (!roundDetails) {
+			return {
+				startDate: null,
+				endDate: null,
+				isBeforeStart: false,
+				isAfterEnd: false,
+				isWithinWindow: true
+			};
+		}
+
+		const parseBaseDate = (value) => {
+			if (!value) return null;
+			const parsed = new Date(value);
+			return parsed instanceof Date && !isNaN(parsed.getTime()) ? parsed : null;
+		};
+
+		const applyTimeToDate = (dateObj, timeValue, isEnd = false) => {
+			if (!dateObj) return null;
+			const withTime = new Date(dateObj);
+			if (!timeValue || typeof timeValue !== 'string') {
+				withTime.setHours(isEnd ? 23 : 0, isEnd ? 59 : 0, isEnd ? 59 : 0, isEnd ? 999 : 0);
+				return withTime;
+			}
+
+			const matches = timeValue.match(/(\d{1,2}):(\d{2})(?:\s*([AaPp][Mm]))?/);
+			if (!matches) {
+				withTime.setHours(isEnd ? 23 : 0, isEnd ? 59 : 0, isEnd ? 59 : 0, isEnd ? 999 : 0);
+				return withTime;
+			}
+
+			let hours = Number(matches[1]);
+			const minutes = Number(matches[2]);
+			const meridian = matches[3]?.toUpperCase();
+			if (meridian === 'PM' && hours < 12) hours += 12;
+			if (meridian === 'AM' && hours === 12) hours = 0;
+
+			if (isNaN(hours) || isNaN(minutes)) {
+				withTime.setHours(isEnd ? 23 : 0, isEnd ? 59 : 0, isEnd ? 59 : 0, isEnd ? 999 : 0);
+				return withTime;
+			}
+
+			withTime.setHours(hours, minutes, isEnd ? 59 : 0, isEnd ? 999 : 0);
+			return withTime;
+		};
+
+		const startBase = parseBaseDate(roundDetails.fromDate || roundDetails.date);
+		const endBase = parseBaseDate(roundDetails.toDate || roundDetails.date);
+		const startDate = applyTimeToDate(startBase, roundDetails.startTime, false);
+		const endDate = applyTimeToDate(endBase, roundDetails.endTime, true);
+		const isBeforeStart = startDate ? now < startDate : false;
+		const isAfterEnd = endDate ? now > endDate : false;
+
+		return {
+			startDate,
+			endDate,
+			isBeforeStart,
+			isAfterEnd,
+			isWithinWindow: startDate && endDate ? now >= startDate && now <= endDate : !isBeforeStart && !isAfterEnd
+		};
+	};
+
 	// Timer component for assessment countdown
 	const AssessmentTimer = ({ timerInfo, onTimerEnd }) => {
 		const [timeLeft, setTimeLeft] = useState(null);
@@ -1453,6 +1516,7 @@ function CanStatusPage() {
 													const roundType = typeof round === 'object' ? round.roundType : round.toLowerCase();
 													const roundId = selectedApplication.interviewRoundIds?.[roundType] || uniqueKey;
 													const candidateId = selectedApplication.candidateId;
+													const roundWindowInfo = getInterviewRoundWindowInfo(roundDetails);
 													const normalizedRoundType = (roundType || '').toString().split('_')[0];
 													const bookSlotUrl = `https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`;
 													const bookingKey = `candidate_slot_booked_${selectedApplication._id}_${roundId}_${candidateId}`;
@@ -1577,6 +1641,26 @@ function CanStatusPage() {
 													
 													if (isCurrentRoundCompleted) {
 														return null;
+													}
+
+													if (roundWindowInfo.isAfterEnd) {
+														return (
+															<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
+																<span
+																	className="badge"
+																	style={{
+																		fontSize: '13px',
+																		padding: '8px 12px',
+																		backgroundColor: '#fdeaea',
+																		color: '#c82333',
+																		border: '1px solid #c82333'
+																	}}
+																>
+																	<i className="fa fa-clock-o me-2"></i>
+																	Session Expired
+																</span>
+															</div>
+														);
 													}
 
 													return (

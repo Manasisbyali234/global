@@ -41,7 +41,18 @@ function JobDetail1Page() {
     const { limitReached, isEnded, isExpired } = useMemo(() => {
         if (!job) return { limitReached: false, isEnded: false, isExpired: false };
         const limitReached = typeof job.applicationLimit === 'number' && job.applicationLimit > 0 && (job.applicationCount || 0) >= job.applicationLimit;
-        const isExpired = job.lastDateOfApplication && new Date(job.lastDateOfApplication) < new Date();
+        const now = new Date();
+        const deadlineDate = job.lastDateOfApplication ? new Date(job.lastDateOfApplication) : null;
+        if (deadlineDate && !Number.isNaN(deadlineDate.getTime())) {
+            if (job.lastDateOfApplicationTime && typeof job.lastDateOfApplicationTime === 'string') {
+                const [hours, minutes] = job.lastDateOfApplicationTime.split(':').map((part) => Number(part));
+                deadlineDate.setHours(Number.isFinite(hours) ? hours : 23, Number.isFinite(minutes) ? minutes : 59, 59, 999);
+            } else {
+                // If no explicit end time is provided, keep applications open till end of that day.
+                deadlineDate.setHours(23, 59, 59, 999);
+            }
+        }
+        const isExpired = !!deadlineDate && deadlineDate < now;
         const isEnded = (job.status && job.status !== 'active') || limitReached || isExpired;
         return { limitReached, isEnded, isExpired };
     }, [job]);
@@ -180,6 +191,11 @@ function JobDetail1Page() {
         showJobInfo: true
     };
 
+    const isPlacementCandidateFromData = (candidate) => {
+        const registrationMethod = candidate?.registrationMethod?.toLowerCase();
+        return Boolean(candidate && (registrationMethod === 'placement' || candidate.placement));
+    };
+
     if (loading) {
         return (
             <div className="loading-container">
@@ -231,8 +247,7 @@ function JobDetail1Page() {
             // Check if candidate is from Placement Officer and has credits
             // Robust check for placement candidate
             const registrationMethod = currentCandidateData?.registrationMethod?.toLowerCase();
-            const isPlacementCandidate = currentCandidateData && 
-                (registrationMethod === 'placement' || currentCandidateData.placement);
+            const isPlacementCandidate = isPlacementCandidateFromData(currentCandidateData);
             
             const credits = Number(currentCandidateData?.credits || 0);
             const hasCredits = credits > 0;
@@ -462,6 +477,32 @@ function JobDetail1Page() {
         } else if (hasApplied) {
             showInfo('You have already applied for this job!');
         } else {
+            let isPlacementCandidate = isPlacementCandidateFromData(candidateData);
+            if (!isPlacementCandidate) {
+                try {
+                    const token = localStorage.getItem('candidateToken');
+                    const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+                    const statsResponse = await fetch(`${baseUrl}/api/candidate/dashboard/stats`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const statsData = await statsResponse.json();
+                    if (statsData.success) {
+                        setCandidateData(statsData.candidate);
+                        isPlacementCandidate = isPlacementCandidateFromData(statsData.candidate);
+                    }
+                } catch (error) {
+                    console.error('Error checking candidate type before apply:', error);
+                }
+            }
+
+            if (isPlacementCandidate) {
+                setShowTermsModal(false);
+                setPendingJobApplication(false);
+                setTermsAccepted(true);
+                await submitJobApplication();
+                return;
+            }
+
             setTermsAccepted(false);
             setPendingJobApplication(true);
             setShowTermsModal(true);

@@ -179,3 +179,40 @@ button.receipt-print-btn:active,
 button.receipt-print-btn:visited {
     color: #ffffff !important;
 }
+
+/* Candidate receipt table polish */
+#invoice-content .receipt-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e6e9ef;
+    box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
+}
+
+#invoice-content .receipt-table th,
+#invoice-content .receipt-table td {
+    padding: 12px 14px;
+    vertical-align: middle;
+    border-color: #e9edf3;
+}
+
+#invoice-content .receipt-table-head th {
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+#invoice-content .receipt-item-row td {
+    background: #ffffff;
+}
+
+#invoice-content .receipt-table-foot th {
+    background: #f8fafc;
+}
+
+#invoice-content .receipt-table-foot tr:last-child th {
+    background: #fff7ed;
+    border-top: 2px solid #fed7aa;
+}
