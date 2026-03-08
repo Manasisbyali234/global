@@ -5348,7 +5348,7 @@ export default function EmpPostJob({ onNext }) {
 						</div>
 						<p style={{fontSize: 15, color: '#4b5563', lineHeight: 1.6, marginBottom: 24, textAlign: 'center'}}>
 							{currentStep === 2 
-								? "Are you sure you want to post this job? Please review all details carefully before proceeding."
+								? "Are you sure you want to post this job? Once posted, it cannot be edited or deleted. Please review the details before confirming."
 								: isEditMode 
 									? "Are you sure you want to update this job? Once updated, the changes will be reflected immediately."
 									: "Are you sure you want to submit this job? Please review all details carefully before proceeding."}
