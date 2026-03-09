@@ -32,6 +32,15 @@ function EmpCandidateReviewPage() {
     const [descriptionModal, setDescriptionModal] = useState({ isOpen: false, description: '' });
     const [detailsModal, setDetailsModal] = useState({ isOpen: false, role: '', projects: '' });
     const autoSaveTimeoutRef = useRef(null);
+    const stageStatusOptions = [
+        { value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
+        { value: 'under_review', label: 'Under Review' },
+        { value: 'on_hold', label: 'On Hold' },
+        { value: 'selected', label: 'Selected' },
+        { value: 'pending_decision', label: 'Pending Decision' },
+        { value: 'no_show', label: 'No Show' },
+        { value: 'rejected', label: 'Not Advanced to Next Stage' }
+    ];
 
     useEffect(() => {
         fetchApplicationDetails();
@@ -624,11 +633,16 @@ function EmpCandidateReviewPage() {
                                                                     }}
                                                                     disabled={isCurrentDisabled}
                                                                 >
-                                                                    <option value="pending">Pending</option>
-                                                                    <option value="shortlisted">Shortlisted</option>
-                                                                    <option value="under_review">Under Review</option>
-                                                                    <option value="selected">Selected</option>
-                                                                    <option value="rejected">Rejected</option>
+                                                                    {!stageStatusOptions.some((option) => option.value === (process.status || 'pending')) && (
+                                                                        <option value={process.status || 'pending'}>
+                                                                            {(process.status || 'pending').replace(/_/g, ' ')}
+                                                                        </option>
+                                                                    )}
+                                                                    {stageStatusOptions.map((option) => (
+                                                                        <option key={option.value} value={option.value}>
+                                                                            {option.label}
+                                                                        </option>
+                                                                    ))}
                                                                 </select>
                                                                 <textarea 
                                                                     placeholder="Stage remarks..."

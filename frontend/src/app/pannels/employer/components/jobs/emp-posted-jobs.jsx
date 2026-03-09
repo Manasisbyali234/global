@@ -2,9 +2,10 @@ import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../
 import { formatDate as formatDateUtil } from '../../../../../utils/dateFormatter';
 import { Building2, Calendar, Edit, Eye, MapPin, Pause, Play, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { loadScript } from "../../../../../globals/constants";
 import { employer, empRoute } from "../../../../../globals/route-names";
+import TermsModal from "../../../../../components/TermsModal";
 import './emp-posted-jobs.css';
 import './emp-posted-jobs-mobile-button-fix.css';
 
@@ -18,6 +19,7 @@ export default function EmpPostedJobs() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [searchText, setSearchText] = useState('');
     const [applicationCounts, setApplicationCounts] = useState({});
+    const [showEmployerInstructionsModal, setShowEmployerInstructionsModal] = useState(false);
     
     useEffect(() => {
         loadScript("js/custom.js");
@@ -129,6 +131,15 @@ export default function EmpPostedJobs() {
         navigate(`/employer/candidates-list/${jobId}`);
     };
 
+    const handleOpenPostJobFlow = () => {
+        setShowEmployerInstructionsModal(true);
+    };
+
+    const handleAcceptEmployerInstructions = () => {
+        setShowEmployerInstructionsModal(false);
+        navigate(empRoute(employer.POST_A_JOB));
+    };
+
     const formatDate = (dateString) => {
         return formatDateUtil(dateString);
     };
@@ -221,11 +232,9 @@ export default function EmpPostedJobs() {
 					
                     <div className="text-left">
                         {isApproved ? (
-                            <NavLink to={empRoute(employer.POST_A_JOB)}>
-                                <button type="submit" className="site-button">
-                                    Post Job
-                                </button>
-                            </NavLink>
+                            <button type="button" className="site-button" onClick={handleOpenPostJobFlow}>
+                                Post Job
+                            </button>
                         ) : (
                             <div>
                                 <button type="button" className="site-button" disabled>
@@ -286,16 +295,16 @@ export default function EmpPostedJobs() {
 						</div>
 					) : (
 						<div className="row">
-							{filteredJobs.length === 0 ? (
-								<div className="col-12 text-center py-4">
-									<p className="text-muted">No jobs posted yet.</p>
-									{isApproved ? (
-										<NavLink to={empRoute(employer.POST_A_JOB)}>
-											<button className="site-button">Post Your First Job</button>
-										</NavLink>
-									) : (
-										<div>
-											<button className="site-button" disabled>Post Your First Job</button>
+                            {filteredJobs.length === 0 ? (
+                                <div className="col-12 text-center py-4">
+                                    <p className="text-muted">No jobs posted yet.</p>
+                                    {isApproved ? (
+                                        <button type="button" className="site-button" onClick={handleOpenPostJobFlow}>
+                                            Post Your First Job
+                                        </button>
+                                    ) : (
+                                        <div>
+                                            <button className="site-button" disabled>Post Your First Job</button>
 											<div className="alert alert-warning mt-3 d-flex align-items-center justify-content-center" style={{maxWidth: '500px', margin: '16px auto'}}>
 												<i className="fas fa-exclamation-triangle me-2" style={{color: '#856404'}}></i>
 												<div>
@@ -361,6 +370,13 @@ export default function EmpPostedJobs() {
 				</div>
 				</div>
 			</div>
+
+            <TermsModal
+                isOpen={showEmployerInstructionsModal}
+                onClose={() => setShowEmployerInstructionsModal(false)}
+                onAccept={handleAcceptEmployerInstructions}
+                role="employerJobPosting"
+            />
 		</div>
 	);
 }

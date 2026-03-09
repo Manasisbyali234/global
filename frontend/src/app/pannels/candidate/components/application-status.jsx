@@ -11,6 +11,7 @@ import { api } from "../../../../utils/api";
 import { pubRoute, publicUser, canRoute, candidate } from "../../../../globals/route-names";
 import CanPostedJobs from "./can-posted-jobs";
 import PopupInterviewRoundDetails from "../../../common/popups/popup-interview-round-details";
+import TermsModal from "../../../../components/TermsModal";
 import "./status-styles.css";
 import "../../../../table-overflow-fix.css";
 
@@ -28,6 +29,8 @@ function CanStatusPage() {
 	const [selectedRoundType, setSelectedRoundType] = useState(null);
 	const [selectedAssessmentId, setSelectedAssessmentId] = useState(null);
 	const [selectedApplication, setSelectedApplication] = useState(null);
+	const [showInterviewInstructionsModal, setShowInterviewInstructionsModal] = useState(false);
+	const [pendingInterviewApplicationId, setPendingInterviewApplicationId] = useState(null);
 
 	const getAssessmentWindowInfo = (job) => {
 		const now = new Date();
@@ -523,22 +526,40 @@ function CanStatusPage() {
 	};
 
 	const getRoundStatus = (application, roundIndex, roundName, isPopup = false) => {
+		const formatProcessStatusLabel = (rawStatus) => {
+			const status = String(rawStatus || '').toLowerCase();
+			const labels = {
+				shortlisted_for_next_round: 'Shortlisted for next Round',
+				under_review: 'Under Review',
+				on_hold: 'On Hold',
+				selected: 'Selected',
+				pending_decision: 'Pending Decision',
+				no_show: 'No Show',
+				rejected: 'Not Advanced to Next Stage'
+			};
+			if (labels[status]) return labels[status];
+			return String(rawStatus || '').replace(/_/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase());
+		};
+
 		const mapProcessStatusToBadge = (rawStatus) => {
 			const status = String(rawStatus || '').toLowerCase();
 			const mappings = {
 				shortlisted: { text: 'Shortlisted', class: 'bg-info bg-opacity-10 text-info border border-info' },
+				shortlisted_for_next_round: { text: 'Shortlisted for next Round', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				under_review: { text: 'Under Review', class: 'bg-warning bg-opacity-10 text-warning border border-warning' },
+				pending_decision: { text: 'Pending Decision', class: 'bg-warning bg-opacity-10 text-warning border border-warning' },
 				interview_scheduled: { text: 'Interview Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				interview_completed: { text: 'Interview Completed', class: 'bg-success bg-opacity-10 text-success border border-success' },
 				selected: { text: 'Selected', class: 'bg-success bg-opacity-10 text-success border border-success' },
-				rejected: { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
+				no_show: { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
+				rejected: { text: 'Not Advanced to Next Stage', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
 				on_hold: { text: 'On Hold', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' },
 				scheduled: { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				in_progress: { text: 'In Progress', class: 'bg-warning bg-opacity-10 text-warning border border-warning' },
 				completed: { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success' },
 				pending: { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' }
 			};
-			return mappings[status] || null;
+			return mappings[status] || { text: formatProcessStatusLabel(rawStatus), class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' };
 		};
 
 		const getRoundTypeFromName = (name = '') => {
@@ -664,7 +685,24 @@ function CanStatusPage() {
 
 	const handleViewAllDetails = (application) => {
 		if (!application?._id) return;
-		navigate(canRoute(candidate.STATUS) + `/interview-details/${application._id}`);
+		setPendingInterviewApplicationId(application._id);
+		setShowInterviewInstructionsModal(true);
+	};
+
+	const handleAcceptInterviewInstructions = () => {
+		if (!pendingInterviewApplicationId) {
+			setShowInterviewInstructionsModal(false);
+			return;
+		}
+		const targetApplicationId = pendingInterviewApplicationId;
+		setShowInterviewInstructionsModal(false);
+		setPendingInterviewApplicationId(null);
+		navigate(canRoute(candidate.STATUS) + `/interview-details/${targetApplicationId}`);
+	};
+
+	const handleCloseInterviewInstructions = () => {
+		setShowInterviewInstructionsModal(false);
+		setPendingInterviewApplicationId(null);
 	};
 
 	const handleStartAssessment = (application) => {
@@ -707,13 +745,13 @@ function CanStatusPage() {
 		if (['selected', 'completed', 'passed'].includes(status)) {
 			return { backgroundColor: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' };
 		}
-		if (['rejected', 'failed', 'expired'].includes(status)) {
+		if (['rejected', 'failed', 'expired', 'no show', 'not advanced to next stage'].includes(status)) {
 			return { backgroundColor: '#fdeaea', color: '#c82333', border: '1px solid #c82333' };
 		}
 		if (['scheduled', 'started', 'interview scheduled'].includes(status)) {
 			return { backgroundColor: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' };
 		}
-		if (['in progress', 'under review', 'shortlisted'].includes(status)) {
+		if (['in progress', 'under review', 'shortlisted', 'shortlisted for next round', 'pending decision'].includes(status)) {
 			return { backgroundColor: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' };
 		}
 		return { backgroundColor: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' };
@@ -1151,6 +1189,13 @@ function CanStatusPage() {
 				assessmentId={selectedAssessmentId}
 			/>
 
+			<TermsModal
+				isOpen={showInterviewInstructionsModal}
+				onClose={handleCloseInterviewInstructions}
+				onAccept={handleAcceptInterviewInstructions}
+				role="candidateInterviewInstructions"
+			/>
+
 			{/* All Interview Details Modal */}
 			{isInterviewDetailsPage && selectedApplication && (
 				<div
@@ -1435,15 +1480,15 @@ function CanStatusPage() {
 																	const process = selectedApplication.interviewProcesses?.find(p => p.type === (typeof round === 'object' ? round.roundType : round.toLowerCase()));
 																	const processRemarks = process?.id ? selectedApplication.processRemarks?.[process.id] : null;
 																	const remarks = roundDetails?.employerRemarks || processRemarks;
-																	const statusColors = {shortlisted: '#6f42c1', under_review: '#fd7e14', interview_scheduled: '#0dcaf0', interview_completed: '#198754', selected: '#198754', rejected: '#dc3545', on_hold: '#6c757d'};
-																	const statusLabels = {shortlisted: 'Shortlisted', under_review: 'Under Review', interview_scheduled: 'Interview Scheduled', interview_completed: 'Interview Completed', selected: 'Selected', rejected: 'Rejected', on_hold: 'On Hold'};
+																	const statusColors = {shortlisted: '#6f42c1', shortlisted_for_next_round: '#6f42c1', under_review: '#fd7e14', pending_decision: '#fd7e14', interview_scheduled: '#0dcaf0', interview_completed: '#198754', selected: '#198754', rejected: '#dc3545', no_show: '#dc3545', on_hold: '#6c757d'};
+																	const statusLabels = {shortlisted: 'Shortlisted', shortlisted_for_next_round: 'Shortlisted for next Round', under_review: 'Under Review', pending_decision: 'Pending Decision', interview_scheduled: 'Interview Scheduled', interview_completed: 'Interview Completed', selected: 'Selected', rejected: 'Not Advanced to Next Stage', no_show: 'No Show', on_hold: 'On Hold'};
 																	return (
 																		<>
 																			{process?.status && (
 																				<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
 																					<small className="text-muted d-block mb-1"><i className="fa fa-flag me-1" style={{color: '#ff6b35'}}></i><strong>Current Status:</strong></small>
 																					<span className="badge" style={{fontSize: '12px', padding: '4px 8px', backgroundColor: statusColors[process.status] || '#6c757d', color: 'white', border: 'none'}}>
-																						{statusLabels[process.status] || process.status}
+																						{statusLabels[process.status] || String(process.status || '').replace(/_/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase())}
 																					</span>
 																				</div>
 																			)}
