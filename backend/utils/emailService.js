@@ -699,7 +699,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
 
         const timeLabel = (startTime && endTime)
           ? `${formatTimeToAMPM(startTime)} - ${formatTimeToAMPM(endTime)}`
-          : (startTime ? formatTimeToAMPM(startTime) : 'Time will be communicated');
+          : (startTime ? formatTimeToAMPM(startTime) : 'Book your slot by login');
 
         rounds.push({
           name: displayName,
@@ -718,7 +718,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
         const dateRange = formatDateRange(round?.fromdate || round?.fromDate || round?.date, round?.todate || round?.toDate || round?.fromdate || round?.fromDate || round?.date);
         const time = (round?.startTime && round?.endTime)
           ? `${formatTimeToAMPM(round.startTime)} - ${formatTimeToAMPM(round.endTime)}`
-          : (round?.startTime ? formatTimeToAMPM(round.startTime) : 'Time will be communicated');
+          : (round?.startTime ? formatTimeToAMPM(round.startTime) : 'Book your slot by login');
         rounds.push({
           name,
           type: round?.roundType || round?.type || round?.name,

@@ -1668,8 +1668,6 @@ function CanStatusPage() {
 															{canBookThisRound ? (
 																<a 
 																	href={joinUrl}
-																	target="_blank" 
-																	rel="noopener noreferrer"
 																	onClick={() => {
 																		try {
 																			localStorage.setItem(bookingKey, '1');
