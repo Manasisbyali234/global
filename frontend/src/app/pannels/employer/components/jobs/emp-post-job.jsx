@@ -373,7 +373,6 @@ export default function EmpPostJob({ onNext }) {
 		jobTitle: { required: true, minLength: 3 },
 		category: { required: true },
 		jobType: { required: true },
-		typeOfEmployment: { required: true },
 		workMode: { required: true },
 		shift: { required: true },
 		ctc: { 
@@ -625,7 +624,6 @@ export default function EmpPostJob({ onNext }) {
 					companyDescription: job.companyDescription || '',
 					aboutCompany: job.aboutCompany || '',
 					category: job.category || '',
-					typeOfEmployment: job.typeOfEmployment || '',
 					shift: job.shift || '',
 					workMode: job.workMode || ''
 				});
@@ -934,7 +932,6 @@ export default function EmpPostJob({ onNext }) {
 		jobTitle: 'Job Title',
 		category: 'Job Category',
 		jobType: 'Job Type',
-		typeOfEmployment: 'Type of Employment',
 		workMode: 'Work Mode',
 		shift: 'Work Shift',
 		ctc: 'CTC',
@@ -999,7 +996,7 @@ export default function EmpPostJob({ onNext }) {
 		const basicErrors = validateForm(formData, step1Rules);
 		// We only care about step 1 errors here
 		const step1Fields = [
-			'jobTitle', 'category', 'jobType', 'typeOfEmployment', 'workMode', 'shift', 
+			'jobTitle', 'category', 'jobType', 'workMode', 'shift', 
 			'ctc', 'netSalary', 'jobLocation', 'vacancies', 'applicationLimit', 
 			'education', 'requiredSkills',
 			'jobDescription', 'rolesAndResponsibilities'
@@ -1402,7 +1399,6 @@ export default function EmpPostJob({ onNext }) {
 				lastDateOfApplicationTime: formData.lastDateOfApplicationTime || null,
 				transportation: formData.transportation,
 				category: formData.category,
-				typeOfEmployment: formData.typeOfEmployment,
 				shift: formData.shift,
 				workMode: formData.workMode
 			};
@@ -1465,15 +1461,6 @@ export default function EmpPostJob({ onNext }) {
 
 			setIsSubmitting(true);
 
-			// Debug logging
-			console.log('Frontend - Submitting job with typeOfEmployment:', formData.typeOfEmployment);
-			console.log('Frontend - Full jobData being sent:', {
-				title: formData.jobTitle,
-				category: formData.category,
-				typeOfEmployment: formData.typeOfEmployment,
-				jobType: formData.jobType
-			});
-
 			// Extract assessment dates from interview round details
 			const assessmentRoundKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
 			const assessmentDetails = assessmentRoundKey ? formData.interviewRoundDetails[assessmentRoundKey] : null;
@@ -1518,7 +1505,6 @@ export default function EmpPostJob({ onNext }) {
 				lastDateOfApplicationTime: formData.lastDateOfApplicationTime || null,
 				transportation: formData.transportation,
 				category: formData.category,
-				typeOfEmployment: formData.typeOfEmployment,
 				shift: formData.shift,
 				workMode: formData.workMode,
 				companyLogo: formData.companyLogo,
@@ -2326,58 +2312,6 @@ export default function EmpPostJob({ onNext }) {
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
 								<i className="fa fa-exclamation-circle"></i>
 								{errors.jobType[0]}
-							</div>
-						)}
-					</div>
-
-					<div style={fullRow}>
-						<label style={label}>
-							<i className="fa fa-briefcase" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-							Type of Employment <span style={redAsterisk}>*</span>
-						</label>
-						<div style={{
-							display: 'grid',
-							gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-							gap: 8,
-							padding: 12,
-							border: errors.typeOfEmployment ? '1px solid #dc2626' : '1px solid #d1d5db',
-							borderRadius: 8,
-							background: '#fff'
-						}}>
-							{[
-								{ value: 'permanent', label: 'Permanent' },
-								{ value: 'temporary', label: 'Temporary' },
-								{ value: 'freelance', label: 'Freelance' },
-								{ value: 'consultant', label: 'Consultant' },
-								{ value: 'trainee', label: 'Trainee' }
-							].map(empType => (
-								<label key={empType.value} style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: 6,
-									cursor: 'pointer',
-									fontSize: 13,
-									padding: '6px 8px',
-									borderRadius: 4,
-									transition: 'background 0.2s',
-									background: formData.typeOfEmployment === empType.value ? '#fff5f2' : 'transparent'
-								}}>
-									<input
-										type="radio"
-										name="typeOfEmployment"
-										value={empType.value}
-										checked={formData.typeOfEmployment === empType.value}
-										onChange={(e) => update({ typeOfEmployment: e.target.value })}
-										style={{cursor: 'pointer'}}
-									/>
-									<span>{empType.label}</span>
-								</label>
-							))}
-						</div>
-						{errors.typeOfEmployment && (
-							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
-								<i className="fa fa-exclamation-circle"></i>
-								{errors.typeOfEmployment[0]}
 							</div>
 						)}
 					</div>
