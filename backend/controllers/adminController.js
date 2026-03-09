@@ -237,6 +237,49 @@ exports.getEmployerOverviewJobs = async (req, res) => {
   }
 };
 
+exports.getJobApplicantsForOverview = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const job = await Job.findById(jobId).select('_id title').lean();
+
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+
+    const applications = await Application.find({ jobId })
+      .populate('candidateId', 'name email')
+      .select('candidateId applicantName applicantEmail status appliedAt isGuestApplication')
+      .sort({ appliedAt: -1 })
+      .lean();
+
+    const data = applications.map((application) => ({
+      applicationId: application._id,
+      applicantName:
+        application.candidateId?.name ||
+        application.applicantName ||
+        'N/A',
+      applicantEmail:
+        application.candidateId?.email ||
+        application.applicantEmail ||
+        'N/A',
+      status: application.status || 'pending',
+      appliedAt: application.appliedAt,
+      isGuestApplication: !!application.isGuestApplication
+    }));
+
+    res.json({
+      success: true,
+      job: {
+        jobId: job._id,
+        title: job.title
+      },
+      data
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Chart Data Controller
 exports.getChartData = async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { formatDate } from "../../../../utils/dateFormatter";
@@ -13,10 +13,28 @@ function AdminOverviewPage() {
   const [employerJobs, setEmployerJobs] = useState([]);
   const [jobsLoading, setJobsLoading] = useState(false);
   const [jobsError, setJobsError] = useState("");
+  const jobsSectionRef = useRef(null);
+  const applicantsSectionRef = useRef(null);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [jobApplicants, setJobApplicants] = useState([]);
+  const [applicantsLoading, setApplicantsLoading] = useState(false);
+  const [applicantsError, setApplicantsError] = useState("");
 
   useEffect(() => {
     fetchOverview();
   }, []);
+
+  useEffect(() => {
+    if (selectedEmployer && jobsSectionRef.current) {
+      jobsSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [selectedEmployer]);
+
+  useEffect(() => {
+    if (selectedJob && applicantsSectionRef.current) {
+      applicantsSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [selectedJob]);
 
   const fetchOverview = async () => {
     try {
@@ -46,6 +64,9 @@ function AdminOverviewPage() {
     try {
       setJobsLoading(true);
       setJobsError("");
+      setSelectedJob(null);
+      setJobApplicants([]);
+      setApplicantsError("");
       const response = await api.getAdminEmployerOverviewJobs(employer.employerId);
       if (response.success) {
         setSelectedEmployer(response.employer);
@@ -57,6 +78,31 @@ function AdminOverviewPage() {
       setJobsError(err.message || "Failed to load employer jobs");
     } finally {
       setJobsLoading(false);
+    }
+  };
+
+  const handleViewApplicants = async (job) => {
+    if (selectedJob?.jobId === job.jobId) {
+      setSelectedJob(null);
+      setJobApplicants([]);
+      setApplicantsError("");
+      return;
+    }
+
+    try {
+      setApplicantsLoading(true);
+      setApplicantsError("");
+      const response = await api.getAdminJobApplicants(job.jobId);
+      if (response.success) {
+        setSelectedJob(response.job);
+        setJobApplicants(response.data || []);
+      } else {
+        setApplicantsError(response.message || "Failed to load applicants");
+      }
+    } catch (err) {
+      setApplicantsError(err.message || "Failed to load applicants");
+    } finally {
+      setApplicantsLoading(false);
     }
   };
 
@@ -126,7 +172,7 @@ function AdminOverviewPage() {
       </div>
 
       {selectedEmployer && (
-        <div className="panel panel-default site-bg-white m-t20">
+        <div ref={jobsSectionRef} className="panel panel-default site-bg-white m-t20">
           <div className="panel-heading wt-panel-heading p-a20">
             <h4 className="panel-tittle m-a0">
               <i className="fa fa-briefcase me-2" />
@@ -146,12 +192,13 @@ function AdminOverviewPage() {
                       <th>Applications</th>
                       <th>Status</th>
                       <th>Posted Date</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {employerJobs.length === 0 ? (
                       <tr>
-                        <td colSpan="4" className="text-center">
+                        <td colSpan="5" className="text-center">
                           No jobs found for this employer.
                         </td>
                       </tr>
@@ -162,6 +209,64 @@ function AdminOverviewPage() {
                           <td>{job.applicationsCount}</td>
                           <td>{job.status}</td>
                           <td>{formatDate(job.createdAt)}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => handleViewApplicants(job)}
+                            >
+                              <i className="fa fa-eye me-1" />
+                              {selectedJob?.jobId === job.jobId ? "Hide" : "View"}
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {selectedJob && (
+        <div ref={applicantsSectionRef} className="panel panel-default site-bg-white m-t20">
+          <div className="panel-heading wt-panel-heading p-a20">
+            <h4 className="panel-tittle m-a0">
+              <i className="fa fa-users me-2" />
+              Actual Applicants for {selectedJob.title}
+            </h4>
+          </div>
+          <div className="panel-body wt-panel-body p-a20">
+            {applicantsLoading && <div className="text-center">Loading applicants...</div>}
+            {!applicantsLoading && applicantsError && <div className="alert alert-danger m-b0">{applicantsError}</div>}
+
+            {!applicantsLoading && !applicantsError && (
+              <div className="table-responsive">
+                <table className="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Applicant Name</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th>Applied Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {jobApplicants.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="text-center">
+                          No applicants found for this job.
+                        </td>
+                      </tr>
+                    ) : (
+                      jobApplicants.map((applicant) => (
+                        <tr key={applicant.applicationId}>
+                          <td>{applicant.applicantName}</td>
+                          <td>{applicant.applicantEmail}</td>
+                          <td>{applicant.status}</td>
+                          <td>{formatDate(applicant.appliedAt)}</td>
                         </tr>
                       ))
                     )}

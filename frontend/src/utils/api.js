@@ -530,6 +530,12 @@ export const api = {
     }).then(handleApiResponse);
   },
 
+  getAdminJobApplicants: (jobId) => {
+    return safeFetch(`${API_BASE_URL}/admin/dashboard/jobs/${jobId}/applicants`, {
+      headers: getAuthHeaders('admin'),
+    }).then(handleApiResponse);
+  },
+
   getSubAdminProfile: () => {
     return safeFetch(`${API_BASE_URL}/admin/sub-admin/profile`, {
       headers: getAuthHeaders('admin'),
