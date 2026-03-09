@@ -180,16 +180,19 @@ function EmpCandidatesPage() {
 
         <div className="panel-body wt-panel-body">
           <div className="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div className="input-group" style={{ maxWidth: 360 }}>
-              <span className="input-group-text bg-white">
-                <Search size={16} style={{ color: "#f97316" }} />
-              </span>
+            <div style={{ position: 'relative', maxWidth: 360, width: '100%', display: 'flex', alignItems: 'center' }}>
+              <div style={{ position: 'absolute', left: '12px', display: 'flex', alignItems: 'center', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
+                <Search size={18} style={{ color: '#e66814' }} />
+              </div>
               <input
                 type="text"
                 className="form-control"
                 placeholder="Search applicants by name, email, or job"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
+                style={{ paddingLeft: '40px', borderRadius: '8px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', height: '44px', width: '100%' }}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
               />
             </div>
             <div className="d-flex gap-2 align-items-center">
