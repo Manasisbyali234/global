@@ -141,6 +141,18 @@ const TermsModal = ({ isOpen, onClose, onAccept, role = 'candidate' }) => {
                 { heading: 'Reposting Jobs', content: 'If candidates are not shortlisted or the position remains unfilled, employers can repost the same job again on the platform free of cost.' }
             ]
         },
+        employerInterviewStatusUpdate: {
+            title: 'Interview Status - Description',
+            sections: [
+                { heading: 'Shortlisted for Next Round', content: 'If this status is selected, the candidate becomes eligible for the next round of interview, and the next round slot booking will automatically open in the candidate dashboard.' },
+                { heading: 'Under Review', content: 'The candidate interview performance is currently being evaluated by the hiring team. The candidate will not be able to book the next round slot until the status is updated.' },
+                { heading: 'On Hold', content: 'The candidate application is temporarily kept on hold. No further stages or interview slots will open until the status is changed.' },
+                { heading: 'Selected', content: 'The candidate has successfully cleared the interview process and is selected for the role. The employer can proceed with the offer process.' },
+                { heading: 'Pending Decision', content: 'The final decision regarding the candidate is yet to be made. The candidate will remain in the current stage until the status is updated.' },
+                { heading: 'No Show', content: 'The candidate did not attend the scheduled interview at the booked date and time. The candidate will not be eligible for further interview rounds.' },
+                { heading: 'Not Advanced to Next Stage', content: 'The candidate will not be progressing to the next stage of the hiring process.' }
+            ]
+        },
         placement: {
             title: 'Terms & Conditions for Placement Officers',
             sections: [

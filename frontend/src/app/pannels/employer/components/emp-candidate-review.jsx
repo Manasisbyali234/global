@@ -10,6 +10,7 @@ import './emp-candidate-review-stage-text-mobile-fix.css';
 import './emp-candidate-review-mobile-fix.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
 import { BACKEND_URL } from '../../../../utils/api';
+import TermsModal from "../../../../components/TermsModal";
 
 function EmpCandidateReviewPage() {
     const navigate = useNavigate();
@@ -32,6 +33,8 @@ function EmpCandidateReviewPage() {
     const [descriptionModal, setDescriptionModal] = useState({ isOpen: false, description: '' });
     const [detailsModal, setDetailsModal] = useState({ isOpen: false, role: '', projects: '' });
     const autoSaveTimeoutRef = useRef(null);
+    const [showStatusTermsModal, setShowStatusTermsModal] = useState(false);
+    const [statusUpdateUnlocked, setStatusUpdateUnlocked] = useState(false);
     const stageStatusOptions = [
         { value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
         { value: 'under_review', label: 'Under Review' },
@@ -228,6 +231,16 @@ function EmpCandidateReviewPage() {
             URL.revokeObjectURL(documentModal.url);
         }
         setDocumentModal({ isOpen: false, url: '', title: '' });
+    };
+
+    const handleOpenStatusUpdate = () => {
+        if (statusUpdateUnlocked) return;
+        setShowStatusTermsModal(true);
+    };
+
+    const handleAcceptStatusTerms = () => {
+        setStatusUpdateUnlocked(true);
+        setShowStatusTermsModal(false);
     };
 
     const saveReview = async () => {
@@ -584,12 +597,21 @@ function EmpCandidateReviewPage() {
                             <div className="review-main">
                                 {interviewProcesses.length > 0 && (
                                     <div className="section-card">
-                                        <div className="section-header">
+                                         <div className="section-header">
                                               <div style={{ display: "flex", flexDirection: "column" }}>
                                                <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4>
                                                <h6 style={{ color: "red" }}><i className="fas fa-exclamation-triangle" style={{ marginRight: "5px" }}></i>Please check all required boxes and enter remark.</h6>
-                                         </div>
-                                         </div>
+                                          </div>
+                                          <button
+                                            type="button"
+                                            className={`btn btn-sm ${statusUpdateUnlocked ? 'btn-success' : 'btn-primary'}`}
+                                            onClick={handleOpenStatusUpdate}
+                                            disabled={statusUpdateUnlocked}
+                                            title={statusUpdateUnlocked ? 'Status update is enabled' : 'Open interview status instructions'}
+                                          >
+                                            {statusUpdateUnlocked ? 'Status update enabled' : 'Status update'}
+                                          </button>
+                                          </div>
                                         <div className="section-body">
                                             <div className="processes-grid">
                                                 {interviewProcesses.map((process, index) => {
@@ -614,36 +636,51 @@ function EmpCandidateReviewPage() {
                                                                 </span>
                                                             </div>
                                                             <div className="process-controls">
-                                                                <select 
-                                                                    value={process.status || 'pending'}
-                                                                    onChange={(e) => {
-                                                                        const newStatus = e.target.value;
-                                                                        setInterviewProcesses(prev => 
-                                                                            prev.map(p => p.id === process.id ? { 
-                                                                                ...p, 
-                                                                                status: newStatus,
-                                                                                isCompleted: newStatus === 'rejected' ? true : p.isCompleted
-                                                                            } : p)
-                                                                        );
-                                                                        
-                                                                        // If rejected in any stage, update overall application status
-                                                                        if (newStatus === 'rejected') {
-                                                                            updateApplicationStatus('rejected');
-                                                                        }
-                                                                    }}
-                                                                    disabled={isCurrentDisabled}
-                                                                >
-                                                                    {!stageStatusOptions.some((option) => option.value === (process.status || 'pending')) && (
-                                                                        <option value={process.status || 'pending'}>
-                                                                            {(process.status || 'pending').replace(/_/g, ' ')}
-                                                                        </option>
-                                                                    )}
-                                                                    {stageStatusOptions.map((option) => (
-                                                                        <option key={option.value} value={option.value}>
-                                                                            {option.label}
-                                                                        </option>
-                                                                    ))}
-                                                                </select>
+                                                                {statusUpdateUnlocked ? (
+                                                                    <select 
+                                                                        value={process.status || 'pending'}
+                                                                        onChange={(e) => {
+                                                                            const newStatus = e.target.value;
+                                                                            setInterviewProcesses(prev => 
+                                                                                prev.map(p => p.id === process.id ? { 
+                                                                                    ...p, 
+                                                                                    status: newStatus,
+                                                                                    isCompleted: newStatus === 'rejected' ? true : p.isCompleted
+                                                                                } : p)
+                                                                            );
+                                                                            
+                                                                            // If rejected in any stage, update overall application status
+                                                                            if (newStatus === 'rejected') {
+                                                                                updateApplicationStatus('rejected');
+                                                                            }
+                                                                        }}
+                                                                        disabled={isCurrentDisabled}
+                                                                    >
+                                                                        {!stageStatusOptions.some((option) => option.value === (process.status || 'pending')) && (
+                                                                            <option value={process.status || 'pending'}>
+                                                                                {(process.status || 'pending').replace(/_/g, ' ')}
+                                                                            </option>
+                                                                        )}
+                                                                        {stageStatusOptions.map((option) => (
+                                                                            <option key={option.value} value={option.value}>
+                                                                                {option.label}
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                ) : (
+                                                                    <div
+                                                                        className="form-control"
+                                                                        style={{
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            color: '#6c757d',
+                                                                            backgroundColor: '#f8f9fa',
+                                                                            cursor: 'not-allowed'
+                                                                        }}
+                                                                    >
+                                                                        Click "Status update" and accept terms to enable dropdown
+                                                                    </div>
+                                                                )}
                                                                 <textarea 
                                                                     placeholder="Stage remarks..."
                                                                     value={processRemarks[process.id] || ''}
@@ -1295,6 +1332,13 @@ function EmpCandidateReviewPage() {
                     </div>
                 </div>
             )}
+
+            <TermsModal
+                isOpen={showStatusTermsModal}
+                onClose={() => setShowStatusTermsModal(false)}
+                onAccept={handleAcceptStatusTerms}
+                role="employerInterviewStatusUpdate"
+            />
         </div>
     );
 }
