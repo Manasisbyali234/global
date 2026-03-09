@@ -244,10 +244,22 @@ function AdminDashboardPage() {
                     <div className="col-lg-12 col-md-12 col-12 mb-4">
                         <div className="chart-section">
                             <div className="chart-header">
-                                <h3>
-                                    <i className="fa fa-chart-area me-3" style={{color: '#fd7e14'}}></i>
-                                    Platform Analytics
-                                </h3>
+                                <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                    <h3 className="mb-0">
+                                        <i className="fa fa-chart-area me-3" style={{color: '#fd7e14'}}></i>
+                                        Platform Analytics
+                                    </h3>
+                                    {!isSubAdmin && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-warning"
+                                            onClick={() => navigate('/admin/overview')}
+                                        >
+                                            <i className="fa fa-table me-2"></i>
+                                            Overview
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                             <AdminDashboardActivityChart />
                         </div>

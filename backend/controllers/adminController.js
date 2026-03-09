@@ -135,6 +135,108 @@ exports.getDashboardStats = async (req, res) => {
   }
 };
 
+// Employer overview for admin dashboard
+exports.getEmployerOverview = async (req, res) => {
+  try {
+    const [employers, jobsByEmployer, applicationsByEmployer] = await Promise.all([
+      Employer.find().select('_id companyName name').lean(),
+      Job.aggregate([
+        {
+          $group: {
+            _id: '$employerId',
+            jobsCount: { $sum: 1 }
+          }
+        }
+      ]),
+      Application.aggregate([
+        {
+          $lookup: {
+            from: 'jobs',
+            localField: 'jobId',
+            foreignField: '_id',
+            as: 'job'
+          }
+        },
+        { $unwind: '$job' },
+        {
+          $group: {
+            _id: '$job.employerId',
+            applicationsCount: { $sum: 1 }
+          }
+        }
+      ])
+    ]);
+
+    const jobsCountMap = new Map(jobsByEmployer.map(item => [String(item._id), item.jobsCount]));
+    const applicationsCountMap = new Map(applicationsByEmployer.map(item => [String(item._id), item.applicationsCount]));
+
+    const data = employers
+      .map((employer) => ({
+        employerId: employer._id,
+        employerName: employer.companyName || employer.name || 'N/A',
+        jobsCount: jobsCountMap.get(String(employer._id)) || 0,
+        applicationsCount: applicationsCountMap.get(String(employer._id)) || 0
+      }))
+      .sort((a, b) => a.employerName.localeCompare(b.employerName));
+
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getEmployerOverviewJobs = async (req, res) => {
+  try {
+    const { employerId } = req.params;
+    const employer = await Employer.findById(employerId).select('_id companyName name').lean();
+
+    if (!employer) {
+      return res.status(404).json({ success: false, message: 'Employer not found' });
+    }
+
+    const jobs = await Job.find({ employerId })
+      .select('_id title status createdAt')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const jobIds = jobs.map(job => job._id);
+    const applicationsByJob = jobIds.length
+      ? await Application.aggregate([
+          { $match: { jobId: { $in: jobIds } } },
+          {
+            $group: {
+              _id: '$jobId',
+              applicationsCount: { $sum: 1 }
+            }
+          }
+        ])
+      : [];
+
+    const applicationsByJobMap = new Map(
+      applicationsByJob.map(item => [String(item._id), item.applicationsCount])
+    );
+
+    const data = jobs.map((job) => ({
+      jobId: job._id,
+      title: job.title,
+      status: job.status,
+      createdAt: job.createdAt,
+      applicationsCount: applicationsByJobMap.get(String(job._id)) || 0
+    }));
+
+    res.json({
+      success: true,
+      employer: {
+        employerId: employer._id,
+        employerName: employer.companyName || employer.name || 'N/A'
+      },
+      data
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Chart Data Controller
 exports.getChartData = async (req, res) => {
   try {

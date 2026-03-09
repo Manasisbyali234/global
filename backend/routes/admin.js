@@ -24,6 +24,8 @@ router.use(auth(['admin', 'sub-admin']));
 
 router.get('/dashboard/stats', adminController.getDashboardStats);
 router.get('/dashboard/charts', adminController.getChartData);
+router.get('/dashboard/employer-overview', adminController.getEmployerOverview);
+router.get('/dashboard/employer-overview/:employerId/jobs', adminController.getEmployerOverviewJobs);
 router.get('/profile', adminController.getAdminProfile);
 router.get('/users', adminController.getUsers);
 router.delete('/users/:userId/:userType', adminController.deleteUser);

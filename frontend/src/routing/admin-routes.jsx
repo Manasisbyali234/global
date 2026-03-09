@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import { admin } from "../globals/route-names";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminDashboardPage from "../app/pannels/admin/components/admin-dashboard";
+import AdminOverviewPage from "../app/pannels/admin/components/admin-overview";
 import AdminCandidates from "../app/pannels/admin/components/admin-candidates";
 import AdminCandidateAddEdit from "../app/pannels/admin/components/admin-candidate-add";
 import AdminEmployerJobs from "../app/pannels/admin/components/admin-emp-jobs";
@@ -34,6 +35,7 @@ function AdminRoutes() {
     return (
 			<Routes>
 				<Route path={admin.DASHBOARD} element={<AdminDashboardPage />} />
+				<Route path={admin.OVERVIEW} element={<AdminOverviewPage />} />
 				<Route path={admin.CAN_MANAGE} element={<AdminEmployersAllRequest />} />
 				<Route path={admin.CAN_APPROVE} element={<AdminEmployersApproved />} />
 				<Route path={admin.CAN_REJECT} element={<AdminEmployersRejected />} />
