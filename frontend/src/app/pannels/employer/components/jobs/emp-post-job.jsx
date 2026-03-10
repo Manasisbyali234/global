@@ -358,7 +358,7 @@ export default function EmpPostJob({ onNext }) {
 	const [showSubStageConfirm, setShowSubStageConfirm] = useState(null);
 	const [scheduledRounds, setScheduledRounds] = useState({});
 	const [interviewRoundIds, setInterviewRoundIds] = useState({}); // Store created InterviewRound IDs
-	const [interviewModal, setInterviewModal] = useState({ isOpen: false, url: '', title: '' });
+	const [interviewModal, setInterviewModal] = useState({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false });
 	const isAssessmentFirst = Boolean(
 		formData?.interviewRoundOrder?.length &&
 		formData.interviewRoundTypes?.[formData.interviewRoundOrder[0]] === 'assessment'
@@ -4798,12 +4798,13 @@ export default function EmpPostJob({ onNext }) {
 															if (response.ok) {
 																const interviewRound = await response.json();
 																setInterviewRoundIds(prev => ({ ...prev, [uniqueKey]: interviewRound._id }));
-																showSuccess('Interview scheduled successfully!');
 																// Open in modal instead of new window
 																setInterviewModal({
 																	isOpen: true,
 																	url: `https://schedule.taleglobal.net/rounds/${interviewRound._id}`,
-																	title: `Schedule Interview - ${displayName}`
+																	title: `Schedule Interview - ${displayName}`,
+																	isMaximized: false,
+																	isMinimized: false
 																});
 															} else {
 																showError('Failed to create interview round');
@@ -5434,12 +5435,18 @@ export default function EmpPostJob({ onNext }) {
 
 			{/* Interview Scheduling Modal */}
 			{interviewModal.isOpen && (
-				<div className="document-modal-overlay" onClick={() => setInterviewModal({ isOpen: false, url: '', title: '' })}>
-					<div className="document-modal-container" onClick={e => e.stopPropagation()}>
-						<div className="document-modal-header">
+				<div className={`document-modal-overlay ${interviewModal.isMinimized ? 'minimized-overlay' : ''}`} onClick={() => setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false })}>
+					<div className={`document-modal-container ${interviewModal.isMaximized ? 'maximized' : ''} ${interviewModal.isMinimized ? 'minimized' : ''}`} onClick={e => e.stopPropagation()}>
+						<div className="document-modal-header" onClick={() => interviewModal.isMinimized && setInterviewModal(prev => ({ ...prev, isMinimized: false }))}>
 							<h3>{interviewModal.title}</h3>
 							<div className="modal-controls">
-								<button className="modal-btn close" onClick={() => setInterviewModal({ isOpen: false, url: '', title: '' })}>
+								<button className="modal-btn" onClick={(e) => { e.stopPropagation(); setInterviewModal(prev => ({ ...prev, isMinimized: !prev.isMinimized })); }}>
+									<i className={`fas ${interviewModal.isMinimized ? 'fa-window-restore' : 'fa-minus'}`}></i>
+								</button>
+								<button className="modal-btn" onClick={(e) => { e.stopPropagation(); setInterviewModal(prev => ({ ...prev, isMaximized: !prev.isMaximized, isMinimized: false })); }}>
+									<i className={`fas ${interviewModal.isMaximized ? 'fa-compress' : 'fa-expand'}`}></i>
+								</button>
+								<button className="modal-btn close" onClick={() => setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false })}>
 									<i className="fas fa-times"></i>
 								</button>
 							</div>
