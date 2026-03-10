@@ -304,6 +304,14 @@ export const api = {
     }).then((res) => res.json());
   },
 
+  respondToOffer: (applicationId, data) => {
+    return fetch(`${API_BASE_URL}/candidate/applications/${applicationId}/respond-offer`, {
+      method: 'POST',
+      headers: getAuthHeaders('candidate'),
+      body: JSON.stringify(data),
+    }).then((res) => res.json());
+  },
+
   // Employer APIs
   employerRegister: (data) => {
     return fetch(`${API_BASE_URL}/employer/register`, {

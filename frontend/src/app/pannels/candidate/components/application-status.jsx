@@ -1,4 +1,4 @@
-import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { formatInterviewTime } from '../../../../utils/timeUtils';
 import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
@@ -287,6 +287,30 @@ function CanStatusPage() {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const handleOfferResponse = async (applicationId, response) => {
+		const action = response === 'accepted' ? 'Accept' : 'Reject';
+		
+		showConfirmation(
+			`Are you sure you want to ${action.toLowerCase()} this job offer?`,
+			async () => {
+				try {
+					const res = await api.respondToOffer(applicationId, { status: response });
+					if (res.success) {
+						showSuccess(`Offer ${response} successfully`);
+						fetchApplications();
+					} else {
+						showError(res.message || `Failed to ${response} offer`);
+					}
+				} catch (error) {
+					console.error(`Error ${response}ing offer:`, error);
+					showError(`An error occurred while ${response}ing the offer`);
+				}
+			},
+			null,
+			'warning'
+		);
 	};
 
 	const getInterviewRounds = (job, application) => {
@@ -866,13 +890,17 @@ function CanStatusPage() {
 													<i className="fa fa-eye me-2" style={{color: '#ff6b35'}}></i>
 													View Details
 												</th>
+												<th className="border-0 px-4 py-3 fw-semibold text-center" style={{color: '#232323'}}>
+													<i className="fa fa-handshake me-2" style={{color: '#ff6b35'}}></i>
+													Offer Action
+												</th>
 											</tr>
 										</thead>
 
 										<tbody>
 											{loading ? (
 												<tr>
-													<td colSpan="6" className="text-center py-5">
+													<td colSpan="7" className="text-center py-5">
 														<div className="d-flex flex-column align-items-center">
 															<i className="fa fa-spinner fa-spin fa-3x mb-3" style={{color: '#ff6b35'}}></i>
 															<p className="text-muted mb-0">Loading your applications...</p>
@@ -881,7 +909,7 @@ function CanStatusPage() {
 												</tr>
 											) : applications.length === 0 ? (
 												<tr>
-													<td colSpan="6" className="text-center py-5">
+													<td colSpan="7" className="text-center py-5">
 														<div className="d-flex flex-column align-items-center">
 															<i className="fa fa-search fa-3x mb-3" style={{color: '#ff6b35'}}></i>
 															<h5 style={{color: '#232323'}}>No Applications Yet</h5>
@@ -1137,10 +1165,14 @@ function CanStatusPage() {
 																	app.status === 'shortlisted' ? 'badge bg-info bg-opacity-10 text-info border border-info' :
 																	app.status === 'interviewed' ? 'badge bg-primary bg-opacity-10 text-primary border border-primary' :
 																	app.status === 'hired' ? 'badge bg-success bg-opacity-10 text-success border border-success' :
+																	app.status === 'offer_sent' ? 'badge bg-info bg-opacity-10 text-info border border-info' :
+																	app.status === 'accepted' ? 'badge bg-success bg-opacity-10 text-success border border-success' :
 																	app.status === 'rejected' ? 'badge bg-danger bg-opacity-10 text-danger border border-danger' : 'badge bg-secondary bg-opacity-10 text-secondary border border-secondary'
 																} style={{fontSize: '12px', padding: '6px 12px'}}>
 																	{(app.status === 'pending' && app.isSelectedForProcess) ? 'Shortlisted' : 
 																	 app.status === 'hired' ? 'Hired' :
+																	 app.status === 'offer_sent' ? 'Offer Letter Sent' :
+																	 app.status === 'accepted' ? 'Accepted' :
 																	 app.status?.charAt(0).toUpperCase() + app.status?.slice(1) || 'Pending'}
 																</span>
 															</td>
@@ -1164,6 +1196,36 @@ function CanStatusPage() {
 																		<span>Interviews</span>
 																	</div>
 																</div>
+															</td>
+															<td className="px-4 py-3 text-center">
+																{app.status === 'offer_sent' ? (
+																	<div className="d-flex gap-2 justify-content-center">
+																		<button 
+																			className="btn btn-sm btn-success" 
+																			onClick={() => handleOfferResponse(app._id, 'accepted')}
+																			title="Accept Offer"
+																		>
+																			<i className="fa fa-check"></i> Accept
+																		</button>
+																		<button 
+																			className="btn btn-sm btn-danger" 
+																			onClick={() => handleOfferResponse(app._id, 'rejected')}
+																			title="Reject Offer"
+																		>
+																			<i className="fa fa-times"></i> Reject
+																		</button>
+																	</div>
+																) : app.status === 'accepted' ? (
+																	<span className="text-success fw-bold">
+																		<i className="fa fa-check-circle me-1"></i> Accepted
+																	</span>
+																) : app.status === 'rejected' && app.statusHistory?.some(h => h.status === 'offer_sent') ? (
+																	<span className="text-danger fw-bold">
+																		<i className="fa fa-times-circle me-1"></i> Offer Rejected
+																	</span>
+																) : (
+																	<span className="text-muted small">-</span>
+																)}
 															</td>
 														</tr>
 													);

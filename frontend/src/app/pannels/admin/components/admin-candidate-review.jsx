@@ -278,6 +278,15 @@ function AdminCandidateReviewPage() {
 
             {/* Profile Card */}
             <div className="profile-card">
+                {candidate.applications?.some(app => app.status === 'accepted') && (
+                    <div className="alert alert-success mx-4 mt-4 mb-0 d-flex align-items-center" style={{ borderRadius: '8px' }}>
+                        <i className="fas fa-check-circle me-3 fa-lg"></i>
+                        <div>
+                            <strong>Action Required:</strong> Candidate has <strong>Accepted</strong> an offer. 
+                            Please coordinate with the employer ({candidate.applications.find(app => app.status === 'accepted')?.employerId?.companyName}) for further processing.
+                        </div>
+                    </div>
+                )}
                 <div className="profile-header">
                     <div className="profile-avatar">
                         {profileImageSrc ? (
@@ -298,7 +307,27 @@ function AdminCandidateReviewPage() {
                                 <span className="value">{formatDate(candidate.createdAt)}</span>
                             </div>
                             <div className="stat">
-                                <span className="label">Status</span>
+                                <span className="label">Applications</span>
+                                <span className="value">{candidate.applications?.length || 0}</span>
+                            </div>
+                            {candidate.applications?.some(app => app.status === 'accepted') && (
+                                <div className="stat">
+                                    <span className="label" style={{ color: '#28a745' }}>Offer Accepted</span>
+                                    <span className="value" style={{ color: '#28a745', fontWeight: 'bold' }}>
+                                        {candidate.applications.filter(app => app.status === 'accepted').length}
+                                    </span>
+                                </div>
+                            )}
+                            {candidate.applications?.some(app => app.status === 'offer_sent') && (
+                                <div className="stat">
+                                    <span className="label" style={{ color: '#17a2b8' }}>Offer Sent</span>
+                                    <span className="value" style={{ color: '#17a2b8' }}>
+                                        {candidate.applications.filter(app => app.status === 'offer_sent').length}
+                                    </span>
+                                </div>
+                            )}
+                            <div className="stat">
+                                <span className="label">Profile Status</span>
                                 <span className={`value status ${candidate.isProfileComplete ? 'complete' : 'incomplete'}`}>
                                     {candidate.isProfileComplete ? 'Complete' : `Incomplete ${candidate.profileCompletionPercentage || 0}%`}
                                 </span>
@@ -772,9 +801,13 @@ function AdminCandidateReviewPage() {
                                                         application.status === 'hired' ? 'selected' :
                                                         application.status === 'shortlisted' ? 'shortlisted' :
                                                         application.status === 'rejected' ? 'not-selected' :
+                                                        application.status === 'offer_sent' ? 'shortlisted' :
+                                                        application.status === 'accepted' ? 'selected' :
                                                         'pending'
                                                     }`}>
-                                                        {application.status ? application.status.charAt(0).toUpperCase() + application.status.slice(1) : 'Pending'}
+                                                        {application.status === 'offer_sent' ? 'Offer Letter Sent' :
+                                                         application.status === 'accepted' ? 'Accepted' :
+                                                         application.status ? application.status.charAt(0).toUpperCase() + application.status.slice(1) : 'Pending'}
                                                     </span>
                                                 </td>
                                                 <td>

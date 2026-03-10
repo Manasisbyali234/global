@@ -544,7 +544,7 @@ function EmpCandidateReviewPage() {
                                 <i className="fas fa-user"></i>
                             </div>
                         )}
-                        <div className={`status-indicator ${application.status === 'hired' ? 'active' : ''}`}></div>
+                        <div className={`status-indicator ${application.status === 'hired' || application.status === 'accepted' ? 'active' : ''}`}></div>
                     </div>
                     <div className="profile-info">
                         <h3>{candidate.name}</h3>
@@ -557,7 +557,9 @@ function EmpCandidateReviewPage() {
                             <div className="stat">
                                 <span className="label">Application Status</span>
                                 <span className={`value status ${application.status}`}>
-                                    {application.status.replace('_', ' ')}
+                                    {application.status === 'offer_sent' ? 'Offer Letter Sent' :
+                                     application.status === 'accepted' ? 'Offer Accepted' :
+                                     application.status.replace('_', ' ')}
                                 </span>
                             </div>
                         </div>
@@ -784,14 +786,22 @@ function EmpCandidateReviewPage() {
                                             </button>
                                         </div>
                                         <div className="action-buttons">
-                                            {allProcessesCompleted() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
+                                            {application.status === 'accepted' && (
+                                                <div className="alert alert-success d-flex align-items-center mb-3" style={{ width: '100%', fontSize: '14px', padding: '10px' }}>
+                                                    <i className="fas fa-check-circle me-2"></i>
+                                                    <div>Candidate has Accepted the Offer</div>
+                                                </div>
+                                            )}
+                                            {(allProcessesCompleted() && allStagesHaveRemarks() && hasShortlistedForNextRound() || application.status === 'accepted') && (
                                                 <>
-                                                    <button 
-                                                        className={`${application.status === 'shortlisted' ? 'active shortlisted-btn' : ''}`}
-                                                        onClick={() => updateApplicationStatus('shortlisted')}
-                                                    >
-                                                        <i className="fas fa-check"></i> Shortlist
-                                                    </button>
+                                                    {application.status !== 'accepted' && application.status !== 'hired' && (
+                                                        <button 
+                                                            className={`${application.status === 'shortlisted' ? 'active shortlisted-btn' : ''}`}
+                                                            onClick={() => updateApplicationStatus('shortlisted')}
+                                                        >
+                                                            <i className="fas fa-check"></i> Shortlist
+                                                        </button>
+                                                    )}
                                                     <button 
                                                         className={`${application.status === 'hired' ? 'active' : ''}`}
                                                         onClick={() => updateApplicationStatus('hired')}
@@ -800,7 +810,7 @@ function EmpCandidateReviewPage() {
                                                     </button>
                                                 </>
                                             )}
-                                            {application.status !== 'hired' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
+                                            {application.status !== 'hired' && application.status !== 'accepted' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
                                                 <button 
                                                     className={`${application.status === 'offer_sent' ? 'active' : ''}`}
                                                     onClick={() => updateApplicationStatus('offer_sent')}
@@ -808,7 +818,7 @@ function EmpCandidateReviewPage() {
                                                     <i className="fas fa-envelope"></i> Offer Letter Sent
                                                 </button>
                                             )}
-                                            {application.status !== 'shortlisted' && application.status !== 'hired' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
+                                            {application.status !== 'shortlisted' && application.status !== 'hired' && application.status !== 'accepted' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
                                                 <button 
                                                     className={`${application.status === 'rejected' ? 'active' : ''}`}
                                                     onClick={() => updateApplicationStatus('rejected')}
@@ -817,7 +827,7 @@ function EmpCandidateReviewPage() {
                                                 </button>
                                             )}
                                         </div>
-                                        {(!allProcessesCompleted() || !allStagesHaveRemarks() || !hasShortlistedForNextRound()) && (
+                                        {application.status !== 'accepted' && application.status !== 'hired' && (!allProcessesCompleted() || !allStagesHaveRemarks() || !hasShortlistedForNextRound()) && (
                                             <p className="warning-text">
                                                 {!allStagesHaveRemarks() 
                                                     ? 'Please add remarks for all stages to enable actions.' 

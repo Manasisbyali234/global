@@ -2018,7 +2018,9 @@ exports.updateApplicationStatus = async (req, res) => {
         hired: 'Hired',
         rejected: 'Rejected',
         not_attended: 'Not Attended',
-        offer_shared: 'Offer Shared'
+        offer_shared: 'Offer Shared',
+        offer_sent: 'Offer Letter Sent',
+        accepted: 'Offer Accepted'
       };
       const statusLabel = statusLabels[status] || status;
       const trimmedNotes = typeof notes === 'string' ? notes.trim() : '';

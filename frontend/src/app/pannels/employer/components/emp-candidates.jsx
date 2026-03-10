@@ -96,6 +96,10 @@ function EmpCandidatesPage() {
         return "twm-bg-orange";
       case "hired":
         return "twm-bg-green";
+      case "offer_sent":
+        return "twm-bg-purple";
+      case "accepted":
+        return "twm-bg-green";
       case "rejected":
         return "twm-bg-red";
       default:
@@ -206,6 +210,8 @@ function EmpCandidatesPage() {
                 <option value="pending">Pending</option>
                 <option value="shortlisted">Shortlisted</option>
                 <option value="interviewed">Interviewed</option>
+                <option value="offer_sent">Offer Letter Sent</option>
+                <option value="accepted">Offer Accepted</option>
                 <option value="hired">Hired</option>
                 <option value="rejected">Rejected</option>
               </select>
@@ -294,7 +300,9 @@ function EmpCandidatesPage() {
                               application.status
                             )} text-capitalize`}
                           >
-                            {application.status}
+                            {application.status === 'offer_sent' ? 'Offer Letter Sent' :
+                             application.status === 'accepted' ? 'Offer Accepted' :
+                             application.status.replace('_', ' ')}
                           </span>
                         </div>
                       </div>

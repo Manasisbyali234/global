@@ -292,6 +292,7 @@ router.post('/jobs/:jobId/apply', [
 router.post('/applications', candidateController.applyForJob);
 router.post('/apply/:jobId', candidateController.applyForJob);
 router.get('/applications/interviews', candidateController.getCandidateApplicationsWithInterviews);
+router.post('/applications/:applicationId/respond-offer', candidateController.respondToOffer);
 router.get('/applications/:applicationId/status', candidateController.getApplicationStatus);
 router.get('/applications', candidateController.getAppliedJobs);
 router.get('/applications/:applicationId/interview-process', candidateController.getInterviewProcessDetails);

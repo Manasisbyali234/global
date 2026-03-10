@@ -5,7 +5,7 @@ const Job = require('../models/Job');
 const Application = require('../models/Application');
 const Message = require('../models/Message');
 const InterviewProcess = require('../models/InterviewProcess');
-const { createProfileCompletionNotification } = require('./notificationController');
+const { createProfileCompletionNotification, createNotification } = require('./notificationController');
 const { sendWelcomeEmail, sendJobApplicationConfirmationEmail } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { sendSMS } = require('../utils/smsProvider');
@@ -1328,6 +1328,53 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
     res.json({ success: true, applications: applicationsWithInterviewProcess });
   } catch (error) {
     console.error('Error fetching candidate applications:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Respond to job offer
+exports.respondToOffer = async (req, res) => {
+  try {
+    const { status, message } = req.body;
+    
+    if (!['accepted', 'rejected'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid response status' });
+    }
+
+    const application = await Application.findOne({
+      _id: req.params.applicationId,
+      candidateId: req.user._id,
+      status: 'offer_sent'
+    }).populate('jobId', 'title')
+      .populate('employerId', 'name');
+
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Offer not found or already responded' });
+    }
+
+    application.status = status;
+    application.statusHistory.push({
+      status,
+      changedBy: req.user._id,
+      changedByModel: 'Candidate',
+      notes: message || `Candidate ${status} the offer`
+    });
+
+    await application.save();
+
+    // Notify employer
+    await createNotification({
+      title: `Offer ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+      message: `Candidate ${req.user.name || 'A candidate'} has ${status} the offer for ${application.jobId?.title || 'the position'}.`,
+      type: 'offer_response',
+      role: 'employer',
+      relatedId: application._id,
+      recipientId: application.employerId
+    });
+
+    res.json({ success: true, message: `Offer ${status} successfully`, application });
+  } catch (error) {
+    console.error('Error responding to offer:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

@@ -13,7 +13,7 @@ const applicationSchema = new mongoose.Schema({
   
   status: { 
     type: String, 
-    enum: ['pending', 'shortlisted', 'interviewed', 'hired', 'rejected'], 
+    enum: ['pending', 'shortlisted', 'interviewed', 'hired', 'rejected', 'offer_sent', 'accepted'], 
     default: 'pending' 
   },
   coverLetter: { type: String },
@@ -89,7 +89,7 @@ const applicationSchema = new mongoose.Schema({
     status: String,
     changedAt: { type: Date, default: Date.now },
     changedBy: { type: mongoose.Schema.Types.ObjectId, refPath: 'statusHistory.changedByModel' },
-    changedByModel: { type: String, enum: ['Employer', 'Admin'] },
+    changedByModel: { type: String, enum: ['Employer', 'Admin', 'Candidate'] },
     notes: String
   }],
   
