@@ -37,9 +37,7 @@ function EmpCandidateReviewPage() {
     const [statusUpdateUnlocked, setStatusUpdateUnlocked] = useState(false);
     const stageStatusOptions = [
         { value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
-        { value: 'under_review', label: 'Under Review' },
         { value: 'on_hold', label: 'On Hold' },
-        { value: 'selected', label: 'Selected' },
         { value: 'pending_decision', label: 'Pending Decision' },
         { value: 'no_show', label: 'No Show' },
         { value: 'rejected', label: 'Not Advanced to Next Stage' }
@@ -686,6 +684,12 @@ function EmpCandidateReviewPage() {
                                                                     value={processRemarks[process.id] || ''}
                                                                     onChange={(e) => updateProcessRemark(process.id, e.target.value)}
                                                                     disabled={isCurrentDisabled}
+                                                                    rows="1"
+                                                                    style={{ minHeight: '38px', resize: 'none', overflow: 'hidden' }}
+                                                                    onInput={(e) => {
+                                                                        e.target.style.height = 'auto';
+                                                                        e.target.style.height = e.target.scrollHeight + 'px';
+                                                                    }}
                                                                 />
                                                             </div>
                                                             {isPreviousRejected && (
@@ -764,6 +768,12 @@ function EmpCandidateReviewPage() {
                                                 value={remarks}
                                                 onChange={(e) => setRemarks(e.target.value)}
                                                 placeholder="Enter overall feedback..."
+                                                rows="1"
+                                                style={{ minHeight: '60px', resize: 'none', overflow: 'hidden' }}
+                                                onInput={(e) => {
+                                                    e.target.style.height = 'auto';
+                                                    e.target.style.height = e.target.scrollHeight + 'px';
+                                                }}
                                             />
                                             <button onClick={saveReview}>
                                                 <i className="fas fa-save"></i> Save Remarks

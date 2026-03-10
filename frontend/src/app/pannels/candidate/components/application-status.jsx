@@ -1658,11 +1658,15 @@ function CanStatusPage() {
 														const previousStatusText = (previousRoundStatus?.text || '').toLowerCase();
 
 														const invalidStatusStates = ['', 'pending'];
+														const positiveStatusStates = ['shortlisted_for_next_round', 'shortlisted'];
 														const hasValidProcessStatus =
 															Boolean(previousProcessStatus) && !invalidStatusStates.includes(previousProcessStatus);
 														const hasValidStageStatus =
 															Boolean(previousStageStatus) && !invalidStatusStates.includes(previousStageStatus);
 														const previousStatusUpdated = hasValidProcessStatus || hasValidStageStatus;
+														const isPreviousShortlisted = positiveStatusStates.includes(previousProcessStatus) || 
+															positiveStatusStates.includes(previousStageStatus) || 
+															positiveStatusStates.some(s => previousStatusText.includes(s.replace('_', ' ')));
 
 														const previousRemarks =
 															(previousRelatedProcess?.id && selectedApplication.processRemarks?.[previousRelatedProcess.id]) ||
@@ -1681,7 +1685,7 @@ function CanStatusPage() {
 
 														canBookThisRound = isPreviousAssessment
 															? previousCompleted
-															: (previousStatusUpdated && previousRemarksUpdated);
+															: isPreviousShortlisted;
 													}
 													
 													if (isCurrentRoundCompleted) {
