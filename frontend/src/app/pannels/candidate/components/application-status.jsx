@@ -757,6 +757,33 @@ function CanStatusPage() {
 		return { backgroundColor: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' };
 	};
 
+	const resolveProcessRemarks = (process, roundName, roundType, remarksMap = {}) => {
+		if (!remarksMap || typeof remarksMap !== 'object') return '';
+		const normalizeKey = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+		const exactCandidates = [
+			process?.id,
+			process?._id,
+			process?.type,
+			roundType,
+			roundName
+		].filter(Boolean);
+
+		for (const key of exactCandidates) {
+			const direct = remarksMap[key];
+			if (typeof direct === 'string' && direct.trim()) return direct;
+		}
+
+		const normalizedCandidates = exactCandidates.map(normalizeKey).filter(Boolean);
+		for (const [key, value] of Object.entries(remarksMap)) {
+			if (typeof value !== 'string' || !value.trim()) continue;
+			const normalizedKey = normalizeKey(key);
+			if (normalizedCandidates.some((candidate) => candidate && normalizedKey.includes(candidate))) {
+				return value;
+			}
+		}
+		return '';
+	};
+
 	return (
 		<>
 			{!isInterviewDetailsPage && (
@@ -1337,8 +1364,13 @@ function CanStatusPage() {
 										}
 										// Merge with processRemarks if available
 										if (selectedApplication.interviewProcesses?.[roundIndex]) {
-											const processId = selectedApplication.interviewProcesses[roundIndex].id;
-											const remarks = selectedApplication.processRemarks?.[processId];
+											const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
+											const remarks = resolveProcessRemarks(
+												selectedApplication.interviewProcesses[roundIndex],
+												roundName,
+												roundTypeRaw,
+												selectedApplication.processRemarks
+											);
 											if (remarks) {
 												roundDetails = { ...roundDetails, employerRemarks: remarks };
 											}
@@ -1398,14 +1430,26 @@ function CanStatusPage() {
 														{/* Assessment Employer Remarks */}
 														{(() => {
 															const assessmentProcess = selectedApplication.interviewProcesses?.find(p => p.type === 'assessment' || p.name?.toLowerCase().includes('assessment'));
-															const processRemarks = assessmentProcess?.id ? selectedApplication.processRemarks?.[assessmentProcess.id] : null;
+															const processRemarks = resolveProcessRemarks(
+																assessmentProcess,
+																'Assessment',
+																'assessment',
+																selectedApplication.processRemarks
+															);
 															const remarks = processRemarks || roundDetails?.employerRemarks;
 															
-															if (!remarks || typeof remarks !== 'string') return null;
+															if (!remarks || typeof remarks !== 'string') {
+																return (
+																	<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
+																		<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Assessment Remarks:</strong></small>
+																		<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>No remarks provided.</div>
+																	</div>
+																);
+															}
 															return (
 																<div className="mb-3 p-2" style={{backgroundColor: '#fff3e0', borderRadius: '6px', border: '1px solid #ffe0b3'}}>
 																	<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Assessment Remarks:</strong></small>
-																	<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>{remarks}</div>
+																	<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word', maxWidth: '100%'}}>{remarks}</div>
 																</div>
 															);
 														})()}
@@ -1477,8 +1521,14 @@ function CanStatusPage() {
 																	</div>
 																)}
 																{(() => {
-																	const process = selectedApplication.interviewProcesses?.find(p => p.type === (typeof round === 'object' ? round.roundType : round.toLowerCase()));
-																	const processRemarks = process?.id ? selectedApplication.processRemarks?.[process.id] : null;
+																	const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
+																	const process = selectedApplication.interviewProcesses?.find(p => p.type === roundTypeRaw);
+																	const processRemarks = resolveProcessRemarks(
+																		process,
+																		roundName,
+																		roundTypeRaw,
+																		selectedApplication.processRemarks
+																	);
 																	const remarks = roundDetails?.employerRemarks || processRemarks;
 																	const statusColors = {shortlisted: '#6f42c1', shortlisted_for_next_round: '#6f42c1', under_review: '#fd7e14', pending_decision: '#fd7e14', interview_scheduled: '#0dcaf0', interview_completed: '#198754', selected: '#198754', rejected: '#dc3545', no_show: '#dc3545', on_hold: '#6c757d'};
 																	const statusLabels = {shortlisted: 'Shortlisted', shortlisted_for_next_round: 'Shortlisted for next Round', under_review: 'Under Review', pending_decision: 'Pending Decision', interview_scheduled: 'Interview Scheduled', interview_completed: 'Interview Completed', selected: 'Selected', rejected: 'Not Advanced to Next Stage', no_show: 'No Show', on_hold: 'On Hold'};
@@ -1492,10 +1542,15 @@ function CanStatusPage() {
 																					</span>
 																				</div>
 																			)}
-																			{remarks && (
+																			{remarks ? (
 																				<div className="mb-3 p-2" style={{backgroundColor: '#fff3e0', borderRadius: '6px', border: '1px solid #ffe0b3'}}>
 																					<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Employer Remarks:</strong></small>
-																					<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>{remarks}</div>
+																					<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word', maxWidth: '100%'}}>{remarks}</div>
+																				</div>
+																			) : (
+																				<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
+																					<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Employer Remarks:</strong></small>
+																					<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>No remarks provided.</div>
 																				</div>
 																			)}
 																		</>
@@ -1761,17 +1816,17 @@ function CanStatusPage() {
 								</div>
 								
 								{/* Overall Employer Remarks */}
-								{selectedApplication.employerRemarks && (
-									<div className="mb-3 p-3" style={{backgroundColor: '#fff3e0', borderRadius: '8px', border: '1px solid #ffe0b3'}}>
-										<h6 className="mb-3" style={{color: '#232323', fontWeight: '600'}}>
-											<i className="fa fa-comment-o me-2" style={{color: '#ff6b35'}}></i>
-											Overall Employer Remarks
-										</h6>
-										<div style={{fontSize: '14px', lineHeight: '1.6', color: '#495057', whiteSpace: 'pre-wrap'}}>
-											{selectedApplication.employerRemarks}
-										</div>
+								<div className="mb-3 p-3" style={{backgroundColor: '#fff3e0', borderRadius: '8px', border: '1px solid #ffe0b3'}}>
+									<h6 className="mb-3" style={{color: '#232323', fontWeight: '600'}}>
+										<i className="fa fa-comment-o me-2" style={{color: '#ff6b35'}}></i>
+										Overall Employer Remarks
+									</h6>
+									<div style={{fontSize: '14px', lineHeight: '1.6', color: '#495057', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word', maxWidth: '100%'}}>
+										{selectedApplication.employerRemarks?.trim()
+											? selectedApplication.employerRemarks
+											: 'No remarks provided.'}
 									</div>
-								)}
+								</div>
 							</div>
 						</div>
 					</div>
