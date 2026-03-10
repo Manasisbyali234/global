@@ -598,16 +598,16 @@ function EmpCandidateReviewPage() {
                                          <div className="section-header">
                                               <div style={{ display: "flex", flexDirection: "column" }}>
                                                <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4>
-                                               <h6 style={{ color: "red" }}><i className="fas fa-exclamation-triangle" style={{ marginRight: "5px" }}></i>Please check all required boxes and enter remark.</h6>
+                                               <h6 style={{ color: "red" }}><i className="fas fa-exclamation-triangle" style={{ marginRight: "5px" }}></i>Please check all required boxes and enter  <span style={{ marginLeft: "25px" }}>remark.</span></h6>
                                           </div>
                                           <button
                                             type="button"
                                             className={`btn btn-sm ${statusUpdateUnlocked ? 'btn-success' : 'btn-primary'}`}
                                             onClick={handleOpenStatusUpdate}
                                             disabled={statusUpdateUnlocked}
-                                            title={statusUpdateUnlocked ? 'Status update is enabled' : 'Open interview status instructions'}
+                                            title={statusUpdateUnlocked ? 'Status Enabled' : 'Open interview status instructions'}
                                           >
-                                            {statusUpdateUnlocked ? 'Status update enabled' : 'Status update'}
+                                            {statusUpdateUnlocked ? 'Status Enabled' : 'Status update'}
                                           </button>
                                           </div>
                                         <div className="section-body">
