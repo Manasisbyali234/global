@@ -366,6 +366,10 @@ function EmpCandidateReviewPage() {
         return interviewProcesses.every(p => processRemarks[p.id] && processRemarks[p.id].trim() !== '');
     };
 
+    const hasShortlistedForNextRound = () => {
+        return interviewProcesses.some(p => p.status === 'shortlisted_for_next_round');
+    };
+
     const updateProcessCompletion = (processId, isCompleted) => {
         setInterviewProcesses(prev => 
             prev.map(p => p.id === processId ? { ...p, isCompleted } : p)
@@ -780,7 +784,7 @@ function EmpCandidateReviewPage() {
                                             </button>
                                         </div>
                                         <div className="action-buttons">
-                                            {allProcessesCompleted() && allStagesHaveRemarks() && (
+                                            {allProcessesCompleted() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
                                                 <>
                                                     <button 
                                                         className={`${application.status === 'shortlisted' ? 'active shortlisted-btn' : ''}`}
@@ -796,7 +800,7 @@ function EmpCandidateReviewPage() {
                                                     </button>
                                                 </>
                                             )}
-                                            {application.status !== 'hired' && hasAnyStageTracked() && allStagesHaveRemarks() && (
+                                            {application.status !== 'hired' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
                                                 <button 
                                                     className={`${application.status === 'offer_sent' ? 'active' : ''}`}
                                                     onClick={() => updateApplicationStatus('offer_sent')}
@@ -804,7 +808,7 @@ function EmpCandidateReviewPage() {
                                                     <i className="fas fa-envelope"></i> Offer Letter Sent
                                                 </button>
                                             )}
-                                            {application.status !== 'shortlisted' && application.status !== 'hired' && hasAnyStageTracked() && allStagesHaveRemarks() && (
+                                            {application.status !== 'shortlisted' && application.status !== 'hired' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
                                                 <button 
                                                     className={`${application.status === 'rejected' ? 'active' : ''}`}
                                                     onClick={() => updateApplicationStatus('rejected')}
@@ -813,10 +817,12 @@ function EmpCandidateReviewPage() {
                                                 </button>
                                             )}
                                         </div>
-                                        {(!allProcessesCompleted() || !allStagesHaveRemarks()) && (
+                                        {(!allProcessesCompleted() || !allStagesHaveRemarks() || !hasShortlistedForNextRound()) && (
                                             <p className="warning-text">
                                                 {!allStagesHaveRemarks() 
                                                     ? 'Please add remarks for all stages to enable actions.' 
+                                                    : !hasShortlistedForNextRound()
+                                                    ? 'Please select "Shortlisted for next Round" for at least one stage to enable actions.'
                                                     : 'Complete all interview stages to enable shortlist and hire actions.'}
                                             </p>
                                         )}
