@@ -19,6 +19,7 @@ function AdminOverviewPage() {
   const [jobApplicants, setJobApplicants] = useState([]);
   const [applicantsLoading, setApplicantsLoading] = useState(false);
   const [applicantsError, setApplicantsError] = useState("");
+  const [viewMode, setViewMode] = useState("employers"); // employers | jobs | applicants
 
   useEffect(() => {
     fetchOverview();
@@ -58,6 +59,7 @@ function AdminOverviewPage() {
       setSelectedEmployer(null);
       setEmployerJobs([]);
       setJobsError("");
+      setViewMode("employers");
       return;
     }
 
@@ -71,6 +73,7 @@ function AdminOverviewPage() {
       if (response.success) {
         setSelectedEmployer(response.employer);
         setEmployerJobs(response.data || []);
+        setViewMode("jobs");
       } else {
         setJobsError(response.message || "Failed to load employer jobs");
       }
@@ -86,6 +89,7 @@ function AdminOverviewPage() {
       setSelectedJob(null);
       setJobApplicants([]);
       setApplicantsError("");
+      setViewMode("jobs");
       return;
     }
 
@@ -96,6 +100,7 @@ function AdminOverviewPage() {
       if (response.success) {
         setSelectedJob(response.job);
         setJobApplicants(response.data || []);
+        setViewMode("applicants");
       } else {
         setApplicantsError(response.message || "Failed to load applicants");
       }
@@ -122,62 +127,74 @@ function AdminOverviewPage() {
         </button>
       </div>
 
-      <div className="panel panel-default site-bg-white">
-        <div className="panel-body wt-panel-body p-a20">
-          {loading && <div className="text-center">Loading overview...</div>}
-          {!loading && error && <div className="alert alert-danger m-b0">{error}</div>}
+      {viewMode === "employers" && (
+        <div className="panel panel-default site-bg-white">
+          <div className="panel-body wt-panel-body p-a20">
+            {loading && <div className="text-center">Loading overview...</div>}
+            {!loading && error && <div className="alert alert-danger m-b0">{error}</div>}
 
-          {!loading && !error && (
-            <div className="table-responsive">
-              <table className="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Employer Name</th>
-                    <th>Number of Jobs</th>
-                    <th>Number Applicants</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {employers.length === 0 ? (
+            {!loading && !error && (
+              <div className="table-responsive">
+                <table className="table table-striped">
+                  <thead>
                     <tr>
-                      <td colSpan="4" className="text-center">
-                        No employer records found.
-                      </td>
+                      <th>Employer Name</th>
+                      <th>Number of Jobs</th>
+                      <th>Number Applicants</th>
+                      <th>Action</th>
                     </tr>
-                  ) : (
-                    employers.map((employer) => (
-                      <tr key={employer.employerId}>
-                        <td>{employer.employerName}</td>
-                        <td>{employer.jobsCount}</td>
-                        <td>{employer.applicationsCount}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => handleViewEmployerJobs(employer)}
-                          >
-                            <i className="fa fa-eye me-1" />
-                            {selectedEmployer?.employerId === employer.employerId ? "Hide" : "View"}
-                          </button>
+                  </thead>
+                  <tbody>
+                    {employers.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="text-center">
+                          No employer records found.
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+                    ) : (
+                      employers.map((employer) => (
+                        <tr key={employer.employerId}>
+                          <td>{employer.employerName}</td>
+                          <td>{employer.jobsCount}</td>
+                          <td>{employer.applicationsCount}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => handleViewEmployerJobs(employer)}
+                            >
+                              <i className="fa fa-eye me-1" />
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {selectedEmployer && (
+      {viewMode === "jobs" && selectedEmployer && (
         <div ref={jobsSectionRef} className="panel panel-default site-bg-white m-t20">
           <div className="panel-heading wt-panel-heading p-a20">
-            <h4 className="panel-tittle m-a0">
-              <i className="fa fa-briefcase me-2" />
-              Jobs posted by {selectedEmployer.employerName}
-            </h4>
+            <div className="d-flex justify-content-between align-items-center">
+              <h4 className="panel-tittle m-a0">
+                <i className="fa fa-briefcase me-2" />
+                Jobs posted by {selectedEmployer.employerName}
+              </h4>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setViewMode("employers")}
+              >
+                <i className="fa fa-arrow-left me-1" />
+                Back to Employers
+              </button>
+            </div>
           </div>
           <div className="panel-body wt-panel-body p-a20">
             {jobsLoading && <div className="text-center">Loading jobs...</div>}
@@ -216,7 +233,7 @@ function AdminOverviewPage() {
                               onClick={() => handleViewApplicants(job)}
                             >
                               <i className="fa fa-eye me-1" />
-                              {selectedJob?.jobId === job.jobId ? "Hide" : "View"}
+                              View
                             </button>
                           </td>
                         </tr>
@@ -230,13 +247,23 @@ function AdminOverviewPage() {
         </div>
       )}
 
-      {selectedJob && (
+      {viewMode === "applicants" && selectedJob && (
         <div ref={applicantsSectionRef} className="panel panel-default site-bg-white m-t20">
           <div className="panel-heading wt-panel-heading p-a20">
-            <h4 className="panel-tittle m-a0">
-              <i className="fa fa-users me-2" />
-              Actual Applicants for {selectedJob.title}
-            </h4>
+            <div className="d-flex justify-content-between align-items-center">
+              <h4 className="panel-tittle m-a0">
+                <i className="fa fa-users me-2" />
+                Actual Applicants for {selectedJob.title}
+              </h4>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setViewMode("jobs")}
+              >
+                <i className="fa fa-arrow-left me-1" />
+                Back to Jobs
+              </button>
+            </div>
           </div>
           <div className="panel-body wt-panel-body p-a20">
             {applicantsLoading && <div className="text-center">Loading applicants...</div>}
@@ -251,12 +278,14 @@ function AdminOverviewPage() {
                       <th>Email</th>
                       <th>Status</th>
                       <th>Applied Date</th>
+                      <th>Interviews</th>
+                      <th>Round Status & Remarks</th>
                     </tr>
                   </thead>
                   <tbody>
                     {jobApplicants.length === 0 ? (
                       <tr>
-                        <td colSpan="4" className="text-center">
+                        <td colSpan="6" className="text-center">
                           No applicants found for this job.
                         </td>
                       </tr>
@@ -267,6 +296,36 @@ function AdminOverviewPage() {
                           <td>{applicant.applicantEmail}</td>
                           <td>{applicant.status}</td>
                           <td>{formatDate(applicant.appliedAt)}</td>
+                          <td>{applicant.interviewRoundsCount ?? 0}</td>
+                          <td>
+                            {Array.isArray(applicant.interviewRounds) && applicant.interviewRounds.length > 0 ? (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                {applicant.interviewRounds.map((round, index) => (
+                                  <div
+                                    key={`${applicant.applicationId}-${round.id || round.type || index}`}
+                                    style={{
+                                      border: "1px solid #e9ecef",
+                                      borderRadius: "6px",
+                                      padding: "6px 8px",
+                                      background: "#f8f9fa"
+                                    }}
+                                  >
+                                    <div style={{ fontWeight: 600, fontSize: "12px", color: "#232323" }}>
+                                      {round.name || round.type || `Round ${index + 1}`}
+                                    </div>
+                                    <div style={{ fontSize: "12px", color: "#495057" }}>
+                                      <strong>Status:</strong> {round.status || "pending"}
+                                    </div>
+                                    <div style={{ fontSize: "12px", color: "#495057", whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word" }}>
+                                      <strong>Remarks:</strong> {round.remark || "No remarks"}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-muted">No interview rounds</span>
+                            )}
+                          </td>
                         </tr>
                       ))
                     )}

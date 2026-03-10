@@ -321,6 +321,14 @@
     background: #f8f9fa;
     color: #6c757d;
     border: 1px solid #e9ecef;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.2;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .status-badge.pending {
@@ -357,6 +365,15 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+/* Ensure long status labels wrap inside the badge in this page */
+.emp-candidate-review-page .status-badge {
+    white-space: normal !important;
+    max-width: none !important;
+    height: auto !important;
+    line-height: 1.2 !important;
+    text-transform: none !important;
 }
 
 .control-row {

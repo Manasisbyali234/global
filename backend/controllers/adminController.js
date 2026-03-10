@@ -248,24 +248,105 @@ exports.getJobApplicantsForOverview = async (req, res) => {
 
     const applications = await Application.find({ jobId })
       .populate('candidateId', 'name email')
-      .select('candidateId applicantName applicantEmail status appliedAt isGuestApplication')
+      .populate('jobId', 'interviewRoundOrder interviewRoundTypes interviewRoundDetails')
+      .select('candidateId applicantName applicantEmail status appliedAt isGuestApplication interviewProcesses interviewProcess processRemarks jobId')
       .sort({ appliedAt: -1 })
       .lean();
 
-    const data = applications.map((application) => ({
-      applicationId: application._id,
-      applicantName:
-        application.candidateId?.name ||
-        application.applicantName ||
-        'N/A',
-      applicantEmail:
-        application.candidateId?.email ||
-        application.applicantEmail ||
-        'N/A',
-      status: application.status || 'pending',
-      appliedAt: application.appliedAt,
-      isGuestApplication: !!application.isGuestApplication
-    }));
+    const normalizeKey = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const resolveRemark = (round, remarksMap = {}) => {
+      if (!remarksMap || typeof remarksMap !== 'object') return '';
+      const candidates = [round?.id, round?._id, round?.type, round?.name].filter(Boolean);
+      for (const key of candidates) {
+        const direct = remarksMap[key];
+        if (typeof direct === 'string' && direct.trim()) return direct;
+      }
+      const normalizedCandidates = candidates.map(normalizeKey).filter(Boolean);
+      for (const [key, value] of Object.entries(remarksMap)) {
+        if (typeof value !== 'string' || !value.trim()) continue;
+        const normalizedKey = normalizeKey(key);
+        if (normalizedCandidates.some((candidate) => candidate && normalizedKey.includes(candidate))) {
+          return value;
+        }
+      }
+      return '';
+    };
+
+    const buildInterviewRounds = (application) => {
+      if (application?.interviewProcess?.stages?.length) {
+        return application.interviewProcess.stages.map((stage) => ({
+          id: stage._id,
+          name: stage.stageName,
+          type: stage.stageType,
+          status: stage.status || 'pending',
+          remark: resolveRemark({ id: stage._id, name: stage.stageName, type: stage.stageType }, application.processRemarks)
+        }));
+      }
+      if (Array.isArray(application?.interviewProcesses) && application.interviewProcesses.length) {
+        return application.interviewProcesses.map((process) => ({
+          id: process.id || process._id,
+          name: process.name,
+          type: process.type,
+          status: process.status || 'pending',
+          remark: resolveRemark(process, application.processRemarks)
+        }));
+      }
+      const job = application?.jobId;
+      if (job?.interviewRoundOrder?.length) {
+        const roundNames = {
+          oneOnOne: 'One-to-One',
+          oneOnOnePanel: 'One-on-One / Panel',
+          panel: 'Panel',
+          group: 'Group',
+          technical: 'Technical',
+          managerial: 'Managerial Round',
+          hr: 'HR Round',
+          situational: 'Situational / Behavioral',
+          others: 'Others - Specify.',
+          assessment: 'Assessment'
+        };
+        return job.interviewRoundOrder.map((roundKey) => {
+          const roundType = job.interviewRoundTypes?.[roundKey] || roundKey;
+          const roundDetails = job.interviewRoundDetails?.[roundKey];
+          let displayName = roundNames[roundType] || roundType;
+          if (roundType === 'others' && roundDetails?.customType) {
+            displayName = roundDetails.customType;
+          }
+          const remark = resolveRemark(
+            { id: roundKey, name: displayName, type: roundType },
+            application.processRemarks
+          );
+          return {
+            id: roundKey,
+            name: displayName,
+            type: roundType,
+            status: 'pending',
+            remark
+          };
+        });
+      }
+      return [];
+    };
+
+    const data = applications.map((application) => {
+      const interviewRounds = buildInterviewRounds(application);
+      return {
+        applicationId: application._id,
+        applicantName:
+          application.candidateId?.name ||
+          application.applicantName ||
+          'N/A',
+        applicantEmail:
+          application.candidateId?.email ||
+          application.applicantEmail ||
+          'N/A',
+        status: application.status || 'pending',
+        appliedAt: application.appliedAt,
+        isGuestApplication: !!application.isGuestApplication,
+        interviewRoundsCount: interviewRounds.length,
+        interviewRounds
+      };
+    });
 
     res.json({
       success: true,
