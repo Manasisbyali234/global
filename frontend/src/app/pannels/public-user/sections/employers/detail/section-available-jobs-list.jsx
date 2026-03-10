@@ -103,7 +103,11 @@ function SectionAvailableJobsList({ employerId }) {
 											)}
 										</div>
 										<div className="job-info">
-											<h4 className="job-title">{job.title}</h4>
+											<h4 className="job-title">{(() => {
+                                                const rawTitle = typeof job.title === "string" ? job.title.trim() : "";
+                                                if (!rawTitle) return "Job title";
+                                                return rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1);
+                                            })()}</h4>
 											<div className="job-location">
 												<i className="feather-map-pin" />
 												{(() => {

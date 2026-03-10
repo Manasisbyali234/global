@@ -1,6 +1,11 @@
 /* Professional Print Styles for Transaction Receipts */
 
 @media print {
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
     /* Hide everything except the invoice */
     body * {
         visibility: hidden !important;
@@ -24,9 +29,11 @@
         left: 0 !important;
         top: 0 !important;
         width: 100% !important;
-        padding: 20px !important;
+        padding: 0 !important;
         margin: 0 !important;
         background: white !important;
+        font-size: 11px !important;
+        line-height: 1.35 !important;
     }
 
     /* Hide modal chrome */
@@ -106,6 +113,56 @@
     .table-bordered th, 
     .table-bordered td {
         border: 1px solid #dee2e6 !important;
+    }
+
+    #invoice-content h3 {
+        font-size: 16px !important;
+    }
+
+    #invoice-content h5,
+    #invoice-content h6 {
+        font-size: 13px !important;
+    }
+
+    #invoice-content .text-muted,
+    #invoice-content small,
+    #invoice-content .small {
+        font-size: 10.5px !important;
+    }
+
+    #invoice-content .receipt-table,
+    #invoice-content table {
+        width: 100% !important;
+        min-width: 0 !important;
+        font-size: 11px !important;
+    }
+
+    #invoice-content .receipt-table th,
+    #invoice-content .receipt-table td,
+    #invoice-content table th,
+    #invoice-content table td {
+        padding: 6px 8px !important;
+    }
+
+    #invoice-content .border-bottom {
+        margin-bottom: 10px !important;
+        padding-bottom: 10px !important;
+    }
+
+    #invoice-content .mb-3 {
+        margin-bottom: 10px !important;
+    }
+
+    #invoice-content .mb-4 {
+        margin-bottom: 12px !important;
+    }
+
+    #invoice-content .mb-5 {
+        margin-bottom: 14px !important;
+    }
+
+    #invoice-content .mt-5 {
+        margin-top: 14px !important;
     }
 
     /* Footer at bottom of page */

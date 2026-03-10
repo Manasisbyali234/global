@@ -78,6 +78,15 @@ function EmpTransactionsPage() {
         }
     };
 
+    const getReceiptNumber = (transaction, index) => {
+        const date = transaction?.createdAt ? new Date(transaction.createdAt) : new Date();
+        const year = date.getFullYear();
+        const safeIndex = Number.isFinite(index) && index >= 0 ? index + 1 : 1;
+        const rawSerial = transaction?.receiptSerial ?? safeIndex;
+        const serial = String(rawSerial).slice(-2).padStart(2, '0');
+        return `${serial}/${year}-${year + 1}`;
+    };
+
     const formatDate = (dateString) => {
         return formatDate(dateString);
     };
@@ -245,7 +254,7 @@ function EmpTransactionsPage() {
                                             <div className="text-end">
                                                 <h3 className="mb-2 text-primary fw-bold">TRANSACTION INVOICE</h3>
                                                 <div className="text-muted small">
-                                                    <p className="mb-1"><strong>Receipt No:</strong> REC-{selectedTransaction?.paymentId?.slice(-8).toUpperCase()}</p>
+                                                    <p className="mb-1"><strong>Receipt No:</strong> {getReceiptNumber(selectedTransaction, transactions.findIndex((t) => t?._id === selectedTransaction?._id))}</p>
                                                     <p className="mb-1"><strong>Date:</strong> {formatDate(selectedTransaction?.createdAt)}</p>
                                                     <p className="mb-0"><strong>Status:</strong> <span className="badge bg-success text-uppercase">Paid</span></p>
                                                 </div>

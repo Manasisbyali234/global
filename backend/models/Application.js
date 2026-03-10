@@ -98,7 +98,8 @@ const applicationSchema = new mongoose.Schema({
   paymentId: { type: String },
   orderId: { type: String },
   paymentAmount: { type: Number },
-  paymentCurrency: { type: String, default: 'INR' }
+  paymentCurrency: { type: String, default: 'INR' },
+  receiptSerial: { type: Number }
 }, {
   timestamps: true
 });

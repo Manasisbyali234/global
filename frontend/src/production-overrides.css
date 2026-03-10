@@ -128,6 +128,15 @@ body, html {
     border-radius: 16px !important;
 }
 
+/* Ensure job titles start with a capital letter */
+.home-job-card .card-job-title::first-letter,
+.new-job-card .job-title::first-letter,
+.job-card .job-header h3::first-letter,
+.twm-job-title::first-letter,
+h4.twm-job-title::first-letter {
+    text-transform: uppercase !important;
+}
+
 /* Protect against FontAwesome or other icon library interference */
 .home-job-card .card-location i,
 .job-card i,

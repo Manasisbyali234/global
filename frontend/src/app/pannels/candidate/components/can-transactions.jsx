@@ -89,6 +89,15 @@ function CanTransactionsPage() {
         }
     };
 
+    const getReceiptNumber = (transaction, index) => {
+        const date = transaction?.createdAt ? new Date(transaction.createdAt) : new Date();
+        const year = date.getFullYear();
+        const safeIndex = Number.isFinite(index) && index >= 0 ? index + 1 : 1;
+        const rawSerial = transaction?.receiptSerial ?? safeIndex;
+        const serial = String(rawSerial).slice(-2).padStart(2, '0');
+        return `${serial}/${year}-${year + 1}`;
+    };
+
     const handlePrintReceipt = () => {
         const printContent = document.getElementById('invoice-content');
         if (!printContent) return;
@@ -108,6 +117,25 @@ function CanTransactionsPage() {
                         .text-primary { color: #f97316 !important; }
                         .badge { padding: 4px 8px; border-radius: 4px; }
                         .bg-success { background-color: #e6f4ea !important; color: #1e7e34 !important; }
+                        @page { size: A4; margin: 10mm; }
+                        #invoice-content { padding: 0 !important; font-size: 11px !important; line-height: 1.35 !important; }
+                        #invoice-content h3 { font-size: 16px !important; }
+                        #invoice-content h5,
+                        #invoice-content h6 { font-size: 13px !important; }
+                        #invoice-content .text-muted,
+                        #invoice-content small,
+                        #invoice-content .small { font-size: 10.5px !important; }
+                        #invoice-content .receipt-table,
+                        #invoice-content table { width: 100% !important; min-width: 0 !important; font-size: 11px !important; }
+                        #invoice-content .receipt-table th,
+                        #invoice-content .receipt-table td,
+                        #invoice-content table th,
+                        #invoice-content table td { padding: 6px 8px !important; }
+                        #invoice-content .border-bottom { margin-bottom: 10px !important; padding-bottom: 10px !important; }
+                        #invoice-content .mb-3 { margin-bottom: 10px !important; }
+                        #invoice-content .mb-4 { margin-bottom: 12px !important; }
+                        #invoice-content .mb-5 { margin-bottom: 14px !important; }
+                        #invoice-content .mt-5 { margin-top: 14px !important; }
                     </style>
                 </head>
                 <body>
@@ -335,7 +363,7 @@ function CanTransactionsPage() {
                                             <div className="text-start text-md-end" style={{ flex: '1 1 auto' }}>
                                                 <h3 className="mb-2 text-primary fw-bold" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.75rem)' }}>PAYMENT RECEIPT</h3>
                                                 <div className="text-muted" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                                                    <p className="mb-1"><strong>Receipt No:</strong> REC-{selectedTransaction?.paymentId?.slice(-8).toUpperCase()}</p>
+                                                    <p className="mb-1"><strong>Receipt No:</strong> {getReceiptNumber(selectedTransaction, transactions.findIndex((t) => t?._id === selectedTransaction?._id))}</p>
                                                     <p className="mb-1"><strong>Date:</strong> {formatDate(selectedTransaction?.createdAt)}</p>
                                                     <p className="mb-0">
                                                         <strong>Status:</strong>{' '}

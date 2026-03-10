@@ -178,6 +178,12 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
 
     const JobCard = memo(({ job, index }) => {
         const cardRef = useRef(null);
+        const formatTitle = (value) => {
+            if (!value || typeof value !== "string") return "Job title";
+            const trimmed = value.trim();
+            if (!trimmed) return "Job title";
+            return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+        };
         const { limitReached, isExpired, isEnded } = useMemo(() => {
             const applicationCount = Number(job?.applicationCount || 0);
             const applicationLimit = Number(job?.applicationLimit || 0);
@@ -279,7 +285,7 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                                 )}
                             </div>
                             <div className="job-info">
-                                <h4 className="job-title">{job.title}</h4>
+                                <h4 className="job-title">{formatTitle(job.title)}</h4>
                                 <div className="job-location">
                                     <i className="feather-map-pin" />
                                     {(() => {

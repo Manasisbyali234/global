@@ -59,6 +59,12 @@ function Home16Page() {
         }
         return `data:image/jpeg;base64,${trimmed}`;
     };
+    const formatJobTitle = (value) => {
+        if (!value || typeof value !== "string") return "Job title";
+        const trimmed = value.trim();
+        if (!trimmed) return "Job title";
+        return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+    };
 
     const [jobs, setJobs] = useState([]);
     const [allJobs, setAllJobs] = useState([]);
@@ -1002,7 +1008,7 @@ function Home16Page() {
                                                             minWidth: 0,
                                                             overflow: 'hidden'
                                                         }}>
-                                                            <h4 className="job-title">{job.title}</h4>
+                                                            <h4 className="job-title">{formatJobTitle(job.title)}</h4>
                                                             <div className="job-location" title={Array.isArray(job.location) ? job.location.filter(loc => loc && loc.trim()).join(', ') : job.location}>
                                                                 <i className="feather-map-pin" />
                                                                 {(() => {

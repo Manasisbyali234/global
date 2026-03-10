@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const Candidate = require('../models/Candidate');
 const Job = require('../models/Job');
 const Application = require('../models/Application');
+const Counter = require('../models/Counter');
 const CandidateProfile = require('../models/CandidateProfile');
 const { sendJobApplicationConfirmationEmail } = require('../utils/emailService');
 
@@ -19,6 +20,15 @@ const getRazorpay = () => {
 };
 
 const APPLICATION_FEE = 129; // Amount in INR
+
+const getNextReceiptSerial = async () => {
+  const counter = await Counter.findOneAndUpdate(
+    { key: 'receipt_serial' },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  return counter.seq;
+};
 
 exports.getPublicKey = (req, res) => {
   res.json({ success: true, publicKey: process.env.RAZORPAY_KEY_ID });
@@ -101,6 +111,7 @@ exports.verifyPayment = async (req, res) => {
 
       const profile = await CandidateProfile.findOne({ candidateId: req.user._id });
       
+      const receiptSerial = existingUnpaidApplication?.receiptSerial || await getNextReceiptSerial();
       const applicationData = {
         jobId,
         candidateId: req.user._id,
@@ -109,7 +120,8 @@ exports.verifyPayment = async (req, res) => {
         paymentStatus: 'paid',
         paymentId: razorpay_payment_id,
         orderId: razorpay_order_id,
-        paymentAmount: APPLICATION_FEE
+        paymentAmount: APPLICATION_FEE,
+        receiptSerial
       };
 
       if (profile && profile.resume) {
@@ -248,6 +260,7 @@ exports.applyWithCredits = async (req, res) => {
     // 5. Create application
     const profile = await CandidateProfile.findOne({ candidateId });
     
+    const receiptSerial = existingUnpaidApplication?.receiptSerial || await getNextReceiptSerial();
     const applicationData = {
       jobId,
       candidateId,
@@ -257,7 +270,8 @@ exports.applyWithCredits = async (req, res) => {
       paymentId: `credit_${Date.now()}_${candidateId.toString().slice(-6)}`,
       orderId: `credit_order_${Date.now()}`,
       paymentAmount: 0, // Paid via credits
-      paymentCurrency: 'CREDITS'
+      paymentCurrency: 'CREDITS',
+      receiptSerial
     };
 
     if (profile && profile.resume) {

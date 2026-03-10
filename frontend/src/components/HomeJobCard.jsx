@@ -91,7 +91,13 @@ const resolveLogoSrc = (logoValue) => {
 };
 
 const HomeJobCard = ({ job }) => {
-    const title = job?.title || "Job title";
+    const formatTitle = (value) => {
+        if (!value || typeof value !== "string") return "Job title";
+        const trimmed = value.trim();
+        if (!trimmed) return "Job title";
+        return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+    };
+    const title = formatTitle(job?.title);
     const rawLocation = job?.location || job?.city || "Location not specified";
     const jobType = job?.jobType || job?.type || "Full-time";
     const jobTypeClass = sanitizeJobTypeClass(jobType);
