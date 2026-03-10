@@ -1205,23 +1205,23 @@ function CanStatusPage() {
 																			onClick={() => handleOfferResponse(app._id, 'accepted')}
 																			title="Accept Offer"
 																		>
-																			<i className="fa fa-check"></i> Accept
+																			<i className="fa fa-check"></i>
 																		</button>
 																		<button 
 																			className="btn btn-sm btn-danger" 
 																			onClick={() => handleOfferResponse(app._id, 'rejected')}
 																			title="Reject Offer"
 																		>
-																			<i className="fa fa-times"></i> Reject
+																			<i className="fa fa-times"></i>
 																		</button>
 																	</div>
 																) : app.status === 'accepted' ? (
-																	<span className="text-success fw-bold">
-																		<i className="fa fa-check-circle me-1"></i> Accepted
+																	<span className="text-success fw-bold" title="Accepted">
+																		<i className="fa fa-check-circle"></i>
 																	</span>
 																) : app.status === 'rejected' && app.statusHistory?.some(h => h.status === 'offer_sent') ? (
-																	<span className="text-danger fw-bold">
-																		<i className="fa fa-times-circle me-1"></i> Offer Rejected
+																	<span className="text-danger fw-bold" title="Offer Rejected">
+																		<i className="fa fa-times-circle"></i>
 																	</span>
 																) : (
 																	<span className="text-muted small">-</span>

@@ -1369,7 +1369,8 @@ exports.respondToOffer = async (req, res) => {
       type: 'offer_response',
       role: 'employer',
       relatedId: application._id,
-      recipientId: application.employerId
+      recipientId: application.employerId,
+      createdBy: req.user._id
     });
 
     res.json({ success: true, message: `Offer ${status} successfully`, application });
