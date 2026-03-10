@@ -358,6 +358,7 @@ export default function EmpPostJob({ onNext }) {
 	const [showSubStageConfirm, setShowSubStageConfirm] = useState(null);
 	const [scheduledRounds, setScheduledRounds] = useState({});
 	const [interviewRoundIds, setInterviewRoundIds] = useState({}); // Store created InterviewRound IDs
+	const [interviewModal, setInterviewModal] = useState({ isOpen: false, url: '', title: '' });
 	const isAssessmentFirst = Boolean(
 		formData?.interviewRoundOrder?.length &&
 		formData.interviewRoundTypes?.[formData.interviewRoundOrder[0]] === 'assessment'
@@ -4798,7 +4799,12 @@ export default function EmpPostJob({ onNext }) {
 																const interviewRound = await response.json();
 																setInterviewRoundIds(prev => ({ ...prev, [uniqueKey]: interviewRound._id }));
 																showSuccess('Interview scheduled successfully!');
-																window.open(`https://schedule.taleglobal.net/rounds/${interviewRound._id}`, '_blank');
+																// Open in modal instead of new window
+																setInterviewModal({
+																	isOpen: true,
+																	url: `https://schedule.taleglobal.net/rounds/${interviewRound._id}`,
+																	title: `Schedule Interview - ${displayName}`
+																});
 															} else {
 																showError('Failed to create interview round');
 															}
@@ -5421,6 +5427,25 @@ export default function EmpPostJob({ onNext }) {
 							>
 								Yes
 							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Interview Scheduling Modal */}
+			{interviewModal.isOpen && (
+				<div className="document-modal-overlay" onClick={() => setInterviewModal({ isOpen: false, url: '', title: '' })}>
+					<div className="document-modal-container" onClick={e => e.stopPropagation()}>
+						<div className="document-modal-header">
+							<h3>{interviewModal.title}</h3>
+							<div className="modal-controls">
+								<button className="modal-btn close" onClick={() => setInterviewModal({ isOpen: false, url: '', title: '' })}>
+									<i className="fas fa-times"></i>
+								</button>
+							</div>
+						</div>
+						<div className="document-modal-body">
+							<iframe src={interviewModal.url} title={interviewModal.title} />
 						</div>
 					</div>
 				</div>
