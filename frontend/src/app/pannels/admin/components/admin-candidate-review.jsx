@@ -278,15 +278,7 @@ function AdminCandidateReviewPage() {
 
             {/* Profile Card */}
             <div className="profile-card">
-                {candidate.applications?.some(app => app.status === 'accepted') && (
-                    <div className="alert alert-success mx-4 mt-4 mb-0 d-flex align-items-center" style={{ borderRadius: '8px' }}>
-                        <i className="fas fa-check-circle me-3 fa-lg"></i>
-                        <div>
-                            <strong>Action Required:</strong> Candidate has <strong>Accepted</strong> an offer. 
-                            Please coordinate with the employer ({candidate.applications.find(app => app.status === 'accepted')?.employerId?.companyName}) for further processing.
-                        </div>
-                    </div>
-                )}
+
                 <div className="profile-header">
                     <div className="profile-avatar">
                         {profileImageSrc ? (
