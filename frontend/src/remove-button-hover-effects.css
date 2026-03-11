@@ -157,6 +157,49 @@ a.site-button:hover {
  * ENSURE EYE AND EDIT ICONS ARE ALWAYS ORANGE AND HAVE NO HOVER BACKGROUND
  * ============================================================================ */
 
+/* Center action icons inside table cells */
+.twm-table-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.twm-table-controls .twm-DT-controls-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  gap: 6px;
+}
+
+.twm-table-controls .twm-DT-controls-icon li {
+  margin: 0;
+  padding: 0;
+}
+
+.twm-table-controls .twm-DT-controls-icon li button,
+.twm-table-controls .twm-DT-controls-icon li a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 991px) {
+  .table-responsive .twm-table-controls,
+  .table .twm-table-controls,
+  table.table .twm-table-controls {
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .table-responsive .twm-table-controls .twm-DT-controls-icon,
+  .table .twm-table-controls .twm-DT-controls-icon,
+  table.table .twm-table-controls .twm-DT-controls-icon {
+    justify-content: center !important;
+  }
+}
+
 /* Specific override for transaction table action icons and general table eye icons */
 .twm-table tbody tr td button:hover .fa,
 .twm-table tbody tr td a:hover .fa,

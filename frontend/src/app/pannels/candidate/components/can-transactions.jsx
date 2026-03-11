@@ -252,7 +252,7 @@ function CanTransactionsPage() {
                                         <th className="d-none d-lg-table-cell" style={{ minWidth: '120px' }}>Payment ID</th>
                                         <th style={{ minWidth: '80px' }}>Amount</th>
                                         <th style={{ minWidth: '80px' }}>Status</th>
-                                        <th style={{ minWidth: '70px' }}>Action</th>
+                                        <th className="text-center" style={{ minWidth: '70px' }}>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -287,8 +287,8 @@ function CanTransactionsPage() {
                                                         {statusDisplay.label}
                                                     </span>
                                                 </td>
-                                                <td>
-                                                    <div className="twm-table-controls">
+                                                <td className="text-center align-middle">
+                                                    <div className="twm-table-controls d-flex justify-content-center">
                                                         <ul className="twm-DT-controls-icon list-unstyled">
                                                             <li>
                                                                 <button 
@@ -391,22 +391,22 @@ function CanTransactionsPage() {
                                             </div>
                                             <div className="col-12 col-md-6 text-start text-md-end">
                                                 <p className="text-muted mb-2 fw-bold text-uppercase border-bottom pb-1" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.875rem)' }}>Payment Info</p>
-                                                <div style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                                                    <div className="d-flex justify-content-end mb-1">
-                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Method:</span>
-                                                        <span className="text-dark fw-bold ms-2">{getPaymentMethodInfo(paymentDetails)}</span>
+                                                <div className="payment-info" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                                                    <div className="d-flex justify-content-end mb-1 payment-info-row">
+                                                        <span className="text-muted payment-info-label" style={{ minWidth: '100px' }}>Method:</span>
+                                                        <span className="text-dark fw-bold ms-2 payment-info-value">{getPaymentMethodInfo(paymentDetails)}</span>
                                                     </div>
-                                                    <div className="d-flex justify-content-end mb-1">
-                                                        <div className="d-flex flex-column">
-                                                       <span className="text-muted">Transaction ID:</span>
-                                                         <span className="text-dark fw-bold">
-                                                          {selectedTransaction?.paymentId}
-                                                          </span>
-                                                     </div>
+                                                    <div className="d-flex justify-content-end mb-1 payment-info-row">
+                                                        <div className="d-flex flex-column payment-info-value">
+                                                            <span className="text-muted payment-info-label">Transaction ID:</span>
+                                                            <span className="text-dark fw-bold">
+                                                                {selectedTransaction?.paymentId}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <div className="d-flex justify-content-end mb-0">
-                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Order ID:</span>
-                                                        <span className="text-dark fw-bold ms-2">{selectedTransaction?.orderId}</span>
+                                                    <div className="d-flex justify-content-end mb-0 payment-info-row">
+                                                        <span className="text-muted payment-info-label" style={{ minWidth: '100px' }}>Order ID:</span>
+                                                        <span className="text-dark fw-bold ms-2 payment-info-value">{selectedTransaction?.orderId}</span>
                                                     </div>
                                                 </div>
                                             </div>

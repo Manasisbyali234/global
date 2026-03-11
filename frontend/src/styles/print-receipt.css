@@ -237,6 +237,29 @@ button.receipt-print-btn:visited {
     color: #ffffff !important;
 }
 
+/* Mobile alignment for payment info on receipt */
+@media (max-width: 575.98px) {
+    #invoice-content .payment-info {
+        text-align: left !important;
+    }
+
+    #invoice-content .payment-info-row {
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+        flex-direction: column !important;
+        gap: 4px;
+    }
+
+    #invoice-content .payment-info-label {
+        min-width: 0 !important;
+    }
+
+    #invoice-content .payment-info-value {
+        margin-left: 0 !important;
+        word-break: break-word;
+    }
+}
+
 /* Candidate receipt table polish */
 #invoice-content .receipt-table {
     border-collapse: separate;
