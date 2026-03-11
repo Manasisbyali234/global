@@ -370,6 +370,17 @@ function EmpCandidateReviewPage() {
         return interviewProcesses.some(p => p.status === 'shortlisted_for_next_round');
     };
 
+    const hasNegativeStatus = () => {
+        const negativeStatuses = new Set(['rejected', 'no_show', 'pending_decision', 'on_hold', 'pending']);
+        return interviewProcesses.some(p => negativeStatuses.has(p.status));
+    };
+
+    const isFinalStageShortlisted = () => {
+        if (interviewProcesses.length === 0) return false;
+        const lastProcess = interviewProcesses[interviewProcesses.length - 1];
+        return lastProcess?.status === 'shortlisted_for_next_round';
+    };
+
     const updateProcessCompletion = (processId, isCompleted) => {
         setInterviewProcesses(prev => 
             prev.map(p => p.id === processId ? { ...p, isCompleted } : p)
@@ -658,10 +669,7 @@ function EmpCandidateReviewPage() {
                                                                                 } : p)
                                                                             );
                                                                             
-                                                                            // If rejected in any stage, update overall application status
-                                                                            if (newStatus === 'rejected') {
-                                                                                updateApplicationStatus('rejected');
-                                                                            }
+                                                                            // Do not auto-update overall status when a stage is rejected
                                                                         }}
                                                                         disabled={isCurrentDisabled}
                                                                     >
@@ -803,7 +811,16 @@ function EmpCandidateReviewPage() {
                                                     <div>Candidate has Accepted the Offer</div>
                                                 </div>
                                             )}
-                                            {(allProcessesCompleted() && allStagesHaveRemarks() && hasShortlistedForNextRound() || application.status === 'accepted') && (
+                                            {hasNegativeStatus() ? (
+                                                <>
+                                                    <button 
+                                                        className={`${application.status === 'rejected' ? 'active' : ''}`}
+                                                        onClick={() => updateApplicationStatus('rejected')}
+                                                    >
+                                                        <i className="fas fa-times"></i> Reject
+                                                    </button>
+                                                </>
+                                            ) : isFinalStageShortlisted() ? (
                                                 <>
                                                     {application.status !== 'accepted' && application.status !== 'hired' && (
                                                         <button 
@@ -813,32 +830,55 @@ function EmpCandidateReviewPage() {
                                                             <i className="fas fa-check"></i> Shortlist
                                                         </button>
                                                     )}
-                                                    <button 
-                                                        className={`${application.status === 'hired' ? 'active' : ''}`}
-                                                        onClick={() => updateApplicationStatus('hired')}
-                                                    >
-                                                        <i className="fas fa-briefcase"></i> Mark as Hired
-                                                    </button>
+                                                    {application.status !== 'hired' && application.status !== 'accepted' && (
+                                                        <button 
+                                                            className={`${application.status === 'offer_sent' ? 'active' : ''}`}
+                                                            onClick={() => updateApplicationStatus('offer_sent')}
+                                                        >
+                                                            <i className="fas fa-envelope"></i> Offer Letter Sent
+                                                        </button>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {(allProcessesCompleted() && allStagesHaveRemarks() && hasShortlistedForNextRound() || application.status === 'accepted') && (
+                                                        <>
+                                                            {application.status !== 'accepted' && application.status !== 'hired' && (
+                                                                <button 
+                                                                    className={`${application.status === 'shortlisted' ? 'active shortlisted-btn' : ''}`}
+                                                                    onClick={() => updateApplicationStatus('shortlisted')}
+                                                                >
+                                                                    <i className="fas fa-check"></i> Shortlist
+                                                                </button>
+                                                            )}
+                                                            <button 
+                                                                className={`${application.status === 'hired' ? 'active' : ''}`}
+                                                                onClick={() => updateApplicationStatus('hired')}
+                                                            >
+                                                                <i className="fas fa-briefcase"></i> Mark as Hired
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {application.status !== 'hired' && application.status !== 'accepted' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
+                                                        <button 
+                                                            className={`${application.status === 'offer_sent' ? 'active' : ''}`}
+                                                            onClick={() => updateApplicationStatus('offer_sent')}
+                                                        >
+                                                            <i className="fas fa-envelope"></i> Offer Letter Sent
+                                                        </button>
+                                                    )}
+                                                    {application.status !== 'shortlisted' && application.status !== 'hired' && application.status !== 'accepted' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
+                                                        <button 
+                                                            className={`${application.status === 'rejected' ? 'active' : ''}`}
+                                                            onClick={() => updateApplicationStatus('rejected')}
+                                                        >
+                                                            <i className="fas fa-times"></i> Reject
+                                                        </button>
+                                                    )}
                                                 </>
                                             )}
-                                            {application.status !== 'hired' && application.status !== 'accepted' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
-                                                <button 
-                                                    className={`${application.status === 'offer_sent' ? 'active' : ''}`}
-                                                    onClick={() => updateApplicationStatus('offer_sent')}
-                                                >
-                                                    <i className="fas fa-envelope"></i> Offer Letter Sent
-                                                </button>
-                                            )}
-                                            {application.status !== 'shortlisted' && application.status !== 'hired' && application.status !== 'accepted' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
-                                                <button 
-                                                    className={`${application.status === 'rejected' ? 'active' : ''}`}
-                                                    onClick={() => updateApplicationStatus('rejected')}
-                                                >
-                                                    <i className="fas fa-times"></i> Reject
-                                                </button>
-                                            )}
                                         </div>
-                                        {application.status !== 'accepted' && application.status !== 'hired' && (!allProcessesCompleted() || !allStagesHaveRemarks() || !hasShortlistedForNextRound()) && (
+                                        {application.status !== 'accepted' && application.status !== 'hired' && !hasNegativeStatus() && !isFinalStageShortlisted() && (!allProcessesCompleted() || !allStagesHaveRemarks() || !hasShortlistedForNextRound()) && (
                                             <p className="warning-text">
                                                 {!allStagesHaveRemarks() 
                                                     ? 'Please add remarks for all stages to enable actions.' 
