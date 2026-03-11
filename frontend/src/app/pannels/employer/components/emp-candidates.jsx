@@ -110,6 +110,14 @@ function EmpCandidatesPage() {
 
 
   // Derived filtering
+  const filteredCompanies = useMemo(() => {
+    if (!searchText || searchText.trim().length < 3) return [];
+    const q = searchText.trim().toLowerCase();
+    return companies.filter(company => 
+      company && typeof company === "string" && company.toLowerCase().includes(q)
+    );
+  }, [companies, searchText]);
+
   const filteredApplications = useMemo(() => {
     const q = searchText.trim().toLowerCase();
     return applications.filter((application) => {

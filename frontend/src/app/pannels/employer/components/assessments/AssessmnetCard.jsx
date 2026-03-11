@@ -22,16 +22,7 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					</h6>
 				</div>
 				
-				{/* Designation - Second */}
-				{data.designation && (
-					<div className="mb-2" style={{maxWidth: '100%', overflow: 'hidden'}}>
-						<h6 className="fw-bold mb-1" style={{fontSize: '14px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', wordBreak: 'break-word'}}>
-							<span style={{color: '#8B7355'}}>Designation:</span> <span className="text-primary" style={{wordWrap: 'break-word', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{data.designation}</span>
-						</h6>
-					</div>
-				)}
-				
-				{/* Company Name - Third (for consultancy) */}
+				{/* Company Name - Second */}
 				{data.companyName && (
 					<div className="mb-2" style={{maxWidth: '100%', overflow: 'hidden'}}>
 						<h6 className="fw-bold mb-1" style={{fontSize: '14px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -40,12 +31,24 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					</div>
 				)}
 				
-				{/* Assessment Type Badge */}
-				<div className="d-flex justify-content-end mb-2">
-					<span className="btn btn-sm btn-outline-primary" style={{pointerEvents: 'none', cursor: 'default', fontSize: '10px', padding: '1px 6px', lineHeight: '1.2', whiteSpace: 'normal', wordWrap: 'break-word'}}>
-						{data.type}
-					</span>
-				</div>
+				{/* Designation - Third */}
+				{data.designation && (
+					<div className="mb-2" style={{maxWidth: '100%', overflow: 'hidden'}}>
+						<h6 className="fw-bold mb-1" style={{fontSize: '14px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', wordBreak: 'break-word'}}>
+							<span style={{color: '#8B7355'}}>Designation:</span> <span className="text-primary" style={{wordWrap: 'break-word', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{data.designation}</span>
+						</h6>
+					</div>
+				)}
+				
+				{/* Assessment Title - Fourth */}
+				{data.title && (
+					<div className="mb-2" style={{maxWidth: '100%', overflow: 'hidden'}}>
+						<h6 className="fw-bold mb-1" style={{fontSize: '14px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', wordBreak: 'break-word'}}>
+							<span style={{color: '#8B7355'}}>Assessment Title:</span> <span className="text-primary" style={{wordWrap: 'break-word', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{data.title}</span>
+						</h6>
+					</div>
+				)}
+				
 				
 				{/* Created Date */}
 				<div className="mb-2">

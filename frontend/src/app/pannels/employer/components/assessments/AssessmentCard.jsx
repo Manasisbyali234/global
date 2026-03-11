@@ -23,7 +23,16 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					</h6>
 				</div>
 				
-				{/* Designation - Second */}
+				{/* Company Name - Second */}
+				{data.companyName && (
+					<div className="mb-2">
+						<h6 className="fw-bold mb-1" style={{fontSize: '14px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal'}}>
+							<span style={{color: '#8B7355'}}>Company:</span> <span className="text-primary">{data.companyName}</span>
+						</h6>
+					</div>
+				)}
+				
+				{/* Designation - Third */}
 				{data.designation && (
 					<div className="mb-2">
 						<h6 className="fw-bold mb-1" style={{
@@ -41,18 +50,14 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					</div>
 				)}
 				
-				{/* Company Name - Third (for consultancy) */}
-				{data.companyName && (
+				{/* Assessment Title - Fourth */}
+				{data.title && (
 					<div className="mb-2">
 						<h6 className="fw-bold mb-1" style={{fontSize: '14px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal'}}>
-							<span style={{color: '#8B7355'}}>Company:</span> <span className="text-primary">{data.companyName}</span>
+							<span style={{color: '#8B7355'}}>Assessment Title:</span> <span className="text-primary">{data.title}</span>
 						</h6>
 					</div>
 				)}
-				
-				{/* Assessment Title - Fourth */}
-				<div className="d-flex justify-content-between align-items-start mb-2">
-				</div>
 				
 				{/* Created Date */}
 				<div className="mb-2">

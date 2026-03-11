@@ -888,7 +888,7 @@ function CanStatusPage() {
 												</th>
 												<th className="border-0 px-4 py-3 fw-semibold text-center" style={{color: '#232323'}}>
 													<i className="fa fa-eye me-2" style={{color: '#ff6b35'}}></i>
-													View Details
+													Book Slots
 												</th>
 												<th className="border-0 px-4 py-3 fw-semibold text-center" style={{color: '#232323'}}>
 													<i className="fa fa-handshake me-2" style={{color: '#ff6b35'}}></i>
@@ -1190,11 +1190,10 @@ function CanStatusPage() {
 																			}
 																		}}
 																		title="View all interview process details"
-																		aria-label="View interviews/Assessment"
+																		aria-label="View interviews"
 																	>
 																		<span>View</span>
-																		<span>Interviews/</span>
-																		<span>Assessement</span>
+																		<span>Interviews</span>
 																	</div>
 																</div>
 															</td>
