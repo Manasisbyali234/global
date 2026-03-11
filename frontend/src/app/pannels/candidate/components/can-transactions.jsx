@@ -152,7 +152,16 @@ function CanTransactionsPage() {
 
     const filteredTransactions = useMemo(() => {
         const q = searchText.trim().toLowerCase();
+        const isCreditTransaction =
+            (t) =>
+                String(t?.paymentId || '').startsWith('credit_') ||
+                String(t?.orderId || '').startsWith('credit_order_') ||
+                String(t?.paymentCurrency || '').toUpperCase() === 'CREDITS' ||
+                Number(t?.paymentAmount) === 0;
         return transactions.filter((t) => {
+            if (isCreditTransaction(t)) {
+                return false;
+            }
             const jobTitle = t.jobId?.title?.toLowerCase() || "";
             const employerName = t.employerId?.companyName?.toLowerCase() || "";
             const paymentId = t.paymentId?.toLowerCase() || "";

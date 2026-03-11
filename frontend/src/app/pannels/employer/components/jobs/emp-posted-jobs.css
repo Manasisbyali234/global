@@ -76,6 +76,75 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
+/* Align status badge to the left of the action buttons */
+.emp-posted-jobs-page .job-card-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: nowrap !important;
+}
+
+.emp-posted-jobs-page .job-card-action-buttons {
+  align-items: flex-end !important;
+  flex-wrap: nowrap !important;
+  height: 100% !important;
+  justify-content: flex-start !important;
+}
+
+.emp-posted-jobs-page .job-card-eye-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+}
+
+.emp-posted-jobs-page .job-card-eye-row .badge {
+  margin: 0 !important;
+}
+
+.emp-posted-jobs-page .start-interview-btn {
+  margin-top: 0 !important;
+  font-weight: 600 !important;
+}
+
+/* Let the action column stretch to full card height */
+.emp-posted-jobs-page .job-card-actions {
+  height: 100% !important;
+  align-items: stretch !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-card {
+  align-items: stretch !important;
+}
+
+/* Push inline start interview button to the right in the bottom meta row */
+
+.emp-posted-jobs-page .start-interview-btn:hover,
+.emp-posted-jobs-page .start-interview-btn:focus {
+  color: #ffffff !important;
+}
+
+/* Force start interview button theme over global btn-primary overrides */
+/* Match the outline theme of the eye button */
+.emp-posted-jobs-page .job-card-action-buttons .start-interview-btn.btn.btn-outline-primary.btn-sm {
+  background-color: transparent !important;
+  border-color: #FF7A00 !important;
+  color: #FF7A00 !important;
+}
+
+.emp-posted-jobs-page .job-card-action-buttons .start-interview-btn.btn.btn-outline-primary.btn-sm:hover,
+.emp-posted-jobs-page .job-card-action-buttons .start-interview-btn.btn.btn-outline-primary.btn-sm:focus {
+  background-color: rgba(255, 122, 0, 0.08) !important;
+  border-color: #FF7A00 !important;
+  color: #FF7A00 !important;
+}
+
+/* Prevent global gap-2 spacing from pushing badge off alignment */
+.emp-posted-jobs-page .job-card-actions.gap-2 > * {
+  margin-bottom: 0 !important;
+}
+
 /* Responsive paddings to match dashboard */
 @media (max-width: 992px) {
   .emp-posted-jobs-page .wt-admin-right-page-header { 
@@ -144,7 +213,8 @@
   }
   
   /* Keep action buttons on the right with proper alignment */
-  .emp-posted-jobs-page .manage-jobs-card > .d-flex:last-child {
+  .emp-posted-jobs-page .manage-jobs-card > .d-flex:last-child,
+  .emp-posted-jobs-page .manage-jobs-card .job-card-actions {
     flex-direction: row !important;
     align-items: center !important;
     gap: 0.5rem !important;

@@ -468,10 +468,9 @@ function SectionCandidateOverview() {
 		clickable: false
 	};
 
-	// Show credits for placement candidates or those with a placement officer
+	// Show credits only for placement candidates with a positive credit balance
 	const hasCredits = candidate.registrationMethod === 'placement' || candidate.placement;
-	// Only show credits if candidate is from placement or has a placement officer
-	const shouldShowCredits = hasCredits;
+	const shouldShowCredits = hasCredits && Number(candidate.credits || 0) > 0;
 	
 	// Debug logging
 	console.log('Credits display debug:', {
