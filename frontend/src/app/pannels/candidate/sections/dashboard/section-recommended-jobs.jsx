@@ -164,20 +164,6 @@ function SectionRecommendedJobs() {
                                     >
                                         {job.jobType?.replace('-', ' ') || 'Full Time'}
                                     </span>
-                                    {job.matchScore && (
-                                        <span 
-                                            className="badge"
-                                            style={{
-                                                backgroundColor: job.matchScore >= 70 ? '#dcfdf7' : job.matchScore >= 40 ? '#fef3c7' : '#fee2e2',
-                                                color: job.matchScore >= 70 ? '#065f46' : job.matchScore >= 40 ? '#92400e' : '#991b1b',
-                                                fontSize: '0.7rem',
-                                                fontWeight: '600',
-                                                padding: '0.25rem 0.5rem'
-                                            }}
-                                        >
-                                            {job.matchScore}% match
-                                        </span>
-                                    )}
                                 </div>
                             </div>
                             <div className="flex-grow-1">

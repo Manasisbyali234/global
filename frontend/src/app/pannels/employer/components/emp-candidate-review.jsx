@@ -634,7 +634,8 @@ function EmpCandidateReviewPage() {
                                                     const isPreviousIncomplete = interviewProcesses.slice(0, index).some(p => 
                                                         !processRemarks[p.id]?.trim() || 
                                                         !p.status || 
-                                                        p.status === 'pending'
+                                                        p.status === 'pending' ||
+                                                        p.status !== 'shortlisted_for_next_round'
                                                     );
                                                     const isCurrentDisabled = isPreviousRejected || isPreviousIncomplete || (application.status === 'rejected' && process.status !== 'rejected');
 

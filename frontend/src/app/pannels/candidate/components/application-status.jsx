@@ -613,7 +613,7 @@ function CanStatusPage() {
 			
 			// Check if assessment window hasn't started yet (only in popup)
 			if (isPopup && windowInfo.isBeforeStart && (status === 'available' || status === 'not_required' || status === 'pending')) {
-				return { text: 'Not Started', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
+				return { text: 'Assessment scheduled. Test will open on the scheduled date and time.', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
 			
 			// Map all possible assessment status values
@@ -624,7 +624,7 @@ function CanStatusPage() {
 				'expired': { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'pending': { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
 				'not_required': { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
-				'not_started': { text: 'Not Started', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
+				'not_started': { text: 'Assessment scheduled. Test will open on the scheduled date and time.', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
 			};
 			
 			const result = statusMappings[status];
@@ -1790,6 +1790,10 @@ function CanStatusPage() {
 													const buttonLabel = hasBookedSlot ? 'Join Now' : 'Book Your Slot';
 													const buttonIcon = hasBookedSlot ? 'fa-video-camera' : 'fa-calendar';
 													let canBookThisRound = true;
+													const assessmentResult = String(selectedApplication.assessmentResult || '').toLowerCase();
+													const assessmentStatus = String(selectedApplication.assessmentStatus || '').toLowerCase();
+													const assessmentFailed = assessmentResult === 'fail' || assessmentResult === 'failed' || assessmentStatus === 'failed';
+													const assessmentPassed = assessmentResult === 'pass' || assessmentResult === 'passed' || assessmentStatus === 'completed';
 
 													if (roundIndex > 0) {
 														const previousRound = roundsList[roundIndex - 1];
@@ -1846,12 +1850,32 @@ function CanStatusPage() {
 														const previousCompleted = completedStates.includes(previousStatusText);
 
 														canBookThisRound = isPreviousAssessment
-															? previousCompleted
+															? (previousCompleted && assessmentPassed && !assessmentFailed)
 															: isPreviousShortlisted;
 													}
 													
 													if (isCurrentRoundCompleted) {
 														return null;
+													}
+
+													if (assessmentFailed) {
+														return (
+															<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
+																<span
+																	className="badge"
+																	style={{
+																		fontSize: '13px',
+																		padding: '8px 12px',
+																		backgroundColor: '#fdeaea',
+																		color: '#c82333',
+																		border: '1px solid #c82333'
+																	}}
+																>
+																	<i className="fa fa-ban me-2"></i>
+																	Not eligible for next round (Assessment failed).
+																</span>
+															</div>
+														);
 													}
 
 													if (roundWindowInfo.isAfterEnd) {

@@ -129,6 +129,17 @@ function EmpCandidatesPage() {
     });
   }, [applications, searchText, statusFilter, genderFilter]);
 
+  const jobTitleOptions = useMemo(() => {
+    const titles = new Set();
+    applications.forEach((application) => {
+      const title = application.jobId?.title;
+      if (title && String(title).trim() !== "") {
+        titles.add(String(title).trim());
+      }
+    });
+    return Array.from(titles).sort((a, b) => a.localeCompare(b));
+  }, [applications]);
+
   return (
     <div className="twm-right-section-panel site-bg-gray emp-candidates-page" style={{
       width: '100%',
@@ -194,10 +205,16 @@ function EmpCandidatesPage() {
                 placeholder="Search applicants by name, email, or job"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
+                list="candidate-job-title-suggestions"
                 style={{ paddingLeft: '40px', borderRadius: '8px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', height: '44px', width: '100%' }}
                 onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
               />
+              <datalist id="candidate-job-title-suggestions">
+                {jobTitleOptions.map((title) => (
+                  <option key={title} value={title} />
+                ))}
+              </datalist>
             </div>
             <div className="d-flex gap-2 align-items-center">
               <select
