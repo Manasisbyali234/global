@@ -219,7 +219,21 @@ function CreateAssessmentPage() {
                                         <style>{`.assessment-card .card-body > *:first-child { display: none !important; }`}</style>
                                         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
                                             <div className="flex-grow-1 w-100">
-                                                <h6 className="text-primary mb-1" style={{fontWeight: '600', wordWrap: 'break-word', overflowWrap: 'break-word'}}>{assessment.designation}</h6>
+                                                {assessment.companyName && (
+                                                    <h6 className="mb-1" style={{fontSize: '14px', fontWeight: '600', wordWrap: 'break-word', overflowWrap: 'break-word'}}>
+                                                        <span style={{color: '#8B7355'}}>Company:</span> <span className="text-primary">{assessment.companyName}</span>
+                                                    </h6>
+                                                )}
+                                                {assessment.designation && (
+                                                    <h6 className="mb-1" style={{fontSize: '14px', fontWeight: '600', wordWrap: 'break-word', overflowWrap: 'break-word'}}>
+                                                        <span style={{color: '#8B7355'}}>Designation:</span> <span className="text-primary">{assessment.designation}</span>
+                                                    </h6>
+                                                )}
+                                                {assessment.title && (
+                                                    <h6 className="text-primary mb-1" style={{fontSize: '14px', fontWeight: '600', wordWrap: 'break-word', overflowWrap: 'break-word'}}>
+                                                        <span style={{color: '#8B7355'}}>Assessment Title:</span> {assessment.title}
+                                                    </h6>
+                                                )}
                                                 <p className="card-text mb-2 text-muted" style={{fontSize: '0.9rem', wordWrap: 'break-word', overflowWrap: 'break-word'}}>{assessment.description}</p>
                                                 <div className="d-flex gap-3">
                                                     <small className="text-muted"><i className="fa fa-question-circle me-1"></i>Questions: {assessment.questions?.length || 0}</small>

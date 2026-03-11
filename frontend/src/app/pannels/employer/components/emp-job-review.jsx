@@ -143,6 +143,82 @@ function EmpJobReviewPage() {
                     </button>
 
                     <div className="border rounded p-4 shadow-sm">
+                        {/* Interview Round Details */}
+                        {orderedInterviewRounds.length > 0 && (
+                            <div className="mt-4">
+                                <h5 className="mb-3">Interview Schedule Details</h5>
+                                <div className="row">
+                                    {orderedInterviewRounds.map((round) => {
+                                        return (
+                                            <div key={round.key} className="col-lg-6 col-12 mb-3">
+                                                <div className="border rounded p-3 bg-light">
+                                                    <h6 className="mb-2">
+                                                        <span className="badge bg-primary me-2">{round.stageNumber}</span>
+                                                        {round.displayName}
+                                                    </h6>
+                                                    {round.description && (
+                                                        <p className="mb-1"><strong>Description:</strong> {round.description}</p>
+                                                    )}
+                                                    {round.fromDate ? (
+                                                        <p className="mb-1"><strong>Date:</strong> {formatDate(round.fromDate)}</p>
+                                                    ) : (
+                                                        <p className="mb-1 text-muted"><strong>Date:</strong> Not scheduled yet</p>
+                                                    )}
+                                                    {round.toDate && (
+                                                        <p className="mb-1"><strong>End Date:</strong> {formatDate(round.toDate)}</p>
+                                                    )}
+                                                    {round.startTime && (
+                                                        <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(round.startTime)}</p>
+                                                    )}
+                                                    {round.endTime && (
+                                                        <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(round.endTime)}</p>
+                                                    )}
+                                                    {round.applicationLimit && (
+                                                        <p className="mb-1"><strong>Application Limit:</strong> {round.applicationLimit}</p>
+                                                    )}
+                                                    
+                                                    {round.roundId && !round.isAssessment && (
+                                                        <button 
+                                                            className="btn site-button-secondry btn-sm mt-2"
+                                                            onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round.roundId}`, '_blank')}
+                                                        >
+                                                            Join now
+                                                        </button>
+                                                    )}
+                                                    
+                                                    {/* Sub-stages */}
+                                                    {round.subStages && round.subStages.length > 0 && (
+                                                        <div className="mt-3">
+                                                            <h6 className="mb-2 text-secondary">Sub-Stages:</h6>
+                                                            {round.subStages.map((subStage, subIndex) => (
+                                                                <div key={subIndex} className="ms-3 mb-2 p-2 bg-white rounded border">
+                                                                    <p className="mb-1 small"><strong>Sub-Stage {subIndex + 1}</strong></p>
+                                                                    {subStage.fromDate && (
+                                                                        <p className="mb-1 small"><strong>Date:</strong> {formatDate(subStage.fromDate)}</p>
+                                                                    )}
+                                                                    {subStage.startTime && (
+                                                                        <p className="mb-1 small"><strong>Start:</strong> {formatTimeToAMPM(subStage.startTime)}</p>
+                                                                    )}
+                                                                    {subStage.endTime && (
+                                                                        <p className="mb-1 small"><strong>End:</strong> {formatTimeToAMPM(subStage.endTime)}</p>
+                                                                    )}
+                                                                    {subStage.breakTime > 0 && (
+                                                                        <p className="mb-0 small"><strong>Break:</strong> {subStage.breakTime} mins</p>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        <hr />
+
                         {/* Consultant Company Information */}
                         {(jobDetails.companyName || jobDetails.companyLogo || jobDetails.companyDescription) && (
                             <div className="mb-4 p-3 bg-light rounded">
@@ -327,82 +403,6 @@ function EmpJobReviewPage() {
                             </div>
                         </div>
                        
-                        <hr />
-
-                        {/* Interview Round Details */}
-                        {orderedInterviewRounds.length > 0 && (
-                            <div className="mt-4">
-                                <h5 className="mb-3">Interview Schedule Details</h5>
-                                <div className="row">
-                                    {orderedInterviewRounds.map((round) => {
-                                        return (
-                                            <div key={round.key} className="col-lg-6 col-12 mb-3">
-                                                <div className="border rounded p-3 bg-light">
-                                                    <h6 className="mb-2">
-                                                        <span className="badge bg-primary me-2">{round.stageNumber}</span>
-                                                        {round.displayName}
-                                                    </h6>
-                                                    {round.description && (
-                                                        <p className="mb-1"><strong>Description:</strong> {round.description}</p>
-                                                    )}
-                                                    {round.fromDate ? (
-                                                        <p className="mb-1"><strong>Date:</strong> {formatDate(round.fromDate)}</p>
-                                                    ) : (
-                                                        <p className="mb-1 text-muted"><strong>Date:</strong> Not scheduled yet</p>
-                                                    )}
-                                                    {round.toDate && (
-                                                        <p className="mb-1"><strong>End Date:</strong> {formatDate(round.toDate)}</p>
-                                                    )}
-                                                    {round.startTime && (
-                                                        <p className="mb-1"><strong>Start Time:</strong> {formatTimeToAMPM(round.startTime)}</p>
-                                                    )}
-                                                    {round.endTime && (
-                                                        <p className="mb-1"><strong>End Time:</strong> {formatTimeToAMPM(round.endTime)}</p>
-                                                    )}
-                                                    {round.applicationLimit && (
-                                                        <p className="mb-1"><strong>Application Limit:</strong> {round.applicationLimit}</p>
-                                                    )}
-                                                    
-                                                    {round.roundId && !round.isAssessment && (
-                                                        <button 
-                                                            className="btn site-button-secondry btn-sm mt-2"
-                                                            onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round.roundId}`, '_blank')}
-                                                        >
-                                                            Join now
-                                                        </button>
-                                                    )}
-                                                    
-                                                    {/* Sub-stages */}
-                                                    {round.subStages && round.subStages.length > 0 && (
-                                                        <div className="mt-3">
-                                                            <h6 className="mb-2 text-secondary">Sub-Stages:</h6>
-                                                            {round.subStages.map((subStage, subIndex) => (
-                                                                <div key={subIndex} className="ms-3 mb-2 p-2 bg-white rounded border">
-                                                                    <p className="mb-1 small"><strong>Sub-Stage {subIndex + 1}</strong></p>
-                                                                    {subStage.fromDate && (
-                                                                        <p className="mb-1 small"><strong>Date:</strong> {formatDate(subStage.fromDate)}</p>
-                                                                    )}
-                                                                    {subStage.startTime && (
-                                                                        <p className="mb-1 small"><strong>Start:</strong> {formatTimeToAMPM(subStage.startTime)}</p>
-                                                                    )}
-                                                                    {subStage.endTime && (
-                                                                        <p className="mb-1 small"><strong>End:</strong> {formatTimeToAMPM(subStage.endTime)}</p>
-                                                                    )}
-                                                                    {subStage.breakTime > 0 && (
-                                                                        <p className="mb-0 small"><strong>Break:</strong> {subStage.breakTime} mins</p>
-                                                                    )}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
                         <hr />
 
                         <div className="row">
