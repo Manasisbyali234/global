@@ -386,7 +386,7 @@ export default function EmpPostJob({ onNext }) {
 		vacancies: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
 		applicationLimit: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
 		education: { required: true },
-		requiredSkills: { required: true },
+		requiredSkills: { required: true, customMessage: 'Required skills field cannot be empty. Please select at least one skill' },
 		interviewRoundsCount: { required: true, pattern: /^[1-9]\d*$/, patternMessage: 'Must be a positive number' },
 		offerLetterDate: { required: true },
 		lastDateOfApplication: { required: true },
@@ -1295,7 +1295,7 @@ export default function EmpPostJob({ onNext }) {
 		
 		// Check for CTC format error first
 		if (ctcFormatError) {
-			showError(`CTC: ${ctcFormatError}`);
+			showError(ctcFormatError);
 			scrollToField('ctc');
 			return;
 		}
@@ -1309,7 +1309,7 @@ export default function EmpPostJob({ onNext }) {
 				const errorMessage = step1Errors[firstField][0];
 				const fieldLabel = fieldLabelMap[firstField] || firstField;
 				
-				showError(`${fieldLabel}: ${errorMessage}`);
+				showError(errorMessage);
 				scrollToField(firstField);
 			} else if (step2Errors && step2Errors.length > 0) {
 				showError(step2Errors[0]);
@@ -1361,7 +1361,7 @@ export default function EmpPostJob({ onNext }) {
 				const errorMessage = step1Errors[firstErrorField]?.[0] || 'Invalid entry';
 				const fieldLabel = fieldLabelMap[firstErrorField] || firstErrorField;
 				
-				showError(`${fieldLabel}: ${errorMessage}`);
+				showError(errorMessage);
 				scrollToField(firstErrorField);
 			} else {
 				showError('Please fill all required fields correctly before moving to the next step.');

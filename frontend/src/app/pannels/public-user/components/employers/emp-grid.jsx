@@ -200,10 +200,6 @@ const EmployersGridPage = memo(() => {
                             <span className="stat-value">{employer.jobCount || 0}</span>
                             <span className="stat-label">Active Jobs</span>
                         </div>
-                        <div className="stat-item">
-                            <span className="stat-value">{employer.profile?.teamSize || 'Growing'}</span>
-                            <span className="stat-label">Team Size</span>
-                        </div>
                     </div>
 
                     <button className="view-details-btn-orange" onClick={handleViewClick}>

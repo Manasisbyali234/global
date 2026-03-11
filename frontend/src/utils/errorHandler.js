@@ -295,7 +295,9 @@ export const validateField = (fieldName, value, rules = {}) => {
                    (typeof value === 'string' && !value.trim()) || 
                    (Array.isArray(value) && value.length === 0);
     if (isEmpty) {
-      errors.push(`${fieldLabel} is required`);
+      // Use custom message if provided, otherwise use default
+      const message = rules.customMessage || `${fieldLabel} is required`;
+      errors.push(message);
       return errors;
     }
   }

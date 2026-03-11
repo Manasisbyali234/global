@@ -620,7 +620,12 @@ function EmpCandidateReviewPage() {
                                             <div className="processes-grid">
                                                 {interviewProcesses.map((process, index) => {
                                                     const isPreviousRejected = interviewProcesses.slice(0, index).some(p => p.status === 'rejected');
-                                                    const isCurrentDisabled = isPreviousRejected || (application.status === 'rejected' && process.status !== 'rejected');
+                                                    const isPreviousIncomplete = interviewProcesses.slice(0, index).some(p => 
+                                                        !processRemarks[p.id]?.trim() || 
+                                                        !p.status || 
+                                                        p.status === 'pending'
+                                                    );
+                                                    const isCurrentDisabled = isPreviousRejected || isPreviousIncomplete || (application.status === 'rejected' && process.status !== 'rejected');
 
                                                     return (
                                                         <div key={process.id} className={`process-item ${process.isCompleted ? 'completed' : ''} ${isCurrentDisabled ? 'stage-disabled' : ''}`}>
@@ -702,6 +707,12 @@ function EmpCandidateReviewPage() {
                                                                 <div className="stage-locked-info">
                                                                     <i className="fas fa-info-circle"></i>
                                                                     <span>Stage locked because a previous stage was rejected.</span>
+                                                                </div>
+                                                            )}
+                                                            {!isPreviousRejected && isPreviousIncomplete && (
+                                                                <div className="stage-locked-info">
+                                                                    <i className="fas fa-info-circle"></i>
+                                                                    <span>Stage locked until previous stage's remark and status are entered.</span>
                                                                 </div>
                                                             )}
                                                         </div>

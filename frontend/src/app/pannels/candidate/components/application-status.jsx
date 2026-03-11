@@ -1190,10 +1190,11 @@ function CanStatusPage() {
 																			}
 																		}}
 																		title="View all interview process details"
-																		aria-label="View interviews"
+																		aria-label="View interviews/Assessment"
 																	>
 																		<span>View</span>
-																		<span>Interviews</span>
+																		<span>Interviews/</span>
+																		<span>Assessement</span>
 																	</div>
 																</div>
 															</td>

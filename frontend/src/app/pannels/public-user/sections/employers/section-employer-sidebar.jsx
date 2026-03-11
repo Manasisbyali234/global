@@ -253,6 +253,7 @@ function SectionEmployerSidebar({ onFilterChange }) {
                         </ul>
                     </div>
 
+
                     <div className="twm-sidebar-ele-filter">
                         <h4 className="section-head-small mb-4">Company Type</h4>
                         <ul>
