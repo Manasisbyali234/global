@@ -1469,24 +1469,42 @@ function CanStatusPage() {
 														{/* Assessment Period */}
 														{(selectedApplication.jobId?.assessmentStartDate || selectedApplication.jobId?.assessmentEndDate) && (
 															<div className="mb-2">
-																<small className="text-muted"><i className="fa fa-calendar me-1"></i>Assessment Period:</small>
-																<div>
-																	{selectedApplication.jobId?.assessmentStartDate && (
-																		<span><strong>From:</strong> {formatDate(selectedApplication.jobId.assessmentStartDate)} {selectedApplication.jobId?.assessmentStartTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentStartTime)}`}</span>
-																	)}
-																	{selectedApplication.jobId?.assessmentStartDate && selectedApplication.jobId?.assessmentEndDate && <span className="mx-2">-</span>}
-																	{selectedApplication.jobId?.assessmentEndDate && (
-																		<span><strong>To:</strong> {formatDate(selectedApplication.jobId.assessmentEndDate)} {selectedApplication.jobId?.assessmentEndTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentEndTime)}`}</span>
-																	)}
-																	{selectedApplication.jobId?.assessmentStartTime && selectedApplication.jobId?.assessmentEndTime && (() => {
-																		const [startHours, startMinutes] = selectedApplication.jobId.assessmentStartTime.split(':').map(Number);
-																		const [endHours, endMinutes] = selectedApplication.jobId.assessmentEndTime.split(':').map(Number);
-																		const totalMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes);
-																		const hours = Math.floor(totalMinutes / 60);
-																		const minutes = totalMinutes % 60;
-																		return <div className="mt-1"><strong>Duration:</strong> {hours > 0 && `${hours}h `}{minutes > 0 && `${minutes}m`}</div>;
-																	})()}
-																</div>
+																{(() => {
+																	const interviewStartDate = selectedApplication.jobId?.assessmentStartDate || selectedApplication.jobId?.assessmentEndDate;
+																	const interviewEndDate = selectedApplication.jobId?.assessmentEndDate || selectedApplication.jobId?.assessmentStartDate;
+																	const startTime = selectedApplication.jobId?.assessmentStartTime;
+																	const endTime = selectedApplication.jobId?.assessmentEndTime;
+																	if (!interviewStartDate || !startTime || !endTime) {
+																		return (
+																			<div>
+																				{selectedApplication.jobId?.assessmentStartDate && (
+																					<span><strong>From:</strong> {formatDate(selectedApplication.jobId.assessmentStartDate)} {selectedApplication.jobId?.assessmentStartTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentStartTime)}`}</span>
+																				)}
+																				{selectedApplication.jobId?.assessmentStartDate && selectedApplication.jobId?.assessmentEndDate && <span className="mx-2">-</span>}
+																				{selectedApplication.jobId?.assessmentEndDate && (
+																					<span><strong>To:</strong> {formatDate(selectedApplication.jobId.assessmentEndDate)} {selectedApplication.jobId?.assessmentEndTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentEndTime)}`}</span>
+																				)}
+																			</div>
+																		);
+																	}
+																	const startDateLabel = formatDate(interviewStartDate);
+																	const endDateLabel = interviewEndDate ? formatDate(interviewEndDate) : null;
+																	const dateLabel = endDateLabel
+																		? `${startDateLabel} - ${endDateLabel}`
+																		: startDateLabel;
+																	const timingLabel = `${formatTimeToAMPM(startTime)} - ${formatTimeToAMPM(endTime)}`;
+																	const [startHours, startMinutes] = startTime.split(':').map(Number);
+																	const [endHours, endMinutes] = endTime.split(':').map(Number);
+																	const totalMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes);
+																	const durationLabel = `${Math.max(0, totalMinutes)}mins`;
+																			return (
+																				<div className="mb-2" style={{ fontSize: '14px' }}>
+																					<div><span className="text-muted">Date</span> <span className="fw-bold text-dark ms-2">{dateLabel}</span></div>
+																					<div><span className="text-muted">Timing</span> <span className="fw-bold text-dark ms-2">{timingLabel}</span></div>
+																					<div><span className="text-muted">Duration</span> <span className="fw-bold text-dark ms-2">{durationLabel}</span></div>
+																				</div>
+																			);
+																})()}
 															</div>
 														)}
 
@@ -1621,6 +1639,32 @@ function CanStatusPage() {
 																})()}
 																{(roundDetails.fromDate || roundDetails.toDate) && (
 																	<div className="mb-2">
+																		{(() => {
+																			const interviewStartDate = roundDetails.fromDate || roundDetails.date;
+																			const interviewEndDate = roundDetails.toDate || roundDetails.date;
+																			const startTime = roundDetails.startTime;
+																			const endTime = roundDetails.endTime;
+																			if (!interviewStartDate || !startTime || !endTime) {
+																				return null;
+																			}
+																			const startDateLabel = formatDate(interviewStartDate);
+																			const endDateLabel = interviewEndDate ? formatDate(interviewEndDate) : null;
+																			const dateLabel = endDateLabel
+																				? `${startDateLabel} - ${endDateLabel}`
+																				: startDateLabel;
+																			const timingLabel = `${formatTimeToAMPM(startTime)} - ${formatTimeToAMPM(endTime)}`;
+																			const [startHours, startMinutes] = startTime.split(':').map(Number);
+																			const [endHours, endMinutes] = endTime.split(':').map(Number);
+																			const totalMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes);
+																			const durationLabel = `${Math.max(0, totalMinutes)}mins`;
+																			return (
+																				<div className="mb-2" style={{ fontSize: '14px' }}>
+																					<div><span className="text-muted">Date</span> <span className="fw-bold text-dark ms-2">{dateLabel}</span></div>
+																					<div><span className="text-muted">Timing</span> <span className="fw-bold text-dark ms-2">{timingLabel}</span></div>
+																					<div><span className="text-muted">Duration</span> <span className="fw-bold text-dark ms-2">{durationLabel}</span></div>
+																				</div>
+																			);
+																		})()}
 																		<small className="text-muted"><i className="fa fa-calendar me-1"></i>Interview Period:</small>
 																		<div>
 																			{roundDetails.fromDate && <span><strong>From:</strong> {formatDate(roundDetails.fromDate)} {roundDetails.startTime && `at ${formatTimeToAMPM(roundDetails.startTime)}`}</span>}

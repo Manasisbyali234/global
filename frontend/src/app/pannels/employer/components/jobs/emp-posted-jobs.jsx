@@ -345,20 +345,27 @@ export default function EmpPostedJobs() {
 													</div>
 												</div>
 											</div>
-											<div className="d-flex align-items-center gap-2" onClick={(e) => e.stopPropagation()}>
-												<span className={`badge ${getStatusBadge(job.status)} text-capitalize`}>
-													{job.status}
-												</span>
-												<div className="d-flex gap-2">
+											<div className="job-card-actions d-flex align-items-center" onClick={(e) => e.stopPropagation()}>
+												<div className="job-card-action-buttons d-flex flex-column align-items-end">
+													<div className="job-card-eye-row d-flex align-items-center">
+														<span className={`badge ${getStatusBadge(job.status)} text-capitalize`}>
+															{job.status}
+														</span>
+														<button
+															className="btn btn-outline-primary btn-sm"
+															onClick={() => navigate(`/employer/emp-job-review/${job._id}`)}
+															title="View Details"
+														>
+															<i className="fa fa-eye" style={{ color: '#000000' }}></i>
+														</button>
+													</div>
 													<button
-														className="btn btn-outline-primary btn-sm"
+														className="btn btn-outline-primary btn-sm start-interview-btn"
 														onClick={() => navigate(`/employer/emp-job-review/${job._id}`)}
-														title="View Details"
+														title="Start Interview"
 													>
-														<i className="fa fa-eye" style={{ color: '#000000' }}></i>
+														Start Interview
 													</button>
-
-
 												</div>
 											</div>
 										</div>
