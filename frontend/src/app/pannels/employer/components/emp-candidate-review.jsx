@@ -36,7 +36,7 @@ function EmpCandidateReviewPage() {
     const [showStatusTermsModal, setShowStatusTermsModal] = useState(false);
     const [statusUpdateUnlocked, setStatusUpdateUnlocked] = useState(false);
     const stageStatusOptions = [
-        { value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
+        { value: 'shortlisted_for_next_round', label: 'Selected for next Round' },
         { value: 'on_hold', label: 'On Hold' },
         { value: 'pending_decision', label: 'Pending Decision' },
         { value: 'no_show', label: 'No Show' },
@@ -47,7 +47,7 @@ function EmpCandidateReviewPage() {
         const isFinalStage = index === interviewProcesses.length - 1;
         const baseOptions = [...stageStatusOptions];
         if (isFinalStage || currentStatus === 'shortlisted') {
-            baseOptions.push({ value: 'shortlisted', label: 'Shortlisted' });
+            baseOptions.push({ value: 'shortlisted', label: 'Selected' });
         }
         return baseOptions;
     };

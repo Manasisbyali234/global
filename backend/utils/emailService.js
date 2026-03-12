@@ -798,24 +798,24 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
         <div style="background-color: #f8f9fa; padding: 25px; border-radius: 10px; margin: 25px 0;">
           <h3 style="color: #2c3e50; margin: 0 0 20px 0; font-size: 18px;">📋 Application Details:</h3>
           <div style="color: #495057; line-height: 1.8; font-size: 15px;">
-            <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-              <span style="color: #ff6b35; font-weight: bold; margin-right: 10px; min-width: 120px;">Position:</span>
-              <span><strong>${jobTitle}</strong></span>
+            <div style="margin-bottom: 12px;">
+              <div style="color: #ff6b35; font-weight: bold;">Position:</div>
+              <div style="overflow-wrap: anywhere; word-break: break-word;"><strong>${jobTitle}</strong></div>
             </div>
-            <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-              <span style="color: #ff6b35; font-weight: bold; margin-right: 10px; min-width: 120px;">Company:</span>
-              <span><strong>${companyName}</strong></span>
+            <div style="margin-bottom: 12px;">
+              <div style="color: #ff6b35; font-weight: bold;">Company:</div>
+              <div style="overflow-wrap: anywhere; word-break: break-word;"><strong>${companyName}</strong></div>
             </div>
-            <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
-              <span style="color: #ff6b35; font-weight: bold; margin-right: 10px; min-width: 120px;">Applied On:</span>
-              <span>${new Date(applicationDate).toLocaleDateString('en-GB', { 
+            <div style="margin-bottom: 12px;">
+              <div style="color: #ff6b35; font-weight: bold;">Applied On:</div>
+              <div style="overflow-wrap: anywhere; word-break: break-word;">${new Date(applicationDate).toLocaleDateString('en-GB', { 
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
               })} ${new Date(applicationDate).toLocaleTimeString('en-GB', {
                 hour: '2-digit',
                 minute: '2-digit'
-              })}</span>
+              })}</div>
             </div>
           </div>
         </div>
