@@ -139,6 +139,119 @@ function CanStatusPage() {
 		};
 	};
 
+	const extractBookedSlot = (roundDetails, candidateId, bookedSlots = [], roundId = null) => {
+		if (!roundDetails || !candidateId) return null;
+
+		const candidateIdStr = String(candidateId);
+		const parseTimeParts = (value) => {
+			if (!value) return null;
+			const matches = String(value).match(/(\d{1,2}):(\d{2})(?:\s*([AaPp][Mm]))?/);
+			if (!matches) return null;
+			let hours = Number(matches[1]);
+			const minutes = Number(matches[2]);
+			const meridian = matches[3]?.toUpperCase();
+			if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+			if (meridian === 'PM' && hours < 12) hours += 12;
+			if (meridian === 'AM' && hours === 12) hours = 0;
+			return { hours, minutes };
+		};
+
+		const normalizeTimeValue = (value) => {
+			const parts = parseTimeParts(value);
+			if (!parts) return value;
+			return `${String(parts.hours).padStart(2, '0')}:${String(parts.minutes).padStart(2, '0')}`;
+		};
+		const isCandidateMatch = (value) => {
+			if (!value) return false;
+			const raw = String(value);
+			return raw === candidateIdStr || raw.includes(candidateIdStr);
+		};
+
+		const hasSlotShape = (obj) =>
+			obj && (obj.startTime || obj.start || obj.fromTime) && (obj.endTime || obj.end || obj.toTime);
+
+		const normalizeSlot = (obj, fallbackDate) => {
+			if (!obj) return null;
+			const date = obj.date || obj.fromDate || obj.toDate || obj.day || obj.interviewDate || fallbackDate;
+			const startTime = normalizeTimeValue(obj.startTime || obj.start || obj.fromTime || obj.interviewTime?.start);
+			const endTime = normalizeTimeValue(obj.endTime || obj.end || obj.toTime || obj.interviewTime?.end);
+			const interviewerName = obj.interviewerName || obj.interviewer || obj.HR || obj.interviewerId?.name;
+			if (!date || !startTime || !endTime) return null;
+			return { date, startTime, endTime, interviewerName };
+		};
+
+		const scanValue = (value, fallbackDate) => {
+			if (!value) return null;
+			if (Array.isArray(value)) {
+				for (const item of value) {
+					const found = scanValue(item, fallbackDate);
+					if (found) return found;
+				}
+				return null;
+			}
+			if (typeof value === 'object') {
+				// Direct candidate match
+				const candidateFields = ['candidateId', 'candidate', 'candidate_id', 'applicantId', 'userId', 'user_id', 'bookedBy'];
+				const matched = candidateFields.some((key) => isCandidateMatch(value[key]));
+				if (matched && hasSlotShape(value)) {
+					return normalizeSlot(value, fallbackDate);
+				}
+
+				// Common nested slot containers
+				const nestedKeys = [
+					'bookedSlot', 'bookedSlots', 'slots', 'schedules', 'schedulesArray',
+					'daySchedules', 'daySchedulesArray', 'rooms', 'roomsArray', 'schedule'
+				];
+				for (const key of nestedKeys) {
+					if (value[key]) {
+						const found = scanValue(value[key], value.date || fallbackDate);
+						if (found) return found;
+					}
+				}
+			}
+			return null;
+		};
+
+		const scheduleObject = roundDetails.scheduleObject || roundDetails.schedule || {};
+		const nestedSchedule = scheduleObject.schedule || {};
+		const sources = [
+			roundDetails,
+			roundDetails.schedulesArray,
+			roundDetails.schedules,
+			roundDetails.daySchedulesArray,
+			roundDetails.daySchedules,
+			roundDetails.roomsArray,
+			roundDetails.rooms,
+			scheduleObject,
+			scheduleObject.schedulesArray,
+			scheduleObject.schedules,
+			scheduleObject.daySchedulesArray,
+			scheduleObject.daySchedules,
+			scheduleObject.roomsArray,
+			scheduleObject.rooms,
+			nestedSchedule,
+			bookedSlots
+		];
+
+		for (const src of sources) {
+			const found = scanValue(src, roundDetails.fromDate || roundDetails.date);
+			if (found) return found;
+		}
+		if (Array.isArray(bookedSlots) && bookedSlots.length > 0) {
+			const normalizedRoundId = roundId ? String(roundId) : null;
+			const matched = bookedSlots.find((slot) => {
+				if (normalizedRoundId && slot.roundId) {
+					return String(slot.roundId) === normalizedRoundId;
+				}
+				return false;
+			});
+			if (matched) {
+				return normalizeSlot(matched, matched.date || roundDetails.fromDate || roundDetails.date);
+			}
+		}
+		return null;
+	};
+
 	// Timer component for assessment countdown
 	const AssessmentTimer = ({ timerInfo, onTimerEnd }) => {
 		const [timeLeft, setTimeLeft] = useState(null);
@@ -1763,6 +1876,28 @@ function CanStatusPage() {
 														currentRoundCompletedStates.includes(processStatus) ||
 														currentRoundCompletedStates.includes(stageStatus) ||
 														currentRoundCompletedStates.includes(currentRoundStatusText);
+													const bookedSlot = extractBookedSlot(roundDetails, candidateId, selectedApplication?.bookedSlots, roundId);
+													const bookedSlotDate = bookedSlot?.date;
+													const bookedSlotStart = bookedSlot?.startTime;
+													const bookedSlotEnd = bookedSlot?.endTime;
+													const bookedSlotInterviewer = bookedSlot?.interviewerName;
+													const bookedSlotEndDateTime = (() => {
+														if (!bookedSlotDate || !bookedSlotEnd) return null;
+														const dateObj = new Date(bookedSlotDate);
+														if (isNaN(dateObj.getTime())) return null;
+														const matches = String(bookedSlotEnd).match(/(\d{1,2}):(\d{2})(?:\s*([AaPp][Mm]))?/);
+														if (!matches) return null;
+														let hours = Number(matches[1]);
+														const minutes = Number(matches[2]);
+														const meridian = matches[3]?.toUpperCase();
+														if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+														if (meridian === 'PM' && hours < 12) hours += 12;
+														if (meridian === 'AM' && hours === 12) hours = 0;
+														dateObj.setHours(hours, minutes, 0, 0);
+														return dateObj;
+													})();
+													const isBookedSlotExpired = bookedSlotEndDateTime ? Date.now() > bookedSlotEndDateTime.getTime() : false;
+
 													const hasBookedSlot = Boolean(
 														isLocallyMarkedBooked ||
 														['interview_scheduled', 'scheduled', 'in_progress'].includes(processStatus) ||
@@ -1778,7 +1913,8 @@ function CanStatusPage() {
 														hasCandidateRef(roundDetails?.daySchedulesArray) ||
 														hasCandidateRef(roundDetails?.roomsArray) ||
 														roundDetails?.isBooked ||
-														roundDetails?.bookingConfirmed
+														roundDetails?.bookingConfirmed ||
+														bookedSlot
 													);
 													const joinUrl =
 														relatedStage?.meetingLink ||
@@ -1873,6 +2009,57 @@ function CanStatusPage() {
 																	<i className="fa fa-ban me-2"></i>
 																	Not eligible for next round (Assessment failed).
 																</span>
+															</div>
+														);
+													}
+
+													if (bookedSlot && isBookedSlotExpired) {
+														return (
+															<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
+																<span
+																	className="badge"
+																	style={{
+																		fontSize: '13px',
+																		padding: '8px 12px',
+																		backgroundColor: '#fdeaea',
+																		color: '#c82333',
+																		border: '1px solid #c82333'
+																	}}
+																>
+																	<i className="fa fa-clock-o me-2"></i>
+																	Session Expired
+																</span>
+															</div>
+														);
+													}
+
+													if (bookedSlot) {
+														return (
+															<div style={{marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center'}}>
+																<div className="p-2" style={{background: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef', width: '100%'}}>
+																	<div className="mb-1"><strong>Interview Details</strong></div>
+																	<div>Date: {formatDate(bookedSlotDate)}</div>
+																	<div>Time: {formatTimeToAMPM(bookedSlotStart)} - {formatTimeToAMPM(bookedSlotEnd)}</div>
+																	{bookedSlotInterviewer && <div>Interviewer: {bookedSlotInterviewer}</div>}
+																</div>
+																<a 
+																	href={joinUrl}
+																	onClick={() => {
+																		try {
+																			localStorage.setItem(bookingKey, '1');
+																		} catch (error) {}
+																	}}
+																	className="btn btn-primary"
+																	style={{
+																		fontSize: '14px',
+																		padding: '8px 16px',
+																		borderRadius: '6px',
+																		whiteSpace: 'nowrap'
+																	}}
+																>
+																	<i className={`fa ${buttonIcon} me-2`} style={{fontSize: '14px'}}></i>
+																	{buttonLabel}
+																</a>
 															</div>
 														);
 													}

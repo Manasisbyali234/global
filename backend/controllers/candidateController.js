@@ -1281,6 +1281,23 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             const key = round.roundType || round.name;
             if (key) {
               interviewRoundIds[key] = round._id;
+              if (!app.jobId.interviewRoundDetails) {
+                app.jobId.interviewRoundDetails = {};
+              }
+              if (!app.jobId.interviewRoundDetails[key]) {
+                app.jobId.interviewRoundDetails[key] = {};
+              }
+              // Attach schedules from InterviewRound to interviewRoundDetails for candidate view
+              const scheduleObject = round?.scheduleObject || round?.schedule || {};
+              const nestedSchedule = scheduleObject?.schedule || {};
+              const schedules = round?.schedulesArray || round?.schedules || scheduleObject?.schedulesArray || scheduleObject?.schedules || nestedSchedule?.schedules;
+              const daySchedules = round?.daySchedulesArray || round?.daySchedules || scheduleObject?.daySchedulesArray || scheduleObject?.daySchedules || nestedSchedule?.daySchedules;
+              const rooms = round?.roomsArray || round?.rooms || scheduleObject?.roomsArray || scheduleObject?.rooms || nestedSchedule?.rooms;
+
+              if (schedules) app.jobId.interviewRoundDetails[key].schedulesArray = schedules;
+              if (daySchedules) app.jobId.interviewRoundDetails[key].daySchedulesArray = daySchedules;
+              if (rooms) app.jobId.interviewRoundDetails[key].roomsArray = rooms;
+              if (scheduleObject) app.jobId.interviewRoundDetails[key].scheduleObject = scheduleObject;
               // Merge day stages into interviewRoundDetails if they exist
               if (app.jobId.interviewRoundDetails && app.jobId.interviewRoundDetails[key] && round.subStages) {
                 app.jobId.interviewRoundDetails[key].subStages = round.subStages;

@@ -43,6 +43,15 @@ function EmpCandidateReviewPage() {
         { value: 'rejected', label: 'Not Advanced to Next Stage' }
     ];
 
+    const getStageStatusOptions = (index, currentStatus) => {
+        const isFinalStage = index === interviewProcesses.length - 1;
+        const baseOptions = [...stageStatusOptions];
+        if (isFinalStage || currentStatus === 'shortlisted') {
+            baseOptions.push({ value: 'shortlisted', label: 'Shortlisted' });
+        }
+        return baseOptions;
+    };
+
     useEffect(() => {
         fetchApplicationDetails();
     }, [applicationId]);
@@ -367,7 +376,7 @@ function EmpCandidateReviewPage() {
     };
 
     const hasShortlistedForNextRound = () => {
-        return interviewProcesses.some(p => p.status === 'shortlisted_for_next_round');
+        return interviewProcesses.some(p => p.status === 'shortlisted_for_next_round' || p.status === 'shortlisted');
     };
 
     const hasNegativeStatus = () => {
@@ -378,7 +387,7 @@ function EmpCandidateReviewPage() {
     const isFinalStageShortlisted = () => {
         if (interviewProcesses.length === 0) return false;
         const lastProcess = interviewProcesses[interviewProcesses.length - 1];
-        return lastProcess?.status === 'shortlisted_for_next_round';
+        return lastProcess?.status === 'shortlisted_for_next_round' || lastProcess?.status === 'shortlisted';
     };
 
     const updateProcessCompletion = (processId, isCompleted) => {
@@ -674,12 +683,12 @@ function EmpCandidateReviewPage() {
                                                                         }}
                                                                         disabled={isCurrentDisabled}
                                                                     >
-                                                                        {!stageStatusOptions.some((option) => option.value === (process.status || 'pending')) && (
+                                                                        {!getStageStatusOptions(index, process.status).some((option) => option.value === (process.status || 'pending')) && (
                                                                             <option value={process.status || 'pending'}>
                                                                                 {(process.status || 'pending').replace(/_/g, ' ')}
                                                                             </option>
                                                                         )}
-                                                                        {stageStatusOptions.map((option) => (
+                                                                        {getStageStatusOptions(index, process.status).map((option) => (
                                                                             <option key={option.value} value={option.value}>
                                                                                 {option.label}
                                                                             </option>
