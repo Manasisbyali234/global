@@ -1285,10 +1285,17 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
           interviewRounds.forEach(round => {
             const aliases = [round.key, round.roundType, round.name].filter(Boolean);
             if (aliases.length === 0) return;
+            const normalizedBaseTypes = aliases
+              .map((alias) => String(alias).split('_')[0])
+              .filter(Boolean);
 
             aliases.forEach((alias) => {
               interviewRoundIds[alias] = round._id;
             });
+            normalizedBaseTypes.forEach((alias) => {
+              interviewRoundIds[alias] = round._id;
+            });
+            interviewRoundIds[String(round._id)] = round._id;
 
             const detailsEntries = Object.entries(app.jobId.interviewRoundDetails || {});
             let matchedKey = aliases.find((alias) => app.jobId.interviewRoundDetails[alias]);
@@ -1306,6 +1313,10 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             aliases.forEach((alias) => {
               app.jobId.interviewRoundDetails[alias] = targetDetails;
             });
+            normalizedBaseTypes.forEach((alias) => {
+              app.jobId.interviewRoundDetails[alias] = targetDetails;
+            });
+            app.jobId.interviewRoundDetails[String(round._id)] = targetDetails;
 
             // Always trust InterviewRound collection for schedule/timing metadata.
             const scheduleObject = round?.scheduleObject || round?.schedule || {};

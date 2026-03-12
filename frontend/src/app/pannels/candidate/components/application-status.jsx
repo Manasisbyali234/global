@@ -1555,12 +1555,34 @@ function CanStatusPage() {
 										let roundDetails = null;
 										if (selectedApplication.jobId?.interviewRoundDetails) {
 											const allDetails = selectedApplication.jobId.interviewRoundDetails;
-											// Try direct key match
-											roundDetails = allDetails[uniqueKey];
-											// Search all keys for match
+											const normalized = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+											const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
+											const baseRoundType = String(roundTypeRaw || '').split('_')[0];
+											const mappedRoundId =
+												selectedApplication.interviewRoundIds?.[roundTypeRaw] ||
+												selectedApplication.interviewRoundIds?.[baseRoundType] ||
+												null;
+											// Try direct key/id matches first
+											roundDetails =
+												allDetails[uniqueKey] ||
+												allDetails[roundTypeRaw] ||
+												allDetails[baseRoundType] ||
+												(mappedRoundId ? allDetails[String(mappedRoundId)] : null);
+											// Search all keys/details for normalized and id-based match
 											if (!roundDetails) {
 												for (const [key, details] of Object.entries(allDetails)) {
-													if (key.replace(/[^a-z]/gi, '').toLowerCase().includes(roundType.toLowerCase()) && details) {
+													const keyNorm = normalized(key);
+													const typeNorm = normalized(roundTypeRaw);
+													const baseTypeNorm = normalized(baseRoundType);
+													const detailTypeNorm = normalized(details?.roundType || details?.key || details?.name || '');
+													const detailRoundId = details?.interviewRoundId ? String(details.interviewRoundId) : '';
+													const mappedId = mappedRoundId ? String(mappedRoundId) : '';
+													const matches =
+														(keyNorm && (keyNorm.includes(typeNorm) || keyNorm.includes(baseTypeNorm))) ||
+														(detailTypeNorm && (detailTypeNorm === typeNorm || detailTypeNorm === baseTypeNorm)) ||
+														(mappedId && detailRoundId && mappedId === detailRoundId) ||
+														(mappedId && key === mappedId);
+													if (matches && details) {
 														roundDetails = details;
 														break;
 													}
