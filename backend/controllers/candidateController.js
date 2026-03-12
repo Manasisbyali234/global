@@ -1277,34 +1277,64 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
         let interviewRoundIds = {};
         if (app.jobId?._id) {
           const interviewRounds = await InterviewRound.find({ jobId: app.jobId._id }).lean();
-          interviewRounds.forEach(round => {
-            const key = round.roundType || round.name;
-            if (key) {
-              interviewRoundIds[key] = round._id;
-              if (!app.jobId.interviewRoundDetails) {
-                app.jobId.interviewRoundDetails = {};
-              }
-              if (!app.jobId.interviewRoundDetails[key]) {
-                app.jobId.interviewRoundDetails[key] = {};
-              }
-              // Attach schedules from InterviewRound to interviewRoundDetails for candidate view
-              const scheduleObject = round?.scheduleObject || round?.schedule || {};
-              const nestedSchedule = scheduleObject?.schedule || {};
-              const schedules = round?.schedulesArray || round?.schedules || scheduleObject?.schedulesArray || scheduleObject?.schedules || nestedSchedule?.schedules;
-              const daySchedules = round?.daySchedulesArray || round?.daySchedules || scheduleObject?.daySchedulesArray || scheduleObject?.daySchedules || nestedSchedule?.daySchedules;
-              const rooms = round?.roomsArray || round?.rooms || scheduleObject?.roomsArray || scheduleObject?.rooms || nestedSchedule?.rooms;
+          if (!app.jobId.interviewRoundDetails) {
+            app.jobId.interviewRoundDetails = {};
+          }
+          const normalizeRoundKey = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
 
-              if (schedules) app.jobId.interviewRoundDetails[key].schedulesArray = schedules;
-              if (daySchedules) app.jobId.interviewRoundDetails[key].daySchedulesArray = daySchedules;
-              if (rooms) app.jobId.interviewRoundDetails[key].roomsArray = rooms;
-              if (scheduleObject) app.jobId.interviewRoundDetails[key].scheduleObject = scheduleObject;
-              // Merge day stages into interviewRoundDetails if they exist
-              if (app.jobId.interviewRoundDetails && app.jobId.interviewRoundDetails[key] && round.subStages) {
-                app.jobId.interviewRoundDetails[key].subStages = round.subStages;
-                app.jobId.interviewRoundDetails[key].days = round.subStages;
-                app.jobId.interviewRoundDetails[key].daysArray = round.subStages;
-              }
+          interviewRounds.forEach(round => {
+            const aliases = [round.key, round.roundType, round.name].filter(Boolean);
+            if (aliases.length === 0) return;
+
+            aliases.forEach((alias) => {
+              interviewRoundIds[alias] = round._id;
+            });
+
+            const detailsEntries = Object.entries(app.jobId.interviewRoundDetails || {});
+            let matchedKey = aliases.find((alias) => app.jobId.interviewRoundDetails[alias]);
+            if (!matchedKey) {
+              const normalizedAliases = aliases.map((alias) => normalizeRoundKey(alias)).filter(Boolean);
+              const matchedEntry = detailsEntries.find(([key]) => normalizedAliases.includes(normalizeRoundKey(key)));
+              matchedKey = matchedEntry ? matchedEntry[0] : null;
             }
+            const resolvedKey = matchedKey || round.key || round.roundType || round.name;
+
+            if (!app.jobId.interviewRoundDetails[resolvedKey]) {
+              app.jobId.interviewRoundDetails[resolvedKey] = {};
+            }
+            const targetDetails = app.jobId.interviewRoundDetails[resolvedKey];
+            aliases.forEach((alias) => {
+              app.jobId.interviewRoundDetails[alias] = targetDetails;
+            });
+
+            // Always trust InterviewRound collection for schedule/timing metadata.
+            const scheduleObject = round?.scheduleObject || round?.schedule || {};
+            const nestedSchedule = scheduleObject?.schedule || {};
+            const schedules = round?.schedulesArray || round?.schedules || scheduleObject?.schedulesArray || scheduleObject?.schedules || nestedSchedule?.schedules;
+            const daySchedules = round?.daySchedulesArray || round?.daySchedules || scheduleObject?.daySchedulesArray || scheduleObject?.daySchedules || nestedSchedule?.daySchedules;
+            const rooms = round?.roomsArray || round?.rooms || scheduleObject?.roomsArray || scheduleObject?.rooms || nestedSchedule?.rooms;
+
+            targetDetails.interviewRoundId = round._id;
+            targetDetails.roundType = round.roundType || targetDetails.roundType;
+            targetDetails.key = round.key || targetDetails.key;
+            targetDetails.name = round.name || targetDetails.name;
+            targetDetails.description = round.description || targetDetails.description;
+            targetDetails.fromDate = round.fromdate || targetDetails.fromDate || targetDetails.date || null;
+            targetDetails.toDate = round.todate || targetDetails.toDate || targetDetails.fromDate || targetDetails.date || null;
+            targetDetails.startTime = round.startTime || targetDetails.startTime || '';
+            targetDetails.endTime = round.endTime || targetDetails.endTime || '';
+            if (round.subStages) {
+              targetDetails.subStages = round.subStages;
+              targetDetails.subStagesArray = round.subStages;
+              targetDetails.days = round.subStages;
+              targetDetails.daysArray = round.subStages;
+            }
+
+            if (schedules) targetDetails.schedulesArray = schedules;
+            if (daySchedules) targetDetails.daySchedulesArray = daySchedules;
+            if (rooms) targetDetails.roomsArray = rooms;
+            if (scheduleObject && Object.keys(scheduleObject).length > 0) targetDetails.scheduleObject = scheduleObject;
+            if (round.formDataObject) targetDetails.formDataObject = round.formDataObject;
           });
         }
         
@@ -1690,6 +1720,16 @@ exports.getApplicationInterviewDetails = async (req, res) => {
     }
 
     const job = application.jobId;
+    const InterviewRound = require('../models/InterviewRound');
+    const dbRounds = await InterviewRound.find({ jobId: job._id }).lean();
+    const normalizeRoundKey = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+    const findDbRound = (uniqueKey, roundType) => {
+      const candidates = [uniqueKey, roundType].filter(Boolean).map(normalizeRoundKey);
+      return dbRounds.find((round) => {
+        const roundKeys = [round.key, round.roundType, round.name].filter(Boolean).map(normalizeRoundKey);
+        return candidates.some((candidate) => roundKeys.includes(candidate));
+      });
+    };
     const interviewDetails = {
       applicationId: application._id,
       jobTitle: job.title,
@@ -1717,9 +1757,21 @@ exports.getApplicationInterviewDetails = async (req, res) => {
             assessmentId: job.assessmentId,
             isAssessment: true
           });
-        } else if (roundType && job.interviewRoundDetails[uniqueKey]) {
+        } else if (roundType) {
           // Add other interview rounds with detailed info
-          const details = job.interviewRoundDetails[uniqueKey];
+          const detailsFromJob = job.interviewRoundDetails?.[uniqueKey] || {};
+          const dbRound = findDbRound(uniqueKey, roundType);
+          const details = {
+            ...detailsFromJob,
+            fromDate: dbRound?.fromdate || detailsFromJob.fromDate || detailsFromJob.date,
+            toDate: dbRound?.todate || detailsFromJob.toDate || detailsFromJob.fromDate || detailsFromJob.date,
+            startTime: dbRound?.startTime || detailsFromJob.startTime,
+            endTime: dbRound?.endTime || detailsFromJob.endTime,
+            description: dbRound?.description || detailsFromJob.description,
+            subStages: dbRound?.subStages || detailsFromJob.subStages || detailsFromJob.days || [],
+            days: dbRound?.subStages || detailsFromJob.days || detailsFromJob.subStages || [],
+            daysArray: dbRound?.subStages || detailsFromJob.daysArray || detailsFromJob.subStages || []
+          };
             const roundTypeNames = {
               technical: 'Technical',
               managerial: 'Managerial Round',
@@ -1733,7 +1785,7 @@ exports.getApplicationInterviewDetails = async (req, res) => {
               assessment: 'Assessment'
             };
           
-          if (details.description || details.fromDate || details.toDate) {
+          if (details.description || details.fromDate || details.toDate || details.startTime || details.endTime) {
             interviewDetails.rounds.push({
               type: roundTypeNames[roundType] || roundType,
               description: details.description || `${roundTypeNames[roundType]} - Please be prepared for this interview stage`,

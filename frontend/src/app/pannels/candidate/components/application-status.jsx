@@ -125,8 +125,34 @@ function CanStatusPage() {
 
 		const startBase = parseBaseDate(roundDetails.fromDate || roundDetails.date);
 		const endBase = parseBaseDate(roundDetails.toDate || roundDetails.date);
-		const startDate = applyTimeToDate(startBase, roundDetails.startTime, false);
-		const endDate = applyTimeToDate(endBase, roundDetails.endTime, true);
+		const stageList =
+			roundDetails.subStages ||
+			roundDetails.subStagesArray ||
+			roundDetails.days ||
+			roundDetails.daysArray ||
+			[];
+		const stageWindows = Array.isArray(stageList)
+			? stageList
+				.map((stage) => {
+					const stageDate = parseBaseDate(stage?.fromDate || stage?.fromdate || stage?.date);
+					return {
+						start: applyTimeToDate(stageDate, stage?.startTime, false),
+						end: applyTimeToDate(stageDate, stage?.endTime, true)
+					};
+				})
+				.filter((window) => window.start || window.end)
+			: [];
+
+		const baseStartDate = applyTimeToDate(startBase, roundDetails.startTime, false);
+		const baseEndDate = applyTimeToDate(endBase, roundDetails.endTime, true);
+		const stageStartDates = stageWindows.map((window) => window.start).filter(Boolean);
+		const stageEndDates = stageWindows.map((window) => window.end).filter(Boolean);
+		const startDate = [baseStartDate, ...stageStartDates]
+			.filter(Boolean)
+			.sort((a, b) => a.getTime() - b.getTime())[0] || null;
+		const endDate = [baseEndDate, ...stageEndDates]
+			.filter(Boolean)
+			.sort((a, b) => b.getTime() - a.getTime())[0] || null;
 		const isBeforeStart = startDate ? now < startDate : false;
 		const isAfterEnd = endDate ? now > endDate : false;
 
@@ -2017,7 +2043,7 @@ function CanStatusPage() {
 														);
 													}
 
-													if (bookedSlot && isBookedSlotExpired) {
+													if (roundWindowInfo.isAfterEnd || (bookedSlot && isBookedSlotExpired)) {
 														return (
 															<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
 																<span
@@ -2064,26 +2090,6 @@ function CanStatusPage() {
 																	<i className={`fa ${buttonIcon} me-2`} style={{fontSize: '14px'}}></i>
 																	{buttonLabel}
 																</a>
-															</div>
-														);
-													}
-
-													if (roundWindowInfo.isAfterEnd) {
-														return (
-															<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
-																<span
-																	className="badge"
-																	style={{
-																		fontSize: '13px',
-																		padding: '8px 12px',
-																		backgroundColor: '#fdeaea',
-																		color: '#c82333',
-																		border: '1px solid #c82333'
-																	}}
-																>
-																	<i className="fa fa-clock-o me-2"></i>
-																	Session Expired
-																</span>
 															</div>
 														);
 													}

@@ -85,22 +85,6 @@ const applicationSchema = new mongoose.Schema({
     respondedAt: { type: Date }
   },
 
-  // Scheduler booking slots (from external scheduling portal webhooks)
-  bookedSlots: [{
-    roundId: { type: mongoose.Schema.Types.ObjectId, ref: 'InterviewRound' },
-    roundType: { type: String },
-    bookingId: { type: String },
-    date: { type: String },
-    startTime: { type: String },
-    endTime: { type: String },
-    interviewerName: { type: String },
-    slotStartAt: { type: Date },
-    slotEndAt: { type: Date },
-    source: { type: String },
-    payload: { type: Object },
-    bookedAt: { type: Date, default: Date.now }
-  }],
-  
   statusHistory: [{
     status: String,
     changedAt: { type: Date, default: Date.now },
