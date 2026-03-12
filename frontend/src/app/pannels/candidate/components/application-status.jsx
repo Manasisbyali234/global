@@ -142,7 +142,11 @@ function CanStatusPage() {
 	const extractBookedSlot = (roundDetails, candidateId, bookedSlots = [], roundId = null) => {
 		if (!roundDetails || !candidateId) return null;
 
-		const candidateIdStr = String(candidateId);
+		const candidateIdStr = String(
+			typeof candidateId === 'object' && candidateId
+				? (candidateId._id || candidateId.id || candidateId.candidateId || candidateId)
+				: candidateId
+		);
 		const parseTimeParts = (value) => {
 			if (!value) return null;
 			const matches = String(value).match(/(\d{1,2}):(\d{2})(?:\s*([AaPp][Mm]))?/);
@@ -1834,7 +1838,7 @@ function CanStatusPage() {
 												{roundName !== 'Assessment' && (() => {
 													const roundType = typeof round === 'object' ? round.roundType : round.toLowerCase();
 													const roundId = selectedApplication.interviewRoundIds?.[roundType] || uniqueKey;
-													const candidateId = selectedApplication.candidateId;
+													const candidateId = selectedApplication.candidateId?._id || selectedApplication.candidateId;
 													const roundWindowInfo = getInterviewRoundWindowInfo(roundDetails);
 													const normalizedRoundType = (roundType || '').toString().split('_')[0];
 													const bookSlotUrl = `https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`;
