@@ -238,43 +238,90 @@
 }
 
 .emp-job-review-page .interview-open-btn {
-  margin-top: 12px;
+  display: block;
+  margin: 12px auto 0;
 }
 
 .emp-job-review-page .interview-substage-wrap {
-  margin-top: 12px;
+  margin-top: 14px;
   border-top: 1px dashed #d6deea;
-  padding-top: 12px;
+  padding-top: 14px;
 }
 
 .emp-job-review-page .interview-substage-wrap h6 {
-  margin: 0 0 8px 0;
-  font-size: 13px;
+  margin: 0 0 10px 0;
+  font-size: 14px;
   font-weight: 700;
-  color: #334155;
+  color: #1f2937;
+  letter-spacing: 0.02em;
 }
 
 .emp-job-review-page .interview-substage-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 }
 
 .emp-job-review-page .interview-substage-item {
   display: grid;
-  grid-template-columns: 1.1fr 1fr 1.2fr .8fr;
-  gap: 8px;
-  padding: 8px 10px;
-  background: transparent !important;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+  padding: 10px 12px;
+  background: #f8fafc !important;
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
   font-size: 12px;
   color: #334155;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
 .emp-job-review-page .interview-substage-item .substage-title {
+  grid-column: 1 / -1;
   font-weight: 700;
   color: #0f172a;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 4px 10px;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.emp-job-review-page .interview-substage-item .substage-field {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.emp-job-review-page .interview-substage-item .substage-field small {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.emp-job-review-page .interview-substage-item .substage-field small i {
+  color: #ff6b35;
+}
+
+.emp-job-review-page .interview-substage-item .substage-field strong {
+  font-size: 12px;
+  color: #0f172a;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media (max-width: 767px) {
@@ -299,5 +346,14 @@
 
   .emp-job-review-page .interview-substage-item {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .emp-job-review-page .interview-substage-item .substage-title {
+    justify-self: start;
+  }
+
+  .emp-job-review-page .interview-substage-item .substage-field {
+    width: 100%;
   }
 }

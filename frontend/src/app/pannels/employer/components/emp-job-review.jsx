@@ -199,7 +199,7 @@ function EmpJobReviewPage() {
                                                             className="btn site-button-secondry btn-sm interview-open-btn"
                                                             onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round.roundId}`, '_blank')}
                                                         >
-                                                            Open Scheduler
+                                                            Join Now
                                                         </button>
                                                     )}
 
@@ -210,13 +210,22 @@ function EmpJobReviewPage() {
                                                                 {round.subStages.map((subStage, subIndex) => (
                                                                     <div key={subIndex} className="interview-substage-item">
                                                                         <span className="substage-title">Sub-Stage {subIndex + 1}</span>
-                                                                        <span>{subStage.fromDate ? formatDate(subStage.fromDate) : 'Date N/A'}</span>
-                                                                        <span>
-                                                                            {subStage.startTime ? formatTimeToAMPM(subStage.startTime) : 'Start N/A'}
-                                                                            {' - '}
-                                                                            {subStage.endTime ? formatTimeToAMPM(subStage.endTime) : 'End N/A'}
-                                                                        </span>
-                                                                        <span>{subStage.breakTime > 0 ? `Break ${subStage.breakTime} min` : 'No Break'}</span>
+                                                                        <div className="substage-field">
+                                                                            <small><i className="fa fa-calendar"></i> Date</small>
+                                                                            <strong>{subStage.fromDate ? formatDate(subStage.fromDate) : 'N/A'}</strong>
+                                                                        </div>
+                                                                        <div className="substage-field">
+                                                                            <small><i className="fa fa-clock"></i> Start</small>
+                                                                            <strong>{subStage.startTime ? formatTimeToAMPM(subStage.startTime) : 'N/A'}</strong>
+                                                                        </div>
+                                                                        <div className="substage-field">
+                                                                            <small><i className="fa fa-clock"></i> End</small>
+                                                                            <strong>{subStage.endTime ? formatTimeToAMPM(subStage.endTime) : 'N/A'}</strong>
+                                                                        </div>
+                                                                        <div className="substage-field">
+                                                                            <small><i className="fa fa-hourglass-half"></i> Break</small>
+                                                                            <strong>{subStage.breakTime > 0 ? `${subStage.breakTime} min` : 'No Break'}</strong>
+                                                                        </div>
                                                                     </div>
                                                                 ))}
                                                             </div>
