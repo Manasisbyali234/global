@@ -155,12 +155,8 @@ function EmpJobReviewPage() {
                                 </div>
                                 <div className="interview-rounds-strip">
                                     {orderedInterviewRounds.map((round) => {
-                                        const dateLabel = round.fromDate
-                                            ? `${formatDate(round.fromDate)}${round.toDate ? ` - ${formatDate(round.toDate)}` : ''}`
-                                            : 'Not scheduled yet';
-                                        const timeLabel = round.startTime
-                                            ? `${formatTimeToAMPM(round.startTime)}${round.endTime ? ` - ${formatTimeToAMPM(round.endTime)}` : ''}`
-                                            : 'Not scheduled yet';
+                                        const fromDateLabel = round.fromDate ? formatDate(round.fromDate) : 'N/A';
+                                        const toDateLabel = round.toDate ? formatDate(round.toDate) : (round.fromDate ? formatDate(round.fromDate) : 'N/A');
 
                                         return (
                                             <div key={round.key} className="interview-round-slot">
@@ -180,14 +176,29 @@ function EmpJobReviewPage() {
                                                     )}
 
                                                     <div className="interview-meta-grid">
-                                                        <div className="interview-meta-item">
-                                                            <span className="label">Date Window</span>
-                                                            <span className="value">{dateLabel}</span>
-                                                        </div>
-                                                        <div className="interview-meta-item">
-                                                            <span className="label">Time Window</span>
-                                                            <span className="value">{timeLabel}</span>
-                                                        </div>
+                                                        {round.isAssessment ? (
+                                                            <>
+                                                                <div className="interview-meta-item">
+                                                                    <span className="label">From Date</span>
+                                                                    <span className="value">{fromDateLabel}</span>
+                                                                </div>
+                                                                <div className="interview-meta-item">
+                                                                    <span className="label">To Date</span>
+                                                                    <span className="value">{toDateLabel}</span>
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <div className="interview-meta-item">
+                                                                    <span className="label">Start Date</span>
+                                                                    <span className="value">{fromDateLabel}</span>
+                                                                </div>
+                                                                <div className="interview-meta-item">
+                                                                    <span className="label">End Date</span>
+                                                                    <span className="value">{toDateLabel}</span>
+                                                                </div>
+                                                            </>
+                                                        )}
                                                         <div className="interview-meta-item">
                                                             <span className="label">Application Limit</span>
                                                             <span className="value">{round.applicationLimit || 'N/A'}</span>

@@ -123,21 +123,17 @@
 }
 
 .emp-job-review-page .interview-rounds-strip {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 6px;
-  scrollbar-width: thin;
+  overflow: visible;
+  padding-bottom: 0;
   width: 100%;
 }
 
 .emp-job-review-page .interview-round-slot {
-  flex: 0 0 430px !important;
-  min-width: 430px;
-  max-width: 430px;
+  min-width: 0;
+  max-width: none;
 }
 
 .emp-job-review-page .interview-round-card {
@@ -330,14 +326,17 @@
   }
 
   .emp-job-review-page .interview-round-slot {
-    flex-basis: 86vw !important;
-    min-width: 86vw;
-    max-width: 86vw;
+    min-width: 0;
+    max-width: none;
   }
 
   .emp-job-review-page .interview-schedule-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .emp-job-review-page .interview-rounds-strip {
+    grid-template-columns: 1fr;
   }
 
   .emp-job-review-page .interview-meta-grid {

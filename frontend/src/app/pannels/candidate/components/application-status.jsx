@@ -1635,27 +1635,19 @@ function CanStatusPage() {
 															<div className="mb-2">
 																{(() => {
 																	const interviewStartDate = selectedApplication.jobId?.assessmentStartDate || selectedApplication.jobId?.assessmentEndDate;
-																	const interviewEndDate = selectedApplication.jobId?.assessmentEndDate || selectedApplication.jobId?.assessmentStartDate;
 																	const startTime = selectedApplication.jobId?.assessmentStartTime;
 																	const endTime = selectedApplication.jobId?.assessmentEndTime;
 																	if (!interviewStartDate || !startTime || !endTime) {
 																		return (
 																			<div>
 																				{selectedApplication.jobId?.assessmentStartDate && (
-																					<span><strong>From:</strong> {formatDate(selectedApplication.jobId.assessmentStartDate)} {selectedApplication.jobId?.assessmentStartTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentStartTime)}`}</span>
-																				)}
-																				{selectedApplication.jobId?.assessmentStartDate && selectedApplication.jobId?.assessmentEndDate && <span className="mx-2">-</span>}
-																				{selectedApplication.jobId?.assessmentEndDate && (
-																					<span><strong>To:</strong> {formatDate(selectedApplication.jobId.assessmentEndDate)} {selectedApplication.jobId?.assessmentEndTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentEndTime)}`}</span>
+																					<span><strong>Date:</strong> {formatDate(selectedApplication.jobId.assessmentStartDate)} {selectedApplication.jobId?.assessmentStartTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentStartTime)}`}</span>
 																				)}
 																			</div>
 																		);
 																	}
 																	const startDateLabel = formatDate(interviewStartDate);
-																	const endDateLabel = interviewEndDate ? formatDate(interviewEndDate) : null;
-																	const dateLabel = endDateLabel
-																		? `${startDateLabel} - ${endDateLabel}`
-																		: startDateLabel;
+																	const dateLabel = startDateLabel;
 																	const timingLabel = `${formatTimeToAMPM(startTime)} - ${formatTimeToAMPM(endTime)}`;
 																	const [startHours, startMinutes] = startTime.split(':').map(Number);
 																	const [endHours, endMinutes] = endTime.split(':').map(Number);
