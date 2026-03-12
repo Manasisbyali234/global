@@ -362,9 +362,9 @@ export default function EmpPostedJobs() {
 													<button
 														className="btn btn-outline-primary btn-sm start-interview-btn"
 														onClick={() => navigate(`/employer/emp-job-review/${job._id}`)}
-														title="Start Interview"
+														title="View Interview"
 													>
-														Start Interview
+														View  Interview
 													</button>
 												</div>
 											</div>

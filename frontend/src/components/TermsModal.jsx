@@ -193,8 +193,7 @@ const TermsModal = ({ isOpen, onClose, onAccept, role = 'candidate' }) => {
                         <div className="terms-section">
                             <h3>{content.sections.length + 1}. Acceptance of Terms</h3>
                             <p>
-                                By checking the acceptance box and clicking "Accept & Continue", you acknowledge that you have read, 
-                                understood, and agree to be bound by these terms and conditions.
+                                By clicking “Accept & Continue,” you acknowledge that you have read, understood, and accepted these Terms and Conditions.
                             </p>
                         </div>
                     </div>
