@@ -4217,6 +4217,80 @@ export default function EmpPostJob({ onNext }) {
 														</small>
 													</div>
 												</div>
+
+												{selectedAssessment && (
+													<>
+														<div style={{
+															margin: '0 20px 12px',
+															padding: '16px',
+															background: '#fffbeb',
+															borderRadius: 12,
+															color: '#92400e',
+															fontSize: 13,
+															display: 'flex',
+															alignItems: 'flex-start',
+															gap: 12,
+															border: '1px solid #fde68a',
+															boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+														}}>
+															<div style={{
+																background: '#fef3c7',
+																padding: '8px',
+																borderRadius: '10px',
+																display: 'flex',
+																alignItems: 'center',
+																justifyContent: 'center'
+															}}>
+																<i className="fa fa-calendar-alt" style={{fontSize: 18, color: '#d97706'}}></i>
+															</div>
+															<div style={{ flex: 1 }}>
+																<div style={{fontWeight: 700, marginBottom: 4, fontSize: 14, color: '#78350f'}}>Assessment Schedule</div>
+																<div style={{fontSize: 13, opacity: 0.9, lineHeight: '1.5'}}>
+																	{details?.fromDate && details?.startTime && details?.endTime ? (
+																		<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+																			<span style={{ background: '#fef3c7', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
+																				{formatDate(details.fromDate)}
+																			</span>
+																			<span>at</span>
+																			<span style={{ background: '#fef3c7', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
+																				{formatTimeToAMPM(details.startTime)} - {formatTimeToAMPM(details.endTime)}
+																			</span>
+																		</div>
+																	) : 'Set assessment dates and times above to see the schedule'}
+																</div>
+															</div>
+														</div>
+
+														<div style={{
+															margin: '0 20px 20px',
+															padding: '16px',
+															background: '#eff6ff',
+															borderRadius: 12,
+															color: '#1e40af',
+															fontSize: 13,
+															display: 'flex',
+															alignItems: 'flex-start',
+															gap: 12,
+															border: '1px solid #bfdbfe',
+															boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+														}}>
+															<div style={{
+																background: '#dbeafe',
+																padding: '8px',
+																borderRadius: '10px',
+																display: 'flex',
+																alignItems: 'center',
+																justifyContent: 'center'
+															}}>
+																<i className="fa fa-info-circle" style={{fontSize: 18, color: '#2563eb'}}></i>
+															</div>
+															<div style={{ flex: 1 }}>
+																<div style={{fontWeight: 700, marginBottom: 4, fontSize: 14, color: '#1e3a8a'}}>Assessment Time Restriction</div>
+																<div style={{fontSize: 13, opacity: 0.9, lineHeight: '1.5'}}>Candidates can only access the assessment during the specified date/time window you set above</div>
+															</div>
+														</div>
+													</>
+												)}
 											</div>
 										);
 									}
@@ -4666,86 +4740,6 @@ export default function EmpPostJob({ onNext }) {
 									);
 								})
 							}
-							{selectedAssessment && formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'assessment') && (
-								<div style={{
-									marginTop: 12,
-									padding: '16px',
-									background: '#fffbeb',
-									borderRadius: 12,
-									color: '#92400e',
-									fontSize: 13,
-									display: 'flex',
-									alignItems: 'flex-start',
-									gap: 12,
-									border: '1px solid #fde68a',
-									boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
-								}}>
-									<div style={{
-										background: '#fef3c7',
-										padding: '8px',
-										borderRadius: '10px',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center'
-									}}>
-										<i className="fa fa-calendar-alt" style={{fontSize: 18, color: '#d97706'}}></i>
-									</div>
-									<div style={{ flex: 1 }}>
-										<div style={{fontWeight: 700, marginBottom: 4, fontSize: 14, color: '#78350f'}}>Assessment Schedule</div>
-										<div style={{fontSize: 13, opacity: 0.9, lineHeight: '1.5'}}>
-											{(() => {
-												const assessmentKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
-												const details = assessmentKey ? formData.interviewRoundDetails[assessmentKey] : null;
-												if (details?.fromDate && details?.startTime && details?.endTime) {
-													return (
-														<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-															<span style={{ background: '#fef3c7', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
-																{formatDate(details.fromDate)}
-															</span>
-															<span>at</span>
-															<span style={{ background: '#fef3c7', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
-																{formatTimeToAMPM(details.startTime)} - {formatTimeToAMPM(details.endTime)}
-															</span>
-														</div>
-													);
-												}
-												return 'Set assessment dates and times above to see the schedule';
-											})()
-										}
-										</div>
-									</div>
-								</div>
-							)}
-							{selectedAssessment && formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'assessment') && (
-								<div style={{
-									marginTop: 12,
-									padding: '16px',
-									background: '#eff6ff',
-									borderRadius: 12,
-									color: '#1e40af',
-									fontSize: 13,
-									display: 'flex',
-									alignItems: 'flex-start',
-									gap: 12,
-									border: '1px solid #bfdbfe',
-									boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
-								}}>
-									<div style={{
-										background: '#dbeafe',
-										padding: '8px',
-										borderRadius: '10px',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center'
-									}}>
-										<i className="fa fa-info-circle" style={{fontSize: 18, color: '#2563eb'}}></i>
-									</div>
-									<div style={{ flex: 1 }}>
-										<div style={{fontWeight: 700, marginBottom: 4, fontSize: 14, color: '#1e3a8a'}}>Assessment Time Restriction</div>
-										<div style={{fontSize: 13, opacity: 0.9, lineHeight: '1.5'}}>Candidates can only access the assessment during the specified date/time window you set above</div>
-									</div>
-								</div>
-							)}
 						</div>
 						</>
 					)}

@@ -86,3 +86,218 @@
     padding: 0.5rem 0.75rem !important;
   }
 }
+
+.emp-job-review-page .interview-schedule-section {
+  background: transparent;
+  border: 1px solid #e3e8ef;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.emp-job-review-page .interview-schedule-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.emp-job-review-page .interview-schedule-header h5 {
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.emp-job-review-page .interview-schedule-header p {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.emp-job-review-page .interview-total-pill {
+  background: #0f172a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.emp-job-review-page .interview-rounds-strip {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+  width: 100%;
+}
+
+.emp-job-review-page .interview-round-slot {
+  flex: 0 0 430px !important;
+  min-width: 430px;
+  max-width: 430px;
+}
+
+.emp-job-review-page .interview-round-card {
+  background: transparent !important;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  padding: 14px;
+  height: 100%;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.05);
+}
+
+.emp-job-review-page .interview-round-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.emp-job-review-page .interview-round-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.emp-job-review-page .interview-stage-pill {
+  display: inline-block;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.emp-job-review-page .interview-round-title {
+  margin: 0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.emp-job-review-page .interview-round-type {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.emp-job-review-page .interview-round-type.live {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.emp-job-review-page .interview-round-type.assessment {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.emp-job-review-page .interview-round-desc {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.emp-job-review-page .interview-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.emp-job-review-page .interview-meta-item {
+  background: transparent !important;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.emp-job-review-page .interview-meta-item .label {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+.emp-job-review-page .interview-meta-item .value {
+  font-size: 13px;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.emp-job-review-page .interview-open-btn {
+  margin-top: 12px;
+}
+
+.emp-job-review-page .interview-substage-wrap {
+  margin-top: 12px;
+  border-top: 1px dashed #d6deea;
+  padding-top: 12px;
+}
+
+.emp-job-review-page .interview-substage-wrap h6 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.emp-job-review-page .interview-substage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.emp-job-review-page .interview-substage-item {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1.2fr .8fr;
+  gap: 8px;
+  padding: 8px 10px;
+  background: transparent !important;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #334155;
+}
+
+.emp-job-review-page .interview-substage-item .substage-title {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+@media (max-width: 767px) {
+  .emp-job-review-page .interview-schedule-section {
+    padding: 14px;
+  }
+
+  .emp-job-review-page .interview-round-slot {
+    flex-basis: 86vw !important;
+    min-width: 86vw;
+    max-width: 86vw;
+  }
+
+  .emp-job-review-page .interview-schedule-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .emp-job-review-page .interview-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .emp-job-review-page .interview-substage-item {
+    grid-template-columns: 1fr;
+  }
+}

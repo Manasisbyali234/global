@@ -36,17 +36,17 @@ function EmpCandidateReviewPage() {
     const [showStatusTermsModal, setShowStatusTermsModal] = useState(false);
     const [statusUpdateUnlocked, setStatusUpdateUnlocked] = useState(false);
     const stageStatusOptions = [
-        { value: 'shortlisted_for_next_round', label: 'Selected for next Round' },
+        { value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
         { value: 'on_hold', label: 'On Hold' },
         { value: 'pending_decision', label: 'Pending Decision' },
         { value: 'no_show', label: 'No Show' },
         { value: 'rejected', label: 'Not Advanced to Next Stage' }
     ];
 
-    const getStageStatusOptions = (index, currentStatus) => {
+    const getStageStatusOptions = (index) => {
         const isFinalStage = index === interviewProcesses.length - 1;
         const baseOptions = [...stageStatusOptions];
-        if (isFinalStage || currentStatus === 'shortlisted') {
+        if (isFinalStage) {
             baseOptions.push({ value: 'shortlisted', label: 'Selected' });
         }
         return baseOptions;
@@ -683,12 +683,12 @@ function EmpCandidateReviewPage() {
                                                                         }}
                                                                         disabled={isCurrentDisabled}
                                                                     >
-                                                                        {!getStageStatusOptions(index, process.status).some((option) => option.value === (process.status || 'pending')) && (
+                                                                        {!getStageStatusOptions(index).some((option) => option.value === (process.status || 'pending')) && (
                                                                             <option value={process.status || 'pending'}>
                                                                                 {(process.status || 'pending').replace(/_/g, ' ')}
                                                                             </option>
                                                                         )}
-                                                                        {getStageStatusOptions(index, process.status).map((option) => (
+                                                                        {getStageStatusOptions(index).map((option) => (
                                                                             <option key={option.value} value={option.value}>
                                                                                 {option.label}
                                                                             </option>
