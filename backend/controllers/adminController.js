@@ -221,6 +221,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       title: job.title,
       status: job.status,
       createdAt: job.createdAt,
+      offerLetterDate: job.offerLetterDate,
       applicationsCount: applicationsByJobMap.get(String(job._id)) || 0
     }));
 

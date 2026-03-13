@@ -241,13 +241,14 @@ function AdminOverviewPage() {
                       <th>Applications</th>
                       <th>Status</th>
                       <th>Posted Date</th>
+                      <th>Offer Letter Sent Date</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {employerJobs.filter(job => job.title.toLowerCase().includes(jobSearch.toLowerCase())).length === 0 ? (
                       <tr>
-                        <td colSpan="5" className="text-center">
+                        <td colSpan="6" className="text-center">
                           {jobSearch ? "No matching jobs found." : "No jobs found for this employer."}
                         </td>
                       </tr>
@@ -260,6 +261,7 @@ function AdminOverviewPage() {
                             <td>{job.applicationsCount}</td>
                             <td>{job.status}</td>
                             <td>{formatDate(job.createdAt)}</td>
+                            <td>{job.offerLetterDate ? formatDate(job.offerLetterDate) : 'N/A'}</td>
                             <td>
                               <button
                                 type="button"
