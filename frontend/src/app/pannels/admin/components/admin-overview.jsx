@@ -170,25 +170,6 @@ function AdminOverviewPage() {
                         </td>
                       </tr>
                     ) : (
-<<<<<<< HEAD
-                      employers.map((employer) => (
-                        <tr key={employer.employerId}>
-                          <td>{employer.employerName}</td>
-                          <td>{employer.jobsCount}</td>
-                          <td>{employer.applicationsCount}</td>
-                          <td>
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
-                              onClick={() => handleViewEmployerJobs(employer)}
-                              style={{ width: '32px', height: '32px', padding: '0' }}
-                            >
-                              <i className="fa fa-eye" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-=======
                       employers
                         .filter(emp => emp.employerName.toLowerCase().includes(employerSearch.toLowerCase()))
                         .map((employer) => (
@@ -208,7 +189,6 @@ function AdminOverviewPage() {
                             </td>
                           </tr>
                         ))
->>>>>>> 827d637bf6323173239eb75f09b9c1483bc0b3a6
                     )}
                   </tbody>
                 </table>
@@ -268,33 +248,7 @@ function AdminOverviewPage() {
                   <tbody>
                     {employerJobs.filter(job => job.title.toLowerCase().includes(jobSearch.toLowerCase())).length === 0 ? (
                       <tr>
-<<<<<<< HEAD
                         <td colSpan="6" className="text-center">
-                          No jobs found for this employer.
-                        </td>
-                      </tr>
-                    ) : (
-                      employerJobs.map((job) => (
-                        <tr key={job.jobId}>
-                          <td>{job.title}</td>
-                          <td>{job.applicationsCount}</td>
-                          <td>{job.status}</td>
-                          <td>{formatDate(job.createdAt)}</td>
-                          <td>{job.offerLetterDate ? formatDate(job.offerLetterDate) : 'N/A'}</td>
-                          <td>
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
-                              onClick={() => handleViewApplicants(job)}
-                              style={{ width: '32px', height: '32px', padding: '0' }}
-                            >
-                              <i className="fa fa-eye" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-=======
-                        <td colSpan="5" className="text-center">
                           {jobSearch ? "No matching jobs found." : "No jobs found for this employer."}
                         </td>
                       </tr>
@@ -307,6 +261,7 @@ function AdminOverviewPage() {
                             <td>{job.applicationsCount}</td>
                             <td>{job.status}</td>
                             <td>{formatDate(job.createdAt)}</td>
+                            <td>{job.offerLetterDate ? formatDate(job.offerLetterDate) : 'N/A'}</td>
                             <td>
                               <button
                                 type="button"
@@ -319,7 +274,6 @@ function AdminOverviewPage() {
                             </td>
                           </tr>
                         ))
->>>>>>> 827d637bf6323173239eb75f09b9c1483bc0b3a6
                     )}
                   </tbody>
                 </table>
