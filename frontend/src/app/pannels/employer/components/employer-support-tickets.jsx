@@ -202,36 +202,6 @@ function EmployerSupportTickets() {
         );
     };
 
-    const handleDeleteTicket = async (ticketId) => {
-        showConfirmation(
-            'Are you sure you want to delete this support ticket? This action cannot be undone.',
-            async () => {
-                try {
-                    const token = localStorage.getItem('employerToken');
-                    
-                    if (!token) {
-                        showError('Authentication token not found. Please login again.');
-                        return;
-                    }
-                    
-                    const result = await api.deleteEmployerSupportTicket(ticketId);
-                    
-                    if (result.success) {
-                        await fetchSupportTickets();
-                        showSuccess('Support ticket deleted successfully');
-                    } else {
-                        showError(result.message || 'Failed to delete support ticket');
-                    }
-                } catch (error) {
-                    console.error('Error deleting support ticket:', error);
-                    showError('Error deleting support ticket. Please try again.');
-                }
-            },
-            () => {},
-            'warning'
-        );
-    };
-
     const getPriorityBadge = (priority) => {
         const variants = {
             low: 'badge-soft-low',
@@ -385,7 +355,8 @@ function EmployerSupportTickets() {
                                                         onClick={() => handleTicketClick(ticket)}
                                                     >
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.subject}>
-                                                            <div className="ticket-subject">
+                                                            <div className="ticket-subject" style={{ display: 'flex', alignItems: 'center' }}>
+                                                                {!ticket.isRead && <span className="unread-dot" title="New Ticket"></span>}
                                                                 {ticket.subject}
                                                             </div>
                                                             {!ticket.isRead && <span className="new-badge">Unread</span>}
@@ -416,17 +387,6 @@ function EmployerSupportTickets() {
                                                                     }}
                                                                 >
                                                                     View
-                                                                </Button>
-                                                                <Button
-                                                                    className="delete-btn"
-                                                                    size="sm"
-                                                                    variant="outline-danger"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleDeleteTicket(ticket._id);
-                                                                    }}
-                                                                >
-                                                                    Delete
                                                                 </Button>
                                                             </div>
                                                         </td>

@@ -3,15 +3,39 @@ import JobZImage from "../../../common/jobz-img";
 import { NavLink, useLocation } from "react-router-dom";
 import { loadScript, setMenuActive } from "../../../../globals/constants";
 import { employer, empRoute, publicUser } from "../../../../globals/route-names";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../../../../utils/api";
 
 function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
     const currentpath = useLocation().pathname;
+    const [hasNewTickets, setHasNewTickets] = useState(false);
+
+    const checkNewTickets = async () => {
+        try {
+            const token = localStorage.getItem('employerToken');
+            if (!token) return;
+            
+            const data = await api.getEmployerSupportTickets({ status: 'new', limit: 1 });
+            
+            if (data.success) {
+                setHasNewTickets(data.unreadCount > 0 || (data.tickets && data.tickets.some(t => !t.isRead)));
+            }
+        } catch (error) {
+            console.error('Error checking new support tickets:', error);
+        }
+    };
 
     useEffect(() => {
         loadScript("js/custom.js");
         loadScript("js/emp-sidebar.js");
-    });
+        checkNewTickets();
+
+        const interval = setInterval(() => {
+            checkNewTickets();
+        }, 45000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     const handleLinkClick = () => {
         if (isMobile && onClose) {
@@ -60,7 +84,7 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
 
                         <li
                             className={setMenuActive(currentpath, empRoute(employer.MANAGE_JOBS))}>
-                            <NavLink to={empRoute(employer.MANAGE_JOBS)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-suitcase" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Openings</span></NavLink>
+                            <NavLink to={empRoute(employer.MANAGE_JOBS)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-suitcase" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Manage Jobs</span></NavLink>
                         </li>
 
                         <li className={setMenuActive(currentpath, empRoute(employer.CREATE_ASSESSMENT))}>
@@ -72,7 +96,20 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
                         </li>
 
                         <li className={setMenuActive(currentpath, empRoute(employer.SUPPORT_TICKETS))}>
-                            <NavLink to={empRoute(employer.SUPPORT_TICKETS)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-ticket-alt" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Candidate Tickets</span></NavLink>
+                            <NavLink to={empRoute(employer.SUPPORT_TICKETS)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}>
+                                <i className="fa fa-ticket-alt" style={{minWidth: '30px', textAlign: 'center'}} />
+                                <span className="admin-nav-text" style={{paddingLeft: '10px'}}>Candidate Tickets</span>
+                                {hasNewTickets && (
+                                    <span style={{
+                                        display: 'inline-block',
+                                        width: '8px',
+                                        height: '8px',
+                                        backgroundColor: '#ff4444',
+                                        borderRadius: '50%',
+                                        marginLeft: '8px'
+                                    }}></span>
+                                )}
+                            </NavLink>
                         </li>
 
                         <li className={setMenuActive(currentpath, empRoute(employer.SUPPORT))}>

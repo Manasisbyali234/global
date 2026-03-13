@@ -216,55 +216,6 @@ function AdminSupportTickets() {
         }
     };
 
-    const handleDeleteTicket = async (ticketId) => {
-        showConfirmation(
-            'Are you sure you want to delete this support ticket? This action cannot be undone.',
-            async () => {
-                try {
-                    const token = localStorage.getItem('adminToken');
-                    
-                    if (!token) {
-                        showError('Authentication token not found. Please login again.');
-                        return;
-                    }
-                    
-                    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-                    const response = await fetch(`${apiUrl}/api/admin/support-tickets/${ticketId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    let result;
-                    try {
-                        result = await response.json();
-                    } catch (parseError) {
-                        console.error('Failed to parse response:', parseError);
-                        showError('Server returned invalid response. Please try again.');
-                        return;
-                    }
-                    
-                    if (response.ok && result.success) {
-                        await fetchSupportTickets();
-                        showSuccess('Support ticket deleted successfully');
-                    } else {
-                        console.error('Delete failed - Status:', response.status, 'Result:', result);
-                        showError(result.message || `Delete failed with status ${response.status}`);
-                    }
-                } catch (error) {
-                    console.error('Error deleting support ticket:', error);
-                    showError('Error deleting support ticket. Please try again.');
-                }
-            },
-            () => {
-                // User cancelled - no action needed
-            },
-            'warning'
-        );
-    };
-
     const getPriorityBadge = (priority) => {
         const variants = {
             low: 'badge-soft-low',
@@ -450,7 +401,8 @@ function AdminSupportTickets() {
                                                         onClick={() => handleTicketClick(ticket)}
                                                     >
                                                         <td style={{whiteSpace: 'normal', wordWrap: 'break-word'}} title={ticket.subject}>
-                                                            <div className="ticket-subject">
+                                                            <div className="ticket-subject" style={{ display: 'flex', alignItems: 'center' }}>
+                                                                {!ticket.isRead && <span className="unread-dot" title="New Ticket"></span>}
                                                                 {ticket.subject}
                                                             </div>
                                                             {!ticket.isRead && <span className="new-badge">Unread</span>}
@@ -482,17 +434,6 @@ function AdminSupportTickets() {
                                                                     }}
                                                                 >
                                                                     View
-                                                                </Button>
-                                                                <Button
-                                                                    className="delete-btn"
-                                                                    size="sm"
-                                                                    variant="outline-danger"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleDeleteTicket(ticket._id);
-                                                                    }}
-                                                                >
-                                                                    Delete
                                                                 </Button>
                                                             </div>
                                                         </td>

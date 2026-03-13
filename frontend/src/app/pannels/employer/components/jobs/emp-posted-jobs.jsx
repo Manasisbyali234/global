@@ -1,7 +1,7 @@
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 import { formatDate as formatDateUtil } from '../../../../../utils/dateFormatter';
 import { Building2, Calendar, Edit, Eye, MapPin, Pause, Play, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadScript } from "../../../../../globals/constants";
 import { employer, empRoute } from "../../../../../globals/route-names";
@@ -48,6 +48,17 @@ export default function EmpPostedJobs() {
         }
         setFilteredJobs(next);
     }, [jobs, statusFilter, searchText, employerType]);
+
+    const jobSuggestions = useMemo(() => {
+        const suggestions = new Set();
+        jobs.forEach((job) => {
+            const title = job.title;
+            if (title && String(title).trim() !== "") {
+                suggestions.add(String(title).trim());
+            }
+        });
+        return Array.from(suggestions).sort((a, b) => a.localeCompare(b));
+    }, [jobs]);
 
     const fetchJobs = async () => {
         try {
@@ -214,7 +225,7 @@ export default function EmpPostedJobs() {
 			{/* Header */}
 			<div style={{ padding: '2rem 2rem 2rem 2rem' }}>
 				<div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-					<h2>Jobs Posted</h2>
+					<h2>Manage Jobs</h2>
 				</div>
 			</div>
 
@@ -224,10 +235,10 @@ export default function EmpPostedJobs() {
 				<div className="panel-heading wt-panel-heading mb-3 d-flex justify-content-between">
                     <div>
                         <h4 className="panel-tittle">
-                            <i className="far fa-list-alt" /> Job Details
+                            <i className="far fa-list-alt" /> Job Listing
                         </h4>
 
-                        <p className="text-muted">Review and manage jobs details</p>
+                        <p className="text-muted"> <span style={{ color: "red", fontWeight: "600" }}>Please Note:</span> Review and manage jobs details</p>
                     </div>
 					
                     <div className="text-left">
@@ -259,8 +270,14 @@ export default function EmpPostedJobs() {
 								placeholder="Search by title, location, or company name..."
 								value={searchText}
 								onChange={(e) => setSearchText(e.target.value)}
+								list="job-title-suggestions"
 								style={{paddingLeft: '40px'}}
 							/>
+							<datalist id="job-title-suggestions">
+								{jobSuggestions.map((title) => (
+									<option key={title} value={title} />
+								))}
+							</datalist>
 						</div>
 						<div className="d-flex gap-2">
 							<button 

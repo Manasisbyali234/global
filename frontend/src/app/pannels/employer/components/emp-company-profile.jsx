@@ -96,8 +96,6 @@ function EmpCompanyProfilePage() {
     const [loading, setLoading] = useState(false);
     const [authSections, setAuthSections] = useState([{ id: 1, companyName: '' }]);
     const [fetchingCity, setFetchingCity] = useState(false);
-    const [fetchingGST, setFetchingGST] = useState(false);
-    const [gstAutoFilled, setGstAutoFilled] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState(null);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [imageToDelete, setImageToDelete] = useState(null);
@@ -122,7 +120,7 @@ function EmpCompanyProfilePage() {
         cin: { pattern: /^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/, patternMessage: 'Invalid CIN format. Must be 21 characters (e.g., U12345AB1234ABC123456)' },
         gstNumber: { required: true, pattern: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, patternMessage: 'Invalid GST format. Must be 15 characters (e.g., 12ABCDE1234F1Z5)' },
         industrySector: { required: true },
-        panNumber: { required: true, pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, patternMessage: 'Invalid PAN format. Must be 10 characters (e.g., ABCDE1234F)' },
+        panNumber: { pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, patternMessage: 'Invalid PAN format. Must be 10 characters (e.g., ABCDE1234F)' },
         contactFullName: { required: true, minLength: 2 },
         contactLastName: { required: true, minLength: 2 },
         contactDesignation: { required: true, minLength: 2 },
@@ -305,7 +303,7 @@ function EmpCompanyProfilePage() {
                 }
 
                 // Handle company type - if it's not a predefined option, set it as Others - Specify
-                const predefinedCompanyTypes = ['Private Limited', 'LLP', 'Partnership', 'Proprietorship', 'Government', 'NGO', 'Startup'];
+                const predefinedCompanyTypes = ['Private Limited', 'LLP', 'Partnership', 'Proprietorship', 'Government', 'NGO', 'Startup', 'Law Firm/Legal'];
                 if (profileData.companyType && !predefinedCompanyTypes.includes(profileData.companyType)) {
                     profileData.customCompanyType = profileData.companyType;
                     profileData.companyType = 'Others - Specify';
@@ -417,15 +415,10 @@ function EmpCompanyProfilePage() {
         }
         
         setFormData(prev => ({ ...prev, [field]: value }));
-        
+
         // Fetch city when pincode is entered
         if (field === 'pincode' && value.length === 6) {
             await fetchCityFromPincode(value);
-        }
-        
-        // Fetch GST info when GST number is entered (15 characters)
-        if (field === 'gstNumber' && value.length === 15) {
-            await fetchGSTInfo(value);
         }
     };
 
@@ -460,54 +453,11 @@ function EmpCompanyProfilePage() {
         }
     };
 
-    const fetchGSTInfo = async (gstNumber) => {
-        // Validate GST format first
-        const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-        if (!gstRegex.test(gstNumber)) {
-            return;
-        }
-        
-        setFetchingGST(true);
-        try {
-            const token = localStorage.getItem('employerToken');
-            if (!token) {
-                showWarning('Please login to access GST information.');
-                return;
-            }
-            
-            const response = await fetch(`${API_BASE_URL}/employer/gst/${gstNumber}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            const data = await response.json();
-            
-            console.log('GST API Response:', data);
-            
-            if (data.success) {
-                showSuccess('GST Number: Valid');
-            } else {
-                showError('GST Number: Invalid');
-            }
-        } catch (error) {
-            console.error('Error fetching GST info:', error);
-            showError('GST Number: Failed to verify GST information');
-        } finally {
-            setFetchingGST(false);
-        }
-    };
-
     const validateFormData = () => {
         const formErrors = validateForm(formData, validationRules);
         
         // Add document upload validation
-        const requiredDocuments = {
-            panCardImage: 'PAN Card Image',
-            gstImage: 'GST Certificate',
-            certificateOfIncorporation: 'Certificate of Incorporation (Issued by RoC)'
-        };
+        const requiredDocuments = {};
         
         Object.entries(requiredDocuments).forEach(([field, label]) => {
             if (!formData[field] || formData[field].trim() === '') {
@@ -1123,7 +1073,7 @@ function EmpCompanyProfilePage() {
                 
                 <div className="alert alert-info mt-3" style={{fontSize: '14px'}}>
                     <i className="fas fa-info-circle me-2"></i>
-                    <strong>Important:</strong> Complete all required fields and upload all required documents (PAN Card, CIN Document, GST Certificate, and Certificate of Incorporation) before clicking "Save Profile". You can post jobs only after admin approval.
+                    <strong>Important:</strong> Complete all required fields before clicking "Save Profile". You can post jobs only after admin approval.
                 </div>
             </div>
             </div>
@@ -1281,7 +1231,6 @@ function EmpCompanyProfilePage() {
                                     <label className="required-field">
                                         <Building size={16} className="me-2" /> 
                                         Company Name
-                                        {gstAutoFilled && <i className="fas fa-robot text-success ms-2" title="Auto-filled from GST"></i>}
                                     </label>
                                     <input
                                         className="form-control"
@@ -1646,7 +1595,6 @@ function EmpCompanyProfilePage() {
                                     <label className="required-field">
                                         <MapPin size={16} className="me-2" /> 
                                         Corporate Office Address
-                                        {gstAutoFilled && <i className="fas fa-robot text-success ms-2" title="Auto-filled from GST"></i>}
                                     </label>
                                     <input
                                         className="form-control"
@@ -1798,6 +1746,7 @@ function EmpCompanyProfilePage() {
                                         <option value="Proprietorship">Proprietorship</option>
                                         <option value="Government">Government</option>
                                         <option value="NGO">NGO</option>
+                                        <option value="Law Firm/Legal">Law Firm/Legal</option>
                                         <option value="Startup">Startup</option>
                                         <option value="Others - Specify">Others - Specify</option>
                                     </select>
@@ -1828,66 +1777,15 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label className="required-field"><Hash size={16} className="me-2" /> GST Number</label>
-                                    <div className="position-relative">
-                                        <input
-                                            className="form-control"
-                                            type="text"
-                                            value={formData.gstNumber}
-                                            onChange={(e) => {
-                                                handleInputChange('gstNumber', e.target.value);
-                                                if (gstAutoFilled && e.target.value !== formData.gstNumber) {
-                                                    setGstAutoFilled(false);
-                                                }
-                                            }}
-                                            placeholder="12ABCDE1234F1Z5"
-                                            maxLength="15"
-                                        />
-                                        {fetchingGST && (
-                                            <div className="position-absolute" style={{right: '10px', top: '50%', transform: 'translateY(-50%)'}}>
-                                                <div className="spinner-border spinner-border-sm text-primary" role="status">
-                                                    <span className="visually-hidden">Loading...</span>
-                                                </div>
-                                            </div>
-                                        )}
-                                        {gstAutoFilled && !fetchingGST && (
-                                            <div className="position-absolute" style={{right: '10px', top: '50%', transform: 'translateY(-50%)'}}>
-                                                <i className="fas fa-check-circle text-success" title="Information auto-filled from GST database"></i>
-                                            </div>
-                                        )}
-                                    </div>
-                                    {fetchingGST && <small className="text-info">Fetching company information from GST database...</small>}
-                                    {gstAutoFilled && !fetchingGST && (
-                                        <small className="text-success">
-                                            <i className="fas fa-info-circle me-1"></i>
-                                            Company information auto-filled from GST database. Please verify and update if needed.
-                                        </small>
-                                    )}
-                                    <small className="text-muted d-block mt-1">
-                                        Enter your 15-digit GST number to auto-fill company information
-                                    </small>
-                                    {formData.gstNumber && formData.gstNumber.length === 15 && !gstAutoFilled && (
-                                        <div className="mt-2">
-                                            <button
-                                                type="button"
-                                                className="btn btn-sm btn-outline-primary"
-                                                onClick={() => fetchGSTInfo(formData.gstNumber)}
-                                                disabled={fetchingGST}
-                                            >
-                                                {fetchingGST ? (
-                                                    <>
-                                                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                                                        Fetching...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <i className="fas fa-search me-2"></i>
-                                                        Fetch Company Info
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
-                                    )}
+                                    <label className="required-field"><Hash size={16} className="me-2" /> GST Number/Darpan (if applicable)</label>
+                                    <input
+                                        className="form-control"
+                                        type="text"
+                                        value={formData.gstNumber}
+                                        onChange={(e) => handleInputChange('gstNumber', e.target.value)}
+                                        placeholder="12ABCDE1234F1Z5"
+                                        maxLength="15"
+                                    />
                                 </div>
                             </div>
 
@@ -1922,7 +1820,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label className="required-field"><Hash size={16} className="me-2" /> Company PAN Card Number</label>
+                                    <label><Hash size={16} className="me-2" /> Company PAN Card Number</label>
                                     <input
                                         className="form-control"
                                         type="text"
@@ -1935,7 +1833,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label className="required-field"><Upload size={16} className="me-2" /> Upload PAN Card Image</label>
+                                    <label><Upload size={16} className="me-2" /> Upload PAN Card Image</label>
                                     <input
                                         className="form-control"
                                         type="file"
@@ -1977,7 +1875,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label className="required-field"><Upload size={16} className="me-2" /> Upload GST Certificate</label>
+                                    <label><Upload size={16} className="me-2" /> Upload GST Certificate</label>
                                     <input
                                         className="form-control"
                                         type="file"
@@ -1998,7 +1896,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label className="required-field"><Upload size={16} className="me-2" /> Certificate of Incorporation (Issued by RoC)</label>
+                                    <label><Upload size={16} className="me-2" /> Certificate of Incorporation (Issued by RoC)</label>
                                     <input
                                         className="form-control"
                                         type="file"

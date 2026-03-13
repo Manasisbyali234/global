@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { formatDate } from "../../../../utils/dateFormatter";
+import { admin, adminRoute } from "../../../../globals/route-names";
 import "./admin-overview.css";
 
 function AdminOverviewPage() {
@@ -121,9 +122,9 @@ function AdminOverviewPage() {
           </h2>
           <p>All employer name, number of jobs, and number of applicants.</p>
         </div>
-        <button type="button" className="btn btn-outline-secondary" onClick={() => navigate("/admin/dashboard")}>
+        <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(adminRoute(admin.CAN_MANAGE))}>
           <i className="fa fa-arrow-left me-2" />
-          Back to Dashboard
+          Back to Employer
         </button>
       </div>
 

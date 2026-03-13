@@ -249,16 +249,6 @@ function AdminDashboardPage() {
                                         <i className="fa fa-chart-area me-3" style={{color: '#fd7e14'}}></i>
                                         Platform Analytics
                                     </h3>
-                                    {!isSubAdmin && (
-                                        <button
-                                            type="button"
-                                            className="btn btn-warning"
-                                            onClick={() => navigate('/admin/overview')}
-                                        >
-                                            <i className="fa fa-table me-2"></i>
-                                            Overview
-                                        </button>
-                                    )}
                                 </div>
                             </div>
                             <AdminDashboardActivityChart />

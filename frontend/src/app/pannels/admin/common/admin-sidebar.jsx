@@ -13,6 +13,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
     const [openMenus, setOpenMenus] = useState({});
     const [hasNewEmployers, setHasNewEmployers] = useState(false);
     const [hasNewPlacements, setHasNewPlacements] = useState(false);
+    const [hasNewTickets, setHasNewTickets] = useState(false);
     const employersLinkRef = useRef(null);
     const placementLinkRef = useRef(null);
 
@@ -92,15 +93,36 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         }
     };
 
+    // Check for new support tickets
+    const checkNewTickets = async () => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            if (!token) return;
+            
+            const res = await fetch('http://localhost:5000/api/admin/support-tickets?status=new&limit=1', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                setHasNewTickets(data.unreadCount > 0 || (data.tickets && data.tickets.some(t => !t.isRead)));
+            }
+        } catch (error) {
+            console.error('Error checking new support tickets:', error);
+        }
+    };
+
     useEffect(() => {
         loadScript("js/custom.js");
         loadScript("js/admin-sidebar.js");
         checkNewEmployers();
         checkNewPlacements();
+        checkNewTickets();
         
         const interval = setInterval(() => {
             checkNewEmployers();
             checkNewPlacements();
+            checkNewTickets();
         }, 45000);
         
         // Add arrows after scripts load
@@ -142,7 +164,8 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         const isEmployerPath = [
             adminRoute(admin.CAN_MANAGE),
             adminRoute(admin.CAN_APPROVE), 
-            adminRoute(admin.CAN_REJECT)
+            adminRoute(admin.CAN_REJECT),
+            adminRoute(admin.OVERVIEW)
         ].includes(currentpath);
         
         const isPlacementPath = [
@@ -236,6 +259,11 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                             <span className="admin-nav-text">Rejected</span>
                                         </NavLink>
                                     </li>
+                                    <li className={currentpath === adminRoute(admin.OVERVIEW) ? 'active' : ''}>
+                                        <NavLink to={adminRoute(admin.OVERVIEW)} id="overviewList">
+                                            <span className="admin-nav-text">Overview</span>
+                                        </NavLink>
+                                    </li>
                                 </ul>
                             </li>
                         )}
@@ -310,6 +338,16 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                             <NavLink to={adminRoute(admin.SUPPORT_TICKETS)}>
                                 <i className="fa fa-headset" />
                                 <span className="admin-nav-text">Support Tickets</span>
+                                {hasNewTickets && (
+                                    <span style={{
+                                        display: 'inline-block',
+                                        width: '8px',
+                                        height: '8px',
+                                        backgroundColor: '#ff4444',
+                                        borderRadius: '50%',
+                                        marginLeft: '8px'
+                                    }}></span>
+                                )}
                             </NavLink>
                         </li>
 

@@ -27,7 +27,6 @@ function AdminSubAdmin() {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        username: '',
         email: '',
         phone: '',
         employerCode: '',
@@ -96,15 +95,6 @@ function AdminSubAdmin() {
             errors.lastName = 'Last name must be at least 2 characters';
         } else if (!/^[a-zA-Z\s]+$/.test(formData.lastName)) {
             errors.lastName = 'Last name can only contain letters';
-        }
-        
-        // Username validation
-        if (!formData.username.trim()) {
-            errors.username = 'Username is required';
-        } else if (formData.username.trim().length < 3) {
-            errors.username = 'Username must be at least 3 characters';
-        } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
-            errors.username = 'Username can only contain letters, numbers, and underscores';
         }
         
         // Email validation
@@ -177,7 +167,7 @@ function AdminSubAdmin() {
                 name: `${formData.firstName} ${formData.lastName}`,
                 firstName: formData.firstName,
                 lastName: formData.lastName,
-                username: formData.username,
+                username: formData.email, // Use email as username since it's required by backend
                 email: formData.email,
                 phone: formData.phone,
                 employerCode: formData.employerCode,
@@ -220,7 +210,6 @@ function AdminSubAdmin() {
         setFormData({
             firstName: '',
             lastName: '',
-            username: '',
             email: '',
             phone: '',
             employerCode: '',
@@ -241,7 +230,6 @@ function AdminSubAdmin() {
         setFormData({
             firstName: firstName || '',
             lastName: lastName || '',
-            username: admin.username,
             email: admin.email,
             phone: admin.phone || '',
             employerCode: admin.employerCode || '',
@@ -340,7 +328,6 @@ function AdminSubAdmin() {
         } else {
             const filtered = subAdmins.filter(admin => 
                 admin.name.toLowerCase().includes(term.toLowerCase()) ||
-                admin.username.toLowerCase().includes(term.toLowerCase()) ||
                 admin.email.toLowerCase().includes(term.toLowerCase()) ||
                 admin.employerCode.toLowerCase().includes(term.toLowerCase())
             );
@@ -383,7 +370,7 @@ function AdminSubAdmin() {
                                 
                                 <SearchBar 
                                     onSearch={handleSearch}
-                                    placeholder="Search by name, username, email, or employer code..."
+                                    placeholder="Search by name, email, or employer code..."
                                     className="mb-3"
                                 />
                                 
@@ -397,7 +384,6 @@ function AdminSubAdmin() {
                                         <thead>
                                             <tr>
                                                 <th>Name</th>
-                                                <th>Username</th>
                                                 <th>Email</th>
                                                 <th>Employer Code</th>
                                                 <th>Permissions</th>
@@ -411,7 +397,6 @@ function AdminSubAdmin() {
                                                         <td>
                                                             <span className="company-name">{admin.name}</span>
                                                         </td>
-                                                        <td>{admin.username}</td>
                                                         <td>{admin.email}</td>
                                                         <td style={{fontFamily: 'monospace', fontSize: '0.85rem', fontWeight: '600'}}>{admin.employerCode}</td>
                                                         <td style={{fontSize: '0.85rem'}}>
@@ -508,23 +493,6 @@ function AdminSubAdmin() {
 
                                         <div className="col-md-6">
                                             <input
-                                                className={`form-control rounded-3 ${validationErrors.username ? 'is-invalid' : ''}`}
-                                                name="username"
-                                                type="text"
-                                                placeholder="Username *"
-                                                value={formData.username}
-                                                onChange={handleInputChange}
-                                            />
-                                            {validationErrors.username && (
-                                                <div className="invalid-feedback d-block">
-                                                    <i className="fa fa-exclamation-circle me-1"></i>
-                                                    {validationErrors.username}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <input
                                                 className={`form-control rounded-3 ${validationErrors.email ? 'is-invalid' : ''}`}
                                                 name="email"
                                                 type="email"
@@ -540,7 +508,7 @@ function AdminSubAdmin() {
                                             )}
                                         </div>
 
-                                        <div className="col-12">
+                                        <div className="col-md-6">
                                             <input
                                                 className={`form-control rounded-3 ${validationErrors.phone ? 'is-invalid' : ''}`}
                                                 name="phone"
@@ -557,7 +525,7 @@ function AdminSubAdmin() {
                                             )}
                                         </div>
 
-                                        <div className="col-12">
+                                        <div className="col-md-6">
                                             <input
                                                 className={`form-control rounded-3 ${validationErrors.employerCode ? 'is-invalid' : ''}`}
                                                 name="employerCode"
