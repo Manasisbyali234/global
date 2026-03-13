@@ -337,6 +337,21 @@ export default function EmpPostJob({ onNext }) {
 	});
 	const minInterviewDate = formData.lastDateOfApplication ? getNextDayDateString(formData.lastDateOfApplication) : today;
 
+	const getMinDateForRound = (roundKey) => {
+		const roundIndex = formData.interviewRoundOrder.indexOf(roundKey);
+		if (roundIndex === 0) {
+			return minInterviewDate;
+		}
+		const prevRoundKey = formData.interviewRoundOrder[roundIndex - 1];
+		const prevRoundDetails = formData.interviewRoundDetails[prevRoundKey];
+		// Use toDate if available (multi-day rounds), otherwise fromDate
+		const prevEndDate = prevRoundDetails?.toDate || prevRoundDetails?.fromDate;
+		if (prevEndDate) {
+			return getNextDayDateString(prevEndDate);
+		}
+		return minInterviewDate;
+	};
+
 	const [employerType, setEmployerType] = useState('company');
 	const [currentStep, setCurrentStep] = useState(parseInt(searchParams.get('step')) || 1);
 
@@ -759,57 +774,28 @@ export default function EmpPostJob({ onNext }) {
 
 				const currentRoundIndex = s.interviewRoundOrder.indexOf(roundType);
 				
-				// Check if next round can only start after previous round's end date
+				// Enforce next day rule if it's not the first round
 				if (currentRoundIndex > 0) {
 					const prevRoundKey = s.interviewRoundOrder[currentRoundIndex - 1];
 					const prevRoundDetails = s.interviewRoundDetails[prevRoundKey];
+					const prevEndDate = prevRoundDetails?.toDate || prevRoundDetails?.fromDate;
 					
-					if (prevRoundDetails?.fromDate) {
-						const prevRoundDate = new Date(prevRoundDetails.fromDate);
-						const currentRoundDate = new Date(value);
-						
-						if (currentRoundDate < prevRoundDate) {
-							const prevRoundType = s.interviewRoundTypes[prevRoundKey];
-							const roundNames = {
-								technical: 'Technical',
-								managerial: 'Managerial Round',
-								hr: 'HR Round',
-								oneOnOnePanel: 'One-on-One / Panel',
-								group: 'Group',
-								situational: 'Situational / Behavioral',
-								assessment: 'MCQ/Aptitude/Assessment',
-								others: prevRoundDetails.customType || 'Others'
-							};
-							const prevRoundName = roundNames[prevRoundType] || prevRoundType;
-							
-							showError(`This round cannot be scheduled before the previous round. ${prevRoundName} (Stage ${currentRoundIndex}) is scheduled for ${formatDate(prevRoundDetails.fromDate)}. Please select a date on or after ${formatDate(prevRoundDetails.fromDate)}.`);
+					if (prevEndDate) {
+						const nextDay = getNextDayDateString(prevEndDate);
+						if (value !== nextDay) {
+							showError(`Next interview round must be on the next day of the previous round only. Please select ${formatDate(nextDay)}.`);
 							return s;
 						}
 					}
 				}
 				
-				// Check for overlapping dates with other rounds
+				// Check for overlapping dates with other rounds (sanity check)
 				for (let i = 0; i < s.interviewRoundOrder.length; i++) {
-					if (i === currentRoundIndex) continue; // Skip current round
-					
+					if (i === currentRoundIndex) continue;
 					const otherRoundKey = s.interviewRoundOrder[i];
 					const otherRoundDetails = s.interviewRoundDetails[otherRoundKey];
-					
 					if (otherRoundDetails?.fromDate === value) {
-						const otherRoundType = s.interviewRoundTypes[otherRoundKey];
-						const roundNames = {
-							technical: 'Technical',
-							managerial: 'Managerial Round',
-							hr: 'HR Round',
-							oneOnOnePanel: 'One-on-One / Panel',
-							group: 'Group',
-							situational: 'Situational / Behavioral',
-							assessment: 'MCQ/Aptitude/Assessment',
-							others: otherRoundDetails.customType || 'Others'
-						};
-						const otherRoundName = roundNames[otherRoundType] || otherRoundType;
-						
-						showError(`You cannot schedule it on ${formatDate(value)} because it clashes with ${otherRoundName} (Stage ${i + 1}). Interview rounds should not overlap.`);
+						showError(`This date clashes with Stage ${i + 1}. Interview rounds should be scheduled on consecutive days.`);
 						return s;
 					}
 				}
@@ -855,6 +841,31 @@ export default function EmpPostJob({ onNext }) {
 					...additionalUpdates
 				}
 			};
+
+			// Propagate dates to subsequent rounds if fromDate or toDate changed
+			if (field === 'fromDate' || field === 'toDate' || additionalUpdates.toDate) {
+				const roundIndex = s.interviewRoundOrder.indexOf(roundType);
+				if (roundIndex !== -1) {
+					for (let i = roundIndex + 1; i < s.interviewRoundOrder.length; i++) {
+						const prevKey = s.interviewRoundOrder[i - 1];
+						const currentKey = s.interviewRoundOrder[i];
+						const prevEndDate = updatedDetails[prevKey].toDate || updatedDetails[prevKey].fromDate;
+						
+						if (prevEndDate) {
+							const nextDate = getNextDayDateString(prevEndDate);
+							// Always set to next day to ensure consecutive scheduling
+							updatedDetails[currentKey] = {
+								...updatedDetails[currentKey],
+								fromDate: nextDate,
+								toDate: nextDate // Reset to 1 day by default
+							};
+							
+							// Note: We don't automatically regenerate subStages here as that might be disruptive
+							// But the main dates will be correctly set for the "next day only" rule
+						}
+					}
+				}
+			}
 			
 			// Log the update for debugging
 			console.log(`Updated ${roundType} ${field}:`, value);
@@ -3870,7 +3881,7 @@ export default function EmpPostJob({ onNext }) {
 													background: '#f8fafc'
 												}}
 												type="date"
-												min={minInterviewDate}
+												min={getMinDateForRound(assessmentKey)}
 												value={formData.interviewRoundDetails[assessmentKey]?.fromDate || ''}
 												onChange={(e) => updateRoundDetails(assessmentKey, 'fromDate', e.target.value)}
 											/>
@@ -4147,7 +4158,7 @@ export default function EmpPostJob({ onNext }) {
 																background: '#f8fafc'
 															}}
 															type="date"
-															min={minInterviewDate}
+															min={getMinDateForRound(uniqueKey)}
 															value={details.fromDate || ''}
 															onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
 														/>
@@ -4407,7 +4418,7 @@ export default function EmpPostJob({ onNext }) {
 																	borderRadius: '6px',
 																	background: '#fff'
 																}}
-																min={minInterviewDate}
+																min={getMinDateForRound(uniqueKey)}
 																value={details.fromDate || ''}
 																onChange={(e) => updateRoundDetails(uniqueKey, 'fromDate', e.target.value)}
 															/>
@@ -4516,7 +4527,7 @@ export default function EmpPostJob({ onNext }) {
 																			width: '100%',
 																			fontSize: '14px'
 																		}}
-																		min={minInterviewDate}
+																		min={getMinDateForRound(uniqueKey)}
 																		value={subStage.fromDate || ''}
 																		onChange={(e) => {
 																			const selectedDate = e.target.value;

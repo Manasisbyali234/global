@@ -20,10 +20,13 @@ export default function EmpPostedJobs() {
     const [searchText, setSearchText] = useState('');
     const [applicationCounts, setApplicationCounts] = useState({});
     const [showEmployerInstructionsModal, setShowEmployerInstructionsModal] = useState(false);
+    const [candidateSupportTicketsCount, setCandidateSupportTicketsCount] = useState(0);
+    const [checkingTickets, setCheckingTickets] = useState(false);
     
     useEffect(() => {
         loadScript("js/custom.js");
         fetchJobs();
+        fetchCandidateSupportTicketsCount();
     }, []);
 
     useEffect(() => {
@@ -59,6 +62,30 @@ export default function EmpPostedJobs() {
         });
         return Array.from(suggestions).sort((a, b) => a.localeCompare(b));
     }, [jobs]);
+
+    const fetchCandidateSupportTicketsCount = async () => {
+        try {
+            setCheckingTickets(true);
+            const token = localStorage.getItem('employerToken');
+            if (!token) return;
+
+            const response = await fetch('http://localhost:5000/api/employer/support-tickets', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const candidateTickets = (data.tickets || []).filter(
+                    ticket => ticket.ticketType === 'candidate'
+                );
+                setCandidateSupportTicketsCount(candidateTickets.length);
+            }
+        } catch (error) {
+            console.error('Error fetching support tickets:', error);
+        } finally {
+            setCheckingTickets(false);
+        }
+    };
 
     const fetchJobs = async () => {
         try {
@@ -143,6 +170,10 @@ export default function EmpPostedJobs() {
     };
 
     const handleOpenPostJobFlow = () => {
+        if (candidateSupportTicketsCount > 10) {
+            showError('You cannot post a job because you have more than 10 candidate support tickets. Please resolve them first.');
+            return;
+        }
         setShowEmployerInstructionsModal(true);
     };
 
@@ -242,7 +273,17 @@ export default function EmpPostedJobs() {
                     </div>
 					
                     <div className="text-left">
-                        {isApproved ? (
+                        {candidateSupportTicketsCount > 10 ? (
+                            <div>
+                                <button type="button" className="site-button" disabled>
+                                    Post Job
+                                </button>
+                                <div className="alert alert-danger mt-2 mb-0 d-flex align-items-center" style={{fontSize: '14px', padding: '8px 12px'}}>
+                                    <i className="fas fa-exclamation-circle me-2" style={{color: '#721c24'}}></i>
+                                    <strong>Cannot post job: You have {candidateSupportTicketsCount} candidate support tickets. Please resolve them to below 10.</strong>
+                                </div>
+                            </div>
+                        ) : isApproved ? (
                             <button type="button" className="site-button" onClick={handleOpenPostJobFlow}>
                                 Post Job
                             </button>
@@ -315,7 +356,20 @@ export default function EmpPostedJobs() {
                             {filteredJobs.length === 0 ? (
                                 <div className="col-12 text-center py-4">
                                     <p className="text-muted">No jobs posted yet.</p>
-                                    {isApproved ? (
+                                    {candidateSupportTicketsCount > 10 ? (
+                                        <div>
+                                            <button type="button" className="site-button" disabled>
+                                                Post Your First Job
+                                            </button>
+                                            <div className="alert alert-danger mt-3 d-flex align-items-center justify-content-center" style={{maxWidth: '600px', margin: '16px auto'}}>
+                                                <i className="fas fa-exclamation-circle me-2" style={{color: '#721c24'}}></i>
+                                                <div>
+                                                    <strong>Cannot post job</strong><br/>
+                                                    <small>You have {candidateSupportTicketsCount} candidate support tickets. Please resolve them to below 10 before posting a job.</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : isApproved ? (
                                         <button type="button" className="site-button" onClick={handleOpenPostJobFlow}>
                                             Post Your First Job
                                         </button>
