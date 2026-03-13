@@ -45,11 +45,13 @@ function EmpCandidateReviewPage() {
 
     const getStageStatusOptions = (index) => {
         const isFinalStage = index === interviewProcesses.length - 1;
-        const baseOptions = [...stageStatusOptions];
         if (isFinalStage) {
-            baseOptions.push({ value: 'shortlisted', label: 'Selected' });
+            return [
+                { value: 'shortlisted', label: 'Selected' },
+                { value: 'rejected', label: 'Rejected' }
+            ];
         }
-        return baseOptions;
+        return stageStatusOptions;
     };
 
     useEffect(() => {

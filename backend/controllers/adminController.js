@@ -195,7 +195,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
     }
 
     const jobs = await Job.find({ employerId })
-      .select('_id title status createdAt')
+      .select('_id title status createdAt offerLetterDate')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -221,6 +221,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       title: job.title,
       status: job.status,
       createdAt: job.createdAt,
+      offerLetterDate: job.offerLetterDate,
       applicationsCount: applicationsByJobMap.get(String(job._id)) || 0
     }));
 

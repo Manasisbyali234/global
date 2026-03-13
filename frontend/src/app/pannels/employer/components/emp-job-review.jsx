@@ -64,6 +64,15 @@ function EmpJobReviewPage() {
         (customType && customType.trim()) || roundNames[roundType] || roundType || 'Interview Round'
     );
 
+    const isPastEndDate = (date) => {
+        if (!date) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const endDate = new Date(date);
+        endDate.setHours(0, 0, 0, 0);
+        return today > endDate;
+    };
+
     const interviewRoundsArray = Array.isArray(jobDetails.interviewRounds) ? jobDetails.interviewRounds : [];
     const interviewRoundOrder = Array.isArray(jobDetails.interviewRoundOrder) ? jobDetails.interviewRoundOrder : [];
     const interviewRoundTypes = jobDetails.interviewRoundTypes || {};
@@ -166,9 +175,6 @@ function EmpJobReviewPage() {
                                                             <span className="interview-stage-pill">Stage {round.stageNumber}</span>
                                                             <h6 className="interview-round-title">{round.displayName}</h6>
                                                         </div>
-                                                        <span className={`interview-round-type ${round.isAssessment ? 'assessment' : 'live'}`}>
-                                                            {round.isAssessment ? 'Assessment' : 'Interview'}
-                                                        </span>
                                                     </div>
 
                                                     {round.description && (
@@ -205,7 +211,7 @@ function EmpJobReviewPage() {
                                                         </div>
                                                     </div>
 
-                                                    {round.roundId && !round.isAssessment && (
+                                                    {round.roundId && !round.isAssessment && !isPastEndDate(round.toDate || round.fromDate) && (
                                                         <button
                                                             className="btn site-button-secondry btn-sm interview-open-btn"
                                                             onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round.roundId}`, '_blank')}

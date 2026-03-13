@@ -161,11 +161,11 @@ function AdminOverviewPage() {
                           <td>
                             <button
                               type="button"
-                              className="btn btn-sm btn-outline-primary"
+                              className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
                               onClick={() => handleViewEmployerJobs(employer)}
+                              style={{ width: '32px', height: '32px', padding: '0' }}
                             >
-                              <i className="fa fa-eye me-1" />
-                              View
+                              <i className="fa fa-eye" />
                             </button>
                           </td>
                         </tr>
@@ -210,13 +210,14 @@ function AdminOverviewPage() {
                       <th>Applications</th>
                       <th>Status</th>
                       <th>Posted Date</th>
+                      <th>Offer Letter Sent Date</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {employerJobs.length === 0 ? (
                       <tr>
-                        <td colSpan="5" className="text-center">
+                        <td colSpan="6" className="text-center">
                           No jobs found for this employer.
                         </td>
                       </tr>
@@ -227,14 +228,15 @@ function AdminOverviewPage() {
                           <td>{job.applicationsCount}</td>
                           <td>{job.status}</td>
                           <td>{formatDate(job.createdAt)}</td>
+                          <td>{job.offerLetterDate ? formatDate(job.offerLetterDate) : 'N/A'}</td>
                           <td>
                             <button
                               type="button"
-                              className="btn btn-sm btn-outline-primary"
+                              className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
                               onClick={() => handleViewApplicants(job)}
+                              style={{ width: '32px', height: '32px', padding: '0' }}
                             >
-                              <i className="fa fa-eye me-1" />
-                              View
+                              <i className="fa fa-eye" />
                             </button>
                           </td>
                         </tr>

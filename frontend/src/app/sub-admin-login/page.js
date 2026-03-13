@@ -102,7 +102,7 @@ export default function SubAdminLogin() {
                                                 />
                                             </div>
 
-                                            <div className="form-group mb-3" style={{ position: 'relative' }}>
+                                            <div className="form-group mb-3" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                                                 <input
                                                     name="password"
                                                     type={showPassword ? "text" : "password"}
@@ -111,25 +111,21 @@ export default function SubAdminLogin() {
                                                     placeholder="Password"
                                                     value={formData.password}
                                                     onChange={handleChange}
-                                                    style={{ paddingRight: '60px' }}
+                                                    style={{ paddingRight: '40px' }}
                                                 />
                                                 <span
                                                     onClick={() => setShowPassword(!showPassword)}
                                                     style={{
                                                         position: 'absolute',
-                                                        right: '10px',
-                                                        top: '50%',
-                                                        transform: 'translateY(-50%)',
+                                                        right: '15px',
                                                         cursor: 'pointer',
                                                         color: '#6c757d',
                                                         fontSize: '16px',
                                                         zIndex: '10',
                                                         userSelect: 'none',
-                                                        display: 'inline-block',
-                                                        width: '20px',
-                                                        height: '20px',
-                                                        textAlign: 'center',
-                                                        lineHeight: '20px'
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        height: '100%'
                                                     }}
                                                 >
                                                     <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
