@@ -138,19 +138,20 @@ function EmpJobReviewPage() {
                         <i className="far fa-user-circle" /> Job Details
                     </h4>
 
-                    <span className={`badge ${jobDetails.status === 'active' ? 'twm-bg-green' : 'twm-bg-orange'} text-capitalize`}>
-                        {jobDetails.status}
-                    </span>
+                    <div className="d-flex align-items-center">
+                        <span className={`badge ${jobDetails.status === 'active' ? 'twm-bg-green' : 'twm-bg-orange'} text-capitalize me-3`}>
+                            {jobDetails.status}
+                        </span>
+                        <button
+                            className="btn btn-outline-secondary btn-sm"
+                            onClick={() => navigate('/employer/manage-jobs')}
+                        >
+                            ← Back to Jobs List
+                        </button>
+                    </div>
                 </div>
 
                 <div className="panel-body">
-                    <button
-                        className="btn btn-outline-secondary mb-3"
-                        onClick={() => navigate(-1)}
-                    >
-                        ← Back to Jobs List
-                    </button>
-
                     <div className="border rounded p-4 shadow-sm">
                         {/* Interview Round Details */}
                         {orderedInterviewRounds.length > 0 && (
@@ -189,8 +190,12 @@ function EmpJobReviewPage() {
                                                                     <span className="value">{fromDateLabel}</span>
                                                                 </div>
                                                                 <div className="interview-meta-item">
-                                                                    <span className="label">To Date</span>
-                                                                    <span className="value">{toDateLabel}</span>
+                                                                    <span className="label">Start Time</span>
+                                                                    <span className="value">{round.startTime ? formatTimeToAMPM(round.startTime) : 'N/A'}</span>
+                                                                </div>
+                                                                <div className="interview-meta-item">
+                                                                    <span className="label">End Time</span>
+                                                                    <span className="value">{round.endTime ? formatTimeToAMPM(round.endTime) : 'N/A'}</span>
                                                                 </div>
                                                             </>
                                                         ) : (

@@ -389,53 +389,74 @@ export default function EmpPostedJobs() {
 							) : (
 								filteredJobs.map((job) => (
 									<div className="col-lg-6 col-12" key={job._id}>
-										<div className="manage-jobs-card d-flex justify-content-between align-items-center p-3 border rounded mb-3 shadow-sm" style={{cursor: 'pointer'}} onClick={() => handleJobClick(job._id)}>
-											<div className="d-flex align-items-center gap-3">
-												<div>
-													<h5 className="mb-1">{job.title}</h5>
-									{job.companyName && (
-										<p className="mb-1 fw-bold text-dark">
-											<Building2 size={16} className="me-1" style={{ color: '#fd7e14' }} />
-											{job.companyName}
-										</p>
-									)}
-													<p className="mb-2 fw-bold text-dark">
-										<MapPin size={16} className="me-1" style={{ color: '#fd7e14' }} /> {Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}
-									</p>
-													<div className="d-flex flex-wrap gap-3 text-muted small fw-bold">
-														<span className="d-inline-flex align-items-center">Annual CTC:&nbsp;{formatCtc(job)}</span>
-														<span className="d-inline-flex align-items-center">Vacancies:&nbsp;{job.vacancies || 0}</span>
-														<span className="d-inline-flex align-items-center"><Calendar size={14} className="me-1" /> Posted:&nbsp;{formatDate(job.createdAt)}</span>
-														{job.offerLetterDate && (
-															<span className="d-inline-flex align-items-center"><Calendar size={14} className="me-1" /> Offer Date:&nbsp;{formatDate(job.offerLetterDate)}</span>
-														)}
-														{job.joiningDate && (
-															<span className="d-inline-flex align-items-center"><Calendar size={14} className="me-1" /> Joining:&nbsp;{formatDate(job.joiningDate)}</span>
-														)}
-														<span className="text-primary fw-bold">Applications:&nbsp;{applicationCounts[job._id] || 0}</span>
+										<div className="manage-jobs-card p-4 border rounded-3 mb-4 shadow-sm bg-white position-relative" style={{cursor: 'pointer', transition: 'all 0.3s ease'}} onClick={() => handleJobClick(job._id)}>
+											{/* Top Section: Title and Status */}
+											<div className="d-flex justify-content-between align-items-start mb-3">
+												<h5 className="mb-0 fw-bold text-dark" style={{fontSize: '1.2rem'}}>{job.title}</h5>
+												{job.status !== 'closed' && (
+													<span className={`badge ${getStatusBadge(job.status)} text-capitalize px-3 py-2 rounded-pill`}>
+														{job.status}
+													</span>
+												)}
+											</div>
+
+											{/* Company and Location */}
+											<div className="mb-3">
+												{job.companyName && (
+													<div className="d-flex align-items-center mb-1 text-muted">
+														<Building2 size={16} className="me-2" style={{ color: '#fd7e14' }} />
+														<span className="fw-medium">{job.companyName}</span>
 													</div>
+												)}
+												<div className="d-flex align-items-center text-muted">
+													<MapPin size={16} className="me-2" style={{ color: '#fd7e14' }} />
+													<span>{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}</span>
 												</div>
 											</div>
-											<div className="job-card-actions d-flex align-items-center" onClick={(e) => e.stopPropagation()}>
-												<div className="job-card-action-buttons d-flex flex-column align-items-end">
-													<div className="job-card-eye-row d-flex align-items-center">
-														<span className={`badge ${getStatusBadge(job.status)} text-capitalize`}>
-															{job.status}
-														</span>
-														<button
-															className="btn btn-outline-primary btn-sm"
-															onClick={() => navigate(`/employer/emp-job-review/${job._id}`)}
-															title="View Details"
-														>
-															<i className="fa fa-eye" style={{ color: '#000000' }}></i>
-														</button>
+
+											{/* Middle Section: Info Tags */}
+											<div className="d-flex flex-wrap gap-2 mb-3">
+												<div className="px-3 py-1 bg-light border rounded-pill small fw-bold text-dark">
+													Annual CTC: {formatCtc(job)}
+												</div>
+												<div className="px-3 py-1 bg-light border rounded-pill small fw-bold text-dark">
+													Vacancies: {job.vacancies || 0}
+												</div>
+												<div className="px-3 py-1 bg-light border rounded-pill small fw-bold text-primary">
+													Applications: {applicationCounts[job._id] || 0}
+												</div>
+											</div>
+
+											{/* Subtle Divider */}
+											<hr className="my-3 opacity-10" />
+
+											{/* Bottom Section: Dates and Action */}
+											<div className="d-flex justify-content-between align-items-end">
+												<div className="text-muted small">
+													<div className="d-flex align-items-center mb-1">
+														<Calendar size={14} className="me-2" />
+														<span>Posted: {formatDate(job.createdAt)}</span>
 													</div>
+													{job.offerLetterDate && (
+														<div className="d-flex align-items-center">
+															<Calendar size={14} className="me-2" />
+															<span>Offer Date: {formatDate(job.offerLetterDate)}</span>
+														</div>
+													)}
+													{job.status === 'closed' && (
+														<div className="mt-1 text-danger fw-bold">
+															Status: Closed
+														</div>
+													)}
+												</div>
+
+												<div onClick={(e) => e.stopPropagation()}>
 													<button
-														className="btn btn-outline-primary btn-sm start-interview-btn"
+														className="btn border-0 text-white px-4 py-2 fw-bold rounded-3 shadow-sm"
+														style={{ backgroundColor: '#fd7e14' }}
 														onClick={() => navigate(`/employer/emp-job-review/${job._id}`)}
-														title="View Interview"
 													>
-														View  Interview
+														View Interview
 													</button>
 												</div>
 											</div>
