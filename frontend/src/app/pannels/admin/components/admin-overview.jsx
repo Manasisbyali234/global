@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { formatDate } from "../../../../utils/dateFormatter";
 import { admin, adminRoute } from "../../../../globals/route-names";
+import SearchBar from "../../../../components/SearchBar";
+import "./admin-search-styles.css";
 import "./admin-overview.css";
 
 function AdminOverviewPage() {
@@ -21,6 +23,8 @@ function AdminOverviewPage() {
   const [applicantsLoading, setApplicantsLoading] = useState(false);
   const [applicantsError, setApplicantsError] = useState("");
   const [viewMode, setViewMode] = useState("employers"); // employers | jobs | applicants
+  const [employerSearch, setEmployerSearch] = useState("");
+  const [jobSearch, setJobSearch] = useState("");
 
   useEffect(() => {
     fetchOverview();
@@ -70,6 +74,7 @@ function AdminOverviewPage() {
       setSelectedJob(null);
       setJobApplicants([]);
       setApplicantsError("");
+      setJobSearch("");
       const response = await api.getAdminEmployerOverviewJobs(employer.employerId);
       if (response.success) {
         setSelectedEmployer(response.employer);
@@ -131,6 +136,18 @@ function AdminOverviewPage() {
       {viewMode === "employers" && (
         <div className="panel panel-default site-bg-white">
           <div className="panel-body wt-panel-body p-a20">
+            <div className="m-b20">
+              <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                <i className="fa fa-filter me-2 text-primary" />
+                Search by Company Name
+              </label>
+              <SearchBar
+                onSearch={setEmployerSearch}
+                placeholder="Search Company Name..."
+                className="employer-search"
+              />
+            </div>
+
             {loading && <div className="text-center">Loading overview...</div>}
             {!loading && error && <div className="alert alert-danger m-b0">{error}</div>}
 
@@ -146,13 +163,14 @@ function AdminOverviewPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {employers.length === 0 ? (
+                    {employers.filter(emp => emp.employerName.toLowerCase().includes(employerSearch.toLowerCase())).length === 0 ? (
                       <tr>
                         <td colSpan="4" className="text-center">
-                          No employer records found.
+                          {employerSearch ? "No matching company records found." : "No employer records found."}
                         </td>
                       </tr>
                     ) : (
+<<<<<<< HEAD
                       employers.map((employer) => (
                         <tr key={employer.employerId}>
                           <td>{employer.employerName}</td>
@@ -170,6 +188,27 @@ function AdminOverviewPage() {
                           </td>
                         </tr>
                       ))
+=======
+                      employers
+                        .filter(emp => emp.employerName.toLowerCase().includes(employerSearch.toLowerCase()))
+                        .map((employer) => (
+                          <tr key={employer.employerId}>
+                            <td>{employer.employerName}</td>
+                            <td>{employer.jobsCount}</td>
+                            <td>{employer.applicationsCount}</td>
+                            <td>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() => handleViewEmployerJobs(employer)}
+                              >
+                                <i className="fa fa-eye me-1" />
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+>>>>>>> 827d637bf6323173239eb75f09b9c1483bc0b3a6
                     )}
                   </tbody>
                 </table>
@@ -198,6 +237,18 @@ function AdminOverviewPage() {
             </div>
           </div>
           <div className="panel-body wt-panel-body p-a20">
+            <div className="m-b20">
+              <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                <i className="fa fa-filter me-2 text-primary" />
+                Search by Job Name
+              </label>
+              <SearchBar
+                onSearch={setJobSearch}
+                placeholder="Search Job Name..."
+                className="employer-search"
+              />
+            </div>
+
             {jobsLoading && <div className="text-center">Loading jobs...</div>}
             {!jobsLoading && jobsError && <div className="alert alert-danger m-b0">{jobsError}</div>}
 
@@ -215,8 +266,9 @@ function AdminOverviewPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {employerJobs.length === 0 ? (
+                    {employerJobs.filter(job => job.title.toLowerCase().includes(jobSearch.toLowerCase())).length === 0 ? (
                       <tr>
+<<<<<<< HEAD
                         <td colSpan="6" className="text-center">
                           No jobs found for this employer.
                         </td>
@@ -241,6 +293,33 @@ function AdminOverviewPage() {
                           </td>
                         </tr>
                       ))
+=======
+                        <td colSpan="5" className="text-center">
+                          {jobSearch ? "No matching jobs found." : "No jobs found for this employer."}
+                        </td>
+                      </tr>
+                    ) : (
+                      employerJobs
+                        .filter(job => job.title.toLowerCase().includes(jobSearch.toLowerCase()))
+                        .map((job) => (
+                          <tr key={job.jobId}>
+                            <td>{job.title}</td>
+                            <td>{job.applicationsCount}</td>
+                            <td>{job.status}</td>
+                            <td>{formatDate(job.createdAt)}</td>
+                            <td>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() => handleViewApplicants(job)}
+                              >
+                                <i className="fa fa-eye me-1" />
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+>>>>>>> 827d637bf6323173239eb75f09b9c1483bc0b3a6
                     )}
                   </tbody>
                 </table>
