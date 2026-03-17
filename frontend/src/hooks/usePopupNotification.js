@@ -7,7 +7,9 @@ export const usePopupNotification = () => {
     message: '', 
     type: 'warning', 
     onConfirm: null, 
-    onCancel: null 
+    onCancel: null,
+    confirmText: 'Yes',
+    cancelText: 'No'
   });
 
   const showPopup = (message, type = 'info', duration = 5000) => {
@@ -18,13 +20,15 @@ export const usePopupNotification = () => {
     setPopup({ show: false, message: '', type: 'info', duration: 5000 });
   };
 
-  const showConfirmation = (message, onConfirm, onCancel, type = 'warning') => {
+  const showConfirmation = (message, onConfirm, onCancel, type = 'warning', options = {}) => {
     setConfirmation({ 
       show: true, 
       message, 
       type, 
       onConfirm, 
-      onCancel: onCancel || (() => hideConfirmation()) 
+      onCancel: onCancel || (() => hideConfirmation()),
+      confirmText: options?.confirmText || 'Yes',
+      cancelText: options?.cancelText || 'No'
     });
   };
 
@@ -34,7 +38,9 @@ export const usePopupNotification = () => {
       message: '', 
       type: 'warning', 
       onConfirm: null, 
-      onCancel: null 
+      onCancel: null,
+      confirmText: 'Yes',
+      cancelText: 'No'
     });
   };
 

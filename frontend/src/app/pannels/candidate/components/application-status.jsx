@@ -2003,7 +2003,7 @@ function CanStatusPage() {
 														const previousStatusText = (previousRoundStatus?.text || '').toLowerCase();
 
 														const invalidStatusStates = ['', 'pending'];
-														const positiveStatusStates = ['shortlisted_for_next_round', 'shortlisted'];
+														const positiveStatusStates = ['shortlisted_for_next_round', 'selected', 'shortlisted'];
 														const hasValidProcessStatus =
 															Boolean(previousProcessStatus) && !invalidStatusStates.includes(previousProcessStatus);
 														const hasValidStageStatus =

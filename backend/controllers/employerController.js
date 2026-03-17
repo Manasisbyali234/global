@@ -3114,6 +3114,22 @@ exports.saveInterviewReview = async (req, res) => {
   try {
     const { applicationId } = req.params;
     const { interviewRounds, remarks, isSelected, interviewProcesses, processRemarks } = req.body;
+
+    const shouldNotifyInterviewStatusUpdates = Array.isArray(interviewProcesses);
+    let previousInterviewProcesses = null;
+
+    if (shouldNotifyInterviewStatusUpdates) {
+      const existingApplication = await Application.findOne({
+        _id: applicationId,
+        employerId: req.user._id
+      }).select('interviewProcesses').lean();
+
+      if (!existingApplication) {
+        return res.status(404).json({ success: false, message: 'Application not found' });
+      }
+
+      previousInterviewProcesses = existingApplication.interviewProcesses || [];
+    }
     
     const updateData = { 
       reviewedAt: new Date()
@@ -3151,6 +3167,78 @@ exports.saveInterviewReview = async (req, res) => {
     
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    if (shouldNotifyInterviewStatusUpdates && previousInterviewProcesses) {
+      try {
+        const candidateId = application.candidateId?._id;
+        if (candidateId) {
+          const previousStatusById = new Map(
+            previousInterviewProcesses
+              .filter((p) => p && p.id)
+              .map((p) => [String(p.id).trim(), String(p.status || '').trim()])
+          );
+
+          const statusLabels = {
+            pending: 'Pending',
+            shortlisted_for_next_round: 'Shortlisted for next Round',
+            on_hold: 'On Hold',
+            pending_decision: 'Pending Decision',
+            no_show: 'No Show',
+            rejected: 'Not Advanced to Next Stage',
+            selected: 'Selected',
+            // Legacy value used by older UIs for the final "Selected" state
+            shortlisted: 'Selected',
+            under_review: 'Under Review',
+            interview_scheduled: 'Interview Scheduled',
+            interview_completed: 'Interview Completed'
+          };
+
+          const formatStatusLabel = (rawStatus) => {
+            const normalized = String(rawStatus || '').trim();
+            if (!normalized) return '';
+            return statusLabels[normalized] || normalized.replace(/_/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase());
+          };
+
+          const jobTitle = application.jobId?.title || 'the position';
+          const updatedProcesses = Array.isArray(application.interviewProcesses) ? application.interviewProcesses : [];
+          const changedStages = updatedProcesses
+            .map((process, index) => {
+              const id = String(process?.id || '').trim();
+              const newStatus = String(process?.status || '').trim();
+              const oldStatus = previousStatusById.get(id);
+              return { id, newStatus, oldStatus, process, index };
+            })
+            .filter(({ id, newStatus, oldStatus }) => {
+              if (!id) return false;
+              if (!newStatus) return false;
+              if (newStatus === oldStatus) return false;
+              if (oldStatus === undefined && newStatus === 'pending') return false;
+              return true;
+            });
+
+          for (const { process, index, newStatus } of changedStages) {
+            const stageName = String(process?.name || '').trim();
+            let statusLabel = formatStatusLabel(newStatus);
+            if (newStatus === 'rejected' && index === updatedProcesses.length - 1) {
+              statusLabel = 'Rejected';
+            }
+            const stageLabel = stageName ? `Stage ${index + 1} (${stageName})` : `Stage ${index + 1}`;
+
+            await createNotification({
+              title: 'Interview Status Updated',
+              message: `Your interview status for ${jobTitle} - ${stageLabel} is now ${statusLabel}.`,
+              type: 'interview_updated',
+              role: 'candidate',
+              relatedId: application._id,
+              candidateId,
+              createdBy: req.user._id
+            });
+          }
+        }
+      } catch (notificationError) {
+        console.error('Interview status notification failed:', notificationError);
+      }
     }
     
     res.json({ success: true, message: 'Interview review saved successfully', application });

@@ -14,6 +14,12 @@
   pointer-events: none;
 }
 
+/* Block interaction behind confirmation dialogs */
+.popup-overlay-blocking {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  pointer-events: auto !important;
+}
+
 /* Ensure popup is always on top of everything */
 .popup-overlay,
 .popup-overlay *,

@@ -47,7 +47,7 @@ function EmpCandidateReviewPage() {
         const isFinalStage = index === interviewProcesses.length - 1;
         if (isFinalStage) {
             return [
-                { value: 'shortlisted', label: 'Selected' },
+                { value: 'selected', label: 'Selected' },
                 { value: 'rejected', label: 'Rejected' }
             ];
         }
@@ -378,7 +378,9 @@ function EmpCandidateReviewPage() {
     };
 
     const hasShortlistedForNextRound = () => {
-        return interviewProcesses.some(p => p.status === 'shortlisted_for_next_round' || p.status === 'shortlisted');
+        return interviewProcesses.some(p => 
+            p.status === 'shortlisted_for_next_round' || p.status === 'selected' || p.status === 'shortlisted'
+        );
     };
 
     const hasNegativeStatus = () => {
@@ -389,7 +391,7 @@ function EmpCandidateReviewPage() {
     const isFinalStageShortlisted = () => {
         if (interviewProcesses.length === 0) return false;
         const lastProcess = interviewProcesses[interviewProcesses.length - 1];
-        return lastProcess?.status === 'shortlisted_for_next_round' || lastProcess?.status === 'shortlisted';
+        return lastProcess?.status === 'shortlisted_for_next_round' || lastProcess?.status === 'selected' || lastProcess?.status === 'shortlisted';
     };
 
     const updateProcessCompletion = (processId, isCompleted) => {

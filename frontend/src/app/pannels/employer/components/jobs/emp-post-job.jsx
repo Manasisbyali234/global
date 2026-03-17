@@ -1,9 +1,10 @@
-import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
+import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
 import { formatDate } from '../../../../../utils/dateFormatter';
 import React, { useState, useEffect, useCallback } from "react";
 import { NavLink, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { employer, empRoute, publicUser } from "../../../../../globals/route-names";
 import { holidaysApi } from "../../../../../utils/holidaysApi";
+import { getLocalHolidayName, isWeekendDate, normalizeToYMD } from "../../../../../utils/holidayUtils";
 import HolidayIndicator from "../../../../../components/HolidayIndicator";
 
 import { api } from "../../../../../utils/api";
@@ -58,6 +59,21 @@ const getNextDayDateString = (dateString) => {
 	const date = new Date(y, m - 1, d);
 	date.setDate(date.getDate() + 1);
 	return formatDateForInput(date);
+};
+
+const formatAssessmentTitle = (title = '') => {
+	const value = String(title || '').trim();
+	if (!value) return '';
+	return value
+		.toLowerCase()
+		.split(/\s+/)
+		.map((word) =>
+			word
+				.split('-')
+				.map((part) => (part ? part.charAt(0).toUpperCase() + part.slice(1) : part))
+				.join('-')
+		)
+		.join(' ');
 };
 
 const PREDEFINED_JOB_TITLES = [
@@ -756,7 +772,69 @@ export default function EmpPostJob({ onNext }) {
 	};
 
 	/* Update interview round details */
-	const updateRoundDetails = async (roundType, field, value) => {
+	const updateRoundDetails = async (roundType, field, value, skipHolidayConfirmation = false) => {
+		if ((field === 'fromDate' || field === 'toDate') && value) {
+			const normalizedDate = normalizeToYMD(value);
+			if (normalizedDate) value = normalizedDate;
+		}
+
+		// Holiday confirmation for interview dates
+		if (field === 'fromDate' && value && !skipHolidayConfirmation) {
+			const minAllowedInterviewDate = formData.lastDateOfApplication
+				? getNextDayDateString(formData.lastDateOfApplication)
+				: '';
+
+			if (minAllowedInterviewDate && value < minAllowedInterviewDate) {
+				showError(`Interview date must be after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
+				return;
+			}
+
+			const currentRoundIndex = formData.interviewRoundOrder.indexOf(roundType);
+
+			if (currentRoundIndex > 0) {
+				const prevRoundKey = formData.interviewRoundOrder[currentRoundIndex - 1];
+				const prevRoundDetails = formData.interviewRoundDetails[prevRoundKey];
+				const prevEndDate = prevRoundDetails?.toDate || prevRoundDetails?.fromDate;
+
+				if (prevEndDate) {
+					const nextDay = getNextDayDateString(prevEndDate);
+					if (value !== nextDay) {
+						showWarning(`Next interview round must be on the next day of the previous round only. Please select ${formatDate(nextDay)}.`);
+						return;
+					}
+				}
+			}
+
+			for (let i = 0; i < formData.interviewRoundOrder.length; i++) {
+				if (i === currentRoundIndex) continue;
+				const otherRoundKey = formData.interviewRoundOrder[i];
+				const otherRoundDetails = formData.interviewRoundDetails[otherRoundKey];
+				if (otherRoundDetails?.fromDate === value) {
+					showWarning(`This date clashes with Stage ${i + 1}. Interview rounds should be scheduled on consecutive days.`);
+					return;
+				}
+			}
+
+			const holidayCheck = await holidaysApi.checkHoliday(value);
+			const localHolidayName = getLocalHolidayName(value);
+			const isWeekend = isWeekendDate(value);
+			const isHolidayLikeFromApi = Boolean(
+				holidayCheck?.success && (holidayCheck.isHoliday || holidayCheck.isNonWorkingDay || holidayCheck.isWeekend)
+			);
+			const shouldConfirmHoliday = isHolidayLikeFromApi || Boolean(localHolidayName) || isWeekend;
+
+			if (shouldConfirmHoliday) {
+				showConfirmation(
+					'\u26A0\uFE0F The selected interview date falls on holiday.Would you like to continue scheduling the interview on this date?',
+					() => updateRoundDetails(roundType, field, value, true),
+					null,
+					'warning',
+					{ confirmText: 'Yes Continue', cancelText: 'No' }
+				);
+				return;
+			}
+		}
+
 		// Ensure the roundType exists in interviewRoundDetails
 		setFormData(s => {
 			let updatedValue = value;
@@ -768,7 +846,7 @@ export default function EmpPostJob({ onNext }) {
 			if (field === 'fromDate' && value) {
 				const minAllowedInterviewDate = s.lastDateOfApplication ? getNextDayDateString(s.lastDateOfApplication) : '';
 				if (minAllowedInterviewDate && value < minAllowedInterviewDate) {
-					showError(`Interview date must be after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
+					showWarning(`Interview date must be after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
 					return s;
 				}
 
@@ -783,7 +861,7 @@ export default function EmpPostJob({ onNext }) {
 					if (prevEndDate) {
 						const nextDay = getNextDayDateString(prevEndDate);
 						if (value !== nextDay) {
-							showError(`Next interview round must be on the next day of the previous round only. Please select ${formatDate(nextDay)}.`);
+							showWarning(`Next interview round must be on the next day of the previous round only. Please select ${formatDate(nextDay)}.`);
 							return s;
 						}
 					}
@@ -795,7 +873,7 @@ export default function EmpPostJob({ onNext }) {
 					const otherRoundKey = s.interviewRoundOrder[i];
 					const otherRoundDetails = s.interviewRoundDetails[otherRoundKey];
 					if (otherRoundDetails?.fromDate === value) {
-						showError(`This date clashes with Stage ${i + 1}. Interview rounds should be scheduled on consecutive days.`);
+						showWarning(`This date clashes with Stage ${i + 1}. Interview rounds should be scheduled on consecutive days.`);
 						return s;
 					}
 				}
@@ -877,14 +955,6 @@ export default function EmpPostJob({ onNext }) {
 			};
 		});
 
-		// Check for holidays when date is selected
-		if (field === 'fromDate' && value) {
-			const holidayCheck = await holidaysApi.checkHoliday(value);
-			if (holidayCheck.success && holidayCheck.isHoliday) {
-				showWarning(`Note: ${value} is a public holiday (${holidayCheck.holidayInfo.name}). Please consider selecting a different date. Would you like to continue?`
-           );
-			}
-		}
 	};
 
 	const generateSubStagesForDays = (uniqueKey, dayCount) => {
@@ -1306,7 +1376,7 @@ export default function EmpPostJob({ onNext }) {
 		
 		// Check for CTC format error first
 		if (ctcFormatError) {
-			showError(ctcFormatError);
+			showWarning(ctcFormatError);
 			scrollToField('ctc');
 			return;
 		}
@@ -1320,10 +1390,10 @@ export default function EmpPostJob({ onNext }) {
 				const errorMessage = step1Errors[firstField][0];
 				const fieldLabel = fieldLabelMap[firstField] || firstField;
 				
-				showError(errorMessage);
+				showWarning(errorMessage);
 				scrollToField(firstField);
 			} else if (step2Errors && step2Errors.length > 0) {
-				showError(step2Errors[0]);
+				showWarning(step2Errors[0]);
 				// Try to scroll to interview rounds section
 				const interviewSection = document.querySelector('[data-step="2"]') || 
 										 document.querySelector('[id*="interview"]');
@@ -1333,7 +1403,7 @@ export default function EmpPostJob({ onNext }) {
 					window.scrollTo({ top: 0, behavior: 'smooth' });
 				}
 			} else {
-				showError('Please fill all required fields correctly before submitting.');
+				showWarning('Please fill all required fields correctly before submitting.');
 				window.scrollTo({ top: 0, behavior: 'smooth' });
 			}
 			return;
@@ -1372,10 +1442,10 @@ export default function EmpPostJob({ onNext }) {
 				const errorMessage = step1Errors[firstErrorField]?.[0] || 'Invalid entry';
 				const fieldLabel = fieldLabelMap[firstErrorField] || firstErrorField;
 				
-				showError(errorMessage);
+				showWarning(errorMessage);
 				scrollToField(firstErrorField);
 			} else {
-				showError('Please fill all required fields correctly before moving to the next step.');
+				showWarning('Please fill all required fields correctly before moving to the next step.');
 			}
 			return;
 		}
@@ -3310,7 +3380,7 @@ export default function EmpPostJob({ onNext }) {
 									const currentCount = formData.interviewRoundOrder.length;
 									
 									if (specifiedCount > 0 && currentCount >= specifiedCount) {
-										showError(`Cannot add more rounds! You specified ${specifiedCount} interview rounds and have already selected ${currentCount}. Please increase the "Number of Interview Rounds" field if you need more rounds.`);
+										showWarning(`Cannot add more rounds! You specified ${specifiedCount} interview rounds and have already selected ${currentCount}. Please increase the "Number of Interview Rounds" field if you need more rounds.`);
 										return;
 									}
 									
@@ -4085,7 +4155,7 @@ export default function EmpPostJob({ onNext }) {
 														<option value="">-- Choose an Assessment --</option>
 														{availableAssessments.map((assessment) => (
 															<option key={assessment._id} value={assessment._id}>
-																{assessment.title} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)
+																{formatAssessmentTitle(assessment.title)} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)
 															</option>
 														))}
 													</select>
@@ -4565,7 +4635,7 @@ export default function EmpPostJob({ onNext }) {
 																				const endMinutes = endHour * 60 + endMin;
 																				
 																				if (startMinutes >= endMinutes) {
-																					showError('Start time must be before end time');
+																					showWarning('Start time must be before end time');
 																					return;
 																				}
 																			}
@@ -5388,5 +5458,3 @@ export default function EmpPostJob({ onNext }) {
 		</div>
 	);
 }
-
-

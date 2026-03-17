@@ -1,7 +1,33 @@
 import React, { useEffect } from 'react';
 import './PopupNotification.css';
 
+const isValidationErrorMessage = (value) => {
+  const text = String(value || '').toLowerCase();
+  return (
+    text.includes('validation failed') ||
+    text.includes('validation error') ||
+    text.includes('please check your input') ||
+    text.includes('fill all required fields') ||
+    text.includes('must be after') ||
+    text.includes('must be on') ||
+    text.includes('clashes with') ||
+    text.includes('incorrect format') ||
+    text.includes('invalid') ||
+    text.includes('please select') ||
+    text.includes('is required') ||
+    text.includes('are required') ||
+    text.includes('must be') ||
+    text.includes('enter a valid') ||
+    text.includes('cannot be empty') ||
+    text.includes('choose at least') ||
+    text.includes('at least') ||
+    text.includes('not match')
+  );
+};
+
 const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 }) => {
+  const displayType = type === 'error' && isValidationErrorMessage(message) ? 'warning' : type;
+
   useEffect(() => {
     if (message) {
       const audio = new Audio('/sounds/notification.mp3');
@@ -23,19 +49,21 @@ const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 })
     }
   };
 
+  const icons = {
+    success: '\u2713',
+    error: '\u2716',
+    warning: '\u26A0',
+    info: '\uD83D\uDC4D'
+  };
+
   return (
     <div className="popup-overlay" onClick={handleOverlayClick}>
-      <div className={`popup-box popup-${type}`}>
+      <div className={`popup-box popup-${displayType}`}>
         <button className="popup-close-button" onClick={onClose} aria-label="Close">
-          ✕
+          {'\u00D7'}
         </button>
         <div className="popup-content">
-          <div className="popup-icon">
-            {type === 'success' && '✓'}
-            {type === 'error' && '✕'}
-            {type === 'warning' && '⚠'}
-            {type === 'info' && '👍'}
-          </div>
+          <div className="popup-icon">{icons[displayType] || icons.info}</div>
           <div className="popup-message" style={{ textAlign: 'center' }}>{message}</div>
         </div>
       </div>

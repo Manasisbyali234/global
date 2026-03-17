@@ -12,9 +12,9 @@ export const showPopup = (message, type = 'info', duration = 5000) => {
   }
 };
 
-export const showConfirmation = (message, onConfirm, onCancel, type = 'warning') => {
+export const showConfirmation = (message, onConfirm, onCancel, type = 'warning', options = {}) => {
   if (showConfirmationFunction) {
-    showConfirmationFunction(message, onConfirm, onCancel, type);
+    showConfirmationFunction(message, onConfirm, onCancel, type, options);
   }
 };
 

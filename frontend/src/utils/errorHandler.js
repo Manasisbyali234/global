@@ -159,7 +159,11 @@ export const displayError = (error, options = {}) => {
 
   // Display using toast notification (preferred)
   if (useToast && !useAlert) {
-    if (errorData.type === 'auth') { showWarning(errorData.message); } else { showError(errorData.message); }
+    if (errorData.type === 'auth' || errorData.type === 'validation' || error?.name === 'ValidationError') {
+      showWarning(errorData.message);
+    } else {
+      showError(errorData.message);
+    }
     return;
   }
 

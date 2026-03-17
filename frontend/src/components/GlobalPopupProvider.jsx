@@ -36,14 +36,16 @@ const GlobalPopupProvider = ({ children }) => {
           onClose={hidePopup}
         />
       )}
-      {confirmation.show && (
-        <ConfirmationDialog
-          message={confirmation.message}
-          type={confirmation.type}
-          onConfirm={handleConfirm}
-          onCancel={handleCancel}
-        />
-      )}
+       {confirmation.show && (
+         <ConfirmationDialog
+           message={confirmation.message}
+           type={confirmation.type}
+           onConfirm={handleConfirm}
+           onCancel={handleCancel}
+           confirmText={confirmation.confirmText}
+           cancelText={confirmation.cancelText}
+         />
+       )}
     </>
   );
 };
