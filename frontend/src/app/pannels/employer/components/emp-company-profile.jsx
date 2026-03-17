@@ -85,6 +85,7 @@ function EmpCompanyProfilePage() {
         // Images
         logo: '',
         coverImage: '',
+        brandName: '',
         
         // Authorization Letters
         authorizationLetters: [],
@@ -103,6 +104,7 @@ function EmpCompanyProfilePage() {
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [validationRules] = useState({
         companyName: { required: true, minLength: 2 },
+        brandName: { required: true, minLength: 2 },
         phone: { required: true, pattern: /^\d{10,15}$/, patternMessage: 'Phone number must be at least 10 digits' },
         email: { required: true, email: true },
         website: { required: true, url: true },
@@ -908,6 +910,18 @@ function EmpCompanyProfilePage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!formData.logo || !formData.coverImage) {
+            showWarning('Please upload both the company logo and banner image before saving your profile.');
+            const sections = document.querySelectorAll('.panel-tittle');
+            for (let element of sections) {
+                if (element.textContent.includes('Logo and Cover image')) {
+                    element.closest('.panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    break;
+                }
+            }
+            return;
+        }
         
         // Check gallery minimum requirement
         const galleryCount = formData.gallery?.length || 0;
@@ -1215,7 +1229,7 @@ function EmpCompanyProfilePage() {
                         <div className="row">
                             <div className="col-xl-4 col-lg-12 col-md-12">
                                 <div className="form-group">
-                                    <label>Employer Category</label>
+                                    <label><Building size={16} className="me-2" /> Employer Category</label>
                                     <div className="form-control" style={{backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', color: '#495057'}}>
                                         {formData.employerCategory ? 
                                             (formData.employerCategory === 'company' ? 'Company' : 'Consultancy') 
@@ -1241,6 +1255,20 @@ function EmpCompanyProfilePage() {
                                         style={{backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', color: '#495057'}}
                                     />
                                     <small className="text-muted">This field cannot be edited after registration</small>
+                                </div>
+                            </div>
+
+                            <div className="col-xl-4 col-lg-12 col-md-12">
+                                <div className="form-group">
+                                    <label className="required-field"><Building size={16} className="me-2" /> Brand Name</label>
+                                    <input
+                                        className="form-control"
+                                        type="text"
+                                        value={formData.brandName || ''}
+                                        onChange={(e) => handleInputChange('brandName', e.target.value)}
+                                        placeholder="Enter brand name"
+                                    />
+                                    <small className="text-muted">Brand name as per GST</small>
                                 </div>
                             </div>
 

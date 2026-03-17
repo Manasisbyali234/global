@@ -172,7 +172,7 @@ function SectionRecommendedJobs() {
                                     fontSize: '0.875rem',
                                     fontWeight: '500'
                                 }}>
-                                    {job.employerId?.companyName || 'Company Name'}
+                                    {job.employerId?.brandName || job.employerId?.companyName || 'Company Name'}
                                 </p>
                                 
                                 <div className="d-flex flex-wrap gap-2 mb-2">

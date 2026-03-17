@@ -53,7 +53,12 @@ const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 })
     success: '\u2713',
     error: '\u2716',
     warning: '\u26A0',
-    info: '\uD83D\uDC4D'
+    info: '\uD83D\uDC4D',
+    secure: (
+      <div className="popup-icon-lock" aria-hidden="true">
+        <i className="fa fa-lock lock-icon" />
+      </div>
+    )
   };
 
   return (

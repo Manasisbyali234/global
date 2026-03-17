@@ -28,7 +28,7 @@ export default function AssessmentDashboard() {
 			'✔️Agree to terms and conditions ',
 			() => setShowModal(true),
 			null,
-			'info'
+			'secure'
 		);
 	};
 

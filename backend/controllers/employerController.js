@@ -314,7 +314,7 @@ exports.updateProfile = async (req, res) => {
     console.log('Profile update - all updateData keys:', Object.keys(updateData));
     console.log('=== END DEBUG ===');
 
-    const publicFields = ['companyName', 'phone', 'email', 'website', 'establishedSince', 'teamSize', 'description', 'location', 'whyJoinUs', 'googleMapsEmbed'];
+    const publicFields = ['companyName', 'brandName', 'phone', 'email', 'website', 'establishedSince', 'teamSize', 'description', 'location', 'whyJoinUs', 'googleMapsEmbed'];
     const publicData = {};
     const adminData = {};
     
@@ -325,6 +325,14 @@ exports.updateProfile = async (req, res) => {
         adminData[key] = updateData[key];
       }
     });
+
+    if (Object.prototype.hasOwnProperty.call(updateData, 'brandName')) {
+      await Employer.findByIdAndUpdate(
+        req.user._id,
+        { brandName: updateData.brandName },
+        { new: false }
+      );
+    }
     
     const [publicProfile, adminProfile] = await Promise.all([
       EmployerPublicProfile.findOneAndUpdate(

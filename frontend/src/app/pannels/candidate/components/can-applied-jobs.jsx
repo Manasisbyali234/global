@@ -92,7 +92,7 @@ function CanAppliedJobsPage() {
             // For consultant jobs, use job data directly
             if (jobData.companyName || jobData.companyLogo) {
                 setSelectedCompany({
-                    name: jobData.companyName || 'Company Name',
+                    name: jobData.brandName || jobData.companyName || 'Company Name',
                     description: jobData.companyDescription || 'No description available',
                     logo: jobData.companyLogo,
                     email: 'Contact via platform',
@@ -104,7 +104,7 @@ function CanAppliedJobsPage() {
                 const data = await response.json();
                 if (data.success) {
                     setSelectedCompany({
-                        name: data.profile.companyName || data.profile.employerId.companyName,
+                        name: data.profile.brandName || data.profile.companyName || data.profile.employerId.companyName,
                         description: data.profile.description || data.profile.companyDescription,
                         logo: data.profile.logo,
                         email: data.profile.email || data.profile.employerId.email,
@@ -155,7 +155,7 @@ function CanAppliedJobsPage() {
 												<p className="twm-job-websites site-text-primary" 
 												   style={{cursor: 'pointer'}} 
 												   onClick={() => handleCompanyClick(app.employerId, app.jobId)}>
-													{app.jobId?.companyName || app.employerId?.companyName || 'Company Name'}
+													{app.jobId?.brandName || app.jobId?.companyName || app.employerId?.brandName || app.employerId?.companyName || 'Company Name'}
 												</p>
 											</div>
 											<div className="twm-right-content">

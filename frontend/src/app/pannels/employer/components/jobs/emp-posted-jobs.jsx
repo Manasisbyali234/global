@@ -1,6 +1,6 @@
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 import { formatDate as formatDateUtil } from '../../../../../utils/dateFormatter';
-import { Building2, Calendar, Edit, Eye, MapPin, Pause, Play, Search } from "lucide-react";
+import { AlertCircle, Building2, Calendar, Edit, Eye, MapPin, Pause, Play, Search } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadScript } from "../../../../../globals/constants";
@@ -432,25 +432,26 @@ export default function EmpPostedJobs() {
 
 											{/* Bottom Section: Dates and Action */}
 											<div className="d-flex justify-content-between align-items-end">
-												<div className="text-muted small">
+												<div className="text-muted small" style={{ marginRight: '16px', flex: '1 1 auto' }}>
 													<div className="d-flex align-items-center mb-1">
 														<Calendar size={14} className="me-2" />
 														<span>Posted: {formatDate(job.createdAt)}</span>
 													</div>
+													{job.status === 'closed' && (
+														<div className="d-flex align-items-center mt-1 text-danger fw-bold">
+															<AlertCircle size={14} className="me-2" />
+															<span style={{ whiteSpace: 'nowrap' }}>Status: Application Closed</span>
+														</div>
+													)}
 													{job.offerLetterDate && (
 														<div className="d-flex align-items-center">
 															<Calendar size={14} className="me-2" />
 															<span>Offer Date: {formatDate(job.offerLetterDate)}</span>
 														</div>
 													)}
-													{job.status === 'closed' && (
-														<div className="mt-1 text-danger fw-bold">
-															Status: Closed
-														</div>
-													)}
 												</div>
 
-												<div onClick={(e) => e.stopPropagation()}>
+												<div onClick={(e) => e.stopPropagation()} style={{ flexShrink: 0, marginLeft: '-8px' }}>
 													<button
 														className="btn border-0 text-white px-4 py-2 fw-bold rounded-3 shadow-sm"
 														style={{ backgroundColor: '#fd7e14' }}

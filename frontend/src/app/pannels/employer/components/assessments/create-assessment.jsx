@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CreateAssessmentModal from './CreateAssessmentModal';
-import { showInfo, showSuccess, showError, showConfirmation } from '../../../../../utils/popupNotification';
+import { showPopup, showSuccess, showError, showConfirmation } from '../../../../../utils/popupNotification';
 import './mobile-text-fix.css';
 import '../../../../../assessment-title-hide.css';
 
@@ -189,7 +189,7 @@ function CreateAssessmentPage() {
                                         </div>
                                     </div>
                                 );
-                                showInfo(securityMessage, 8000);
+                                showPopup(securityMessage, 'secure', 8000);
                                 setShowModal(true);
                             }}
                         >

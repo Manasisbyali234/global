@@ -163,7 +163,7 @@ function CanTransactionsPage() {
                 return false;
             }
             const jobTitle = t.jobId?.title?.toLowerCase() || "";
-            const employerName = t.employerId?.companyName?.toLowerCase() || "";
+            const employerName = (t.employerId?.brandName || t.employerId?.companyName || '').toLowerCase();
             const paymentId = t.paymentId?.toLowerCase() || "";
             return jobTitle.includes(q) || employerName.includes(q) || paymentId.includes(q);
         });
@@ -284,9 +284,9 @@ function CanTransactionsPage() {
                                                 </td>
                                                 <td>
                                                     <div className="fw-bold" style={{ fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>{t.jobId?.title || 'N/A'}</div>
-                                                    <small className="text-muted d-md-none">{t.employerId?.companyName || 'N/A'}</small>
+                                                    <small className="text-muted d-md-none">{t.employerId?.brandName || t.employerId?.companyName || 'N/A'}</small>
                                                 </td>
-                                                <td className="d-none d-md-table-cell">{t.employerId?.companyName || 'N/A'}</td>
+                                                <td className="d-none d-md-table-cell">{t.employerId?.brandName || t.employerId?.companyName || 'N/A'}</td>
                                                 <td className="d-none d-lg-table-cell"><code className="text-primary" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.85rem)' }}>{t.paymentId}</code></td>
                                                 <td>
                                                     <span className="fw-bold">₹{t.paymentAmount ?? 129}</span>
@@ -438,7 +438,7 @@ function CanTransactionsPage() {
                                                             <div className="text-muted mt-1" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
                                                                 <strong>Description:</strong> Payment for submitting this job application.<br />
                                                                 <strong>Position:</strong> {selectedTransaction?.jobId?.title}<br />
-                                                                <strong>Employer:</strong> {selectedTransaction?.employerId?.companyName}<br />
+                                                                <strong>Employer:</strong> {selectedTransaction?.employerId?.brandName || selectedTransaction?.employerId?.companyName}<br />
                                                                 {selectedTransaction?.jobId?.jobCategory && (
                                                                     <span><strong>Category:</strong> {selectedTransaction?.jobId?.jobCategory}</span>
                                                                 )}

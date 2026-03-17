@@ -687,7 +687,7 @@ exports.getAppliedJobs = async (req, res) => {
         select: 'title location jobType status interviewRoundsCount interviewRoundTypes employerId',
         options: { lean: false } // Ensure we get the latest data from DB
       })
-      .populate('employerId', 'companyName name')
+      .populate('employerId', 'companyName brandName name')
       .sort({ createdAt: -1 })
       .lean(); // Use lean for better performance
 
@@ -712,7 +712,7 @@ exports.getApplicationStatus = async (req, res) => {
       candidateId: req.user._id
     })
     .populate('jobId', 'title interviewRoundsCount interviewRoundTypes')
-    .populate('employerId', 'companyName');
+    .populate('employerId', 'companyName brandName');
 
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });
@@ -755,7 +755,7 @@ exports.respondToInterviewInvite = async (req, res) => {
       candidateId: req.user._id
     })
     .populate('jobId', 'title')
-    .populate('employerId', 'companyName email');
+    .populate('employerId', 'companyName brandName email');
     
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });
@@ -1095,7 +1095,7 @@ exports.getDashboard = async (req, res) => {
     
     const recentApplications = await Application.find({ candidateId })
       .populate('jobId', 'title location')
-      .populate('employerId', 'companyName name')
+      .populate('employerId', 'companyName brandName name')
       .sort({ createdAt: -1 })
       .limit(5);
     
@@ -1260,7 +1260,7 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
         select: 'title location jobType status interviewRoundsCount interviewRoundTypes interviewRoundDetails interviewRoundOrder assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime assessmentInstructions assessmentPassingPercentage companyLogo companyName',
         options: { lean: true }
       })
-      .populate('employerId', 'companyName name')
+      .populate('employerId', 'companyName brandName name')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -1404,7 +1404,7 @@ exports.respondToOffer = async (req, res) => {
       candidateId: req.user._id,
       status: 'offer_sent'
     }).populate('jobId', 'title')
-      .populate('employerId', 'name');
+      .populate('employerId', 'companyName brandName name');
 
     if (!application) {
       return res.status(404).json({ success: false, message: 'Offer not found or already responded' });
@@ -1447,7 +1447,7 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
         path: 'jobId',
         select: 'title interviewRoundTypes interviewRoundDetails interviewRoundOrder dynamicInterviewRounds assessmentId assessmentStartDate assessmentEndDate'
       })
-      .populate('employerId', 'companyName name')
+      .populate('employerId', 'companyName brandName name')
       .sort({ createdAt: -1 });
 
     const interviewProcesses = applications.map(application => {
@@ -1622,7 +1622,7 @@ exports.getRecommendedJobs = async (req, res) => {
       status: 'active',
       requiredSkills: { $in: profile.skills }
     })
-    .populate('employerId', 'companyName')
+    .populate('employerId', 'companyName brandName')
     .sort({ createdAt: -1 })
     .limit(10);
 
@@ -1724,7 +1724,7 @@ exports.getApplicationInterviewDetails = async (req, res) => {
       path: 'jobId',
       select: 'title interviewRoundTypes interviewRoundDetails interviewRoundOrder dynamicInterviewRounds assessmentId assessmentStartDate assessmentEndDate'
     })
-    .populate('employerId', 'companyName');
+    .populate('employerId', 'companyName brandName');
 
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });
@@ -1985,7 +1985,7 @@ exports.getInterviewProcessDetails = async (req, res) => {
       path: 'jobId',
       select: 'title interviewRoundTypes interviewRoundDetails interviewRoundOrder dynamicInterviewRounds assessmentId assessmentStartDate assessmentEndDate'
     })
-    .populate('employerId', 'companyName')
+    .populate('employerId', 'companyName brandName')
     .populate('interviewProcessId');
 
     if (!application) {
@@ -1996,7 +1996,7 @@ exports.getInterviewProcessDetails = async (req, res) => {
     if (application.interviewProcessId) {
       const interviewProcess = await InterviewProcess.findById(application.interviewProcessId)
         .populate('jobId', 'title')
-        .populate('employerId', 'companyName name')
+        .populate('employerId', 'companyName brandName name')
         .populate('candidateId', 'name email');
       
       if (interviewProcess) {
@@ -2162,7 +2162,7 @@ exports.getAllCandidateInterviewProcesses = async (req, res) => {
     
     const interviewProcesses = await InterviewProcess.find({ candidateId: req.user._id })
       .populate('jobId', 'title location')
-      .populate('employerId', 'companyName name')
+      .populate('employerId', 'companyName brandName name')
       .populate('applicationId', 'status createdAt')
       .sort({ createdAt: -1 });
 

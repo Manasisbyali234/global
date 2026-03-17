@@ -1098,7 +1098,7 @@ function CanStatusPage() {
 																	<div>
 																		<a href={`/emp-detail/${app.employerId?._id}`} className="text-decoration-none">
 																			<h6 className="mb-1 fw-semibold text-dark hover-primary" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px' }}>
-																				{app.employerId?.companyName || 'Company Name Not Available'}
+																				{app.employerId?.brandName || app.employerId?.companyName || 'Company Name Not Available'}
 																				{app.jobId?.companyName && app.jobId.companyName !== app.employerId?.companyName && (
 																					<span className="badge bg-info bg-opacity-10 text-info border border-info ms-1" style={{ fontSize: '10px', padding: '2px 6px', fontWeight: '500', textTransform: 'none' }}>
 																						Hiring for: {app.jobId.companyName}
@@ -1458,7 +1458,7 @@ function CanStatusPage() {
 									</h6>
 									<div className="row">
 										<div className="col-md-6 mb-2">
-											<strong>Company:</strong> {selectedApplication.employerId?.companyName || 'N/A'}
+											<strong>Company:</strong> {selectedApplication.employerId?.brandName || selectedApplication.employerId?.companyName || 'N/A'}
 										</div>
 										<div className="col-md-6 mb-2">
 											<strong>Position:</strong> {selectedApplication.jobId?.title || 'N/A'}
@@ -1655,9 +1655,18 @@ function CanStatusPage() {
 																	const durationLabel = `${Math.max(0, totalMinutes)}mins`;
 																			return (
 																				<div className="mb-2" style={{ fontSize: '14px' }}>
-																					<div><span className="text-muted">Date</span> <span className="fw-bold text-dark ms-2">{dateLabel}</span></div>
-																					<div><span className="text-muted">Timing</span> <span className="fw-bold text-dark ms-2">{timingLabel}</span></div>
-																					<div><span className="text-muted">Duration</span> <span className="fw-bold text-dark ms-2">{durationLabel}</span></div>
+																					<div className="d-flex align-items-start" style={{ gap: '10px' }}>
+																						<span className="text-muted" style={{ minWidth: '70px', display: 'inline-block' }}>Date</span>
+																						<span className="fw-bold text-dark">{dateLabel}</span>
+																					</div>
+																					<div className="d-flex align-items-start" style={{ gap: '10px' }}>
+																						<span className="text-muted" style={{ minWidth: '70px', display: 'inline-block' }}>Timing</span>
+																						<span className="fw-bold text-dark">{timingLabel}</span>
+																					</div>
+																					<div className="d-flex align-items-start" style={{ gap: '10px' }}>
+																						<span className="text-muted" style={{ minWidth: '70px', display: 'inline-block' }}>Duration</span>
+																						<span className="fw-bold text-dark">{durationLabel}</span>
+																					</div>
 																				</div>
 																			);
 																})()}

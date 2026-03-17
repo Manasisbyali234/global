@@ -4,7 +4,12 @@ import './PopupNotification.css';
 const icons = {
   warning: '\u26A0',
   error: '\u2716',
-  info: '\u2139'
+  info: '\u2139',
+  secure: (
+    <div className="popup-icon-lock" aria-hidden="true">
+      <i className="fa fa-lock lock-icon" />
+    </div>
+  )
 };
 
 const ConfirmationDialog = ({

@@ -107,10 +107,10 @@ exports.getJobs = async (req, res) => {
 
     const [profiles, employers, applicationCounts] = await Promise.all([
       require('../models/EmployerProfile').find({ employerId: { $in: employerIds } })
-        .select('employerId logo companyName')
+        .select('employerId logo companyName brandName')
         .lean(),
       require('../models/Employer').find({ _id: { $in: employerIds } })
-        .select('companyName employerType status isApproved')
+        .select('companyName brandName employerType status isApproved')
         .lean(),
       require('../models/Application').aggregate([
         { $match: { jobId: { $in: jobIds }, paymentStatus: 'paid' } },
@@ -196,7 +196,7 @@ exports.getJobsByCategory = async (req, res) => {
     })
     .populate({
       path: 'employerId',
-      select: 'companyName status isApproved employerType',
+      select: 'companyName brandName status isApproved employerType',
       match: { status: 'active', isApproved: true }
     })
     .sort({ createdAt: -1 });
@@ -415,7 +415,7 @@ exports.getEmployerProfile = async (req, res) => {
     const Employer = require('../models/Employer');
     
     let profile = await EmployerProfile.findOne({ employerId: req.params.id })
-      .populate('employerId', 'name email phone companyName employerType');
+      .populate('employerId', 'name email phone companyName brandName employerType');
     
     // If no profile exists, create basic profile from employer data
     if (!profile) {
@@ -427,6 +427,7 @@ exports.getEmployerProfile = async (req, res) => {
       profile = {
         employerId: employer,
         companyName: employer.companyName,
+        brandName: employer.brandName,
         email: employer.email,
         phone: employer.phone,
         description: 'No company description available.',

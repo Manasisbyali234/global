@@ -739,14 +739,20 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
         <div style="background-color: #fff3cd; padding: 25px; border-radius: 10px; margin: 25px 0; border-left: 5px solid #ffc107;">
           <h3 style="color: #856404; margin: 0 0 20px 0; font-size: 18px;">📅 Interview Process Schedule:</h3>
           <div style="color: #856404; line-height: 1.6; font-size: 15px;">
-            ${rounds.map((round, index) => `
+            ${rounds.map((round, index) => {
+              const isBookSlot = /book your slot by login/i.test(round.time || '');
+              const timeHtml = isBookSlot
+                ? '<span style="color:#c2410c;background:#fff7ed;padding:2px 6px;border-radius:4px;font-weight:700;">Book your Slot by Login</span>'
+                : round.time;
+              return `
               <div style="margin-bottom: 16px; padding: 12px; background-color: rgba(255,255,255,0.7); border-radius: 6px;">
                 <div style="font-weight: bold; margin-bottom: 4px;">Round ${index + 1}: ${round.name}</div>
                 <div style="margin-bottom: 2px;"><strong>Description:</strong> ${round.description}</div>
                 <div style="margin-bottom: 2px;"><strong>Date:</strong> ${round.dateRange}</div>
-                <div><strong>Time:</strong> ${round.time}</div>
+                <div><strong>Time:</strong> ${timeHtml}</div>
               </div>
-            `).join('')}
+            `;
+            }).join('')}
           </div>
         </div>
       `;

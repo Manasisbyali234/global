@@ -5,6 +5,7 @@ const employerPublicProfileSchema = new mongoose.Schema({
   
   // Basic Information (PUBLIC)
   companyName: { type: String },
+  brandName: { type: String },
   phone: { type: String },
   email: { type: String },
   website: { type: String },

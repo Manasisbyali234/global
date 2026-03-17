@@ -86,6 +86,39 @@
   font-weight: bold;
 }
 
+.popup-icon .popup-icon-lock {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-icon .popup-icon-lock .lock-icon {
+  font-size: 30px;
+}
+
+.popup-icon .popup-icon-lock::before,
+.popup-icon .popup-icon-lock::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 14px;
+  height: 2px;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border-radius: 2px;
+}
+
+.popup-icon .popup-icon-lock::before {
+  top: 56%;
+}
+
+.popup-icon .popup-icon-lock::after {
+  top: 66%;
+}
+
 .popup-success .popup-icon {
   background-color: #d4edda;
   color: #28a745;
@@ -103,6 +136,11 @@
 
 .popup-info .popup-icon {
   background-color: #d1ecf1;
+}
+
+.popup-secure .popup-icon {
+  background-color: #fff3e0;
+  color: #fd7e14;
 }
 
 .popup-message {

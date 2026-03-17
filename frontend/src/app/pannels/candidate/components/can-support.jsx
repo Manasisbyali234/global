@@ -49,7 +49,7 @@ function CanSupport() {
                         seenEmployerIds.add(employer._id);
                         uniqueEmployers.push({
                             id: employer._id,
-                            name: employer.companyName || employer.name
+                            name: employer.brandName || employer.companyName || employer.name
                         });
                     }
                 });

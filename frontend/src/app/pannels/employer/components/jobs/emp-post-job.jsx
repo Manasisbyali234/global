@@ -378,6 +378,17 @@ export default function EmpPostJob({ onNext }) {
 			setCurrentStep(step);
 		}
 	}, [searchParams, currentStep]);
+
+	const autoResizeTextarea = useCallback((element) => {
+		if (!element) return;
+		element.style.height = 'auto';
+		element.style.height = `${element.scrollHeight}px`;
+	}, []);
+
+	useEffect(() => {
+		const elements = document.querySelectorAll('[data-interview-round-description="true"]');
+		elements.forEach((element) => autoResizeTextarea(element));
+	}, [formData.interviewRoundDetails, formData.interviewRoundOrder, autoResizeTextarea]);
 	const [logoFile, setLogoFile] = useState(null);
 	const [isMobile, setIsMobile] = useState(false);
 	const [availableAssessments, setAvailableAssessments] = useState([]);
@@ -442,6 +453,33 @@ export default function EmpPostJob({ onNext }) {
 				});
 			}
 		});
+	};
+
+	const confirmHolidayDate = async (dateValue, onConfirm) => {
+		let normalized = normalizeToYMD(dateValue);
+		if (!normalized) normalized = dateValue;
+		if (!normalized) return;
+
+		const holidayCheck = await holidaysApi.checkHoliday(normalized);
+		const localHolidayName = getLocalHolidayName(normalized);
+		const isWeekend = isWeekendDate(normalized);
+		const isHolidayLikeFromApi = Boolean(
+			holidayCheck?.success && (holidayCheck.isHoliday || holidayCheck.isNonWorkingDay || holidayCheck.isWeekend)
+		);
+		const shouldConfirmHoliday = isHolidayLikeFromApi || Boolean(localHolidayName) || isWeekend;
+
+		if (shouldConfirmHoliday) {
+			showConfirmation(
+				'⚠️ The selected interview date falls on holiday.Would you like to continue scheduling the interview on this date?',
+				onConfirm,
+				null,
+				'warning',
+				{ confirmText: 'Yes Continue', cancelText: 'No' }
+			);
+			return;
+		}
+
+		onConfirm();
 	};
 
 	// Auto-save CTC to localStorage with debouncing and calculate net salary
@@ -778,8 +816,8 @@ export default function EmpPostJob({ onNext }) {
 			if (normalizedDate) value = normalizedDate;
 		}
 
-		// Holiday confirmation for interview dates
-		if (field === 'fromDate' && value && !skipHolidayConfirmation) {
+		// Validate interview date rules for start date
+		if (field === 'fromDate' && value) {
 			const minAllowedInterviewDate = formData.lastDateOfApplication
 				? getNextDayDateString(formData.lastDateOfApplication)
 				: '';
@@ -815,6 +853,10 @@ export default function EmpPostJob({ onNext }) {
 				}
 			}
 
+		}
+
+		// Holiday confirmation for interview dates (start or end date)
+		if ((field === 'fromDate' || field === 'toDate') && value && !skipHolidayConfirmation) {
 			const holidayCheck = await holidaysApi.checkHoliday(value);
 			const localHolidayName = getLocalHolidayName(value);
 			const isWeekend = isWeekendDate(value);
@@ -3230,7 +3272,17 @@ export default function EmpPostJob({ onNext }) {
 							type="date"
 							min={today}
 							value={formData.offerLetterDate || ''}
-							onChange={(e) => update({ offerLetterDate: e.target.value })}
+							onChange={async (e) => {
+								const selectedDate = e.target.value;
+								if (!selectedDate) {
+									update({ offerLetterDate: '' });
+									return;
+								}
+								await confirmHolidayDate(selectedDate, () => {
+									const normalized = normalizeToYMD(selectedDate) || selectedDate;
+									update({ offerLetterDate: normalized });
+								});
+							}}
 							placeholder="DD/MM/YYYY"
 						/>
 						{errors.offerLetterDate && (
@@ -3261,7 +3313,17 @@ export default function EmpPostJob({ onNext }) {
 									type="date"
 									min={today}
 									value={formData.lastDateOfApplication || ''}
-									onChange={(e) => update({ lastDateOfApplication: e.target.value })}
+									onChange={async (e) => {
+										const selectedDate = e.target.value;
+										if (!selectedDate) {
+											update({ lastDateOfApplication: '' });
+											return;
+										}
+										await confirmHolidayDate(selectedDate, () => {
+											const normalized = normalizeToYMD(selectedDate) || selectedDate;
+											update({ lastDateOfApplication: normalized });
+										});
+									}}
 									placeholder="DD/MM/YYYY"
 								/>
 							</div>
@@ -4438,19 +4500,25 @@ export default function EmpPostJob({ onNext }) {
 												}}>
 													<label style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Description</label>
 													<textarea
+														data-interview-round-description="true"
 														style={{
 															border: '1px solid #e5e7eb',
 															fontSize: '14px',
 															resize: 'none',
 															width: '100%',
 															minHeight: '60px',
+															overflow: 'hidden',
 															outline: 'none',
 															borderRadius: '8px',
 															padding: '8px'
 														}}
+														rows={1}
 														placeholder="Describe the interview round..."
 														value={details.description || ''}
-														onChange={(e) => updateRoundDetails(uniqueKey, 'description', e.target.value)}
+														onChange={(e) => {
+															autoResizeTextarea(e.target);
+															updateRoundDetails(uniqueKey, 'description', e.target.value);
+														}}
 													/>
 												</div>
 
@@ -4587,27 +4655,49 @@ export default function EmpPostJob({ onNext }) {
 																	<i className="fa fa-calendar"></i> DATE
 																</label>
 																<div style={{ position: 'relative' }}>
-																	<input
-																		type="date"
-																		style={{
-																			background: '#f9fafb',
+																<input
+																	type="date"
+																	style={{
+																		background: '#f9fafb',
 																			border: '1px solid #e5e7eb',
 																			borderRadius: '10px',
 																			padding: '10px 14px',
 																			width: '100%',
 																			fontSize: '14px'
-																		}}
-																		min={getMinDateForRound(uniqueKey)}
-																		value={subStage.fromDate || ''}
-																		onChange={(e) => {
-																			const selectedDate = e.target.value;
-																			if (selectedDate) {
-																				setShowSubStageConfirm({ uniqueKey, subStage, subIndex, selectedDate });
-																			}
-																		}}
-																	/>
-																</div>
+																	}}
+																	min={getMinDateForRound(uniqueKey)}
+																	value={subStage.fromDate || ''}
+																	onChange={async (e) => {
+																		let selectedDate = e.target.value;
+																		if (!selectedDate) return;
+
+																		const normalizedDate = normalizeToYMD(selectedDate);
+																		if (normalizedDate) selectedDate = normalizedDate;
+
+																		const holidayCheck = await holidaysApi.checkHoliday(selectedDate);
+																		const localHolidayName = getLocalHolidayName(selectedDate);
+																		const isWeekend = isWeekendDate(selectedDate);
+																		const isHolidayLikeFromApi = Boolean(
+																			holidayCheck?.success && (holidayCheck.isHoliday || holidayCheck.isNonWorkingDay || holidayCheck.isWeekend)
+																		);
+																		const shouldConfirmHoliday = isHolidayLikeFromApi || Boolean(localHolidayName) || isWeekend;
+
+																		if (shouldConfirmHoliday) {
+																			showConfirmation(
+																				'⚠️ The selected interview date falls on holiday.Would you like to continue scheduling the interview on this date?',
+																				() => setShowSubStageConfirm({ uniqueKey, subStage, subIndex, selectedDate }),
+																				null,
+																				'warning',
+																				{ confirmText: 'Yes Continue', cancelText: 'No' }
+																			);
+																			return;
+																		}
+
+																		setShowSubStageConfirm({ uniqueKey, subStage, subIndex, selectedDate });
+																	}}
+																/>
 															</div>
+														</div>
 															<div style={{ flex: 1, minWidth: isMobile ? '100%' : '150px' }}>
 																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
 																	<i className="fa fa-clock"></i> START TIME

@@ -15,6 +15,7 @@ const employerSchema = new mongoose.Schema({
   password: { type: String, required: false },
   phone: { type: String },
   companyName: { type: String, required: true },
+  brandName: { type: String },
   employerType: { type: String, enum: ['company', 'consultant'], default: 'company' },
   isVerified: { type: Boolean, default: false },
   status: { type: String, enum: ['active', 'inactive', 'pending'], default: 'active' },

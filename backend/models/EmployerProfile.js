@@ -6,6 +6,7 @@ const employerProfileSchema = new mongoose.Schema({
   // Basic Information
   employerCategory: { type: String },
   companyName: { type: String },
+  brandName: { type: String },
   phone: { type: String },
   email: { type: String },
   website: { type: String },

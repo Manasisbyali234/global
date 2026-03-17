@@ -169,7 +169,7 @@ function CanStatusPage() {
 																	</div>
 																	<div>
 																		<h6 className="mb-1 fw-semibold text-dark" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px' }}>
-																			{app.employerId?.companyName || 'Company Name Not Available'}
+																			{app.employerId?.brandName || app.employerId?.companyName || 'Company Name Not Available'}
 																			{app.jobId?.companyName && app.jobId.companyName !== app.employerId?.companyName && (
 																				<span className="badge bg-info bg-opacity-10 text-info border border-info ms-1" style={{ fontSize: '10px', padding: '2px 6px', fontWeight: '500', textTransform: 'none' }}>
 																					Hiring for: {app.jobId.companyName}
@@ -254,7 +254,7 @@ function CanStatusPage() {
 									</h6>
 									<div className="row">
 										<div className="col-md-6 mb-2">
-											<strong>Company:</strong> {selectedApplication.employerId?.companyName || 'N/A'}
+											<strong>Company:</strong> {selectedApplication.employerId?.brandName || selectedApplication.employerId?.companyName || 'N/A'}
 										</div>
 										<div className="col-md-6 mb-2">
 											<strong>Position:</strong> {selectedApplication.jobId?.title || 'N/A'}
