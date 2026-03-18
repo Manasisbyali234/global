@@ -445,7 +445,7 @@ function CanInterviewsPage() {
                         )}
                         className="view-details-btn-orange"
                       >
-                        Book Your Slot/Assessment
+                        Book Interview/Assessment
                       </NavLink>
                     )}
                   </div>

@@ -83,7 +83,7 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
             <li className={setMenuActive(currentpath, canRoute(candidate.INTERVIEWS))}>
               <NavLink to={canRoute(candidate.INTERVIEWS)} onClick={handleLinkClick}>
                 <i className="fa fa-calendar" />
-                <span className="admin-nav-text">Book Your Slot</span>
+                <span className="admin-nav-text">My interview</span>
               </NavLink>
             </li>
             <li className={setMenuActive(currentpath, canRoute(candidate.RESUME))}>
