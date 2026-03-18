@@ -6,6 +6,7 @@ import CanDashboardPage from "../app/pannels/candidate/components/can-dashboard"
 import CanProfilePage from "../app/pannels/candidate/components/can-profile";
 import CanAppliedJobs from "../app/pannels/candidate/components/can-applied-jobs";
 import CanStatusPage from "../app/pannels/candidate/components/application-status";
+import CanInterviewsPage from "../app/pannels/candidate/components/can-interviews";
 import CanMyResumePage from "../app/pannels/candidate/components/can-resume";
 import CanSavedJobsPage from "../app/pannels/candidate/components/can-saved-jobs";
 import CanCVManagerPage from "../app/pannels/candidate/components/can-cv-manager";
@@ -76,6 +77,7 @@ function CandidateRoutes() {
 				<Route path={candidate.APPLIED_JOBS} element={<CanAppliedJobs />} />
 				<Route path={candidate.STATUS} element={<CanStatusPage />} />
 				<Route path={candidate.INTERVIEW_DETAILS} element={<CanStatusPage />} />
+				<Route path={candidate.INTERVIEWS} element={<CanInterviewsPage />} />
 				<Route path={candidate.RESUME} element={<CanMyResumePage />} />
 
 				<Route path={candidate.STEP} element={<Stepper />} />

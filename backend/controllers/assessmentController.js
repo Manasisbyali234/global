@@ -1,3 +1,4 @@
+const path = require('path');
 const Assessment = require('../models/Assessment');
 const AssessmentAttempt = require('../models/AssessmentAttempt');
 const Application = require('../models/Application');
@@ -593,8 +594,13 @@ exports.uploadFileAnswer = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Question is not an upload type' });
     }
     
-    // Store file path
-    const filePath = req.file.path;
+    // Store a web-accessible upload path
+    const filePath = req.file?.filename
+      ? `/uploads/${req.file.filename}`
+      : (req.file?.path ? `/uploads/${path.basename(req.file.path)}` : null);
+    if (!filePath) {
+      return res.status(500).json({ success: false, message: 'Failed to resolve upload path' });
+    }
     
     const existingAnswerIndex = attempt.answers.findIndex(a => a.questionIndex === parseInt(questionIndex));
     const answerData = {
@@ -673,8 +679,13 @@ exports.uploadCapture = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Assessment is not in progress' });
     }
     
-    // Store file path
-    const filePath = req.file.path;
+    // Store a web-accessible upload path
+    const filePath = req.file?.filename
+      ? `/uploads/${req.file.filename}`
+      : (req.file?.path ? `/uploads/${path.basename(req.file.path)}` : null);
+    if (!filePath) {
+      return res.status(500).json({ success: false, message: 'Failed to resolve capture path' });
+    }
     
     if (!attempt.captures) {
       attempt.captures = [];
@@ -1129,7 +1140,8 @@ exports.getAssessmentResultByApplication = async (req, res) => {
         },
         assessment: {
           title: attempt.assessmentId.title,
-          description: attempt.assessmentId.description
+          description: attempt.assessmentId.description,
+          passingPercentage: attempt.assessmentId.passingPercentage
         }
       }
     });

@@ -155,16 +155,27 @@ nav#sidebar-admin-wraper.active,
 #sidebar-admin-wraper,
 #sidebar-admin-wraper .admin-nav,
 #sidebar-admin-wraper .admin-nav.scrollbar-macosx {
-    overflow-y: hidden !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
 }
 
 #sidebar-admin-wraper::-webkit-scrollbar,
 #sidebar-admin-wraper .admin-nav::-webkit-scrollbar,
 #sidebar-admin-wraper .admin-nav.scrollbar-macosx::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
+    display: block !important;
+    width: 6px !important;
+}
+
+#sidebar-admin-wraper::-webkit-scrollbar-thumb,
+#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+#sidebar-admin-wraper::-webkit-scrollbar-track,
+#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 /* Ensure sidebar is always visible on desktop */

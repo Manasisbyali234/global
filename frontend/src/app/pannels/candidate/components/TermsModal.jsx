@@ -13,6 +13,18 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
 
     if (!isOpen) return null;
     const timeLimit = assessment?.timer ?? assessment?.timeLimit ?? '--';
+    const decodeHtmlEntities = (value) => {
+        if (!value || typeof value !== 'string') return '';
+        if (typeof document === 'undefined') return value;
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = value;
+        return textarea.value.replace(/\u00a0/g, ' ').trim();
+    };
+    const instructionsRaw = assessment?.instructions || assessment?.description || '';
+    const instructionsText = decodeHtmlEntities(String(instructionsRaw || '').replace(/<[^>]*>/g, ''));
+    const instructionLines = instructionsText
+        ? instructionsText.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+        : [];
 
     return (
         <div className="modal fade twm-model-popup show" id="termsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-hidden="false" style={{ display: 'block' }}>
@@ -35,6 +47,23 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
                                 </h6>
                                 <p style={{ margin: '0', color: '#495057', lineHeight: '1.6' }}>You have <strong style={{ color: '#ff6b35' }}>{timeLimit} minutes</strong> to complete this assessment. The timer will start once you begin the assessment.</p>
                             </div>
+
+                            {instructionsText && (
+                                <div className="mb-4" style={{ backgroundColor: '#eef6ff', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #3b82f6' }}>
+                                    <h6 style={{ color: '#1f2937', fontWeight: '600', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                                        <span style={{ marginRight: '8px' }}>📌</span> Assessment Instructions
+                                    </h6>
+                                    {instructionLines.length > 1 ? (
+                                        <ul style={{ paddingLeft: '20px', margin: '0', color: '#374151', lineHeight: '1.7' }}>
+                                            {instructionLines.map((line, idx) => (
+                                                <li key={`instruction-${idx}`} style={{ marginBottom: '6px' }}>{line}</li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p style={{ margin: '0', color: '#374151', lineHeight: '1.7' }}>{instructionsText}</p>
+                                    )}
+                                </div>
+                            )}
 
                             <div className="mb-4">
                                 <h6 style={{ color: '#2c3e50', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center' }}>

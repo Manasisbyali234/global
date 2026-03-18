@@ -147,6 +147,15 @@ function SectionCanKeySkills({ profile }) {
     const handleAddCustom = () => {
         const trimmedSkill = customSkill.trim();
         if (trimmedSkill) {
+            const matchesPredefined = predefinedSkills.some(
+                (skill) => skill.toLowerCase() === trimmedSkill.toLowerCase()
+            );
+            if (matchesPredefined) {
+                setSearchTerm(trimmedSkill);
+                setShowDropdown(true);
+                showWarning('This skill already exists in the list. Please select it from the dropdown.');
+                return;
+            }
             addSkill(trimmedSkill);
         }
     };
@@ -287,18 +296,21 @@ function SectionCanKeySkills({ profile }) {
                                     )}
                                 </div>
                             </div>
-                            <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-stretch align-items-md-end gap-2">
-                                <button 
-                                    type="button" 
-                                    onClick={() => setShowCustomInput(!showCustomInput)}
-                                    className="btn btn-outline-primary flex-fill" 
-                                    disabled={loading}
-                                    style={{backgroundColor: 'transparent'}}
-                                >
-                                    <i className="fa fa-keyboard me-1"></i>
-                                    Add Custom Skill
-                                </button>
-                            </div>
+                            {!showCustomInput && (
+                                <div className="col-12 col-md-6 mt-1">
+                                    <label className="d-none d-md-block invisible">Select a skill from list</label>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowCustomInput(true)}
+                                        className="btn btn-outline-primary w-100" 
+                                        disabled={loading}
+                                        style={{backgroundColor: 'transparent'}}
+                                    >
+                                        <i className="fa fa-keyboard me-1"></i>
+                                        Add Custom Skill
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         
                         {showCustomInput && (
@@ -316,7 +328,9 @@ function SectionCanKeySkills({ profile }) {
                                         autoFocus
                                     />
                                 </div>
-                                <div className="col-12 col-md-6 d-flex flex-column flex-md-row align-items-stretch align-items-md-end gap-2 mt-2 mt-md-0">
+                                <div className="col-12 col-md-6">
+                                    <label className="d-none d-md-block invisible">Enter custom skill</label>
+                                    <div className="d-flex flex-column flex-md-row align-items-stretch gap-2 mt-2">
                                     <button 
                                         type="button"
                                         className="btn btn-outline-primary flex-fill"
@@ -336,6 +350,7 @@ function SectionCanKeySkills({ profile }) {
                                         <i className="fa fa-times me-1"></i>
                                         Cancel
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                         )}

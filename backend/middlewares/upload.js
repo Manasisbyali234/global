@@ -364,7 +364,7 @@ const uploadEducation = multer({
   }
 });
 
-// Upload configuration for assessment answer files (memory storage for Base64 conversion)
+// Upload configuration for assessment answer files (disk storage for consistent file paths)
 const uploadAnswerFile = multer({
   storage,
   fileFilter: (req, file, cb) => {

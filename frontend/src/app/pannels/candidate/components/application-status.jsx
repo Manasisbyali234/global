@@ -785,13 +785,13 @@ function CanStatusPage() {
 				switch (round.status) {
 					case 'passed':
 						return { 
-							text: 'Passed', 
+							text: 'Pass', 
 							class: 'bg-success bg-opacity-10 text-success border border-success',
 							feedback: round.feedback || ''
 						};
 					case 'failed':
 						return { 
-							text: 'Failed', 
+							text: 'Fail', 
 							class: 'bg-danger bg-opacity-10 text-danger border border-danger',
 							feedback: round.feedback || ''
 						};
@@ -1287,7 +1287,7 @@ function CanStatusPage() {
 																						{/* Show pass/fail result for completed assessments */}
 																						{roundName === 'Assessment' && (app.assessmentResult === 'pass' || app.assessmentResult === 'fail') && (
 																							<span className={`badge ${app.assessmentResult === 'pass' ? 'bg-success' : 'bg-danger'}`} style={{fontSize: '9px', padding: '2px 6px', marginTop: '2px'}}>
-																								{app.assessmentResult === 'pass' ? 'PASS' : 'FAIL'}
+																								{app.assessmentResult === 'pass' ? 'Pass' : 'Fail'}
 																							</span>
 																						)}
 
@@ -1891,14 +1891,6 @@ function CanStatusPage() {
 													const roundWindowInfo = getInterviewRoundWindowInfo(roundDetails);
 													const normalizedRoundType = (roundType || '').toString().split('_')[0];
 													const bookSlotUrl = `https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`;
-													const bookingKey = `candidate_slot_booked_${selectedApplication._id}_${roundId}_${candidateId}`;
-													const isLocallyMarkedBooked = (() => {
-														try {
-															return localStorage.getItem(bookingKey) === '1';
-														} catch (error) {
-															return false;
-														}
-													})();
 													const hasCandidateRef = (payload) => {
 														if (!payload || !candidateId) return false;
 														try {
@@ -1952,29 +1944,24 @@ function CanStatusPage() {
 													const isBookedSlotExpired = bookedSlotEndDateTime ? Date.now() > bookedSlotEndDateTime.getTime() : false;
 
 													const hasBookedSlot = Boolean(
-														isLocallyMarkedBooked ||
-														['interview_scheduled', 'scheduled', 'in_progress'].includes(processStatus) ||
-														['scheduled', 'in_progress'].includes(stageStatus) ||
+														bookedSlot ||
 														roundDetails?.candidateSlotBooked ||
-														relatedStage?.meetingLink ||
-														roundDetails?.meetingLink ||
-														roundDetails?.joinLink ||
-														roundDetails?.meetingUrl ||
+														roundDetails?.isBooked ||
+														roundDetails?.bookingConfirmed ||
 														hasCandidateRef(roundDetails?.scheduleObject) ||
 														hasCandidateRef(roundDetails?.formDataObject) ||
 														hasCandidateRef(roundDetails?.schedulesArray) ||
 														hasCandidateRef(roundDetails?.daySchedulesArray) ||
-														hasCandidateRef(roundDetails?.roomsArray) ||
-														roundDetails?.isBooked ||
-														roundDetails?.bookingConfirmed ||
-														bookedSlot
+														hasCandidateRef(roundDetails?.roomsArray)
 													);
 													const joinUrl =
-														relatedStage?.meetingLink ||
-														roundDetails?.meetingLink ||
-														roundDetails?.joinLink ||
-														roundDetails?.meetingUrl ||
-														bookSlotUrl;
+														hasBookedSlot
+															? (relatedStage?.meetingLink ||
+																roundDetails?.meetingLink ||
+																roundDetails?.joinLink ||
+																roundDetails?.meetingUrl ||
+																bookSlotUrl)
+															: bookSlotUrl;
 													const buttonLabel = hasBookedSlot ? 'Join Now' : 'Book Your Slot';
 													const buttonIcon = hasBookedSlot ? 'fa-video-camera' : 'fa-calendar';
 													let canBookThisRound = true;
@@ -2098,9 +2085,6 @@ function CanStatusPage() {
 																<a 
 																	href={joinUrl}
 																	onClick={() => {
-																		try {
-																			localStorage.setItem(bookingKey, '1');
-																		} catch (error) {}
 																	}}
 																	className="btn btn-primary"
 																	style={{
@@ -2123,9 +2107,6 @@ function CanStatusPage() {
 																<a 
 																	href={joinUrl}
 																	onClick={() => {
-																		try {
-																			localStorage.setItem(bookingKey, '1');
-																		} catch (error) {}
 																	}}
 																	className="btn btn-primary"
 																	style={{

@@ -1,11 +1,9 @@
-import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
+import { showSuccess, showError } from '../../../../../utils/popupNotification';
 import { formatDate as formatDateUtil } from '../../../../../utils/dateFormatter';
 import { AlertCircle, Building2, Calendar, Edit, Eye, MapPin, Pause, Play, Search } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadScript } from "../../../../../globals/constants";
-import { employer, empRoute } from "../../../../../globals/route-names";
-import TermsModal from "../../../../../components/TermsModal";
 import './emp-posted-jobs.css';
 import './emp-posted-jobs-mobile-button-fix.css';
 
@@ -14,19 +12,13 @@ export default function EmpPostedJobs() {
     const [jobs, setJobs] = useState([]);
     const [filteredJobs, setFilteredJobs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isApproved, setIsApproved] = useState(false);
-    const [employerType, setEmployerType] = useState('company');
     const [statusFilter, setStatusFilter] = useState('all');
     const [searchText, setSearchText] = useState('');
     const [applicationCounts, setApplicationCounts] = useState({});
-    const [showEmployerInstructionsModal, setShowEmployerInstructionsModal] = useState(false);
-    const [candidateSupportTicketsCount, setCandidateSupportTicketsCount] = useState(0);
-    const [checkingTickets, setCheckingTickets] = useState(false);
     
     useEffect(() => {
         loadScript("js/custom.js");
         fetchJobs();
-        fetchCandidateSupportTicketsCount();
     }, []);
 
     useEffect(() => {
@@ -50,7 +42,7 @@ export default function EmpPostedJobs() {
             });
         }
         setFilteredJobs(next);
-    }, [jobs, statusFilter, searchText, employerType]);
+    }, [jobs, statusFilter, searchText]);
 
     const jobSuggestions = useMemo(() => {
         const suggestions = new Set();
@@ -63,61 +55,11 @@ export default function EmpPostedJobs() {
         return Array.from(suggestions).sort((a, b) => a.localeCompare(b));
     }, [jobs]);
 
-    const fetchCandidateSupportTicketsCount = async () => {
-        try {
-            setCheckingTickets(true);
-            const token = localStorage.getItem('employerToken');
-            if (!token) return;
-
-            const response = await fetch('http://localhost:5000/api/employer/support-tickets', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                const candidateTickets = (data.tickets || []).filter(
-                    ticket => ticket.ticketType === 'candidate'
-                );
-                setCandidateSupportTicketsCount(candidateTickets.length);
-            }
-        } catch (error) {
-            console.error('Error fetching support tickets:', error);
-        } finally {
-            setCheckingTickets(false);
-        }
-    };
 
     const fetchJobs = async () => {
         try {
             const token = localStorage.getItem('employerToken');
             if (!token) return;
-
-            // Fetch employer profile to check approval status
-            const profileResponse = await fetch('http://localhost:5000/api/employer/profile', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            
-            if (profileResponse.ok) {
-                const profileData = await profileResponse.json();
-                console.log('Profile data:', profileData);
-                
-                // If profile is null, fetch employer data directly
-                if (!profileData.profile) {
-                    const employerResponse = await fetch('http://localhost:5000/api/employer/profile/completion', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (employerResponse.ok) {
-                        const completionData = await employerResponse.json();
-                        setIsApproved(completionData.isApproved || false);
-                        setEmployerType('company');
-                    }
-                } else {
-                    const employerData = profileData.profile?.employerId;
-                    console.log('Employer data:', employerData);
-                    setIsApproved(employerData?.isApproved || false);
-                    setEmployerType(employerData?.employerType || 'company');
-                }
-            }
 
             const response = await fetch('http://localhost:5000/api/employer/jobs', {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -169,18 +111,6 @@ export default function EmpPostedJobs() {
         navigate(`/employer/candidates-list/${jobId}`);
     };
 
-    const handleOpenPostJobFlow = () => {
-        if (candidateSupportTicketsCount > 10) {
-            showError('You cannot post a job because you have more than 10 candidate support tickets. Please resolve them first.');
-            return;
-        }
-        setShowEmployerInstructionsModal(true);
-    };
-
-    const handleAcceptEmployerInstructions = () => {
-        setShowEmployerInstructionsModal(false);
-        navigate(empRoute(employer.POST_A_JOB));
-    };
 
     const formatDate = (dateString) => {
         return formatDateUtil(dateString);
@@ -272,33 +202,6 @@ export default function EmpPostedJobs() {
                         <p className="text-muted"> <span style={{ color: "red", fontWeight: "600" }}>Please Note:</span> Review and manage jobs details</p>
                     </div>
 					
-                    <div className="text-left">
-                        {candidateSupportTicketsCount > 10 ? (
-                            <div>
-                                <button type="button" className="site-button" disabled>
-                                    Post Job
-                                </button>
-                                <div className="alert alert-danger mt-2 mb-0 d-flex align-items-center" style={{fontSize: '14px', padding: '8px 12px'}}>
-                                    <i className="fas fa-exclamation-circle me-2" style={{color: '#721c24'}}></i>
-                                    <strong>Cannot post job: You have {candidateSupportTicketsCount} candidate support tickets. Please resolve them to below 10.</strong>
-                                </div>
-                            </div>
-                        ) : isApproved ? (
-                            <button type="button" className="site-button" onClick={handleOpenPostJobFlow}>
-                                Post Job
-                            </button>
-                        ) : (
-                            <div>
-                                <button type="button" className="site-button" disabled>
-                                    Post Job
-                                </button>
-                                <div className="alert alert-warning mt-2 mb-0 d-flex align-items-center" style={{fontSize: '14px', padding: '8px 12px'}}>
-                                    <i className="fas fa-clock me-2" style={{color: '#856404'}}></i>
-                                    <strong>Account verification in progress</strong>
-                                </div>
-                            </div>
-                        )}
-                    </div>
 				</div>
 
 				<div className="panel-body wt-panel-body">
@@ -356,37 +259,8 @@ export default function EmpPostedJobs() {
                             {filteredJobs.length === 0 ? (
                                 <div className="col-12 text-center py-4">
                                     <p className="text-muted">No jobs posted yet.</p>
-                                    {candidateSupportTicketsCount > 10 ? (
-                                        <div>
-                                            <button type="button" className="site-button" disabled>
-                                                Post Your First Job
-                                            </button>
-                                            <div className="alert alert-danger mt-3 d-flex align-items-center justify-content-center" style={{maxWidth: '600px', margin: '16px auto'}}>
-                                                <i className="fas fa-exclamation-circle me-2" style={{color: '#721c24'}}></i>
-                                                <div>
-                                                    <strong>Cannot post job</strong><br/>
-                                                    <small>You have {candidateSupportTicketsCount} candidate support tickets. Please resolve them to below 10 before posting a job.</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ) : isApproved ? (
-                                        <button type="button" className="site-button" onClick={handleOpenPostJobFlow}>
-                                            Post Your First Job
-                                        </button>
-                                    ) : (
-                                        <div>
-                                            <button className="site-button" disabled>Post Your First Job</button>
-											<div className="alert alert-warning mt-3 d-flex align-items-center justify-content-center" style={{maxWidth: '500px', margin: '16px auto'}}>
-												<i className="fas fa-exclamation-triangle me-2" style={{color: '#856404'}}></i>
-												<div>
-													<strong>Account verification pending</strong><br/>
-													<small>Job posting will be available after admin approval.</small>
-												</div>
-											</div>
-										</div>
-									)}
-								</div>
-							) : (
+                                </div>
+                            ) : (
 								filteredJobs.map((job) => (
 									<div className="col-lg-6 col-12" key={job._id}>
 										<div className="manage-jobs-card p-4 border rounded-3 mb-4 shadow-sm bg-white position-relative" style={{cursor: 'pointer', transition: 'all 0.3s ease'}} onClick={() => handleJobClick(job._id)}>
@@ -471,12 +345,6 @@ export default function EmpPostedJobs() {
 				</div>
 			</div>
 
-            <TermsModal
-                isOpen={showEmployerInstructionsModal}
-                onClose={() => setShowEmployerInstructionsModal(false)}
-                onAccept={handleAcceptEmployerInstructions}
-                role="employerJobPosting"
-            />
 		</div>
 	);
 }

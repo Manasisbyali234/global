@@ -42,6 +42,21 @@ function EmpCandidateReviewPage() {
         { value: 'no_show', label: 'No Show' },
         { value: 'rejected', label: 'Not Advanced to Next Stage' }
     ];
+    const resolveBackendFileUrl = (fileData) => {
+        if (!fileData || typeof fileData !== 'string') return '';
+        if (fileData.startsWith('data:') || fileData.startsWith('http://') || fileData.startsWith('https://')) {
+            return fileData;
+        }
+        let normalized = fileData.replace(/\\/g, '/');
+        const uploadsIndex = normalized.indexOf('/uploads/');
+        if (uploadsIndex !== -1) {
+            normalized = normalized.slice(uploadsIndex);
+        }
+        if (!normalized.startsWith('/')) {
+            normalized = `/${normalized}`;
+        }
+        return `${BACKEND_URL}${normalized}`;
+    };
 
     const getStageStatusOptions = (index) => {
         const isFinalStage = index === interviewProcesses.length - 1;
@@ -227,9 +242,7 @@ function EmpCandidateReviewPage() {
             const blob = new Blob([byteArray], { type: mimeType });
             documentUrl = URL.createObjectURL(blob);
         } else {
-            // Check if fileData is a path (starts with /uploads or uploads)
-            const path = fileData.startsWith('/') ? fileData : `/${fileData}`;
-            documentUrl = `${BACKEND_URL}${path}`;
+            documentUrl = resolveBackendFileUrl(fileData);
         }
         
         setDocumentModal({ isOpen: true, url: documentUrl, title });
@@ -291,10 +304,11 @@ function EmpCandidateReviewPage() {
         }
     };
 
-    const saveInterviewProcesses = async () => {
+    const saveInterviewProcesses = async (processesOverride = null, showToast = false) => {
         try {
             const token = localStorage.getItem('employerToken');
-            const cleanedProcesses = interviewProcesses.map(p => ({
+            const sourceProcesses = Array.isArray(processesOverride) ? processesOverride : interviewProcesses;
+            const cleanedProcesses = sourceProcesses.map(p => ({
                 id: String(p.id),
                 name: String(p.name),
                 type: String(p.type),
@@ -303,7 +317,7 @@ function EmpCandidateReviewPage() {
                 result: p.result || null
             }));
             
-            await fetch(`${API_BASE_URL}/employer/applications/${applicationId}/review`, {
+            const response = await fetch(`${API_BASE_URL}/employer/applications/${applicationId}/review`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -314,8 +328,20 @@ function EmpCandidateReviewPage() {
                     processRemarks: processRemarks
                 })
             });
+
+            if (showToast) {
+                if (response.ok) {
+                    showSuccess('Stage status updated successfully!');
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    showError(errorData.message || 'Failed to update stage status');
+                }
+            }
         } catch (error) {
             console.error('Error saving interview processes:', error);
+            if (showToast) {
+                showError('Network error while updating stage status.');
+            }
         }
     };
 
@@ -675,13 +701,15 @@ function EmpCandidateReviewPage() {
                                                                         value={process.status || 'pending'}
                                                                         onChange={(e) => {
                                                                             const newStatus = e.target.value;
-                                                                            setInterviewProcesses(prev => 
-                                                                                prev.map(p => p.id === process.id ? { 
-                                                                                    ...p, 
+                                                                            setInterviewProcesses(prev => {
+                                                                                const updated = prev.map(p => p.id === process.id ? {
+                                                                                    ...p,
                                                                                     status: newStatus,
                                                                                     isCompleted: newStatus === 'rejected' ? true : p.isCompleted
-                                                                                } : p)
-                                                                            );
+                                                                                } : p);
+                                                                                saveInterviewProcesses(updated, true);
+                                                                                return updated;
+                                                                            });
                                                                             
                                                                             // Do not auto-update overall status when a stage is rejected
                                                                         }}
@@ -1335,7 +1363,7 @@ function EmpCandidateReviewPage() {
                                     {capturesModal.captures.map((capture, index) => (
                                         <div key={index} className="capture-item">
                                             <img 
-                                                src={capture.startsWith('data:') ? capture : `${BACKEND_URL}/${capture.replace(/^\/+/, '')}`} 
+                                                src={resolveBackendFileUrl(capture)} 
                                                 alt={`Capture ${index + 1}`}
                                                 onClick={() => viewDocument(capture, `Capture ${index + 1}`)}
                                             />

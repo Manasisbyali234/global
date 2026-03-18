@@ -1241,6 +1241,7 @@ img[src*="logo-skin-8.gif"] {
   z-index: 1000 !important;
   background: #ffffff !important;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1) !important;
+  overflow-y: auto !important;
 }
 
 #sidebar-admin-wraper.active {
@@ -1760,6 +1761,7 @@ img[src*="logo-skin-8.gif"] {
     z-index: 9999 !important;
     transition: left 0.3s ease !important;
     width: 280px !important;
+    overflow-y: auto !important;
   }
 
   /* Main content adjustments */
@@ -2140,6 +2142,7 @@ img[src*="logo-skin-8.gif"] {
     z-index: 1000 !important;
     background: #ffffff !important;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1) !important;
+    overflow-y: auto !important;
   }
 }
 

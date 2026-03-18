@@ -41,6 +41,13 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
                     icon: '⏰',
                     color: 'warning'
                 };
+            case 'screen_capture':
+                return {
+                    title: 'Screen Capture Violation',
+                    message: 'Multiple screen capture attempts were detected during the assessment.',
+                    icon: '📸',
+                    color: 'danger'
+                };
             default:
                 return {
                     title: 'Assessment Terminated',

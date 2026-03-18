@@ -83,6 +83,11 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
                         </li>
 
                         <li
+                            className={setMenuActive(currentpath, empRoute(employer.POST_A_JOB))}>
+                            <NavLink to={empRoute(employer.POST_A_JOB)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-plus-circle" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Post Job</span></NavLink>
+                        </li>
+
+                        <li
                             className={setMenuActive(currentpath, empRoute(employer.MANAGE_JOBS))}>
                             <NavLink to={empRoute(employer.MANAGE_JOBS)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-suitcase" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Manage Jobs</span></NavLink>
                         </li>

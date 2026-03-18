@@ -69,6 +69,7 @@ export const candidate = {
 	PROFILE: "/profile",
 	APPLIED_JOBS: "/applied-jobs",
 	STATUS: "/status",
+	INTERVIEWS: "/interviews",
 	RESUME: "/my-resume",
 	SAVED_JOBS: "/saved-jobs",
 	CV_MANAGER: "/cv-manager",

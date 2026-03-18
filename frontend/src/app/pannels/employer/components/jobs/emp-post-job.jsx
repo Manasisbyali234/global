@@ -92,6 +92,8 @@ const PREDEFINED_CATEGORIES = [
 	"Design", "Content", "Healthcare", "Education"
 ];
 
+const POST_JOB_TICKET_LIMIT = 10;
+
 // LocationSearchInput Component
 function LocationSearchInput({ value, onChange, error, style }) {
 	const [searchTerm, setSearchTerm] = useState('');
@@ -369,6 +371,12 @@ export default function EmpPostJob({ onNext }) {
 	};
 
 	const [employerType, setEmployerType] = useState('company');
+	const [postJobAccess, setPostJobAccess] = useState({
+		loading: true,
+		isApproved: true,
+		candidateSupportTicketsCount: 0,
+		error: ''
+	});
 	const [currentStep, setCurrentStep] = useState(parseInt(searchParams.get('step')) || 1);
 
 	// Sync currentStep with URL step parameter
@@ -555,6 +563,7 @@ export default function EmpPostJob({ onNext }) {
 			// }
 		}
 		fetchEmployerType();
+		fetchPostJobAccess();
 		fetchAssessments();
 		fetchApprovedCompanies();
 		
@@ -568,6 +577,61 @@ export default function EmpPostJob({ onNext }) {
 		
 		return () => window.removeEventListener('resize', checkMobile);
 	}, [id, isEditMode]);
+
+	const fetchPostJobAccess = async () => {
+		try {
+			const token = localStorage.getItem('employerToken');
+			if (!token) {
+				setPostJobAccess({
+					loading: false,
+					isApproved: false,
+					candidateSupportTicketsCount: 0,
+					error: 'Please log in to post a job.'
+				});
+				return;
+			}
+
+			let isApproved = false;
+			const profileData = await safeApiCall('http://localhost:5000/api/employer/profile', {
+				headers: { 'Authorization': `Bearer ${token}` }
+			});
+
+			if (profileData?.success && profileData.profile?.employerId) {
+				isApproved = Boolean(profileData.profile.employerId.isApproved);
+			} else {
+				const completionData = await safeApiCall('http://localhost:5000/api/employer/profile/completion', {
+					headers: { 'Authorization': `Bearer ${token}` }
+				});
+				isApproved = Boolean(completionData?.isApproved);
+			}
+
+			const ticketsData = await safeApiCall('http://localhost:5000/api/employer/support-tickets', {
+				headers: { 'Authorization': `Bearer ${token}` }
+			});
+			const tickets = Array.isArray(ticketsData?.tickets) ? ticketsData.tickets : [];
+			const candidateSupportTicketsCount = tickets.filter(ticket => ticket.ticketType === 'candidate').length;
+
+			setPostJobAccess({
+				loading: false,
+				isApproved,
+				candidateSupportTicketsCount,
+				error: ''
+			});
+		} catch (error) {
+			if (error.name === 'AuthError') {
+				showWarning('Session expired. Please login again.');
+				localStorage.removeItem('employerToken');
+				window.location.href = '/login';
+				return;
+			}
+			console.error('Failed to verify post job access:', error);
+			setPostJobAccess((prev) => ({
+				...prev,
+				loading: false,
+				error: 'Unable to verify account status. Please refresh or contact support.'
+			}));
+		}
+	};
 
 	const fetchAssessments = async () => {
 		try {
@@ -1807,6 +1871,64 @@ export default function EmpPostJob({ onNext }) {
 		gap: 12,
 		letterSpacing: "-0.025em",
 	};
+
+	const gatePostJob = !isEditMode;
+	const overTicketLimit = postJobAccess.candidateSupportTicketsCount > POST_JOB_TICKET_LIMIT;
+	const needsApproval = !postJobAccess.isApproved;
+	const hasAccessError = Boolean(postJobAccess.error);
+	const accessMessage = hasAccessError
+		? postJobAccess.error
+		: overTicketLimit
+			? `Cannot post job: You have ${postJobAccess.candidateSupportTicketsCount} candidate support tickets. Please resolve them to below ${POST_JOB_TICKET_LIMIT}.`
+			: 'Account verification in progress. Job posting will be available after admin approval.';
+
+	if (gatePostJob && postJobAccess.loading) {
+		return (
+			<div style={page}>
+				<div style={{ maxWidth: 620, margin: "120px auto", textAlign: "center", background: "#fff", padding: "32px", borderRadius: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
+					<i className="fa fa-spinner fa-spin" style={{ fontSize: 32, color: "#ff6b35", marginBottom: 16 }}></i>
+					<h3 style={{ margin: 0, color: "#1f2937" }}>Checking account status...</h3>
+					<p style={{ marginTop: 8, color: "#6b7280" }}>Please wait while we verify your access.</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (gatePostJob && (hasAccessError || overTicketLimit || needsApproval)) {
+		return (
+			<div style={page}>
+				<div style={{ maxWidth: 720, margin: "100px auto", background: "#fff", padding: "32px", borderRadius: 12, boxShadow: "0 6px 20px rgba(0,0,0,0.08)" }}>
+					<div style={{ textAlign: "center", marginBottom: 20 }}>
+						<div style={{ width: 64, height: 64, borderRadius: "50%", background: "#fff4ee", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+							<i className="fa fa-lock" style={{ fontSize: 28, color: "#ff6b35" }}></i>
+						</div>
+						<h2 style={{ margin: 0, color: "#1f2937", fontWeight: 700 }}>Job Posting Unavailable</h2>
+						<p style={{ marginTop: 10, color: "#4b5563", lineHeight: 1.6 }}>{accessMessage}</p>
+					</div>
+
+					<div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+						<button
+							type="button"
+							className="site-button"
+							onClick={() => navigate(empRoute(employer.MANAGE_JOBS))}
+						>
+							Back to Manage Jobs
+						</button>
+						{overTicketLimit && (
+							<button
+								type="button"
+								className="site-button"
+								style={{ background: "#1f2937" }}
+								onClick={() => navigate(empRoute(employer.SUPPORT_TICKETS))}
+							>
+								View Support Tickets
+							</button>
+						)}
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div style={page}>

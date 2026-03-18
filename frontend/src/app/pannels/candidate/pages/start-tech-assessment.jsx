@@ -16,7 +16,7 @@ const StartAssessment = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const navigationState = location.state || {};
-    const { popup, showSuccess, showError, hidePopup } = usePopupNotification();
+    const { popup, showSuccess, showError, showWarning, hidePopup } = usePopupNotification();
 
     const getSessionInfo = () => {
         const params = new URLSearchParams(location.search);
@@ -99,7 +99,9 @@ const StartAssessment = () => {
     const contextMenuListener = useRef(null);
     const copyListener = useRef(null);
     const pasteListener = useRef(null);
+    const screenCaptureKeyListener = useRef(null);
     const saveTimeoutRef = useRef(null);
+    const screenCaptureWarnings = useRef(0);
     
     // Webcam capture refs and state
     const videoRef = useRef(null);
@@ -188,6 +190,41 @@ const StartAssessment = () => {
             setShowViolationModal(true);
         }
     }, [assessmentState, logViolation]);
+
+    const handleScreenCaptureAttempt = useCallback((source) => {
+        if (assessmentState !== 'in_progress') {
+            return;
+        }
+
+        screenCaptureWarnings.current += 1;
+        const warningCount = screenCaptureWarnings.current;
+        const details = `Screen capture attempt detected (${source}). Warning ${warningCount}/2.`;
+
+        if (warningCount <= 2) {
+            showWarning(`Screen capture detected. Warning ${warningCount}/2. On the 3rd attempt, your assessment will be suspended.`);
+            logViolation('screen_capture_warning', details);
+            return;
+        }
+
+        logViolation('screen_capture', `Third screen capture attempt detected (${source}). Assessment suspended.`);
+        setTerminationReason('screen_capture');
+        setTerminationTimestamp(new Date());
+        setAssessmentState('terminated');
+    }, [assessmentState, logViolation, showWarning]);
+
+    const handleScreenCaptureKey = useCallback((e) => {
+        if (assessmentState !== 'in_progress') return;
+
+        const key = e.key || '';
+        const keyCode = e.keyCode || e.which;
+        const isPrintScreen = key === 'PrintScreen' || keyCode === 44;
+        const isSnippingShortcut = (e.shiftKey && (e.metaKey || e.ctrlKey) && (key === 'S' || key === 's'));
+
+        if (isPrintScreen || isSnippingShortcut) {
+            e.preventDefault();
+            handleScreenCaptureAttempt(isPrintScreen ? 'print_screen' : 'snipping_tool');
+        }
+    }, [assessmentState, handleScreenCaptureAttempt]);
     
     // Webcam capture functions
     const initWebcam = useCallback(async () => {
@@ -474,7 +511,11 @@ const StartAssessment = () => {
 
         pasteListener.current = handlePaste;
         document.addEventListener('paste', pasteListener.current);
-    }, [assessmentState, handleVisibilityChange, handleWindowBlur, handleContextMenu, handleCopy, handlePaste]);
+
+        // Screen capture key detection (best-effort)
+        screenCaptureKeyListener.current = handleScreenCaptureKey;
+        window.addEventListener('keydown', screenCaptureKeyListener.current);
+    }, [assessmentState, handleVisibilityChange, handleWindowBlur, handleContextMenu, handleCopy, handlePaste, handleScreenCaptureKey]);
 
     const removeSecurityListeners = useCallback(() => {
         if (visibilityChangeListener.current) {
@@ -491,6 +532,9 @@ const StartAssessment = () => {
         }
         if (pasteListener.current) {
             document.removeEventListener('paste', pasteListener.current);
+        }
+        if (screenCaptureKeyListener.current) {
+            window.removeEventListener('keydown', screenCaptureKeyListener.current);
         }
     }, []);
 
@@ -832,6 +876,18 @@ const StartAssessment = () => {
 	}
 
 	const question = assessment.questions[currentQuestionIndex];
+	const decodeHtmlEntities = (value) => {
+		if (!value || typeof value !== 'string') return '';
+		if (typeof document === 'undefined') return value;
+		const textarea = document.createElement('textarea');
+		textarea.innerHTML = value;
+		return textarea.value.replace(/\u00a0/g, ' ').trim();
+	};
+	const instructionsRaw = assessment?.instructions || assessment?.description || '';
+	const instructionsText = decodeHtmlEntities(String(instructionsRaw || '').replace(/<[^>]*>/g, ''));
+	const instructionLines = instructionsText
+		? instructionsText.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+		: [];
 
 	return (
 		<>
@@ -963,6 +1019,30 @@ const StartAssessment = () => {
 					</div>
 				</div>
 
+				{instructionsText && (
+					<div
+						style={{
+							background: "#fff",
+							padding: "16px 20px",
+							borderRadius: "8px",
+							boxShadow: "0px 2px 5px rgba(0,0,0,0.08)",
+							marginBottom: "15px",
+							borderLeft: "4px solid #3b82f6"
+						}}
+					>
+						<div style={{ fontWeight: "600", color: "#1f2937", marginBottom: "8px" }}>Instructions</div>
+						{instructionLines.length > 1 ? (
+							<ul style={{ margin: 0, paddingLeft: "18px", color: "#374151", lineHeight: "1.7" }}>
+								{instructionLines.map((line, idx) => (
+									<li key={`assessment-instruction-${idx}`} style={{ marginBottom: "6px" }}>{line}</li>
+								))}
+							</ul>
+						) : (
+							<div style={{ color: "#374151", lineHeight: "1.7" }}>{instructionsText}</div>
+						)}
+					</div>
+				)}
+
 				{/* Question Card */}
 				<div
 					style={{
@@ -979,7 +1059,7 @@ const StartAssessment = () => {
 							fontWeight: "bold",
 						}}
 					>
-						{currentQuestionIndex + 1}. {question.question.replace(/<[^>]*>/g, '')}
+						{currentQuestionIndex + 1}. {decodeHtmlEntities(String(question.question || '').replace(/<[^>]*>/g, ''))}
 					</div>
 					{question.imageUrl && (
 						<div style={{ marginBottom: "15px", textAlign: "center" }}>

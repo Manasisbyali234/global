@@ -186,11 +186,20 @@ const AssessmentResults = () => {
 	// Handle both old format (answers array) and new format (result object)
 	const correctAnswers = result?.correctAnswers || 0;
 	const totalQuestions = result?.totalQuestions || assessment?.totalQuestions || 0;
-	const percentage = result?.percentage || 0;
+	const percentage = Number(result?.percentage ?? 0);
 	const score = result?.score || 0;
 	const totalMarks = result?.totalMarks || 0;
 	const resultStatus = result?.result || 'pending';
 	const status = result?.status || 'completed';
+	const rawPassingPercentage = assessment?.passingPercentage ?? result?.passingPercentage ?? 60;
+	const passingPercentage = Number.isFinite(Number(rawPassingPercentage))
+		? Number(rawPassingPercentage)
+		: 60;
+	const isPassed = resultStatus === 'pass'
+		? true
+		: resultStatus === 'fail'
+			? false
+			: percentage >= passingPercentage;
 
 	// Calculate incorrect answers
 	const incorrectAnswers = totalQuestions - correctAnswers;
@@ -376,7 +385,7 @@ const AssessmentResults = () => {
 							style={{
 								fontSize: "48px",
 								fontWeight: "bold",
-								color: percentage >= 60 ? "#28a745" : "#dc3545",
+								color: isPassed ? "#28a745" : "#dc3545",
 								marginBottom: "10px",
 							}}
 						>
@@ -404,13 +413,13 @@ const AssessmentResults = () => {
 								display: "inline-block",
 								padding: "10px 20px",
 								borderRadius: "25px",
-								background: (resultStatus === 'pass' || percentage >= 60) ? "#d4edda" : "#f8d7da",
-								color: (resultStatus === 'pass' || percentage >= 60) ? "#155724" : "#721c24",
+								background: isPassed ? "#d4edda" : "#f8d7da",
+								color: isPassed ? "#155724" : "#721c24",
 								fontWeight: "bold",
 								fontSize: "18px",
 							}}
 						>
-							{(resultStatus === 'pass' || percentage >= 60) ? "PASSED" : "FAILED"}
+							{isPassed ? "Pass" : "Fail"}
 						</span>
 					</div>
 				</div>

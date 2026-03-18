@@ -80,6 +80,12 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
                 <span className="admin-nav-text">My Applications</span>
               </NavLink>
             </li>
+            <li className={setMenuActive(currentpath, canRoute(candidate.INTERVIEWS))}>
+              <NavLink to={canRoute(candidate.INTERVIEWS)} onClick={handleLinkClick}>
+                <i className="fa fa-calendar" />
+                <span className="admin-nav-text">Book Your Slot</span>
+              </NavLink>
+            </li>
             <li className={setMenuActive(currentpath, canRoute(candidate.RESUME))}>
               <NavLink to={canRoute(candidate.RESUME)} onClick={handleLinkClick}>
                 <i className="fa fa-user-friends" />

@@ -1,0 +1,87 @@
+.candidate-interviews {
+  padding: 2rem;
+}
+
+.candidate-interviews-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-left: 16px;
+}
+
+.candidate-interviews-header h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.candidate-interviews-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.candidate-interviews-empty {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+  border: 1px dashed #d1d5db;
+}
+
+.interview-company-card {
+  gap: 6px;
+}
+
+.company-card-subtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.interview-avatar-circle {
+  background-color: #fff7ed;
+  color: #c2410c;
+}
+
+.interview-status-pill {
+  background-color: #fff4e6;
+  color: #d97706;
+}
+
+.company-card-interviewer {
+  font-size: 0.8rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  justify-content: center;
+}
+
+.company-card-interviewer i {
+  color: #f97316;
+}
+
+.interview-company-card .view-details-btn-orange {
+  white-space: nowrap;
+  width: auto;
+  max-width: none;
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+@media (max-width: 768px) {
+  .candidate-interviews {
+    padding: 1.5rem;
+  }
+
+  .candidate-interviews-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

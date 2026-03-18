@@ -1947,7 +1947,7 @@ exports.logAssessmentViolation = async (req, res) => {
     attempt.violations.push(violation);
 
     // If this is a terminating violation, update status
-    const terminatingViolations = ['tab_switch', 'window_minimize', 'copy_paste', 'right_click'];
+    const terminatingViolations = ['tab_switch', 'window_minimize', 'copy_paste', 'right_click', 'screen_capture'];
     if (terminatingViolations.includes(violationType)) {
       attempt.status = 'terminated';
       attempt.endTime = new Date();
