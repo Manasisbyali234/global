@@ -34,7 +34,8 @@ const employerProfileSchema = new mongoose.Schema({
   officialMobile: { type: String },
   companyType: { type: String },
   cin: { type: String },
-  gstNumber: { type: String, required: true },
+  // GST number is collected during profile completion, not at initial signup
+  gstNumber: { type: String },
   industrySector: { type: String },
   panNumber: { type: String },
   panCardImage: { type: String }, // File path to PAN card image

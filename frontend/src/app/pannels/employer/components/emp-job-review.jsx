@@ -63,6 +63,14 @@ function EmpJobReviewPage() {
     const getRoundDisplayName = (roundType, customType) => (
         (customType && customType.trim()) || roundNames[roundType] || roundType || 'Interview Round'
     );
+    const normalizeCommaList = (value) => {
+        if (!value) return '';
+        return String(value)
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .join(' ');
+    };
 
     const isPastEndDate = (date) => {
         if (!date) return false;
@@ -438,8 +446,8 @@ function EmpJobReviewPage() {
                                                     oneOnOnePanel: 'One-on-One / Panel'
                                                 };
                                                 return `${index + 1}. ${roundNames[roundType] || roundType}`;
-                                            }).join(', ')
-                                        ) : (jobDetails.roundTypes || 'N/A')}
+                                            }).join(' ')
+                                        ) : (normalizeCommaList(jobDetails.roundTypes) || 'N/A')}
                                     </p>
                                 </div>
 

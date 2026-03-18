@@ -195,13 +195,6 @@ const EmployersGridPage = memo(() => {
                         {(employer.profile?.industry || employer.profile?.industrySector || 'Industry').replace(/\bit\b/gi, 'IT')}
                     </div>
 
-                    <div className="company-stats-row">
-                        <div className="stat-item">
-                            <span className="stat-value">{employer.jobCount || 0}</span>
-                            <span className="stat-label">Active Jobs</span>
-                        </div>
-                    </div>
-
                     <button className="view-details-btn-orange" onClick={handleViewClick}>
                         View Details
                     </button>
@@ -218,9 +211,6 @@ const EmployersGridPage = memo(() => {
                     <div className="skeleton-text skeleton-name" />
                     <div className="skeleton-text skeleton-location" />
                     <div className="skeleton-tag" />
-                    <div className="company-stats-row">
-                        <div className="skeleton-stats" />
-                    </div>
                     <div className="skeleton-btn" />
                 </div>
             </Col>
