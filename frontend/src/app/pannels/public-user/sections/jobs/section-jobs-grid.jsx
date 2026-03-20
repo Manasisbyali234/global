@@ -347,13 +347,15 @@ const SectionJobsGrid = memo(({ filters, onTotalChange }) => {
                     </div>
 
                     {/* Bottom Row */}
-                    <div className="job-card-footer">
-                        <div className="company-info">
-                            <div className="posted-by-label">Posted by:</div>
-                            <div className="company-name">
-                                {job.companyName || job.employerId?.companyName || "Company"}
+                        <div className="job-card-footer">
+                            <div className="company-info">
+                                <div className="posted-by-label">Posted by:</div>
+                                <div className="company-name">
+                                    {job.postedBy === "Consultant"
+                                        ? "Consultant"
+                                        : (job.companyName || job.employerId?.companyName || "Company")}
+                                </div>
                             </div>
-                        </div>
                         {appliedJobs.has(job._id) ? (
                             <button
                                 className="apply-now-btn"

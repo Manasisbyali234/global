@@ -16,19 +16,58 @@ export default function AssessmentDashboard() {
 	const [searchTerm, setSearchTerm] = useState('');
 
 	const handleCreateAssessmentClick = () => {
+		const securityMessage = (
+			<div style={{ textAlign: 'left', lineHeight: '1.6', padding: '4px 6px' }}>
+				<div style={{ marginBottom: '14px', color: '#1e293b', fontSize: '15px', fontWeight: '600' }}>
+					<i className="fa fa-lock" style={{ color: '#f97316', marginRight: '10px' }} />
+					End-to-end encryption ensures your assessments remain completely private and secure.
+				</div>
+				<div style={{ display: 'grid', gap: '10px', color: '#475569', fontSize: '14px' }}>
+					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+						<i className="fa fa-eye-slash" style={{ width: '16px', color: '#f97316', marginTop: '3px' }} />
+						<span>Not even Tale-Global can read or copy the content</span>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+						<i className="fa fa-user" style={{ width: '16px', color: '#f97316', marginTop: '3px' }} />
+						<span>Only you can access and manage your assessment content.</span>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+						<i className="fa fa-ban" style={{ width: '16px', color: '#f97316', marginTop: '3px' }} />
+						<span>No one outside the platform can read, copy, or share your questions or answers.</span>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+						<i className="fa fa-lock" style={{ width: '16px', color: '#f97316', marginTop: '3px' }} />
+						<span>All assessment content is securely encrypted.</span>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+						<i className="fa fa-file-text" style={{ width: '16px', color: '#f97316', marginTop: '3px' }} />
+						<span>Candidate responses are protected and confidential.</span>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+						<i className="fa fa-shield" style={{ width: '16px', color: '#f97316', marginTop: '3px' }} />
+						<span>Results and evaluations are accessible only to authorized users.</span>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+						<i className="fa fa-database" style={{ width: '16px', color: '#f97316', marginTop: '3px' }} />
+						<span>All assessment data is safely stored and protected.</span>
+					</div>
+				</div>
+				<div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', color: '#1e293b', fontSize: '13px', fontWeight: '600' }}>
+					<i className="fa fa-check-circle" style={{ color: '#f97316', marginRight: '10px' }} />
+					Agree to terms and conditions
+				</div>
+			</div>
+		);
+
 		showConfirmation(
-			'🔐 End-to-end encryption keeps your assessments private.\n\n' +
-			'👁️ Not even Tale-Global can read or copy the content\n' +
-			'🚷 No one outside can read, copy, or share them\n' +
-			'🧠 Questions and answers are protected\n' +
-			'📑Assessment content is encrypted\n' +
-			'🧾 Candidate responses are secure\n' +
-			'📉 Results and evaluations are private\n' +
-			'🏦  All assessment data is protected\n' +
-			'✔️Agree to terms and conditions ',
+			securityMessage,
 			() => setShowModal(true),
 			null,
-			'secure'
+			'secure',
+			{
+				confirmText: 'Agree',
+				cancelText: 'Cancel'
+			}
 		);
 	};
 

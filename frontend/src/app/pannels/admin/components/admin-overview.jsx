@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { formatDate } from "../../../../utils/dateFormatter";
 import { admin, adminRoute } from "../../../../globals/route-names";
@@ -9,6 +9,7 @@ import "./admin-overview.css";
 
 function AdminOverviewPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [employers, setEmployers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -25,6 +26,7 @@ function AdminOverviewPage() {
   const [viewMode, setViewMode] = useState("employers"); // employers | jobs | applicants
   const [employerSearch, setEmployerSearch] = useState("");
   const [jobSearch, setJobSearch] = useState("");
+  const autoOpenedEmployerIdRef = useRef(null);
 
   useEffect(() => {
     fetchOverview();
@@ -41,6 +43,26 @@ function AdminOverviewPage() {
       applicantsSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [selectedJob]);
+
+  useEffect(() => {
+    const employerId = searchParams.get("employerId");
+
+    if (loading || error || !employerId || employers.length === 0) {
+      return;
+    }
+
+    if (autoOpenedEmployerIdRef.current === employerId) {
+      return;
+    }
+
+    const employer = employers.find((item) => String(item.employerId) === String(employerId));
+    if (!employer) {
+      return;
+    }
+
+    autoOpenedEmployerIdRef.current = employerId;
+    handleViewEmployerJobs(employer);
+  }, [loading, error, employers, searchParams]);
 
   const fetchOverview = async () => {
     try {
@@ -268,9 +290,10 @@ function AdminOverviewPage() {
                                 type="button"
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => handleViewApplicants(job)}
+                                aria-label={`View applicants for ${job.title}`}
+                                title={`View applicants for ${job.title}`}
                               >
-                                <i className="fa fa-eye me-1" />
-                                View
+                                <i className="fa fa-eye" />
                               </button>
                             </td>
                           </tr>

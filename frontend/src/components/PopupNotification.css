@@ -53,9 +53,17 @@
   pointer-events: auto;
 }
 
+.popup-box.popup-box-single-line {
+  width: fit-content;
+}
+
 @media (min-width: 576px) {
   .popup-box {
     max-width: 500px !important;
+  }
+
+  .popup-box.popup-box-single-line {
+    max-width: min(90vw, 760px) !important;
   }
 }
 
@@ -152,6 +160,10 @@
   white-space: pre-line;
 }
 
+.popup-message.popup-message-single-line {
+  white-space: nowrap;
+}
+
 .popup-message-left {
   color: #333;
   font-size: 15px;
@@ -239,5 +251,13 @@
     padding: 10px 30px;
     font-size: 14px;
     width: 100%;
+  }
+
+  .popup-box.popup-box-single-line {
+    width: auto;
+  }
+
+  .popup-message.popup-message-single-line {
+    white-space: normal;
   }
 }

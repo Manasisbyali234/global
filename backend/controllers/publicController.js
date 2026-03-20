@@ -10,6 +10,23 @@ const Review = require('../models/Review');
 const { cache } = require('../utils/cache');
 const { isDBConnected } = require('../config/database');
 
+const resolveEmployerPostingType = (employer, profile) => {
+  const employerType = employer?.employerType?.toString().trim().toLowerCase();
+  const employerCategory = profile?.employerCategory?.toString().trim().toLowerCase();
+
+  if (employerType === 'consultant' || employerCategory === 'consultancy') {
+    return {
+      employerType: 'consultant',
+      postedBy: 'Consultant'
+    };
+  }
+
+  return {
+    employerType: 'company',
+    postedBy: 'Company'
+  };
+};
+
 // Job Controllers
 exports.getJobs = async (req, res) => {
   try {
@@ -159,11 +176,14 @@ exports.getJobs = async (req, res) => {
     
     const jobsWithProfiles = filteredJobs.map(job => {
       const employer = employerMap.get(job.employerId.toString());
+      const employerProfile = profileMap.get(job.employerId.toString());
       const applicationCount = applicationCountMap.get(job._id.toString()) || 0;
+      const postingType = resolveEmployerPostingType(employer, employerProfile);
       return {
         ...job,
-        employerProfile: profileMap.get(job.employerId.toString()),
-        postedBy: employer?.employerType === 'consultant' ? 'Consultant' : 'Company',
+        employerProfile,
+        employerType: postingType.employerType,
+        postedBy: postingType.postedBy,
         applicationCount
       };
     });
@@ -232,6 +252,7 @@ exports.getJobById = async (req, res) => {
 
     const EmployerProfile = require('../models/EmployerProfile');
     const employerProfile = await EmployerProfile.findOne({ employerId: job.employerId._id }).lean();
+    const postingType = resolveEmployerPostingType(job.employerId, employerProfile);
     
     console.log('Found employer profile:', !!employerProfile);
     if (employerProfile) {
@@ -242,7 +263,8 @@ exports.getJobById = async (req, res) => {
     const jobWithProfile = {
       ...job,
       employerProfile,
-      postedBy: job.employerId.employerType === 'consultant' ? 'Consultant' : 'Company'
+      employerType: postingType.employerType,
+      postedBy: postingType.postedBy
     };
 
     const response = { success: true, job: jobWithProfile };

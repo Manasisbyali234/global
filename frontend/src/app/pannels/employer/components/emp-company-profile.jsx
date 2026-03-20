@@ -95,7 +95,7 @@ function EmpCompanyProfilePage() {
     });
 
     const [loading, setLoading] = useState(false);
-    const [authSections, setAuthSections] = useState([{ id: 1, companyName: '' }]);
+    const [authSections, setAuthSections] = useState([{ id: 1, companyName: '', documentId: null }]);
     const [fetchingCity, setFetchingCity] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState(null);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -157,6 +157,43 @@ function EmpCompanyProfilePage() {
             }, 500);
         }
     }, []);
+
+    const mapCompanyNamesToSections = (companyNames = []) => {
+        const uniqueCompanyNames = Array.from(
+            new Set(
+                companyNames
+                    .map(companyName => String(companyName || '').trim())
+                    .filter(Boolean)
+            )
+        );
+
+        return uniqueCompanyNames.map((companyName, index) => ({
+            id: index + 1,
+            companyName,
+            documentId: null
+        }));
+    };
+
+    const mapAuthorizationLettersToSections = (authorizationLetters = []) => {
+        const seenCompanies = new Set();
+
+        return authorizationLetters.reduce((sections, letter, index) => {
+            const companyName = String(letter?.companyName || '').trim();
+            if (!companyName) return sections;
+
+            const companyKey = companyName.toLowerCase();
+            if (seenCompanies.has(companyKey)) return sections;
+            seenCompanies.add(companyKey);
+
+            sections.push({
+                id: index + 1,
+                companyName,
+                documentId: letter?._id || null
+            });
+
+            return sections;
+        }, []);
+    };
 
     const fetchProfile = async () => {
         try {
@@ -313,13 +350,31 @@ function EmpCompanyProfilePage() {
 
                 setFormData(prev => ({ ...prev, ...profileData }));
 
-                // Populate authSections from existing authorization letters
-                if (data.profile.authorizationLetters && data.profile.authorizationLetters.length > 0) {
-                    const existingSections = data.profile.authorizationLetters.map((letter, index) => ({
-                        id: index + 1,
-                        companyName: letter.companyName || ''
-                    }));
-                    setAuthSections(existingSections.length > 0 ? existingSections : [{ id: 1, companyName: '' }]);
+                const authorizationLetters = Array.isArray(data.profile.authorizationLetters)
+                    ? data.profile.authorizationLetters
+                    : [];
+                let namedSections = mapAuthorizationLettersToSections(authorizationLetters);
+
+                if (namedSections.length === 0 && profileData.employerCategory === 'consultancy') {
+                    try {
+                        const consultantCompaniesData = await safeApiCall(`${API_BASE_URL}/employer/consultant/companies`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (consultantCompaniesData?.success) {
+                            namedSections = mapCompanyNamesToSections(consultantCompaniesData.companies);
+                        }
+                    } catch (companyFetchError) {
+                        console.error('Failed to fetch consultant hiring companies:', companyFetchError);
+                    }
+                }
+
+                if (namedSections.length > 0) {
+                    setAuthSections(namedSections);
+                } else {
+                    setAuthSections([{ id: 1, companyName: '', documentId: null }]);
                 }
             }
         } catch (error) {
@@ -726,10 +781,15 @@ function EmpCompanyProfilePage() {
             const data = await response.json();
             
             if (data.success) {
+                const nextAuthorizationLetters = data.profile.authorizationLetters || [];
                 setFormData(prev => ({
                     ...prev,
-                    authorizationLetters: data.profile.authorizationLetters || []
+                    authorizationLetters: nextAuthorizationLetters
                 }));
+                if (formData.employerCategory === 'consultancy') {
+                    const nextSections = mapAuthorizationLettersToSections(nextAuthorizationLetters);
+                    setAuthSections(nextSections.length > 0 ? nextSections : [{ id: 1, companyName: '', documentId: null }]);
+                }
                 showSuccess('Authorization letter uploaded successfully!');
                 // Clear the file input
                 e.target.value = '';
@@ -756,10 +816,15 @@ function EmpCompanyProfilePage() {
             });
             
             if (data.success) {
+                const nextAuthorizationLetters = data.profile.authorizationLetters || [];
                 setFormData(prev => ({
                     ...prev,
-                    authorizationLetters: data.profile.authorizationLetters || []
+                    authorizationLetters: nextAuthorizationLetters
                 }));
+                if (formData.employerCategory === 'consultancy') {
+                    const nextSections = mapAuthorizationLettersToSections(nextAuthorizationLetters);
+                    setAuthSections(nextSections.length > 0 ? nextSections : [{ id: 1, companyName: '', documentId: null }]);
+                }
                 showSuccess('Authorization letter deleted successfully!');
             } else {
                 showError(data.message || 'Failed to delete document');
@@ -893,7 +958,7 @@ function EmpCompanyProfilePage() {
 
     const addNewAuthSection = () => {
         const newId = Math.max(...authSections.map(s => s.id)) + 1;
-        setAuthSections(prev => [...prev, { id: newId, companyName: '' }]);
+        setAuthSections(prev => [...prev, { id: newId, companyName: '', documentId: null }]);
     };
 
     const handleAuthSectionCompanyNameChange = (sectionId, companyName) => {
@@ -902,10 +967,19 @@ function EmpCompanyProfilePage() {
         ));
     };
 
-    const removeAuthSection = (id) => {
-        if (authSections.length > 1) {
-            setAuthSections(prev => prev.filter(section => section.id !== id));
+    const removeAuthSection = async (id) => {
+        const sectionToRemove = authSections.find(section => section.id === id);
+        if (!sectionToRemove || authSections.length <= 1) return;
+
+        if (sectionToRemove.documentId) {
+            await handleDeleteAuthorizationLetter(sectionToRemove.documentId);
+            return;
         }
+
+        setAuthSections(prev => {
+            const nextSections = prev.filter(section => section.id !== id);
+            return nextSections.length > 0 ? nextSections : [{ id: 1, companyName: '', documentId: null }];
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -964,13 +1038,52 @@ function EmpCompanyProfilePage() {
             
             // Update authorization letters with current company names from authSections
             if (formData.authorizationLetters && formData.authorizationLetters.length > 0) {
-                const updatedAuthLetters = formData.authorizationLetters.map((letter, index) => {
-                    const correspondingSection = authSections[index];
-                    return {
-                        ...letter,
-                        companyName: correspondingSection?.companyName || letter.companyName || ''
-                    };
-                });
+                const sectionNamesByDocumentId = new Map(
+                    authSections
+                        .filter(section => section.documentId)
+                        .map(section => [String(section.documentId), String(section.companyName || '').trim()])
+                );
+                const activeDocumentIds = new Set(
+                    authSections
+                        .map(section => section.documentId)
+                        .filter(Boolean)
+                        .map(documentId => String(documentId))
+                );
+                const activeCompanyNames = new Set(
+                    authSections
+                        .map(section => String(section.companyName || '').trim().toLowerCase())
+                        .filter(Boolean)
+                );
+
+                const updatedAuthLetters = formData.authorizationLetters
+                    .filter(letter => {
+                        if (formData.employerCategory !== 'consultancy') {
+                            return true;
+                        }
+
+                        const documentId = letter?._id ? String(letter._id) : '';
+                        if (documentId && activeDocumentIds.has(documentId)) {
+                            return true;
+                        }
+
+                        const companyName = String(letter?.companyName || '').trim().toLowerCase();
+                        return !companyName || activeCompanyNames.has(companyName);
+                    })
+                    .map((letter, index) => {
+                        if (formData.employerCategory === 'consultancy') {
+                            const documentId = letter?._id ? String(letter._id) : '';
+                            return {
+                                ...letter,
+                                companyName: sectionNamesByDocumentId.get(documentId) || String(letter.companyName || '').trim()
+                            };
+                        }
+
+                        const correspondingSection = authSections[index];
+                        return {
+                            ...letter,
+                            companyName: correspondingSection?.companyName || letter.companyName || ''
+                        };
+                    });
                 
                 // Update authorization letters with company names
                 await fetch(`${API_BASE_URL}/employer/profile/update-authorization-companies`, {
@@ -1007,15 +1120,9 @@ function EmpCompanyProfilePage() {
             profileData.contactMobile = formData.contactMobileCountryCode + formData.contactMobile;
             profileData.alternateContact = formData.alternateContactCountryCode + formData.alternateContact;
 
-            // Strip HTML tags from rich text fields before sending
-            const stripHtml = (html) => {
-                if (!html) return '';
-                return html.replace(/<[^>]*>/g, '').trim();
-            };
-            
-            // Explicitly ensure whyJoinUs and description are plain text
-            profileData.description = stripHtml(formData.description) || '';
-            profileData.whyJoinUs = stripHtml(formData.whyJoinUs) || '';
+            // Preserve rich text formatting for public profile content
+            profileData.description = typeof formData.description === 'string' ? formData.description.trim() : '';
+            profileData.whyJoinUs = typeof formData.whyJoinUs === 'string' ? formData.whyJoinUs.trim() : '';
             // Preserve HTML iframe code for Google Maps embed
             profileData.googleMapsEmbed = typeof formData.googleMapsEmbed === 'string' ? formData.googleMapsEmbed.trim() : '';
 
@@ -1484,7 +1591,8 @@ function EmpCompanyProfilePage() {
                                             <div className="d-flex justify-content-between align-items-center mb-3">
                                                 <h6 className="mb-0">
                                                     <Building size={16} className="me-2" /> 
-                                                    Hiring Company #{index + 1}
+                                                    <span className="hiring-company-serial">#{index + 1}</span>{" "}
+                                                    Hiring Company
                                                 </h6>
                                                 {authSections.length > 1 && (
                                                     <button 

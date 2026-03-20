@@ -32,6 +32,11 @@ function CanStatusPage() {
 	const [showInterviewInstructionsModal, setShowInterviewInstructionsModal] = useState(false);
 	const [pendingInterviewApplicationId, setPendingInterviewApplicationId] = useState(null);
 
+	const getEmployerDisplayCompanyName = (application) =>
+		application?.employerId?.companyName ||
+		application?.employerId?.brandName ||
+		'Company Name Not Available';
+
 	const getAssessmentWindowInfo = (job) => {
 		const now = new Date();
 		const startRaw = job?.assessmentStartDate ? new Date(job.assessmentStartDate) : null;
@@ -1098,7 +1103,7 @@ function CanStatusPage() {
 																	<div>
 																		<a href={`/emp-detail/${app.employerId?._id}`} className="text-decoration-none">
 																			<h6 className="mb-1 fw-semibold text-dark hover-primary" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px' }}>
-																				{app.employerId?.brandName || app.employerId?.companyName || 'Company Name Not Available'}
+																				{getEmployerDisplayCompanyName(app)}
 																				{app.jobId?.companyName && app.jobId.companyName !== app.employerId?.companyName && (
 																					<span className="badge bg-info bg-opacity-10 text-info border border-info ms-1" style={{ fontSize: '10px', padding: '2px 6px', fontWeight: '500', textTransform: 'none' }}>
 																						Hiring for: {app.jobId.companyName}
@@ -1458,7 +1463,7 @@ function CanStatusPage() {
 									</h6>
 									<div className="row">
 										<div className="col-md-6 mb-2">
-											<strong>Company:</strong> {selectedApplication.employerId?.brandName || selectedApplication.employerId?.companyName || 'N/A'}
+											<strong>Company:</strong> {getEmployerDisplayCompanyName(selectedApplication)}
 										</div>
 										<div className="col-md-6 mb-2">
 											<strong>Position:</strong> {selectedApplication.jobId?.title || 'N/A'}
@@ -1622,14 +1627,6 @@ function CanStatusPage() {
 												{/* Assessment Details */}
 												{roundName === 'Assessment' && (
 													<div className="mt-2">
-														{/* Assessment Description */}
-														{roundDetails && roundDetails.description && (
-															<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-																<small className="text-muted d-block mb-1"><i className="fa fa-clipboard-check me-1" style={{color: '#ff6b35'}}></i><strong>Assessment Description:</strong></small>
-																<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>{roundDetails.description}</div>
-															</div>
-														)}
-														
 														{/* Assessment Period */}
 														{(selectedApplication.jobId?.assessmentStartDate || selectedApplication.jobId?.assessmentEndDate) && (
 															<div className="mb-2">
@@ -1673,6 +1670,30 @@ function CanStatusPage() {
 															</div>
 														)}
 
+														{/* Assessment Process Description */}
+														{roundDetails && roundDetails.description && (
+															<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
+																<small className="text-muted d-block mb-1"><i className="fa fa-clipboard-check me-1" style={{color: '#ff6b35'}}></i><strong>Assessment Process Description:</strong></small>
+																<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>{roundDetails.description}</div>
+															</div>
+														)}
+
+														{/* Assessment Current Status */}
+														<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
+															<small className="text-muted d-block mb-1"><i className="fa fa-flag me-1" style={{color: '#ff6b35'}}></i><strong>Current Status:</strong></small>
+															<span
+																className="badge"
+																style={{
+																	fontSize: '12px',
+																	padding: '4px 8px',
+																	borderRadius: '999px',
+																	...getRoundStatusPillStyle(roundStatus.text)
+																}}
+															>
+																{roundStatus.text}
+															</span>
+														</div>
+
 														{/* Assessment Employer Remarks */}
 														{(() => {
 															const assessmentProcess = selectedApplication.interviewProcesses?.find(p => p.type === 'assessment' || p.name?.toLowerCase().includes('assessment'));
@@ -1687,14 +1708,14 @@ function CanStatusPage() {
 															if (!remarks || typeof remarks !== 'string') {
 																return (
 																	<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-																		<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Assessment Remarks:</strong></small>
+																		<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Employer Remarks:</strong></small>
 																		<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>No remarks provided.</div>
 																	</div>
 																);
 															}
 															return (
 																<div className="mb-3 p-2" style={{backgroundColor: '#fff3e0', borderRadius: '6px', border: '1px solid #ffe0b3'}}>
-																	<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Assessment Remarks:</strong></small>
+																	<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Employer Remarks:</strong></small>
 																	<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word', maxWidth: '100%'}}>{remarks}</div>
 																</div>
 															);
@@ -1760,48 +1781,6 @@ function CanStatusPage() {
 													<div className="mt-2">
 														{roundDetails && (
 															<>
-																{roundDetails.description && typeof roundDetails.description === 'string' && (
-																	<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-																		<small className="text-muted d-block mb-1"><i className="fa fa-clipboard-check me-1" style={{color: '#ff6b35'}}></i><strong>Interview Process Description:</strong></small>
-																		<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>{roundDetails.description}</div>
-																	</div>
-																)}
-																{(() => {
-																	const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
-																	const process = selectedApplication.interviewProcesses?.find(p => p.type === roundTypeRaw);
-																	const processRemarks = resolveProcessRemarks(
-																		process,
-																		roundName,
-																		roundTypeRaw,
-																		selectedApplication.processRemarks
-																	);
-																	const remarks = roundDetails?.employerRemarks || processRemarks;
-																	const statusColors = {shortlisted: '#6f42c1', shortlisted_for_next_round: '#6f42c1', under_review: '#fd7e14', pending_decision: '#fd7e14', interview_scheduled: '#0dcaf0', interview_completed: '#198754', selected: '#198754', rejected: '#dc3545', no_show: '#dc3545', on_hold: '#6c757d'};
-																	const statusLabels = {shortlisted: 'Shortlisted', shortlisted_for_next_round: 'Shortlisted for next Round', under_review: 'Under Review', pending_decision: 'Pending Decision', interview_scheduled: 'Interview Scheduled', interview_completed: 'Interview Completed', selected: 'Selected', rejected: 'Not Advanced to Next Stage', no_show: 'No Show', on_hold: 'On Hold'};
-																	return (
-																		<>
-																			{process?.status && (
-																				<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-																					<small className="text-muted d-block mb-1"><i className="fa fa-flag me-1" style={{color: '#ff6b35'}}></i><strong>Current Status:</strong></small>
-																					<span className="badge" style={{fontSize: '12px', padding: '4px 8px', backgroundColor: statusColors[process.status] || '#6c757d', color: 'white', border: 'none'}}>
-																						{statusLabels[process.status] || String(process.status || '').replace(/_/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase())}
-																					</span>
-																				</div>
-																			)}
-																			{remarks ? (
-																				<div className="mb-3 p-2" style={{backgroundColor: '#fff3e0', borderRadius: '6px', border: '1px solid #ffe0b3'}}>
-																					<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Employer Remarks:</strong></small>
-																					<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word', maxWidth: '100%'}}>{remarks}</div>
-																				</div>
-																			) : (
-																				<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-																					<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Employer Remarks:</strong></small>
-																					<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>No remarks provided.</div>
-																				</div>
-																			)}
-																		</>
-																	);
-																})()}
 																{(roundDetails.fromDate || roundDetails.toDate) && (
 																	<div className="mb-2">
 																		{(() => {
@@ -1847,6 +1826,52 @@ function CanStatusPage() {
 																		</div>
 																	</div>
 																)}
+																{roundDetails.description && typeof roundDetails.description === 'string' && (
+																	<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
+																		<small className="text-muted d-block mb-1"><i className="fa fa-clipboard-check me-1" style={{color: '#ff6b35'}}></i><strong>Interview Process Description:</strong></small>
+																		<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>{roundDetails.description}</div>
+																	</div>
+																)}
+																{(() => {
+																	const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
+																	const process = selectedApplication.interviewProcesses?.find(p => p.type === roundTypeRaw);
+																	const processRemarks = resolveProcessRemarks(
+																		process,
+																		roundName,
+																		roundTypeRaw,
+																		selectedApplication.processRemarks
+																	);
+																	const remarks = roundDetails?.employerRemarks || processRemarks;
+																	return (
+																		<>
+																			<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
+																				<small className="text-muted d-block mb-1"><i className="fa fa-flag me-1" style={{color: '#ff6b35'}}></i><strong>Current Status:</strong></small>
+																				<span
+																					className="badge"
+																					style={{
+																						fontSize: '12px',
+																						padding: '4px 8px',
+																						borderRadius: '999px',
+																						...getRoundStatusPillStyle(roundStatus.text)
+																					}}
+																				>
+																					{roundStatus.text}
+																				</span>
+																			</div>
+																			{remarks ? (
+																				<div className="mb-3 p-2" style={{backgroundColor: '#fff3e0', borderRadius: '6px', border: '1px solid #ffe0b3'}}>
+																					<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Employer Remarks:</strong></small>
+																					<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word', maxWidth: '100%'}}>{remarks}</div>
+																				</div>
+																			) : (
+																				<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
+																					<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Employer Remarks:</strong></small>
+																					<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>No remarks provided.</div>
+																				</div>
+																			)}
+																		</>
+																	);
+																})()}
 																{!roundDetails.fromDate && !roundDetails.toDate && roundDetails.date && (
 																	<div className="mb-2">
 																		<small className="text-muted"><i className="fa fa-calendar me-1"></i>Date:</small>

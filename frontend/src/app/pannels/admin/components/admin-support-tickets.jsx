@@ -264,6 +264,18 @@ function AdminSupportTickets() {
         );
     };
 
+    const getRequesterName = (ticket) => {
+        if (!ticket) return 'N/A';
+        if (ticket.userType === 'employer') {
+            return ticket.requesterDisplayName || ticket.actualCompanyName || ticket.actualUserName || ticket.name || 'N/A';
+        }
+        return ticket.requesterDisplayName || ticket.actualUserName || ticket.name || 'N/A';
+    };
+
+    const getRequesterEmail = (ticket) => ticket?.actualUserEmail || ticket?.email || 'No email provided';
+
+    const getRequesterLabel = (ticket) => ticket?.userType === 'employer' ? 'Company name' : 'Name';
+
     const handleCloseModal = () => {
         setShowModal(false);
         setSelectedTicket(null);
@@ -407,10 +419,10 @@ function AdminSupportTickets() {
                                                             </div>
                                                             {!ticket.isRead && <span className="new-badge">Unread</span>}
                                                         </td>
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={`${ticket.actualUserName || ticket.name || 'N/A'} - ${ticket.actualUserEmail || ticket.email || 'No email provided'}`}>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={`${getRequesterName(ticket)} - ${getRequesterEmail(ticket)}`}>
                                                             <div className="user-info">
-                                                                <div className="user-name">{ticket.actualUserName || ticket.name || 'N/A'}</div>
-                                                                <div className="user-email">{ticket.actualUserEmail || ticket.email || 'No email provided'}</div>
+                                                                <div className="user-name">{getRequesterName(ticket)}</div>
+                                                                <div className="user-email">{getRequesterEmail(ticket)}</div>
                                                             </div>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getUserTypeBadge(ticket.userType)}</td>
@@ -466,6 +478,16 @@ function AdminSupportTickets() {
                         <>
                             <Row className="mb-3">
                                 <Col md={6}>
+                                    <div className="detail-label">{getRequesterLabel(selectedTicket)}</div>
+                                    <div>{getRequesterName(selectedTicket)}</div>
+                                </Col>
+                                <Col md={6}>
+                                    <div className="detail-label">Email</div>
+                                    <div>{getRequesterEmail(selectedTicket)}</div>
+                                </Col>
+                            </Row>
+                            <Row className="mb-3">
+                                <Col md={6}>
                                     <div className="detail-label">Subject</div>
                                     <div>{selectedTicket.subject}</div>
                                 </Col>
@@ -476,17 +498,10 @@ function AdminSupportTickets() {
                             </Row>
                             <Row className="mb-3">
                                 <Col md={6}>
-                                    <div className="detail-label">Requester</div>
-                                    <div>{selectedTicket.actualUserName || selectedTicket.name || 'N/A'}</div>
-                                    <small className="text-muted">{selectedTicket.actualUserEmail || selectedTicket.email || 'No email provided'}</small>
-                                </Col>
-                                <Col md={6}>
                                     <div className="detail-label">User type</div>
                                     <div>{getUserTypeBadge(selectedTicket.userType)}</div>
                                 </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col md={12}>
+                                <Col md={6}>
                                     <div className="detail-label">Category</div>
                                     <div>{selectedTicket.category || 'General'}</div>
                                 </Col>

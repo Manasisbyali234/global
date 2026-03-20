@@ -12,6 +12,24 @@ import "../../../../../categories-mobile-grid-fix.css";
 import "../../../../../remove-carousel-hover-effects.css";
 import "../../../../../home-location-fix.css";
 
+const getPostedByLabel = (job) => {
+    const rawPostedBy = job?.postedBy || job?.employerId?.employerType || job?.employerType;
+    if (!rawPostedBy) {
+        return "Company";
+    }
+
+    const normalized = rawPostedBy.toString().trim().toLowerCase();
+    if (normalized === "consultant" || normalized === "consultancy") {
+        return "Consultant";
+    }
+
+    if (normalized === "company") {
+        return "Company";
+    }
+
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+};
+
 const isJobWithinApplicationLimit = (job) => {
     const applicationCount = Number(job?.applicationCount || 0);
     const applicationLimit = Number(job?.applicationLimit || 0);
@@ -177,7 +195,7 @@ function HomeJobsList() {
                                         <a href="#" className="twm-job-websites site-text-primary">{job.companyName || job.employerId?.companyName}</a>
                                     )}
                                     <div style={{fontSize: '12px', color: '#888', marginTop: '4px'}}>
-                                        Posted by: <strong>{job.employerId?.employerType === 'consultant' ? 'Consultancy' : 'Company'}</strong>
+                                        Posted by: <strong>{getPostedByLabel(job)}</strong>
                                     </div>
                                 </div>
                                 <div className="twm-right-content">

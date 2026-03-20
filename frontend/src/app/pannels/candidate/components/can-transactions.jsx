@@ -3,7 +3,7 @@ import { formatDate } from '../../../../utils/dateFormatter';
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
-import { ListChecks, Search, Receipt, Download, Eye, X } from "lucide-react";
+import { ListChecks, Receipt, Download, Eye, X } from "lucide-react";
 import { api } from "../../../../utils/api";
 import "../../../../styles/print-receipt.css";
 
@@ -227,17 +227,21 @@ function CanTransactionsPage() {
                 <div className="panel panel-default site-bg-white" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0, padding: 'clamp(1rem, 3vw, 1.5rem)' }}>
                     
                     <div className="mb-3 mb-md-4 d-flex justify-content-between align-items-center flex-wrap gap-2 gap-md-3">
-                        <div className="input-group" style={{ maxWidth: '100%', width: '100%' }}>
-                            <span className="input-group-text bg-white border-end-0">
-                                <Search size={18} style={{ color: "#f97316" }} />
-                            </span>
+                        <div style={{ position: 'relative', maxWidth: '420px', width: '100%' }}>
                             <input
                                 type="text"
-                                className="form-control border-start-0 ps-0"
+                                className="form-control"
                                 placeholder="Search by job, company, payment ID, or date (e.g. Jan 2025)..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
-                                style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}
+                                style={{
+                                    fontSize: 'clamp(0.875rem, 2vw, 1rem)',
+                                    paddingLeft: '42px',
+                                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f97316' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E")`,
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundPosition: '14px center',
+                                    backgroundSize: '16px 16px'
+                                }}
                             />
                         </div>
                         <div className="text-muted" style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>

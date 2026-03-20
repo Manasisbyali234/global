@@ -195,8 +195,31 @@ function EmployersDetail1Page() {
         return <div className="text-center p-5">Employer not found</div>;
     }
 
-    return (
+		return (
 			<>
+				<style>{`
+					.company-rich-text {
+						line-height: 1.8;
+					}
+					.company-rich-text ol,
+					.company-rich-text ul {
+						margin: 0 0 1rem;
+						padding-left: 1.5rem;
+					}
+					.company-rich-text ol {
+						list-style: decimal !important;
+					}
+					.company-rich-text ul {
+						list-style: disc !important;
+					}
+					.company-rich-text li {
+						display: list-item !important;
+						margin-bottom: 0.35rem;
+					}
+					.company-rich-text p {
+						margin-bottom: 0.75rem;
+					}
+				`}</style>
 				<div className="section-full p-t120 p-b90 emp-detail">
 					<div className="container">
 						<div className="section-content">
@@ -332,16 +355,16 @@ function EmployersDetail1Page() {
 												role="tabpanel"
 											>
 												<h4 className="twm-s-title">About Company</h4>
-												<div dangerouslySetInnerHTML={{
+												<div className="company-rich-text" dangerouslySetInnerHTML={{
 													__html: (employer.employerId?.employerType === 'consultant' && employer.companyDescription) 
 														? employer.companyDescription 
 														: (employer.description || 'No company description available.')
-												}} style={{lineHeight: '1.8'}} />
+												}} />
 
 												<h4 className="twm-s-title">Why Join Us</h4>
-												<div dangerouslySetInnerHTML={{
+												<div className="company-rich-text" dangerouslySetInnerHTML={{
 													__html: employer.whyJoinUs || 'No information available about why to join this company.'
-												}} style={{lineHeight: '1.8'}} />
+												}} />
 
 
 											</div>

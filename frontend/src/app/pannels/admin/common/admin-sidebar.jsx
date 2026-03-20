@@ -7,7 +7,9 @@ import { useEffect, useState, useRef } from "react";
 import "./admin-sidebar.css";
 
 function AdminSidebarSection({ sidebarActive, isMobile }) {
-    const currentpath = useLocation().pathname;
+    const location = useLocation();
+    const currentpath = location.pathname;
+    const currentSearch = location.search;
     const [userPermissions, setUserPermissions] = useState([]);
     const [isSubAdmin, setIsSubAdmin] = useState(false);
     const [openMenus, setOpenMenus] = useState({});
@@ -185,6 +187,12 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         return !isSubAdmin || userPermissions.includes(permission);
     };
 
+    const isEmployersUnderReviewActive =
+        currentpath === adminRoute(admin.CAN_MANAGE) &&
+        String(new URLSearchParams(currentSearch).get('status') || '').toLowerCase() === 'under-review';
+    const isEmployersAllSubmissionsActive =
+        currentpath === adminRoute(admin.CAN_MANAGE) && !isEmployersUnderReviewActive;
+
     const sidebarClasses = [
         sidebarActive ? "active" : "",
         !isMobile && !sidebarActive ? "collapsed" : ""
@@ -234,9 +242,24 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     <span className="admin-nav-text">Employers</span>
                                 </a>
                                 <ul className={`sub-menu ${openMenus.employers ? 'open' : ''}`}>
-                                    <li className={currentpath === adminRoute(admin.CAN_MANAGE) ? 'active' : ''}>
+                                    <li className={isEmployersAllSubmissionsActive ? 'active' : ''}>
                                         <NavLink to={adminRoute(admin.CAN_MANAGE)} id="allList">
                                             <span className="admin-nav-text">All Submissions</span>
+                                            {hasNewEmployers && (
+                                                <span style={{
+                                                    display: 'inline-block',
+                                                    width: '8px',
+                                                    height: '8px',
+                                                    backgroundColor: '#ff4444',
+                                                    borderRadius: '50%',
+                                                    marginLeft: '8px'
+                                                }}></span>
+                                            )}
+                                        </NavLink>
+                                    </li>
+                                    <li className={isEmployersUnderReviewActive ? 'active' : ''}>
+                                        <NavLink to={`${adminRoute(admin.CAN_MANAGE)}?status=under-review`} id="underReviewList">
+                                            <span className="admin-nav-text">Under Review</span>
                                             {hasNewEmployers && (
                                                 <span style={{
                                                     display: 'inline-block',

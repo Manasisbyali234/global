@@ -4,6 +4,7 @@ import ScrollToTop from "./globals/scroll-to-top";
 import { AuthProvider } from "./contexts/AuthContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
 import GlobalPopupProvider from "./components/GlobalPopupProvider";
+import CandidateInterviewReminder from "./components/CandidateInterviewReminder";
 import { useState, useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -81,6 +82,7 @@ function App() {
         <GlobalPopupProvider>
           {isLoading && <Loader />}
           <ScrollToTop />
+          <CandidateInterviewReminder />
           <RootLayout />
         </GlobalPopupProvider>
       </WebSocketProvider>

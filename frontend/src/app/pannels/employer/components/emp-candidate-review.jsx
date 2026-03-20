@@ -69,6 +69,22 @@ function EmpCandidateReviewPage() {
         return stageStatusOptions;
     };
 
+    const getAssessmentSummary = (applicationData) => {
+        const assessmentAttempt = applicationData?.assessmentAttempt;
+        const score = assessmentAttempt?.score ?? applicationData?.assessmentScore ?? null;
+        const totalMarks = assessmentAttempt?.totalMarks ?? null;
+        const percentage = assessmentAttempt?.percentage ?? applicationData?.assessmentPercentage ?? null;
+        const result = assessmentAttempt?.result ?? applicationData?.assessmentResult ?? null;
+
+        return {
+            hasData: score !== null || percentage !== null || !!result,
+            score,
+            totalMarks,
+            percentage,
+            result
+        };
+    };
+
     useEffect(() => {
         fetchApplicationDetails();
     }, [applicationId]);
@@ -102,6 +118,7 @@ function EmpCandidateReviewPage() {
             
             if (response.ok) {
                 const data = await response.json();
+                const assessmentSummary = getAssessmentSummary(data.application);
                 setApplication(data.application);
                 setCandidate(data.application.candidateId);
                 
@@ -125,7 +142,10 @@ function EmpCandidateReviewPage() {
                             description: stage.description || '',
                             status: stage.status,
                             isCompleted: stage.status === 'completed' || stage.status === 'passed',
-                            result: stage.assessmentResult
+                            result: stage.assessmentResult || (stage.stageType === 'assessment' ? assessmentSummary.result : null),
+                            assessmentScore: stage.stageType === 'assessment' ? assessmentSummary.score : null,
+                            assessmentPercentage: stage.stageType === 'assessment' ? assessmentSummary.percentage : null,
+                            assessmentTotalMarks: stage.stageType === 'assessment' ? assessmentSummary.totalMarks : null
                         }));
                 } else if (data.application.interviewProcesses && data.application.interviewProcesses.length > 0) {
                     processes = data.application.interviewProcesses.filter(p => p && p.name && p.type).map(p => ({
@@ -134,7 +154,10 @@ function EmpCandidateReviewPage() {
                         type: p.type,
                         status: p.status,
                         isCompleted: p.isCompleted,
-                        result: p.result
+                        result: p.result || (p.type === 'assessment' ? assessmentSummary.result : null),
+                        assessmentScore: p.type === 'assessment' ? assessmentSummary.score : null,
+                        assessmentPercentage: p.type === 'assessment' ? assessmentSummary.percentage : null,
+                        assessmentTotalMarks: p.type === 'assessment' ? assessmentSummary.totalMarks : null
                     }));
                 } else if (data.application.jobId?.interviewRoundOrder && data.application.jobId.interviewRoundOrder.length > 0) {
                     const roundNames = {
@@ -164,7 +187,10 @@ function EmpCandidateReviewPage() {
                             type: roundType,
                             status: 'pending',
                             isCompleted: false,
-                            result: null
+                            result: roundType === 'assessment' ? assessmentSummary.result : null,
+                            assessmentScore: roundType === 'assessment' ? assessmentSummary.score : null,
+                            assessmentPercentage: roundType === 'assessment' ? assessmentSummary.percentage : null,
+                            assessmentTotalMarks: roundType === 'assessment' ? assessmentSummary.totalMarks : null
                         };
                     });
                 }
@@ -571,6 +597,8 @@ function EmpCandidateReviewPage() {
         );
     }
 
+    const assessmentSummary = getAssessmentSummary(application);
+
     return (
         <div className="candidate-review-container emp-candidate-review-page">
             <div className="candidate-review-header">
@@ -695,6 +723,34 @@ function EmpCandidateReviewPage() {
                                                                     {(process.status || 'pending').replace('_', ' ')}
                                                                 </span>
                                                             </div>
+                                                            {process.type === 'assessment' && (process.result || process.assessmentScore !== null || process.assessmentPercentage !== null) && (
+                                                                <div className="assessment-process-summary">
+                                                                    {process.result && (
+                                                                        <div className="assessment-process-item">
+                                                                            <span className="assessment-process-label">Result</span>
+                                                                            <span className={`assessment-process-value result ${String(process.result).toLowerCase()}`}>
+                                                                                {process.result}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                    {process.assessmentScore !== null && process.assessmentTotalMarks !== null && (
+                                                                        <div className="assessment-process-item">
+                                                                            <span className="assessment-process-label">Score</span>
+                                                                            <span className="assessment-process-value">
+                                                                                {process.assessmentScore} / {process.assessmentTotalMarks}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                    {process.assessmentPercentage !== null && process.assessmentPercentage !== undefined && (
+                                                                        <div className="assessment-process-item">
+                                                                            <span className="assessment-process-label">Percentage</span>
+                                                                            <span className="assessment-process-value">
+                                                                                {Number(process.assessmentPercentage).toFixed(1)}%
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
                                                             <div className="process-controls">
                                                                 {statusUpdateUnlocked ? (
                                                                     <select 
@@ -773,7 +829,7 @@ function EmpCandidateReviewPage() {
                                     </div>
                                 )}
 
-                                {application.assessmentAttempt && (
+                                {assessmentSummary.hasData && (
                                     <div className="section-card mt-4">
                                         <div className="section-header">
                                             <h4><i className="fas fa-award"></i> Assessment Results</h4>
@@ -782,42 +838,51 @@ function EmpCandidateReviewPage() {
                                             <div className="assessment-stats">
                                                 <div className="stat-box">
                                                     <span className="label">Score</span>
-                                                    <span className="value">{application.assessmentAttempt.score} / {application.assessmentAttempt.totalMarks}</span>
+                                                    <span className="value">
+                                                        {assessmentSummary.score ?? 'N/A'}
+                                                        {assessmentSummary.totalMarks !== null ? ` / ${assessmentSummary.totalMarks}` : ''}
+                                                    </span>
                                                 </div>
                                                 <div className="stat-box">
                                                     <span className="label">Percentage</span>
-                                                    <span className="value">{application.assessmentAttempt.percentage?.toFixed(1)}%</span>
+                                                    <span className="value">
+                                                        {assessmentSummary.percentage !== null && assessmentSummary.percentage !== undefined
+                                                            ? `${Number(assessmentSummary.percentage).toFixed(1)}%`
+                                                            : 'N/A'}
+                                                    </span>
                                                 </div>
                                                 <div className="stat-box">
                                                     <span className="label">Result</span>
-                                                    <span className={`value result ${application.assessmentAttempt.result?.toLowerCase()}`}>
-                                                        {application.assessmentAttempt.result}
+                                                    <span className={`value result ${String(assessmentSummary.result || 'pending').toLowerCase()}`}>
+                                                        {assessmentSummary.result || 'Pending'}
                                                     </span>
                                                 </div>
                                             </div>
-                                            <div className="assessment-actions mt-3">
-                                                <button 
-                                                    className="btn-view-answers"
-                                                    onClick={() => {
-                                                        if (application.assessmentAttempt?._id) {
-                                                            navigate(`/employer/view-answers/${application.assessmentAttempt._id}`);
-                                                        } else {
-                                                            showError('Assessment attempt ID not found');
-                                                        }
-                                                    }}
-                                                >
-                                                    <i className="fas fa-file-alt"></i> View Answers
-                                                </button>
-                                                <button 
-                                                    className="btn-view-captures"
-                                                    onClick={() => {
-                                                        const captures = application.assessmentAttempt.captures || application.assessmentAttempt.capturedImages || [];
-                                                        setCapturesModal({ isOpen: true, captures });
-                                                    }}
-                                                >
-                                                    <i className="fas fa-camera"></i> View Captures
-                                                </button>
-                                            </div>
+                                            {application.assessmentAttempt && (
+                                                <div className="assessment-actions mt-3">
+                                                    <button 
+                                                        className="btn-view-answers"
+                                                        onClick={() => {
+                                                            if (application.assessmentAttempt?._id) {
+                                                                navigate(`/employer/view-answers/${application.assessmentAttempt._id}`);
+                                                            } else {
+                                                                showError('Assessment attempt ID not found');
+                                                            }
+                                                        }}
+                                                    >
+                                                        <i className="fas fa-file-alt"></i> View Answers
+                                                    </button>
+                                                    <button 
+                                                        className="btn-view-captures"
+                                                        onClick={() => {
+                                                            const captures = application.assessmentAttempt.captures || application.assessmentAttempt.capturedImages || [];
+                                                            setCapturesModal({ isOpen: true, captures });
+                                                        }}
+                                                    >
+                                                        <i className="fas fa-camera"></i> View Captures
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}

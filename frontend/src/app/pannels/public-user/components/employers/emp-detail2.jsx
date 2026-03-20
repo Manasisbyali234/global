@@ -38,6 +38,29 @@ function EmployersDetail2Page() {
 
     return (
         <>
+            <style>{`
+                .company-rich-text {
+                    line-height: 1.8;
+                }
+                .company-rich-text ol,
+                .company-rich-text ul {
+                    margin: 0 0 1rem;
+                    padding-left: 1.5rem;
+                }
+                .company-rich-text ol {
+                    list-style: decimal !important;
+                }
+                .company-rich-text ul {
+                    list-style: disc !important;
+                }
+                .company-rich-text li {
+                    display: list-item !important;
+                    margin-bottom: 0.35rem;
+                }
+                .company-rich-text p {
+                    margin-bottom: 0.75rem;
+                }
+            `}</style>
             <div className="section-full  p-t0 p-b90 bg-white">
                 {/*Top Wide banner Start*/}
                 <SectionEmployerInfo employer={employer} />
@@ -52,7 +75,7 @@ function EmployersDetail2Page() {
                                 {/* Candidate detail START */}
                                 <div className="cabdidate-de-info">
                                     <h4 className="twm-s-title m-t0">About Company</h4>
-                                    <div dangerouslySetInnerHTML={{
+                                    <div className="company-rich-text" dangerouslySetInnerHTML={{
                                         __html: (employer.employerId?.employerType === 'consultant' && employer.companyDescription) 
                                             ? employer.companyDescription 
                                             : (employer.description || 'No company description available.')
@@ -61,7 +84,7 @@ function EmployersDetail2Page() {
                                     {employer.whyJoinUs && (
                                         <>
                                             <h4 className="twm-s-title">Why Join Us</h4>
-                                            <div dangerouslySetInnerHTML={{ __html: employer.whyJoinUs }} />
+                                            <div className="company-rich-text" dangerouslySetInnerHTML={{ __html: employer.whyJoinUs }} />
                                         </>
                                     )}
 

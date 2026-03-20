@@ -883,10 +883,18 @@ const StartAssessment = () => {
 		textarea.innerHTML = value;
 		return textarea.value.replace(/\u00a0/g, ' ').trim();
 	};
+	const normalizeInstructionLine = (line) =>
+		line
+			.replace(/^\s*\d+[\).\-\s]+/, '')
+			.replace(/^\s*[\u2022\u00B7\u25CF\u25AA\u25E6\-]+\s*/, '')
+			.trim();
 	const instructionsRaw = assessment?.instructions || assessment?.description || '';
 	const instructionsText = decodeHtmlEntities(String(instructionsRaw || '').replace(/<[^>]*>/g, ''));
 	const instructionLines = instructionsText
-		? instructionsText.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+		? instructionsText
+				.split(/\r?\n/)
+				.map(line => normalizeInstructionLine(line))
+				.filter(Boolean)
 		: [];
 
 	return (
@@ -1038,7 +1046,9 @@ const StartAssessment = () => {
 								))}
 							</ul>
 						) : (
-							<div style={{ color: "#374151", lineHeight: "1.7" }}>{instructionsText}</div>
+							<div style={{ color: "#374151", lineHeight: "1.7" }}>
+								{instructionLines[0] || instructionsText}
+							</div>
 						)}
 					</div>
 				)}

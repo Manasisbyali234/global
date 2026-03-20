@@ -13,11 +13,38 @@ function RegisteredCandidatesPage() {
     const [shortlistedApplications, setShortlistedApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [profileStatusFilter, setProfileStatusFilter] = useState('');
     const modalRef = useRef(null);
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        const filtered = candidates.filter((candidate) => {
+            const matchesSearch = !normalizedSearch || (
+                candidate.name?.toLowerCase().includes(normalizedSearch) ||
+                candidate.email?.toLowerCase().includes(normalizedSearch) ||
+                candidate.phone?.includes(searchTerm) ||
+                candidate.profile?.location?.toLowerCase().includes(normalizedSearch) ||
+                candidate.profile?.skills?.some((skill) =>
+                    skill.toLowerCase().includes(normalizedSearch)
+                )
+            );
+
+            const matchesProfileStatus = !profileStatusFilter || (
+                profileStatusFilter === 'completed'
+                    ? candidate.isProfileComplete
+                    : !candidate.isProfileComplete
+            );
+
+            return matchesSearch && matchesProfileStatus;
+        });
+
+        setFilteredCandidates(filtered);
+    }, [candidates, searchTerm, profileStatusFilter]);
 
     const fetchData = async () => {
         try {
@@ -29,7 +56,6 @@ function RegisteredCandidatesPage() {
             
             if (candidatesResponse.success) {
                 setCandidates(candidatesResponse.data);
-                setFilteredCandidates(candidatesResponse.data);
             }
             if (shortlistedResponse.success) {
                 setShortlistedApplications(shortlistedResponse.data);
@@ -60,21 +86,7 @@ function RegisteredCandidatesPage() {
     };
 
     const handleSearch = (searchTerm) => {
-        if (!searchTerm.trim()) {
-            setFilteredCandidates(candidates);
-            return;
-        }
-        
-        const filtered = candidates.filter(candidate => 
-            candidate.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            candidate.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            candidate.phone?.includes(searchTerm) ||
-            candidate.profile?.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            candidate.profile?.skills?.some(skill => 
-                skill.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-        );
-        setFilteredCandidates(filtered);
+        setSearchTerm(searchTerm);
     };
 
     const viewCandidateDetails = (candidate) => {
@@ -159,15 +171,31 @@ function RegisteredCandidatesPage() {
                             <i className="fa fa-list-alt"></i>
                             All Registered Candidates ({filteredCandidates.length})
                         </h4>
-                        <div className="search-section">
-                            <label className="search-label">
-                                <i className="fa fa-filter"></i> Search by Name or Email
-                            </label>
-                            <SearchBar 
-                                onSearch={handleSearch}
-                                placeholder="Search candidates by name, email, phone, location, or skills..."
-                                className="candidates-search"
-                            />
+                        <div className="candidates-filters">
+                            <div className="search-section">
+                                <label className="search-label">
+                                    <i className="fa fa-filter"></i> Search by Name or Email
+                                </label>
+                                <SearchBar 
+                                    onSearch={handleSearch}
+                                    placeholder="Search candidates by name, email, phone, location, or skills..."
+                                    className="candidates-search"
+                                />
+                            </div>
+                            <div className="search-section profile-status-filter-section">
+                                <label className="search-label">
+                                    <i className="fa fa-id-card"></i> Profile Status
+                                </label>
+                                <select
+                                    className="profile-status-filter"
+                                    value={profileStatusFilter}
+                                    onChange={(event) => setProfileStatusFilter(event.target.value)}
+                                >
+                                    <option value="">All statuses</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="incomplete">Incomplete</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -367,6 +367,50 @@
     gap: 20px;
 }
 
+.assessment-process-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.assessment-process-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 120px;
+}
+
+.assessment-process-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6c757d;
+}
+
+.assessment-process-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #212529;
+}
+
+.assessment-process-value.result.pass {
+    color: #198754;
+}
+
+.assessment-process-value.result.fail {
+    color: #dc3545;
+}
+
+.assessment-process-value.result.pending {
+    color: #fd7e14;
+}
+
 /* Ensure long status labels wrap inside the badge in this page */
 .emp-candidate-review-page .status-badge {
     white-space: normal !important;

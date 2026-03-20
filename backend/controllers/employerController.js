@@ -201,13 +201,19 @@ exports.getProfile = async (req, res) => {
 
     const publicProfileObj = publicProfile?.toObject() || {};
     const adminProfileObj = adminProfile?.toObject() || {};
-    if (Array.isArray(adminProfileObj.authorizationLetters)) {
-      adminProfileObj.authorizationLetters = dedupeAuthorizationLetters(adminProfileObj.authorizationLetters);
-    }
+    const fallbackAuthorizationLetters = Array.isArray(employerProfile?.authorizationLetters)
+      ? employerProfile.authorizationLetters
+      : [];
+    const mergedAuthorizationLetters = dedupeAuthorizationLetters(
+      Array.isArray(adminProfileObj.authorizationLetters) && adminProfileObj.authorizationLetters.length > 0
+        ? adminProfileObj.authorizationLetters
+        : fallbackAuthorizationLetters
+    );
 
     const profile = {
       ...publicProfileObj,
       ...adminProfileObj,
+      authorizationLetters: mergedAuthorizationLetters,
       panCardVerified: employerProfile?.panCardVerified,
       panCardReuploadedAt: employerProfile?.panCardReuploadedAt,
       cinVerified: employerProfile?.cinVerified,
@@ -250,6 +256,17 @@ exports.updateProfile = async (req, res) => {
     const textFieldsToPreserve = ['whyJoinUs', 'googleMapsEmbed', 'description', 'location'];
     const setOperations = {};
     
+    const sanitizeRichTextHtml = (html) => {
+      if (typeof html !== 'string') return '';
+      return html
+        .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '')
+        .replace(/\son\w+="[^"]*"/gi, '')
+        .replace(/\son\w+='[^']*'/gi, '')
+        .replace(/\s(href|src)=("|\')javascript:[^"\']*\2/gi, '')
+        .trim();
+    };
+
     textFieldsToPreserve.forEach(field => {
       if (req.body[field] !== undefined) {
         let value = req.body[field];
@@ -258,6 +275,9 @@ exports.updateProfile = async (req, res) => {
           if (field === 'googleMapsEmbed') {
             // Just trim whitespace, don't strip HTML tags
             value = value.trim();
+          } else if (field === 'description' || field === 'whyJoinUs') {
+            value = value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+            value = sanitizeRichTextHtml(value);
           } else {
             // For other fields, decode HTML entities and strip tags
             value = value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
@@ -283,7 +303,7 @@ exports.updateProfile = async (req, res) => {
     
     // Force include whyJoinUs and googleMapsEmbed even if empty strings
     if (req.body.hasOwnProperty('whyJoinUs')) {
-      updateData.whyJoinUs = req.body.whyJoinUs || '';
+      updateData.whyJoinUs = setOperations.whyJoinUs !== undefined ? setOperations.whyJoinUs : '';
     }
     if (req.body.hasOwnProperty('googleMapsEmbed')) {
       // Preserve HTML iframe code for Google Maps embed
@@ -292,10 +312,10 @@ exports.updateProfile = async (req, res) => {
     
     // Ensure description and location always have default values ONLY if they are undefined or null
     if (req.body.hasOwnProperty('description')) {
-      updateData.description = req.body.description !== undefined ? req.body.description : 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.';
+      updateData.description = setOperations.description !== undefined ? setOperations.description : 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.';
     }
     if (req.body.hasOwnProperty('location')) {
-      updateData.location = req.body.location !== undefined ? req.body.location : 'Bangalore, India';
+      updateData.location = setOperations.location !== undefined ? setOperations.location : 'Bangalore, India';
     }
 
     // Verify that text fields are included in updateData
@@ -730,18 +750,31 @@ exports.deleteAuthorizationLetter = async (req, res) => {
 exports.updateAuthorizationCompanies = async (req, res) => {
   try {
     const { authorizationLetters } = req.body;
-    
-    const profile = await EmployerProfile.findOneAndUpdate(
-      { employerId: req.user._id },
-      { authorizationLetters },
-      { new: true }
+    const nextAuthorizationLetters = dedupeAuthorizationLetters(
+      Array.isArray(authorizationLetters) ? authorizationLetters : []
     );
 
-    if (!profile) {
-      return res.status(404).json({ success: false, message: 'Profile not found' });
-    }
+    const [profile, adminProfile] = await Promise.all([
+      EmployerProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { authorizationLetters: nextAuthorizationLetters },
+        { new: true, upsert: true }
+      ),
+      EmployerAdminProfile.findOneAndUpdate(
+        { employerId: req.user._id },
+        { authorizationLetters: nextAuthorizationLetters },
+        { new: true, upsert: true }
+      )
+    ]);
 
-    res.json({ success: true, message: 'Authorization company names updated successfully', profile });
+    res.json({
+      success: true,
+      message: 'Authorization company names updated successfully',
+      profile: {
+        ...(profile?.toObject ? profile.toObject() : {}),
+        authorizationLetters: adminProfile?.authorizationLetters || profile?.authorizationLetters || []
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

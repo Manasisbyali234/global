@@ -36,7 +36,7 @@ const ConfirmationDialog = ({
         </button>
         <div className="popup-content">
           <div className="popup-icon">{icons[type] || icons.info}</div>
-          <div className="popup-message-left">{message}</div>
+          <div className="popup-message">{message}</div>
           <div className="popup-buttons" style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
             <button
               className="popup-button popup-button-confirm"

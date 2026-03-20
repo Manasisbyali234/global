@@ -27,6 +27,7 @@ const isValidationErrorMessage = (value) => {
 
 const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 }) => {
   const displayType = type === 'error' && isValidationErrorMessage(message) ? 'warning' : type;
+  const isSingleLineScheduleMessage = typeof message === 'string' && message.startsWith('Assessment scheduled on ');
 
   useEffect(() => {
     if (message) {
@@ -63,13 +64,13 @@ const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 })
 
   return (
     <div className="popup-overlay" onClick={handleOverlayClick}>
-      <div className={`popup-box popup-${displayType}`}>
+      <div className={`popup-box popup-${displayType} ${isSingleLineScheduleMessage ? 'popup-box-single-line' : ''}`}>
         <button className="popup-close-button" onClick={onClose} aria-label="Close">
           {'\u00D7'}
         </button>
         <div className="popup-content">
           <div className="popup-icon">{icons[displayType] || icons.info}</div>
-          <div className="popup-message" style={{ textAlign: 'center' }}>{message}</div>
+          <div className={`popup-message ${isSingleLineScheduleMessage ? 'popup-message-single-line' : ''}`} style={{ textAlign: 'center' }}>{message}</div>
         </div>
       </div>
     </div>

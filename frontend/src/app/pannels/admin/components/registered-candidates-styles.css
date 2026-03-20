@@ -133,6 +133,36 @@
     gap: 8px;
 }
 
+.candidates-filters {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.profile-status-filter-section {
+    min-width: 200px;
+}
+
+.profile-status-filter {
+    min-height: 44px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0 14px;
+    background: #ffffff;
+    color: #232323;
+    font-size: 0.95rem;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-status-filter:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16);
+}
+
 .search-label {
     font-size: 0.9rem;
     font-weight: 600;
@@ -524,6 +554,19 @@
 }
 
 @media (max-width: 768px) {
+    .candidates-filters {
+        width: 100%;
+        align-items: stretch;
+    }
+
+    .profile-status-filter-section {
+        width: 100%;
+    }
+
+    .profile-status-filter {
+        width: 100%;
+    }
+
     .candidates-header h2 {
         font-size: 1.8rem;
     }

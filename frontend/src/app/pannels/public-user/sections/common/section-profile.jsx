@@ -83,15 +83,6 @@ function SectionProfile({ employer }) {
                         </>
                     )}
 
-                    <li>
-                        <div className="twm-s-info-inner">
-                            <i className="fas fa-users" style={iconStyle}></i>
-                            <div>
-                                <span className="twm-title">Company Size</span>
-                                <div className="twm-s-info-discription">{employer?.teamSize || 'Not specified'}</div>
-                            </div>
-                        </div>
-                    </li>
                 </ul>
             </div>
         </>

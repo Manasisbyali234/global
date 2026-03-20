@@ -75,6 +75,24 @@ function SectionAvailableJobsList({ employerId }) {
 		return jobType?.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Not specified';
 	};
 
+	const getPostedByLabel = (job) => {
+		const rawPostedBy = job?.postedBy || job?.employerId?.employerType || job?.employerType;
+		if (!rawPostedBy) {
+			return "Company";
+		}
+
+		const normalized = rawPostedBy.toString().trim().toLowerCase();
+		if (normalized === "consultant" || normalized === "consultancy") {
+			return "Consultant";
+		}
+
+		if (normalized === "company") {
+			return "Company";
+		}
+
+		return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+	};
+
 	if (loading) {
 		return <div className="text-center p-3">Loading jobs...</div>;
 	}
@@ -163,7 +181,7 @@ function SectionAvailableJobsList({ employerId }) {
 									<div className="company-info">
 										<div className="posted-by-label">Posted by:</div>
 										<div className="company-name">
-											{job.employerId?.companyName || job.companyName || "Company"}
+											{getPostedByLabel(job)}
 										</div>
 									</div>
 									<button

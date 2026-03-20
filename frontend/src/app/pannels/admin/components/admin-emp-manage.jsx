@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { api } from '../../../../utils/api';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -11,12 +11,33 @@ import { formatDate } from '../../../../utils/dateFormatter';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 function AdminEmployersAllRequest() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [employers, setEmployers] = useState([]);
     const [filteredEmployers, setFilteredEmployers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [actionLoading, setActionLoading] = useState({});
-    const [statusFilter, setStatusFilter] = useState('incomplete');
+    const getStatusFilterFromSearch = (search) => {
+        const searchParams = new URLSearchParams(search);
+        const requestedStatus = String(searchParams.get('status') || '').trim().toLowerCase();
+
+        switch (requestedStatus) {
+            case 'under-review':
+            case 'under_review':
+            case 'pending':
+                return 'pending';
+            case 'approved':
+                return 'approved';
+            case 'rejected':
+                return 'rejected';
+            case 'all':
+                return 'all';
+            case 'incomplete':
+            default:
+                return 'incomplete';
+        }
+    };
+    const [statusFilter, setStatusFilter] = useState(() => getStatusFilterFromSearch(window.location.search));
 
     useEffect(() => {
         AOS.init({
@@ -26,6 +47,12 @@ function AdminEmployersAllRequest() {
         });
         fetchEmployers();
     }, []);
+
+    useEffect(() => {
+        const nextStatusFilter = getStatusFilterFromSearch(location.search);
+        setStatusFilter(nextStatusFilter);
+        filterEmployersByStatus(employers, nextStatusFilter);
+    }, [location.search]);
 
     const fetchEmployers = async () => {
         try {

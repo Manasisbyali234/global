@@ -76,6 +76,22 @@ const formatAssessmentTitle = (title = '') => {
 		.join(' ');
 };
 
+const getAssessmentDuration = (assessment = {}) =>
+	assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime || 'N/A';
+
+const formatAssessmentOptionLabel = (assessment = {}, employerType = 'company') => {
+	const companyName = String(assessment?.companyName || '').trim() || 'N/A';
+	const assessmentName = formatAssessmentTitle(assessment?.title) || 'Untitled Assessment';
+	const duration = getAssessmentDuration(assessment);
+	const durationLabel = duration === 'N/A' ? 'Duration: N/A' : `${duration} min`;
+
+	if (employerType === 'consultant') {
+		return `${companyName} - ${assessmentName} - ${durationLabel}`;
+	}
+
+	return `${assessmentName} (${durationLabel}) - ${companyName}`;
+};
+
 const PREDEFINED_JOB_TITLES = [
 	"Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", 
 	"Full Stack Developer", "Data Scientist", "Data Analyst", "Product Manager", 
@@ -370,6 +386,64 @@ export default function EmpPostJob({ onNext }) {
 		return minInterviewDate;
 	};
 
+	const getSubStageDateRange = (subStages = [], fallbackFromDate = '', fallbackToDate = '') => {
+		const dates = subStages
+			.map((sub) => normalizeToYMD(sub?.fromDate || sub?.fromdate || sub?.date || ''))
+			.filter(Boolean)
+			.sort();
+
+		return {
+			fromDate: dates[0] || fallbackFromDate,
+			toDate: dates[dates.length - 1] || fallbackToDate || fallbackFromDate
+		};
+	};
+
+	const getMinDateForSubStage = (uniqueKey, subIndex) => {
+		const roundMinDate = getMinDateForRound(uniqueKey);
+		if (subIndex <= 0) {
+			return roundMinDate;
+		}
+
+		const details = formData.interviewRoundDetails?.[uniqueKey] || {};
+		const subStages = details.subStages || [];
+		const previousSubStageDate = normalizeToYMD(subStages[subIndex - 1]?.fromDate || '');
+
+		if (!previousSubStageDate) {
+			return normalizeToYMD(details.fromDate || '') || roundMinDate;
+		}
+
+		const nextAllowedDate = getNextDayDateString(previousSubStageDate);
+		return nextAllowedDate < roundMinDate ? roundMinDate : nextAllowedDate;
+	};
+
+	const applySubStageDateChange = (uniqueKey, subStageId, selectedDate) => {
+		setFormData((prev) => {
+			const details = prev.interviewRoundDetails?.[uniqueKey] || {};
+			const subStages = details.subStages || [];
+			const updatedSubStages = subStages.map((stage) =>
+				stage.id === subStageId ? { ...stage, fromDate: selectedDate } : stage
+			);
+			const subStageDateRange = getSubStageDateRange(
+				updatedSubStages,
+				details.fromDate,
+				details.toDate || details.fromDate
+			);
+
+			return {
+				...prev,
+				interviewRoundDetails: {
+					...prev.interviewRoundDetails,
+					[uniqueKey]: {
+						...details,
+						subStages: updatedSubStages,
+						fromDate: subStageDateRange.fromDate || details.fromDate,
+						toDate: subStageDateRange.toDate || details.toDate
+					}
+				}
+			};
+		});
+	};
+
 	const [employerType, setEmployerType] = useState('company');
 	const [postJobAccess, setPostJobAccess] = useState({
 		loading: true,
@@ -478,7 +552,7 @@ export default function EmpPostJob({ onNext }) {
 
 		if (shouldConfirmHoliday) {
 			showConfirmation(
-				'⚠️ The selected interview date falls on holiday.Would you like to continue scheduling the interview on this date?',
+				'The selected interview date falls on a holiday. Would you like to continue scheduling the interview on this date? Please also ensure the last date of application is updated accordingly',
 				onConfirm,
 				null,
 				'warning',
@@ -931,7 +1005,7 @@ export default function EmpPostJob({ onNext }) {
 
 			if (shouldConfirmHoliday) {
 				showConfirmation(
-					'\u26A0\uFE0F The selected interview date falls on holiday.Would you like to continue scheduling the interview on this date?',
+					'The selected interview date falls on a holiday. Would you like to continue scheduling the interview on this date? Please also ensure the last date of application is updated accordingly',
 					() => updateRoundDetails(roundType, field, value, true),
 					null,
 					'warning',
@@ -1381,22 +1455,6 @@ export default function EmpPostJob({ onNext }) {
 						errorMessages.push(`Please select End Time for ${roundName} - Day ${index + 1}`);
 					}
 					
-					// Check for time conflicts with other sub-stages in the same round
-					if (subStage.fromDate && subStage.startTime && subStage.endTime) {
-						const currentStart = new Date(`${subStage.fromDate}T${subStage.startTime}`);
-						const currentEnd = new Date(`${subStage.fromDate}T${subStage.endTime}`);
-						
-						details.subStages.forEach((otherStage, otherIndex) => {
-							if (index !== otherIndex && otherStage.fromDate && otherStage.startTime && otherStage.endTime) {
-								const otherStart = new Date(`${otherStage.fromDate}T${otherStage.startTime}`);
-								const otherEnd = new Date(`${otherStage.fromDate}T${otherStage.endTime}`);
-								
-								if ((currentStart >= otherStart && currentStart < otherEnd) || (currentEnd > otherStart && currentEnd <= otherEnd) || (currentStart <= otherStart && currentEnd >= otherEnd)) {
-									errorMessages.push(`${roundName} - Day ${index + 1} has time conflict with Day ${otherIndex + 1}`);
-								}
-							}
-						});
-					}
 				});
 			}
 		}
@@ -4347,7 +4405,7 @@ export default function EmpPostJob({ onNext }) {
 														<option value="">-- Choose an Assessment --</option>
 														{availableAssessments.map((assessment) => (
 															<option key={assessment._id} value={assessment._id}>
-																{formatAssessmentTitle(assessment.title)} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)
+																{formatAssessmentOptionLabel(assessment, employerType)}
 															</option>
 														))}
 													</select>
@@ -4795,7 +4853,7 @@ export default function EmpPostJob({ onNext }) {
 																			width: '100%',
 																			fontSize: '14px'
 																	}}
-																	min={getMinDateForRound(uniqueKey)}
+																	min={getMinDateForSubStage(uniqueKey, subIndex)}
 																	value={subStage.fromDate || ''}
 																	onChange={async (e) => {
 																		let selectedDate = e.target.value;
@@ -4803,6 +4861,12 @@ export default function EmpPostJob({ onNext }) {
 
 																		const normalizedDate = normalizeToYMD(selectedDate);
 																		if (normalizedDate) selectedDate = normalizedDate;
+
+																		const minSubStageDate = getMinDateForSubStage(uniqueKey, subIndex);
+																		if (minSubStageDate && selectedDate < minSubStageDate) {
+																			showWarning(`Day ${subIndex + 1} must be scheduled on ${formatDate(minSubStageDate)} or later.`);
+																			return;
+																		}
 
 																		const holidayCheck = await holidaysApi.checkHoliday(selectedDate);
 																		const localHolidayName = getLocalHolidayName(selectedDate);
@@ -4814,7 +4878,7 @@ export default function EmpPostJob({ onNext }) {
 
 																		if (shouldConfirmHoliday) {
 																			showConfirmation(
-																				'⚠️ The selected interview date falls on holiday.Would you like to continue scheduling the interview on this date?',
+																				'The selected interview date falls on a holiday. Would you like to continue scheduling the interview on this date? Please also ensure the last date of application is updated accordingly',
 																				() => setShowSubStageConfirm({ uniqueKey, subStage, subIndex, selectedDate }),
 																				null,
 																				'warning',
@@ -4823,7 +4887,8 @@ export default function EmpPostJob({ onNext }) {
 																			return;
 																		}
 
-																		setShowSubStageConfirm({ uniqueKey, subStage, subIndex, selectedDate });
+																		applySubStageDateChange(uniqueKey, subStage.id, selectedDate);
+																		showSuccess(`Date set to ${formatDate(selectedDate)} for Day ${subIndex + 1}`);
 																	}}
 																/>
 															</div>
@@ -4978,6 +5043,11 @@ export default function EmpPostJob({ onNext }) {
 															endTime: sub.endTime,
 															breakTime: sub.breakTime || 0
 														}));
+														const subStageDateRange = getSubStageDateRange(
+															subStagesToSave,
+															details.fromDate,
+															details.toDate || details.fromDate
+														);
 
 														try {
 															const activeJobId = currentJobId || id;
@@ -5003,8 +5073,8 @@ export default function EmpPostJob({ onNext }) {
 																	jobId: activeJobId,
 																	name: displayName,
 																	roundType,
-																	fromdate: details.fromDate,
-																	todate: details.toDate || details.fromDate,
+																	fromdate: subStageDateRange.fromDate || details.fromDate,
+																	todate: subStageDateRange.toDate || details.toDate || details.fromDate,
 																	startTime: details.startTime,
 																	endTime: details.endTime,
 																	description: details.description,
@@ -5623,10 +5693,7 @@ export default function EmpPostJob({ onNext }) {
 							<button
 								onClick={() => {
 									const { uniqueKey, subStage, subIndex, selectedDate } = showSubStageConfirm;
-									const details = formData.interviewRoundDetails[uniqueKey];
-									const subStages = details?.subStages || [];
-									const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, fromDate: selectedDate } : s);
-									setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages, toDate: selectedDate } } }));
+									applySubStageDateChange(uniqueKey, subStage.id, selectedDate);
 									showSuccess(`Date set to ${formatDate(selectedDate)} for Day ${subIndex + 1}`);
 									setShowSubStageConfirm(null);
 								}}

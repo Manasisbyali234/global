@@ -129,36 +129,36 @@ function CreateAssessmentPage() {
                                         <div style={{ fontSize: '14px', color: '#475569' }}>
                                             <p style={{ fontWeight: '500', marginBottom: '12px', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <i className="fa fa-lock" style={{ color: '#2563eb' }} />
-                                                End-to-end encryption keeps your assessments secure between you and the candidates you choose.
+                                                End-to-end encryption ensures your assessments remain completely private and secure.
                                             </p>
                                             <div style={{ display: 'grid', gap: '8px' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <i className="fa fa-eye-slash" style={{ width: '16px', color: '#059669' }} />
-                                                    <span>Not even Tale-Global can read or copy the content</span>
+                                                    <span>* Not even Tale-Global can read or copy the content</span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <i className="fa fa-user" style={{ width: '16px', color: '#059669' }} />
+                                                    <span>* Only you can access and manage your assessment content.</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <i className="fa fa-user-secret" style={{ width: '16px', color: '#059669' }} />
-                                                    <span>No one outside can read, copy, or share them</span>
+                                                    <span>* No one outside the platform can read, copy, or share your questions or answers.</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <i className="fa fa-check-square-o" style={{ width: '16px', color: '#059669' }} />
-                                                    <span>Questions and answers are protected</span>
+                                                    <span>* All assessment content is securely encrypted.</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <i className="fa fa-file-text-o" style={{ width: '16px', color: '#059669' }} />
-                                                    <span>Assessment content is encrypted</span>
+                                                    <span>* Candidate responses are protected and confidential.</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <i className="fa fa-shield" style={{ width: '16px', color: '#059669' }} />
-                                                    <span>Candidate responses are secure</span>
+                                                    <span>* Results and evaluations are accessible only to authorized users.</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <i className="fa fa-lock" style={{ width: '16px', color: '#059669' }} />
-                                                    <span>Results and evaluations are private</span>
-                                                </div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    <i className="fa fa-database" style={{ width: '16px', color: '#059669' }} />
-                                                    <span>All assessment data is protected</span>
+                                                    <span>* All assessment data is safely stored and protected.</span>
                                                 </div>
                                             </div>
                                         </div>

@@ -139,7 +139,7 @@ exports.getDashboardStats = async (req, res) => {
 exports.getEmployerOverview = async (req, res) => {
   try {
     const [employers, jobsByEmployer, applicationsByEmployer] = await Promise.all([
-      Employer.find().select('_id companyName name').lean(),
+      Employer.find({ isApproved: true }).select('_id companyName name').lean(),
       Job.aggregate([
         {
           $group: {
@@ -188,10 +188,10 @@ exports.getEmployerOverview = async (req, res) => {
 exports.getEmployerOverviewJobs = async (req, res) => {
   try {
     const { employerId } = req.params;
-    const employer = await Employer.findById(employerId).select('_id companyName name').lean();
+    const employer = await Employer.findOne({ _id: employerId, isApproved: true }).select('_id companyName name').lean();
 
     if (!employer) {
-      return res.status(404).json({ success: false, message: 'Employer not found' });
+      return res.status(404).json({ success: false, message: 'Approved employer not found' });
     }
 
     const jobs = await Job.find({ employerId })
@@ -1450,8 +1450,9 @@ exports.getEmployerJobs = async (req, res) => {
       .sort({ createdAt: -1 });
 
     const jobCount = jobs.length;
+    const activeJobCount = jobs.filter(job => job.status === 'active').length;
 
-    res.json({ success: true, jobs, jobCount });
+    res.json({ success: true, jobs, jobCount, activeJobCount });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -3555,6 +3556,26 @@ exports.downloadPlacementIdCard = async (req, res) => {
   }
 };
 
+const enrichSupportTicketRequester = (ticket) => {
+  if (!ticket) return ticket;
+
+  const populatedUser = ticket.userId && typeof ticket.userId === 'object' ? ticket.userId : null;
+  const actualUserEmail = populatedUser?.email || ticket.email || '';
+  const actualUserName = populatedUser?.name || ticket.name || '';
+  const actualCompanyName = ticket.userType === 'employer'
+    ? (populatedUser?.companyName || ticket.companyName || '')
+    : '';
+  const requesterDisplayName = actualCompanyName || actualUserName || ticket.name || 'N/A';
+
+  return {
+    ...ticket,
+    actualUserName,
+    actualUserEmail,
+    actualCompanyName,
+    requesterDisplayName
+  };
+};
+
 // Support Ticket Management Controllers
 exports.getSupportTickets = async (req, res) => {
   try {
@@ -3566,6 +3587,7 @@ exports.getSupportTickets = async (req, res) => {
     if (priority) query.priority = priority;
 
     const tickets = await Support.find(query)
+      .populate('userId', 'name email companyName')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
@@ -3576,7 +3598,7 @@ exports.getSupportTickets = async (req, res) => {
 
     res.json({ 
       success: true, 
-      tickets: tickets,
+      tickets: tickets.map(enrichSupportTicketRequester),
       totalTickets,
       unreadCount,
       currentPage: parseInt(page),
@@ -3594,13 +3616,15 @@ exports.getSupportTicketById = async (req, res) => {
       req.params.id,
       { isRead: true },
       { new: true }
-    ).lean();
+    )
+      .populate('userId', 'name email companyName')
+      .lean();
     
     if (!ticket) {
       return res.status(404).json({ success: false, message: 'Support ticket not found' });
     }
 
-    res.json({ success: true, ticket });
+    res.json({ success: true, ticket: enrichSupportTicketRequester(ticket) });
   } catch (error) {
     console.error('Error in getSupportTicketById:', error);
     return res.status(500).json({ success: false, message: error.message || 'Failed to fetch ticket' });

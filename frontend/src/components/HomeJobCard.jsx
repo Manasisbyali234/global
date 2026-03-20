@@ -48,14 +48,15 @@ const deriveVacancies = (job) => {
 };
 
 const normalizePostedBy = (job) => {
-    const employerType = job?.employerId?.employerType || job?.employerType;
-    if (!employerType) {
+    const rawPostedBy = job?.postedBy || job?.employerId?.employerType || job?.employerType;
+    if (!rawPostedBy) {
         return "Company";
     }
 
-    const normalized = employerType.toString().trim().toLowerCase();
+    const normalized = rawPostedBy.toString().trim().toLowerCase();
     switch (normalized) {
         case "consultant":
+        case "consultancy":
             return "Consultant";
         case "agency":
             return "Agency";
@@ -197,6 +198,7 @@ HomeJobCard.propTypes = {
         ]),
         companyName: PropTypes.string,
         vacancies: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        postedBy: PropTypes.string,
         employerProfile: PropTypes.shape({
             companyName: PropTypes.string,
             logo: PropTypes.string

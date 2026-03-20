@@ -66,6 +66,24 @@ function Home16Page() {
         return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
     };
 
+    const getPostedByLabel = (job) => {
+        const rawPostedBy = job?.postedBy || job?.employerId?.employerType || job?.employerType;
+        if (!rawPostedBy) {
+            return "Company";
+        }
+
+        const normalized = rawPostedBy.toString().trim().toLowerCase();
+        if (normalized === "consultant" || normalized === "consultancy") {
+            return "Consultant";
+        }
+
+        if (normalized === "company") {
+            return "Company";
+        }
+
+        return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+    };
+
     const [jobs, setJobs] = useState([]);
     const [allJobs, setAllJobs] = useState([]);
     const [filteredJobs, setFilteredJobs] = useState([]);
@@ -1064,7 +1082,7 @@ function Home16Page() {
                                                     <div className="company-info">
                                                         <div className="posted-by-label">Posted by:</div>
                                                         <div className="company-name">
-                                                            {job.employerId?.companyName || "Company"}
+                                                            {getPostedByLabel(job)}
                                                         </div>
                                                     </div>
                                                     <button

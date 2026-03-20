@@ -18,7 +18,7 @@ function EmployerDetails() {
     const [currentImageType, setCurrentImageType] = useState('');
     const [isMinimized, setIsMinimized] = useState(false);
     const [isMaximized, setIsMaximized] = useState(false);
-    const [jobCount, setJobCount] = useState(0);
+    const [activeJobCount, setActiveJobCount] = useState(0);
     const [jobsLoading, setJobsLoading] = useState(false);
 
     useEffect(() => {
@@ -185,15 +185,15 @@ function EmployerDetails() {
             const data = await response.json();
             console.log('Employer Jobs Response:', data);
             if (data.success) {
-                console.log('Job Count:', data.jobCount);
-                setJobCount(data.jobCount || 0);
+                console.log('Active Job Count:', data.activeJobCount);
+                setActiveJobCount(data.activeJobCount || 0);
             } else {
                 console.error('Failed to fetch jobs:', data.message);
-                setJobCount(0);
+                setActiveJobCount(0);
             }
         } catch (error) {
             console.error('Error fetching employer jobs:', error);
-            setJobCount(0);
+            setActiveJobCount(0);
         } finally {
             setJobsLoading(false);
         }
@@ -1041,18 +1041,22 @@ function EmployerDetails() {
                     Posted Jobs
                 </h4>
                 <div className="job-count-container">
-                    <div className="job-count-card" onClick={() => navigate('/job-grid')} style={{cursor: 'pointer'}}>
+                    <div
+                        className="job-count-card"
+                        onClick={() => navigate(`/admin/overview?employerId=${id}`)}
+                        style={{cursor: 'pointer'}}
+                    >
                         <div className="job-count-info">
                             <div className="job-count-number">
                                 {jobsLoading ? (
                                     <div className="loading-spinner-small"></div>
                                 ) : (
-                                    <span className="count-value">{jobCount || 0}</span>
+                                    <span className="count-value">{activeJobCount || 0}</span>
                                 )}
                             </div>
                             <div className="job-count-label">
                                 <i className="fa fa-briefcase me-2"></i>
-                                Total Jobs Posted
+                                Active Jobs Posted
                             </div>
                         </div>
                     </div>

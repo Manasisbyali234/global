@@ -1563,3 +1563,15 @@ img {
   border-radius: 8px !important;
 }
 
+.hiring-company-serial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: auto;
+  padding: 0;
+  margin-right: 4px;
+  background: transparent;
+  color: #111111;
+  font-weight: 700;
+  line-height: 1.2;
+}
