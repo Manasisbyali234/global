@@ -126,7 +126,7 @@ exports.registerEmployer = async (req, res) => {
     }
 
     const message = skipOtpVerification 
-      ? 'Registration successful! Please check your registered email inbox to create your password.'
+      ? 'Sign up successful. Please check your email to set your password and sign in to complete your profile..'
       : 'Registration successful! Please verify your mobile number via OTP sent to your phone.';
 
     res.status(201).json({

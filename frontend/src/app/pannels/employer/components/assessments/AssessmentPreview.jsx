@@ -38,7 +38,7 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                     padding: '10px 0',
                     borderBottom: '1px solid #ddd'
                 }}>
-                    <h4 style={{ margin: 0 }}>Candidate View Preview</h4>
+                    <h4 style={{ margin: 0 }}>Candidate Preview</h4>
                 </div>
 
                 {/* Title Bar */}

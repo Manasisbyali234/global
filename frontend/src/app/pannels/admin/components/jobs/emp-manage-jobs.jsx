@@ -73,7 +73,7 @@ function EmpManageJobsPage() {
         return (
             <div className="manage-jobs-container">
                 <div className="page-header">
-                    <h2><i className="fa fa-briefcase"></i> Manage Jobs</h2>
+                    <h2><i className="fa fa-briefcase"></i> Manage Interview</h2>
                 </div>
                 <div className="loading-container">
                     <div className="loading-spinner">
@@ -89,7 +89,7 @@ function EmpManageJobsPage() {
         <div className="manage-jobs-container">
             <div className="page-header">
                 <div className="header-content">
-                    <h2><i className="fa fa-briefcase"></i> Manage Jobs</h2>
+                    <h2><i className="fa fa-briefcase"></i> Manage Interview</h2>
                     <div className="breadcrumbs">
                         <span><i className="fa fa-home"></i> Home</span>
                         <span><i className="fa fa-angle-right"></i> Dashboard</span>

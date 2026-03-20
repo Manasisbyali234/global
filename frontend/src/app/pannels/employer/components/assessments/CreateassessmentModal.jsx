@@ -228,7 +228,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				}
 				
 				setQuestions(updated);
-				showSuccess('Option image uploaded successfully');
+				showSuccess('Image uploaded successfully');
 			} else {
 				showError(data.message || 'Failed to upload option image');
 			}

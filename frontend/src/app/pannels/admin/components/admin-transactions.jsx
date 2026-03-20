@@ -125,7 +125,8 @@ function AdminTransactionsPage() {
             const employerName = t.employerId?.companyName?.toLowerCase() || "";
             const jobTitle = t.jobId?.title?.toLowerCase() || "";
             const paymentId = t.paymentId?.toLowerCase() || "";
-            return candidateName.includes(q) || employerName.includes(q) || jobTitle.includes(q) || paymentId.includes(q);
+            const date = t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toLowerCase() : "";
+            return candidateName.includes(q) || employerName.includes(q) || jobTitle.includes(q) || paymentId.includes(q) || date.includes(q);
         });
     }, [transactions, searchText]);
 
@@ -157,7 +158,7 @@ function AdminTransactionsPage() {
                             <input
                                 type="text"
                                 className="form-control border-start-0 ps-0"
-                                placeholder="Search by candidate, company, job or payment ID..."
+                                placeholder="Search by candidate, company, job, payment ID or date..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                             />

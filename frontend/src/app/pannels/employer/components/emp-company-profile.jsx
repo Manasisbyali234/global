@@ -663,7 +663,7 @@ function EmpCompanyProfilePage() {
                 if (savedPath) {
                     handleInputChange(fieldName, savedPath);
                 }
-                showSuccess('Image processed and uploaded successfully!');
+                showSuccess('Company logo uploaded successfully!');
             } else {
                 showError(data.message || 'Image upload failed');
             }
@@ -926,7 +926,7 @@ function EmpCompanyProfilePage() {
         // Check gallery minimum requirement
         const galleryCount = formData.gallery?.length || 0;
         if (galleryCount < 5) {
-            showWarning(`Please upload at least 5 images in the company gallery. Currently uploaded: ${galleryCount}/5`);
+            showWarning(`Currently uploaded: ${galleryCount}/5 — Minimum 5 images are required. Please upload more images to continue.`);
             // Scroll to gallery section using a more compatible approach
             const galleryElements = document.querySelectorAll('.panel-tittle');
             for (let element of galleryElements) {
@@ -2257,7 +2257,7 @@ function EmpCompanyProfilePage() {
                                             )}
                                             {(formData.gallery?.length || 0) < 5 && (
                                                 <p className="text-danger small">
-                                                    <strong>Minimum 5 images required.</strong> Currently uploaded: {formData.gallery?.length || 0}/5
+                                                    Currently uploaded: {formData.gallery?.length || 0}/5 — <strong>Minimum 5 images are required. Please upload more images to continue.</strong>
                                                 </p>
                                             )}
                                         </div>

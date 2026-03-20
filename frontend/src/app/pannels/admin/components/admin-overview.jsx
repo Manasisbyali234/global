@@ -180,11 +180,12 @@ function AdminOverviewPage() {
                             <td>
                               <button
                                 type="button"
-                                className="btn btn-sm btn-outline-primary"
+                                className="btn btn-sm btn-outline-primary d-inline-flex align-items-center"
                                 onClick={() => handleViewEmployerJobs(employer)}
+                                
                               >
                                 <i className="fa fa-eye me-1" />
-                                View
+                                <span>View</span>
                               </button>
                             </td>
                           </tr>

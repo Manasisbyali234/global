@@ -1912,7 +1912,7 @@ export default function EmpPostJob({ onNext }) {
 							className="site-button"
 							onClick={() => navigate(empRoute(employer.MANAGE_JOBS))}
 						>
-							Back to Manage Jobs
+							Back to Manage Interview
 						</button>
 						{overTicketLimit && (
 							<button
@@ -3343,12 +3343,20 @@ export default function EmpPostJob({ onNext }) {
 							<i className="fa fa-align-left" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Job Description <span style={redAsterisk}>*</span>
 						</label>
-						<RichTextEditor
-							value={formData.jobDescription}
-							onChange={(value) => update({ jobDescription: value })}
-							placeholder="Provide a detailed description of the job role, responsibilities, and expectations..."
-							className="form-control-editor"
-						/>
+						<div style={errors.jobDescription ? {border: '1px solid #dc2626', borderRadius: 8} : {}}>
+							<RichTextEditor
+								value={formData.jobDescription}
+								onChange={(value) => update({ jobDescription: value })}
+								placeholder="Provide a detailed description of the job role, responsibilities, and expectations..."
+								className="form-control-editor"
+							/>
+						</div>
+						{errors.jobDescription && (
+							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
+								<i className="fa fa-exclamation-circle"></i>
+								{errors.jobDescription[0]}
+							</div>
+						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 8, display: 'block'}}>
 							Must be at least 50 characters. Use the toolbar to format with bold, italic, lists, and alignment options
 						</small>

@@ -116,7 +116,7 @@ function SignupPlacement() {
             
             const data = await response.json();
             if (response.ok && data.success) {
-                showSuccess('Registration successful! Please check your registered email inbox to create your password.');
+                showSuccess('Sign up successful. Please check your email to set your password and sign in to complete your profile..');
                 setPlacementData({ name: '', email: '', phone: '', collegeName: '', countryCode: '+91' });
                 navigate(publicUser.pages.LOGIN_PLACEMENT);
             } else {

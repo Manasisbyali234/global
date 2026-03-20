@@ -186,7 +186,7 @@ export default function EmpPostedJobs() {
 			{/* Header */}
 			<div style={{ padding: '2rem 2rem 2rem 2rem' }}>
 				<div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-					<h2>Manage Jobs</h2>
+					<h2>Manage Interview</h2>
 				</div>
 			</div>
 
@@ -199,7 +199,7 @@ export default function EmpPostedJobs() {
                             <i className="far fa-list-alt" /> Job Listing
                         </h4>
 
-                        <p className="text-muted"> <span style={{ color: "red", fontWeight: "600" }}>Please Note:</span> Review and manage jobs details</p>
+                        <p className="text-muted"> <span style={{ color: "red", fontWeight: "600" }}>Please Note:</span> Review and Manage Interview details</p>
                     </div>
 					
 				</div>
