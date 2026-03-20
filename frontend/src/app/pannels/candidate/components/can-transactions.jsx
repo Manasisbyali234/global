@@ -165,8 +165,8 @@ function CanTransactionsPage() {
             const jobTitle = t.jobId?.title?.toLowerCase() || "";
             const employerName = (t.employerId?.brandName || t.employerId?.companyName || '').toLowerCase();
             const paymentId = t.paymentId?.toLowerCase() || "";
-            const date = t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toLowerCase() : "";
-            return jobTitle.includes(q) || employerName.includes(q) || paymentId.includes(q) || date.includes(q);
+            const dateStr = t.createdAt ? formatDate(t.createdAt) : "";
+            return jobTitle.includes(q) || employerName.includes(q) || paymentId.includes(q) || dateStr.includes(q);
         });
     }, [transactions, searchText]);
 
@@ -234,7 +234,7 @@ function CanTransactionsPage() {
                             <input
                                 type="text"
                                 className="form-control border-start-0 ps-0"
-                                placeholder="Search by job, company, payment ID or date..."
+                                placeholder="Search by job, company, payment ID, or date (e.g. Jan 2025)..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}
