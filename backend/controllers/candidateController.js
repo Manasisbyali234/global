@@ -1345,7 +1345,7 @@ function extractBookedSlotForCandidate(payload, candidateIdentity, fallbackDate 
 
     const nestedKeys = [
       'bookedSlot', 'bookedSlots', 'slots', 'schedules', 'schedulesArray',
-      'daySchedules', 'daySchedulesArray', 'rooms', 'roomsArray', 'schedule'
+      'daySchedules', 'daySchedulesArray', 'rooms', 'roomsArray', 'schedule', 'Schedule'
     ];
 
     for (const key of nestedKeys) {
@@ -1438,11 +1438,32 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             app.jobId.interviewRoundDetails[String(round._id)] = targetDetails;
 
             // Always trust InterviewRound collection for schedule/timing metadata.
-            const scheduleObject = round?.scheduleObject || round?.schedule || {};
-            const nestedSchedule = scheduleObject?.schedule || {};
-            const schedules = round?.schedulesArray || round?.schedules || scheduleObject?.schedulesArray || scheduleObject?.schedules || nestedSchedule?.schedules;
-            const daySchedules = round?.daySchedulesArray || round?.daySchedules || scheduleObject?.daySchedulesArray || scheduleObject?.daySchedules || nestedSchedule?.daySchedules;
-            const rooms = round?.roomsArray || round?.rooms || scheduleObject?.roomsArray || scheduleObject?.rooms || nestedSchedule?.rooms;
+            const scheduleObject = round?.scheduleObject || round?.schedule || round?.Schedule || {};
+            const nestedSchedule = scheduleObject?.schedule || scheduleObject?.Schedule || {};
+            const schedules =
+              round?.schedulesArray ||
+              round?.schedules ||
+              round?.Schedules ||
+              round?.Schedule ||
+              scheduleObject?.schedulesArray ||
+              scheduleObject?.schedules ||
+              scheduleObject?.Schedules ||
+              scheduleObject?.Schedule ||
+              nestedSchedule?.schedules ||
+              nestedSchedule?.Schedules ||
+              nestedSchedule?.Schedule;
+            const daySchedules =
+              round?.daySchedulesArray ||
+              round?.daySchedules ||
+              scheduleObject?.daySchedulesArray ||
+              scheduleObject?.daySchedules ||
+              nestedSchedule?.daySchedules;
+            const rooms =
+              round?.roomsArray ||
+              round?.rooms ||
+              scheduleObject?.roomsArray ||
+              scheduleObject?.rooms ||
+              nestedSchedule?.rooms;
 
             targetDetails.interviewRoundId = round._id;
             targetDetails.roundType = round.roundType || targetDetails.roundType;
@@ -1463,12 +1484,14 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             if (schedules) targetDetails.schedulesArray = schedules;
             if (daySchedules) targetDetails.daySchedulesArray = daySchedules;
             if (rooms) targetDetails.roomsArray = rooms;
+            if (round?.Schedule) targetDetails.Schedule = round.Schedule;
             if (scheduleObject && Object.keys(scheduleObject).length > 0) targetDetails.scheduleObject = scheduleObject;
             if (round.formDataObject) targetDetails.formDataObject = round.formDataObject;
 
             const bookedSlotDetails = extractBookedSlotForCandidate({
               bookedSlot: targetDetails.bookedSlot,
               bookedSlots: targetDetails.bookedSlots,
+              Schedule: targetDetails.Schedule,
               schedulesArray: targetDetails.schedulesArray,
               daySchedulesArray: targetDetails.daySchedulesArray,
               roomsArray: targetDetails.roomsArray,

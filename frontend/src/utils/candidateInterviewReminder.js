@@ -372,7 +372,8 @@ export const extractBookedSlot = (roundDetails, candidateId, bookedSlots = [], r
         "daySchedulesArray",
         "rooms",
         "roomsArray",
-        "schedule"
+        "schedule",
+        "Schedule"
       ];
 
       for (const key of nestedKeys) {
@@ -386,10 +387,11 @@ export const extractBookedSlot = (roundDetails, candidateId, bookedSlots = [], r
     return null;
   };
 
-  const scheduleObject = roundDetails.scheduleObject || roundDetails.schedule || {};
-  const nestedSchedule = scheduleObject.schedule || {};
+  const scheduleObject = roundDetails.scheduleObject || roundDetails.schedule || roundDetails.Schedule || {};
+  const nestedSchedule = scheduleObject.schedule || scheduleObject.Schedule || {};
   const sources = [
     roundDetails,
+    roundDetails.Schedule,
     roundDetails.schedulesArray,
     roundDetails.schedules,
     roundDetails.daySchedulesArray,
@@ -397,6 +399,7 @@ export const extractBookedSlot = (roundDetails, candidateId, bookedSlots = [], r
     roundDetails.roomsArray,
     roundDetails.rooms,
     scheduleObject,
+    scheduleObject.Schedule,
     scheduleObject.schedulesArray,
     scheduleObject.schedules,
     scheduleObject.daySchedulesArray,
@@ -404,6 +407,7 @@ export const extractBookedSlot = (roundDetails, candidateId, bookedSlots = [], r
     scheduleObject.roomsArray,
     scheduleObject.rooms,
     nestedSchedule,
+    nestedSchedule.Schedule,
     bookedSlots
   ];
 

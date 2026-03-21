@@ -298,7 +298,7 @@ function CanStatusPage() {
 				// Common nested slot containers
 				const nestedKeys = [
 					'bookedSlot', 'bookedSlots', 'slots', 'schedules', 'schedulesArray',
-					'daySchedules', 'daySchedulesArray', 'rooms', 'roomsArray', 'schedule'
+					'daySchedules', 'daySchedulesArray', 'rooms', 'roomsArray', 'schedule', 'Schedule'
 				];
 				for (const key of nestedKeys) {
 					if (value[key]) {
@@ -310,10 +310,11 @@ function CanStatusPage() {
 			return null;
 		};
 
-		const scheduleObject = roundDetails.scheduleObject || roundDetails.schedule || {};
-		const nestedSchedule = scheduleObject.schedule || {};
+		const scheduleObject = roundDetails.scheduleObject || roundDetails.schedule || roundDetails.Schedule || {};
+		const nestedSchedule = scheduleObject.schedule || scheduleObject.Schedule || {};
 		const sources = [
 			roundDetails,
+			roundDetails.Schedule,
 			roundDetails.schedulesArray,
 			roundDetails.schedules,
 			roundDetails.daySchedulesArray,
@@ -321,6 +322,7 @@ function CanStatusPage() {
 			roundDetails.roomsArray,
 			roundDetails.rooms,
 			scheduleObject,
+			scheduleObject.Schedule,
 			scheduleObject.schedulesArray,
 			scheduleObject.schedules,
 			scheduleObject.daySchedulesArray,
@@ -328,6 +330,7 @@ function CanStatusPage() {
 			scheduleObject.roomsArray,
 			scheduleObject.rooms,
 			nestedSchedule,
+			nestedSchedule.Schedule,
 			bookedSlots
 		];
 
