@@ -1244,6 +1244,123 @@ function getAssessmentTimerInfo(job) {
   };
 }
 
+function buildCandidateSlotIdentity(candidate = {}) {
+  const ids = new Set();
+  const emails = new Set();
+  const names = new Set();
+
+  const addId = (value) => {
+    if (!value) return;
+    const normalized = String(value).trim();
+    if (normalized) ids.add(normalized);
+  };
+
+  const addEmail = (value) => {
+    if (!value) return;
+    const normalized = String(value).trim().toLowerCase();
+    if (normalized) emails.add(normalized);
+  };
+
+  const addName = (value) => {
+    if (!value) return;
+    const normalized = String(value).trim().toLowerCase().replace(/\s+/g, ' ');
+    if (normalized) names.add(normalized);
+  };
+
+  addId(candidate._id || candidate.id || candidate.candidateId);
+  addEmail(candidate.email || candidate.emailAddress);
+  addName(candidate.name);
+  addName([candidate.firstName, candidate.middleName, candidate.lastName].filter(Boolean).join(' '));
+
+  return { ids, emails, names };
+}
+
+function extractBookedSlotForCandidate(payload, candidateIdentity, fallbackDate = null) {
+  if (!payload) return null;
+
+  const hasSlotShape = (value) =>
+    value && (value.startTime || value.start || value.fromTime) && (value.endTime || value.end || value.toTime);
+
+  const normalizeSlot = (value, dateFallback) => {
+    if (!value) return null;
+    const date = value.date || value.fromDate || value.toDate || value.day || value.interviewDate || dateFallback;
+    const startTime = value.startTime || value.start || value.fromTime || value.interviewTime?.start;
+    const endTime = value.endTime || value.end || value.toTime || value.interviewTime?.end;
+    if (!date || !startTime || !endTime) return null;
+
+    return {
+      date,
+      startTime,
+      endTime,
+      interviewerName: value.interviewerName || value.interviewer || value.HR || value.interviewerId?.name || '',
+      status: value.status || '',
+      bookedBy: value.bookedBy || value.candidateId || value.userId || null,
+      candidateEmail: value.candidateEmail || value.email || value.applicantEmail || '',
+      candidateName: value.candidateName || value.name || value.applicantName || ''
+    };
+  };
+
+  const isIdMatch = (value) => {
+    if (!value || candidateIdentity.ids.size === 0) return false;
+    const normalized = String(value).trim();
+    if (!normalized) return false;
+    return Array.from(candidateIdentity.ids).some((candidateValue) => normalized === candidateValue || normalized.includes(candidateValue));
+  };
+
+  const isEmailMatch = (value) => {
+    if (!value || candidateIdentity.emails.size === 0) return false;
+    return candidateIdentity.emails.has(String(value).trim().toLowerCase());
+  };
+
+  const isNameMatch = (value) => {
+    if (!value || candidateIdentity.names.size === 0) return false;
+    const normalized = String(value).trim().toLowerCase().replace(/\s+/g, ' ');
+    return candidateIdentity.names.has(normalized);
+  };
+
+  const scanValue = (value, dateFallback) => {
+    if (!value) return null;
+
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        const found = scanValue(item, dateFallback);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    if (typeof value !== 'object') return null;
+
+    const candidateFields = ['candidateId', 'candidate', 'candidate_id', 'applicantId', 'userId', 'user_id', 'bookedBy'];
+    const candidateEmailFields = ['candidateEmail', 'email', 'applicantEmail', 'bookedEmail'];
+    const candidateNameFields = ['candidateName', 'name', 'applicantName', 'bookedName'];
+    const matched =
+      candidateFields.some((key) => isIdMatch(value[key])) ||
+      candidateEmailFields.some((key) => isEmailMatch(value[key])) ||
+      candidateNameFields.some((key) => isNameMatch(value[key]));
+
+    if (matched && hasSlotShape(value)) {
+      return normalizeSlot(value, dateFallback);
+    }
+
+    const nestedKeys = [
+      'bookedSlot', 'bookedSlots', 'slots', 'schedules', 'schedulesArray',
+      'daySchedules', 'daySchedulesArray', 'rooms', 'roomsArray', 'schedule'
+    ];
+
+    for (const key of nestedKeys) {
+      if (value[key]) {
+        const found = scanValue(value[key], value.date || dateFallback);
+        if (found) return found;
+      }
+    }
+
+    return null;
+  };
+
+  return scanValue(payload, fallbackDate);
+}
+
 exports.getCandidateApplicationsWithInterviews = async (req, res) => {
   try {
     res.set({
@@ -1267,6 +1384,8 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
     console.log(`Found ${applications.length} applications`);
 
     const InterviewRound = require('../models/InterviewRound');
+
+    const candidateSlotIdentity = buildCandidateSlotIdentity(req.user || {});
 
     const applicationsWithInterviewProcess = await Promise.all(
       applications.map(async (app) => {
@@ -1346,6 +1465,22 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             if (rooms) targetDetails.roomsArray = rooms;
             if (scheduleObject && Object.keys(scheduleObject).length > 0) targetDetails.scheduleObject = scheduleObject;
             if (round.formDataObject) targetDetails.formDataObject = round.formDataObject;
+
+            const bookedSlotDetails = extractBookedSlotForCandidate({
+              bookedSlot: targetDetails.bookedSlot,
+              bookedSlots: targetDetails.bookedSlots,
+              schedulesArray: targetDetails.schedulesArray,
+              daySchedulesArray: targetDetails.daySchedulesArray,
+              roomsArray: targetDetails.roomsArray,
+              scheduleObject: targetDetails.scheduleObject,
+              formDataObject: targetDetails.formDataObject
+            }, candidateSlotIdentity, targetDetails.fromDate || targetDetails.date || round.fromdate || null);
+
+            if (bookedSlotDetails) {
+              targetDetails.candidateSlotBooked = true;
+              targetDetails.bookingConfirmed = true;
+              targetDetails.bookedSlot = bookedSlotDetails;
+            }
           });
         }
         
