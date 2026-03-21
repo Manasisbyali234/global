@@ -28,13 +28,13 @@ export const calculateProfileCompletion = (profile) => {
     completedSections++;
   }
 
-  // 5. Education (must have at least 3 education entries: 10th, PUC/Diploma, Degree)
-  if (profile.education && Array.isArray(profile.education) && profile.education.length >= 3) {
+  // 5. Education (must have at least 1 complete education entry)
+  if (profile.education && Array.isArray(profile.education) && profile.education.length >= 1) {
     const validEducation = profile.education.filter(edu => 
       edu.degreeName && edu.degreeName.trim() !== '' &&
       edu.collegeName && edu.collegeName.trim() !== ''
     );
-    if (validEducation.length >= 3) {
+    if (validEducation.length >= 1) {
       completedSections++;
     }
   }

@@ -361,23 +361,36 @@ function CanInterviewsPage() {
     };
   }, [applications, employerLogos]);
 
-  const interviewCards = useMemo(() => {
+  const applicationCards = useMemo(() => {
     const cards = [];
     applications.forEach((application) => {
       const job = application?.jobId || application?.job || {};
       const rounds = getInterviewRounds(job, application);
       if (!rounds.length) return;
-      rounds.forEach((round, index) => {
-        const details = getRoundDetails(application, round, index);
-        cards.push({
-          key: `${application?._id || "app"}-${round.uniqueKey || round.roundType || index}`,
-          applicationId: application?._id,
-          jobTitle: job?.title || "Job Title",
-          companyName: getCompanyName(application),
-          companyLogo: getCompanyLogo(application, employerLogos),
-          roundName: round.name || "Interview Round",
-          details
-        });
+
+      const roundsWithDetails = rounds.map((round, index) => ({
+        ...round,
+        details: getRoundDetails(application, round, index)
+      }));
+
+      const highlightedRound =
+        roundsWithDetails.find(
+          ({ details }) =>
+            details?.scheduledDate ||
+            details?.fromDate ||
+            details?.startTime ||
+            details?.timeLabel ||
+            details?.interviewerName
+        ) || roundsWithDetails[0];
+
+      cards.push({
+        key: String(application?._id || job?._id || job?.title || cards.length),
+        applicationId: application?._id,
+        jobTitle: job?.title || "Job Title",
+        companyName: getCompanyName(application),
+        companyLogo: getCompanyLogo(application, employerLogos),
+        location: highlightedRound?.details?.location || formatJobLocation(job?.location),
+        status: highlightedRound?.details?.status || application?.status || "pending"
       });
     });
     return cards;
@@ -385,23 +398,22 @@ function CanInterviewsPage() {
 
   return (
     <div className="twm-right-section-panel site-bg-gray candidate-interviews">
-      <div className="candidate-interviews-header">
-        <div>
-          <h2>Interviews</h2>
-          <p>All your interview rounds in one place.</p>
+        <div className="candidate-interviews-header">
+          <div>
+            <h2>Interviews</h2>
+          <p>All your interviews in one place.</p>
+          </div>
         </div>
-      </div>
 
       {loading ? (
         <div className="candidate-interviews-empty">Loading interviews...</div>
-      ) : interviewCards.length === 0 ? (
+      ) : applicationCards.length === 0 ? (
         <div className="candidate-interviews-empty">No interviews available yet.</div>
       ) : (
         <div className="twm-employer-list-wrap">
           <Row className="justify-content-start">
-            {interviewCards.map((card) => {
-              const { details } = card;
-              const badge = getStatusBadge(details.status);
+            {applicationCards.map((card) => {
+              const badge = getStatusBadge(card.status);
               const companyInitial = (card.companyName || "C").charAt(0);
               const logoSrc = getLogoSrc(card.companyLogo);
               return (
@@ -422,32 +434,25 @@ function CanInterviewsPage() {
                       {card.jobTitle}
                     </div>
 
-                    <div className="company-card-location">
-                      <i className="feather-map-pin" />
-                      {details.location || "Location to be announced"}
-                    </div>
+                     <div className="company-card-location">
+                       <i className="feather-map-pin" />
+                      {card.location || "Location to be announced"}
+                     </div>
 
-                    <div className="industry-tag-pill interview-status-pill">
-                      {badge.text}
-                    </div>
+                     <div className="industry-tag-pill interview-status-pill">
+                       {badge.text}
+                     </div>
 
-                    {details.interviewerName && (
-                      <div className="company-card-interviewer">
-                        <i className="fa fa-user" />
-                        {details.interviewerName}
-                      </div>
-                    )}
-
-                    {card.applicationId && (
-                      <NavLink
-                        to={canRoute(
-                          candidate.INTERVIEW_DETAILS.replace(":applicationId", card.applicationId)
-                        )}
-                        className="view-details-btn-orange"
-                      >
+                     {card.applicationId && (
+                       <NavLink
+                         to={canRoute(
+                           candidate.INTERVIEW_DETAILS.replace(":applicationId", card.applicationId)
+                         )}
+                         className="view-details-btn-orange"
+                       >
                         Book Interview/Assessment
-                      </NavLink>
-                    )}
+                       </NavLink>
+                     )}
                   </div>
                 </Col>
               );

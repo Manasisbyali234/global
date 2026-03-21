@@ -37,19 +37,19 @@ const calculateProfileCompletion = (profile) => {
     missingSections.push('Personal Details');
   }
 
-  // 5. Education (must have at least 3 education entries: 10th, PUC/Diploma, Degree)
-  if (profile.education && Array.isArray(profile.education) && profile.education.length >= 3) {
+  // 5. Education (must have at least 1 complete education entry)
+  if (profile.education && Array.isArray(profile.education) && profile.education.length >= 1) {
     const validEducation = profile.education.filter(edu => 
       edu.degreeName && edu.degreeName.trim() !== '' &&
       edu.collegeName && edu.collegeName.trim() !== ''
     );
-    if (validEducation.length >= 3) {
+    if (validEducation.length >= 1) {
       completedSections++;
     } else {
-      missingSections.push('Education (need at least 3 complete entries)');
+      missingSections.push('Education (need at least 1 complete entry)');
     }
   } else {
-    missingSections.push('Education (need at least 3 complete entries)');
+    missingSections.push('Education (need at least 1 complete entry)');
   }
 
   // 6. Work Location Preferences

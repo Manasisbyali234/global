@@ -251,11 +251,76 @@ export const getRoundDetails = (application, round, index) => {
 export const extractBookedSlot = (roundDetails, candidateId, bookedSlots = [], roundId = null) => {
   if (!roundDetails || !candidateId) return null;
 
-  const candidateIdStr = String(candidateId);
+  const candidateIdentity = (() => {
+    const ids = new Set();
+    const emails = new Set();
+    const names = new Set();
+
+    const addId = (value) => {
+      if (!value) return;
+      const normalized = String(value).trim();
+      if (normalized) ids.add(normalized);
+    };
+
+    const addEmail = (value) => {
+      if (!value) return;
+      const normalized = String(value).trim().toLowerCase();
+      if (normalized) emails.add(normalized);
+    };
+
+    const addName = (value) => {
+      if (!value) return;
+      const normalized = String(value).trim().toLowerCase().replace(/\s+/g, " ");
+      if (normalized) names.add(normalized);
+    };
+
+    const addCandidateLikeObject = (value) => {
+      if (!value) return;
+      if (typeof value !== "object") {
+        addId(value);
+        return;
+      }
+
+      addId(value._id || value.id || value.candidateId || value.userId);
+      addEmail(value.email || value.emailAddress || value.applicantEmail || value.candidateEmail);
+      addName(value.name || value.fullName || value.username || value.applicantName || value.candidateName);
+
+      if (value.candidateId && value.candidateId !== value) {
+        addCandidateLikeObject(value.candidateId);
+      }
+    };
+
+    addCandidateLikeObject(candidateId);
+
+    if (typeof window !== "undefined") {
+      try {
+        const storedCandidateUser = JSON.parse(window.localStorage.getItem("candidateUser") || "{}");
+        addCandidateLikeObject(storedCandidateUser);
+        addId(window.localStorage.getItem("candidateId"));
+      } catch (error) {
+        // Ignore malformed local storage; reminder extraction can still rely on application data.
+      }
+    }
+
+    return { ids, emails, names };
+  })();
+
   const isCandidateMatch = (value) => {
-    if (!value) return false;
-    const raw = String(value);
-    return raw === candidateIdStr || raw.includes(candidateIdStr);
+    if (!value || candidateIdentity.ids.size === 0) return false;
+    const raw = String(value).trim();
+    if (!raw) return false;
+    return Array.from(candidateIdentity.ids).some((candidateValue) => raw === candidateValue || raw.includes(candidateValue));
+  };
+
+  const isCandidateEmailMatch = (value) => {
+    if (!value || candidateIdentity.emails.size === 0) return false;
+    return candidateIdentity.emails.has(String(value).trim().toLowerCase());
+  };
+
+  const isCandidateNameMatch = (value) => {
+    if (!value || candidateIdentity.names.size === 0) return false;
+    const normalized = String(value).trim().toLowerCase().replace(/\s+/g, " ");
+    return candidateIdentity.names.has(normalized);
   };
 
   const hasSlotShape = (obj) =>
@@ -286,7 +351,12 @@ export const extractBookedSlot = (roundDetails, candidateId, bookedSlots = [], r
 
     if (typeof value === "object") {
       const candidateFields = ["candidateId", "candidate", "candidate_id", "applicantId", "userId", "user_id", "bookedBy"];
-      const matched = candidateFields.some((key) => isCandidateMatch(value[key]));
+      const candidateEmailFields = ["candidateEmail", "email", "applicantEmail", "bookedEmail"];
+      const candidateNameFields = ["candidateName", "name", "applicantName", "bookedName"];
+      const matched =
+        candidateFields.some((key) => isCandidateMatch(value[key])) ||
+        candidateEmailFields.some((key) => isCandidateEmailMatch(value[key])) ||
+        candidateNameFields.some((key) => isCandidateNameMatch(value[key]));
 
       if (matched && hasSlotShape(value)) {
         return normalizeSlot(value, fallbackDate);

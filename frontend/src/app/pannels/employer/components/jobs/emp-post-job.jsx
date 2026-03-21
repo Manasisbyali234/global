@@ -79,6 +79,9 @@ const formatAssessmentTitle = (title = '') => {
 const getAssessmentDuration = (assessment = {}) =>
 	assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime || 'N/A';
 
+const formatCountLabel = (count, singular, plural = `${singular}s`) =>
+	`${count} ${count === 1 ? singular : plural}`;
+
 const formatAssessmentOptionLabel = (assessment = {}, employerType = 'company') => {
 	const companyName = String(assessment?.companyName || '').trim() || 'N/A';
 	const assessmentName = formatAssessmentTitle(assessment?.title) || 'Untitled Assessment';
@@ -815,7 +818,7 @@ export default function EmpPostJob({ onNext }) {
 					offerLetterDate: job.offerLetterDate ? job.offerLetterDate.split('T')[0] : '',
 					joiningDate: job.joiningDate ? job.joiningDate.split('T')[0] : '',
 					lastDateOfApplication: job.lastDateOfApplication ? job.lastDateOfApplication.split('T')[0] : '',
-					lastDateOfApplicationTime: job.lastDateOfApplicationTime || '',
+					lastDateOfApplicationTime: '',
 					transportation: job.transportation || {
 						oneWay: false,
 						twoWay: false,
@@ -1373,7 +1376,7 @@ export default function EmpPostJob({ onNext }) {
 		const selectedRoundsCount = formData.interviewRoundOrder.length;
 		
 		if (specifiedRoundsCount > 0 && selectedRoundsCount !== specifiedRoundsCount) {
-			errorMessages.push(`You specified ${specifiedRoundsCount} interview rounds but selected ${selectedRoundsCount} rounds.`);
+			errorMessages.push(`You specified ${formatCountLabel(specifiedRoundsCount, 'interview round')} but selected ${formatCountLabel(selectedRoundsCount, 'round')}.`);
 		}
 
 		// Logical date validation for Step 2
@@ -1461,7 +1464,7 @@ export default function EmpPostJob({ onNext }) {
 
 		// Special check for assessment selection if assessment rounds exist
 		if (formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'assessment') && !selectedAssessment) {
-			errorMessages.push('Please select an Assessment for your assessment rounds');
+			errorMessages.push('Please select an assessment for each assessment round.');
 		}
 
 		// Validate Offer Letter Date vs Interview Rounds
@@ -1642,7 +1645,7 @@ export default function EmpPostJob({ onNext }) {
 				offerLetterDate: formData.offerLetterDate || null,
 				joiningDate: formData.joiningDate || null,
 				lastDateOfApplication: formData.lastDateOfApplication || null,
-				lastDateOfApplicationTime: formData.lastDateOfApplicationTime || null,
+				lastDateOfApplicationTime: null,
 				transportation: formData.transportation,
 				category: formData.category,
 				shift: formData.shift,
@@ -1748,7 +1751,7 @@ export default function EmpPostJob({ onNext }) {
 				assessmentEndTime: assessmentDetails?.endTime || null,
 				offerLetterDate: formData.offerLetterDate || null,
 				lastDateOfApplication: formData.lastDateOfApplication || null,
-				lastDateOfApplicationTime: formData.lastDateOfApplicationTime || null,
+				lastDateOfApplicationTime: null,
 				transportation: formData.transportation,
 				category: formData.category,
 				shift: formData.shift,
@@ -3504,33 +3507,20 @@ export default function EmpPostJob({ onNext }) {
 									onChange={async (e) => {
 										const selectedDate = e.target.value;
 										if (!selectedDate) {
-											update({ lastDateOfApplication: '' });
+											update({ lastDateOfApplication: '', lastDateOfApplicationTime: '' });
 											return;
 										}
 										await confirmHolidayDate(selectedDate, () => {
 											const normalized = normalizeToYMD(selectedDate) || selectedDate;
-											update({ lastDateOfApplication: normalized });
+											update({ lastDateOfApplication: normalized, lastDateOfApplicationTime: '' });
 										});
 									}}
 									placeholder="DD/MM/YYYY"
 								/>
 							</div>
-							<div style={{flex: 1}}>
-								<input
-									style={{
-										...input,
-										borderColor: formData.lastDateOfApplicationTime ? '#10b981' : '#d1d5db',
-										background: formData.lastDateOfApplicationTime ? '#f0fdf4' : '#fff'
-									}}
-									type="time"
-									value={formData.lastDateOfApplicationTime || ''}
-									onChange={(e) => update({ lastDateOfApplicationTime: e.target.value })}
-									placeholder="HH:MM AM/PM"
-								/>
-							</div>
 						</div>
 						<small style={{color: '#6b7280', fontSize: 11, marginTop: 4, display: 'block'}}>
-							Time (AM/PM or 24-hour format) and Date - Optional: Set deadline time (e.g., 11:59 PM or 23:59)
+							Applications will automatically close on the selected date at 11:59 PM.
 						</small>
 						{errors.lastDateOfApplication && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
@@ -3539,7 +3529,7 @@ export default function EmpPostJob({ onNext }) {
 							</div>
 						)}
 						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Manually set the deadline for job applications
+							Select the last date candidates can apply for this job.
 						</small>
 						<HolidayIndicator date={formData.lastDateOfApplication} />
 					</div>
@@ -3630,7 +3620,7 @@ export default function EmpPostJob({ onNext }) {
 									const currentCount = formData.interviewRoundOrder.length;
 									
 									if (specifiedCount > 0 && currentCount >= specifiedCount) {
-										showWarning(`Cannot add more rounds! You specified ${specifiedCount} interview rounds and have already selected ${currentCount}. Please increase the "Number of Interview Rounds" field if you need more rounds.`);
+										showWarning(`Cannot add more rounds! You specified ${formatCountLabel(specifiedCount, 'interview round')} and have already selected ${formatCountLabel(currentCount, 'round')}. Please increase the "Number of Interview Rounds" field if you need more rounds.`);
 										return;
 									}
 									
@@ -3654,7 +3644,7 @@ export default function EmpPostJob({ onNext }) {
 										
 										// Check if we've reached the specified count
 										if (specifiedCount > 0 && newState.interviewRoundOrder.length === specifiedCount) {
-											showSuccess(`Perfect! You have selected exactly ${specifiedCount} interview rounds as specified.`);
+											showSuccess(`Perfect! You have selected exactly ${formatCountLabel(specifiedCount, 'interview round')} as specified.`);
 										}
 										
 										return newState;
