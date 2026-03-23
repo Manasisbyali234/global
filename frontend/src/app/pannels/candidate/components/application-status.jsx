@@ -521,6 +521,97 @@ function CanStatusPage() {
 		return sources.some((source) => scanValue(source));
 	};
 
+	const resolveBookedRoundContext = (application, currentRoundDetails, uniqueKey, roundType, roundId, candidateIdentity) => {
+		const allRoundDetails = application?.jobId?.interviewRoundDetails;
+		if (!allRoundDetails || typeof allRoundDetails !== 'object') {
+			const directBookedSlot = normalizeBookedSlotForDisplay(
+				currentRoundDetails?.bookedSlot,
+				currentRoundDetails?.fromDate || currentRoundDetails?.date
+			);
+			return {
+				roundDetails: currentRoundDetails,
+				bookedSlot: directBookedSlot,
+				hasBookedSlot: Boolean(
+					directBookedSlot ||
+					currentRoundDetails?.bookedSlot ||
+					currentRoundDetails?.candidateSlotBooked ||
+					currentRoundDetails?.isBooked ||
+					currentRoundDetails?.bookingConfirmed
+				)
+			};
+		}
+
+		const normalizeKey = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+		const baseRoundType = String(roundType || '').split('_')[0];
+		const rawIdentifiers = [uniqueKey, roundType, baseRoundType, roundId].filter(Boolean).map((value) => String(value));
+		const normalizedIdentifiers = new Set(rawIdentifiers.map((value) => normalizeKey(value)).filter(Boolean));
+		const candidateBookedSlots = application?.bookedSlots || [];
+		const detailEntries = [
+			['__current__', currentRoundDetails],
+			...Object.entries(allRoundDetails)
+		];
+
+		for (const [detailKey, details] of detailEntries) {
+			if (!details || typeof details !== 'object') continue;
+
+			const detailRoundId = details?.interviewRoundId ? String(details.interviewRoundId) : '';
+			const detailIdentifiers = [
+				detailKey,
+				details?.roundType,
+				details?.key,
+				details?.name,
+				detailRoundId
+			]
+				.filter(Boolean)
+				.map((value) => String(value));
+			const matchesRound = detailIdentifiers.some((value) => {
+				const normalizedValue = normalizeKey(value);
+				return rawIdentifiers.includes(value) || (normalizedValue && normalizedIdentifiers.has(normalizedValue));
+			});
+
+			if (!matchesRound) continue;
+
+			const extractedBookedSlot = extractBookedSlot(details, candidateIdentity, candidateBookedSlots, roundId);
+			const directBookedSlot = normalizeBookedSlotForDisplay(
+				details?.bookedSlot,
+				details?.fromDate || details?.date
+			);
+			const hasBookedSlot = Boolean(
+				extractedBookedSlot ||
+				directBookedSlot ||
+				details?.bookedSlot ||
+				details?.candidateSlotBooked ||
+				details?.isBooked ||
+				details?.bookingConfirmed ||
+				hasBookedReferenceForCandidate(details, candidateIdentity, candidateBookedSlots)
+			);
+
+			if (hasBookedSlot) {
+				return {
+					roundDetails: details,
+					bookedSlot: extractedBookedSlot || directBookedSlot,
+					hasBookedSlot: true
+				};
+			}
+		}
+
+		const directBookedSlot = normalizeBookedSlotForDisplay(
+			currentRoundDetails?.bookedSlot,
+			currentRoundDetails?.fromDate || currentRoundDetails?.date
+		);
+		return {
+			roundDetails: currentRoundDetails,
+			bookedSlot: directBookedSlot,
+			hasBookedSlot: Boolean(
+				directBookedSlot ||
+				currentRoundDetails?.bookedSlot ||
+				currentRoundDetails?.candidateSlotBooked ||
+				currentRoundDetails?.isBooked ||
+				currentRoundDetails?.bookingConfirmed
+			)
+		};
+	};
+
 	// Timer component for assessment countdown
 	const AssessmentTimer = ({ timerInfo, onTimerEnd }) => {
 		const [timeLeft, setTimeLeft] = useState(null);
@@ -2175,12 +2266,16 @@ function CanStatusPage() {
 														candidateEmail: selectedApplication?.candidateEmail || selectedApplication?.applicantEmail,
 														candidateName: selectedApplication?.candidateName || selectedApplication?.applicantName
 													};
-													const extractedBookedSlot = extractBookedSlot(roundDetails, candidateSlotIdentity, selectedApplication?.bookedSlots, roundId);
-													const directBookedSlot = normalizeBookedSlotForDisplay(
-														roundDetails?.bookedSlot,
-														roundDetails?.fromDate || roundDetails?.date
+													const bookedRoundContext = resolveBookedRoundContext(
+														selectedApplication,
+														roundDetails,
+														uniqueKey,
+														roundType,
+														roundId,
+														candidateSlotIdentity
 													);
-													const bookedSlot = extractedBookedSlot || directBookedSlot;
+													const activeRoundDetails = bookedRoundContext?.roundDetails || roundDetails;
+													const bookedSlot = bookedRoundContext?.bookedSlot || null;
 													const bookedSlotDate = bookedSlot?.date;
 													const bookedSlotStart = bookedSlot?.startTime;
 													const bookedSlotEnd = bookedSlot?.endTime;
@@ -2203,24 +2298,25 @@ function CanStatusPage() {
 													const isBookedSlotExpired = bookedSlotEndDateTime ? Date.now() > bookedSlotEndDateTime.getTime() : false;
 
 													const hasBookedSlot = Boolean(
+														bookedRoundContext?.hasBookedSlot ||
 														bookedSlot ||
-														roundDetails?.bookedSlot ||
-														roundDetails?.candidateSlotBooked ||
-														roundDetails?.isBooked ||
-														roundDetails?.bookingConfirmed ||
-														hasBookedReferenceForCandidate(roundDetails, candidateSlotIdentity, selectedApplication?.bookedSlots) ||
-														hasCandidateRef(roundDetails?.scheduleObject) ||
-														hasCandidateRef(roundDetails?.formDataObject) ||
-														hasCandidateRef(roundDetails?.schedulesArray) ||
-														hasCandidateRef(roundDetails?.daySchedulesArray) ||
-														hasCandidateRef(roundDetails?.roomsArray)
+														activeRoundDetails?.bookedSlot ||
+														activeRoundDetails?.candidateSlotBooked ||
+														activeRoundDetails?.isBooked ||
+														activeRoundDetails?.bookingConfirmed ||
+														hasBookedReferenceForCandidate(activeRoundDetails, candidateSlotIdentity, selectedApplication?.bookedSlots) ||
+														hasCandidateRef(activeRoundDetails?.scheduleObject) ||
+														hasCandidateRef(activeRoundDetails?.formDataObject) ||
+														hasCandidateRef(activeRoundDetails?.schedulesArray) ||
+														hasCandidateRef(activeRoundDetails?.daySchedulesArray) ||
+														hasCandidateRef(activeRoundDetails?.roomsArray)
 													);
 													const joinUrl =
 														hasBookedSlot
 															? (relatedStage?.meetingLink ||
-																roundDetails?.meetingLink ||
-																roundDetails?.joinLink ||
-																roundDetails?.meetingUrl ||
+																activeRoundDetails?.meetingLink ||
+																activeRoundDetails?.joinLink ||
+																activeRoundDetails?.meetingUrl ||
 																bookSlotUrl)
 															: bookSlotUrl;
 													const buttonLabel = hasBookedSlot ? 'Join Now' : 'Book Your Slot';
