@@ -50,6 +50,8 @@ import "./gif-alignment-revert.css";
 import "./hero-section-revert.css";
 // RICH TEXT EDITOR TEXT BLACK - Ensures Rich Text Editor text is black, not orange
 import "./rich-text-editor-text-black.css";
+// SHARED PANEL TOOLBARS - Align title/search/filter rows across admin, employer, and candidate pages
+import "./shared-page-toolbar.css";
 
 
 function App() {

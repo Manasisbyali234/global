@@ -507,7 +507,7 @@ export const api = {
   },
 
   subAdminLogin: (data) => {
-    return fetch(`${API_BASE_URL}/admin/sub-admin-login`, {
+    return fetch(`${API_BASE_URL}/admin/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

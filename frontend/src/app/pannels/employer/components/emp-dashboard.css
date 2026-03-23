@@ -20,6 +20,153 @@
   border-radius: 12px !important;
   border: none !important;
   box-shadow: none !important;
+  padding: 1.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 138px !important;
+  text-align: center !important;
+}
+
+.emp-dashboard .dashboard-stat-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.65rem !important;
+  width: 100% !important;
+  max-width: fit-content !important;
+  margin: 0 auto !important;
+  text-align: center !important;
+}
+
+.emp-dashboard .dashboard-stat-top {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+  gap: 0.85rem !important;
+  width: 100% !important;
+  min-height: 2.75rem !important;
+}
+
+.emp-dashboard .dashboard-card-2 .wt-card-icon-2 {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 1 !important;
+  line-height: 1 !important;
+}
+
+.emp-dashboard .row > .col-xl-4:nth-child(-n+3) .dashboard-card-2 .dashboard-stat-top {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+}
+
+.emp-dashboard .dashboard-stat-top .wt-card-icon-2 {
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  width: 2.25rem !important;
+  min-width: 2.25rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.85rem !important;
+}
+
+.emp-dashboard .dashboard-stat-top .counter {
+  margin: 0 !important;
+  line-height: 1 !important;
+  flex: 0 1 auto !important;
+  white-space: nowrap !important;
+  font-size: 2.25rem !important;
+  display: block !important;
+}
+
+.emp-dashboard .dashboard-stat-label {
+  width: 100% !important;
+  min-height: 1.5rem !important;
+  text-align: center !important;
+}
+
+.emp-dashboard .dashboard-stat-label h5 {
+  margin: 0 !important;
+  line-height: 1.3 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.emp-dashboard .dashboard-stat-check {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 1.75rem !important;
+}
+
+.emp-dashboard .row > .col-xl-4:nth-child(3) .dashboard-stat-top .wt-card-icon-2 {
+  color: transparent !important;
+  position: relative !important;
+}
+
+.emp-dashboard .row > .col-xl-4:nth-child(3) .dashboard-stat-top .wt-card-icon-2::before {
+  content: "\2713";
+  font-family: inherit;
+  font-weight: 700;
+  color: #f59e0b;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.85rem;
+  line-height: 1;
+}
+
+.emp-dashboard .dashboard-card-2 > .d-flex {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+  gap: 0.85rem !important;
+  width: 100% !important;
+}
+
+.emp-dashboard .dashboard-card-2 > .d-flex .wt-card-icon-2 {
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  width: 2.25rem !important;
+  min-width: 2.25rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.emp-dashboard .dashboard-card-2 > .d-flex > div:last-child {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.35rem !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  text-align: center !important;
+}
+
+.emp-dashboard .dashboard-card-2 > .d-flex > div:last-child .counter {
+  margin-bottom: 0.2rem !important;
+  line-height: 1 !important;
+}
+
+.emp-dashboard .dashboard-card-2 > .d-flex > div:last-child h5 {
+  margin: 0 !important;
+  line-height: 1.3 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 /* Card titles */
@@ -123,13 +270,6 @@
     padding: 1.5rem !important;
   }
 
-  .emp-dashboard .dashboard-card-2 .d-flex {
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 1rem !important;
-  }
-
   .emp-dashboard .dashboard-card-2 .counter {
     font-size: 2.5rem !important;
     font-weight: 700 !important;
@@ -148,15 +288,8 @@
     font-size: 2rem !important;
     opacity: 0.8;
     flex-shrink: 0 !important;
-    margin-left: auto !important;
     position: relative !important;
     z-index: 1 !important;
-  }
-
-  .emp-dashboard .dashboard-card-2 .d-flex > div:first-child {
-    flex: 1 !important;
-    min-width: 0 !important;
-    margin-right: 1rem !important;
   }
 
   /* Override mobile text alignment on desktop */
@@ -322,23 +455,6 @@
 
   .emp-dashboard .dashboard-card-2 {
     padding: 1rem !important;
-    text-align: center !important;
-  }
-
-  .emp-dashboard .dashboard-card-2 .d-flex {
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 1rem !important;
-  }
-
-  .emp-dashboard .dashboard-card-2 .d-flex > div {
-    text-align: left !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: center !important;
-    flex: 1 !important;
   }
 
   /* Center all counter values and text in stats cards */

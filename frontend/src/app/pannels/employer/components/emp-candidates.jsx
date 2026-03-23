@@ -202,19 +202,24 @@ function EmpCandidatesPage() {
         </div>
 
         <div className="panel-body wt-panel-body">
-          <div className="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div style={{ position: 'relative', maxWidth: 360, width: '100%', display: 'flex', alignItems: 'center' }}>
+          <div className="page-toolbar mb-3">
+            <div className="page-toolbar__controls page-toolbar__controls--triple" style={{ width: '100%' }}>
+            <div className="page-toolbar__section">
+              <label className="page-toolbar__label">
+                <i className="fa fa-search"></i> Search Applicants
+              </label>
+            <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
               <div style={{ position: 'absolute', left: '12px', display: 'flex', alignItems: 'center', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
                 <Search size={18} style={{ color: '#e66814' }} />
               </div>
               <input
                 type="text"
-                className="form-control"
+                className="form-control page-toolbar__input"
                 placeholder="Search applicants by name, email, or job"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 list="candidate-job-title-suggestions"
-                style={{ paddingLeft: '40px', borderRadius: '8px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', height: '44px', width: '100%' }}
+                style={{ paddingLeft: '40px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', width: '100%' }}
                 onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
               />
@@ -224,12 +229,15 @@ function EmpCandidatesPage() {
                 ))}
               </datalist>
             </div>
-            <div className="d-flex gap-2 align-items-center">
+            </div>
+            <div className="page-toolbar__section">
+              <label className="page-toolbar__label">
+                <i className="fa fa-filter"></i> Application Status
+              </label>
               <select
-                className="form-select"
+                className="form-select page-toolbar__select"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                style={{ width: "200px" }}
               >
                 <option value="">All Status (Show All)</option>
                 <option value="pending">Pending</option>
@@ -240,17 +248,22 @@ function EmpCandidatesPage() {
                 <option value="hired">Hired</option>
                 <option value="rejected">Rejected</option>
               </select>
+            </div>
+            <div className="page-toolbar__section">
+              <label className="page-toolbar__label">
+                <i className="fa fa-user"></i> Gender
+              </label>
               <select
-                className="form-select"
+                className="form-select page-toolbar__select"
                 value={genderFilter}
                 onChange={(e) => setGenderFilter(e.target.value)}
-                style={{ width: "150px" }}
               >
                 <option value="">All Gender</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
                 <option value="prefer not to say">Prefer not to say</option>
               </select>
+            </div>
             </div>
           </div>
 

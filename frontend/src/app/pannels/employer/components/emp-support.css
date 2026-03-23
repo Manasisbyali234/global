@@ -12,6 +12,13 @@
   margin: 0 0 2rem 0 !important;
 }
 
+.emp-support-page .emp-support-success-header {
+  position: relative !important;
+  top: auto !important;
+  z-index: auto !important;
+  margin-top: 2.5rem !important;
+}
+
 .emp-support-page .twm-dash-b-blocks {
   padding: 2rem !important;
 }

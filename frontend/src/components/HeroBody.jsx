@@ -2,6 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HeroBody.css';
 import { Megaphone, Banknote, Users, Settings, Tag, Terminal, TrendingUp } from 'lucide-react';
+import api from '../utils/api';
+
+const DEFAULT_DESIGNATIONS = [
+  'Data Entry Operator', 'Computer Operator', 'IT Support Assistant', 'Junior Web Developer', 'Software Developer',
+  'Full-Stack Developer', 'DevOps Engineer', 'Cloud Engineer', 'Network Administrator', 'Cybersecurity Analyst',
+  'Data Analyst', 'Data Scientist', 'AI/ML Engineer', 'UI/UX Designer', 'Graphic Designer',
+  'Motion Designer', '3D Artist', 'Video Editor', 'Digital Marketing Specialist', 'SEO Specialist',
+  'Social Media Manager', 'Content Writer', 'Performance Marketer', 'Brand Manager', 'Sales Executive',
+  'Business Development Executive', 'Regional Sales Manager', 'Inside Sales Specialist', 'Tele Sales Executive', 'HR Executive',
+  'Talent Acquisition Specialist', 'HR Manager', 'L&D Manager', 'Accountant', 'Auditor',
+  'Tax Consultant', 'Finance Manager', 'Billing Executive', 'Site Engineer', 'Safety Officer',
+  'Doctor', 'Nurse', 'Lab Technician', 'IVF Specialist', 'Pharmacist',
+  'Medical Equipment Specialist', 'Teacher', 'Professor', 'HOD', 'Principal',
+  'Logistics Coordinator', 'Warehouse Manager', 'Supply Chain Executive', 'Receptionist', 'Chef',
+  'Housekeeping Staff', 'Store Manager', 'Cashier', 'Delivery Executive', 'Legal Advisor',
+  'Compliance Officer', 'Office Administrator', 'Operations Manager', 'Security Guard', 'Social Worker',
+  'Program Coordinator (NGO)', 'Machine Operator', 'Welder', 'Electrician', 'Plumber',
+  'Carpenter', 'Technician'
+];
 
 const HeroBody = ({ onSearch }) => {
   const navigate = useNavigate();
@@ -15,6 +34,7 @@ const HeroBody = ({ onSearch }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [industrySuggestions, setIndustrySuggestions] = useState([]);
   const [showIndustrySuggestions, setShowIndustrySuggestions] = useState(false);
+  const [designationCatalog, setDesignationCatalog] = useState([]);
   const [designationSuggestions, setDesignationSuggestions] = useState([]);
   const [showDesignationSuggestions, setShowDesignationSuggestions] = useState(false);
   const [errors, setErrors] = useState({
@@ -53,23 +73,43 @@ const HeroBody = ({ onSearch }) => {
     'Security Services', 'Domestic & Care Services'
   ];
 
-  const designations = [
-    'Data Entry Operator', 'Computer Operator', 'IT Support Assistant', 'Junior Web Developer', 'Software Developer',
-    'Full-Stack Developer', 'DevOps Engineer', 'Cloud Engineer', 'Network Administrator', 'Cybersecurity Analyst',
-    'Data Analyst', 'Data Scientist', 'AI/ML Engineer', 'UI/UX Designer', 'Graphic Designer',
-    'Motion Designer', '3D Artist', 'Video Editor', 'Digital Marketing Specialist', 'SEO Specialist',
-    'Social Media Manager', 'Content Writer', 'Performance Marketer', 'Brand Manager', 'Sales Executive',
-    'Business Development Executive', 'Regional Sales Manager', 'Inside Sales Specialist', 'Tele Sales Executive', 'HR Executive',
-    'Talent Acquisition Specialist', 'HR Manager', 'L&D Manager', 'Accountant', 'Auditor',
-    'Tax Consultant', 'Finance Manager', 'Billing Executive', 'Site Engineer', 'Safety Officer',
-    'Doctor', 'Nurse', 'Lab Technician', 'IVF Specialist', 'Pharmacist',
-    'Medical Equipment Specialist', 'Teacher', 'Professor', 'HOD', 'Principal',
-    'Logistics Coordinator', 'Warehouse Manager', 'Supply Chain Executive', 'Receptionist', 'Chef',
-    'Housekeeping Staff', 'Store Manager', 'Cashier', 'Delivery Executive', 'Legal Advisor',
-    'Compliance Officer', 'Office Administrator', 'Operations Manager', 'Security Guard', 'Social Worker',
-    'Program Coordinator (NGO)', 'Machine Operator', 'Welder', 'Electrician', 'Plumber',
-    'Carpenter', 'Technician'
-  ];
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchDesignationSuggestions = async () => {
+      try {
+        const jobsData = await api.getJobs({ limit: 200 });
+        const jobs = Array.isArray(jobsData?.jobs) ? jobsData.jobs : [];
+        const liveDesignations = Array.from(
+          new Map(
+            jobs
+              .flatMap((job) => [
+                String(job?.title || '').trim(),
+                String(job?.jobTitle || '').trim(),
+                String(job?.designation || '').trim()
+              ])
+              .filter(Boolean)
+              .map((designation) => [designation.toLowerCase(), designation])
+          ).values()
+        );
+
+        if (isMounted) {
+          setDesignationCatalog(liveDesignations.length > 0 ? liveDesignations : DEFAULT_DESIGNATIONS);
+        }
+      } catch (error) {
+        console.error('Error fetching hero designation suggestions:', error);
+        if (isMounted) {
+          setDesignationCatalog(DEFAULT_DESIGNATIONS);
+        }
+      }
+    };
+
+    fetchDesignationSuggestions();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Validation functions
   const validateField = (name, value) => {
@@ -181,15 +221,17 @@ const HeroBody = ({ onSearch }) => {
 
   const handleDesignationChange = (value) => {
     handleFieldChange('what', value);
+    const designationSource = designationCatalog.length > 0 ? designationCatalog : DEFAULT_DESIGNATIONS;
     
     if (value.length > 0) {
-      const filtered = designations.filter(designation => 
+      const filtered = designationSource.filter(designation => 
         designation.toLowerCase().includes(value.toLowerCase())
-      );
+      ).slice(0, 8);
       setDesignationSuggestions(filtered);
       setShowDesignationSuggestions(true);
     } else {
-      setShowDesignationSuggestions(false);
+      setDesignationSuggestions(designationSource.slice(0, 8));
+      setShowDesignationSuggestions(true);
     }
   };
 
@@ -201,14 +243,22 @@ const HeroBody = ({ onSearch }) => {
   };
 
   const jobCategories = [
-    { icon: Megaphone, name: 'Marketing', count: '1.2k', iconColor: '#2563EB', bgColor: '#EEF4FF' },
-    { icon: Banknote, name: 'Finance', count: '850', iconColor: '#059669', bgColor: '#ECFDF5' },
-    { icon: Users, name: 'HR', count: '420', iconColor: '#7C3AED', bgColor: '#F5F3FF' },
-    { icon: Settings, name: 'Operations', count: '1.1k', iconColor: '#EA580C', bgColor: '#FFF7ED' },
-    { icon: Tag, name: 'Design', count: '930', iconColor: '#DB2777', bgColor: '#FDF2F8' },
-    { icon: Terminal, name: 'IT', count: '2.4k', iconColor: '#4F46E5', bgColor: '#EEF2FF' },
-    { icon: TrendingUp, name: 'Sales', count: '1.5k', iconColor: '#D97706', bgColor: '#FFFBEB' }
+    { icon: Megaphone, name: 'Marketing', filterValue: 'Marketing', count: '1.2k', iconColor: '#2563EB', bgColor: '#EEF4FF' },
+    { icon: Banknote, name: 'Finance', filterValue: 'Finance', count: '850', iconColor: '#059669', bgColor: '#ECFDF5' },
+    { icon: Users, name: 'HR', filterValue: 'HR', count: '420', iconColor: '#7C3AED', bgColor: '#F5F3FF' },
+    { icon: Settings, name: 'Operations', filterValue: 'Operations', count: '1.1k', iconColor: '#EA580C', bgColor: '#FFF7ED' },
+    { icon: Tag, name: 'Design', filterValue: 'Design', count: '930', iconColor: '#DB2777', bgColor: '#FDF2F8' },
+    { icon: Terminal, name: 'IT', filterValue: 'IT', count: '2.4k', iconColor: '#4F46E5', bgColor: '#EEF2FF' },
+    { icon: TrendingUp, name: 'Sales', filterValue: 'Sales', count: '1.5k', iconColor: '#D97706', bgColor: '#FFFBEB' }
   ];
+
+  const handleCategoryClick = (category) => {
+    const queryString = new URLSearchParams({
+      category: category.filterValue || category.name
+    }).toString();
+
+    navigate(`/job-grid?${queryString}`);
+  };
 
   const handleSearch = () => {
     // Mark all fields as touched
@@ -452,7 +502,14 @@ const HeroBody = ({ onSearch }) => {
                 className={`search-select location-select${touched.what && errors.what ? ' has-error' : ''}`}
                 value={searchData.what}
                 onChange={(e) => handleDesignationChange(e.target.value)}
-                onFocus={() => searchData.what && setShowDesignationSuggestions(true)}
+                onFocus={() => {
+                  const designationSource = designationCatalog.length > 0 ? designationCatalog : DEFAULT_DESIGNATIONS;
+                  const filtered = searchData.what
+                    ? designationSource.filter((designation) => designation.toLowerCase().includes(searchData.what.toLowerCase())).slice(0, 8)
+                    : designationSource.slice(0, 8);
+                  setDesignationSuggestions(filtered);
+                  setShowDesignationSuggestions(filtered.length > 0);
+                }}
                 onBlur={() => {
                   handleFieldBlur('what');
                   setTimeout(() => setShowDesignationSuggestions(false), 200);
@@ -552,12 +609,18 @@ const HeroBody = ({ onSearch }) => {
             <div className="categories-track">
               {/* Duplicate categories for seamless loop */}
               {[...jobCategories, ...jobCategories].map((category, index) => (
-                <div key={index} className="category-card">
+                <button
+                  key={index}
+                  type="button"
+                  className="category-card"
+                  onClick={() => handleCategoryClick(category)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div className="category-icon small">
                     {category.icon && React.createElement(category.icon, { size: 20 })}
                   </div>
                   <h3 className="category-name">{category.name}</h3>
-                </div>
+                </button>
               ))}
             </div>
           </div>

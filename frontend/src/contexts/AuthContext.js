@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api, BACKEND_URL } from '../utils/api';
+import { executeLoginRecaptcha } from '../utils/recaptcha';
 
 const AuthContext = createContext();
 
@@ -105,22 +106,38 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials, type) => {
     try {
       let response;
+      const recaptchaActionMap = {
+        candidate: 'candidate_login',
+        employer: 'employer_login',
+        placement: 'placement_login',
+        'sub-admin': 'sub_admin_login'
+      };
+      const recaptchaAction = recaptchaActionMap[type];
+      const recaptchaToken = recaptchaAction
+        ? await executeLoginRecaptcha(recaptchaAction)
+        : null;
+      const loginPayload = recaptchaToken
+        ? {
+            ...credentials,
+            recaptchaToken
+          }
+        : credentials;
       
       switch (type) {
         case 'candidate':
-          response = await api.candidateLogin(credentials);
+          response = await api.candidateLogin(loginPayload);
           break;
         case 'employer':
-          response = await api.employerLogin(credentials);
+          response = await api.employerLogin(loginPayload);
           break;
         case 'admin':
-          response = await api.adminLogin(credentials);
+          response = await api.adminLogin(loginPayload);
           break;
         case 'sub-admin':
-          response = await api.subAdminLogin(credentials);
+          response = await api.subAdminLogin(loginPayload);
           break;
         case 'placement':
-          response = await api.placementLogin(credentials);
+          response = await api.placementLogin(loginPayload);
           break;
         default:
           throw new Error('Invalid user type');
@@ -145,10 +162,18 @@ export const AuthProvider = ({ children }) => {
         
         return { success: true, user: userData };
       } else {
-        return { success: false, message: response.message };
+        return {
+          success: false,
+          message: response.message || 'Login failed. Please try again.',
+          shouldResetRecaptcha: Boolean(response.shouldResetRecaptcha)
+        };
       }
     } catch (error) {
-      return { success: false, message: 'Login failed. Please try again.' };
+      return {
+        success: false,
+        message: error.message || 'Login failed. Please try again.',
+        shouldResetRecaptcha: true
+      };
     }
   };
 

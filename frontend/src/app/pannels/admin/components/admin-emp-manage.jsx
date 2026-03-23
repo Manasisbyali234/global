@@ -237,37 +237,34 @@ function AdminEmployersAllRequest() {
                 <h2>Employers Details</h2>
             </div>
 
-            <div className="panel panel-default site-bg-white">
+                <div className="panel panel-default site-bg-white">
                 <div className="panel-heading wt-panel-heading p-a20">
-                    <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', gap: '15px', width: '100%'}}>
-                        <h4 className="panel-tittle m-a0" style={{marginRight: 'auto'}}>Employers ({filteredEmployers.length})</h4>
-                            
-                            <div className="status-filter" style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
-                                <label style={{fontSize: '14px', fontWeight: '600', color: '#374151'}}>Filter by Status:</label>
+                    <div className="admin-emp-toolbar">
+                        <h4 className="panel-tittle m-a0 toolbar-title">Employers ({filteredEmployers.length})</h4>
+                             
+                            <div className="search-section status-filter-section">
+                                <label className="search-label">
+                                    <i className="fa fa-filter"></i> Filter by Status
+                                </label>
+                                <div className="toolbar-control-wrap">
                                 <select 
+                                    className="status-filter-select"
                                     value={statusFilter}
                                     onChange={(e) => handleStatusFilter(e.target.value)}
-                                    style={{
-                                        padding: '8px 12px',
-                                        border: '1px solid #d1d5db',
-                                        borderRadius: '6px',
-                                        fontSize: '14px',
-                                        cursor: 'pointer',
-                                        background: '#fff'
-                                    }}
                                 >
                                     <option value="pending">Under Review</option>
                                     <option value="incomplete">Profile Incomplete</option>
                                     <option value="approved">Approved</option>
                                     <option value="rejected">Rejected</option>
                                 </select>
+                                </div>
                             </div>
-                            
-                            <div className="search-section" style={{marginLeft: 'auto'}}>
+                             
+                            <div className="search-section employer-search-section">
                                 <label className="search-label">
-                                    <i className="fa fa-filter"></i> Search by Name or Email
+                                    <i className="fa fa-search"></i> Search by Name or Email
                                 </label>
-                                <div style={{width: '200px'}}>
+                                <div className="toolbar-control-wrap">
                                     <SearchBar 
                                         onSearch={handleSearch}
                                         placeholder="Search employers..."

@@ -58,6 +58,51 @@
     font-size: 28px !important;
 }
 
+.admin-dashboard-container .admin-stat-card {
+    display: flex;
+    align-items: center;
+}
+
+.admin-dashboard-container .admin-stat-card__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+}
+
+.admin-dashboard-container .admin-stat-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.admin-dashboard-container .admin-stat-card__icon {
+    flex: 0 0 auto;
+    text-align: center;
+}
+
+.admin-dashboard-container .admin-stat-card__value {
+    justify-content: center !important;
+    margin-bottom: 0 !important;
+    line-height: 1;
+}
+
+.admin-dashboard-container .admin-stat-card__label {
+    width: 100%;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+    font-size: clamp(0.78rem, 0.55rem + 0.45vw, 0.95rem) !important;
+}
+
 /* Section containers */
 .admin-dashboard-container .wt-panel-body {
     background: #ffffff !important;
@@ -147,6 +192,14 @@
         padding: 1.25rem !important;
     }
 
+    .admin-dashboard-container .admin-stat-card__body {
+        gap: 0.5rem;
+    }
+
+    .admin-dashboard-container .admin-stat-card__top {
+        gap: 0.625rem;
+    }
+
     .chart-section {
         padding: 1.5rem !important;
     }
@@ -170,6 +223,22 @@
 
     .admin-dashboard-container .dashboard-card-2 {
         padding: 1rem !important;
+    }
+
+    .admin-dashboard-container .admin-stat-card__body {
+        gap: 0.45rem;
+    }
+
+    .admin-dashboard-container .admin-stat-card__top {
+        gap: 0.5rem;
+    }
+
+    .admin-dashboard-container .admin-stat-card__icon {
+        font-size: 1.75rem !important;
+    }
+
+    .admin-dashboard-container .admin-stat-card__label {
+        font-size: 0.78rem !important;
     }
     
     .chart-section {

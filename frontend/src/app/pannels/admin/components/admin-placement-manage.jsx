@@ -152,40 +152,36 @@ function AdminPlacementOfficersAllRequest() {
 
             <div className="panel panel-default site-bg-white">
                 <div className="panel-heading wt-panel-heading p-a20">
-                    <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', gap: '15px', width: '100%'}}>
-                        <h4 className="panel-tittle m-a0" style={{marginRight: 'auto'}}>Placement Officers ({filteredPlacements.length})</h4>
-                        
-                        <div className="status-filter" style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
-                            <label style={{fontSize: '14px', fontWeight: '600', color: '#374151'}}>Filter by Status:</label>
+                    <div className="page-toolbar">
+                        <h4 className="panel-tittle m-a0 page-toolbar__title">Placement Officers ({filteredPlacements.length})</h4>
+                        <div className="page-toolbar__controls page-toolbar__controls--dual">
+                        <div className="search-section page-toolbar__section">
+                            <label className="page-toolbar__label"><i className="fa fa-filter"></i> Filter by Status</label>
+                            <div className="page-toolbar__control-wrap">
                             <select 
+                                className="page-toolbar__select"
                                 value={statusFilter} 
                                 onChange={(e) => handleStatusFilter(e.target.value)}
-                                style={{
-                                    padding: '8px 12px',
-                                    border: '1px solid #d1d5db',
-                                    borderRadius: '6px',
-                                    fontSize: '14px',
-                                    cursor: 'pointer',
-                                    background: '#fff'
-                                }}
                             >
                                 <option value="pending">Pending</option>
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
                             </select>
+                            </div>
                         </div>
                         
-                        <div className="search-section" style={{marginLeft: 'auto'}}>
-                            <label className="search-label">
+                        <div className="search-section page-toolbar__section">
+                            <label className="search-label page-toolbar__label">
                                 <i className="fa fa-filter"></i> Search by Name or Email
                             </label>
-                            <div style={{width: '200px'}}>
+                            <div className="page-toolbar__control-wrap">
                                 <SearchBar 
                                     onSearch={handleSearch}
                                     placeholder="Search placement officers..."
                                     className="placement-search"
                                 />
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>

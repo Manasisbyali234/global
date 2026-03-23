@@ -122,18 +122,25 @@ function EmpTransactionsPage() {
             <div style={{ padding: '0 2rem 2rem 2rem' }}>
                 <div className="panel panel-default site-bg-white p-4" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
                     
-                    <div className="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <div className="input-group" style={{ maxWidth: 400 }}>
+                    <div className="page-toolbar mb-4">
+                        <div className="page-toolbar__controls page-toolbar__controls--single">
+                        <div className="page-toolbar__section">
+                            <label className="page-toolbar__label">
+                                <i className="fa fa-search"></i> Search Transactions
+                            </label>
+                        <div className="input-group page-toolbar__control-wrap">
                             <span className="input-group-text bg-white border-end-0">
                                 <Search size={18} style={{ color: "#f97316" }} />
                             </span>
                             <input
                                 type="text"
-                                className="form-control border-start-0 ps-0"
+                                className="form-control border-start-0 ps-0 page-toolbar__input"
                                 placeholder="Search by name, job or payment ID..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                             />
+                        </div>
+                        </div>
                         </div>
                         <div className="text-muted">
                             Total Transactions: <strong>{filteredTransactions.length}</strong>

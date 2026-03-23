@@ -540,7 +540,28 @@ export default function EmpPostJob({ onNext }) {
 		});
 	};
 
-	const confirmHolidayDate = async (dateValue, onConfirm) => {
+	const sanitizeNonNegativeIntegerInput = (value) => value.replace(/\D/g, '');
+
+	const blockInvalidNumberKeys = (event) => {
+		if (['-', '+', 'e', 'E', '.'].includes(event.key)) {
+			event.preventDefault();
+		}
+	};
+
+	const getHolidayConfirmationMessage = (fieldLabel = 'date', options = {}) => {
+		const normalizedLabel = String(fieldLabel || 'date').trim();
+		const displayLabel = normalizedLabel
+			? normalizedLabel.charAt(0).toLowerCase() + normalizedLabel.slice(1)
+			: 'date';
+		const actionText = options.scheduling
+			? 'Would you like to continue scheduling on this date?'
+			: 'Would you like to continue with this date?';
+		const reminderText = options.reminder ? ` ${options.reminder}` : '';
+
+		return `The selected ${displayLabel} falls on a holiday. ${actionText}${reminderText}`;
+	};
+
+	const confirmHolidayDate = async (dateValue, onConfirm, fieldLabel = 'date', options = {}) => {
 		let normalized = normalizeToYMD(dateValue);
 		if (!normalized) normalized = dateValue;
 		if (!normalized) return;
@@ -555,7 +576,7 @@ export default function EmpPostJob({ onNext }) {
 
 		if (shouldConfirmHoliday) {
 			showConfirmation(
-				'The selected interview date falls on a holiday. Would you like to continue scheduling the interview on this date? Please also ensure the last date of application is updated accordingly',
+				getHolidayConfirmationMessage(fieldLabel, options),
 				onConfirm,
 				null,
 				'warning',
@@ -1008,7 +1029,13 @@ export default function EmpPostJob({ onNext }) {
 
 			if (shouldConfirmHoliday) {
 				showConfirmation(
-					'The selected interview date falls on a holiday. Would you like to continue scheduling the interview on this date? Please also ensure the last date of application is updated accordingly',
+					getHolidayConfirmationMessage(
+						field === 'fromDate' ? 'interview start date' : 'interview end date',
+						{
+							scheduling: true,
+							reminder: 'Please also ensure the last date of application is updated accordingly.'
+						}
+					),
 					() => updateRoundDetails(roundType, field, value, true),
 					null,
 					'warning',
@@ -1993,41 +2020,6 @@ export default function EmpPostJob({ onNext }) {
 
 	return (
 		<div style={page}>
-			{/* Back to Jobs Button */}
-			<div style={{marginBottom: 16, display: 'flex', justifyContent: 'flex-end'}}>
-				<button
-					onClick={() => {
-						window.location.href = empRoute(employer.MANAGE_JOBS);
-					}}
-					style={{
-						background: "#374151",
-						color: "#ffffff",
-						border: "2px solid #9ca3af",
-						padding: "10px 20px",
-						borderRadius: 8,
-						cursor: "pointer",
-						fontSize: 14,
-						fontWeight: 600,
-						transition: "all 0.2s ease",
-						boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-						display: 'flex',
-						alignItems: 'center',
-						gap: 8,
-					}}
-					onMouseEnter={(e) => {
-						e.currentTarget.style.background = '#4b5563';
-						e.currentTarget.style.borderColor = '#6b7280';
-					}}
-					onMouseLeave={(e) => {
-						e.currentTarget.style.background = '#374151';
-						e.currentTarget.style.borderColor = '#9ca3af';
-					}}
-				>
-					<i className="fa fa-arrow-left"></i>
-					Back to Jobs
-				</button>
-			</div>
-
 			{/* Header */}
 			<div style={{marginBottom: 24}}>
 				<h1 style={heading}>
@@ -2057,14 +2049,6 @@ export default function EmpPostJob({ onNext }) {
 				gap: 16
 			}}>
 				<div 
-					onClick={() => {
-						if (currentStep === 2) {
-							setCurrentStep(1);
-							const newUrl = new URL(window.location.href);
-							newUrl.searchParams.set('step', '1');
-							window.history.replaceState({}, '', newUrl);
-						}
-					}}
 					style={{
 						display: 'flex',
 						alignItems: 'center',
@@ -2075,7 +2059,7 @@ export default function EmpPostJob({ onNext }) {
 						color: currentStep === 1 ? '#fff' : '#6b7280',
 						border: '2px solid',
 						borderColor: currentStep === 1 ? '#ff6b35' : '#e5e7eb',
-						cursor: currentStep === 2 ? 'pointer' : 'default',
+						cursor: 'default',
 						fontWeight: 600,
 						transition: 'all 0.2s ease',
 						boxShadow: currentStep === 1 ? '0 4px 12px rgba(255,107,53,0.2)' : 'none'
@@ -2098,7 +2082,6 @@ export default function EmpPostJob({ onNext }) {
 				</div>
 				<div data-step-indicator-connector style={{ width: isMobile ? 20 : 40, height: 2, background: '#e5e7eb' }}></div>
 				<div 
-					onClick={() => currentStep === 1 && handleNext()}
 					style={{
 						display: 'flex',
 						alignItems: 'center',
@@ -2109,7 +2092,7 @@ export default function EmpPostJob({ onNext }) {
 						color: currentStep === 2 ? '#fff' : '#6b7280',
 						border: '2px solid',
 						borderColor: currentStep === 2 ? '#ff6b35' : '#e5e7eb',
-						cursor: currentStep === 1 ? 'pointer' : 'default',
+						cursor: 'default',
 						fontWeight: 600,
 						transition: 'all 0.2s ease',
 						boxShadow: currentStep === 2 ? '0 4px 12px rgba(255,107,53,0.2)' : 'none'
@@ -3357,9 +3340,12 @@ export default function EmpPostJob({ onNext }) {
 										}}
 										type="number"
 										min="0"
+										step="1"
+										inputMode="numeric"
 										placeholder="e.g., 2"
 										value={formData.minExperience}
-										onChange={(e) => update({ minExperience: e.target.value })}
+										onKeyDown={blockInvalidNumberKeys}
+										onChange={(e) => update({ minExperience: sanitizeNonNegativeIntegerInput(e.target.value) })}
 									/>
 								</div>
 								<div>
@@ -3381,9 +3367,12 @@ export default function EmpPostJob({ onNext }) {
 										}}
 										type="number"
 										min="0"
+										step="1"
+										inputMode="numeric"
 										placeholder="e.g., 5"
 										value={formData.maxExperience}
-										onChange={(e) => update({ maxExperience: e.target.value })}
+										onKeyDown={blockInvalidNumberKeys}
+										onChange={(e) => update({ maxExperience: sanitizeNonNegativeIntegerInput(e.target.value) })}
 									/>
 								</div>
 							</div>
@@ -3472,7 +3461,7 @@ export default function EmpPostJob({ onNext }) {
 								await confirmHolidayDate(selectedDate, () => {
 									const normalized = normalizeToYMD(selectedDate) || selectedDate;
 									update({ offerLetterDate: normalized });
-								});
+								}, 'offer letter release date');
 							}}
 							placeholder="DD/MM/YYYY"
 						/>
@@ -3513,7 +3502,7 @@ export default function EmpPostJob({ onNext }) {
 										await confirmHolidayDate(selectedDate, () => {
 											const normalized = normalizeToYMD(selectedDate) || selectedDate;
 											update({ lastDateOfApplication: normalized, lastDateOfApplicationTime: '' });
-										});
+										}, 'last date of application');
 									}}
 									placeholder="DD/MM/YYYY"
 								/>
@@ -4676,7 +4665,9 @@ export default function EmpPostJob({ onNext }) {
 													flexDirection: 'column',
 													gap: '8px'
 												}}>
-													<label style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Description</label>
+													<label style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+														Description <span style={redAsterisk}>*</span>
+													</label>
 													<textarea
 														data-interview-round-description="true"
 														style={{
@@ -4868,7 +4859,13 @@ export default function EmpPostJob({ onNext }) {
 
 																		if (shouldConfirmHoliday) {
 																			showConfirmation(
-																				'The selected interview date falls on a holiday. Would you like to continue scheduling the interview on this date? Please also ensure the last date of application is updated accordingly',
+																				getHolidayConfirmationMessage(
+																					`Day ${subIndex + 1} interview date`,
+																					{
+																						scheduling: true,
+																						reminder: 'Please also ensure the last date of application is updated accordingly.'
+																					}
+																				),
 																				() => setShowSubStageConfirm({ uniqueKey, subStage, subIndex, selectedDate }),
 																				null,
 																				'warning',

@@ -8,6 +8,7 @@ import './employer-details-styles.css';
 
 function EmployerDetails() {
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
     console.log('API_BASE_URL configured as:', API_BASE_URL);
     const navigate = useNavigate();
     const { id } = useParams();
@@ -62,6 +63,29 @@ function EmployerDetails() {
 
     const formatDate = (date) => {
         return date ? formatDateUtil(date) : 'N/A';
+    };
+
+    const formatOptionalPhone = (phoneValue) => {
+        const rawValue = String(phoneValue || '').trim();
+        if (!rawValue) return 'N/A';
+
+        const digitsOnly = rawValue.replace(/\D/g, '');
+        if (!digitsOnly || digitsOnly === '91') return 'N/A';
+
+        return rawValue;
+    };
+
+    const resolveMediaSrc = (mediaValue) => {
+        if (!mediaValue || typeof mediaValue !== 'string') return '';
+        const trimmed = mediaValue.trim();
+        if (!trimmed) return '';
+        if (trimmed.startsWith('data:')) return trimmed;
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+        if (trimmed.startsWith('/uploads') || trimmed.startsWith('uploads/')) {
+            const normalizedPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+            return `${API_ORIGIN}${normalizedPath}`;
+        }
+        return `data:image/jpeg;base64,${trimmed}`;
     };
 
     const downloadDocument = async (employerId, documentType) => {
@@ -307,6 +331,35 @@ function EmployerDetails() {
         );
     }
 
+    const getSingleDocumentMeta = (documentField) => {
+        const documentConfigMap = {
+            panCardImage: { status: 'panCardVerified', reuploadedAt: 'panCardReuploadedAt' },
+            cinImage: { status: 'cinVerified', reuploadedAt: 'cinReuploadedAt' },
+            gstImage: { status: 'gstVerified', reuploadedAt: 'gstReuploadedAt' },
+            certificateOfIncorporation: { status: 'incorporationVerified', reuploadedAt: 'incorporationReuploadedAt' },
+            companyIdCardPicture: { status: 'companyIdCardVerified', reuploadedAt: 'companyIdCardReuploadedAt' }
+        };
+
+        const config = documentConfigMap[documentField];
+        const uploaded = Boolean(profile[documentField]);
+        const verificationStatus = config ? (profile[config.status] || 'pending') : 'pending';
+        const reuploadedAt = config ? profile[config.reuploadedAt] : null;
+        const isResubmitted = Boolean(uploaded && reuploadedAt && verificationStatus === 'pending');
+
+        return {
+            uploaded,
+            verificationStatus,
+            reuploadedAt,
+            isResubmitted
+        };
+    };
+
+    const panCardMeta = getSingleDocumentMeta('panCardImage');
+    const cinMeta = getSingleDocumentMeta('cinImage');
+    const gstMeta = getSingleDocumentMeta('gstImage');
+    const incorporationMeta = getSingleDocumentMeta('certificateOfIncorporation');
+    const companyIdMeta = getSingleDocumentMeta('companyIdCardPicture');
+
     return (
         <div className="employer-details-container">
             <div className="employer-details-header" data-aos="fade-down">
@@ -337,17 +390,23 @@ function EmployerDetails() {
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="200">
                             <h6><i className="fa fa-image"></i>Company Logo</h6>
                             {profile.logo ? (
-                                <div>
-                                    <button 
-                                        className="btn btn-outline-primary btn-sm"
-                                        onClick={() => viewDocumentImage(id, 'logo')}
-                                        style={{ backgroundColor: 'transparent', borderColor: '#ff6b35', color: '#ff6b35' }}
-                                    >
-                                        <i className="fa fa-eye"></i>
-                                        View Logo
-                                    </button>
-                                    <p className="text-success mt-1">✓ Logo uploaded</p>
-                                </div>
+                                <button
+                                    type="button"
+                                    className="media-preview-card media-preview-card--logo"
+                                    onClick={() => viewDocumentImage(id, 'logo')}
+                                >
+                                    <div className="media-preview-frame media-preview-frame--logo">
+                                        <img
+                                            src={resolveMediaSrc(profile.logo)}
+                                            alt={`${profile.companyName || 'Company'} logo`}
+                                            className="media-preview-image"
+                                        />
+                                    </div>
+                                    <div className="media-preview-meta">
+                                        <span className="media-preview-status">Logo uploaded</span>
+                                        <span className="media-preview-hint">Click to open preview</span>
+                                    </div>
+                                </button>
                             ) : (
                                 <p className="text-muted">No logo uploaded</p>
                             )}
@@ -358,17 +417,23 @@ function EmployerDetails() {
                         <div className="profile-field" data-aos="fade-left" data-aos-delay="200">
                             <h6><i className="fa fa-images"></i>Cover Image</h6>
                             {profile.coverImage ? (
-                                <div>
-                                    <button 
-                                        className="btn btn-outline-primary btn-sm"
-                                        onClick={() => viewDocumentImage(id, 'coverImage')}
-                                        style={{ backgroundColor: 'transparent', borderColor: '#ff6b35', color: '#ff6b35' }}
-                                    >
-                                        <i className="fa fa-eye"></i>
-                                        View Cover
-                                    </button>
-                                    <p className="text-success mt-1">✓ Cover image uploaded</p>
-                                </div>
+                                <button
+                                    type="button"
+                                    className="media-preview-card media-preview-card--cover"
+                                    onClick={() => viewDocumentImage(id, 'coverImage')}
+                                >
+                                    <div className="media-preview-frame media-preview-frame--cover">
+                                        <img
+                                            src={resolveMediaSrc(profile.coverImage)}
+                                            alt={`${profile.companyName || 'Company'} cover`}
+                                            className="media-preview-image"
+                                        />
+                                    </div>
+                                    <div className="media-preview-meta">
+                                        <span className="media-preview-status">Cover image uploaded</span>
+                                        <span className="media-preview-hint">Click to open preview</span>
+                                    </div>
+                                </button>
                             ) : (
                                 <p className="text-muted">No cover image uploaded</p>
                             )}
@@ -575,7 +640,7 @@ function EmployerDetails() {
                         </div>
                         <div className="profile-field" data-aos="fade-left" data-aos-delay="350">
                             <h6><i className="fa fa-phone-alt"></i>Alternate Contact</h6>
-                            <p>{profile.alternateContact || 'N/A'}</p>
+                            <p>{formatOptionalPhone(profile.alternateContact)}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-left" data-aos-delay="375">
                             <h6><i className="fa fa-id-badge"></i>Employer Code</h6>
@@ -627,23 +692,27 @@ function EmployerDetails() {
                             <tr data-aos="fade-left" data-aos-delay="400">
                                 <td><i className="fa fa-id-card me-2 text-muted"></i>PAN Card Image</td>
                                 <td>
-                                    {profile.panCardImage ? 
-                                        <span className="status-badge badge-uploaded"><i className="fa fa-check"></i>Uploaded</span> : 
+                                    {panCardMeta.uploaded ? 
+                                        <span className="status-badge badge-uploaded">
+                                            <i className={`fa ${panCardMeta.isResubmitted ? 'fa-rotate-right' : 'fa-check'}`}></i>
+                                            {panCardMeta.isResubmitted ? 'Resubmitted' : 'Uploaded'}
+                                        </span> : 
                                         <span className="status-badge badge-not-uploaded"><i className="fa fa-times"></i>Not Uploaded</span>
                                     }
                                 </td>
                                 <td>
                                     <span className={`status-badge ${
-                                        profile.panCardVerified === 'approved' ? 'badge-approved' : 
-                                        profile.panCardVerified === 'rejected' ? 'badge-rejected' : 'badge-pending'
+                                        panCardMeta.verificationStatus === 'approved' ? 'badge-approved' : 
+                                        panCardMeta.verificationStatus === 'rejected' ? 'badge-rejected' : 'badge-pending'
                                     }`}>
-                                        {profile.panCardVerified !== 'approved' && (
+                                        {panCardMeta.verificationStatus !== 'approved' && (
                                             <i className={`fa ${
-                                                profile.panCardVerified === 'rejected' ? 'fa-times' : 'fa-clock'
+                                                panCardMeta.verificationStatus === 'rejected' ? 'fa-times' : 'fa-clock'
                                             }`}></i>
                                         )}
-                                        {profile.panCardVerified === 'approved' ? 'Approved' : 
-                                         profile.panCardVerified === 'rejected' ? 'Rejected' : 'Pending'}
+                                        {panCardMeta.verificationStatus === 'approved' ? 'Approved' : 
+                                         panCardMeta.verificationStatus === 'rejected' ? 'Rejected' :
+                                         panCardMeta.isResubmitted ? 'Resubmitted' : 'Pending'}
                                     </span>
                                 </td>
                                 <td style={{textAlign: 'center'}}>
@@ -658,7 +727,7 @@ function EmployerDetails() {
                                 </td>
                                 <td style={{textAlign: 'center'}}>
                                     <div className="action-buttons-container">
-                                        {profile.panCardImage && profile.panCardVerified === 'pending' && (
+                                        {panCardMeta.uploaded && panCardMeta.verificationStatus === 'pending' && (
                                             <>
                                                 <button 
                                                     className="btn btn-outline-success btn-sm"
@@ -677,13 +746,13 @@ function EmployerDetails() {
                                                 </button>
                                             </>
                                         )}
-                                        {profile.panCardImage && profile.panCardVerified === 'rejected' && (
+                                        {panCardMeta.uploaded && panCardMeta.verificationStatus === 'rejected' && (
                                             <span className="text-muted">Awaiting resubmission</span>
                                         )}
-                                        {profile.panCardImage && profile.panCardVerified === 'approved' && (
+                                        {panCardMeta.uploaded && panCardMeta.verificationStatus === 'approved' && (
                                             <span className="text-success">Verified</span>
                                         )}
-                                        {!profile.panCardImage && (
+                                        {!panCardMeta.uploaded && (
                                             <span className="text-muted">No document</span>
                                         )}
                                     </div>
@@ -692,23 +761,27 @@ function EmployerDetails() {
                             <tr data-aos="fade-left" data-aos-delay="450">
                                 <td><i className="fa fa-certificate me-2 text-muted"></i>CIN Document</td>
                                 <td>
-                                    {profile.cinImage ? 
-                                        <span className="status-badge badge-uploaded"><i className="fa fa-check"></i>Uploaded</span> : 
+                                    {cinMeta.uploaded ? 
+                                        <span className="status-badge badge-uploaded">
+                                            <i className={`fa ${cinMeta.isResubmitted ? 'fa-rotate-right' : 'fa-check'}`}></i>
+                                            {cinMeta.isResubmitted ? 'Resubmitted' : 'Uploaded'}
+                                        </span> : 
                                         <span className="status-badge badge-not-uploaded"><i className="fa fa-times"></i>Not Uploaded</span>
                                     }
                                 </td>
                                 <td>
                                     <span className={`status-badge ${
-                                        profile.cinVerified === 'approved' ? 'badge-approved' : 
-                                        profile.cinVerified === 'rejected' ? 'badge-rejected' : 'badge-pending'
+                                        cinMeta.verificationStatus === 'approved' ? 'badge-approved' : 
+                                        cinMeta.verificationStatus === 'rejected' ? 'badge-rejected' : 'badge-pending'
                                     }`}>
-                                        {profile.cinVerified !== 'approved' && (
+                                        {cinMeta.verificationStatus !== 'approved' && (
                                             <i className={`fa ${
-                                                profile.cinVerified === 'rejected' ? 'fa-times' : 'fa-clock'
+                                                cinMeta.verificationStatus === 'rejected' ? 'fa-times' : 'fa-clock'
                                             }`}></i>
                                         )}
-                                        {profile.cinVerified === 'approved' ? 'Approved' : 
-                                         profile.cinVerified === 'rejected' ? 'Rejected' : 'Pending'}
+                                        {cinMeta.verificationStatus === 'approved' ? 'Approved' : 
+                                         cinMeta.verificationStatus === 'rejected' ? 'Rejected' :
+                                         cinMeta.isResubmitted ? 'Resubmitted' : 'Pending'}
                                     </span>
                                 </td>
                                 <td style={{textAlign: 'center'}}>
@@ -723,7 +796,7 @@ function EmployerDetails() {
                                 </td>
                                 <td style={{textAlign: 'center'}}>
                                     <div className="action-buttons-container">
-                                        {profile.cinImage && profile.cinVerified === 'pending' && (
+                                        {cinMeta.uploaded && cinMeta.verificationStatus === 'pending' && (
                                             <>
                                                 <button 
                                                     className="btn btn-outline-success btn-sm"
@@ -742,13 +815,13 @@ function EmployerDetails() {
                                                 </button>
                                             </>
                                         )}
-                                        {profile.cinImage && profile.cinVerified === 'rejected' && (
+                                        {cinMeta.uploaded && cinMeta.verificationStatus === 'rejected' && (
                                             <span className="text-muted">Awaiting resubmission</span>
                                         )}
-                                        {profile.cinImage && profile.cinVerified === 'approved' && (
+                                        {cinMeta.uploaded && cinMeta.verificationStatus === 'approved' && (
                                             <span className="text-success">Verified</span>
                                         )}
-                                        {!profile.cinImage && (
+                                        {!cinMeta.uploaded && (
                                             <span className="text-muted">No document</span>
                                         )}
                                     </div>
@@ -757,23 +830,27 @@ function EmployerDetails() {
                             <tr data-aos="fade-left" data-aos-delay="500">
                                 <td><i className="fa fa-receipt me-2 text-muted"></i>GST Certificate</td>
                                 <td>
-                                    {profile.gstImage ? 
-                                        <span className="status-badge badge-uploaded"><i className="fa fa-check"></i>Uploaded</span> : 
+                                    {gstMeta.uploaded ? 
+                                        <span className="status-badge badge-uploaded">
+                                            <i className={`fa ${gstMeta.isResubmitted ? 'fa-rotate-right' : 'fa-check'}`}></i>
+                                            {gstMeta.isResubmitted ? 'Resubmitted' : 'Uploaded'}
+                                        </span> : 
                                         <span className="status-badge badge-not-uploaded"><i className="fa fa-times"></i>Not Uploaded</span>
                                     }
                                 </td>
                                 <td>
                                     <span className={`status-badge ${
-                                        profile.gstVerified === 'approved' ? 'badge-approved' : 
-                                        profile.gstVerified === 'rejected' ? 'badge-rejected' : 'badge-pending'
+                                        gstMeta.verificationStatus === 'approved' ? 'badge-approved' : 
+                                        gstMeta.verificationStatus === 'rejected' ? 'badge-rejected' : 'badge-pending'
                                     }`}>
-                                        {profile.gstVerified !== 'approved' && (
+                                        {gstMeta.verificationStatus !== 'approved' && (
                                             <i className={`fa ${
-                                                profile.gstVerified === 'rejected' ? 'fa-times' : 'fa-clock'
+                                                gstMeta.verificationStatus === 'rejected' ? 'fa-times' : 'fa-clock'
                                             }`}></i>
                                         )}
-                                        {profile.gstVerified === 'approved' ? 'Approved' : 
-                                         profile.gstVerified === 'rejected' ? 'Rejected' : 'Pending'}
+                                        {gstMeta.verificationStatus === 'approved' ? 'Approved' : 
+                                         gstMeta.verificationStatus === 'rejected' ? 'Rejected' :
+                                         gstMeta.isResubmitted ? 'Resubmitted' : 'Pending'}
                                     </span>
                                 </td>
                                 <td style={{textAlign: 'center'}}>
@@ -788,7 +865,7 @@ function EmployerDetails() {
                                 </td>
                                 <td style={{textAlign: 'center'}}>
                                     <div className="action-buttons-container">
-                                        {profile.gstImage && profile.gstVerified === 'pending' && (
+                                        {gstMeta.uploaded && gstMeta.verificationStatus === 'pending' && (
                                             <>
                                                 <button 
                                                     className="btn btn-outline-success btn-sm"
@@ -807,13 +884,13 @@ function EmployerDetails() {
                                                 </button>
                                             </>
                                         )}
-                                        {profile.gstImage && profile.gstVerified === 'rejected' && (
+                                        {gstMeta.uploaded && gstMeta.verificationStatus === 'rejected' && (
                                             <span className="text-muted">Awaiting resubmission</span>
                                         )}
-                                        {profile.gstImage && profile.gstVerified === 'approved' && (
+                                        {gstMeta.uploaded && gstMeta.verificationStatus === 'approved' && (
                                             <span className="text-success">Verified</span>
                                         )}
-                                        {!profile.gstImage && (
+                                        {!gstMeta.uploaded && (
                                             <span className="text-muted">No document</span>
                                         )}
                                     </div>
@@ -822,23 +899,27 @@ function EmployerDetails() {
                             <tr data-aos="fade-left" data-aos-delay="550">
                                 <td><i className="fa fa-file-contract me-2 text-muted"></i>Certificate of Incorporation</td>
                                 <td>
-                                    {profile.certificateOfIncorporation ? 
-                                        <span className="status-badge badge-uploaded"><i className="fa fa-check"></i>Uploaded</span> : 
+                                    {incorporationMeta.uploaded ? 
+                                        <span className="status-badge badge-uploaded">
+                                            <i className={`fa ${incorporationMeta.isResubmitted ? 'fa-rotate-right' : 'fa-check'}`}></i>
+                                            {incorporationMeta.isResubmitted ? 'Resubmitted' : 'Uploaded'}
+                                        </span> : 
                                         <span className="status-badge badge-not-uploaded"><i className="fa fa-times"></i>Not Uploaded</span>
                                     }
                                 </td>
                                 <td>
                                     <span className={`status-badge ${
-                                        profile.incorporationVerified === 'approved' ? 'badge-approved' : 
-                                        profile.incorporationVerified === 'rejected' ? 'badge-rejected' : 'badge-pending'
+                                        incorporationMeta.verificationStatus === 'approved' ? 'badge-approved' : 
+                                        incorporationMeta.verificationStatus === 'rejected' ? 'badge-rejected' : 'badge-pending'
                                     }`}>
-                                        {profile.incorporationVerified !== 'approved' && (
+                                        {incorporationMeta.verificationStatus !== 'approved' && (
                                             <i className={`fa ${
-                                                profile.incorporationVerified === 'rejected' ? 'fa-times' : 'fa-clock'
+                                                incorporationMeta.verificationStatus === 'rejected' ? 'fa-times' : 'fa-clock'
                                             }`}></i>
                                         )}
-                                        {profile.incorporationVerified === 'approved' ? 'Approved' : 
-                                         profile.incorporationVerified === 'rejected' ? 'Rejected' : 'Pending'}
+                                        {incorporationMeta.verificationStatus === 'approved' ? 'Approved' : 
+                                         incorporationMeta.verificationStatus === 'rejected' ? 'Rejected' :
+                                         incorporationMeta.isResubmitted ? 'Resubmitted' : 'Pending'}
                                     </span>
                                 </td>
                                 <td style={{textAlign: 'center'}}>
@@ -853,7 +934,7 @@ function EmployerDetails() {
                                 </td>
                                 <td style={{textAlign: 'center'}}>
                                     <div className="action-buttons-container">
-                                        {profile.certificateOfIncorporation && profile.incorporationVerified === 'pending' && (
+                                        {incorporationMeta.uploaded && incorporationMeta.verificationStatus === 'pending' && (
                                             <>
                                                 <button 
                                                     className="btn btn-outline-success btn-sm"
@@ -872,13 +953,82 @@ function EmployerDetails() {
                                                 </button>
                                             </>
                                         )}
-                                        {profile.certificateOfIncorporation && profile.incorporationVerified === 'rejected' && (
+                                        {incorporationMeta.uploaded && incorporationMeta.verificationStatus === 'rejected' && (
                                             <span className="text-muted">Awaiting resubmission</span>
                                         )}
-                                        {profile.certificateOfIncorporation && profile.incorporationVerified === 'approved' && (
+                                        {incorporationMeta.uploaded && incorporationMeta.verificationStatus === 'approved' && (
                                             <span className="text-success">Verified</span>
                                         )}
-                                        {!profile.certificateOfIncorporation && (
+                                        {!incorporationMeta.uploaded && (
+                                            <span className="text-muted">No document</span>
+                                        )}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-aos="fade-left" data-aos-delay="600">
+                                <td><i className="fa fa-address-card me-2 text-muted"></i>Company ID Card</td>
+                                <td>
+                                    {companyIdMeta.uploaded ? 
+                                        <span className="status-badge badge-uploaded">
+                                            <i className={`fa ${companyIdMeta.isResubmitted ? 'fa-rotate-right' : 'fa-check'}`}></i>
+                                            {companyIdMeta.isResubmitted ? 'Resubmitted' : 'Uploaded'}
+                                        </span> : 
+                                        <span className="status-badge badge-not-uploaded"><i className="fa fa-times"></i>Not Uploaded</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span className={`status-badge ${
+                                        companyIdMeta.verificationStatus === 'approved' ? 'badge-approved' : 
+                                        companyIdMeta.verificationStatus === 'rejected' ? 'badge-rejected' : 'badge-pending'
+                                    }`}>
+                                        {companyIdMeta.verificationStatus !== 'approved' && (
+                                            <i className={`fa ${
+                                                companyIdMeta.verificationStatus === 'rejected' ? 'fa-times' : 'fa-clock'
+                                            }`}></i>
+                                        )}
+                                        {companyIdMeta.verificationStatus === 'approved' ? 'Approved' : 
+                                         companyIdMeta.verificationStatus === 'rejected' ? 'Rejected' :
+                                         companyIdMeta.isResubmitted ? 'Resubmitted' : 'Pending'}
+                                    </span>
+                                </td>
+                                <td style={{textAlign: 'center'}}>
+                                    <button 
+                                        className="btn btn-outline-primary btn-sm"
+                                        onClick={() => viewDocumentImage(id, 'companyIdCardPicture')}
+                                        disabled={!profile.companyIdCardPicture}
+                                        style={{ borderColor: '#ff6b35', color: '#ff6b35' }}
+                                    >
+                                        <i className="fa fa-eye"></i>
+                                    </button>
+                                </td>
+                                <td style={{textAlign: 'center'}}>
+                                    <div className="action-buttons-container">
+                                        {companyIdMeta.uploaded && companyIdMeta.verificationStatus === 'pending' && (
+                                            <>
+                                                <button 
+                                                    className="btn btn-outline-success btn-sm"
+                                                    onClick={() => updateDocumentStatus(id, 'companyIdCardVerified', 'approved')}
+                                                    style={{ marginRight: '5px' }}
+                                                    title="Approve Document"
+                                                >
+                                                    <i className="fa fa-check"></i>
+                                                </button>
+                                                <button 
+                                                    className="btn btn-outline-danger btn-sm"
+                                                    onClick={() => updateDocumentStatus(id, 'companyIdCardVerified', 'rejected')}
+                                                    title="Reject Document"
+                                                >
+                                                    <i className="fa fa-times"></i>
+                                                </button>
+                                            </>
+                                        )}
+                                        {companyIdMeta.uploaded && companyIdMeta.verificationStatus === 'rejected' && (
+                                            <span className="text-muted">Awaiting resubmission</span>
+                                        )}
+                                        {companyIdMeta.uploaded && companyIdMeta.verificationStatus === 'approved' && (
+                                            <span className="text-success">Verified</span>
+                                        )}
+                                        {!companyIdMeta.uploaded && (
                                             <span className="text-muted">No document</span>
                                         )}
                                     </div>

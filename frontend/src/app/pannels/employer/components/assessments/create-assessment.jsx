@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CreateAssessmentModal from './CreateAssessmentModal';
 import { showPopup, showSuccess, showError, showConfirmation } from '../../../../../utils/popupNotification';
+import './create-assessment.css';
 import './mobile-text-fix.css';
 import '../../../../../assessment-title-hide.css';
 
@@ -201,13 +202,16 @@ function CreateAssessmentPage() {
                 <div className="panel-body wt-panel-body p-a20">
                     <div className="row mb-4">
                         <div className="col-md-6">
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Search assessments..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                            <div className="search-input-group">
+                                <i className="fa fa-search search-icon" aria-hidden="true"></i>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Search assessments..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
                         </div>
                     </div>
 

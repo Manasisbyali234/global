@@ -106,16 +106,21 @@ export default function AssessmentResults() {
                 whiteSpace: 'normal',
                 lineHeight: '1.3'
               }}>
-                {assessment?.title} - Results
+                Assessment Results
               </h2>
+              {assessment?.companyName && (
+                <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: '0.875rem' }}>
+                  <span style={{ fontWeight: '500' }}>Company:</span> {assessment.companyName}
+                </p>
+              )}
               {assessment?.designation && (
                 <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: '0.875rem' }}>
                   <span style={{ fontWeight: '500' }}>Designation:</span> {assessment.designation}
                 </p>
               )}
-              {assessment?.companyName && (
+              {assessment?.title && (
                 <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: '0.875rem' }}>
-                  <span style={{ fontWeight: '500' }}>Company:</span> {assessment.companyName}
+                  <span style={{ fontWeight: '500' }}>Title:</span> {assessment.title}
                 </p>
               )}
               <p style={{ color: '#6b7280', margin: 0, fontSize: '1rem' }}>

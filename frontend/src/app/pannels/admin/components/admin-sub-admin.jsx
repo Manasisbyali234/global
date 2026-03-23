@@ -458,8 +458,12 @@ function AdminSubAdmin() {
                                 <form onSubmit={handleSubmit}>
                                     <div className="row g-4">
                                         <div className="col-md-6">
+                                            <label htmlFor="sub-admin-first-name" className="form-label fw-semibold text-dark mb-2">
+                                                First Name <span style={{ color: 'red' }}>*</span>
+                                            </label>
                                             <input
                                                 className={`form-control rounded-3 ${validationErrors.firstName ? 'is-invalid' : ''}`}
+                                                id="sub-admin-first-name"
                                                 name="firstName"
                                                 type="text"
                                                 placeholder="First Name *"
@@ -475,8 +479,12 @@ function AdminSubAdmin() {
                                         </div>
 
                                         <div className="col-md-6">
+                                            <label htmlFor="sub-admin-last-name" className="form-label fw-semibold text-dark mb-2">
+                                                Last Name <span style={{ color: 'red' }}>*</span>
+                                            </label>
                                             <input
                                                 className={`form-control rounded-3 ${validationErrors.lastName ? 'is-invalid' : ''}`}
+                                                id="sub-admin-last-name"
                                                 name="lastName"
                                                 type="text"
                                                 placeholder="Last Name *"
@@ -492,8 +500,12 @@ function AdminSubAdmin() {
                                         </div>
 
                                         <div className="col-md-6">
+                                            <label htmlFor="sub-admin-email" className="form-label fw-semibold text-dark mb-2">
+                                                Email Address <span style={{ color: 'red' }}>*</span>
+                                            </label>
                                             <input
                                                 className={`form-control rounded-3 ${validationErrors.email ? 'is-invalid' : ''}`}
+                                                id="sub-admin-email"
                                                 name="email"
                                                 type="email"
                                                 placeholder="Email Address *"
@@ -509,8 +521,12 @@ function AdminSubAdmin() {
                                         </div>
 
                                         <div className="col-md-6">
+                                            <label htmlFor="sub-admin-phone" className="form-label fw-semibold text-dark mb-2">
+                                                Phone Number <span style={{ color: 'red' }}>*</span>
+                                            </label>
                                             <input
                                                 className={`form-control rounded-3 ${validationErrors.phone ? 'is-invalid' : ''}`}
+                                                id="sub-admin-phone"
                                                 name="phone"
                                                 type="tel"
                                                 placeholder="Phone Number *"
@@ -526,8 +542,12 @@ function AdminSubAdmin() {
                                         </div>
 
                                         <div className="col-md-6">
+                                            <label htmlFor="sub-admin-employer-code" className="form-label fw-semibold text-dark mb-2">
+                                                Employer Code <span style={{ color: 'red' }}>*</span>
+                                            </label>
                                             <input
                                                 className={`form-control rounded-3 ${validationErrors.employerCode ? 'is-invalid' : ''}`}
+                                                id="sub-admin-employer-code"
                                                 name="employerCode"
                                                 type="text"
                                                 placeholder="Employer Code *"
@@ -609,9 +629,13 @@ function AdminSubAdmin() {
                                         </div>
 
                                         <div className="col-md-6">
+                                            <label htmlFor="sub-admin-password" className="form-label fw-semibold text-dark mb-2">
+                                                Password {showAddForm && <span style={{ color: 'red' }}>*</span>}
+                                            </label>
                                             <div className="position-relative">
                                                 <input
                                                     className="form-control rounded-3"
+                                                    id="sub-admin-password"
                                                     name="password"
                                                     type={showPassword ? "text" : "password"}
                                                     placeholder={showAddForm ? "Password *" : "Password (Leave blank to keep current)"}
@@ -626,11 +650,14 @@ function AdminSubAdmin() {
                                                 />
                                                 {validationErrors.password && (
                                                     <i 
-                                                        className="fa fa-exclamation-circle"
+                                                        className="fa fa-exclamation-circle password-feedback-icon"
                                                         style={{
                                                             position: 'absolute',
                                                             right: '40px',
-                                                            top: '12px',
+                                                            top: '0',
+                                                            height: '100%',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
                                                             color: '#dc3545',
                                                             zIndex: 10,
                                                             pointerEvents: 'none'
@@ -638,15 +665,19 @@ function AdminSubAdmin() {
                                                     ></i>
                                                 )}
                                                 <i 
-                                                    className={`fa ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}
+                                                    className={`fa ${showPassword ? 'fa-eye-slash' : 'fa-eye'} password-toggle-icon`}
                                                     onClick={() => setShowPassword(!showPassword)}
                                                     style={{
                                                         position: 'absolute',
                                                         right: '12px',
-                                                        top: '12px',
+                                                        top: '0',
+                                                        height: '100%',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
                                                         cursor: 'pointer',
                                                         color: '#6c757d',
-                                                        zIndex: 10
+                                                        zIndex: 10,
+                                                        lineHeight: 1
                                                     }}
                                                 ></i>
                                             </div>
@@ -677,9 +708,13 @@ function AdminSubAdmin() {
                                         </div>
 
                                         <div className="col-md-6">
+                                            <label htmlFor="sub-admin-confirm-password" className="form-label fw-semibold text-dark mb-2">
+                                                Confirm Password {showAddForm && <span style={{ color: 'red' }}>*</span>}
+                                            </label>
                                             <div className="position-relative">
                                                 <input
                                                     className="form-control rounded-3"
+                                                    id="sub-admin-confirm-password"
                                                     name="confirmPassword"
                                                     type={showConfirmPassword ? "text" : "password"}
                                                     placeholder={showAddForm ? "Confirm Password *" : "Confirm Password"}
@@ -694,11 +729,14 @@ function AdminSubAdmin() {
                                                 />
                                                 {validationErrors.confirmPassword && (
                                                     <i 
-                                                        className="fa fa-exclamation-circle"
+                                                        className="fa fa-exclamation-circle password-feedback-icon"
                                                         style={{
                                                             position: 'absolute',
                                                             right: '40px',
-                                                            top: '12px',
+                                                            top: '0',
+                                                            height: '100%',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
                                                             color: '#dc3545',
                                                             zIndex: 10,
                                                             pointerEvents: 'none'
@@ -706,15 +744,19 @@ function AdminSubAdmin() {
                                                     ></i>
                                                 )}
                                                 <i 
-                                                    className={`fa ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}
+                                                    className={`fa ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'} password-toggle-icon`}
                                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                                     style={{
                                                         position: 'absolute',
                                                         right: '12px',
-                                                        top: '12px',
+                                                        top: '0',
+                                                        height: '100%',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
                                                         cursor: 'pointer',
                                                         color: '#6c757d',
-                                                        zIndex: 10
+                                                        zIndex: 10,
+                                                        lineHeight: 1
                                                     }}
                                                 ></i>
                                             </div>

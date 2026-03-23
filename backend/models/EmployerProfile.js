@@ -55,6 +55,7 @@ const employerProfileSchema = new mongoose.Schema({
     rejectedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
     companyName: { type: String } // Company name for each authorization letter
   }], // Multiple authorization letters
+  hiringCompanies: [{ type: String }],
   
   // Document verification status
   panCardVerified: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },

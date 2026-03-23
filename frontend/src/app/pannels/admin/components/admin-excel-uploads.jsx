@@ -101,17 +101,21 @@ function AdminExcelUploads() {
 
             <div className="panel panel-default site-bg-white">
                 <div className="panel-heading wt-panel-heading p-a20">
-                    <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', gap: '15px', width: '100%'}}>
-                        <h4 className="panel-tittle m-a0" style={{marginRight: 'auto'}}>Excel Uploads ({filteredUploads.length})</h4>
-                        <div className="search-section" style={{marginLeft: 'auto'}}>
-                            <label className="search-label">
+                    <div className="page-toolbar">
+                        <h4 className="panel-tittle m-a0 page-toolbar__title">Excel Uploads ({filteredUploads.length})</h4>
+                        <div className="page-toolbar__controls page-toolbar__controls--single">
+                        <div className="search-section page-toolbar__section">
+                            <label className="search-label page-toolbar__label">
                                 <i className="fa fa-filter"></i> Search by Name, Email, or College
                             </label>
+                            <div className="page-toolbar__control-wrap">
                             <SearchBar 
                                 onSearch={handleSearch}
                                 placeholder="Search Excel uploads..."
                                 className="placement-search"
                             />
+                            </div>
+                        </div>
                         </div>
                     </div>
                 </div>

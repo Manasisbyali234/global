@@ -237,26 +237,92 @@ button.receipt-print-btn:visited {
     color: #ffffff !important;
 }
 
+/* Receipt metadata alignment */
+#invoice-content .receipt-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    max-width: 340px;
+    margin-left: auto;
+    text-align: left;
+}
+
+#invoice-content .receipt-info-row {
+    display: grid;
+    grid-template-columns: 110px 10px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 8px;
+}
+
+#invoice-content .receipt-info-label {
+    color: #6c757d;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#invoice-content .receipt-info-separator {
+    color: #6c757d;
+    text-align: center;
+}
+
+#invoice-content .receipt-info-value {
+    color: #212529;
+    font-weight: 600;
+    min-width: 0;
+    text-align: left;
+}
+
+#invoice-content .receipt-meta,
+#invoice-content .payment-info {
+    width: 100%;
+    max-width: 340px;
+    margin-left: auto;
+}
+
+#invoice-content .payment-info {
+    max-width: 420px;
+}
+
+#invoice-content .payment-method-value {
+    white-space: nowrap;
+}
+
 /* Mobile alignment for payment info on receipt */
 @media (max-width: 575.98px) {
+    #invoice-content .receipt-info-list,
     #invoice-content .payment-info {
         text-align: left !important;
+        width: 100%;
+        margin-left: 0;
+        align-items: stretch;
     }
 
+    #invoice-content .receipt-info-row,
     #invoice-content .payment-info-row {
-        justify-content: flex-start !important;
-        align-items: flex-start !important;
-        flex-direction: column !important;
-        gap: 4px;
+        grid-template-columns: 1fr;
+        justify-items: start;
+        row-gap: 2px;
     }
 
+    #invoice-content .receipt-info-separator,
+    #invoice-content .payment-info-row .receipt-info-separator {
+        display: none;
+    }
+
+    #invoice-content .receipt-info-label,
     #invoice-content .payment-info-label {
         min-width: 0 !important;
     }
 
+    #invoice-content .receipt-info-value,
     #invoice-content .payment-info-value {
         margin-left: 0 !important;
         word-break: break-word;
+    }
+
+    #invoice-content .payment-method-value {
+        white-space: normal;
     }
 }
 

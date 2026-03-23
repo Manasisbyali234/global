@@ -226,11 +226,16 @@ function CanTransactionsPage() {
             <div style={{ padding: '0 clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem)' }}>
                 <div className="panel panel-default site-bg-white" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0, padding: 'clamp(1rem, 3vw, 1.5rem)' }}>
                     
-                    <div className="mb-3 mb-md-4 d-flex justify-content-between align-items-center flex-wrap gap-2 gap-md-3">
-                        <div style={{ position: 'relative', maxWidth: '420px', width: '100%' }}>
+                    <div className="page-toolbar mb-3 mb-md-4">
+                        <div className="page-toolbar__controls page-toolbar__controls--single" style={{ width: '100%', maxWidth: '420px' }}>
+                        <div className="page-toolbar__section">
+                            <label className="page-toolbar__label">
+                                <i className="fa fa-search"></i> Search Transactions
+                            </label>
+                        <div style={{ position: 'relative', width: '100%' }}>
                             <input
                                 type="text"
-                                className="form-control"
+                                className="form-control page-toolbar__input"
                                 placeholder="Search by job, company, payment ID, or date (e.g. Jan 2025)..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
@@ -243,6 +248,8 @@ function CanTransactionsPage() {
                                     backgroundSize: '16px 16px'
                                 }}
                             />
+                        </div>
+                        </div>
                         </div>
                         <div className="text-muted" style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
                             Total: <strong>{filteredTransactions.length}</strong>

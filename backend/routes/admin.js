@@ -6,7 +6,10 @@ const { auth } = require('../middlewares/auth');
 const { body } = require('express-validator');
 const handleValidationErrors = require('../middlewares/validation');
 
-router.post('/login', adminController.loginAdmin);
+router.post('/login', [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').notEmpty().withMessage('Password is required')
+], handleValidationErrors, adminController.loginAdmin);
 router.post('/send-otp', adminController.sendOTP);
 router.post('/verify-otp-reset', [
   body('email').isEmail().withMessage('Valid email is required'),

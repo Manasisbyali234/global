@@ -26,8 +26,7 @@ function ContactUsPage() {
             newErrors.email = 'Email is invalid';
         }
         if (formData.phone.trim()) {
-            const fullPhone = `${formData.phoneCountryCode}${formData.phone.trim()}`;
-            const phoneValidation = validatePhoneNumber(fullPhone);
+            const phoneValidation = validatePhoneNumber(formData.phone.trim());
             if (!phoneValidation.isValid) {
                 newErrors.phone = phoneValidation.message;
             }
@@ -40,7 +39,11 @@ function ContactUsPage() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const nextValue = name === 'phone'
+            ? value.replace(/\D/g, '').slice(0, 10)
+            : value;
+
+        setFormData(prev => ({ ...prev, [name]: nextValue }));
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
@@ -152,6 +155,7 @@ function ContactUsPage() {
                                                                 placeholder="Phone Number" 
                                                                 value={formData.phone}
                                                                 onChange={handleChange}
+                                                                maxLength={10}
                                                                 style={{ paddingLeft: '50px' }}
                                                             />
                                                             {errors.phone && <div className="invalid-feedback d-block">{errors.phone}</div>}

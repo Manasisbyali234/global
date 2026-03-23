@@ -11,6 +11,7 @@ function AdminSupportTickets() {
     const [showModal, setShowModal] = useState(false);
     const [response, setResponse] = useState('');
     const [status, setStatus] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const [filters, setFilters] = useState({
         status: '',
         userType: '',
@@ -24,12 +25,21 @@ function AdminSupportTickets() {
         resolved: 0
     });
     const [updating, setUpdating] = useState(false);
+    const responseTextareaRef = useRef(null);
 
 
 
     useEffect(() => {
         fetchSupportTickets();
     }, [filters]);
+
+    useEffect(() => {
+        const textarea = responseTextareaRef.current;
+        if (!textarea) return;
+
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+    }, [response, showModal]);
 
     const fetchSupportTickets = async () => {
         try {
@@ -253,9 +263,9 @@ function AdminSupportTickets() {
             guest: 'badge-soft-user-guest'
         };
         const displayText = {
-            employer: 'Emp',
-            candidate: 'Cand',
-            guest: 'Guest'
+            employer: 'Employer',
+            candidate: 'Candidate',
+            guest: 'Guest User'
         };
         return (
             <Badge bg="light" className={`badge-soft ${variants[userType] || ''}`}>
@@ -275,6 +285,16 @@ function AdminSupportTickets() {
     const getRequesterEmail = (ticket) => ticket?.actualUserEmail || ticket?.email || 'No email provided';
 
     const getRequesterLabel = (ticket) => ticket?.userType === 'employer' ? 'Company name' : 'Name';
+
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+    const visibleTickets = tickets.filter((ticket) => {
+        if (!normalizedSearchTerm) return true;
+
+        const requesterName = getRequesterName(ticket).toLowerCase();
+        const requesterEmail = getRequesterEmail(ticket).toLowerCase();
+
+        return requesterName.includes(normalizedSearchTerm) || requesterEmail.includes(normalizedSearchTerm);
+    });
 
     const handleCloseModal = () => {
         setShowModal(false);
@@ -327,12 +347,32 @@ function AdminSupportTickets() {
                             <Button
                                 variant="link"
                                 className="clear-filters-btn"
-                                onClick={() => setFilters({ status: '', userType: '', priority: '' })}
+                                onClick={() => {
+                                    setFilters({ status: '', userType: '', priority: '' });
+                                    setSearchTerm('');
+                                }}
                             >
                                 Reset filters
                             </Button>
                         </div>
                         <Row className="g-3">
+                            <Col md={4}>
+                                <div className="search-input-wrapper">
+                                    <span className="search-input-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false">
+                                            <circle cx="11" cy="11" r="7"></circle>
+                                            <path d="m20 20-3.5-3.5"></path>
+                                        </svg>
+                                    </span>
+                                    <Form.Control
+                                        type="search"
+                                        className="search-input"
+                                        placeholder="Search by requester name or email"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                            </Col>
                             <Col md={4}>
                                 <Form.Select
                                     className="filter-select"
@@ -358,7 +398,7 @@ function AdminSupportTickets() {
                                     <option value="guest">Guest</option>
                                 </Form.Select>
                             </Col>
-                            <Col md={4}>
+                            <Col md={12}>
                                 <Form.Select
                                     className="filter-select"
                                     value={filters.priority}
@@ -380,15 +420,19 @@ function AdminSupportTickets() {
                         <Card className="tickets-card">
                             <div className="tickets-header">
                                 <div>
-                                    <h5>Support Tickets ({tickets.length})</h5>
+                                    <h5>Support Tickets ({visibleTickets.length})</h5>
                                     <span className="tickets-header__subtitle">Track ticket lifecycle and respond with clarity.</span>
                                 </div>
                             </div>
                             <Card.Body className="p-0">
-                                {tickets.length === 0 ? (
+                                {visibleTickets.length === 0 ? (
                                     <div className="empty-state">
-                                        <h6>No tickets yet</h6>
-                                        <p>Customer support requests will appear here as soon as they are submitted.</p>
+                                        <h6>{tickets.length === 0 ? 'No tickets yet' : 'No matching tickets'}</h6>
+                                        <p>
+                                            {tickets.length === 0
+                                                ? 'Customer support requests will appear here as soon as they are submitted.'
+                                                : 'Try a different requester name or email, or clear the active filters.'}
+                                        </p>
                                     </div>
                                 ) : (
                                     <div className="table-container">
@@ -406,7 +450,7 @@ function AdminSupportTickets() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {tickets.map((ticket) => (
+                                                {visibleTickets.map((ticket) => (
                                                     <tr
                                                         key={ticket._id}
                                                         className={`tickets-row ${!ticket.isRead ? 'unread-ticket' : ''}`}
@@ -476,91 +520,106 @@ function AdminSupportTickets() {
                 <Modal.Body>
                     {selectedTicket && (
                         <>
-                            <Row className="mb-3">
-                                <Col md={6}>
-                                    <div className="detail-label">{getRequesterLabel(selectedTicket)}</div>
-                                    <div>{getRequesterName(selectedTicket)}</div>
-                                </Col>
-                                <Col md={6}>
-                                    <div className="detail-label">Email</div>
-                                    <div>{getRequesterEmail(selectedTicket)}</div>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col md={6}>
-                                    <div className="detail-label">Subject</div>
-                                    <div>{selectedTicket.subject}</div>
-                                </Col>
-                                <Col md={6}>
-                                    <div className="detail-label">Priority</div>
-                                    <div>{getPriorityBadge(selectedTicket.priority)}</div>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col md={6}>
-                                    <div className="detail-label">User type</div>
-                                    <div>{getUserTypeBadge(selectedTicket.userType)}</div>
-                                </Col>
-                                <Col md={6}>
-                                    <div className="detail-label">Category</div>
-                                    <div>{selectedTicket.category || 'General'}</div>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col>
+                            <div className="ticket-details-shell">
+                                <div className="ticket-details-hero">
+                                    <div className="ticket-details-hero__content">
+                                        <span className="ticket-details-hero__eyebrow">Support ticket</span>
+                                        <h4 className="ticket-details-hero__title">{selectedTicket.subject}</h4>
+                                        <div className="ticket-details-hero__meta">
+                                            <span>Ticket ID: {selectedTicket._id?.slice(-8)?.toUpperCase() || 'N/A'}</span>
+                                            <span>Created: {formatDate(selectedTicket.createdAt)}</span>
+                                        </div>
+                                    </div>
+                                    <div className="ticket-details-hero__badges">
+                                        <div className="ticket-details-badge-group">
+                                            <span className="ticket-details-badge-label">Priority</span>
+                                            {getPriorityBadge(selectedTicket.priority)}
+                                        </div>
+                                        <div className="ticket-details-badge-group">
+                                            <span className="ticket-details-badge-label">Status</span>
+                                            {getStatusBadge(selectedTicket.status)}
+                                        </div>
+                                        <div className="ticket-details-badge-group">
+                                            <span className="ticket-details-badge-label">User Type</span>
+                                            {getUserTypeBadge(selectedTicket.userType)}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="ticket-details-grid">
+                                    <div className="ticket-detail-card">
+                                        <div className="detail-label">{getRequesterLabel(selectedTicket)}</div>
+                                        <div className="detail-value">{getRequesterName(selectedTicket)}</div>
+                                    </div>
+                                    <div className="ticket-detail-card">
+                                        <div className="detail-label">Email</div>
+                                        <div className="detail-value detail-value--break">{getRequesterEmail(selectedTicket)}</div>
+                                    </div>
+                                    <div className="ticket-detail-card">
+                                        <div className="detail-label">User Type</div>
+                                        <div className="detail-value">{getUserTypeBadge(selectedTicket.userType)}</div>
+                                    </div>
+                                    <div className="ticket-detail-card">
+                                        <div className="detail-label">Category</div>
+                                        <div className="detail-value">{selectedTicket.category || 'General'}</div>
+                                    </div>
+                                </div>
+
+                                <div className="ticket-detail-section mb-3">
                                     <div className="detail-label">Message</div>
                                     <div className="message-box">
                                         {selectedTicket.message}
                                     </div>
-                                </Col>
-                            </Row>
+                                </div>
+                            </div>
                             {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
+                                <div className="ticket-detail-section mb-3">
+                                    <div className="detail-label">Attachments</div>
+                                    <ul className="attachment-list">
+                                        {selectedTicket.attachments.map((attachment, index) => (
+                                            <li key={index} className="attachment-item">
+                                                <button 
+                                                    className="attachment-link"
+                                                    onClick={(event) => handleAttachmentClick(event, selectedTicket._id, index, attachment.originalName)}
+                                                >
+                                                    {attachment.originalName}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            <div className="ticket-admin-panel">
                                 <Row className="mb-3">
-                                    <Col>
-                                        <div className="detail-label">Attachments</div>
-                                        <ul className="attachment-list">
-                                            {selectedTicket.attachments.map((attachment, index) => (
-                                                <li key={index} className="attachment-item">
-                                                    <button 
-                                                        className="attachment-link"
-                                                        onClick={(event) => handleAttachmentClick(event, selectedTicket._id, index, attachment.originalName)}
-                                                    >
-                                                        {attachment.originalName}
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="detail-label">Status</Form.Label>
+                                            <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                                                <option value="new">New</option>
+                                                <option value="in-progress">In progress</option>
+                                                <option value="resolved">Resolved</option>
+                                                <option value="closed">Closed</option>
+                                            </Form.Select>
+                                        </Form.Group>
                                     </Col>
                                 </Row>
-                            )}
-                            <Row className="mb-3">
-                                <Col md={6}>
-                                    <Form.Group>
-                                        <Form.Label className="detail-label">Status</Form.Label>
-                                        <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                                            <option value="new">New</option>
-                                            <option value="in-progress">In progress</option>
-                                            <option value="resolved">Resolved</option>
-                                            <option value="closed">Closed</option>
-                                        </Form.Select>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col md={12}>
-                                    <Form.Group>
-                                        <Form.Label className="detail-label">Admin Response</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            className="response-textarea"
-                                            placeholder="Type your response here... This will be sent as a notification to the user."
-                                            value={response}
-                                            onChange={(e) => setResponse(e.target.value)}
-                                        />
-                                        <small className="text-muted">Your response will be sent as a notification to the {selectedTicket.userType === 'employer' ? 'employer' : selectedTicket.userType === 'candidate' ? 'candidate' : 'user'}.</small>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                                <Row className="mb-0">
+                                    <Col md={12}>
+                                        <Form.Group>
+                                            <Form.Label className="detail-label">Admin Response</Form.Label>
+                                            <Form.Control
+                                                ref={responseTextareaRef}
+                                                as="textarea"
+                                                className="response-textarea"
+                                                placeholder="Type your response here... This will be sent as a notification to the user."
+                                                value={response}
+                                                onChange={(e) => setResponse(e.target.value)}
+                                            />
+                                            <small className="text-muted">Your response will be sent as a notification to the {selectedTicket.userType === 'employer' ? 'employer' : selectedTicket.userType === 'candidate' ? 'candidate' : 'user'}.</small>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                            </div>
 
                         </>
                     )}

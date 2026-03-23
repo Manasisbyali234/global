@@ -216,14 +216,17 @@ export default function AssessmentDashboard() {
 				<div className="d-flex flex-wrap gap-3 align-items-center" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
 					<label className="form-label mb-0 fw-semibold" style={{ minWidth: '140px' }}>Search Assessment:</label>
 					<div className="d-flex flex-grow-1 flex-wrap gap-2" style={{minWidth: '250px'}}>
-						<input
-							type="text"
-							className="form-control"
-							placeholder="Search by title, designation, or type..."
-							style={{ flex: '1 1 300px' }}
-							value={searchTerm}
-							onChange={(e) => handleTitleSelect(e.target.value)}
-						/>
+						<div className="assessment-search-input-wrap" style={{ flex: '1 1 300px' }}>
+							<i className="fa fa-search assessment-search-icon" aria-hidden="true"></i>
+							<input
+								type="text"
+								className="form-control"
+								placeholder="Search by title, designation, or type..."
+								style={{ paddingLeft: '40px' }}
+								value={searchTerm}
+								onChange={(e) => handleTitleSelect(e.target.value)}
+							/>
+						</div>
 						<select 
 							className="form-select" 
 							style={{ flex: '1 1 300px', color: '#007bff' }}

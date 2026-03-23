@@ -171,7 +171,7 @@ function CanStatusPage() {
 	};
 
 	const extractBookedSlot = (roundDetails, candidateId, bookedSlots = [], roundId = null) => {
-		if (!roundDetails || !candidateId) return null;
+		if (!roundDetails) return null;
 
 		const candidateIdentity = (() => {
 			const ids = new Set();
@@ -203,12 +203,29 @@ function CanStatusPage() {
 					return;
 				}
 
-				addId(value._id || value.id || value.candidateId || value.userId);
-				addEmail(value.email || value.emailAddress || value.applicantEmail || value.candidateEmail);
+				addId(value._id || value.id || value.candidateId || value.userId || value.user?._id || value.profile?._id);
+				addEmail(
+					value.email ||
+					value.emailAddress ||
+					value.applicantEmail ||
+					value.candidateEmail ||
+					value.user?.email ||
+					value.profile?.email
+				);
 				addName(value.name || value.fullName || value.username || value.applicantName || value.candidateName);
+				addName([value.firstName, value.middleName, value.lastName].filter(Boolean).join(' '));
 
 				if (value.candidateId && value.candidateId !== value) {
 					addCandidateLikeObject(value.candidateId);
+				}
+				if (value.user && value.user !== value) {
+					addCandidateLikeObject(value.user);
+				}
+				if (value.profile && value.profile !== value) {
+					addCandidateLikeObject(value.profile);
+				}
+				if (value.candidateProfile && value.candidateProfile !== value) {
+					addCandidateLikeObject(value.candidateProfile);
 				}
 			};
 

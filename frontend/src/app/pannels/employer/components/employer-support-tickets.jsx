@@ -279,7 +279,7 @@ function EmployerSupportTickets() {
 
                 <div className="filters-section">
                     <div className="filters-section__header">
-                        <h6>Filter tickets</h6>
+                        <h6>Filter Ticktes</h6>
                         <Button
                             variant="link"
                             className="clear-filters-btn"
@@ -290,30 +290,36 @@ function EmployerSupportTickets() {
                     </div>
                     <Row className="g-3">
                         <Col md={6}>
-                            <Form.Select
-                                className="filter-select"
-                                value={filters.status}
-                                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                            >
-                                <option value="">All status</option>
-                                <option value="new">New</option>
-                                <option value="in-progress">In progress</option>
-                                <option value="resolved">Resolved</option>
-                                <option value="closed">Closed</option>
-                            </Form.Select>
+                            <div className="filter-select-wrapper">
+                                <Form.Select
+                                    className="filter-select"
+                                    value={filters.status}
+                                    onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                                >
+                                    <option value="">All status</option>
+                                    <option value="new">New</option>
+                                    <option value="in-progress">In progress</option>
+                                    <option value="resolved">Resolved</option>
+                                    <option value="closed">Closed</option>
+                                </Form.Select>
+                                <i className="fa fa-chevron-down filter-select-icon" aria-hidden="true"></i>
+                            </div>
                         </Col>
                         <Col md={6}>
-                            <Form.Select
-                                className="filter-select"
-                                value={filters.priority}
-                                onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                            >
-                                <option value="">All priorities</option>
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-                                <option value="urgent">Urgent</option>
-                            </Form.Select>
+                            <div className="filter-select-wrapper">
+                                <Form.Select
+                                    className="filter-select"
+                                    value={filters.priority}
+                                    onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
+                                >
+                                    <option value="">All priorities</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </Form.Select>
+                                <i className="fa fa-chevron-down filter-select-icon" aria-hidden="true"></i>
+                            </div>
                         </Col>
                     </Row>
                 </div>
@@ -330,8 +336,8 @@ function EmployerSupportTickets() {
                             <Card.Body className="p-0">
                                 {tickets.length === 0 ? (
                                     <div className="empty-state">
-                                        <h6>No tickets yet</h6>
-                                        <p>Candidate support requests will appear here.</p>
+                                        <h6>No tickets available</h6>
+                                        <p>Candidate support requests will appear here once submitted.</p>
                                     </div>
                                 ) : (
                                     <div className="table-responsive">

@@ -166,28 +166,30 @@ function RegisteredCandidatesPage() {
 
             <div className="candidates-table-container" data-aos="fade-up" data-aos-delay="200">
                 <div className="candidates-table-header">
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px'}}>
-                        <h4>
+                    <div className="page-toolbar">
+                        <h4 className="page-toolbar__title">
                             <i className="fa fa-list-alt"></i>
                             All Registered Candidates ({filteredCandidates.length})
                         </h4>
-                        <div className="candidates-filters">
-                            <div className="search-section">
-                                <label className="search-label">
+                        <div className="candidates-filters page-toolbar__controls page-toolbar__controls--dual">
+                            <div className="search-section page-toolbar__section">
+                                <label className="search-label page-toolbar__label">
                                     <i className="fa fa-filter"></i> Search by Name or Email
                                 </label>
+                                <div className="page-toolbar__control-wrap">
                                 <SearchBar 
                                     onSearch={handleSearch}
                                     placeholder="Search candidates by name, email, phone, location, or skills..."
                                     className="candidates-search"
                                 />
+                                </div>
                             </div>
-                            <div className="search-section profile-status-filter-section">
-                                <label className="search-label">
+                            <div className="search-section profile-status-filter-section page-toolbar__section">
+                                <label className="search-label page-toolbar__label">
                                     <i className="fa fa-id-card"></i> Profile Status
                                 </label>
                                 <select
-                                    className="profile-status-filter"
+                                    className="profile-status-filter page-toolbar__select"
                                     value={profileStatusFilter}
                                     onChange={(event) => setProfileStatusFilter(event.target.value)}
                                 >

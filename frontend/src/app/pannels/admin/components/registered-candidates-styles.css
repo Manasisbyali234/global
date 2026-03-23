@@ -134,10 +134,14 @@
 }
 
 .candidates-filters {
-    display: flex;
-    align-items: flex-end;
+    display: grid;
+    grid-template-columns: minmax(320px, 450px) minmax(200px, 220px);
+    align-items: end;
     gap: 16px;
-    flex-wrap: wrap;
+}
+
+.candidates-filters .search-bar-container {
+    margin-bottom: 0;
 }
 
 .profile-status-filter-section {
@@ -145,6 +149,7 @@
 }
 
 .profile-status-filter {
+    width: 100%;
     min-height: 44px;
     border: 1px solid #e2e8f0;
     border-radius: 10px;
@@ -556,6 +561,7 @@
 @media (max-width: 768px) {
     .candidates-filters {
         width: 100%;
+        grid-template-columns: 1fr;
         align-items: stretch;
     }
 

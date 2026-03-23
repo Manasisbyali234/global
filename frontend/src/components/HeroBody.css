@@ -392,6 +392,8 @@ html, body {
 
 .hero-body .category-card {
   background: white !important;
+  border: none !important;
+  appearance: none !important;
   border-radius: 10px !important;
   padding: 1.25rem 1rem !important;
   box-shadow: 0 3px 14px rgba(0, 0, 0, 0.06) !important;
@@ -406,6 +408,8 @@ html, body {
   align-items: center !important;
   justify-content: center !important;
   gap: 0.5rem !important;
+  font: inherit !important;
+  color: inherit !important;
 }
 
 .hero-body .category-card:hover {

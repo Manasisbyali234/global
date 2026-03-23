@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { formatDate } from "../../../../utils/dateFormatter";
-import { admin, adminRoute } from "../../../../globals/route-names";
 import SearchBar from "../../../../components/SearchBar";
 import "./admin-search-styles.css";
 import "./admin-overview.css";
 
 function AdminOverviewPage() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [employers, setEmployers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +25,23 @@ function AdminOverviewPage() {
   const [employerSearch, setEmployerSearch] = useState("");
   const [jobSearch, setJobSearch] = useState("");
   const autoOpenedEmployerIdRef = useRef(null);
+  const visibleEmployerJobs = employerJobs.filter(
+    (job) => job.status !== "draft" && job.title.toLowerCase().includes(jobSearch.toLowerCase())
+  );
+
+  const headerTitle =
+    viewMode === "applicants" && selectedJob
+      ? `Actual Applicants for ${selectedJob.title}`
+      : viewMode === "jobs" && selectedEmployer
+        ? `Jobs posted by ${selectedEmployer.employerName}`
+        : "Employer Overview";
+
+  const headerSubtitle =
+    viewMode === "applicants"
+      ? "Review applicant records, application status, and interview round updates for the selected job."
+      : viewMode === "jobs"
+        ? "Review all posted jobs for the selected employer and drill down into applicant activity."
+        : "Review employer activity, total job postings, and applicant counts in one place.";
 
   useEffect(() => {
     fetchOverview();
@@ -145,14 +160,20 @@ function AdminOverviewPage() {
         <div>
           <h2>
             <i className="fa fa-table me-2" />
-            Employer Overview
+            {headerTitle}
           </h2>
-          <p>All employer name, number of jobs, and number of applicants.</p>
+          <p>{headerSubtitle}</p>
         </div>
-        <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(adminRoute(admin.CAN_MANAGE))}>
-          <i className="fa fa-arrow-left me-2" />
-          Back to Employer
-        </button>
+        {viewMode !== "employers" && (
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary admin-overview-back-btn"
+            onClick={() => setViewMode(viewMode === "applicants" ? "jobs" : "employers")}
+          >
+            <i className="fa fa-arrow-left me-1" />
+            {viewMode === "applicants" ? "Back to Jobs" : "Back to Employers"}
+          </button>
+        )}
       </div>
 
       {viewMode === "employers" && (
@@ -229,14 +250,6 @@ function AdminOverviewPage() {
                 <i className="fa fa-briefcase me-2" />
                 Jobs posted by {selectedEmployer.employerName}
               </h4>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => setViewMode("employers")}
-              >
-                <i className="fa fa-arrow-left me-1" />
-                Back to Employers
-              </button>
             </div>
           </div>
           <div className="panel-body wt-panel-body p-a20">
@@ -269,16 +282,14 @@ function AdminOverviewPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {employerJobs.filter(job => job.title.toLowerCase().includes(jobSearch.toLowerCase())).length === 0 ? (
+                    {visibleEmployerJobs.length === 0 ? (
                       <tr>
                         <td colSpan="6" className="text-center">
                           {jobSearch ? "No matching jobs found." : "No jobs found for this employer."}
                         </td>
                       </tr>
                     ) : (
-                      employerJobs
-                        .filter(job => job.title.toLowerCase().includes(jobSearch.toLowerCase()))
-                        .map((job) => (
+                      visibleEmployerJobs.map((job) => (
                           <tr key={job.jobId}>
                             <td>{job.title}</td>
                             <td>{job.applicationsCount}</td>
@@ -315,14 +326,6 @@ function AdminOverviewPage() {
                 <i className="fa fa-users me-2" />
                 Actual Applicants for {selectedJob.title}
               </h4>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => setViewMode("jobs")}
-              >
-                <i className="fa fa-arrow-left me-1" />
-                Back to Jobs
-              </button>
             </div>
           </div>
           <div className="panel-body wt-panel-body p-a20">

@@ -150,18 +150,29 @@ function AdminTransactionsPage() {
             <div style={{ padding: '0 2rem 2rem 2rem' }}>
                 <div className="panel panel-default site-bg-white p-4" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
                     
-                    <div className="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <div className="input-group" style={{ maxWidth: 450 }}>
-                            <span className="input-group-text bg-white border-end-0">
-                                <Search size={18} style={{ color: "#f97316" }} />
-                            </span>
+                    <div className="page-toolbar mb-4">
+                        <div className="page-toolbar__controls page-toolbar__controls--single">
+                        <div className="page-toolbar__section">
+                            <label className="page-toolbar__label">
+                                Search Transactions
+                            </label>
+                        <div className="page-toolbar__control-wrap">
                             <input
                                 type="text"
-                                className="form-control border-start-0 ps-0"
+                                className="form-control page-toolbar__input"
                                 placeholder="Search by candidate, company, job, payment ID or date..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
+                                style={{
+                                    paddingLeft: '42px',
+                                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f97316' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E")`,
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundPosition: '14px center',
+                                    backgroundSize: '16px 16px'
+                                }}
                             />
+                        </div>
+                        </div>
                         </div>
                         <div className="text-muted">
                             Total Platform Revenue: <strong>₹{(transactions.reduce((acc, t) => acc + (t.paymentAmount || 129), 0)).toLocaleString()}</strong> | Count: <strong>{filteredTransactions.length}</strong>
@@ -280,10 +291,24 @@ function AdminTransactionsPage() {
                                             </div>
                                             <div className="text-end">
                                                 <h3 className="mb-2 text-primary fw-bold">TAX INVOICE</h3>
-                                                <div className="text-muted small">
-                                                    <p className="mb-1"><strong>Receipt No:</strong> {getReceiptNumber(selectedTransaction, transactions.findIndex((t) => t?._id === selectedTransaction?._id))}</p>
-                                                    <p className="mb-1"><strong>Date:</strong> {formatDate(selectedTransaction?.createdAt)}</p>
-                                                    <p className="mb-0"><strong>Status:</strong> <span className="badge bg-success text-uppercase">Paid</span></p>
+                                                <div className="text-muted small receipt-info-list receipt-meta">
+                                                    <div className="receipt-info-row">
+                                                        <span className="receipt-info-label">Receipt No</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value">{getReceiptNumber(selectedTransaction, transactions.findIndex((t) => t?._id === selectedTransaction?._id))}</span>
+                                                    </div>
+                                                    <div className="receipt-info-row">
+                                                        <span className="receipt-info-label">Date</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value">{formatDate(selectedTransaction?.createdAt)}</span>
+                                                    </div>
+                                                    <div className="receipt-info-row">
+                                                        <span className="receipt-info-label">Status</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value">
+                                                            <span className="badge bg-success text-uppercase">Paid</span>
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -297,23 +322,27 @@ function AdminTransactionsPage() {
                                             </div>
                                             <div className="col-6">
                                                 <p className="text-muted small mb-2 fw-bold text-uppercase border-bottom pb-1 text-end">Payment Information</p>
-                                                <div className="small">
-                                                    <div className="d-flex justify-content-end mb-1">
-                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Method:</span>
-                                                        <span className="text-dark fw-bold ms-2">{getPaymentMethodInfo(paymentDetails)}</span>
+                                                <div className="small receipt-info-list payment-info">
+                                                    <div className="receipt-info-row payment-info-row payment-method-row">
+                                                        <span className="receipt-info-label payment-info-label">Method</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value payment-info-value payment-method-value">{getPaymentMethodInfo(paymentDetails)}</span>
                                                     </div>
-                                                    <div className="d-flex justify-content-end mb-1">
-                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Transaction ID:</span>
-                                                        <span className="text-dark fw-bold ms-2">{selectedTransaction?.paymentId}</span>
+                                                    <div className="receipt-info-row payment-info-row">
+                                                        <span className="receipt-info-label payment-info-label">Transaction ID</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value payment-info-value">{selectedTransaction?.paymentId}</span>
                                                     </div>
-                                                    <div className="d-flex justify-content-end mb-1">
-                                                        <span className="text-muted" style={{ minWidth: '100px' }}>Order ID:</span>
-                                                        <span className="text-dark fw-bold ms-2">{selectedTransaction?.orderId}</span>
+                                                    <div className="receipt-info-row payment-info-row">
+                                                        <span className="receipt-info-label payment-info-label">Order ID</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value payment-info-value">{selectedTransaction?.orderId}</span>
                                                     </div>
                                                     {paymentDetails?.email && (
-                                                        <div className="d-flex justify-content-end mb-0">
-                                                            <span className="text-muted" style={{ minWidth: '100px' }}>Payer Email:</span>
-                                                            <span className="text-dark fw-bold ms-2">{paymentDetails.email}</span>
+                                                        <div className="receipt-info-row payment-info-row">
+                                                            <span className="receipt-info-label payment-info-label">Payer Email</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value payment-info-value">{paymentDetails.email}</span>
                                                         </div>
                                                     )}
                                                 </div>

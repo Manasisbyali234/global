@@ -18,6 +18,10 @@
     margin-bottom: 50px;
 }
 
+.admin-emp-manage-container > .wt-admin-right-page-header + .panel {
+    margin-top: 28px;
+}
+
 .admin-emp-header {
     background: linear-gradient(135deg, #fff3e0 0%, #ffffff 100%);
     border-radius: 12px;
@@ -167,6 +171,69 @@
 .search-label i {
     color: #ff6b35;
     font-size: 0.85rem;
+}
+
+.admin-emp-toolbar {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(220px, 280px) minmax(220px, 280px);
+    align-items: end;
+    gap: 16px;
+    width: 100%;
+}
+
+.admin-emp-toolbar .toolbar-title {
+    min-width: 0;
+    white-space: nowrap;
+}
+
+.admin-emp-toolbar .search-section {
+    min-width: 0;
+}
+
+.toolbar-control-wrap {
+    width: 100%;
+}
+
+.status-filter-select {
+    width: 100%;
+    height: 48px;
+    padding: 0 40px 0 14px;
+    border: 2px solid #FDC360;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(253, 195, 96, 0.2);
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #ff6b35 50%), linear-gradient(135deg, #ff6b35 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+
+.status-filter-select:focus {
+    outline: none;
+    border-color: #ff6b35;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+}
+
+.admin-emp-toolbar .search-bar-container {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.admin-emp-toolbar .employer-search .search-input-wrapper {
+    max-width: none;
+    width: 100%;
+}
+
+.admin-emp-toolbar .employer-search .search-input {
+    height: 48px;
 }
 
 .emp-table-responsive {
@@ -544,6 +611,10 @@
     .wt-admin-right-page-header {
         margin-bottom: 25px !important;
     }
+
+    .admin-emp-manage-container > .wt-admin-right-page-header + .panel {
+        margin-top: 20px;
+    }
     
     .admin-emp-header {
         padding: 15px;
@@ -650,18 +721,14 @@
         align-items: stretch !important;
     }
 
-    .status-filter {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        width: 100% !important;
-        margin-bottom: 15px;
+    .admin-emp-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        gap: 14px;
     }
 
-    .status-filter label {
-        margin-bottom: 5px;
-    }
-
-    .status-filter select {
+    .admin-emp-toolbar .search-section {
         width: 100% !important;
     }
 
@@ -670,7 +737,8 @@
         margin-left: 0 !important;
     }
 
-    .search-section > div {
+    .search-section > div,
+    .toolbar-control-wrap {
         width: 100% !important;
     }
 }
@@ -694,6 +762,10 @@
     .wt-admin-right-page-header {
         margin-bottom: 20px !important;
     }
+
+    .admin-emp-manage-container > .wt-admin-right-page-header + .panel {
+        margin-top: 16px;
+    }
     
     .admin-emp-header h2 {
         font-size: 18px;
@@ -711,7 +783,8 @@
         font-size: 0.8rem !important;
     }
 
-    .status-filter label {
+    .status-filter-section .search-label,
+    .employer-search-section .search-label {
         font-size: 0.8rem !important;
     }
 }

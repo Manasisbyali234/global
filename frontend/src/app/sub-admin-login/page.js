@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../admin-login-custom.css";
+import { executeLoginRecaptcha } from "../../utils/recaptcha";
 
 export default function SubAdminLogin() {
     const [formData, setFormData] = useState({
@@ -25,12 +26,16 @@ export default function SubAdminLogin() {
         setError("");
 
         try {
+            const recaptchaToken = await executeLoginRecaptcha("sub_admin_login");
             const response = await fetch("http://localhost:5000/api/admin/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    ...formData,
+                    recaptchaToken
+                })
             });
 
             const data = await response.json();

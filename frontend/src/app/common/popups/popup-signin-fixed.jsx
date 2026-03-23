@@ -182,6 +182,12 @@ function SignInPopup() {
         flex: '1 1 100%'
     };
 
+    const recaptchaNotice = (
+        <p style={{ fontSize: '12px', color: '#64748b', marginTop: '10px', marginBottom: '0' }}>
+            This sign-in is protected by Google reCAPTCHA.
+        </p>
+    );
+
     const handleButtonEnter = (event) => {
         event.currentTarget.style.backgroundColor = '#165bbf';
         event.currentTarget.style.borderColor = '#165bbf';
@@ -336,6 +342,7 @@ function SignInPopup() {
 													>
 														Log in
 													</button>
+                                                    {recaptchaNotice}
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
 														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" onClick={clearMessages} style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign Up</a>
@@ -418,6 +425,7 @@ function SignInPopup() {
 													>
 														Log in
 													</button>
+                                                    {recaptchaNotice}
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
 														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" onClick={clearMessages} style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign Up</a>
@@ -500,6 +508,7 @@ function SignInPopup() {
 													>
 														Log in
 													</button>
+                                                    {recaptchaNotice}
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
 														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" onClick={clearMessages} style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign Up</a>

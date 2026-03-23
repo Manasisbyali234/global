@@ -1,0 +1,169 @@
+/* Shared page header spacing and toolbar layout for admin/employer/candidate panels */
+
+.dashboard-content > .wt-admin-right-page-header + .panel,
+.admin-emp-manage-container > .wt-admin-right-page-header + .panel,
+.admin-sub-admin-page > .wt-admin-right-page-header + .panel {
+    margin-top: 24px;
+}
+
+.page-toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+}
+
+.page-toolbar__title {
+    flex: 1 1 auto;
+    min-width: 160px;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.page-toolbar__controls {
+    display: grid;
+    gap: 16px;
+    align-items: end;
+    min-width: 0;
+}
+
+.page-toolbar__controls--single {
+    grid-template-columns: minmax(220px, 280px);
+}
+
+.page-toolbar__controls--dual {
+    grid-template-columns: repeat(2, minmax(180px, 240px));
+}
+
+.page-toolbar__controls--triple {
+    grid-template-columns: repeat(3, minmax(160px, 220px));
+}
+
+.page-toolbar__section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.page-toolbar__label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #232323;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+}
+
+.page-toolbar__label i {
+    color: #ff6b35;
+    font-size: 0.85rem;
+}
+
+.page-toolbar__control-wrap {
+    width: 100%;
+}
+
+.page-toolbar .search-bar-container {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.page-toolbar .search-input-wrapper {
+    width: 100%;
+    max-width: none;
+}
+
+.page-toolbar__select,
+.page-toolbar__input,
+.page-toolbar .search-input {
+    height: 48px;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+.page-toolbar__select {
+    width: 100%;
+    padding: 0 40px 0 14px;
+    border: 2px solid #FDC360;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(253, 195, 96, 0.2);
+    color: #374151;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #ff6b35 50%), linear-gradient(135deg, #ff6b35 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+
+.page-toolbar__select:focus,
+.page-toolbar__input:focus {
+    outline: none;
+    border-color: #ff6b35;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.18);
+}
+
+.page-toolbar__input {
+    width: 100%;
+}
+
+.page-toolbar__button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+@media (max-width: 1280px) {
+    .page-toolbar__controls--dual {
+        grid-template-columns: repeat(2, minmax(160px, 220px));
+    }
+
+    .page-toolbar__controls--triple {
+        grid-template-columns: repeat(3, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-content > .wt-admin-right-page-header + .panel,
+    .admin-emp-manage-container > .wt-admin-right-page-header + .panel,
+    .admin-sub-admin-page > .wt-admin-right-page-header + .panel {
+        margin-top: 20px;
+    }
+
+    .page-toolbar {
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    .page-toolbar__title {
+        width: 100%;
+    }
+
+    .page-toolbar__controls--dual,
+    .page-toolbar__controls--triple {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+        width: 100%;
+    }
+
+    .page-toolbar__controls--single {
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    .page-toolbar__controls--single,
+    .page-toolbar__controls--dual,
+    .page-toolbar__controls--triple {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+}

@@ -12,12 +12,14 @@ function AdminDashboardPage() {
         completedProfileCandidates: 0,
         approvedEmployers: 0,
         activeJobs: 0,
+        approvedPlacements: 0,
         totalPlacements: 0
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [subAdminProfile, setSubAdminProfile] = useState(null);
     const [isSubAdmin, setIsSubAdmin] = useState(false);
+    const activeJobsCount = Number(stats?.activeJobs) || 0;
 
     useEffect(() => {
         checkUserRole();
@@ -49,7 +51,11 @@ function AdminDashboardPage() {
             setError(null);
             const data = await api.getAdminStats();
             if (data.success) {
-                setStats(data.stats);
+                setStats((prevStats) => ({
+                    ...prevStats,
+                    ...data.stats,
+                    activeJobs: Number(data?.stats?.activeJobs) || 0
+                }));
             } else {
                 setError(data.message || 'Failed to fetch dashboard statistics');
             }
@@ -183,57 +189,57 @@ function AdminDashboardPage() {
                 {!isSubAdmin && (
                 <div className="row" style={{marginBottom: '2rem'}}>
                     <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
-                        <div className="dashboard-card-2" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/registered-candidates')}>
-                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%'}}>
-                                <i className="fa fa-users text-orange" style={{fontSize: '2rem'}} />
-                                <div style={{textAlign: 'center'}}>
-                                    <div className="counter text-orange" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/registered-candidates')}>
+                            <div className="admin-stat-card__body">
+                                <div className="admin-stat-card__top">
+                                    <i className="fa fa-users text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
+                                    <div className="counter text-orange admin-stat-card__value" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
                                         {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.completedProfileCandidates} duration={2} />}
                                     </div>
-                                    <h5 style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Total Candidates</h5>
                                 </div>
+                                <h5 className="admin-stat-card__label" style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Total Candidates</h5>
                             </div>
                         </div>
                     </div>
 
                     <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
-                        <div className="dashboard-card-2" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/admin-emp-approved')}>
-                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%'}}>
-                                <i className="fa fa-building text-orange" style={{fontSize: '2rem'}} />
-                                <div style={{textAlign: 'center'}}>
-                                    <div className="counter text-orange" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/admin-emp-approved')}>
+                            <div className="admin-stat-card__body">
+                                <div className="admin-stat-card__top">
+                                    <i className="fa fa-building text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
+                                    <div className="counter text-orange admin-stat-card__value" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
                                         {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.approvedEmployers} duration={2} />}
                                     </div>
-                                    <h5 style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Approved Employers</h5>
                                 </div>
+                                <h5 className="admin-stat-card__label" style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Approved Employers</h5>
                             </div>
                         </div>
                     </div>
 
                     <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
-                        <div className="dashboard-card-2" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/admin-emp-approved')}>
-                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%'}}>
-                                <i className="fa fa-briefcase text-orange" style={{fontSize: '2rem'}} />
-                                <div style={{textAlign: 'center'}}>
-                                    <div className="counter text-orange" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
-                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.activeJobs} duration={2} />}
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/overview')}>
+                            <div className="admin-stat-card__body">
+                                <div className="admin-stat-card__top">
+                                    <i className="fa fa-briefcase text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
+                                    <div className="counter text-orange admin-stat-card__value" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
+                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={activeJobsCount} duration={2} />}
                                     </div>
-                                    <h5 style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Active Jobs</h5>
                                 </div>
+                                <h5 className="admin-stat-card__label" style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Active Jobs</h5>
                             </div>
                         </div>
                     </div>
                     
                     <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
-                        <div className="dashboard-card-2" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/admin-placement-approved')}>
-                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%'}}>
-                                <i className="fa fa-graduation-cap text-orange" style={{fontSize: '2rem'}} />
-                                <div style={{textAlign: 'center'}}>
-                                    <div className="counter text-orange" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
-                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.totalPlacements} duration={2} />}
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/admin-placement-approved')}>
+                            <div className="admin-stat-card__body">
+                                <div className="admin-stat-card__top">
+                                    <i className="fa fa-graduation-cap text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
+                                    <div className="counter text-orange admin-stat-card__value" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
+                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.approvedPlacements || 0} duration={2} />}
                                     </div>
-                                    <h5 style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Number of Colleges</h5>
                                 </div>
+                                <h5 className="admin-stat-card__label" style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Number of Colleges</h5>
                             </div>
                         </div>
                     </div>

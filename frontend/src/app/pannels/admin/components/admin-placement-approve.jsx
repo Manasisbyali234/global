@@ -73,18 +73,22 @@ function AdminPlacementOfficersApproved() {
 
             <div className="panel panel-default site-bg-white" style={{marginTop: '20px'}}>
                 <div className="panel-heading wt-panel-heading p-a20">
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', width: '100%'}}>
-                        <div className="search-section">
-                            <label className="search-label">
+                    <div className="page-toolbar">
+                        <h4 className="panel-tittle m-a0 page-toolbar__title">Approved Placement Officers ({filteredPlacements.length})</h4>
+                        <div className="page-toolbar__controls page-toolbar__controls--single">
+                        <div className="search-section page-toolbar__section">
+                            <label className="search-label page-toolbar__label">
                                 <i className="fa fa-filter"></i> Search by Name or Email
                             </label>
+                            <div className="page-toolbar__control-wrap">
                             <SearchBar 
                                 onSearch={handleSearch}
                                 placeholder="Search approved placement officers..."
                                 className="placement-search"
                             />
+                            </div>
                         </div>
-                        <h4 className="panel-tittle m-a0">Approved Placement Officers ({filteredPlacements.length})</h4>
+                        </div>
                     </div>
                 </div>
 

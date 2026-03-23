@@ -354,15 +354,34 @@ exports.getBlogById = async (req, res) => {
 exports.submitContactForm = async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
-    
-    const contact = await Contact.create({
-      name, email, phone, subject, message
-    });
+    const normalizedSubject = String(subject || '').trim() || 'Contact Us Submission';
+
+    const [contact, supportTicket] = await Promise.all([
+      Contact.create({
+        name,
+        email,
+        phone,
+        subject: normalizedSubject,
+        message
+      }),
+      Support.create({
+        name,
+        email,
+        phone,
+        userType: 'guest',
+        subject: normalizedSubject,
+        category: 'general',
+        priority: 'medium',
+        message,
+        receiverRole: 'admin'
+      })
+    ]);
 
     res.status(201).json({ 
       success: true, 
       message: 'Contact form submitted successfully',
-      contact 
+      contact,
+      ticketId: supportTicket._id
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

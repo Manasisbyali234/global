@@ -149,6 +149,82 @@
     word-wrap: break-word;
 }
 
+.media-preview-card {
+    width: 100%;
+    min-height: 320px;
+    border: 1px solid #fde3cf;
+    background: linear-gradient(180deg, #fffaf6 0%, #ffffff 100%);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    text-align: left;
+}
+
+.profile-field .media-preview-card,
+.profile-field .media-preview-card div {
+    padding-left: 0;
+}
+
+.media-preview-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(255, 107, 53, 0.12);
+    border-color: #ffb27f;
+}
+
+.media-preview-card:focus {
+    outline: 2px solid rgba(255, 107, 53, 0.3);
+    outline-offset: 2px;
+}
+
+.media-preview-frame {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #f3e4d7;
+}
+
+.media-preview-frame--logo {
+    aspect-ratio: 1 / 1;
+    width: min(220px, 100%);
+    margin: 0 auto;
+}
+
+.media-preview-frame--cover {
+    aspect-ratio: 16 / 9;
+}
+
+.media-preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #ffffff;
+}
+
+.media-preview-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: auto;
+}
+
+.media-preview-status {
+    color: #1f7a1f;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.media-preview-hint {
+    color: #6c757d;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
 .documents-section {
     background: white;
     border-radius: 15px;
@@ -768,6 +844,24 @@
     line-height: 1.6;
     font-size: 1rem;
     padding-left: calc(1.25rem + 8px);
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+
+.description-text *,
+.description-text p,
+.description-text div,
+.description-text span,
+.description-text a,
+.description-text li,
+.description-text strong,
+.description-text em {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
 }
 
 /* Animations */
@@ -1176,6 +1270,10 @@
     .profile-field {
         padding: 12px;
     }
+
+    .media-preview-frame--logo {
+        width: min(180px, 100%);
+    }
     
     .documents-table thead th:first-child,
     .documents-table thead th:nth-child(2),
@@ -1269,6 +1367,10 @@
     
     .profile-field p {
         font-size: 0.9rem;
+    }
+
+    .media-preview-frame--logo {
+        max-width: 100%;
     }
     
     .description-section {

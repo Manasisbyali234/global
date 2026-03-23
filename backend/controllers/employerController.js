@@ -7,6 +7,7 @@ const Job = require('../models/Job');
 const InterviewRound = require('../models/InterviewRound');
 const Application = require('../models/Application');
 const Message = require('../models/Message');
+const Notification = require('../models/Notification');
 const Subscription = require('../models/Subscription');
 const Support = require('../models/Support');
 const mongoose = require('mongoose');
@@ -18,6 +19,7 @@ const { sendSMS } = require('../utils/smsProvider');
 const { validateGSTFormat, fetchGSTInfo, mapGSTToProfile } = require('../utils/gstService');
 const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
 const { formatDate } = require('../utils/dateFormatter');
+const { verifyRecaptchaToken } = require('../utils/recaptcha');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -52,6 +54,17 @@ const dedupeAuthorizationLetters = (letters = []) => {
 
   return [...Array.from(latestByKey.values()), ...lettersWithoutCompany];
 };
+
+const dedupeHiringCompanies = (companies = []) => (
+  Array.from(
+    new Map(
+      companies
+        .map(company => String(company || '').trim())
+        .filter(Boolean)
+        .map(company => [company.toLowerCase(), company])
+    ).values()
+  )
+);
 
 // Authentication Controllers
 exports.registerEmployer = async (req, res) => {
@@ -140,11 +153,20 @@ exports.registerEmployer = async (req, res) => {
 
 exports.loginEmployer = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, recaptchaToken } = req.body;
     
     // Validate input
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Email and password are required' });
+    }
+
+    const recaptchaResult = await verifyRecaptchaToken(recaptchaToken, 'employer_login', req.ip);
+    if (!recaptchaResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: recaptchaResult.message,
+        shouldResetRecaptcha: recaptchaResult.shouldResetRecaptcha
+      });
     }
     
     // Removed console debug line for security
@@ -204,16 +226,26 @@ exports.getProfile = async (req, res) => {
     const fallbackAuthorizationLetters = Array.isArray(employerProfile?.authorizationLetters)
       ? employerProfile.authorizationLetters
       : [];
+    const fallbackHiringCompanies = Array.isArray(employerProfile?.hiringCompanies)
+      ? employerProfile.hiringCompanies
+      : [];
     const mergedAuthorizationLetters = dedupeAuthorizationLetters(
       Array.isArray(adminProfileObj.authorizationLetters) && adminProfileObj.authorizationLetters.length > 0
         ? adminProfileObj.authorizationLetters
         : fallbackAuthorizationLetters
+    );
+    const mergedHiringCompanies = dedupeHiringCompanies(
+      [
+        ...(Array.isArray(adminProfileObj.hiringCompanies) ? adminProfileObj.hiringCompanies : fallbackHiringCompanies),
+        ...mergedAuthorizationLetters.map(letter => letter?.companyName)
+      ]
     );
 
     const profile = {
       ...publicProfileObj,
       ...adminProfileObj,
       authorizationLetters: mergedAuthorizationLetters,
+      hiringCompanies: mergedHiringCompanies,
       panCardVerified: employerProfile?.panCardVerified,
       panCardReuploadedAt: employerProfile?.panCardReuploadedAt,
       cinVerified: employerProfile?.cinVerified,
@@ -430,15 +462,35 @@ exports.updateProfile = async (req, res) => {
           console.error('Failed to send profile submission email:', emailError);
         }
       } else {
-        // Regular profile update notification
-        await createNotification({
-          title: 'Company Profile Updated',
-          message: `${profile.companyName || 'A company'} has updated their profile`,
-          type: 'profile_updated',
-          role: 'admin',
-          relatedId: profile._id,
-          createdBy: req.user._id
-        });
+        const isConsultancyEmployer = adminProfile?.employerCategory === 'consultancy' || req.user?.employerType === 'consultant';
+        const recentNotificationCutoff = new Date(Date.now() - 30000);
+        const [recentHiringCompanyNotification, recentDocumentResubmissionNotification] = await Promise.all([
+          isConsultancyEmployer
+            ? Notification.findOne({
+                role: 'admin',
+                type: 'hiring_company_added',
+                createdBy: req.user._id,
+                createdAt: { $gte: recentNotificationCutoff }
+              }).sort({ createdAt: -1 })
+            : Promise.resolve(null),
+          Notification.findOne({
+            role: 'admin',
+            type: 'document_resubmitted',
+            createdBy: req.user._id,
+            createdAt: { $gte: recentNotificationCutoff }
+          }).sort({ createdAt: -1 })
+        ]);
+
+        if (!recentHiringCompanyNotification && !recentDocumentResubmissionNotification) {
+          await createNotification({
+            title: 'Company Profile Updated',
+            message: `${profile.companyName || 'A company'} has updated their profile`,
+            type: 'profile_updated',
+            role: 'admin',
+            relatedId: profile._id,
+            createdBy: req.user._id
+          });
+        }
       }
     } catch (notifError) {
       console.error('Notification creation failed:', notifError);
@@ -644,6 +696,14 @@ exports.uploadAuthorizationLetter = async (req, res) => {
     const adminProfile = await EmployerAdminProfile.findOne({ employerId: req.user._id });
     const existingLetters = dedupeAuthorizationLetters(adminProfile?.authorizationLetters || []);
     const normalizedCompanyName = companyName.trim().toLowerCase();
+    const previousHiringCompanies = dedupeHiringCompanies([
+      ...(adminProfile?.hiringCompanies || []),
+      ...existingLetters.map(letter => letter?.companyName)
+    ]);
+    const isConsultancyEmployer = adminProfile?.employerCategory === 'consultancy' || req.user?.employerType === 'consultant';
+    const isNewHiringCompany = normalizedCompanyName
+      ? !previousHiringCompanies.some(existingCompany => existingCompany.toLowerCase() === normalizedCompanyName)
+      : false;
 
     const existingDocIndex = normalizedCompanyName ? existingLetters.findIndex(letter => {
       const letterCompany = (letter.companyName || '').trim().toLowerCase();
@@ -657,7 +717,11 @@ exports.uploadAuthorizationLetter = async (req, res) => {
       });
     }
 
+    const sharedLetterId = existingDocIndex !== -1 && existingLetters[existingDocIndex]?._id
+      ? existingLetters[existingDocIndex]._id
+      : new mongoose.Types.ObjectId();
     const updatedDocument = {
+      _id: sharedLetterId,
       fileName: req.file.originalname,
       fileData: documentPath,
       uploadedAt: new Date(),
@@ -672,25 +736,67 @@ exports.uploadAuthorizationLetter = async (req, res) => {
     } else {
       nextLetters.push(updatedDocument);
     }
+    const nextHiringCompanies = dedupeHiringCompanies([
+      ...(adminProfile?.hiringCompanies || []),
+      companyName
+    ]);
 
     const [updatedAdminProfile] = await Promise.all([
       EmployerAdminProfile.findOneAndUpdate(
         { employerId: req.user._id },
-        { $set: { authorizationLetters: nextLetters } },
+        { $set: { authorizationLetters: nextLetters, hiringCompanies: nextHiringCompanies } },
         { new: true, upsert: true }
       ),
       EmployerProfile.findOneAndUpdate(
         { employerId: req.user._id },
-        { $set: { authorizationLetters: nextLetters } },
+        { $set: { authorizationLetters: nextLetters, hiringCompanies: nextHiringCompanies } },
         { new: true, upsert: true }
       )
     ]);
 
+    const isRejectedLetterResubmission = existingDocIndex !== -1 && existingLetters[existingDocIndex]?.status === 'rejected';
+
+    if (isRejectedLetterResubmission) {
+      try {
+        const companyLabel = companyName.trim() ? ` for ${companyName.trim()}` : '';
+        await createNotification({
+          title: 'Document Resubmitted for Review',
+          message: `${req.user.companyName || 'An employer'} has resubmitted their Authorization Letter${companyLabel} after rejection. Please review the updated document.`,
+          type: 'document_resubmitted',
+          role: 'admin',
+          relatedId: req.user._id,
+          createdBy: req.user._id
+        });
+      } catch (notificationError) {
+        console.error('Authorization letter resubmission notification failed:', notificationError);
+      }
+    }
+
     res.json({
       success: true,
       document: updatedDocument,
-      profile: { authorizationLetters: updatedAdminProfile?.authorizationLetters || [] }
+      profile: {
+        authorizationLetters: updatedAdminProfile?.authorizationLetters || [],
+        hiringCompanies: updatedAdminProfile?.hiringCompanies || nextHiringCompanies
+      }
     });
+
+    if (isConsultancyEmployer && isNewHiringCompany) {
+      try {
+        await createNotification({
+          title: 'Added One More Company',
+          message: companyName.trim()
+            ? `${req.user.companyName || 'A consultant'} added one more company: ${companyName.trim()}`
+            : `${req.user.companyName || 'A consultant'} added one more company.`,
+          type: 'hiring_company_added',
+          role: 'admin',
+          relatedId: req.user._id,
+          createdBy: req.user._id
+        });
+      } catch (notificationError) {
+        console.error('Hiring company notification failed:', notificationError);
+      }
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -723,24 +829,51 @@ exports.deleteAuthorizationLetter = async (req, res) => {
         message: 'This authorization letter has already been approved and cannot be deleted. Please contact support if you need to change it.'
       });
     }
+    const targetCompanyName = String(letter.companyName || '').trim().toLowerCase();
+    const targetFileData = String(letter.fileData || '').trim();
+    const shouldRemoveLetter = (currentLetter) => {
+      if (!currentLetter) return false;
+      const currentId = currentLetter._id ? currentLetter._id.toString() : '';
+      if (currentId === documentId) return true;
+
+      const currentCompanyName = String(currentLetter.companyName || '').trim().toLowerCase();
+      const currentFileData = String(currentLetter.fileData || '').trim();
+
+      if (targetCompanyName && targetFileData) {
+        return currentCompanyName === targetCompanyName && currentFileData === targetFileData;
+      }
+
+      if (targetCompanyName) {
+        return currentCompanyName === targetCompanyName;
+      }
+
+      if (targetFileData) {
+        return currentFileData === targetFileData;
+      }
+
+      return false;
+    };
+
+    if (adminProfile) {
+      adminProfile.authorizationLetters = (adminProfile.authorizationLetters || []).filter(currentLetter => !shouldRemoveLetter(currentLetter));
+    }
+
+    if (employerProfile) {
+      employerProfile.authorizationLetters = (employerProfile.authorizationLetters || []).filter(currentLetter => !shouldRemoveLetter(currentLetter));
+    }
 
     const [updatedAdminProfile] = await Promise.all([
-      EmployerAdminProfile.findOneAndUpdate(
-        { employerId: req.user._id },
-        { $pull: { authorizationLetters: { _id: documentId } } },
-        { new: true }
-      ),
-      EmployerProfile.findOneAndUpdate(
-        { employerId: req.user._id },
-        { $pull: { authorizationLetters: { _id: documentId } } },
-        { new: true }
-      )
+      adminProfile ? adminProfile.save() : null,
+      employerProfile ? employerProfile.save() : null
     ]);
 
     res.json({
       success: true,
       message: 'Authorization letter deleted successfully',
-      profile: { authorizationLetters: updatedAdminProfile?.authorizationLetters || [] }
+      profile: {
+        authorizationLetters: updatedAdminProfile?.authorizationLetters || employerProfile?.authorizationLetters || [],
+        hiringCompanies: updatedAdminProfile?.hiringCompanies || employerProfile?.hiringCompanies || []
+      }
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -749,30 +882,74 @@ exports.deleteAuthorizationLetter = async (req, res) => {
 
 exports.updateAuthorizationCompanies = async (req, res) => {
   try {
-    const { authorizationLetters } = req.body;
+    const { authorizationLetters, hiringCompanies } = req.body;
+    const [existingEmployerProfile, existingAdminProfile] = await Promise.all([
+      EmployerProfile.findOne({ employerId: req.user._id }).select('authorizationLetters hiringCompanies employerCategory companyName'),
+      EmployerAdminProfile.findOne({ employerId: req.user._id }).select('authorizationLetters hiringCompanies employerCategory companyName')
+    ]);
+    const isConsultancyEmployer = existingAdminProfile?.employerCategory === 'consultancy'
+      || existingEmployerProfile?.employerCategory === 'consultancy'
+      || req.user?.employerType === 'consultant';
+    const existingHiringCompanies = dedupeHiringCompanies([
+      ...(existingAdminProfile?.hiringCompanies || []),
+      ...(existingEmployerProfile?.hiringCompanies || []),
+      ...(existingAdminProfile?.authorizationLetters || []).map(letter => letter?.companyName),
+      ...(existingEmployerProfile?.authorizationLetters || []).map(letter => letter?.companyName)
+    ]);
+
     const nextAuthorizationLetters = dedupeAuthorizationLetters(
       Array.isArray(authorizationLetters) ? authorizationLetters : []
     );
+    const nextHiringCompanies = dedupeHiringCompanies([
+      ...(Array.isArray(hiringCompanies) ? hiringCompanies : []),
+      ...nextAuthorizationLetters.map(letter => letter?.companyName)
+    ]);
+    const newlyAddedCompanies = nextHiringCompanies.filter(company => (
+      company && !existingHiringCompanies.some(existingCompany => existingCompany.toLowerCase() === company.toLowerCase())
+    ));
 
     const [profile, adminProfile] = await Promise.all([
       EmployerProfile.findOneAndUpdate(
         { employerId: req.user._id },
-        { authorizationLetters: nextAuthorizationLetters },
+        { authorizationLetters: nextAuthorizationLetters, hiringCompanies: nextHiringCompanies },
         { new: true, upsert: true }
       ),
       EmployerAdminProfile.findOneAndUpdate(
         { employerId: req.user._id },
-        { authorizationLetters: nextAuthorizationLetters },
+        { authorizationLetters: nextAuthorizationLetters, hiringCompanies: nextHiringCompanies },
         { new: true, upsert: true }
       )
     ]);
+
+    if (isConsultancyEmployer && newlyAddedCompanies.length > 0) {
+      try {
+        const addedCount = newlyAddedCompanies.length;
+        const title = addedCount === 1 ? 'Added One More Company' : 'Companies Added';
+        const actorName = profile?.companyName || adminProfile?.companyName || existingEmployerProfile?.companyName || req.user.companyName || 'A consultant';
+        const message = addedCount === 1
+          ? `${actorName} added one more company: ${newlyAddedCompanies[0]}`
+          : `${actorName} added ${addedCount} companies.`;
+
+        await createNotification({
+          title,
+          message,
+          type: 'hiring_company_added',
+          role: 'admin',
+          relatedId: req.user._id,
+          createdBy: req.user._id
+        });
+      } catch (notificationError) {
+        console.error('Hiring company notification failed:', notificationError);
+      }
+    }
 
     res.json({
       success: true,
       message: 'Authorization company names updated successfully',
       profile: {
         ...(profile?.toObject ? profile.toObject() : {}),
-        authorizationLetters: adminProfile?.authorizationLetters || profile?.authorizationLetters || []
+        authorizationLetters: adminProfile?.authorizationLetters || profile?.authorizationLetters || [],
+        hiringCompanies: adminProfile?.hiringCompanies || profile?.hiringCompanies || nextHiringCompanies
       }
     });
   } catch (error) {
@@ -2434,14 +2611,26 @@ exports.getConsultantCompanies = async (req, res) => {
 
 exports.getApprovedAuthorizationCompanies = async (req, res) => {
   try {
-    const profile = await EmployerProfile.findOne({ employerId: req.user._id });
-    
-    if (!profile || !profile.authorizationLetters) {
+    const [profile, adminProfile] = await Promise.all([
+      EmployerProfile.findOne({ employerId: req.user._id }).select('authorizationLetters'),
+      EmployerAdminProfile.findOne({ employerId: req.user._id }).select('authorizationLetters')
+    ]);
+
+    const fallbackAuthorizationLetters = Array.isArray(profile?.authorizationLetters)
+      ? profile.authorizationLetters
+      : [];
+    const mergedAuthorizationLetters = dedupeAuthorizationLetters(
+      Array.isArray(adminProfile?.authorizationLetters) && adminProfile.authorizationLetters.length > 0
+        ? adminProfile.authorizationLetters
+        : fallbackAuthorizationLetters
+    );
+
+    if (!mergedAuthorizationLetters.length) {
       return res.json({ success: true, companies: [] });
     }
     
     // Filter approved authorization letters and extract company names
-    const approvedCompanies = profile.authorizationLetters
+    const approvedCompanies = mergedAuthorizationLetters
       .filter(letter => letter.status === 'approved')
       .map(letter => letter.companyName)
       .filter(name => name && name.trim() !== '');

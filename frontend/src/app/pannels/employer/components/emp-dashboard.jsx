@@ -151,15 +151,17 @@ function EmpDashboardPage() {
                         <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
                             <div className="panel panel-default" onClick={() => window.location.href = '/employer/manage-jobs'} style={{ cursor: 'pointer' }}>
                                 <div className="panel-body wt-panel-body dashboard-card-2" style={{ backgroundColor: '#e0f7fa' }}>
-                                    <div className="d-flex align-items-center" style={{ display: "flex", justifyContent: "flex-end" }}>
-                                        <div className="wt-card-icon-2 me-3 fs-2 text-info" style={{ lineHeight: "1" }}>
-                                            <i className="flaticon-resume" />
-                                        </div>
-                                        <div>
+                                    <div className="dashboard-stat-card">
+                                        <div className="dashboard-stat-top">
+                                            <div className="wt-card-icon-2 fs-2 text-info" style={{ lineHeight: "1" }}>
+                                                <i className="flaticon-resume" />
+                                            </div>
                                             <div className="counter fw-bold fs-4 text-info">
                                                 <CountUp end={stats.activeJobs} duration={2} />
                                             </div>
-                                            <h5 className="mb-0 mt-1">Active Jobs</h5>
+                                        </div>
+                                        <div className="dashboard-stat-label">
+                                            <h5 className="mb-0">Active Jobs</h5>
                                         </div>
                                     </div>
                                 </div>
@@ -169,15 +171,17 @@ function EmpDashboardPage() {
                         <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
                             <div className="panel panel-default" onClick={() => window.location.href = '/employer/candidates-list'} style={{ cursor: 'pointer' }}>
                                 <div className="panel-body wt-panel-body dashboard-card-2" style={{ backgroundColor: '#fff3e0' }}>
-                                    <div className="d-flex align-items-center" style={{ display: "flex", justifyContent: "flex-end" }}>
-                                        <div className="wt-card-icon-2 me-3 fs-2 text-warning" style={{ lineHeight: "1" }}>
-                                            <i className="flaticon-envelope" />
-                                        </div>
-                                        <div>
+                                    <div className="dashboard-stat-card">
+                                        <div className="dashboard-stat-top">
+                                            <div className="wt-card-icon-2 fs-2 text-warning" style={{ lineHeight: "1" }}>
+                                                <i className="flaticon-envelope" />
+                                            </div>
                                             <div className="counter fw-bold fs-4 text-warning">
                                                 <CountUp end={stats.totalApplications} duration={2} />
                                             </div>
-                                            <h5 className="mb-0 mt-1">Applications</h5>
+                                        </div>
+                                        <div className="dashboard-stat-label">
+                                            <h5 className="mb-0">Applications</h5>
                                         </div>
                                     </div>
                                 </div>
@@ -187,15 +191,17 @@ function EmpDashboardPage() {
                         <div className="col-xl-4 col-lg-4 col-md-12 mb-3">
                             <div className="panel panel-default" onClick={() => window.location.href = '/employer/candidates-list'} style={{ cursor: 'pointer' }}>
                                 <div className="panel-body wt-panel-body dashboard-card-2" style={{ backgroundColor: '#fff3e0' }}>
-                                    <div className="d-flex align-items-center" style={{ display: "flex", justifyContent: "flex-end" }}>
+                                    <div className="dashboard-stat-card">
+                                        <div className="dashboard-stat-top">
                                         <div className="wt-card-icon-2 me-3 fs-2 text-warning" style={{ lineHeight: "1" }}>
                                             ✓
                                         </div>
-                                        <div>
-                                            <div className="counter fw-bold fs-4 text-warning">
-                                                <CountUp end={stats.shortlisted} duration={2} />
-                                            </div>
-                                            <h5 className="mb-0 mt-1">Shortlisted</h5>
+                                        <div className="counter fw-bold text-warning">
+                                            <CountUp end={stats.shortlisted} duration={2} />
+                                        </div>
+                                        </div>
+                                        <div className="dashboard-stat-label">
+                                            <h5 className="mb-0">Shortlisted</h5>
                                         </div>
                                     </div>
                                 </div>

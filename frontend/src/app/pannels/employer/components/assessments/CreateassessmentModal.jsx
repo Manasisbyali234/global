@@ -17,6 +17,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const [description, setDescription] = useState(editData?.description || "");
 	const [employerCategory, setEmployerCategory] = useState("");
 	const [approvedCompanies, setApprovedCompanies] = useState([]);
+	const [approvedCompaniesLoading, setApprovedCompaniesLoading] = useState(false);
 	const [questions, setQuestions] = useState(
 		editData?.questions || [{ question: "", type: "mcq", options: ["", "", "", ""], optionImages: ["", "", "", ""], correctAnswer: null, marks: 1, imageUrl: "" }]
 	);
@@ -25,6 +26,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const [showPreview, setShowPreview] = useState(false);
 	const [optionErrors, setOptionErrors] = useState({});
 	const descriptionTextareaRef = useRef(null);
+	const isConsultantEmployer = employerCategory === 'consultancy' || employerCategory === 'consultant';
 
 	const autoResizeTextarea = (textarea) => {
 		if (!textarea) return;
@@ -56,6 +58,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		
 		const fetchApprovedCompanies = async () => {
 			try {
+				setApprovedCompaniesLoading(true);
 				const token = localStorage.getItem('employerToken');
 				if (token) {
 					const response = await fetch('/api/employer/approved-authorization-companies', {
@@ -69,6 +72,8 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 				}
 			} catch (error) {
 				console.error('Error fetching approved companies:', error);
+			} finally {
+				setApprovedCompaniesLoading(false);
 			}
 		};
 		
@@ -281,8 +286,8 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			return;
 		}
 		
-		if (employerCategory === 'consultancy' && !companyName.trim()) {
-			showWarning("Please enter the company name");
+		if (isConsultantEmployer && !companyName.trim()) {
+			showWarning(approvedCompanies.length > 0 ? "Please select an approved company" : "No approved companies are available for this consultant");
 			return;
 		}
 		
@@ -522,48 +527,45 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 						</datalist>
 					</div>
 
-					{employerCategory === 'consultancy' && (
+					{isConsultantEmployer && (
 						<div className="mb-3">
 							<label className="form-label small text-muted mb-2">
 								Company Name <span style={{color: '#dc2626'}}>*</span>
 							</label>
-							{approvedCompanies.length > 0 ? (
-								<select
-									className="form-select"
-									value={companyName}
-									onChange={(e) => setCompanyName(e.target.value)}
-									required
-									style={{
-										borderColor: companyName ? '#10b981' : '#dc2626',
-										borderWidth: 2,
-										cursor: 'pointer'
-									}}
-								>
-									<option value="" disabled>Select Approved Company</option>
-									{approvedCompanies.map((company, index) => (
-										<option key={index} value={company}>
-											{company}
-										</option>
-									))}
-								</select>
-							) : (
-								<input
-									type="text"
-									className="form-control"
-									placeholder="Enter hiring company name"
-									value={companyName}
-									onChange={(e) => setCompanyName(e.target.value)}
-									required
-									style={{
-										borderColor: companyName ? '#10b981' : '#dc2626',
-										borderWidth: 2,
-									}}
-								/>
-							)}
+							<select
+								className="form-select"
+								value={companyName}
+								onChange={(e) => setCompanyName(e.target.value)}
+								required
+								disabled={approvedCompaniesLoading || approvedCompanies.length === 0}
+								style={{
+									borderColor: companyName ? '#10b981' : '#dc2626',
+									borderWidth: 2,
+									cursor: approvedCompaniesLoading || approvedCompanies.length === 0 ? 'not-allowed' : 'pointer',
+									backgroundColor: approvedCompaniesLoading || approvedCompanies.length === 0 ? '#f9fafb' : '#ffffff'
+								}}
+							>
+								<option value="" disabled>
+									{approvedCompaniesLoading
+										? 'Loading approved companies...'
+										: approvedCompanies.length > 0
+											? 'Select Approved Company'
+											: 'No approved companies available'}
+								</option>
+								{approvedCompanies.map((company, index) => (
+									<option key={index} value={company}>
+										{company}
+									</option>
+								))}
+							</select>
 							{!companyName && (
 								<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
 									<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
-									{approvedCompanies.length > 0 ? 'Please select an approved company' : 'Please enter company name'}
+									{approvedCompaniesLoading
+										? 'Loading approved companies'
+										: approvedCompanies.length > 0
+											? 'Please select an approved company'
+											: 'No approved companies available for this consultant'}
 								</small>
 							)}
 							{approvedCompanies.length > 0 && (

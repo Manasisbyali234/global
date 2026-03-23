@@ -11,6 +11,7 @@ const XLSX = require('xlsx');
 const { base64ToBuffer } = require('../utils/base64Helper');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
 const { checkEmailExists } = require('../utils/authUtils');
+const { verifyRecaptchaToken } = require('../utils/recaptcha');
 
 const getWorkbook = (fileData, fileType) => {
   const XLSX = require('xlsx');
@@ -398,10 +399,19 @@ exports.loginPlacement = async (req, res) => {
   console.log('Body:', req.body);
   
   try {
-    const { email, password } = req.body;
+    const { email, password, recaptchaToken } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Email and password required' });
+    }
+
+    const recaptchaResult = await verifyRecaptchaToken(recaptchaToken, 'placement_login', req.ip);
+    if (!recaptchaResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: recaptchaResult.message,
+        shouldResetRecaptcha: recaptchaResult.shouldResetRecaptcha
+      });
     }
 
     const placement = await Placement.findByEmail(email.trim());

@@ -62,13 +62,17 @@ function EmpHeaderSection(props) {
 
                                 <li className="header-widget">
                                     <div className="dashboard-user-section">
-                                        <div className="listing-user">
+                                        <NavLink
+                                            to={empRoute(employer.PROFILE)}
+                                            className="listing-user"
+                                            aria-label="Open employer profile"
+                                        >
                                             <div className="">
                                                 <span>
                                                     {profileData?.logo ? (
-                                                        <img 
-                                                            src={profileData.logo} 
-                                                            alt="Company Logo" 
+                                                        <img
+                                                            src={profileData.logo}
+                                                            alt="Company Logo"
                                                             style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
                                                         />
                                                     ) : (
@@ -76,7 +80,7 @@ function EmpHeaderSection(props) {
                                                     )}
                                                 </span>
                                             </div>
-                                        </div>
+                                        </NavLink>
                                     </div>
                                 </li>
                             </ul>

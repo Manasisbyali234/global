@@ -80,17 +80,18 @@ function AdminBatchUploads() {
 
             <div className="panel panel-default site-bg-white">
                 <div className="panel-heading wt-panel-heading p-a20">
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', width: '100%'}}>
-                        <h4 className="panel-tittle m-a0">Batch Uploads Summary ({filteredPlacements.length})</h4>
-                        
-                        <div className="search-section">
-                            <div style={{width: '250px'}}>
+                    <div className="page-toolbar">
+                        <h4 className="panel-tittle m-a0 page-toolbar__title">Batch Uploads Summary ({filteredPlacements.length})</h4>
+                        <div className="page-toolbar__controls page-toolbar__controls--single">
+                        <div className="search-section page-toolbar__section">
+                            <div className="page-toolbar__control-wrap">
                                 <SearchBar 
                                     onSearch={handleSearch}
                                     placeholder="Search by College or Name..."
                                     className="placement-search"
                                 />
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>

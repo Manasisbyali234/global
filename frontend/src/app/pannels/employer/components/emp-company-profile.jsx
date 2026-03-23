@@ -89,12 +89,14 @@ function EmpCompanyProfilePage() {
         
         // Authorization Letters
         authorizationLetters: [],
+        hiringCompanies: [],
         
         // Gallery
         gallery: []
     });
 
     const [loading, setLoading] = useState(false);
+    const [savingHiringCompanies, setSavingHiringCompanies] = useState(false);
     const [authSections, setAuthSections] = useState([{ id: 1, companyName: '', documentId: null }]);
     const [fetchingCity, setFetchingCity] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState(null);
@@ -120,7 +122,7 @@ function EmpCompanyProfilePage() {
         officialMobile: { required: true, pattern: /^\d{10,15}$/, patternMessage: 'Mobile number must be at least 10 digits' },
         companyType: { required: true },
         cin: { pattern: /^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/, patternMessage: 'Invalid CIN format. Must be 21 characters (e.g., U12345AB1234ABC123456)' },
-        gstNumber: { required: true, pattern: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, patternMessage: 'Invalid GST format. Must be 15 characters (e.g., 12ABCDE1234F1Z5)' },
+        gstNumber: { required: true, pattern: /^\s*(?:[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}|[A-Z]{2}\/\d{4}\/\d{7})\s*$/, patternMessage: 'Enter a valid GST number (e.g., 12ABCDE1234F1Z5) or Darpan ID (e.g., RJ/2024/1234567)' },
         industrySector: { required: true },
         panNumber: { pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, patternMessage: 'Invalid PAN format. Must be 10 characters (e.g., ABCDE1234F)' },
         contactFullName: { required: true, minLength: 2 },
@@ -158,41 +160,45 @@ function EmpCompanyProfilePage() {
         }
     }, []);
 
-    const mapCompanyNamesToSections = (companyNames = []) => {
-        const uniqueCompanyNames = Array.from(
-            new Set(
+    const dedupeCompanyNames = (companyNames = []) => (
+        Array.from(
+            new Map(
                 companyNames
                     .map(companyName => String(companyName || '').trim())
                     .filter(Boolean)
-            )
-        );
+                    .map(companyName => [companyName.toLowerCase(), companyName])
+            ).values()
+        )
+    );
 
-        return uniqueCompanyNames.map((companyName, index) => ({
-            id: index + 1,
-            companyName,
-            documentId: null
-        }));
-    };
+    const buildAuthSections = (companyNames = [], authorizationLetters = []) => {
+        const sectionMap = new Map();
 
-    const mapAuthorizationLettersToSections = (authorizationLetters = []) => {
-        const seenCompanies = new Set();
+        dedupeCompanyNames(companyNames).forEach((companyName) => {
+            sectionMap.set(companyName.toLowerCase(), {
+                companyName,
+                documentId: null
+            });
+        });
 
-        return authorizationLetters.reduce((sections, letter, index) => {
+        authorizationLetters.forEach((letter) => {
             const companyName = String(letter?.companyName || '').trim();
-            if (!companyName) return sections;
+            if (!companyName) return;
 
             const companyKey = companyName.toLowerCase();
-            if (seenCompanies.has(companyKey)) return sections;
-            seenCompanies.add(companyKey);
+            const existingSection = sectionMap.get(companyKey);
 
-            sections.push({
-                id: index + 1,
-                companyName,
+            sectionMap.set(companyKey, {
+                companyName: existingSection?.companyName || companyName,
                 documentId: letter?._id || null
             });
+        });
 
-            return sections;
-        }, []);
+        return Array.from(sectionMap.values()).map((section, index) => ({
+            id: index + 1,
+            companyName: section.companyName,
+            documentId: section.documentId
+        }));
     };
 
     const fetchProfile = async () => {
@@ -348,12 +354,13 @@ function EmpCompanyProfilePage() {
                     profileData.companyType = 'Others - Specify';
                 }
 
-                setFormData(prev => ({ ...prev, ...profileData }));
-
                 const authorizationLetters = Array.isArray(data.profile.authorizationLetters)
                     ? data.profile.authorizationLetters
                     : [];
-                let namedSections = mapAuthorizationLettersToSections(authorizationLetters);
+                const savedHiringCompanies = dedupeCompanyNames(
+                    Array.isArray(data.profile.hiringCompanies) ? data.profile.hiringCompanies : []
+                );
+                let namedSections = buildAuthSections(savedHiringCompanies, authorizationLetters);
 
                 if (namedSections.length === 0 && profileData.employerCategory === 'consultancy') {
                     try {
@@ -364,12 +371,22 @@ function EmpCompanyProfilePage() {
                         });
 
                         if (consultantCompaniesData?.success) {
-                            namedSections = mapCompanyNamesToSections(consultantCompaniesData.companies);
+                            namedSections = buildAuthSections(consultantCompaniesData.companies, authorizationLetters);
                         }
                     } catch (companyFetchError) {
                         console.error('Failed to fetch consultant hiring companies:', companyFetchError);
                     }
                 }
+
+                const resolvedHiringCompanies = dedupeCompanyNames(
+                    namedSections.map(section => section.companyName)
+                );
+                setFormData(prev => ({
+                    ...prev,
+                    ...profileData,
+                    authorizationLetters,
+                    hiringCompanies: resolvedHiringCompanies
+                }));
 
                 if (namedSections.length > 0) {
                     setAuthSections(namedSections);
@@ -718,13 +735,156 @@ function EmpCompanyProfilePage() {
                 if (savedPath) {
                     handleInputChange(fieldName, savedPath);
                 }
-                showSuccess('Company logo uploaded successfully!');
+                const imageNames = {
+                    logo: 'Company logo',
+                    coverImage: 'Background banner'
+                };
+                showSuccess(`${imageNames[fieldName] || 'Image'} uploaded successfully!`);
             } else {
                 showError(data.message || 'Image upload failed');
             }
         } catch (error) {
             console.error('Processed image upload error:', error);
             showError('Image upload failed. Please try again.');
+        }
+    };
+
+    const buildUpdatedAuthorizationLetters = (sections = authSections) => {
+        const sectionNamesByDocumentId = new Map(
+            sections
+                .filter(section => section.documentId)
+                .map(section => [String(section.documentId), String(section.companyName || '').trim()])
+        );
+        const activeDocumentIds = new Set(
+            sections
+                .map(section => section.documentId)
+                .filter(Boolean)
+                .map(documentId => String(documentId))
+        );
+        const activeCompanyNames = new Set(
+            sections
+                .map(section => String(section.companyName || '').trim().toLowerCase())
+                .filter(Boolean)
+        );
+
+        return (formData.authorizationLetters || [])
+            .filter(letter => {
+                if (formData.employerCategory !== 'consultancy') {
+                    return true;
+                }
+
+                const documentId = letter?._id ? String(letter._id) : '';
+                if (documentId && activeDocumentIds.has(documentId)) {
+                    return true;
+                }
+
+                const companyName = String(letter?.companyName || '').trim().toLowerCase();
+                return !companyName || activeCompanyNames.has(companyName);
+            })
+            .map((letter, index) => {
+                if (formData.employerCategory === 'consultancy') {
+                    const documentId = letter?._id ? String(letter._id) : '';
+                    return {
+                        ...letter,
+                        companyName: sectionNamesByDocumentId.get(documentId) || String(letter.companyName || '').trim()
+                    };
+                }
+
+                const correspondingSection = sections[index];
+                return {
+                    ...letter,
+                    companyName: correspondingSection?.companyName || letter.companyName || ''
+                };
+            });
+    };
+
+    const persistHiringCompanies = async (sections = authSections, options = {}) => {
+        const {
+            successMessage = 'Hiring companies saved successfully!',
+            showSuccessMessage = true
+        } = options;
+
+        const previousHiringCompaniesCount = dedupeCompanyNames(formData.hiringCompanies || []).length;
+
+        if (formData.employerCategory === 'consultancy') {
+            const emptyCompanyNames = sections.filter(section => !section.companyName?.trim());
+            if (emptyCompanyNames.length > 0) {
+                showWarning('Please enter all hiring company names before saving.');
+                return null;
+            }
+        }
+
+        try {
+            setSavingHiringCompanies(true);
+            const token = localStorage.getItem('employerToken');
+            if (!token) {
+                showWarning('Please login again to save hiring companies.');
+                return null;
+            }
+
+            const nextHiringCompanies = dedupeCompanyNames(
+                sections.map(section => section.companyName)
+            );
+            const updatedAuthLetters = buildUpdatedAuthorizationLetters(sections);
+            const data = await safeApiCall(`${API_BASE_URL}/employer/profile/update-authorization-companies`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    authorizationLetters: updatedAuthLetters,
+                    hiringCompanies: nextHiringCompanies
+                })
+            });
+
+            if (!data?.success) {
+                showError(data?.message || 'Failed to save hiring companies');
+                return null;
+            }
+
+            const nextAuthorizationLetters = Array.isArray(data.profile?.authorizationLetters)
+                ? data.profile.authorizationLetters
+                : [];
+            const resolvedHiringCompanies = dedupeCompanyNames(
+                Array.isArray(data.profile?.hiringCompanies)
+                    ? data.profile.hiringCompanies
+                    : nextHiringCompanies
+            );
+
+            setFormData(prev => ({
+                ...prev,
+                authorizationLetters: nextAuthorizationLetters,
+                hiringCompanies: resolvedHiringCompanies
+            }));
+
+            const nextSections = buildAuthSections(resolvedHiringCompanies, nextAuthorizationLetters);
+            setAuthSections(nextSections.length > 0 ? nextSections : [{ id: 1, companyName: '', documentId: null }]);
+
+            if (showSuccessMessage) {
+                const delta = resolvedHiringCompanies.length - previousHiringCompaniesCount;
+                if (delta === 1) {
+                    showSuccess('Added one more company');
+                } else if (delta > 1) {
+                    showSuccess(`Added ${delta} companies`);
+                } else {
+                    showSuccess(successMessage);
+                }
+            }
+
+            return data;
+        } catch (error) {
+            if (error.name === 'AuthError') {
+                showWarning('Session expired. Please login again.');
+                localStorage.removeItem('employerToken');
+                window.location.href = '/employer/login';
+                return null;
+            }
+
+            showError(getErrorMessage(error, 'profile'));
+            return null;
+        } finally {
+            setSavingHiringCompanies(false);
         }
     };
 
@@ -782,12 +942,18 @@ function EmpCompanyProfilePage() {
             
             if (data.success) {
                 const nextAuthorizationLetters = data.profile.authorizationLetters || [];
+                const nextHiringCompanies = dedupeCompanyNames([
+                    ...(formData.hiringCompanies || []),
+                    ...(data.profile.hiringCompanies || []),
+                    companyName
+                ]);
                 setFormData(prev => ({
                     ...prev,
-                    authorizationLetters: nextAuthorizationLetters
+                    authorizationLetters: nextAuthorizationLetters,
+                    hiringCompanies: nextHiringCompanies
                 }));
                 if (formData.employerCategory === 'consultancy') {
-                    const nextSections = mapAuthorizationLettersToSections(nextAuthorizationLetters);
+                    const nextSections = buildAuthSections(nextHiringCompanies, nextAuthorizationLetters);
                     setAuthSections(nextSections.length > 0 ? nextSections : [{ id: 1, companyName: '', documentId: null }]);
                 }
                 showSuccess('Authorization letter uploaded successfully!');
@@ -802,7 +968,13 @@ function EmpCompanyProfilePage() {
         }
     };
 
-    const handleDeleteAuthorizationLetter = async (documentId) => {
+    const handleDeleteAuthorizationLetter = async (documentId, options = {}) => {
+        const {
+            removeCompany = false,
+            nextSections: providedNextSections = null,
+            successMessage = 'Authorization letter deleted successfully!'
+        } = options;
+
         try {
             const token = localStorage.getItem('employerToken');
             if (!token) {
@@ -817,15 +989,40 @@ function EmpCompanyProfilePage() {
             
             if (data.success) {
                 const nextAuthorizationLetters = data.profile.authorizationLetters || [];
+                const baseSections = Array.isArray(providedNextSections)
+                    ? providedNextSections
+                    : authSections.map(section => {
+                        if (String(section.documentId || '') !== String(documentId)) {
+                            return section;
+                        }
+
+                        return removeCompany
+                            ? null
+                            : { ...section, documentId: null };
+                    }).filter(Boolean);
+                const nextHiringCompanies = dedupeCompanyNames(
+                    (removeCompany ? baseSections : (baseSections.length > 0 ? baseSections : authSections))
+                        .map(section => section.companyName)
+                );
+
                 setFormData(prev => ({
                     ...prev,
-                    authorizationLetters: nextAuthorizationLetters
+                    authorizationLetters: nextAuthorizationLetters,
+                    hiringCompanies: nextHiringCompanies
                 }));
                 if (formData.employerCategory === 'consultancy') {
-                    const nextSections = mapAuthorizationLettersToSections(nextAuthorizationLetters);
+                    const nextSections = buildAuthSections(nextHiringCompanies, nextAuthorizationLetters);
                     setAuthSections(nextSections.length > 0 ? nextSections : [{ id: 1, companyName: '', documentId: null }]);
                 }
-                showSuccess('Authorization letter deleted successfully!');
+                if (removeCompany) {
+                    const sectionsToPersist = baseSections.filter(section => section.companyName?.trim());
+                    await persistHiringCompanies(sectionsToPersist, {
+                        successMessage,
+                        showSuccessMessage: true
+                    });
+                } else {
+                    showSuccess(successMessage);
+                }
             } else {
                 showError(data.message || 'Failed to delete document');
             }
@@ -957,7 +1154,9 @@ function EmpCompanyProfilePage() {
     };
 
     const addNewAuthSection = () => {
-        const newId = Math.max(...authSections.map(s => s.id)) + 1;
+        const newId = authSections.length > 0
+            ? Math.max(...authSections.map(s => s.id)) + 1
+            : 1;
         setAuthSections(prev => [...prev, { id: newId, companyName: '', documentId: null }]);
     };
 
@@ -967,18 +1166,32 @@ function EmpCompanyProfilePage() {
         ));
     };
 
+    const handleSaveHiringCompanies = async () => {
+        await persistHiringCompanies(authSections);
+    };
+
     const removeAuthSection = async (id) => {
         const sectionToRemove = authSections.find(section => section.id === id);
         if (!sectionToRemove || authSections.length <= 1) return;
+        const nextSections = authSections.filter(section => section.id !== id);
 
         if (sectionToRemove.documentId) {
-            await handleDeleteAuthorizationLetter(sectionToRemove.documentId);
+            await handleDeleteAuthorizationLetter(sectionToRemove.documentId, {
+                removeCompany: true,
+                nextSections,
+                successMessage: 'Hiring company removed successfully!'
+            });
             return;
         }
 
-        setAuthSections(prev => {
-            const nextSections = prev.filter(section => section.id !== id);
-            return nextSections.length > 0 ? nextSections : [{ id: 1, companyName: '', documentId: null }];
+        setAuthSections(nextSections.length > 0 ? nextSections : [{ id: 1, companyName: '', documentId: null }]);
+        setFormData(prev => ({
+            ...prev,
+            hiringCompanies: dedupeCompanyNames(nextSections.map(section => section.companyName))
+        }));
+        const sectionsToPersist = nextSections.filter(section => section.companyName?.trim());
+        await persistHiringCompanies(sectionsToPersist, {
+            successMessage: 'Hiring company removed successfully!'
         });
     };
 
@@ -1036,64 +1249,15 @@ function EmpCompanyProfilePage() {
         try {
             const token = localStorage.getItem('employerToken');
             
-            // Update authorization letters with current company names from authSections
-            if (formData.authorizationLetters && formData.authorizationLetters.length > 0) {
-                const sectionNamesByDocumentId = new Map(
-                    authSections
-                        .filter(section => section.documentId)
-                        .map(section => [String(section.documentId), String(section.companyName || '').trim()])
-                );
-                const activeDocumentIds = new Set(
-                    authSections
-                        .map(section => section.documentId)
-                        .filter(Boolean)
-                        .map(documentId => String(documentId))
-                );
-                const activeCompanyNames = new Set(
-                    authSections
-                        .map(section => String(section.companyName || '').trim().toLowerCase())
-                        .filter(Boolean)
-                );
-
-                const updatedAuthLetters = formData.authorizationLetters
-                    .filter(letter => {
-                        if (formData.employerCategory !== 'consultancy') {
-                            return true;
-                        }
-
-                        const documentId = letter?._id ? String(letter._id) : '';
-                        if (documentId && activeDocumentIds.has(documentId)) {
-                            return true;
-                        }
-
-                        const companyName = String(letter?.companyName || '').trim().toLowerCase();
-                        return !companyName || activeCompanyNames.has(companyName);
-                    })
-                    .map((letter, index) => {
-                        if (formData.employerCategory === 'consultancy') {
-                            const documentId = letter?._id ? String(letter._id) : '';
-                            return {
-                                ...letter,
-                                companyName: sectionNamesByDocumentId.get(documentId) || String(letter.companyName || '').trim()
-                            };
-                        }
-
-                        const correspondingSection = authSections[index];
-                        return {
-                            ...letter,
-                            companyName: correspondingSection?.companyName || letter.companyName || ''
-                        };
-                    });
-                
-                // Update authorization letters with company names
-                await fetch(`${API_BASE_URL}/employer/profile/update-authorization-companies`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ authorizationLetters: updatedAuthLetters })
+            if (formData.authorizationLetters?.length > 0 || formData.employerCategory === 'consultancy') {
+                const hiringCompaniesSaved = await persistHiringCompanies(authSections, {
+                    showSuccessMessage: false
                 });
+
+                if (!hiringCompaniesSaved) {
+                    setLoading(false);
+                    return;
+                }
             }
             
             // Create a copy of formData excluding large Base64 files to prevent request size issues
@@ -1336,7 +1500,7 @@ function EmpCompanyProfilePage() {
                         <div className="row">
                             <div className="col-xl-4 col-lg-12 col-md-12">
                                 <div className="form-group">
-                                    <label><Building size={16} className="me-2" /> Employer Category</label>
+                                    <label className="required-field"><Building size={16} className="me-2" /> Employer Category</label>
                                     <div className="form-control" style={{backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', color: '#495057'}}>
                                         {formData.employerCategory ? 
                                             (formData.employerCategory === 'company' ? 'Company' : 'Consultancy') 
@@ -1650,7 +1814,7 @@ function EmpCompanyProfilePage() {
                                 ))}
                             </div>
                             
-                            <div className="mt-3">
+                            <div className="mt-3 d-flex flex-wrap gap-2">
                                 <button 
                                     type="button" 
                                     className="btn btn-sm"
@@ -1659,6 +1823,14 @@ function EmpCompanyProfilePage() {
                                 >
                                     <i className="fas fa-plus me-1"></i> 
                                     Add New Hiring Company
+                                </button>
+                                <button
+                                    type="button"
+                                    className="site-button"
+                                    onClick={handleSaveHiringCompanies}
+                                    disabled={savingHiringCompanies}
+                                >
+                                    {savingHiringCompanies ? 'Saving...' : 'Save Hiring Companies'}
                                 </button>
                             </div>
                             
@@ -1669,41 +1841,38 @@ function EmpCompanyProfilePage() {
                                         <i className="fas fa-check-circle me-2"></i>
                                         Uploaded Authorization Letters ({formData.authorizationLetters.length})
                                     </h6>
-                                    <div className="row">
+                                    <div className="row uploaded-auth-letters-grid">
                                         {formData.authorizationLetters.map((doc, index) => (
-                                            <div key={doc._id || index} className="col-md-6 mb-2">
-                                                <div className="document-card p-3 border rounded shadow-sm" style={{backgroundColor: '#fff', overflow: 'hidden'}}>
-                                                    <div className="row" style={{margin: 0}}>
-                                                        <div className="col-9" style={{paddingRight: '8px'}}>
-                                                            <div className="d-flex align-items-center mb-1">
-                                                                <i className="fas fa-file-alt text-primary me-2" style={{flexShrink: 0}}></i>
-                                                                <span className="fw-bold" style={{wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis'}}>{doc.fileName}</span>
-                                                            </div>
-                                                            {renderStatusBadge(doc.status)}
-                                                            {doc.companyName && (
-                                                                <div className="mb-1">
-                                                                    <small className="text-info" style={{wordBreak: 'break-word'}}>
-                                                                        <i className="fas fa-building me-1"></i>
-                                                                        {doc.companyName}
-                                                                    </small>
-                                                                </div>
-                                                            )}
-                                                            <small className="text-muted">
-                                                                <i className="fas fa-calendar me-1"></i>
-                                                                {formatDate(doc.uploadedAt)}
-                                                            </small>
+                                            <div key={doc._id || index} className="col-md-6 mb-3">
+                                                <div className="document-card uploaded-auth-letter-card p-3 border rounded shadow-sm">
+                                                    <div className="uploaded-auth-letter-card__header">
+                                                        <div className="uploaded-auth-letter-card__file">
+                                                            <i className="fas fa-file-alt text-primary"></i>
+                                                            <span className="uploaded-auth-letter-card__file-name" title={doc.fileName}>{doc.fileName}</span>
                                                         </div>
-                                                        <div className="col-3 d-flex align-items-start justify-content-end" style={{paddingLeft: '8px'}}>
-                                                            <button 
-                                                                type="button" 
-                                                                className="btn btn-outline-danger btn-sm"
-                                                                onClick={() => handleDeleteAuthorizationLetter(doc._id)}
-                                                                title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
-                                                                disabled={doc.status === 'approved'}
-                                                                style={{flexShrink: 0}}
-                                                            >
-                                                                <i className="fas fa-trash"></i>
-                                                            </button>
+                                                        <button 
+                                                            type="button" 
+                                                            className="btn btn-outline-danger btn-sm uploaded-auth-letter-card__delete"
+                                                            onClick={() => handleDeleteAuthorizationLetter(doc._id)}
+                                                            title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
+                                                            disabled={doc.status === 'approved'}
+                                                        >
+                                                            <i className="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div className="uploaded-auth-letter-card__body">
+                                                        <div className="uploaded-auth-letter-card__status">
+                                                            {renderStatusBadge(doc.status)}
+                                                        </div>
+                                                        {doc.companyName && (
+                                                            <div className="uploaded-auth-letter-card__meta uploaded-auth-letter-card__meta--company" title={doc.companyName}>
+                                                                <i className="fas fa-building"></i>
+                                                                <span>{doc.companyName}</span>
+                                                            </div>
+                                                        )}
+                                                        <div className="uploaded-auth-letter-card__meta uploaded-auth-letter-card__meta--date">
+                                                            <i className="fas fa-calendar"></i>
+                                                            <span>{formatDate(doc.uploadedAt)}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2112,39 +2281,39 @@ function EmpCompanyProfilePage() {
                                                     <i className="fas fa-check-circle me-2"></i>
                                                     Uploaded Authorization Letters
                                                 </h6>
-                                                <div className="row">
+                                                <div className="row uploaded-auth-letters-grid">
                                                     {formData.authorizationLetters.map((doc, index) => (
-                                                        <div key={doc._id || index} className="col-md-6 mb-2">
-                                                            <div className="document-card p-3 border rounded shadow-sm" style={{backgroundColor: '#fff'}}>
-                                                                <div className="d-flex justify-content-between align-items-start">
-                                                                    <div className="flex-grow-1">
-                                                                        <div className="d-flex align-items-center mb-1">
-                                                                            <i className="fas fa-file-alt text-primary me-2"></i>
-                                                                            <span className="fw-bold">{doc.fileName}</span>
-                                                                        </div>
-                                                                        {renderStatusBadge(doc.status)}
-                                                                        {doc.companyName && (
-                                                                            <div className="mb-1">
-                                                                                <small className="text-info">
-                                                                                    <i className="fas fa-building me-1"></i>
-                                                                                    {doc.companyName}
-                                                                                </small>
-                                                                            </div>
-                                                                        )}
-                                                                        <small className="text-muted">
-                                                                            <i className="fas fa-calendar me-1"></i>
-                                                                            {formatDate(doc.uploadedAt)}
-                                                                        </small>
+                                                        <div key={doc._id || index} className="col-md-6 mb-3">
+                                                            <div className="document-card uploaded-auth-letter-card p-3 border rounded shadow-sm">
+                                                                <div className="uploaded-auth-letter-card__header">
+                                                                    <div className="uploaded-auth-letter-card__file">
+                                                                        <i className="fas fa-file-alt text-primary"></i>
+                                                                        <span className="uploaded-auth-letter-card__file-name" title={doc.fileName}>{doc.fileName}</span>
                                                                     </div>
                                                                     <button 
                                                                         type="button" 
-                                                                        className="btn btn-outline-danger btn-sm"
+                                                                        className="btn btn-outline-danger btn-sm uploaded-auth-letter-card__delete"
                                                                         onClick={() => handleDeleteAuthorizationLetter(doc._id)}
                                                                         title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
                                                                         disabled={doc.status === 'approved'}
                                                                     >
                                                                         <i className="fas fa-trash"></i>
                                                                     </button>
+                                                                </div>
+                                                                <div className="uploaded-auth-letter-card__body">
+                                                                    <div className="uploaded-auth-letter-card__status">
+                                                                        {renderStatusBadge(doc.status)}
+                                                                    </div>
+                                                                    {doc.companyName && (
+                                                                        <div className="uploaded-auth-letter-card__meta uploaded-auth-letter-card__meta--company" title={doc.companyName}>
+                                                                            <i className="fas fa-building"></i>
+                                                                            <span>{doc.companyName}</span>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="uploaded-auth-letter-card__meta uploaded-auth-letter-card__meta--date">
+                                                                        <i className="fas fa-calendar"></i>
+                                                                        <span>{formatDate(doc.uploadedAt)}</span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -2364,7 +2533,7 @@ function EmpCompanyProfilePage() {
                                                 </p>
                                             )}
                                             {(formData.gallery?.length || 0) < 5 && (
-                                                <p className="text-danger small">
+                                                <p className="text-danger small gallery-upload-warning">
                                                     Currently uploaded: {formData.gallery?.length || 0}/5 — <strong>Minimum 5 images are required. Please upload more images to continue.</strong>
                                                 </p>
                                             )}

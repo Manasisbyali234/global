@@ -18,7 +18,12 @@ export const showConfirmation = (message, onConfirm, onCancel, type = 'warning',
   }
 };
 
-export const showSuccess = (message, duration) => showPopup(message, 'success', duration);
+const normalizeSuccessMessage = (message) => {
+  if (typeof message !== 'string') return message;
+  return message.replace(/[!]+(\s*)$/, '$1');
+};
+
+export const showSuccess = (message, duration) => showPopup(normalizeSuccessMessage(message), 'success', duration);
 export const showError = (message, duration) => showPopup(message, 'error', duration);
 export const showWarning = (message, duration) => showPopup(message, 'warning', duration);
 export const showInfo = (message, duration) => showPopup(message, 'info', duration);

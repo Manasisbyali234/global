@@ -160,6 +160,19 @@
   /* Password Toggle Icons */
   .password-toggle-icon {
     right: 15px !important;
+    top: 0 !important;
+    height: 100% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .password-feedback-icon {
+    top: 0 !important;
+    height: 100% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   /* Submit Button */

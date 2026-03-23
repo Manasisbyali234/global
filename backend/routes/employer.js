@@ -18,7 +18,11 @@ router.post('/register', [
   ...mobileValidationRules()
 ], validateEmailMiddleware, handleValidationErrors, employerController.registerEmployer);
 
-router.post('/login', validateEmailMiddleware, employerController.loginEmployer);
+router.post('/login', [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').notEmpty().withMessage('Password is required'),
+  body('recaptchaToken').notEmpty().withMessage('Google reCAPTCHA verification is required')
+], validateEmailMiddleware, handleValidationErrors, employerController.loginEmployer);
 
 router.post('/check-email', [
   body('email').isEmail().withMessage('Valid email is required')

@@ -255,7 +255,7 @@ const fieldLabels = {
   officialEmail: 'Official Email',
   officialMobile: 'Official Mobile Number',
   cin: 'CIN Number',
-  gstNumber: 'GST Number',
+  gstNumber: 'GST Number / Darpan ID',
   panNumber: 'PAN Number',
   
   // Primary Contact

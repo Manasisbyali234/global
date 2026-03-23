@@ -26,6 +26,7 @@ const mongoose = require('mongoose');
 const XLSX = require('xlsx');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
 const { checkEmailExists } = require('../utils/authUtils');
+const { verifyRecaptchaToken } = require('../utils/recaptcha');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -60,16 +61,33 @@ const checkSubAdminPermission = (userPermissions, requiredPermission) => {
 // Authentication Controller
 exports.loginAdmin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, recaptchaToken } = req.body;
+    const normalizedEmail = email.trim();
 
     // First check if it's a regular admin
-    let user = await Admin.findByEmail(email.trim());
+    let user = await Admin.findByEmail(normalizedEmail);
     let userType = 'admin';
     
     // If not found in Admin, check SubAdmin
     if (!user) {
-      user = await SubAdmin.findByEmail(email.trim());
-      userType = 'sub-admin';
+      const subAdminUser = await SubAdmin.findByEmail(normalizedEmail);
+      if (subAdminUser) {
+        const recaptchaResult = await verifyRecaptchaToken(
+          recaptchaToken,
+          'sub_admin_login',
+          req.ip
+        );
+        if (!recaptchaResult.success) {
+          return res.status(400).json({
+            success: false,
+            message: recaptchaResult.message,
+            shouldResetRecaptcha: recaptchaResult.shouldResetRecaptcha
+          });
+        }
+
+        user = subAdminUser;
+        userType = 'sub-admin';
+      }
     }
     
     if (!user) {
@@ -112,9 +130,12 @@ exports.getDashboardStats = async (req, res) => {
     const approvedEmployers = await Employer.countDocuments({ isApproved: true });
     const totalJobs = await Job.countDocuments();
     const totalApplications = await Application.countDocuments();
-    const activeJobs = await Job.countDocuments({ status: 'active' });
+    const activeJobs = await Job.countDocuments({
+      status: { $in: ['active'] }
+    });
     const pendingJobs = await Job.countDocuments({ status: 'pending' });
     const pendingPlacements = await Placement.countDocuments({ status: 'pending' });
+    const approvedPlacements = await Placement.countDocuments({ isApproved: true, status: 'active' });
     const totalPlacements = await Placement.countDocuments();
 
     const stats = {
@@ -126,6 +147,7 @@ exports.getDashboardStats = async (req, res) => {
       activeJobs,
       pendingJobs,
       pendingPlacements,
+      approvedPlacements,
       totalPlacements
     };
 
@@ -139,8 +161,13 @@ exports.getDashboardStats = async (req, res) => {
 exports.getEmployerOverview = async (req, res) => {
   try {
     const [employers, jobsByEmployer, applicationsByEmployer] = await Promise.all([
-      Employer.find({ isApproved: true }).select('_id companyName name').lean(),
+      Employer.find({ isApproved: true }).select('_id companyName name createdAt').lean(),
       Job.aggregate([
+        {
+          $match: {
+            status: { $ne: 'draft' }
+          }
+        },
         {
           $group: {
             _id: '$employerId',
@@ -159,6 +186,11 @@ exports.getEmployerOverview = async (req, res) => {
         },
         { $unwind: '$job' },
         {
+          $match: {
+            'job.status': { $ne: 'draft' }
+          }
+        },
+        {
           $group: {
             _id: '$job.employerId',
             applicationsCount: { $sum: 1 }
@@ -174,10 +206,11 @@ exports.getEmployerOverview = async (req, res) => {
       .map((employer) => ({
         employerId: employer._id,
         employerName: employer.companyName || employer.name || 'N/A',
+        createdAt: employer.createdAt,
         jobsCount: jobsCountMap.get(String(employer._id)) || 0,
         applicationsCount: applicationsCountMap.get(String(employer._id)) || 0
       }))
-      .sort((a, b) => a.employerName.localeCompare(b.employerName));
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
     res.json({ success: true, data });
   } catch (error) {
@@ -194,7 +227,10 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Approved employer not found' });
     }
 
-    const jobs = await Job.find({ employerId })
+    const jobs = await Job.find({
+      employerId,
+      status: { $ne: 'draft' }
+    })
       .select('_id title status createdAt offerLetterDate')
       .sort({ createdAt: -1 })
       .lean();

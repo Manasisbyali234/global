@@ -49,6 +49,7 @@ const employerAdminProfileSchema = new mongoose.Schema({
     rejectedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
     companyName: { type: String }
   }],
+  hiringCompanies: [{ type: String }],
   
   // Primary Contact (ADMIN ONLY)
   contactFullName: { type: String },

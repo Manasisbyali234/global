@@ -10,6 +10,7 @@ const { sendWelcomeEmail, sendJobApplicationConfirmationEmail } = require('../ut
 const { checkEmailExists } = require('../utils/authUtils');
 const { sendSMS } = require('../utils/smsProvider');
 const { formatDate } = require('../utils/dateFormatter');
+const { verifyRecaptchaToken } = require('../utils/recaptcha');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -104,8 +105,17 @@ exports.registerCandidate = async (req, res) => {
 
 exports.loginCandidate = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, recaptchaToken } = req.body;
     // Removed console debug line for security;
+
+    const recaptchaResult = await verifyRecaptchaToken(recaptchaToken, 'candidate_login', req.ip);
+    if (!recaptchaResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: recaptchaResult.message,
+        shouldResetRecaptcha: recaptchaResult.shouldResetRecaptcha
+      });
+    }
 
     const candidate = await Candidate.findByEmail(email.trim());
     if (!candidate) {
@@ -1267,10 +1277,40 @@ function buildCandidateSlotIdentity(candidate = {}) {
     if (normalized) names.add(normalized);
   };
 
-  addId(candidate._id || candidate.id || candidate.candidateId);
-  addEmail(candidate.email || candidate.emailAddress);
-  addName(candidate.name);
-  addName([candidate.firstName, candidate.middleName, candidate.lastName].filter(Boolean).join(' '));
+  const addCandidateLikeObject = (value) => {
+    if (!value) return;
+    if (typeof value !== 'object') {
+      addId(value);
+      return;
+    }
+
+    addId(value._id || value.id || value.candidateId || value.userId || value.user?._id || value.profile?._id);
+    addEmail(
+      value.email ||
+      value.emailAddress ||
+      value.applicantEmail ||
+      value.candidateEmail ||
+      value.user?.email ||
+      value.profile?.email
+    );
+    addName(value.name || value.fullName || value.username || value.applicantName || value.candidateName);
+    addName([value.firstName, value.middleName, value.lastName].filter(Boolean).join(' '));
+
+    if (value.candidateId && value.candidateId !== value) {
+      addCandidateLikeObject(value.candidateId);
+    }
+    if (value.user && value.user !== value) {
+      addCandidateLikeObject(value.user);
+    }
+    if (value.profile && value.profile !== value) {
+      addCandidateLikeObject(value.profile);
+    }
+    if (value.candidateProfile && value.candidateProfile !== value) {
+      addCandidateLikeObject(value.candidateProfile);
+    }
+  };
+
+  addCandidateLikeObject(candidate);
 
   return { ids, emails, names };
 }

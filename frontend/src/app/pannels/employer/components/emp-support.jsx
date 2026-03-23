@@ -75,6 +75,24 @@ function EmpSupport() {
         }
     }, []);
 
+    useEffect(() => {
+        const previousBodyOverflow = document.body.style.overflow;
+        const previousHtmlOverflow = document.documentElement.style.overflow;
+
+        if (isSubmitted) {
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = previousBodyOverflow || '';
+            document.documentElement.style.overflow = previousHtmlOverflow || '';
+        }
+
+        return () => {
+            document.body.style.overflow = previousBodyOverflow || '';
+            document.documentElement.style.overflow = previousHtmlOverflow || '';
+        };
+    }, [isSubmitted]);
+
     const categories = [
         { value: 'general', label: 'General Inquiry' },
         { value: 'technical', label: 'Technical Issue' },
@@ -327,10 +345,14 @@ function EmpSupport() {
                 overflow: 'hidden',
                 position: 'fixed',
                 top: 0,
-                left: 0
+                left: 0,
+                right: 0,
+                bottom: 0,
+                paddingTop: '92px',
+                overscrollBehavior: 'none'
             }}>
                 <div style={{ padding: '2rem 2rem 2rem 2rem' }}>
-                    <div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                    <div className="wt-admin-right-page-header clearfix emp-support-success-header" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
                         <h2>Support Ticket Submitted</h2>
                     </div>
                 </div>
@@ -464,7 +486,7 @@ function EmpSupport() {
                                                 <div className="mt-3">
                                                     <strong className="d-block mb-2" style={{ color: '#ff6b35' }}>
                                                         <i className="fa fa-check-circle me-1"></i>
-                                                        Selected files ({files.length}/3):
+                                                        Selected File ({files.length}/3)
                                                     </strong>
                                                     <ul className="list-unstyled mb-0">
                                                         {files.map((file, index) => {
