@@ -370,6 +370,140 @@ function CanStatusPage() {
 		return null;
 	};
 
+	const hasBookedReferenceForCandidate = (roundDetails, candidateId, bookedSlots = []) => {
+		if (!roundDetails) return false;
+
+		const candidateIdentity = (() => {
+			const ids = new Set();
+			const emails = new Set();
+			const names = new Set();
+
+			const addId = (value) => {
+				if (!value) return;
+				const normalized = String(value).trim();
+				if (normalized) ids.add(normalized);
+			};
+
+			const addEmail = (value) => {
+				if (!value) return;
+				const normalized = String(value).trim().toLowerCase();
+				if (normalized) emails.add(normalized);
+			};
+
+			const addName = (value) => {
+				if (!value) return;
+				const normalized = String(value).trim().toLowerCase().replace(/\s+/g, ' ');
+				if (normalized) names.add(normalized);
+			};
+
+			const addCandidateLikeObject = (value) => {
+				if (!value) return;
+				if (typeof value !== 'object') {
+					addId(value);
+					return;
+				}
+
+				addId(value._id || value.id || value.candidateId || value.userId || value.user?._id || value.profile?._id);
+				addEmail(
+					value.email ||
+					value.emailAddress ||
+					value.applicantEmail ||
+					value.candidateEmail ||
+					value.user?.email ||
+					value.profile?.email
+				);
+				addName(value.name || value.fullName || value.username || value.applicantName || value.candidateName);
+				addName([value.firstName, value.middleName, value.lastName].filter(Boolean).join(' '));
+
+				if (value.candidateId && value.candidateId !== value) addCandidateLikeObject(value.candidateId);
+				if (value.user && value.user !== value) addCandidateLikeObject(value.user);
+				if (value.profile && value.profile !== value) addCandidateLikeObject(value.profile);
+				if (value.candidateProfile && value.candidateProfile !== value) addCandidateLikeObject(value.candidateProfile);
+			};
+
+			addCandidateLikeObject(candidateId);
+
+			try {
+				const storedCandidateUser = JSON.parse(localStorage.getItem('candidateUser') || '{}');
+				addCandidateLikeObject(storedCandidateUser);
+				addId(localStorage.getItem('candidateId'));
+			} catch (error) {}
+
+			return { ids, emails, names };
+		})();
+
+		const isIdMatch = (value) => {
+			if (!value || candidateIdentity.ids.size === 0) return false;
+			const raw = String(value).trim();
+			if (!raw) return false;
+			return Array.from(candidateIdentity.ids).some((candidateValue) => raw === candidateValue || raw.includes(candidateValue));
+		};
+
+		const isEmailMatch = (value) => {
+			if (!value || candidateIdentity.emails.size === 0) return false;
+			return candidateIdentity.emails.has(String(value).trim().toLowerCase());
+		};
+
+		const isNameMatch = (value) => {
+			if (!value || candidateIdentity.names.size === 0) return false;
+			const normalized = String(value).trim().toLowerCase().replace(/\s+/g, ' ');
+			return candidateIdentity.names.has(normalized);
+		};
+
+		const scanValue = (value) => {
+			if (!value) return false;
+			if (Array.isArray(value)) return value.some((item) => scanValue(item));
+			if (typeof value !== 'object') return false;
+
+			const bookingStatus = String(value.status || '').trim().toLowerCase();
+			const hasBookedMarker = bookingStatus === 'booked' || Boolean(value.bookedAt);
+			const candidateMatched =
+				['candidateId', 'candidate', 'candidate_id', 'applicantId', 'userId', 'user_id', 'bookedBy', 'bookedById']
+					.some((key) => isIdMatch(value[key])) ||
+				['candidateEmail', 'email', 'applicantEmail', 'bookedEmail', 'candidate_email']
+					.some((key) => isEmailMatch(value[key])) ||
+				['candidateName', 'name', 'applicantName', 'bookedName', 'candidate_name']
+					.some((key) => isNameMatch(value[key]));
+
+			if (hasBookedMarker && candidateMatched) {
+				return true;
+			}
+
+			const nestedKeys = [
+				'bookedSlot', 'bookedSlots', 'slots', 'schedules', 'schedulesArray',
+				'daySchedules', 'daySchedulesArray', 'rooms', 'roomsArray', 'schedule', 'Schedule'
+			];
+
+			return nestedKeys.some((key) => value[key] && scanValue(value[key]));
+		};
+
+		const scheduleObject = roundDetails.scheduleObject || roundDetails.schedule || roundDetails.Schedule || {};
+		const nestedSchedule = scheduleObject.schedule || scheduleObject.Schedule || {};
+		const sources = [
+			roundDetails,
+			roundDetails.Schedule,
+			roundDetails.schedulesArray,
+			roundDetails.schedules,
+			roundDetails.daySchedulesArray,
+			roundDetails.daySchedules,
+			roundDetails.roomsArray,
+			roundDetails.rooms,
+			scheduleObject,
+			scheduleObject.Schedule,
+			scheduleObject.schedulesArray,
+			scheduleObject.schedules,
+			scheduleObject.daySchedulesArray,
+			scheduleObject.daySchedules,
+			scheduleObject.roomsArray,
+			scheduleObject.rooms,
+			nestedSchedule,
+			nestedSchedule.Schedule,
+			bookedSlots
+		];
+
+		return sources.some((source) => scanValue(source));
+	};
+
 	// Timer component for assessment countdown
 	const AssessmentTimer = ({ timerInfo, onTimerEnd }) => {
 		const [timeLeft, setTimeLeft] = useState(null);
@@ -1995,7 +2129,16 @@ function CanStatusPage() {
 												{roundName !== 'Assessment' && (() => {
 													const roundType = typeof round === 'object' ? round.roundType : round.toLowerCase();
 													const roundId = selectedApplication.interviewRoundIds?.[roundType] || uniqueKey;
-													const candidateId = selectedApplication.candidateId?._id || selectedApplication.candidateId;
+													const candidateId = (() => {
+														const directCandidateId = selectedApplication.candidateId?._id || selectedApplication.candidateId;
+														if (directCandidateId) return directCandidateId;
+														try {
+															const storedCandidateUser = JSON.parse(localStorage.getItem('candidateUser') || '{}');
+															return storedCandidateUser?._id || localStorage.getItem('candidateId');
+														} catch (error) {
+															return localStorage.getItem('candidateId');
+														}
+													})();
 													const roundWindowInfo = getInterviewRoundWindowInfo(roundDetails);
 													const normalizedRoundType = (roundType || '').toString().split('_')[0];
 													const bookSlotUrl = `https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`;
@@ -2056,6 +2199,7 @@ function CanStatusPage() {
 														roundDetails?.candidateSlotBooked ||
 														roundDetails?.isBooked ||
 														roundDetails?.bookingConfirmed ||
+														hasBookedReferenceForCandidate(roundDetails, candidateId, selectedApplication?.bookedSlots) ||
 														hasCandidateRef(roundDetails?.scheduleObject) ||
 														hasCandidateRef(roundDetails?.formDataObject) ||
 														hasCandidateRef(roundDetails?.schedulesArray) ||

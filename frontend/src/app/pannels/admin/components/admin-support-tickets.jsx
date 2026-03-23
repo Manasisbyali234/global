@@ -436,17 +436,17 @@ function AdminSupportTickets() {
                                     </div>
                                 ) : (
                                     <div className="table-container">
-                                        <table className="table tickets-table" style={{tableLayout: 'fixed', width: '100%'}}>
+                                        <table className="table tickets-table" style={{tableLayout: 'auto', width: '100%'}}>
                                             <thead>
                                                 <tr>
-                                                    <th style={{width: '16%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Subject</th>
-                                                    <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Requester</th>
+                                                    <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Subject</th>
+                                                    <th style={{width: '24%', whiteSpace: 'nowrap'}}>Requester</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>User type</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
                                                     <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
                                                     <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Created</th>
-                                                    <th className="text-center" style={{width: '18%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Actions</th>
+                                                    <th className="text-center" style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -463,7 +463,7 @@ function AdminSupportTickets() {
                                                             </div>
                                                             {!ticket.isRead && <span className="new-badge">Unread</span>}
                                                         </td>
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={`${getRequesterName(ticket)} - ${getRequesterEmail(ticket)}`}>
+                                                        <td style={{whiteSpace: 'nowrap'}} title={`${getRequesterName(ticket)} - ${getRequesterEmail(ticket)}`}>
                                                             <div className="user-info">
                                                                 <div className="user-name">{getRequesterName(ticket)}</div>
                                                                 <div className="user-email">{getRequesterEmail(ticket)}</div>

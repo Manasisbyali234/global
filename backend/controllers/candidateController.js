@@ -1401,6 +1401,61 @@ function extractBookedSlotForCandidate(payload, candidateIdentity, fallbackDate 
   return scanValue(payload, fallbackDate);
 }
 
+function hasBookedReferenceForCandidate(payload, candidateIdentity) {
+  if (!payload) return false;
+
+  const isIdMatch = (value) => {
+    if (!value || candidateIdentity.ids.size === 0) return false;
+    const normalized = String(value).trim();
+    if (!normalized) return false;
+    return Array.from(candidateIdentity.ids).some((candidateValue) => normalized === candidateValue || normalized.includes(candidateValue));
+  };
+
+  const isEmailMatch = (value) => {
+    if (!value || candidateIdentity.emails.size === 0) return false;
+    return candidateIdentity.emails.has(String(value).trim().toLowerCase());
+  };
+
+  const isNameMatch = (value) => {
+    if (!value || candidateIdentity.names.size === 0) return false;
+    const normalized = String(value).trim().toLowerCase().replace(/\s+/g, ' ');
+    return candidateIdentity.names.has(normalized);
+  };
+
+  const scanValue = (value) => {
+    if (!value) return false;
+
+    if (Array.isArray(value)) {
+      return value.some((item) => scanValue(item));
+    }
+
+    if (typeof value !== 'object') return false;
+
+    const bookingStatus = String(value.status || '').trim().toLowerCase();
+    const hasBookedMarker = bookingStatus === 'booked' || Boolean(value.bookedAt);
+    const candidateMatched =
+      ['candidateId', 'candidate', 'candidate_id', 'applicantId', 'userId', 'user_id', 'bookedBy', 'bookedById']
+        .some((key) => isIdMatch(value[key])) ||
+      ['candidateEmail', 'email', 'applicantEmail', 'bookedEmail', 'candidate_email']
+        .some((key) => isEmailMatch(value[key])) ||
+      ['candidateName', 'name', 'applicantName', 'bookedName', 'candidate_name']
+        .some((key) => isNameMatch(value[key]));
+
+    if (hasBookedMarker && candidateMatched) {
+      return true;
+    }
+
+    const nestedKeys = [
+      'bookedSlot', 'bookedSlots', 'slots', 'schedules', 'schedulesArray',
+      'daySchedules', 'daySchedulesArray', 'rooms', 'roomsArray', 'schedule', 'Schedule'
+    ];
+
+    return nestedKeys.some((key) => value[key] && scanValue(value[key]));
+  };
+
+  return scanValue(payload);
+}
+
 exports.getCandidateApplicationsWithInterviews = async (req, res) => {
   try {
     res.set({
@@ -1539,10 +1594,23 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
               formDataObject: targetDetails.formDataObject
             }, candidateSlotIdentity, targetDetails.fromDate || targetDetails.date || round.fromdate || null);
 
-            if (bookedSlotDetails) {
+            const hasBookedReference = hasBookedReferenceForCandidate({
+              bookedSlot: targetDetails.bookedSlot,
+              bookedSlots: targetDetails.bookedSlots,
+              Schedule: targetDetails.Schedule,
+              schedulesArray: targetDetails.schedulesArray,
+              daySchedulesArray: targetDetails.daySchedulesArray,
+              roomsArray: targetDetails.roomsArray,
+              scheduleObject: targetDetails.scheduleObject,
+              formDataObject: targetDetails.formDataObject
+            }, candidateSlotIdentity);
+
+            if (bookedSlotDetails || hasBookedReference) {
               targetDetails.candidateSlotBooked = true;
               targetDetails.bookingConfirmed = true;
-              targetDetails.bookedSlot = bookedSlotDetails;
+              if (bookedSlotDetails) {
+                targetDetails.bookedSlot = bookedSlotDetails;
+              }
             }
           });
         }
@@ -1561,12 +1629,12 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             candidateId: req.user._id,
             assessmentId: app.jobId.assessmentId
           }).lean();
-          
+
           if (assessmentAttempt) {
             console.log(`Found assessment attempt for app ${app._id}: status=${assessmentAttempt.status}`);
           }
         }
-        
+
         return {
           ...app,
           assessmentStatus: app.assessmentStatus || 'not_required',

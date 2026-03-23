@@ -306,7 +306,7 @@
 
 .tickets-table {
   margin: 0;
-  min-width: 1100px;
+  min-width: 1220px;
 }
 
 .tickets-table thead th {
@@ -384,23 +384,22 @@
   flex-direction: column;
   gap: 0.25rem;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
+  min-width: max-content;
 }
 
 .user-name {
   font-weight: 600;
   color: #0f172a;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .user-email {
   color: #64748b;
   font-size: 0.83rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .category-badge {
