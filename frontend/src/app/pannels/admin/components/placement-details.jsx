@@ -586,27 +586,27 @@ function PlacementDetails() {
                 <div className="info-grid">
                     <div className="info-card" style={{minHeight: '100px', background: 'transparent'}}>
                         <div>
-                            <label className="text-muted mb-1">
+                            <label className="text-muted mb-1 placement-summary-label">
                                 <i className="fa fa-phone me-2" style={{color: '#fd7e14'}}></i>Phone Number
                             </label>
-                            <p className="mb-0 font-weight-bold">{placement.phone || 'Not provided'}</p>
+                            <p className="mb-0 font-weight-bold placement-summary-value">{placement.phone || 'Not provided'}</p>
                         </div>
                     </div>
                     <div className="info-card" style={{minHeight: '100px', background: 'transparent'}}>
                         <div>
-                            <label className="text-muted mb-1">
+                            <label className="text-muted mb-1 placement-summary-label">
                                 <i className="fa fa-calendar me-2" style={{color: '#fd7e14'}}></i>Registration Date
                             </label>
-                            <p className="mb-0 font-weight-bold">{formatDate(placement.createdAt)}</p>
+                            <p className="mb-0 font-weight-bold placement-summary-value">{formatDate(placement.createdAt)}</p>
                         </div>
                     </div>
                     <div className="info-card" style={{minHeight: '100px', background: 'transparent'}}>
                         <div>
-                            <label className="text-muted mb-1">
-                                <i className={`fa ${placement.status === 'approved' ? 'fa-check-circle' : 'fa-clock-o'} me-2`} style={{color: '#fd7e14'}}></i>Status
+                            <label className="text-muted mb-1 placement-summary-label">
+                                <i className={`fa ${placement.status === 'approved' || placement.status === 'active' ? 'fa-check-circle' : 'fa-clock-o'} me-2`} style={{color: '#fd7e14'}}></i>Status
                             </label>
-                            <p className="mb-0 font-weight-bold" style={{
-                                color: placement.status === 'approved' ? '#28a745' :
+                            <p className="mb-0 font-weight-bold placement-summary-value" style={{
+                                color: placement.status === 'approved' || placement.status === 'active' ? '#28a745' :
                                        placement.status === 'rejected' ? '#dc3545' : '#ffc107'
                             }}>
                                 {placement.status || 'Pending'}
@@ -615,10 +615,10 @@ function PlacementDetails() {
                     </div>
                     <div className="info-card" style={{minHeight: '100px', background: 'transparent'}}>
                         <div>
-                            <label className="text-muted mb-1">
-                                <i className="fa fa-files-o me-2" style={{color: '#fd7e14'}}></i>Files Uploaded
+                            <label className="text-muted mb-1 placement-summary-label">
+                                <i className="fa fa-file-text me-2" style={{color: '#fd7e14'}}></i>Files Uploaded
                             </label>
-                            <p className="mb-0 font-weight-bold">{placement.fileHistory?.length || 0}</p>
+                            <p className="mb-0 font-weight-bold placement-summary-value">{placement.fileHistory?.length || 0}</p>
                         </div>
                     </div>
                 </div>
@@ -773,7 +773,7 @@ function PlacementDetails() {
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <div className="d-flex flex-wrap gap-2 ms-3">
+                                                    <div className="placement-file-history-actions d-flex flex-wrap gap-2 ms-3">
                                                         <button
                                                             className="btn btn-sm"
                                                             onClick={() => handleViewFileData(file._id, file.fileName)}
@@ -1100,7 +1100,7 @@ function PlacementDetails() {
                         </div>
                         <div className="alert alert-info mb-3" style={{borderRadius: '8px', fontSize: '0.9rem'}}>
                             <i className="fa fa-info-circle me-2"></i>
-                            <strong>Excel Format Required:</strong> Files must contain these 4 columns: ID, Candidate Name,  Email, Phone to assign credits per file and "View" to see student records.
+                            <strong>Excel Format Required:</strong> Files must contain these 4 columns: ID, Candidate Name, Email, Phone Number to assign credits per file and "View" to see student records.
                         </div>
 
                     </div>

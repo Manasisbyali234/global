@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api, BACKEND_URL } from '../utils/api';
-import { executeLoginRecaptcha } from '../utils/recaptcha';
 
 const AuthContext = createContext();
 
@@ -106,22 +105,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials, type) => {
     try {
       let response;
-      const recaptchaActionMap = {
-        candidate: 'candidate_login',
-        employer: 'employer_login',
-        placement: 'placement_login',
-        'sub-admin': 'sub_admin_login'
-      };
-      const recaptchaAction = recaptchaActionMap[type];
-      const recaptchaToken = recaptchaAction
-        ? await executeLoginRecaptcha(recaptchaAction)
-        : null;
-      const loginPayload = recaptchaToken
-        ? {
-            ...credentials,
-            recaptchaToken
-          }
-        : credentials;
+      const loginPayload = credentials;
       
       switch (type) {
         case 'candidate':

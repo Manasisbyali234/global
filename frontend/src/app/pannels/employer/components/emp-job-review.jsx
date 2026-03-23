@@ -273,22 +273,26 @@ function EmpJobReviewPage() {
 
                         {/* Consultant Company Information */}
                         {(jobDetails.companyName || jobDetails.companyLogo || jobDetails.companyDescription) && (
-                            <div className="mb-4 p-3 bg-light rounded">
-                                <h5 className="mb-3">Company Information</h5>
-                                <div className="row">
+                            <div className="mb-4 p-3 bg-light rounded consultant-company-card">
+                                <h5 className="mb-3 consultant-company-title">Company Information</h5>
+                                <div className="consultant-company-layout">
                                     {jobDetails.companyLogo && (
-                                        <div className="col-md-3">
-                                            <img src={jobDetails.companyLogo} alt="Company Logo" style={{width: '80px', height: '80px', objectFit: 'cover', border: '1px solid #ddd'}} />
+                                        <div className="consultant-company-logo-wrap">
+                                            <img
+                                                src={jobDetails.companyLogo}
+                                                alt="Company Logo"
+                                                className="consultant-company-logo"
+                                            />
                                         </div>
                                     )}
-                                    <div className="col-md-9">
+                                    <div className="consultant-company-content">
                                         {jobDetails.companyName && (
-                                            <div className="mb-2">
+                                            <div className="mb-2 consultant-company-name">
                                                 <strong>Company Name:</strong> {jobDetails.companyName}
                                             </div>
                                         )}
                                         {jobDetails.companyDescription && (
-                                            <div>
+                                            <div className="consultant-company-description">
                                                 <strong>Description:</strong> {jobDetails.companyDescription}
                                             </div>
                                         )}

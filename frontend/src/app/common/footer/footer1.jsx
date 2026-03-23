@@ -49,12 +49,17 @@ function Footer1() {
                 }
                 .footer-contact-item {
                     display: flex;
-                    align-items: center;
+                    align-items: flex-start;
                     gap: 10px;
                     margin-bottom: 10px;
                     font-size: 14px;
                     color: #000000;
                     justify-content: flex-start;
+                }
+                .footer-contact-item i {
+                    flex-shrink: 0;
+                    margin-top: 5px;
+                    line-height: 1;
                 }
                 @media (max-width: 768px) {
                     .footer-contact-item {
@@ -183,7 +188,7 @@ function Footer1() {
 
                         {/* Column 4: Stay Connected */}
                         <Col lg={2} md={6}>
-                            <h4 className="footer-col-title">Stay Connected</h4>
+                            <h4 className="footer-col-title" style={{ whiteSpace: 'nowrap' }}>Stay Connected</h4>
                             <div className="social-links d-flex align-items-center" style={{ marginTop: '0' }}>
                                 <a href="https://www.facebook.com/TaleGlobal/" target="_blank" rel="noopener noreferrer" className="social-icon-outline" style={{ marginLeft: '0', marginRight: '12px' }}>
                                     <i className="feather-facebook"></i>

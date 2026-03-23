@@ -225,7 +225,7 @@ const EmployersGridPage = memo(() => {
                     </Col>
 
                     <Col lg={9} md={12}>
-                        <div className="mb-4">
+                        <div className="mb-4 emp-grid-records-filter">
                             <SectionRecordsFilter
                                 _config={_filterConfig}
                                 onSortChange={handleSortChange}

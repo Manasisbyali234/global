@@ -130,7 +130,7 @@ function CreateAssessmentPage() {
                                         <div style={{ fontSize: '14px', color: '#475569' }}>
                                             <p style={{ fontWeight: '500', marginBottom: '12px', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <i className="fa fa-lock" style={{ color: '#2563eb' }} />
-                                                End-to-end encryption ensures your assessments remain completely private and secure.
+                                                End-to-End encryption ensures your assessments remain completely private and secure.
                                             </p>
                                             <div style={{ display: 'grid', gap: '8px' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

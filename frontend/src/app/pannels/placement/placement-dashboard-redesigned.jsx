@@ -813,30 +813,36 @@ function PlacementDashboardRedesigned() {
                                         <h3 className="section-title">Overview & Performance</h3>
                                         <div className="stats-cards-container">
                                             <div className="stats-card">
-                                                <div className="stat-icon">
-                                                    <i className="fa fa-users"></i>
+                                                <div className="stats-card-top">
+                                                    <div className="stat-icon">
+                                                        <i className="fa fa-users"></i>
+                                                    </div>
+                                                    <h3 className="stat-value">{stats.totalStudents}</h3>
                                                 </div>
                                                 <div className="stat-content">
                                                     <p className="stat-label">Total Students</p>
-                                                    <h3 className="stat-value">{stats.totalStudents}</h3>
                                                 </div>
                                             </div>
                                             <div className="stats-card">
-                                                <div className="stat-icon">
-                                                    <i className="fa fa-graduation-cap"></i>
+                                                <div className="stats-card-top">
+                                                    <div className="stat-icon">
+                                                        <i className="fa fa-graduation-cap"></i>
+                                                    </div>
+                                                    <h3 className="stat-value">{stats.activeBatches}</h3>
                                                 </div>
                                                 <div className="stat-content">
                                                     <p className="stat-label">Active Batches</p>
-                                                    <h3 className="stat-value">{stats.activeBatches}</h3>
                                                 </div>
                                             </div>
                                             <div className="stats-card">
-                                                <div className="stat-icon">
-                                                    <i className="fa fa-book"></i>
+                                                <div className="stats-card-top">
+                                                    <div className="stat-icon">
+                                                        <i className="fa fa-book"></i>
+                                                    </div>
+                                                    <h3 className="stat-value">{stats.coursesCovered}</h3>
                                                 </div>
                                                 <div className="stat-content">
                                                     <p className="stat-label">Courses Covered</p>
-                                                    <h3 className="stat-value">{stats.coursesCovered}</h3>
                                                 </div>
                                             </div>
                                         </div>

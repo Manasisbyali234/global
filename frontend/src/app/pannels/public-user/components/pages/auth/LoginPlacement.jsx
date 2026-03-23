@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { placementRoute, placement, publicUser } from "../../../../../../globals/route-names";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "../../../../../../contexts/AuthContext";
+import LetterCaptchaField from "../../../../../../components/LetterCaptchaField";
 import JobZImage from "../../../../../common/jobz-img";
 import "./AuthPages.css";
 
@@ -13,12 +14,11 @@ function LoginPlacement() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [captchaError, setCaptchaError] = useState("");
+    const captchaRef = useRef(null);
 
     const handleLogin = async (event) => {
         event.preventDefault();
         setError('');
-        setCaptchaError("");
         setLoading(true);
 
         if (!email.trim()) {
@@ -33,6 +33,11 @@ function LoginPlacement() {
             return;
         }
 
+        if (!captchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
+
         try {
             const result = await login({
                 email: email.trim(),
@@ -41,8 +46,6 @@ function LoginPlacement() {
 
             if (result.success) {
                 navigate(placementRoute(placement.DASHBOARD));
-            } else if (result.shouldResetRecaptcha) {
-                setCaptchaError(result.message);
             } else {
                 setError(result.message || 'Login failed. Please try again.');
             }
@@ -112,8 +115,7 @@ function LoginPlacement() {
                             </div>
 
                             <div className="auth-form-group">
-                                <small className="captcha-helper-text">This sign-in is protected by Google reCAPTCHA.</small>
-                                {captchaError && <small className="captcha-error">{captchaError}</small>}
+                                <LetterCaptchaField ref={captchaRef} />
                             </div>
 
                             <NavLink to={publicUser.pages.FORGOT} className="forgot-link site-text-primary">

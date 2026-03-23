@@ -947,6 +947,13 @@ function EmpCompanyProfilePage() {
                     ...(data.profile.hiringCompanies || []),
                     companyName
                 ]);
+                try {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    e.target.files = dataTransfer.files;
+                } catch (fileSyncError) {
+                    // Keep native file input behavior if the browser blocks files reassignment.
+                }
                 setFormData(prev => ({
                     ...prev,
                     authorizationLetters: nextAuthorizationLetters,
@@ -972,7 +979,9 @@ function EmpCompanyProfilePage() {
         const {
             removeCompany = false,
             nextSections: providedNextSections = null,
-            successMessage = 'Authorization letter deleted successfully!'
+            successMessage = removeCompany
+                ? 'Hiring company removed successfully!'
+                : 'Authorization letter deleted successfully!'
         } = options;
 
         try {
@@ -1374,7 +1383,7 @@ function EmpCompanyProfilePage() {
                     <div className="row">
                         <div className="col-lg-6 col-md-12">
                             <div className="form-group">
-                                <label><ImageIcon size={16} className="me-2" /> Company Logo (300x300px)</label>
+                                <label className="required-field"><ImageIcon size={16} className="me-2" /> Company Logo (300x300px)</label>
                                 <input
                                     className="form-control"
                                     type="file"
@@ -1422,7 +1431,6 @@ function EmpCompanyProfilePage() {
                                                 <Edit3 size={12} className="me-1" /> Resize & Crop
                                             </button>
                                         </div>
-                                        <p className="text-success mt-2">✓ Company Logo uploaded</p>
                                     </div>
                                 )}
                                 <small className="text-muted">Square logo for your company profile (300x300px, JPG, PNG, max 5MB)</small>
@@ -1431,7 +1439,7 @@ function EmpCompanyProfilePage() {
 
                         <div className="col-lg-6 col-md-12">
                             <div className="form-group">
-                                <label><ImageIcon size={16} className="me-2" /> Background Banner Image (1200x675px)</label>
+                                <label className="required-field"><ImageIcon size={16} className="me-2" /> Background Banner Image (1200x675px)</label>
                                 <input
                                     className="form-control"
                                     type="file"
@@ -1479,7 +1487,6 @@ function EmpCompanyProfilePage() {
                                                 <Edit3 size={12} className="me-1" /> Resize & Crop
                                             </button>
                                         </div>
-                                        <p className="text-success mt-2">✓ Background Banner uploaded</p>
                                     </div>
                                 )}
                                 <small className="text-muted">Widescreen banner for your company profile (1200x675px, JPG, PNG, max 5MB)</small>
@@ -1788,23 +1795,41 @@ function EmpCompanyProfilePage() {
                                             </div>
                                             
                                             <div className="form-group">
-                                                <label>Authorization Letter</label>
+                                                {(() => {
+                                                    const uploadedLetter = formData.authorizationLetters?.find(doc =>
+                                                        section.companyName && doc.companyName === section.companyName
+                                                    );
+                                                    return (
+                                                        <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                                            <label className="required-field mb-0">Authorization Letter</label>
+                                                            {uploadedLetter && renderStatusBadge(uploadedLetter.status, uploadedLetter.reuploadedAt)}
+                                                        </div>
+                                                    );
+                                                })()}
                                                 <input
                                                     className="form-control"
                                                     type="file"
                                                     accept=".jpg,.jpeg,.png,.pdf"
+                                                    ref={(input) => {
+                                                        const uploadedLetter = formData.authorizationLetters?.find(doc =>
+                                                            section.companyName && doc.companyName === section.companyName
+                                                        );
+                                                        if (!input || !uploadedLetter?.fileName) return;
+                                                        try {
+                                                            const dataTransfer = new DataTransfer();
+                                                            dataTransfer.items.add(new File([''], uploadedLetter.fileName, { type: 'application/octet-stream' }));
+                                                            input.files = dataTransfer.files;
+                                                        } catch (fileSyncError) {
+                                                            // Ignore if the browser blocks programmatic file assignment.
+                                                        }
+                                                    }}
                                                     onChange={(e) => handleAuthorizationLetterUpload(e, section.id)}
                                                 />
                                                 {(() => {
                                                     const uploadedLetter = formData.authorizationLetters?.find(doc => 
                                                         section.companyName && doc.companyName === section.companyName
                                                     );
-                                                    return uploadedLetter ? (
-                                                        <div className="mt-2">
-                                                            <p className="text-success mb-1">✓ {uploadedLetter.fileName} - Uploaded</p>
-                                                            {renderStatusBadge(uploadedLetter.status, uploadedLetter.reuploadedAt)}
-                                                        </div>
-                                                    ) : (
+                                                    return uploadedLetter ? null : (
                                                         <small className="text-muted">Upload authorization letter for this company (JPG, PNG, PDF, max 5MB)</small>
                                                     );
                                                 })()}
@@ -1850,15 +1875,16 @@ function EmpCompanyProfilePage() {
                                                             <i className="fas fa-file-alt text-primary"></i>
                                                             <span className="uploaded-auth-letter-card__file-name" title={doc.fileName}>{doc.fileName}</span>
                                                         </div>
-                                                        <button 
-                                                            type="button" 
-                                                            className="btn btn-outline-danger btn-sm uploaded-auth-letter-card__delete"
-                                                            onClick={() => handleDeleteAuthorizationLetter(doc._id)}
-                                                            title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
-                                                            disabled={doc.status === 'approved'}
-                                                        >
-                                                            <i className="fas fa-trash"></i>
-                                                        </button>
+                                                        {doc.status !== 'approved' && (
+                                                            <button 
+                                                                type="button" 
+                                                                className="btn btn-outline-danger btn-sm uploaded-auth-letter-card__delete"
+                                                                onClick={() => handleDeleteAuthorizationLetter(doc._id)}
+                                                                title="Delete document"
+                                                            >
+                                                                <i className="fas fa-trash"></i>
+                                                            </button>
+                                                        )}
                                                     </div>
                                                     <div className="uploaded-auth-letter-card__body">
                                                         <div className="uploaded-auth-letter-card__status">
@@ -2138,7 +2164,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label><Upload size={16} className="me-2" /> Upload PAN Card Image</label>
+                                    <label className="required-field"><Upload size={16} className="me-2" /> Upload PAN Card Image</label>
                                     <input
                                         className="form-control"
                                         type="file"
@@ -2180,7 +2206,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label><Upload size={16} className="me-2" /> Upload GST Certificate</label>
+                                    <label className="required-field"><Upload size={16} className="me-2" /> Upload GST Certificate</label>
                                     <input
                                         className="form-control"
                                         type="file"
@@ -2201,7 +2227,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label><Upload size={16} className="me-2" /> Certificate of Incorporation (Issued by RoC)</label>
+                                    <label className="required-field"><Upload size={16} className="me-2" /> Certificate of Incorporation (Issued by RoC)</label>
                                     <input
                                         className="form-control"
                                         type="file"
@@ -2290,15 +2316,16 @@ function EmpCompanyProfilePage() {
                                                                         <i className="fas fa-file-alt text-primary"></i>
                                                                         <span className="uploaded-auth-letter-card__file-name" title={doc.fileName}>{doc.fileName}</span>
                                                                     </div>
-                                                                    <button 
-                                                                        type="button" 
-                                                                        className="btn btn-outline-danger btn-sm uploaded-auth-letter-card__delete"
-                                                                        onClick={() => handleDeleteAuthorizationLetter(doc._id)}
-                                                                        title={doc.status === 'approved' ? "Approved documents cannot be deleted" : "Delete document"}
-                                                                        disabled={doc.status === 'approved'}
-                                                                    >
-                                                                        <i className="fas fa-trash"></i>
-                                                                    </button>
+                                                                    {doc.status !== 'approved' && (
+                                                                        <button 
+                                                                            type="button" 
+                                                                            className="btn btn-outline-danger btn-sm uploaded-auth-letter-card__delete"
+                                                                            onClick={() => handleDeleteAuthorizationLetter(doc._id)}
+                                                                            title="Delete document"
+                                                                        >
+                                                                            <i className="fas fa-trash"></i>
+                                                                        </button>
+                                                                    )}
                                                                 </div>
                                                                 <div className="uploaded-auth-letter-card__body">
                                                                     <div className="uploaded-auth-letter-card__status">
@@ -2451,7 +2478,7 @@ function EmpCompanyProfilePage() {
                                                     e.target.style.display = 'none';
                                                 }}
                                             />
-                                            <p className="text-success mt-1 mb-0">✓ Company ID Card uploaded</p>
+                                            {renderStatusBadge(formData.companyIdCardVerified, formData.companyIdCardReuploadedAt)}
                                         </div>
                                     )}
                                     <p className="text-muted mt-1">Upload the company ID card (Max 5MB)</p>
@@ -2505,7 +2532,7 @@ function EmpCompanyProfilePage() {
                         <div className="row">
                             <div className="col-md-12">
                                 <div className="form-group">
-                                    <label><Upload size={16} className="me-2" /> Upload Gallery Images (Minimum 5 required, Max 10 images)</label>
+                                    <label className="required-field"><Upload size={16} className="me-2" /> Upload Gallery Images (Minimum 5 required, Max 10 images)</label>
                                     <div className="upload-gallery-container" style={{border: '2px dashed #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f8f9fa'}}>
                                         <input
                                             className="form-control"

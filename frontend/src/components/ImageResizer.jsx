@@ -151,26 +151,31 @@ const ImageResizer = ({
     canvas.width = cropArea.width;
     canvas.height = cropArea.height;
     
-    // Draw the cropped portion
-    ctx.drawImage(
-      image,
-      Math.max(0, cropX),
-      Math.max(0, cropY),
-      Math.min(cropWidth, image.naturalWidth),
-      Math.min(cropHeight, image.naturalHeight),
-      0,
-      0,
-      cropArea.width,
-      cropArea.height
-    );
-    
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const reader = new FileReader();
-        reader.onload = () => onSave(reader.result);
-        reader.readAsDataURL(blob);
-      }
-    }, 'image/jpeg', quality);
+    try {
+      // Draw the cropped portion
+      ctx.drawImage(
+        image,
+        Math.max(0, cropX),
+        Math.max(0, cropY),
+        Math.min(cropWidth, image.naturalWidth),
+        Math.min(cropHeight, image.naturalHeight),
+        0,
+        0,
+        cropArea.width,
+        cropArea.height
+      );
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const reader = new FileReader();
+          reader.onload = () => onSave(reader.result);
+          reader.readAsDataURL(blob);
+        }
+      }, 'image/jpeg', quality);
+    } catch (error) {
+      console.error('Image crop export failed:', error);
+      window.alert('Unable to crop this image. Please re-upload the image and try again.');
+    }
   }, [cropArea, quality, onSave]);
 
   if (!isOpen) return null;
@@ -198,6 +203,7 @@ const ImageResizer = ({
               ref={imageRef}
               src={src}
               alt="Preview"
+              crossOrigin="anonymous"
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`,
                 cursor: isDragging ? 'grabbing' : 'grab'

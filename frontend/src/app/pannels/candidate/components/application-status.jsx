@@ -170,6 +170,23 @@ function CanStatusPage() {
 		};
 	};
 
+	const normalizeBookedSlotForDisplay = (slot, fallbackDate = null) => {
+		if (!slot) return null;
+		const date = slot.date || slot.fromDate || slot.toDate || slot.day || slot.interviewDate || fallbackDate;
+		const startTime = slot.startTime || slot.start || slot.fromTime || slot.interviewTime?.start || '';
+		const endTime = slot.endTime || slot.end || slot.toTime || slot.interviewTime?.end || '';
+		const interviewerName = slot.interviewerName || slot.interviewer || slot.HR || slot.interviewerId?.name || '';
+
+		if (!date || !startTime || !endTime) return null;
+
+		return {
+			date,
+			startTime,
+			endTime,
+			interviewerName
+		};
+	};
+
 	const extractBookedSlot = (roundDetails, candidateId, bookedSlots = [], roundId = null) => {
 		if (!roundDetails) return null;
 
@@ -1895,22 +1912,6 @@ function CanStatusPage() {
 															</div>
 														)}
 
-														{/* Assessment Current Status */}
-														<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-															<small className="text-muted d-block mb-1"><i className="fa fa-flag me-1" style={{color: '#ff6b35'}}></i><strong>Current Status:</strong></small>
-															<span
-																className="badge"
-																style={{
-																	fontSize: '12px',
-																	padding: '4px 8px',
-																	borderRadius: '999px',
-																	...getRoundStatusPillStyle(roundStatus.text)
-																}}
-															>
-																{roundStatus.text}
-															</span>
-														</div>
-
 														{/* Assessment Employer Remarks */}
 														{(() => {
 															const assessmentProcess = selectedApplication.interviewProcesses?.find(p => p.type === 'assessment' || p.name?.toLowerCase().includes('assessment'));
@@ -2061,20 +2062,6 @@ function CanStatusPage() {
 																	const remarks = roundDetails?.employerRemarks || processRemarks;
 																	return (
 																		<>
-																			<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-																				<small className="text-muted d-block mb-1"><i className="fa fa-flag me-1" style={{color: '#ff6b35'}}></i><strong>Current Status:</strong></small>
-																				<span
-																					className="badge"
-																					style={{
-																						fontSize: '12px',
-																						padding: '4px 8px',
-																						borderRadius: '999px',
-																						...getRoundStatusPillStyle(roundStatus.text)
-																					}}
-																				>
-																					{roundStatus.text}
-																				</span>
-																			</div>
 																			{remarks ? (
 																				<div className="mb-3 p-2" style={{backgroundColor: '#fff3e0', borderRadius: '6px', border: '1px solid #ffe0b3'}}>
 																					<small className="text-muted d-block mb-1"><i className="fa fa-comment me-1" style={{color: '#ff6b35'}}></i><strong>Employer Remarks:</strong></small>
@@ -2142,10 +2129,21 @@ function CanStatusPage() {
 													const roundWindowInfo = getInterviewRoundWindowInfo(roundDetails);
 													const normalizedRoundType = (roundType || '').toString().split('_')[0];
 													const bookSlotUrl = `https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`;
+													const candidateSearchTokens = [
+														candidateId,
+														selectedApplication?.candidateEmail,
+														selectedApplication?.applicantEmail,
+														selectedApplication?.candidateName,
+														selectedApplication?.applicantName
+													]
+														.filter(Boolean)
+														.map((value) => String(value).trim().toLowerCase())
+														.filter(Boolean);
 													const hasCandidateRef = (payload) => {
-														if (!payload || !candidateId) return false;
+														if (!payload || candidateSearchTokens.length === 0) return false;
 														try {
-															return JSON.stringify(payload).includes(String(candidateId));
+															const serializedPayload = JSON.stringify(payload).toLowerCase();
+															return candidateSearchTokens.some((token) => serializedPayload.includes(token));
 														} catch (error) {
 															return false;
 														}
@@ -2172,7 +2170,17 @@ function CanStatusPage() {
 														currentRoundCompletedStates.includes(processStatus) ||
 														currentRoundCompletedStates.includes(stageStatus) ||
 														currentRoundCompletedStates.includes(currentRoundStatusText);
-													const bookedSlot = extractBookedSlot(roundDetails, candidateId, selectedApplication?.bookedSlots, roundId);
+													const candidateSlotIdentity = selectedApplication?.candidateId || {
+														_id: candidateId,
+														candidateEmail: selectedApplication?.candidateEmail || selectedApplication?.applicantEmail,
+														candidateName: selectedApplication?.candidateName || selectedApplication?.applicantName
+													};
+													const extractedBookedSlot = extractBookedSlot(roundDetails, candidateSlotIdentity, selectedApplication?.bookedSlots, roundId);
+													const directBookedSlot = normalizeBookedSlotForDisplay(
+														roundDetails?.bookedSlot,
+														roundDetails?.fromDate || roundDetails?.date
+													);
+													const bookedSlot = extractedBookedSlot || directBookedSlot;
 													const bookedSlotDate = bookedSlot?.date;
 													const bookedSlotStart = bookedSlot?.startTime;
 													const bookedSlotEnd = bookedSlot?.endTime;
@@ -2196,10 +2204,11 @@ function CanStatusPage() {
 
 													const hasBookedSlot = Boolean(
 														bookedSlot ||
+														roundDetails?.bookedSlot ||
 														roundDetails?.candidateSlotBooked ||
 														roundDetails?.isBooked ||
 														roundDetails?.bookingConfirmed ||
-														hasBookedReferenceForCandidate(roundDetails, candidateId, selectedApplication?.bookedSlots) ||
+														hasBookedReferenceForCandidate(roundDetails, candidateSlotIdentity, selectedApplication?.bookedSlots) ||
 														hasCandidateRef(roundDetails?.scheduleObject) ||
 														hasCandidateRef(roundDetails?.formDataObject) ||
 														hasCandidateRef(roundDetails?.schedulesArray) ||

@@ -671,6 +671,8 @@
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 0.75rem 1rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .attachment-link {
@@ -681,15 +683,67 @@
   cursor: pointer;
   text-align: left;
   width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.45;
   padding: 0;
 }
 
 .attachment-link:hover {
   text-decoration: underline;
   color: #1d4ed8;
+}
+
+.attachment-preview-modal.modal-dialog {
+  margin: 1.75rem auto !important;
+}
+
+.attachment-preview-modal.modal-dialog-centered {
+  display: flex !important;
+  align-items: center !important;
+  min-height: calc(100% - 3.5rem) !important;
+}
+
+.attachment-preview-modal .modal-content {
+  border-radius: 16px;
+  overflow: hidden;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.attachment-preview-modal__body {
+  padding: 0;
+  background: #0f172a;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.attachment-preview-modal__image {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+.attachment-preview-modal__frame {
+  width: 100%;
+  height: 70vh;
+  border: 0;
+  background: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .attachment-preview-modal.modal-dialog {
+    margin: 0.5rem auto !important;
+    max-width: calc(100% - 1rem) !important;
+  }
+
+  .attachment-preview-modal.modal-dialog-centered {
+    min-height: calc(100% - 1rem) !important;
+  }
 }
 
 .detail-label {

@@ -3,7 +3,7 @@ import { formatDate } from '../../../../utils/dateFormatter';
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
-import { ListChecks, Receipt, Download, Eye, X } from "lucide-react";
+import { ListChecks, IndianRupee, Download, Eye, X } from "lucide-react";
 import { api } from "../../../../utils/api";
 import "../../../../styles/print-receipt.css";
 
@@ -358,7 +358,7 @@ function CanTransactionsPage() {
                         <div className="modal-content border-0 shadow-lg">
                             <div className="modal-header bg-light" style={{ padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem)' }}>
                                 <h5 className="modal-title d-flex align-items-center gap-2" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>
-                                    <Receipt size={20} className="text-primary" />
+                                    <IndianRupee size={20} className="text-primary" />
                                     Transaction Receipt
                                 </h5>
                                 <button type="button" className="btn-close" onClick={() => setShowInvoiceModal(false)}></button>

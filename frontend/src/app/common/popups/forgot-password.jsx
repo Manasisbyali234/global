@@ -7,6 +7,8 @@ function ForgotPassword() {
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,
     uppercase: false,
@@ -80,7 +82,7 @@ function ForgotPassword() {
   };
 
   const handleResendOTP = async () => {
-    setLoading(true);
+    setResending(true);
     setMessage('');
 
     try {
@@ -115,18 +117,18 @@ function ForgotPassword() {
     } catch (error) {
       setMessage('Unable to resend OTP. Please try again.');
     } finally {
-      setLoading(false);
+      setResending(false);
     }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setResetting(true);
     setMessage('');
 
     if (!Object.values(passwordValidation).every(v => v === true)) {
       setMessage('Please meet all password requirements.');
-      setLoading(false);
+      setResetting(false);
       return;
     }
 
@@ -164,7 +166,7 @@ function ForgotPassword() {
     } catch (error) {
       setMessage('Failed to reset password. Please try again.');
     } finally {
-      setLoading(false);
+      setResetting(false);
     }
   };
 
@@ -265,8 +267,8 @@ function ForgotPassword() {
               </div>
             )}
           </div>
-          <button type="submit" className="btn twm-bg-orange w-100">
-            Reset Password
+          <button type="submit" className="btn twm-bg-orange w-100" disabled={resetting}>
+            {resetting ? 'Resetting Password...' : 'Reset Password'}
           </button>
           <div className="mt-3 text-center">
             <p className="mb-2">Didn't receive the OTP?</p>
@@ -274,10 +276,10 @@ function ForgotPassword() {
               type="button" 
               className="btn btn-link p-0" 
               onClick={handleResendOTP}
-              disabled={!canResend || loading}
+              disabled={!canResend || resending}
               style={{ color: canResend ? '#ff7a00' : '#6c757d' }}
             >
-              {resendCooldown > 0 ? `Resend OTP in ${resendCooldown}s` : 'Resend OTP'}
+              {resending ? 'Resending OTP...' : resendCooldown > 0 ? `Resend OTP in ${resendCooldown}s` : 'Resend OTP'}
             </button>
           </div>
         </form>

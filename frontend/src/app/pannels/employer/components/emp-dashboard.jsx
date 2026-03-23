@@ -435,8 +435,7 @@ function EmpDashboardPage() {
                                                     <p style={{ 
                                                         fontSize: '0.75rem', 
                                                         color: '#9ca3af', 
-                                                        margin: 0,
-                                                        fontStyle: 'italic'
+                                                        margin: 0
                                                     }}>
                                                         {formatDate(notification.createdAt)}
                                                     </p>

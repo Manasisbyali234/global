@@ -25,7 +25,29 @@ function AdminSupportTickets() {
         resolved: 0
     });
     const [updating, setUpdating] = useState(false);
+    const [attachmentPreview, setAttachmentPreview] = useState({
+        open: false,
+        url: '',
+        name: '',
+        type: ''
+    });
     const responseTextareaRef = useRef(null);
+
+    const getResponseTargetLabel = (userType) => {
+        if (userType === 'employer') return 'employer';
+        if (userType === 'candidate') return 'candidate';
+        return 'guest user';
+    };
+
+    const getResponsePlaceholder = (userType) => {
+        if (userType === 'employer') {
+            return 'Write a clear response for this employer ticket. This message will be shared with the employer.';
+        }
+        if (userType === 'candidate') {
+            return 'Write a clear response for this candidate ticket. This message will be shared with the candidate.';
+        }
+        return 'Write a clear response for this guest user ticket. This message will be shared with the user.';
+    };
 
 
 
@@ -40,6 +62,14 @@ function AdminSupportTickets() {
         textarea.style.height = 'auto';
         textarea.style.height = `${textarea.scrollHeight}px`;
     }, [response, showModal]);
+
+    useEffect(() => {
+        return () => {
+            if (attachmentPreview.url) {
+                URL.revokeObjectURL(attachmentPreview.url);
+            }
+        };
+    }, [attachmentPreview.url]);
 
     const fetchSupportTickets = async () => {
         try {
@@ -124,7 +154,8 @@ function AdminSupportTickets() {
         if (!ticket.isRead) {
             try {
                 const token = localStorage.getItem('adminToken');
-                await fetch(`${process.env.REACT_APP_API_URL}/api/admin/support-tickets/${ticket._id}`, {
+                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                await fetch(`${apiUrl}/api/admin/support-tickets/${ticket._id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -146,7 +177,8 @@ function AdminSupportTickets() {
             return;
         }
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/support-tickets/${ticketId}/attachments/${attachmentIndex}`, {
+            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+            const response = await fetch(`${apiUrl}/api/admin/support-tickets/${ticketId}/attachments/${attachmentIndex}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -165,13 +197,19 @@ function AdminSupportTickets() {
             const blob = await response.blob();
             const fileName = originalName || `attachment-${attachmentIndex + 1}`;
             const objectURL = URL.createObjectURL(blob);
-            if (blob.type.startsWith('image/')) {
-                const imageWindow = window.open();
-                if (imageWindow) {
-                    imageWindow.document.write(`<title>${fileName}</title><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;"><img src="${objectURL}" style="max-width:100%;height:auto;"/></body>`);
-                } else {
-                    window.open(objectURL, '_blank');
-                }
+            const mimeType = blob.type || '';
+            if (mimeType.startsWith('image/') || mimeType === 'application/pdf' || mimeType.startsWith('text/')) {
+                setAttachmentPreview((previous) => {
+                    if (previous.url) {
+                        URL.revokeObjectURL(previous.url);
+                    }
+                    return {
+                        open: true,
+                        url: objectURL,
+                        name: fileName,
+                        type: mimeType
+                    };
+                });
             } else {
                 const downloadLink = document.createElement('a');
                 downloadLink.href = objectURL;
@@ -179,11 +217,25 @@ function AdminSupportTickets() {
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 document.body.removeChild(downloadLink);
+                setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
             }
-            setTimeout(() => URL.revokeObjectURL(objectURL), 10000);
         } catch (error) {
-            alert('Failed to open attachment. Please try again.');
+            showError('Failed to open attachment. Please try again.');
         }
+    };
+
+    const closeAttachmentPreview = () => {
+        setAttachmentPreview((previous) => {
+            if (previous.url) {
+                URL.revokeObjectURL(previous.url);
+            }
+            return {
+                open: false,
+                url: '',
+                name: '',
+                type: ''
+            };
+        });
     };
 
     const handleUpdateTicket = async () => {
@@ -284,7 +336,7 @@ function AdminSupportTickets() {
 
     const getRequesterEmail = (ticket) => ticket?.actualUserEmail || ticket?.email || 'No email provided';
 
-    const getRequesterLabel = (ticket) => ticket?.userType === 'employer' ? 'Company name' : 'Name';
+    const getRequesterLabel = (ticket) => ticket?.userType === 'employer' ? 'Company Name' : 'Name';
 
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
     const visibleTickets = tickets.filter((ticket) => {
@@ -332,7 +384,7 @@ function AdminSupportTickets() {
                             <span className="stats-card__value">{stats.new}</span>
                         </div>
                         <div className="stats-card stats-card--progress">
-                            <span className="stats-card__label">In progress</span>
+                            <span className="stats-card__label">In Progress</span>
                             <span className="stats-card__value">{stats.inProgress}</span>
                         </div>
                         <div className="stats-card stats-card--resolved">
@@ -343,7 +395,7 @@ function AdminSupportTickets() {
 
                 <div className="filters-section">
                         <div className="filters-section__header">
-                            <h6>Filter tickets</h6>
+                            <h6>Filter Tickets</h6>
                             <Button
                                 variant="link"
                                 className="clear-filters-btn"
@@ -352,7 +404,7 @@ function AdminSupportTickets() {
                                     setSearchTerm('');
                                 }}
                             >
-                                Reset filters
+                                Reset Filters
                             </Button>
                         </div>
                         <Row className="g-3">
@@ -367,7 +419,7 @@ function AdminSupportTickets() {
                                     <Form.Control
                                         type="search"
                                         className="search-input"
-                                        placeholder="Search by requester name or email"
+                                        placeholder="Search By Requester Name Or Email"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
@@ -379,9 +431,9 @@ function AdminSupportTickets() {
                                     value={filters.status}
                                     onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                                 >
-                                    <option value="">All status</option>
+                                    <option value="">All Status</option>
                                     <option value="new">New</option>
-                                    <option value="in-progress">In progress</option>
+                                    <option value="in-progress">In Progress</option>
                                     <option value="resolved">Resolved</option>
                                     <option value="closed">Closed</option>
                                 </Form.Select>
@@ -392,7 +444,7 @@ function AdminSupportTickets() {
                                     value={filters.userType}
                                     onChange={(e) => setFilters({ ...filters, userType: e.target.value })}
                                 >
-                                    <option value="">All user types</option>
+                                    <option value="">All User Types</option>
                                     <option value="employer">Employer</option>
                                     <option value="candidate">Candidate</option>
                                     <option value="guest">Guest</option>
@@ -404,7 +456,7 @@ function AdminSupportTickets() {
                                     value={filters.priority}
                                     onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
                                 >
-                                    <option value="">All priorities</option>
+                                    <option value="">All Priorities</option>
                                     <option value="low">Low</option>
                                     <option value="medium">Medium</option>
                                     <option value="high">High</option>
@@ -427,7 +479,7 @@ function AdminSupportTickets() {
                             <Card.Body className="p-0">
                                 {visibleTickets.length === 0 ? (
                                     <div className="empty-state">
-                                        <h6>{tickets.length === 0 ? 'No tickets yet' : 'No matching tickets'}</h6>
+                                        <h6>{tickets.length === 0 ? 'No Tickets Yet' : 'No Matching Tickets'}</h6>
                                         <p>
                                             {tickets.length === 0
                                                 ? 'Customer support requests will appear here as soon as they are submitted.'
@@ -441,7 +493,7 @@ function AdminSupportTickets() {
                                                 <tr>
                                                     <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Subject</th>
                                                     <th style={{width: '24%', whiteSpace: 'nowrap'}}>Requester</th>
-                                                    <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>User type</th>
+                                                    <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>User Type</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
                                                     <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
@@ -515,7 +567,7 @@ function AdminSupportTickets() {
                 backdropClassName="support-ticket-modal-backdrop"
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Ticket details</Modal.Title>
+                    <Modal.Title>Ticket Details</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {selectedTicket && (
@@ -523,7 +575,7 @@ function AdminSupportTickets() {
                             <div className="ticket-details-shell">
                                 <div className="ticket-details-hero">
                                     <div className="ticket-details-hero__content">
-                                        <span className="ticket-details-hero__eyebrow">Support ticket</span>
+                                        <span className="ticket-details-hero__eyebrow">Support Ticket</span>
                                         <h4 className="ticket-details-hero__title">{selectedTicket.subject}</h4>
                                         <div className="ticket-details-hero__meta">
                                             <span>Ticket ID: {selectedTicket._id?.slice(-8)?.toUpperCase() || 'N/A'}</span>
@@ -596,7 +648,7 @@ function AdminSupportTickets() {
                                             <Form.Label className="detail-label">Status</Form.Label>
                                             <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
                                                 <option value="new">New</option>
-                                                <option value="in-progress">In progress</option>
+                                                <option value="in-progress">In Progress</option>
                                                 <option value="resolved">Resolved</option>
                                                 <option value="closed">Closed</option>
                                             </Form.Select>
@@ -611,11 +663,11 @@ function AdminSupportTickets() {
                                                 ref={responseTextareaRef}
                                                 as="textarea"
                                                 className="response-textarea"
-                                                placeholder="Type your response here... This will be sent as a notification to the user."
+                                                placeholder={getResponsePlaceholder(selectedTicket?.userType)}
                                                 value={response}
                                                 onChange={(e) => setResponse(e.target.value)}
                                             />
-                                            <small className="text-muted">Your response will be sent as a notification to the {selectedTicket.userType === 'employer' ? 'employer' : selectedTicket.userType === 'candidate' ? 'candidate' : 'user'}.</small>
+                                            <small className="text-muted">Enter a clear update or resolution note. Your response will be sent to the {getResponseTargetLabel(selectedTicket?.userType)} as a notification.</small>
                                         </Form.Group>
                                     </Col>
                                 </Row>
@@ -637,10 +689,37 @@ function AdminSupportTickets() {
                                 Saving
                             </>
                         ) : (
-                            'Save changes'
+                            'Save Changes'
                         )}
                     </Button>
                 </Modal.Footer>
+            </Modal>
+
+            <Modal
+                show={attachmentPreview.open}
+                onHide={closeAttachmentPreview}
+                size="xl"
+                centered
+                dialogClassName="attachment-preview-modal"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>{attachmentPreview.name || 'Attachment Preview'}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="attachment-preview-modal__body">
+                    {attachmentPreview.type.startsWith('image/') ? (
+                        <img
+                            src={attachmentPreview.url}
+                            alt={attachmentPreview.name || 'Attachment preview'}
+                            className="attachment-preview-modal__image"
+                        />
+                    ) : (
+                        <iframe
+                            src={attachmentPreview.url}
+                            title={attachmentPreview.name || 'Attachment preview'}
+                            className="attachment-preview-modal__frame"
+                        />
+                    )}
+                </Modal.Body>
             </Modal>
         </div>
     );

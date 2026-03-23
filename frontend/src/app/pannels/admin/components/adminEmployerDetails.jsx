@@ -1222,7 +1222,7 @@ function EmployerDetails() {
                                 <i className={`fa ${currentImageType === 'application/pdf' ? 'fa-file-pdf' : 'fa-image'} me-2`}></i>
                                 {currentImageType === 'application/pdf' ? 'Document Preview' : 'Image Preview'}
                             </h5>
-                            <div style={{display: 'flex', gap: '5px'}}>
+                            <div className="image-modal-controls">
                                 <button className="modal-control-btn minimize-btn" onClick={() => setIsMinimized(!isMinimized)} title={isMinimized ? "Restore" : "Minimize"}>
                                     {isMinimized ? '□' : '_'}
                                 </button>

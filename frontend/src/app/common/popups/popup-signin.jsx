@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { canRoute, candidate, empRoute, employer, placementRoute, placement, pubRoute, publicUser } from "../../../globals/route-names";
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
+import LetterCaptchaField from "../../../components/LetterCaptchaField";
 import '../../../popup-nav-buttons.css';
 
 function SignInPopup() {
@@ -21,6 +22,9 @@ function SignInPopup() {
     const [showEmpPassword, setShowEmpPassword] = useState(false);
     const [showPlacementPassword, setShowPlacementPassword] = useState(false);
     const [activeTab, setActiveTab] = useState('candidate');
+    const candidateCaptchaRef = useRef(null);
+    const employerCaptchaRef = useRef(null);
+    const placementCaptchaRef = useRef(null);
 
     useEffect(() => {
         setCanUsername('');
@@ -74,6 +78,11 @@ function SignInPopup() {
         setLoading(true);
         setError('');
         setSuccess('');
+
+        if (!candidateCaptchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
         
         const result = await login({
             email: canusername.trim(),
@@ -93,6 +102,11 @@ function SignInPopup() {
         setLoading(true);
         setError('');
         setSuccess('');
+
+        if (!employerCaptchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
         
         const result = await login({
             email: empusername,
@@ -126,6 +140,11 @@ function SignInPopup() {
         setLoading(true);
         setError('');
         setSuccess('');
+
+        if (!placementCaptchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
         
         const result = await login({
             email: placementusername,
@@ -173,12 +192,6 @@ function SignInPopup() {
         whiteSpace: 'nowrap',
         boxShadow: 'none'
     };
-
-    const recaptchaNotice = (
-        <p style={{ fontSize: '12px', color: '#64748b', marginTop: '10px', marginBottom: '0' }}>
-            This sign-in is protected by Google reCAPTCHA.
-        </p>
-    );
 
     const handleButtonEnter = (event) => {
         event.currentTarget.style.backgroundColor = '#e66e00';
@@ -295,7 +308,7 @@ function SignInPopup() {
 													>
 														Log in
 													</button>
-                                                    {recaptchaNotice}
+                                                    <LetterCaptchaField ref={candidateCaptchaRef} wrapperClassName="mt-3" />
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
 														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#FF7A00"}}>Sign Up</a>
@@ -378,7 +391,7 @@ function SignInPopup() {
 													>
 														Log in
 													</button>
-                                                    {recaptchaNotice}
+                                                    <LetterCaptchaField ref={employerCaptchaRef} wrapperClassName="mt-3" />
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
 														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#FF7A00"}}>Sign Up</a>
@@ -458,12 +471,14 @@ function SignInPopup() {
 														style={buttonStyle}
 								onMouseEnter={handleButtonEnter}
 								onMouseLeave={handleButtonLeave}
-													>
-														Log in
-													</button>
-                                                    {recaptchaNotice}
+                                                    >
+                                                        Log in
+                                                    </button>
+                                                    <div className="mt-3">
+                                                        <LetterCaptchaField ref={placementCaptchaRef} wrapperClassName="mt-3" />
+                                                    </div>
 
-													<div className="mt-3 mb-3" style={{color: "#000"}}>
+                                                    <div className="mt-3 mb-3" style={{color: "#000"}}>
 														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" style={{textDecoration: "underline", cursor: "pointer", color: "#FF7A00"}}>Sign Up</a>
 													</div>
 												</div>

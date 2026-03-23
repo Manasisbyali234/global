@@ -175,7 +175,7 @@ function ContactUsPage() {
                                                     </div>
                                                 </div>
                                                 <div className="col-lg-12">
-                                                    <div className="form-group mb-3">
+                                                    <div className="form-group mb-3 contact-message-group">
                                                         <textarea 
                                                             name="message" 
                                                             className={`form-control ${errors.message ? 'is-invalid' : ''}`}
@@ -231,9 +231,9 @@ function ContactUsPage() {
 
             <div className="section-full" style={{ padding: '0 0 40px 0' }}>
                 <div className="container">
-                    <div style={{ marginBottom: '14px' }}>
-                        <h3 className="wt-title" style={{ marginBottom: '6px' }}>Our Location</h3>
-                        <p style={{ margin: 0, color: '#6c757d' }}>
+                    <div style={{ marginBottom: '14px', textAlign: 'center' }}>
+                        <h3 className="wt-title" style={{ marginBottom: '6px', textAlign: 'center' }}>Our Location</h3>
+                        <p style={{ margin: 0, color: '#6c757d', textAlign: 'center' }}>
                             Visit us at our Bengaluru office.
                         </p>
                     </div>

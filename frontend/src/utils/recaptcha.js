@@ -1,14 +1,15 @@
-const RECAPTCHA_SITE_KEY = "6LfkpJIsAAAAALl9FlSWZbH2YOxH8A50wLNtUSJf";
+export const RECAPTCHA_SITE_KEY =
+  process.env.REACT_APP_RECAPTCHA_SITE_KEY || "6Lf8sJQsAAAAAEspQqReolhtQhqRJVVU2xxdVuNr";
 
 let recaptchaScriptPromise = null;
 
 const getRecaptchaApi = () => {
-  if (window.grecaptcha?.execute && window.grecaptcha?.ready) {
-    return window.grecaptcha;
+  if (typeof window === "undefined") {
+    return null;
   }
 
-  if (window.grecaptcha?.enterprise?.execute && window.grecaptcha?.enterprise?.ready) {
-    return window.grecaptcha.enterprise;
+  if (window.grecaptcha?.render && window.grecaptcha?.reset) {
+    return window.grecaptcha;
   }
 
   return null;
@@ -30,7 +31,7 @@ const waitForRecaptchaApi = (resolve, reject, attempt = 0) => {
   window.setTimeout(() => waitForRecaptchaApi(resolve, reject, attempt + 1), 250);
 };
 
-const loadRecaptchaScript = () => {
+export const loadVisibleRecaptchaScript = () => {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("Google reCAPTCHA is only available in the browser."));
   }
@@ -45,7 +46,7 @@ const loadRecaptchaScript = () => {
   }
 
   recaptchaScriptPromise = new Promise((resolve, reject) => {
-    const existingScript = document.querySelector('script[data-recaptcha="global-login-v3"]');
+    const existingScript = document.querySelector('script[data-recaptcha="global-login-v2"]');
 
     const handleLoad = () => waitForRecaptchaApi(resolve, reject);
     const handleError = () => {
@@ -61,10 +62,10 @@ const loadRecaptchaScript = () => {
     }
 
     const script = document.createElement("script");
-    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    script.src = "https://www.google.com/recaptcha/api.js?render=explicit";
     script.async = true;
     script.defer = true;
-    script.dataset.recaptcha = "global-login-v3";
+    script.dataset.recaptcha = "global-login-v2";
     script.addEventListener("load", handleLoad, { once: true });
     script.addEventListener("error", handleError, { once: true });
     document.body.appendChild(script);
@@ -73,23 +74,6 @@ const loadRecaptchaScript = () => {
   return recaptchaScriptPromise;
 };
 
-export const executeLoginRecaptcha = async (action) => {
-  const api = await loadRecaptchaScript();
-
-  return new Promise((resolve, reject) => {
-    const run = async () => {
-      try {
-        const token = await api.execute(RECAPTCHA_SITE_KEY, { action });
-        if (!token) {
-          reject(new Error("Google reCAPTCHA verification failed. Please try again."));
-          return;
-        }
-        resolve(token);
-      } catch (error) {
-        reject(new Error("Google reCAPTCHA verification failed. Please try again."));
-      }
-    };
-
-    api.ready(run);
-  });
+export const executeLoginRecaptcha = async () => {
+  throw new Error("This login flow still uses the legacy reCAPTCHA handler. Use the visible Google reCAPTCHA widget instead.");
 };

@@ -18,8 +18,7 @@ router.post('/register', [
 
 router.post('/login', [
   body('email').isEmail().withMessage('Valid email is required'),
-  body('password').notEmpty().withMessage('Password is required'),
-  body('recaptchaToken').notEmpty().withMessage('Please complete the Google reCAPTCHA')
+  body('password').notEmpty().withMessage('Password is required')
 ], validateEmailMiddleware, handleValidationErrors, candidateController.loginCandidate);
 
 // Email Check Route (Public - before auth middleware)

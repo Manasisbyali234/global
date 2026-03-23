@@ -97,7 +97,7 @@ function SectionEmployerSidebar({ onFilterChange }) {
             `}</style>
             <div className="sidebar-elements search-bx">
                 <form>
-                    <div className="form-group mb-4 position-relative">
+                    <div className="form-group mb-4 position-relative emp-company-filter-group">
                         <h4 className="section-head-small mb-4">Company Name</h4>
                         <div className="position-relative">
                             <i className="feather-search" style={{

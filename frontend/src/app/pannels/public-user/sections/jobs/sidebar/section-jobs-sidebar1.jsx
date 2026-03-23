@@ -255,7 +255,7 @@ function SectionJobsSidebar1 ({ onFilterChange }) {
                 `}</style>
                 <div className="sidebar-elements search-bx">
                     <form>
-                        <div className="form-group mb-4 position-relative">
+                        <div className="form-group mb-4 position-relative job-title-filter-group">
                             <h4 className="section-head-small mb-4">Designation ({jobTitles.length} available)</h4>
                             <div className="position-relative">
                                 <i className="feather-search" style={{

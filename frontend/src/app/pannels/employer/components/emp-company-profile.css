@@ -157,6 +157,16 @@ label {
   color: #ff6b35;
 }
 
+.emp-company-profile > div:nth-of-type(2) .panel .form-group > .text-success.mt-2 {
+  display: none !important;
+}
+
+.emp-company-profile > div:nth-of-type(2) .panel .form-group > small.text-muted {
+  display: block;
+  margin-top: 0.15rem !important;
+  line-height: 1.35;
+}
+
 /* Button animations */
 .site-button {
   background: #ff9c00 !important;
@@ -864,6 +874,7 @@ html {
   color: #2d3748;
   position: relative;
 }
+
 
 /* Highlight required fields that are missing */
 .form-control.is-invalid + .required-field::after {

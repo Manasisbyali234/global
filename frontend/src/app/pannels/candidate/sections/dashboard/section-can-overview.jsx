@@ -500,21 +500,20 @@ function SectionCandidateOverview() {
 									backgroundColor: card.bg,
 									cursor: card.clickable ? 'pointer' : 'default',
 									padding: '1.5rem',
-									textAlign: 'center',
 									minHeight: '100px'
 								}}
 								onClick={card.clickable ? card.onClick : undefined}
 							>
-								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-									<div className={`fs-2 ${card.color}`} style={{ flexShrink: 0, lineHeight: 1 }}>
-										<i className={card.icon} />
-									</div>
-									<div style={{ textAlign: 'right', marginLeft: 'auto' }}>
-										<div className={`counter fw-bold fs-3 ${card.color}`} style={{ lineHeight: 1, marginBottom: '0.25rem' }}>
+								<div className="candidate-stat-card__body">
+									<div className="candidate-stat-card__top">
+										<div className={`candidate-stat-card__icon fs-2 ${card.color}`} style={{ lineHeight: 1 }}>
+											<i className={card.icon} />
+										</div>
+										<div className={`candidate-stat-card__value counter fw-bold fs-3 ${card.color}`} style={{ lineHeight: 1 }}>
 											<CountUp end={card.count} duration={2} />
 										</div>
-										<h5 className="mb-0" style={{ fontSize: '0.95rem', fontWeight: '600' }}>{card.label}</h5>
 									</div>
+									<h5 className="candidate-stat-card__label mb-0" style={{ fontSize: '0.95rem', fontWeight: '600' }}>{card.label}</h5>
 								</div>
 							</div>
 						</div>

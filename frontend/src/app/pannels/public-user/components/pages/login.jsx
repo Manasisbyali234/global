@@ -1,8 +1,9 @@
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import JobZImage from "../../../../common/jobz-img";
 import { canRoute, candidate, empRoute, employer, placementRoute, placement, publicUser } from "../../../../../globals/route-names";
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useAuth } from "../../../../../contexts/AuthContext";
+import LetterCaptchaField from "../../../../../components/LetterCaptchaField";
 import { loadScript, publicUrlFor } from "../../../../../globals/constants";
 import { handleFacebookLogin, handleGoogleLogin } from "../../../../../utils/socialAuth";
 import './login-fix.css';
@@ -23,21 +24,10 @@ function LoginPage() {
     const [placementpassword, setPlacementPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const candidateCaptchaRef = useRef(null);
+    const employerCaptchaRef = useRef(null);
+    const placementCaptchaRef = useRef(null);
 
-    const recaptchaNotice = (
-        <p
-            style={{
-                fontSize: '12px',
-                color: '#64748b',
-                marginTop: '10px',
-                marginBottom: '0'
-            }}
-        >
-            This sign-in is protected by Google reCAPTCHA.
-        </p>
-    );
-
-    
     const from = location.state?.from?.pathname || '/';
 
     useEffect(() => {
@@ -78,6 +68,11 @@ function LoginPage() {
         event.preventDefault();
         setLoading(true);
         setError('');
+
+        if (!candidateCaptchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
         
         const result = await login({
             email: canusername,
@@ -108,6 +103,11 @@ function LoginPage() {
         // Validate inputs
         if (!empusername.trim() || !emppassword.trim()) {
             setError('Please enter both email and password');
+            setLoading(false);
+            return;
+        }
+
+        if (!employerCaptchaRef.current?.validate()) {
             setLoading(false);
             return;
         }
@@ -142,6 +142,11 @@ function LoginPage() {
         event.preventDefault();
         setLoading(true);
         setError('');
+
+        if (!placementCaptchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
         
         const result = await login({
             email: placementusername,
@@ -245,7 +250,7 @@ function LoginPage() {
                                                 <button type="submit" className="w-100 mb-3" disabled={loading} style={{padding: '12px', borderRadius: '8px', fontWeight: '500', backgroundColor: '#fd7e14', color: 'white', border: 'none'}}>
                                                     {loading ? 'Logging in...' : 'Log in'}
                                                 </button>
-                                                {recaptchaNotice}
+                                                <LetterCaptchaField ref={candidateCaptchaRef} wrapperClassName="auth-form-group" />
                                             </form>
                                             {/*Login Employer Content*/}
                                             <form onSubmit={handleEmployerLogin} className="tab-pane fade" id="twm-login-Employer">
@@ -289,7 +294,7 @@ function LoginPage() {
                                                 <button type="submit" className="w-100 mb-3" disabled={loading} style={{padding: '12px', borderRadius: '8px', fontWeight: '500', backgroundColor: '#fd7e14', color: 'white', border: 'none'}}>
                                                     {loading ? 'Logging in...' : 'Log in'}
                                                 </button>
-                                                {recaptchaNotice}
+                                                <LetterCaptchaField ref={employerCaptchaRef} wrapperClassName="auth-form-group" />
                                             </form>
                                             {/*Login Placement Content*/}
                                             <form onSubmit={handlePlacementLogin} className="tab-pane fade" id="twm-login-Placement">
@@ -333,7 +338,7 @@ function LoginPage() {
                                                 <button type="submit" className="w-100 mb-3" disabled={loading} style={{padding: '12px', borderRadius: '8px', fontWeight: '500', backgroundColor: '#fd7e14', color: 'white', border: 'none'}}>
                                                     {loading ? 'Logging in...' : 'Log in'}
                                                 </button>
-                                                {recaptchaNotice}
+                                                <LetterCaptchaField ref={placementCaptchaRef} wrapperClassName="auth-form-group" />
                                             </form>
                                         </div>
                                         <div className="text-center mt-3">

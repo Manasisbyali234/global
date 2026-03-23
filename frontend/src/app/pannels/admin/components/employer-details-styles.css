@@ -619,10 +619,20 @@
     color: #232323;
     font-weight: 700;
     margin: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-right: 1rem;
 }
 
 .image-modal-title i {
     color: #ff6b35;
+}
+
+.image-modal-controls {
+    display: flex;
+    gap: 8px;
+    flex: 0 0 auto;
+    margin-left: 16px;
 }
 
 .modal-control-btn {

@@ -19,7 +19,6 @@ const { sendSMS } = require('../utils/smsProvider');
 const { validateGSTFormat, fetchGSTInfo, mapGSTToProfile } = require('../utils/gstService');
 const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
 const { formatDate } = require('../utils/dateFormatter');
-const { verifyRecaptchaToken } = require('../utils/recaptcha');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -153,20 +152,11 @@ exports.registerEmployer = async (req, res) => {
 
 exports.loginEmployer = async (req, res) => {
   try {
-    const { email, password, recaptchaToken } = req.body;
+    const { email, password } = req.body;
     
     // Validate input
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Email and password are required' });
-    }
-
-    const recaptchaResult = await verifyRecaptchaToken(recaptchaToken, 'employer_login', req.ip);
-    if (!recaptchaResult.success) {
-      return res.status(400).json({
-        success: false,
-        message: recaptchaResult.message,
-        shouldResetRecaptcha: recaptchaResult.shouldResetRecaptcha
-      });
     }
     
     // Removed console debug line for security

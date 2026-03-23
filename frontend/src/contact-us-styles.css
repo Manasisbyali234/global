@@ -157,6 +157,20 @@ html body .wt-bnr-inr {
     color: #ffffff !important;
 }
 
+.contact-message-group {
+    margin-bottom: 0.35rem !important;
+}
+
+.contact-message-group textarea.form-control.is-invalid {
+    margin-bottom: 0 !important;
+}
+
+.contact-message-group .invalid-feedback {
+    display: block !important;
+    margin-top: 0.12rem !important;
+    line-height: 1.2 !important;
+}
+
 @media (max-width: 991px) {
     .twm-contact-one .section-content {
         margin-left: 1rem !important;

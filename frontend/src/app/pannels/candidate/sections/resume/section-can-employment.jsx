@@ -11,6 +11,34 @@ const NOTICE_PERIOD_OPTIONS = [
     "Custom"
 ];
 
+const createEmptyEmployment = () => ({
+    organizationName: "",
+    designation: "",
+    isCurrentCompany: false,
+    yearsOfExperience: 0,
+    monthsOfExperience: 0,
+    presentCTC: "",
+    expectedCTC: "",
+    noticePeriod: "",
+    customNoticePeriod: "",
+    description: "",
+    projectDetails: ""
+});
+
+const hasEmploymentContent = (emp = {}) => Boolean(
+    (emp.organizationName || emp.organization || "").trim() ||
+    (emp.designation || "").trim() ||
+    Number(emp.yearsOfExperience) > 0 ||
+    Number(emp.monthsOfExperience) > 0 ||
+    String(emp.presentCTC || "").trim() ||
+    String(emp.expectedCTC || "").trim() ||
+    String(emp.noticePeriod || "").trim() ||
+    String(emp.customNoticePeriod || "").trim() ||
+    String(emp.description || "").trim() ||
+    String(emp.projectDetails || "").trim() ||
+    emp.isCurrentCompany
+);
+
 const EmploymentCard = ({ 
     emp, 
     index, 
@@ -225,22 +253,10 @@ function SectionCanEmployment({ profile, onUpdate }) {
 
     useEffect(() => {
         if (profile?.employment && profile.employment.length > 0) {
-            setEmploymentList(profile.employment);
+            setEmploymentList(profile.employment.filter(hasEmploymentContent));
             setIsEditMode(false);
         } else {
-            setEmploymentList([{
-                organizationName: "",
-                designation: "",
-                isCurrentCompany: false,
-                yearsOfExperience: 0,
-                monthsOfExperience: 0,
-                presentCTC: "",
-                expectedCTC: "",
-                noticePeriod: "",
-                customNoticePeriod: "",
-                description: "",
-                projectDetails: ""
-            }]);
+            setEmploymentList([createEmptyEmployment()]);
             setIsEditMode(true);
         }
     }, [profile]);
@@ -287,29 +303,32 @@ function SectionCanEmployment({ profile, onUpdate }) {
     };
 
     const [newCardIndex, setNewCardIndex] = useState(null);
+    const visibleEmploymentRows = employmentList
+        .map((emp, originalIndex) => ({ emp, originalIndex }))
+        .filter(({ emp }) => hasEmploymentContent(emp));
+
+    const handleCancel = () => {
+        const persistedEmployment = Array.isArray(profile?.employment)
+            ? profile.employment.filter(hasEmploymentContent)
+            : [];
+
+        setEmploymentList(persistedEmployment);
+        setIsEditMode(false);
+        setNewCardIndex(null);
+    };
 
     const handleAdd = () => {
         const newIndex = employmentList.length;
-        setEmploymentList([...employmentList, {
-            organizationName: "",
-            designation: "",
-            isCurrentCompany: false,
-            yearsOfExperience: 0,
-            monthsOfExperience: 0,
-            presentCTC: "",
-            expectedCTC: "",
-            noticePeriod: "",
-            customNoticePeriod: "",
-            description: "",
-            projectDetails: ""
-        }]);
+        setEmploymentList([...employmentList, createEmptyEmployment()]);
         setNewCardIndex(newIndex);
         setTimeout(() => setNewCardIndex(null), 500);
     };
 
     const handleSave = async () => {
-        for (let i = 0; i < employmentList.length; i++) {
-            const emp = employmentList[i];
+        const entriesToSave = employmentList.filter(hasEmploymentContent);
+
+        for (let i = 0; i < entriesToSave.length; i++) {
+            const emp = entriesToSave[i];
             if (!emp.organizationName && !emp.organization) {
                 showError(`Company Name is required for entry #${i + 1}`);
                 return;
@@ -323,7 +342,7 @@ function SectionCanEmployment({ profile, onUpdate }) {
         setLoading(true);
         try {
             const updateData = { 
-                employment: employmentList.map(emp => ({
+                employment: entriesToSave.map(emp => ({
                     ...emp,
                     organization: emp.organizationName || emp.organization
                 }))
@@ -333,6 +352,7 @@ function SectionCanEmployment({ profile, onUpdate }) {
             
             if (response && (response.success || response.candidate)) {
                 showSuccess("Employment history saved successfully!");
+                setEmploymentList(entriesToSave);
                 setIsEditMode(false);
                 if (onUpdate) onUpdate();
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
@@ -376,15 +396,13 @@ function SectionCanEmployment({ profile, onUpdate }) {
                         </>
                     ) : (
                         <>
-                            {profile?.employment?.length > 0 && (
-                                <button 
-                                    type="button" 
-                                    className="site-button-link text-secondary" 
-                                    onClick={() => setIsEditMode(false)}
-                                >
-                                    Cancel
-                                </button>
-                            )}
+                            <button 
+                                type="button" 
+                                className="site-button-link text-secondary" 
+                                onClick={handleCancel}
+                            >
+                                Cancel
+                            </button>
                             <button 
                                 type="button" 
                                 className="site-button-link text-primary" 
@@ -400,7 +418,7 @@ function SectionCanEmployment({ profile, onUpdate }) {
             
             <div className="panel-body wt-panel-body p-a20">
                 {!isEditMode ? (
-                    employmentList.length > 0 ? (
+                    visibleEmploymentRows.length > 0 ? (
                         <div className="table-responsive employment-table-container">
                             <table className="table table-bordered custom-employment-table">
                                 <thead className="table-light">
@@ -414,8 +432,7 @@ function SectionCanEmployment({ profile, onUpdate }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {employmentList
-                                        .map((emp, originalIndex) => ({ emp, originalIndex }))
+                                    {visibleEmploymentRows
                                         .sort((a, b) => {
                                             if (a.emp.isCurrentCompany) return -1;
                                             if (b.emp.isCurrentCompany) return 1;

@@ -31,8 +31,7 @@ router.post('/create-password', [
 // Login route
 router.post('/login', [
   body('email').isEmail().withMessage('Valid email is required'),
-  body('password').notEmpty().withMessage('Password is required'),
-  body('recaptchaToken').notEmpty().withMessage('Google reCAPTCHA verification is required')
+  body('password').notEmpty().withMessage('Password is required')
 ], handleValidationErrors, placementController.loginPlacement);
 
 router.post('/check-email', [

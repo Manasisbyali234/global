@@ -1,0 +1,59 @@
+/* Shared title-case styling for internal panel labels and titles */
+#content :is(
+  .wt-admin-right-page-header h1,
+  .wt-admin-right-page-header h2,
+  .wt-admin-right-page-header h3,
+  .wt-admin-right-page-header h4,
+  .wt-admin-right-page-header h5,
+  .wt-admin-right-page-header h6,
+  .modal-title,
+  .form-label,
+  label.form-label,
+  .detail-label,
+  .stats-card__label,
+  .ticket-details-badge-label,
+  .filters-section__header h6,
+  .tickets-header h5,
+  .page-title,
+  .resume-page-title,
+  .profile-section-title,
+  .image-modal-title,
+  .section-title,
+  .subsection-title,
+  .modal-section-title,
+  .ticket-details-hero__eyebrow,
+  .clear-filters-btn,
+  .update-btn,
+  .new-badge,
+  .panel-tittle,
+  th,
+  .table th
+) {
+  text-transform: capitalize;
+}
+
+.emp-company-profile :is(
+  .wt-admin-right-page-header h1,
+  .wt-admin-right-page-header h2,
+  .wt-admin-right-page-header h3,
+  .wt-admin-right-page-header h4,
+  .wt-admin-right-page-header h5,
+  .wt-admin-right-page-header h6,
+  .panel-tittle,
+  label,
+  .form-label,
+  .required-field
+) {
+  text-transform: capitalize;
+}
+
+#content :is(
+  .filter-select,
+  .category-badge,
+  .badge-soft-status-new,
+  .badge-soft-status-in-progress,
+  .badge-soft-status-resolved,
+  .badge-soft-status-closed
+) {
+  text-transform: capitalize;
+}

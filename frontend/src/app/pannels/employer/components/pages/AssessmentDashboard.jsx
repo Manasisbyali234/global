@@ -20,7 +20,7 @@ export default function AssessmentDashboard() {
 			<div style={{ textAlign: 'left', lineHeight: '1.6', padding: '4px 6px' }}>
 				<div style={{ marginBottom: '14px', color: '#1e293b', fontSize: '15px', fontWeight: '600' }}>
 					<i className="fa fa-lock" style={{ color: '#f97316', marginRight: '10px' }} />
-					End-to-end encryption ensures your assessments remain completely private and secure.
+					End-to-End encryption ensures your assessments remain completely private and secure.
 				</div>
 				<div style={{ display: 'grid', gap: '10px', color: '#475569', fontSize: '14px' }}>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>

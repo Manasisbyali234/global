@@ -218,6 +218,64 @@
   width: 200px !important;
 }
 
+.employer-grid-active .wt-bnr-inr {
+  height: 84px !important;
+  min-height: 84px !important;
+  padding: 0 !important;
+}
+
+.employer-grid-active .wt-bnr-inr .container,
+.employer-grid-active .wt-bnr-inr .overlay-main {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+.employer-grid-active .wt-bnr-inr-entry {
+  height: 84px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+.employer-grid-active .banner-title-outer,
+.employer-grid-active .banner-title-name,
+.employer-grid-active .banner-title-name .wt-title {
+  margin: 0 !important;
+}
+
+@media (min-width: 992px) {
+  .emp-grid-page .rightSidebar .sidebar-elements > form > .form-group:first-child .section-head-small {
+    min-height: 42px !important;
+    margin: 0 0 1rem 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    line-height: 1.2 !important;
+  }
+
+  .emp-grid-page .product-filter-wrap {
+    min-height: 42px !important;
+    margin-bottom: 1.5rem !important;
+    align-items: center !important;
+    padding-top: 28px !important;
+  }
+
+  .emp-grid-page .woocommerce-result-count-left,
+  .emp-grid-page .woocommerce-ordering {
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .emp-grid-page .emp-grid-records-filter {
+    margin-bottom: 0.6rem !important;
+  }
+
+  .emp-grid-page .emp-company-filter-group > .position-relative {
+    margin-top: 3.2rem !important;
+  }
+}
+
 /* Fixed sidebar */
 .emp-grid-page .rightSidebar {
   position: static;

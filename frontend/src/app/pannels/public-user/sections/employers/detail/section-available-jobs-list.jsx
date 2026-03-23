@@ -130,18 +130,23 @@ function SectionAvailableJobsList({ employerId }) {
 												<i className="feather-map-pin" />
 												{(() => {
 													if (Array.isArray(job.location)) {
-														if (job.location.length <= 2) {
-															return job.location.join(', ');
+														const locations = job.location
+															.map((loc) => String(loc || '').trim())
+															.filter(Boolean);
+														const primaryLocation = locations[0] || '';
+														const primaryLocationDisplay = primaryLocation.split(' - ')[0].trim() || primaryLocation;
+														if (locations.length <= 1) {
+															return <span className="location-text" title={primaryLocation}>{primaryLocationDisplay || 'Location not specified'}</span>;
 														} else {
 															return (
 																<>
-																	{job.location.slice(0, 2).join(', ')}
-																	<span className="location-more">+{job.location.length - 2}</span>
+																	<span className="location-text" title={primaryLocation}>{primaryLocationDisplay}</span>
+																	<span className="location-more" title={locations.slice(1).join(', ')}> +more</span>
 																</>
 															);
 														}
 													} else {
-														return job.location || 'Location not specified';
+														return <span className="location-text">{job.location || 'Location not specified'}</span>;
 													}
 												})()}
 											</div>

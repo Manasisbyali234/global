@@ -88,20 +88,34 @@
 .job-location {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 4px;
   color: #6b7280;
   font-size: 14px;
   flex: 1;
   min-width: 0;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .job-location .location-more {
   color: #1967d2;
   font-weight: 600;
-  margin-left: 2px;
+  margin-left: 4px;
   flex-shrink: 0;
   cursor: help;
+  white-space: nowrap;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  overflow: visible;
+}
+
+.job-location .location-text {
+  flex: 0 1 auto;
+  min-width: fit-content;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -112,8 +126,9 @@
   display: flex !important;
   flex: 1 !important;
   min-width: 0 !important;
+  flex-wrap: nowrap !important;
   white-space: nowrap !important;
-  overflow: visible !important;
+  overflow: hidden !important;
   text-overflow: unset !important;
 }
 
@@ -123,6 +138,16 @@
   flex-shrink: 0 !important;
   white-space: nowrap !important;
   overflow: visible !important;
+}
+
+.new-job-card .job-location .location-text,
+.job-card .job-location .location-text,
+.home-job-card .job-location .location-text {
+  flex: 0 1 auto !important;
+  min-width: fit-content !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
 }
 
 .job-location i {

@@ -1995,13 +1995,15 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					<div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-						<button
-							type="button"
-							className="site-button"
-							onClick={() => navigate(empRoute(employer.MANAGE_JOBS))}
-						>
-							Back to Manage Interview
-						</button>
+						{!needsApproval && (
+							<button
+								type="button"
+								className="site-button"
+								onClick={() => navigate(empRoute(employer.MANAGE_JOBS))}
+							>
+								Back to Manage Interview
+							</button>
+						)}
 						{overTicketLimit && (
 							<button
 								type="button"

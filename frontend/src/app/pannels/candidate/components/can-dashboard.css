@@ -24,6 +24,47 @@
   transition: none;
 }
 
+.can-dashboard .candidate-stat-card__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  text-align: center;
+}
+
+.can-dashboard .candidate-stat-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.can-dashboard .candidate-stat-card__icon {
+  flex: 0 0 auto;
+  text-align: center;
+}
+
+.can-dashboard .candidate-stat-card__value {
+  justify-content: center !important;
+  margin-bottom: 0 !important;
+  line-height: 1;
+}
+
+.can-dashboard .candidate-stat-card__label {
+  width: 100%;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  font-size: clamp(0.78rem, 0.55rem + 0.45vw, 0.95rem) !important;
+}
+
 /* Card titles */
 .can-dashboard h5 {
   color: #111827 !important;
@@ -212,22 +253,6 @@
   position: relative !important;
   z-index: 1 !important;
   background: white !important;
-}
-
-/* Icon row universal alignment */
-.can-dashboard .dashboard-card-2 > div:first-child {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  width: 100% !important;
-}
-
-.can-dashboard .dashboard-card-2 > div:first-child > div:first-child {
-  flex-shrink: 0 !important;
-}
-
-.can-dashboard .dashboard-card-2 > div:first-child > div:last-child {
-  text-align: right !important;
 }
 
 .can-dashboard .text-success::before {
@@ -439,39 +464,6 @@
   .can-dashboard .col-12 {
     width: 100% !important;
     flex: 0 0 100% !important;
-  }
-}
-/* Mobile center alignment for stats cards */
-@media (max-width: 768px) {
-  .can-dashboard .dashboard-card-2 > div[style*="justify-content: space-between"] {
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-    gap: 0.25rem !important;
-  }
-  
-  .can-dashboard .dashboard-card-2 > div > div:last-child {
-    text-align: center !important;
-    margin-left: 0 !important;
-  }
-}
-/* Mobile horizontal alignment for icon and number */
-@media (max-width: 768px) {
-  .can-dashboard .dashboard-card-2 > div[style*="justify-content: space-between"] {
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 1rem !important;
-  }
-}
-/* Override mobile alignment - keep icon and number horizontal */
-@media (max-width: 768px) {
-  .can-dashboard .dashboard-card-2 > div {
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 1rem !important;
   }
 }
 /* Remove checkmark icon from text-success */

@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { canRoute, candidate, publicUser } from "../../../../../../globals/route-names";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "../../../../../../contexts/AuthContext";
+import LetterCaptchaField from "../../../../../../components/LetterCaptchaField";
 import JobZImage from "../../../../../common/jobz-img";
 import "./AuthPages.css";
 
@@ -13,12 +14,16 @@ function LoginCandidate() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [captchaError, setCaptchaError] = useState("");
+    const captchaRef = useRef(null);
 
     const handleLogin = async (event) => {
         event.preventDefault();
         setError('');
-        setCaptchaError("");
+        
+        if (!captchaRef.current?.validate()) {
+            return;
+        }
+
         setLoading(true);
 
         const result = await login({
@@ -28,8 +33,6 @@ function LoginCandidate() {
 
         if (result.success) {
             navigate(canRoute(candidate.DASHBOARD));
-        } else if (result.shouldResetRecaptcha) {
-            setCaptchaError(result.message);
         } else {
             setError(result.message);
         }
@@ -95,8 +98,7 @@ function LoginCandidate() {
                             </div>
 
                             <div className="auth-form-group">
-                                <small className="captcha-helper-text">This sign-in is protected by Google reCAPTCHA.</small>
-                                {captchaError && <small className="captcha-error">{captchaError}</small>}
+                                <LetterCaptchaField ref={captchaRef} />
                             </div>
 
                             <NavLink to={publicUser.pages.FORGOT} className="forgot-link site-text-primary">

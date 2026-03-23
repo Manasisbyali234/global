@@ -1,3 +1,54 @@
+.emp-job-review-page .consultant-company-card {
+  overflow: hidden;
+}
+
+.emp-job-review-page .consultant-company-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f97316;
+  display: inline-flex;
+  align-items: center;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid rgba(249, 115, 22, 0.25);
+}
+
+.emp-job-review-page .consultant-company-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.emp-job-review-page .consultant-company-logo-wrap {
+  flex: 0 0 88px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.emp-job-review-page .consultant-company-logo {
+  width: 88px;
+  height: 88px;
+  max-width: 100%;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  display: block;
+}
+
+.emp-job-review-page .consultant-company-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.emp-job-review-page .consultant-company-name,
+.emp-job-review-page .consultant-company-description {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
 @media (max-width: 767px) {
   .emp-job-review-page .panel-heading .panel-tittle {
     display: inline-flex !important;
@@ -74,6 +125,21 @@
   .emp-job-review-page .panel .panel-body .row > [class*="col-"] {
     flex: 1 1 100% !important;
     max-width: 100% !important;
+  }
+
+  .emp-job-review-page .consultant-company-layout {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .emp-job-review-page .consultant-company-logo-wrap {
+    flex-basis: auto;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .emp-job-review-page .consultant-company-content {
+    width: 100%;
   }
 }
 

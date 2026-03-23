@@ -8,6 +8,8 @@ function ForgotPassword() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,
     uppercase: false,
@@ -83,7 +85,7 @@ function ForgotPassword() {
   };
 
   const handleResendOTP = async () => {
-    setLoading(true);
+    setResending(true);
     setError('');
     setSuccess('');
 
@@ -119,19 +121,19 @@ function ForgotPassword() {
     } catch (error) {
       setError('Unable to resend OTP. Please try again.');
     } finally {
-      setLoading(false);
+      setResending(false);
     }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setResetting(true);
     setError('');
     setSuccess('');
 
     if (!Object.values(passwordValidation).every(v => v === true)) {
       setError('Please meet all password requirements.');
-      setLoading(false);
+      setResetting(false);
       return;
     }
 
@@ -169,7 +171,7 @@ function ForgotPassword() {
     } catch (error) {
       setError('Network error. Please try again.');
     } finally {
-      setLoading(false);
+      setResetting(false);
     }
   };
 
@@ -281,7 +283,7 @@ function ForgotPassword() {
               </div>
             )}
           </div>
-          <button type="submit" className="w-100" disabled={loading} style={{
+          <button type="submit" className="w-100" disabled={resetting} style={{
             backgroundColor: '#FFF3E5',
             color: '#FF7A00',
             border: '1px solid #FF7A00',
@@ -290,7 +292,7 @@ function ForgotPassword() {
             fontWeight: '600',
             cursor: 'pointer'
           }}>
-            {loading ? 'Resetting Password...' : 'Reset Password'}
+            {resetting ? 'Resetting Password...' : 'Reset Password'}
           </button>
           <div className="mt-3 text-center">
             <p className="mb-2 text-muted">Didn't receive the OTP?</p>
@@ -298,14 +300,14 @@ function ForgotPassword() {
               type="button" 
               className="btn btn-link p-0" 
               onClick={handleResendOTP}
-              disabled={!canResend || loading}
+              disabled={!canResend || resending}
               style={{ 
                 color: canResend ? '#FF7A00' : '#6c757d',
                 textDecoration: 'none',
                 fontWeight: '500'
               }}
             >
-              {resendCooldown > 0 ? `Resend OTP in ${resendCooldown}s` : 'Resend OTP'}
+              {resending ? 'Resending OTP...' : resendCooldown > 0 ? `Resend OTP in ${resendCooldown}s` : 'Resend OTP'}
             </button>
           </div>
         </form>

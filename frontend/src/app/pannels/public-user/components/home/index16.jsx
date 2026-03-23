@@ -965,7 +965,7 @@ function Home16Page() {
                                         <div className="wt-small-separator site-text-primary">
                                             <div>Top Jobs</div>
                                         </div>
-                                        <h2 className="wt-title">Discover your next career move</h2>
+                                        <h2 className="wt-title">Discover Your Next Career Move</h2>
                                     </div>
                                     <div className="header-btn-container">
                                         {isFiltered && (
@@ -1165,14 +1165,14 @@ function Home16Page() {
                                 fontWeight: '600',
                                 marginBottom: '12px',
                                 display: 'inline-block'
-                            }}>Hiring now</span>
+                            }}>Hiring Now</span>
                             <h2 className="section-title-large" style={{ fontWeight: '800', color: '#1c1c1c' }}>
                                 Top Recruiters <span style={{ color: '#FF6A3D' }}>Hiring Now</span>
                             </h2>
-                            <p className="section-subtitle mb-0" style={{ color: '#666' }}>Discover your next career move with these industry leaders</p>
+                            <p className="section-subtitle mb-0" style={{ color: '#666' }}>Discover Your Next Career Move With These Industry Leaders</p>
                         </div>
                         <NavLink to="/emp-grid" className="view-all-companies-btn" style={{
-                            background: '#ffffff',
+                            background: '#FFEBE3',
                             color: '#FF6A3D',
                             border: '1px solid #FF6A3D',
                             padding: '10px 24px',
@@ -1182,7 +1182,7 @@ function Home16Page() {
                             textDecoration: 'none',
                             transition: 'all 0.3s ease'
                         }}>
-                            View all companies
+                            View All Companies
                         </NavLink>
                     </div>
 
@@ -1491,7 +1491,7 @@ navbarStyle.textContent = `
     .view-all-companies-btn {
         border: 1px solid #FF6A3D !important;
         color: #FF6A3D !important;
-        background: #fff !important;
+        background: #FFEBE3 !important;
         padding: 10px 28px !important;
         border-radius: 999px !important;
         font-weight: 600 !important;
@@ -1503,8 +1503,9 @@ navbarStyle.textContent = `
         width: auto !important;
     }
     .view-all-companies-btn:hover {
-        background: #FF6A3D !important;
-        color: #fff !important;
+        background: #FFEBE3 !important;
+        color: #FF6A3D !important;
+        border-color: #FF6A3D !important;
     }
     .recruiter-card {
         background: #fff !important;
@@ -1626,19 +1627,19 @@ navbarStyle.textContent = `
         background: #fff !important;
     }
     .btn-dark-pill {
-        background: #0B1220 !important;
-        color: #fff !important;
+        background: #FFEBE3 !important;
+        color: #FF6A3D !important;
         padding: 12px 32px !important;
         border-radius: 999px !important;
         font-weight: 600 !important;
-        border: none !important;
+        border: 1px solid #FF6A3D !important;
         transition: all 0.3s ease !important;
         display: inline-block !important;
         text-decoration: none !important;
     }
     .btn-dark-pill:hover {
-        background: #1a253a !important;
-        color: #fff !important;
+        background: #FFEBE3 !important;
+        color: #FF6A3D !important;
     }
     .workflow-illustration-card {
         text-align: center !important;

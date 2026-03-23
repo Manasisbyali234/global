@@ -52,6 +52,12 @@ import "./hero-section-revert.css";
 import "./rich-text-editor-text-black.css";
 // SHARED PANEL TOOLBARS - Align title/search/filter rows across admin, employer, and candidate pages
 import "./shared-page-toolbar.css";
+// SHARED TITLE CASE - Keep internal panel labels and titles in Title Case
+import "./title-case-platform.css";
+// ABOUT PAGE BANNER FIX - Reduce top banner space on About Us page only
+import "./about-page-banner-fix.css";
+// CREATE PASSWORD BANNER FIX - Reduce top banner space on create-password page only
+import "./create-password-banner-fix.css";
 
 
 function App() {

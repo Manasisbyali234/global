@@ -8,7 +8,21 @@ import { showHeader, showFooter, setFooterType, setHeaderType } from "../globals
 function PublicUserLayout() {
     const currentpath = useLocation().pathname;
     const isEmpGrid = currentpath === '/emp-grid';
-    const pageClass = currentpath === '/contact-us' ? 'contact-page-active' : isEmpGrid ? 'employer-grid-active' : '';
+    const isContactPage = currentpath === '/contact-us';
+    const isAboutPage = currentpath === '/about-us';
+    const isJobGridPage = currentpath.startsWith('/job-grid');
+    const isCreatePasswordPage = currentpath === '/create-password';
+    const pageClass = isContactPage
+        ? 'contact-page-active'
+        : isAboutPage
+            ? 'about-page-active'
+            : isJobGridPage
+                ? 'job-grid-banner-active'
+            : isCreatePasswordPage
+                ? 'create-password-banner-active'
+            : isEmpGrid
+                ? 'employer-grid-active'
+                : '';
 
     return (
         <>

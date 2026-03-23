@@ -92,7 +92,7 @@ function JobsGridPage() {
                                 <SectionJobsSidebar1 onFilterChange={handleFilterChange} />
                             </div>
                             {/*Filter Short By - Desktop & Mobile*/}
-                            <div className="mb-4">
+                            <div className="mb-4 job-grid-records-filter">
                                 <SectionRecordsFilter
                                     _config={_filterConfig}
                                     onSortChange={handleSortChange}

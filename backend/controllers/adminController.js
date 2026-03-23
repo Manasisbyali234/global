@@ -3822,7 +3822,38 @@ exports.downloadSupportAttachment = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Attachment not found' });
     }
 
-    const { buffer, mimeType } = base64ToBuffer(attachment.data);
+    let buffer;
+    let mimeType;
+    const rawAttachmentData = typeof attachment.data === 'string' ? attachment.data.trim() : '';
+    const normalizedAttachmentPath = rawAttachmentData
+      ? rawAttachmentData.replace(/\\/g, '/')
+      : '';
+    const uploadsIndex = normalizedAttachmentPath.toLowerCase().indexOf('/uploads/');
+    const relativeUploadPath = uploadsIndex >= 0
+      ? normalizedAttachmentPath.slice(uploadsIndex)
+      : (normalizedAttachmentPath.toLowerCase().startsWith('uploads/')
+          ? `/${normalizedAttachmentPath}`
+          : '');
+
+    if (relativeUploadPath) {
+      const filePath = path.join(__dirname, '..', relativeUploadPath);
+
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ success: false, message: 'Attachment file not found' });
+      }
+
+      buffer = fs.readFileSync(filePath);
+      mimeType = attachment.mimetype || getMimeType(filePath);
+    } else if (rawAttachmentData.startsWith('data:')) {
+      const converted = base64ToBuffer(rawAttachmentData);
+      buffer = converted.buffer;
+      mimeType = attachment.mimetype || converted.mimeType;
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Unsupported attachment format stored for this ticket'
+      });
+    }
     
     if (req.query.download === '1') {
       res.setHeader('Content-Disposition', `attachment; filename="${attachment.originalName}"`);

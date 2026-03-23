@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { canRoute, candidate, empRoute, employer, placementRoute, placement, pubRoute, publicUser } from "../../../globals/route-names";
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
+import LetterCaptchaField from "../../../components/LetterCaptchaField";
 
 function SignInPopup() {
 
@@ -20,6 +21,9 @@ function SignInPopup() {
     const [showEmpPassword, setShowEmpPassword] = useState(false);
     const [showPlacementPassword, setShowPlacementPassword] = useState(false);
     const [errorTimeout, setErrorTimeout] = useState(null);
+    const candidateCaptchaRef = useRef(null);
+    const employerCaptchaRef = useRef(null);
+    const placementCaptchaRef = useRef(null);
 
     const clearMessages = () => {
         setError('');
@@ -84,6 +88,11 @@ function SignInPopup() {
         setLoading(true);
         setError('');
         setSuccess('');
+
+        if (!candidateCaptchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
         
         const result = await login({
             email: canusername.trim(),
@@ -103,6 +112,11 @@ function SignInPopup() {
         setLoading(true);
         setError('');
         setSuccess('');
+
+        if (!employerCaptchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
         
         const result = await login({
             email: empusername,
@@ -136,6 +150,11 @@ function SignInPopup() {
         setLoading(true);
         setError('');
         setSuccess('');
+
+        if (!placementCaptchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
         
         const result = await login({
             email: placementusername,
@@ -181,12 +200,6 @@ function SignInPopup() {
         boxSizing: 'border-box',
         flex: '1 1 100%'
     };
-
-    const recaptchaNotice = (
-        <p style={{ fontSize: '12px', color: '#64748b', marginTop: '10px', marginBottom: '0' }}>
-            This sign-in is protected by Google reCAPTCHA.
-        </p>
-    );
 
     const handleButtonEnter = (event) => {
         event.currentTarget.style.backgroundColor = '#165bbf';
@@ -342,7 +355,7 @@ function SignInPopup() {
 													>
 														Log in
 													</button>
-                                                    {recaptchaNotice}
+                                                    <LetterCaptchaField ref={candidateCaptchaRef} wrapperClassName="mt-3" />
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
 														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" onClick={clearMessages} style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign Up</a>
@@ -425,7 +438,7 @@ function SignInPopup() {
 													>
 														Log in
 													</button>
-                                                    {recaptchaNotice}
+                                                    <LetterCaptchaField ref={employerCaptchaRef} wrapperClassName="mt-3" />
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
 														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" onClick={clearMessages} style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign Up</a>
@@ -508,7 +521,9 @@ function SignInPopup() {
 													>
 														Log in
 													</button>
-                                                    {recaptchaNotice}
+                                                    <div className="mt-3">
+                                                        <LetterCaptchaField ref={placementCaptchaRef} wrapperClassName="mt-3" />
+                                                    </div>
 
 													<div className="mt-3 mb-3" style={{color: "#000"}}>
 														Don't have an account? <a href="#sign_up_popup" data-bs-target="#sign_up_popup" data-bs-toggle="modal" data-bs-dismiss="modal" onClick={clearMessages} style={{textDecoration: "underline", cursor: "pointer", color: "#fd7e14"}}>Sign Up</a>

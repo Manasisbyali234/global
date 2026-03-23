@@ -6,8 +6,42 @@ export const useImageResizer = () => {
   const [resizeConfig, setResizeConfig] = useState({});
   const [onSaveCallback, setOnSaveCallback] = useState(null);
 
-  const openResizer = useCallback((imageSrc, config = {}, onSave) => {
-    setCurrentImage(imageSrc);
+  const urlToDataURL = useCallback((url) => {
+    return new Promise((resolve, reject) => {
+      fetch(url, { credentials: 'include' })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Failed to load image: ${response.status}`);
+          }
+          return response.blob();
+        })
+        .then((blob) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        })
+        .catch(reject);
+    });
+  }, []);
+
+  const openResizer = useCallback(async (imageSrc, config = {}, onSave) => {
+    let safeImageSrc = imageSrc;
+
+    if (
+      typeof imageSrc === 'string' &&
+      imageSrc &&
+      !imageSrc.startsWith('data:') &&
+      !imageSrc.startsWith('blob:')
+    ) {
+      try {
+        safeImageSrc = await urlToDataURL(imageSrc);
+      } catch (error) {
+        console.error('Failed to convert image URL to data URL for cropping:', error);
+      }
+    }
+
+    setCurrentImage(safeImageSrc);
     setResizeConfig({
       aspectRatio: null,
       maxWidth: 800,
@@ -17,7 +51,7 @@ export const useImageResizer = () => {
     });
     setOnSaveCallback(() => onSave);
     setIsResizerOpen(true);
-  }, []);
+  }, [urlToDataURL]);
 
   const closeResizer = useCallback(() => {
     setIsResizerOpen(false);
