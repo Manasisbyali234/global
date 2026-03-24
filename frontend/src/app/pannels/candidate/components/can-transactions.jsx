@@ -344,7 +344,7 @@ function CanTransactionsPage() {
             {/* Invoice Modal */}
             {showInvoiceModal && createPortal(
                 <div className="modal fade show" style={{ 
-                    display: 'block', 
+                    display: 'flex',
                     backgroundColor: 'rgba(0,0,0,0.5)', 
                     zIndex: 110000,
                     position: 'fixed',
@@ -352,17 +352,20 @@ function CanTransactionsPage() {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    overflowY: 'auto'
+                    overflowY: 'auto',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0.5rem'
                 }}>
                     <div
                         className="modal-dialog modal-xl modal-dialog-centered"
                         style={{
-                            margin: 'clamp(0.5rem, 2vw, 1.25rem) auto',
-                            width: 'min(1100px, calc(100vw - 1.5rem))',
-                            maxWidth: 'min(1100px, calc(100vw - 1.5rem))'
+                            margin: '0 auto',
+                            width: 'min(1240px, calc(100vw - 1rem))',
+                            maxWidth: 'min(1240px, calc(100vw - 1rem))'
                         }}
                     >
-                        <div className="modal-content border-0 shadow-lg">
+                        <div className="modal-content border-0 shadow-lg" style={{ maxHeight: 'calc(100vh - 1rem)' }}>
                             <div className="modal-header bg-light" style={{ padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem)' }}>
                                 <h5 className="modal-title d-flex align-items-center gap-2" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>
                                     <IndianRupee size={20} className="text-primary" />
@@ -370,18 +373,18 @@ function CanTransactionsPage() {
                                 </h5>
                                 <button type="button" className="btn-close" onClick={() => setShowInvoiceModal(false)}></button>
                             </div>
-                            <div className="modal-body" style={{ padding: 'clamp(0.875rem, 3vw, 1.25rem)' }}>
+                            <div className="modal-body" style={{ padding: '0.75rem 1rem', overflowY: 'auto' }}>
                                 {fetchingDetails ? (
                                     <div className="text-center py-5">
                                         <div className="spinner-border text-primary" role="status"></div>
                                         <p className="mt-2 text-muted">Fetching Razorpay details...</p>
                                     </div>
                                 ) : (
-                                    <div id="invoice-content" style={{ padding: 'clamp(0.5rem, 2vw, 1rem)' }}>
-                                        <div className="d-flex flex-column flex-md-row justify-content-between mb-3 mb-md-4 align-items-start border-bottom pb-3 pb-md-4 gap-3">
+                                    <div id="invoice-content" style={{ padding: '0.5rem' }}>
+                                        <div className="d-flex flex-column flex-md-row justify-content-between mb-3 align-items-start border-bottom pb-3 gap-3">
                                             <div style={{ flex: '1 1 auto' }}>
-                                                <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: 'clamp(30px, 8vw, 45px)', marginBottom: 'clamp(10px, 3vw, 15px)' }} />
-                                                <div className="text-muted" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                                                <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '38px', marginBottom: '10px' }} />
+                                                <div className="text-muted" style={{ fontSize: '0.82rem' }}>
                                                     <p className="mb-1 fw-bold text-dark">TALEGLOBAL PLATFORM</p>
                                                     <p className="mb-1">Whitefield, Bengaluru, Karnataka 560066</p>
                                                     <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1Z</p>
@@ -389,8 +392,8 @@ function CanTransactionsPage() {
                                                 </div>
                                             </div>
                                             <div className="text-start text-md-end" style={{ flex: '1 1 auto' }}>
-                                                <h3 className="mb-2 text-primary fw-bold" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.75rem)' }}>PAYMENT RECEIPT</h3>
-                                                <div className="text-muted small receipt-info-list receipt-meta" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                                                <h3 className="mb-2 text-primary fw-bold" style={{ fontSize: '1.45rem' }}>PAYMENT RECEIPT</h3>
+                                                <div className="text-muted small receipt-info-list receipt-meta" style={{ fontSize: '0.82rem' }}>
                                                     <div className="receipt-info-row">
                                                         <span className="receipt-info-label">Receipt No</span>
                                                         <span className="receipt-info-separator">:</span>
@@ -419,18 +422,18 @@ function CanTransactionsPage() {
                                             </div>
                                         </div>
 
-                                        <div className="row mb-3 mb-md-5">
+                                        <div className="row mb-3">
                                             <div className="col-12 col-md-6 mb-3 mb-md-0">
-                                                <p className="text-muted mb-2 fw-bold text-uppercase border-bottom pb-1" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.875rem)' }}>Billed To (Candidate)</p>
-                                                <h6 className="mb-1 fw-bold text-dark" style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>{selectedTransaction?.candidateId?.name || candidateInfo?.name}</h6>
-                                                <p className="text-muted mb-1" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}><i className="fa fa-envelope me-1"></i> {selectedTransaction?.candidateId?.email || candidateInfo?.email}</p>
+                                                <p className="text-muted mb-2 fw-bold text-uppercase border-bottom pb-1" style={{ fontSize: '0.78rem' }}>Billed To (Candidate)</p>
+                                                <h6 className="mb-1 fw-bold text-dark" style={{ fontSize: '1rem' }}>{selectedTransaction?.candidateId?.name || candidateInfo?.name}</h6>
+                                                <p className="text-muted mb-1" style={{ fontSize: '0.82rem' }}><i className="fa fa-envelope me-1"></i> {selectedTransaction?.candidateId?.email || candidateInfo?.email}</p>
                                                 {(selectedTransaction?.candidateId?.phone || candidateInfo?.phone) && (
-                                                    <p className="text-muted mb-0" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}><i className="fa fa-phone me-1"></i> {selectedTransaction?.candidateId?.phone || candidateInfo?.phone}</p>
+                                                    <p className="text-muted mb-0" style={{ fontSize: '0.82rem' }}><i className="fa fa-phone me-1"></i> {selectedTransaction?.candidateId?.phone || candidateInfo?.phone}</p>
                                                 )}
                                             </div>
                                             <div className="col-12 col-md-6 text-start text-md-end">
-                                                <p className="text-muted mb-2 fw-bold text-uppercase border-bottom pb-1" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.875rem)' }}>Payment Info</p>
-                                                <div className="small receipt-info-list payment-info" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                                                <p className="text-muted mb-2 fw-bold text-uppercase border-bottom pb-1" style={{ fontSize: '0.78rem' }}>Payment Info</p>
+                                                <div className="small receipt-info-list payment-info" style={{ fontSize: '0.82rem' }}>
                                                     <div className="receipt-info-row payment-info-row payment-method-row">
                                                         <span className="receipt-info-label payment-info-label">Method</span>
                                                         <span className="receipt-info-separator">:</span>
@@ -478,9 +481,9 @@ function CanTransactionsPage() {
                                             </div>
                                         </div>
 
-                                        <div className="table-responsive mb-3 mb-md-4" style={{ overflowX: 'auto' }}>
-                                            <table className="table table-bordered align-middle receipt-table" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', minWidth: '500px' }}>
-                                                <thead className="receipt-table-head text-uppercase" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
+                                        <div className="table-responsive mb-3" style={{ overflowX: 'auto' }}>
+                                            <table className="table table-bordered align-middle receipt-table" style={{ fontSize: '0.82rem', minWidth: '500px' }}>
+                                                <thead className="receipt-table-head text-uppercase" style={{ fontSize: '0.76rem' }}>
                                                     <tr>
                                                         <th style={{ minWidth: '200px' }}>Description</th>
                                                         <th className="text-center">Qty</th>
@@ -492,7 +495,7 @@ function CanTransactionsPage() {
                                                     <tr className="receipt-item-row">
                                                         <td>
                                                             <div className="fw-bold text-dark">Job Application Fee</div>
-                                                            <div className="text-muted mt-1" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
+                                                            <div className="text-muted mt-1" style={{ fontSize: '0.76rem', lineHeight: 1.35 }}>
                                                                 <strong>Description:</strong> Payment for submitting this job application.<br />
                                                                 <strong>Position:</strong> {selectedTransaction?.jobId?.title}<br />
                                                                 <strong>Employer:</strong> {selectedTransaction?.employerId?.brandName || selectedTransaction?.employerId?.companyName}<br />
@@ -508,36 +511,36 @@ function CanTransactionsPage() {
                                                 </tbody>
                                                 <tfoot className="receipt-table-foot">
                                                     <tr>
-                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>CGST (9%)</th>
-                                                        <th className="text-end fw-bold" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).cgst.toFixed(2)}</th>
+                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>CGST (9%)</th>
+                                                        <th className="text-end fw-bold" style={{ fontSize: '0.95rem' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).cgst.toFixed(2)}</th>
                                                     </tr>
                                                     <tr>
-                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>SGST (9%)</th>
-                                                        <th className="text-end fw-bold" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).sgst.toFixed(2)}</th>
+                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>SGST (9%)</th>
+                                                        <th className="text-end fw-bold" style={{ fontSize: '0.95rem' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).sgst.toFixed(2)}</th>
                                                     </tr>
                                                     <tr>
-                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>Total Amount Paid</th>
-                                                        <th className="text-end text-primary fw-bold" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).totalPaid.toFixed(2)}</th>
+                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>Total Amount Paid</th>
+                                                        <th className="text-end text-primary fw-bold" style={{ fontSize: '1.1rem' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).totalPaid.toFixed(2)}</th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
-                                        <div className="p-2 p-md-3 rounded border bg-light mb-3 mb-md-4">
-                                            <p className="mb-0 text-muted" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
+                                        <div className="p-2 rounded border bg-light mb-3">
+                                            <p className="mb-0 text-muted" style={{ fontSize: '0.76rem' }}>
                                                 <strong>Note:</strong> This is a computer-generated document and does not require a physical signature. Thank you for using TaleGlobal.
                                             </p>
                                         </div>
 
-                                        <div className="row mt-3 mt-md-5">
+                                        <div className="row mt-3">
                                             <div className="col-12 text-start text-md-end d-flex flex-column align-items-start align-items-md-end justify-content-end">
-                                                <div style={{ width: '200px', borderTop: '1px solid #dee2e6', paddingTop: '10px' }}>
-                                                    <p className="mb-0 fw-bold text-dark" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>Authorized Signatory</p>
-                                                    <p className="mb-0 text-muted" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>TaleGlobal Platform</p>
+                                                <div style={{ width: '200px', borderTop: '1px solid #dee2e6', paddingTop: '8px' }}>
+                                                    <p className="mb-0 fw-bold text-dark" style={{ fontSize: '0.82rem' }}>Authorized Signatory</p>
+                                                    <p className="mb-0 text-muted" style={{ fontSize: '0.76rem' }}>TaleGlobal Platform</p>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="invoice-footer d-none d-print-block mt-5 pt-3 border-top text-center text-muted" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.8rem)' }}>
+                                        <div className="invoice-footer d-none d-print-block mt-4 pt-3 border-top text-center text-muted" style={{ fontSize: '0.76rem' }}>
                                             <p className="mb-1">© {new Date().getFullYear()} TaleGlobal Platform. All rights reserved.</p>
                                             <p className="mb-0">www.taleglobal.com | Whitefield, Bengaluru, Karnataka 560066</p>
                                         </div>

@@ -10,59 +10,69 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
                 return {
                     title: 'Tab Switch Violation',
                     message: 'You switched to another browser tab during the assessment.',
-                    icon: '🔄',
+                    icon: 'Tab',
                     color: 'danger'
                 };
             case 'window_blur':
                 return {
-                    title: 'Window Focus Violation',
+                    title: 'Focus Violation',
                     message: 'You minimized the browser window or switched to another application.',
-                    icon: '👁️',
+                    icon: 'Focus',
+                    color: 'danger'
+                };
+            case 'fullscreen_exit':
+                return {
+                    title: 'Fullscreen Exit Violation',
+                    message: 'You exited fullscreen mode during the assessment.',
+                    icon: 'Full',
+                    color: 'danger'
+                };
+            case 'multi_screen':
+                return {
+                    title: 'Multiple Screen Violation',
+                    message: 'Multiple displays were detected during the assessment.',
+                    icon: 'Display',
                     color: 'danger'
                 };
             case 'right_click':
                 return {
                     title: 'Right Click Violation',
                     message: 'You attempted to right-click during the assessment.',
-                    icon: '🖱️',
+                    icon: 'Mouse',
                     color: 'danger'
                 };
             case 'copy_attempt':
                 return {
                     title: 'Copy/Paste Violation',
                     message: 'You attempted to copy or paste content during the assessment.',
-                    icon: '📋',
+                    icon: 'Copy',
                     color: 'danger'
                 };
             case 'time_expired':
                 return {
                     title: 'Time Expired',
                     message: 'The assessment time limit was exceeded.',
-                    icon: '⏰',
+                    icon: 'Time',
                     color: 'warning'
                 };
             case 'screen_capture':
                 return {
                     title: 'Screen Capture Violation',
-                    message: 'Multiple screen capture attempts were detected during the assessment.',
-                    icon: '📸',
+                    message: 'Multiple screenshot or screen-recording attempts were detected during the assessment.',
+                    icon: 'Screen',
                     color: 'danger'
                 };
             default:
                 return {
-                    title: 'Assessment Terminated',
-                    message: 'The assessment was terminated due to a rule violation.',
-                    icon: '⚠️',
+                    title: 'Assessment Suspended',
+                    message: 'The assessment was suspended due to repeated rule violations.',
+                    icon: 'Alert',
                     color: 'danger'
                 };
         }
     };
 
     const violation = getViolationDetails(violationType);
-
-    const handleGoBack = () => {
-        navigate(-1); // Go back to previous page
-    };
 
     return (
         <div className="mt-5">
@@ -71,8 +81,10 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
                     <div className={`card border-${violation.color} shadow`}>
                         <div className={`card-header bg-${violation.color} text-white text-center`}>
                             <h3 className="mb-0">
-                                <span className="me-3" style={{ fontSize: '2rem' }}>{violation.icon}</span>
-                                Assessment Terminated
+                                <span className="me-3" style={{ fontSize: '1.1rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                                    {violation.icon}
+                                </span>
+                                Assessment Suspended
                             </h3>
                         </div>
 
@@ -90,9 +102,9 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
                             </p>
 
                             <div className="mb-4">
-                                <strong>Termination Time:</strong><br />
+                                <strong>Suspension Time:</strong><br />
                                 <span className="text-muted">
-                                    {new Date(violationTimestamp).toLocaleString()}
+                                    {violationTimestamp ? new Date(violationTimestamp).toLocaleString() : 'N/A'}
                                 </span>
                             </div>
 
@@ -101,7 +113,7 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
                                 <p className="mb-0">
                                     {violation.color === 'warning'
                                         ? 'Your assessment time has expired. Any answers you provided have been submitted automatically.'
-                                        : 'This violation has been logged and your assessment cannot be resumed. Please contact the employer if you believe this was an error.'
+                                        : 'This assessment has been suspended after repeated rule violations and cannot be resumed. Please contact the employer if you believe this was an error.'
                                     }
                                 </p>
                             </div>
@@ -109,7 +121,7 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
                             <div className="mt-4">
                                 <button
                                     className="btn btn-primary btn-lg"
-                                    onClick={handleGoBack}
+                                    onClick={() => navigate('/candidate/status')}
                                 >
                                     Return to Applications
                                 </button>
@@ -118,7 +130,7 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
 
                         <div className="card-footer text-muted text-center">
                             <small>
-                                For any questions about this termination, please contact support.
+                                For any questions about this suspension, please contact support.
                             </small>
                         </div>
                     </div>

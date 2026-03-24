@@ -11,6 +11,8 @@ import PopupNotification from "../../../../components/PopupNotification";
 
 const ASSESSMENT_SESSION_KEY = 'candidateCurrentAssessment';
 const ASSESSMENT_ATTEMPT_KEY = 'candidateCurrentAssessmentAttempt';
+const RESTRICTION_WARNING_LIMIT = 2;
+const RESTRICTION_SUSPEND_THRESHOLD = 3;
 
 const StartAssessment = () => {
     const navigate = useNavigate();
@@ -95,65 +97,211 @@ const StartAssessment = () => {
     const assessmentContainerRef = useRef(null);
     const visibilityChangeListener = useRef(null);
     const blurListener = useRef(null);
+    const fullscreenChangeListener = useRef(null);
+    const resizeListener = useRef(null);
     const focusListener = useRef(null);
     const contextMenuListener = useRef(null);
     const copyListener = useRef(null);
     const pasteListener = useRef(null);
     const screenCaptureKeyListener = useRef(null);
     const saveTimeoutRef = useRef(null);
-    const screenCaptureWarnings = useRef(0);
+    const restrictionWarningCountRef = useRef(0);
+    const violationCooldownRef = useRef({ type: '', timestamp: 0 });
+    const multiScreenMonitorRef = useRef(null);
+    const screenDetailsRef = useRef(null);
+    const fileDialogOpenRef = useRef(false);
     
     // Webcam capture refs and state
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [captureCount, setCaptureCount] = useState(0);
     const [webcamStatus, setWebcamStatus] = useState('initializing'); // initializing, active, failed, disabled
+    const [restrictionWarningCount, setRestrictionWarningCount] = useState(0);
     const webcamInitialized = useRef(false);
     const capturesStarted = useRef(false);
     const captureIntervalRef = useRef(null);
 
     // Violation detection functions
     const logViolation = useCallback(async (violationType, details = '') => {
-        if (!attemptId || assessmentState !== 'in_progress') {
-            console.warn('Cannot log violation: missing attemptId or invalid state');
-            return;
-        }
-
-        if (!violationType) {
-            console.error('Cannot log violation: violationType is required');
-            return;
+        if (!attemptId || assessmentState !== 'in_progress' || !violationType) {
+            return null;
         }
 
         try {
-            const timestamp = new Date().toISOString();
-            const response = await api.logAssessmentViolation({
+            return await api.logAssessmentViolation({
                 attemptId,
-                violationType,
-                timestamp,
+                type: violationType,
                 details
             });
-
-            if (response.success) {
-                console.log('Violation logged successfully:', violationType);
-            }
         } catch (error) {
             console.error('Failed to log violation:', error.message || error);
+            return null;
         }
     }, [attemptId, assessmentState]);
 
+    const cleanupSecureMode = useCallback(() => {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        }
+    }, []);
+
+    useEffect(() => {
+        if (typeof document === 'undefined') {
+            return undefined;
+        }
+
+        const previousOverflow = document.body.style.overflow;
+        const previousBackground = document.body.style.backgroundColor;
+        const previousUserSelect = document.body.style.userSelect;
+
+        document.body.style.overflow = 'hidden';
+        document.body.style.backgroundColor = '#0f172a';
+        document.body.style.userSelect = 'none';
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+            document.body.style.backgroundColor = previousBackground;
+            document.body.style.userSelect = previousUserSelect;
+        };
+    }, []);
+
+    const suspendAssessment = useCallback((violationType, message) => {
+        cleanupSecureMode();
+        clearStoredAssessment();
+        setTerminationReason(violationType);
+        setTerminationTimestamp(new Date());
+        setError(null);
+        setIsTerminated(true);
+        setAssessmentState('terminated');
+        if (message) {
+            showError(message);
+        }
+    }, [cleanupSecureMode, clearStoredAssessment, showError]);
+
+    const registerRestrictionViolation = useCallback(async (violationType, userMessage, details = '') => {
+        if (assessmentState !== 'in_progress' || !attemptId) {
+            return;
+        }
+
+        const now = Date.now();
+        const previousViolation = violationCooldownRef.current;
+        if (now - previousViolation.timestamp < 1500) {
+            return;
+        }
+        violationCooldownRef.current = { type: violationType, timestamp: now };
+
+        const response = await logViolation(violationType, details || userMessage);
+        const nextWarningCount = Number(
+            response?.warningCount ??
+            response?.restrictionWarningCount ??
+            (restrictionWarningCountRef.current + 1)
+        );
+
+        restrictionWarningCountRef.current = nextWarningCount;
+        setRestrictionWarningCount(nextWarningCount);
+
+        if (response?.suspended || nextWarningCount >= RESTRICTION_SUSPEND_THRESHOLD) {
+            suspendAssessment(
+                violationType,
+                response?.message || `${userMessage} This was your 3rd mistake. Your assessment has been suspended.`
+            );
+            return;
+        }
+
+        showWarning(`${userMessage} Mistake ${nextWarningCount}/${RESTRICTION_WARNING_LIMIT}. On the 3rd mistake, your assessment will be suspended.`);
+    }, [assessmentState, attemptId, logViolation, showWarning, suspendAssessment]);
+
+    const requestAssessmentFullscreen = useCallback(async () => {
+        if (typeof document === 'undefined') {
+            return false;
+        }
+
+        if (document.fullscreenElement) {
+            return true;
+        }
+
+        const rootElement = document.documentElement;
+        if (!rootElement?.requestFullscreen) {
+            return false;
+        }
+
+        try {
+            await rootElement.requestFullscreen({ navigationUI: 'hide' });
+            return true;
+        } catch (error) {
+            console.error('Failed to enter fullscreen mode:', error);
+            return false;
+        }
+    }, []);
+
+    const checkMultiScreenUsage = useCallback(async () => {
+        if (assessmentState !== 'in_progress') {
+            return;
+        }
+
+        let multiScreenDetected = false;
+        let details = '';
+
+        try {
+            if (typeof window.getScreenDetails === 'function') {
+                if (!screenDetailsRef.current) {
+                    screenDetailsRef.current = await window.getScreenDetails();
+                }
+                if ((screenDetailsRef.current?.screens?.length || 0) > 1) {
+                    multiScreenDetected = true;
+                    details = `Multiple displays detected (${screenDetailsRef.current.screens.length} screens connected).`;
+                }
+            }
+        } catch (error) {
+            console.warn('Unable to query screen details:', error);
+        }
+
+        if (!multiScreenDetected && typeof window.screen?.isExtended === 'boolean' && window.screen.isExtended) {
+            multiScreenDetected = true;
+            details = 'Extended display mode detected.';
+        }
+
+        if (multiScreenDetected) {
+            registerRestrictionViolation(
+                'multi_screen',
+                'Multiple screens are not allowed during the assessment.',
+                details
+            );
+        }
+    }, [assessmentState, registerRestrictionViolation]);
+
     const handleVisibilityChange = useCallback(() => {
         if (document.hidden && assessmentState === 'in_progress') {
-            console.log('Tab switch detected!');
-            logViolation('tab_switch', 'User switched browser tabs');
+            registerRestrictionViolation(
+                'tab_switch',
+                'Tab switching is not allowed during the assessment.',
+                'Candidate switched away from the assessment tab.'
+            );
         }
-    }, [assessmentState, logViolation]);
+    }, [assessmentState, registerRestrictionViolation]);
 
     const handleWindowBlur = useCallback(() => {
-        if (assessmentState === 'in_progress') {
-            console.log('Window blur detected!');
-            logViolation('window_blur', 'Browser window lost focus');
+        if (fileDialogOpenRef.current) {
+            return;
         }
-    }, [assessmentState, logViolation]);
+        if (assessmentState === 'in_progress') {
+            registerRestrictionViolation(
+                'window_blur',
+                'Minimizing or leaving the assessment window is not allowed.',
+                'Candidate moved focus away from the assessment window.'
+            );
+        }
+    }, [assessmentState, registerRestrictionViolation]);
+
+    const handleFullscreenChange = useCallback(() => {
+        if (assessmentState === 'in_progress' && !document.fullscreenElement) {
+            registerRestrictionViolation(
+                'fullscreen_exit',
+                'Exiting fullscreen is not allowed during the assessment.',
+                'Candidate exited fullscreen mode.'
+            );
+        }
+    }, [assessmentState, registerRestrictionViolation]);
 
     const handleContextMenu = useCallback((e) => {
         e.preventDefault();
@@ -196,21 +344,12 @@ const StartAssessment = () => {
             return;
         }
 
-        screenCaptureWarnings.current += 1;
-        const warningCount = screenCaptureWarnings.current;
-        const details = `Screen capture attempt detected (${source}). Warning ${warningCount}/2.`;
-
-        if (warningCount <= 2) {
-            showWarning(`Screen capture detected. Warning ${warningCount}/2. On the 3rd attempt, your assessment will be suspended.`);
-            logViolation('screen_capture_warning', details);
-            return;
-        }
-
-        logViolation('screen_capture', `Third screen capture attempt detected (${source}). Assessment suspended.`);
-        setTerminationReason('screen_capture');
-        setTerminationTimestamp(new Date());
-        setAssessmentState('terminated');
-    }, [assessmentState, logViolation, showWarning]);
+        registerRestrictionViolation(
+            'screen_capture',
+            'Screenshot or screen-recording shortcuts are not allowed during the assessment.',
+            `Screen capture shortcut detected via ${source}.`
+        );
+    }, [assessmentState, registerRestrictionViolation]);
 
     const handleScreenCaptureKey = useCallback((e) => {
         if (assessmentState !== 'in_progress') return;
@@ -501,6 +640,19 @@ const StartAssessment = () => {
         blurListener.current = handleWindowBlur;
         window.addEventListener('blur', blurListener.current);
 
+        focusListener.current = () => {
+            fileDialogOpenRef.current = false;
+        };
+        window.addEventListener('focus', focusListener.current);
+
+        fullscreenChangeListener.current = handleFullscreenChange;
+        document.addEventListener('fullscreenchange', fullscreenChangeListener.current);
+
+        resizeListener.current = () => {
+            checkMultiScreenUsage();
+        };
+        window.addEventListener('resize', resizeListener.current);
+
         // Right-click prevention
         contextMenuListener.current = handleContextMenu;
         document.addEventListener('contextmenu', contextMenuListener.current);
@@ -515,7 +667,14 @@ const StartAssessment = () => {
         // Screen capture key detection (best-effort)
         screenCaptureKeyListener.current = handleScreenCaptureKey;
         window.addEventListener('keydown', screenCaptureKeyListener.current);
-    }, [assessmentState, handleVisibilityChange, handleWindowBlur, handleContextMenu, handleCopy, handlePaste, handleScreenCaptureKey]);
+
+        checkMultiScreenUsage();
+        if (!multiScreenMonitorRef.current) {
+            multiScreenMonitorRef.current = window.setInterval(() => {
+                checkMultiScreenUsage();
+            }, 3000);
+        }
+    }, [assessmentState, handleVisibilityChange, handleWindowBlur, handleFullscreenChange, handleContextMenu, handleCopy, handlePaste, handleScreenCaptureKey, checkMultiScreenUsage]);
 
     const removeSecurityListeners = useCallback(() => {
         if (visibilityChangeListener.current) {
@@ -523,6 +682,15 @@ const StartAssessment = () => {
         }
         if (blurListener.current) {
             window.removeEventListener('blur', blurListener.current);
+        }
+        if (focusListener.current) {
+            window.removeEventListener('focus', focusListener.current);
+        }
+        if (fullscreenChangeListener.current) {
+            document.removeEventListener('fullscreenchange', fullscreenChangeListener.current);
+        }
+        if (resizeListener.current) {
+            window.removeEventListener('resize', resizeListener.current);
         }
         if (contextMenuListener.current) {
             document.removeEventListener('contextmenu', contextMenuListener.current);
@@ -535,6 +703,10 @@ const StartAssessment = () => {
         }
         if (screenCaptureKeyListener.current) {
             window.removeEventListener('keydown', screenCaptureKeyListener.current);
+        }
+        if (multiScreenMonitorRef.current) {
+            window.clearInterval(multiScreenMonitorRef.current);
+            multiScreenMonitorRef.current = null;
         }
     }, []);
 
@@ -568,6 +740,9 @@ const StartAssessment = () => {
 				clearInterval(captureIntervalRef.current);
 				captureIntervalRef.current = null;
 			}
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen().catch(() => {});
+            }
 		}
 
 		return () => {
@@ -576,6 +751,10 @@ const StartAssessment = () => {
 				videoRef.current.srcObject.getTracks().forEach(track => track.stop());
 				setWebcamStatus('disabled');
 			}
+            if (captureIntervalRef.current) {
+                clearInterval(captureIntervalRef.current);
+                captureIntervalRef.current = null;
+            }
 		};
 	}, [assessmentState, addSecurityListeners, removeSecurityListeners, initWebcam]);
 
@@ -632,6 +811,12 @@ const StartAssessment = () => {
 
 	const handleTermsAccept = async () => {
 		try {
+			const fullscreenGranted = await requestAssessmentFullscreen();
+			if (!fullscreenGranted) {
+				showWarning('Fullscreen permission is required before the assessment can begin. Please allow fullscreen and try again.');
+				return;
+			}
+
 			setShowTermsModal(false);
 
 			const startResponse = await api.startAssessment({
@@ -642,6 +827,9 @@ const StartAssessment = () => {
 
 			if (startResponse.success && startResponse.attempt && startResponse.attempt._id) {
 				setAttemptId(startResponse.attempt._id);
+				const existingWarnings = Number(startResponse.attempt.warningCount || 0);
+				restrictionWarningCountRef.current = existingWarnings;
+				setRestrictionWarningCount(existingWarnings);
 				if (typeof window !== 'undefined' && window.sessionStorage) {
 					try {
 						window.sessionStorage.setItem(ASSESSMENT_ATTEMPT_KEY, startResponse.attempt._id);
@@ -778,6 +966,7 @@ const StartAssessment = () => {
 	};
 
 	const handleFileUpload = async (e) => {
+		fileDialogOpenRef.current = false;
 		const file = e.target.files[0];
 		if (!file) return;
 
@@ -969,39 +1158,80 @@ const StartAssessment = () => {
 					style={{
 						background: "#fff",
 						padding: "20px",
-						borderRadius: "8px",
-						boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
+						borderRadius: "12px",
+						boxShadow: "0px 10px 30px rgba(15,23,42,0.08)",
 						marginBottom: "15px",
 					}}
 				>
-					<h2 style={{ margin: "0", fontSize: "20px", fontWeight: "bold" }}>
-						{assessment.title}
-					</h2>
 					<div
 						style={{
 							display: "flex",
 							justifyContent: "space-between",
-							marginTop: "10px",
-							alignItems: "center",
+							gap: "16px",
+							alignItems: "flex-start",
+							flexWrap: "wrap"
 						}}
 					>
-						<div style={{ fontSize: "14px", color: "#555" }}>
-							Progress:{" "}
-							{Math.round(
-								((currentQuestionIndex + 1) / assessment.questions.length) * 100
-							)}
-							% complete
+						<div style={{ flex: "1 1 420px" }}>
+							<div style={{ fontSize: "12px", fontWeight: "700", letterSpacing: "0.08em", textTransform: "uppercase", color: "#f97316", marginBottom: "8px" }}>
+								Secure Assessment Mode
+							</div>
+							<h2 style={{ margin: "0", fontSize: "24px", fontWeight: "700", color: "#0f172a" }}>
+								{assessment.title}
+							</h2>
+							<div style={{ fontSize: "14px", color: "#555", marginTop: "10px" }}>
+								Progress:{" "}
+								{Math.round(
+									((currentQuestionIndex + 1) / assessment.questions.length) * 100
+								)}
+								% complete
+							</div>
+							<div style={{ fontSize: "13px", color: "#64748b", marginTop: "6px", lineHeight: "1.5" }}>
+								Assessment is running in a dedicated tab. Fullscreen, single-screen use, and staying on this tab are required throughout the test.
+							</div>
 						</div>
-						<div
-							style={{
-								display: "flex",
-								alignItems: "center",
-								fontWeight: "bold",
-								color: "#e74c3c",
-							}}
-						>
-							<FaClock style={{ marginRight: "5px" }} />
-							{formatTime(timeLeft)}
+						<div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+							<div style={{
+								minWidth: "150px",
+								padding: "12px 14px",
+								borderRadius: "10px",
+								background: "#fff7ed",
+								border: "1px solid rgba(249, 115, 22, 0.18)",
+								color: "#c2410c"
+							}}>
+								<div style={{ fontSize: "11px", fontWeight: "700", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "6px" }}>
+									Warnings
+								</div>
+								<div style={{ fontSize: "22px", fontWeight: "700" }}>
+									{restrictionWarningCount}/{RESTRICTION_WARNING_LIMIT}
+								</div>
+								<div style={{ fontSize: "12px", lineHeight: "1.4", marginTop: "4px" }}>
+									3rd mistake suspends the assessment
+								</div>
+							</div>
+							<div style={{
+								minWidth: "150px",
+								padding: "12px 14px",
+								borderRadius: "10px",
+								background: "#fef2f2",
+								border: "1px solid rgba(239, 68, 68, 0.14)",
+								color: "#b91c1c"
+							}}>
+								<div style={{ fontSize: "11px", fontWeight: "700", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "6px" }}>
+									Time Left
+								</div>
+								<div
+									style={{
+										display: "flex",
+										alignItems: "center",
+										fontWeight: "700",
+										fontSize: "22px"
+									}}
+								>
+									<FaClock style={{ marginRight: "8px" }} />
+									{formatTime(timeLeft)}
+								</div>
+							</div>
 						</div>
 					</div>
 					{/* Progress Bar */}
@@ -1126,6 +1356,9 @@ const StartAssessment = () => {
 										id="file-upload"
 										style={{ display: "none" }}
 										accept=".pdf,.doc,.docx,image/*"
+										onClick={() => {
+											fileDialogOpenRef.current = true;
+										}}
 										onChange={handleFileUpload}
 										disabled={isSubmitted}
 									/>

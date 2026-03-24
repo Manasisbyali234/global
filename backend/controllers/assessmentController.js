@@ -4,6 +4,17 @@ const AssessmentAttempt = require('../models/AssessmentAttempt');
 const Application = require('../models/Application');
 const Job = require('../models/Job');
 
+const RESTRICTION_WARNING_LIMIT = 2;
+const RESTRICTION_SUSPEND_THRESHOLD = 3;
+const RESTRICTED_WARNING_VIOLATIONS = new Set([
+  'tab_switch',
+  'window_minimize',
+  'window_blur',
+  'screen_capture',
+  'fullscreen_exit',
+  'multi_screen'
+]);
+
 // Employer: Create Assessment
 exports.createAssessment = async (req, res) => {
   try {
@@ -374,9 +385,8 @@ exports.startAssessment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Assessment time expired. You cannot retake this assessment.' });
     }
     
-    // Check if attempt has violations - prevent re-entry if violations exist
-    if (attempt && attempt.violations && attempt.violations.length > 0) {
-      return res.status(403).json({ success: false, message: 'Assessment access denied due to previous violations. You cannot continue this assessment.' });
+    if (attempt && attempt.status === 'suspended') {
+      return res.status(403).json({ success: false, message: 'Assessment access denied. This attempt has been suspended due to repeated rule violations.' });
     }
     
     const assessment = await Assessment.findById(assessmentId);
@@ -399,6 +409,10 @@ exports.startAssessment = async (req, res) => {
       });
       return res.status(404).json({ success: false, message: 'Application not found. Please ensure you have applied for this job.' });
     }
+
+    if (application.assessmentStatus === 'suspended') {
+      return res.status(403).json({ success: false, message: 'Assessment access denied. This application assessment has already been suspended.' });
+    }
     
     // Verify the application is for the correct job
     if (application.jobId.toString() !== jobId.toString()) {
@@ -418,7 +432,8 @@ exports.startAssessment = async (req, res) => {
         applicationId,
         totalMarks,
         answers: [],
-        violations: [] // Explicitly initialize violations as empty array
+        violations: [],
+        restrictionWarningCount: 0
       });
       
       console.log('Created new assessment attempt:', {
@@ -456,7 +471,8 @@ exports.startAssessment = async (req, res) => {
         startTime: attempt.startTime,
         timeRemaining: attempt.timeRemaining,
         totalMarks: attempt.totalMarks,
-        currentQuestion: attempt.currentQuestion
+        currentQuestion: attempt.currentQuestion,
+        warningCount: attempt.restrictionWarningCount || 0
       }
     });
   } catch (error) {
@@ -753,6 +769,10 @@ exports.submitAssessment = async (req, res) => {
     if (attempt.status === 'completed') {
       return res.status(400).json({ success: false, message: 'Assessment already completed' });
     }
+
+    if (attempt.status === 'suspended') {
+      return res.status(403).json({ success: false, message: 'Assessment has been suspended and cannot be submitted.' });
+    }
     
     const assessment = await Assessment.findById(attempt.assessmentId);
     if (!assessment) {
@@ -847,7 +867,8 @@ exports.submitAssessment = async (req, res) => {
       'not_started': 'pending',
       'in_progress': 'in_progress',
       'completed': 'completed',
-      'expired': 'expired'
+      'expired': 'expired',
+      'suspended': 'suspended'
     };
     
     const updateData = {
@@ -966,16 +987,42 @@ exports.recordViolation = async (req, res) => {
       timestamp: new Date(),
       details: details || `${type} violation detected`
     });
+
+    let suspended = false;
+    let warningCount = attempt.restrictionWarningCount || 0;
+
+    if (RESTRICTED_WARNING_VIOLATIONS.has(type)) {
+      warningCount += 1;
+      attempt.restrictionWarningCount = warningCount;
+
+      if (warningCount >= RESTRICTION_SUSPEND_THRESHOLD) {
+        suspended = true;
+        attempt.status = 'suspended';
+        attempt.suspendedAt = new Date();
+        attempt.suspensionReason = type;
+
+        await Application.findByIdAndUpdate(attempt.applicationId, {
+          assessmentStatus: 'suspended',
+          assessmentAttemptId: attempt._id
+        });
+      }
+    }
     
     attempt.markModified('violations');
     await attempt.save();
     
-    console.log(`Violation recorded for attempt ${attemptId}: ${type}, total: ${attempt.violations.length}`);
+    console.log(`Violation recorded for attempt ${attemptId}: ${type}, total: ${attempt.violations.length}, warnings: ${warningCount}, suspended: ${suspended}`);
     
     res.json({ 
       success: true, 
-      message: 'Violation recorded',
-      violationCount: attempt.violations.length
+      message: suspended
+        ? 'Third rule violation detected. Assessment suspended.'
+        : RESTRICTED_WARNING_VIOLATIONS.has(type)
+          ? `Violation recorded. Warning ${warningCount}/${RESTRICTION_WARNING_LIMIT}.`
+          : 'Violation recorded',
+      violationCount: attempt.violations.length,
+      warningCount,
+      suspended
     });
   } catch (error) {
     console.error('Record violation error:', error);

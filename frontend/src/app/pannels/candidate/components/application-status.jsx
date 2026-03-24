@@ -1095,6 +1095,7 @@ function CanStatusPage() {
 				'in_progress': { text: 'In Progress', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' },
 				'available': { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
 				'expired': { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
+				'suspended': { text: 'Suspended', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'pending': { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
 				'not_required': { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
 				'not_started': { text: 'Assessment scheduled. Test will open on the scheduled date and time.', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
@@ -1231,9 +1232,14 @@ function CanStatusPage() {
 					params.set(key, value);
 				}
 			});
-			navigate(`/candidate/start-tech-assessment?${params.toString()}`, {
-				state: sessionPayload
-			});
+			const assessmentUrl = `${window.location.origin}/candidate/start-tech-assessment?${params.toString()}`;
+			const assessmentWindow = window.open(assessmentUrl, '_blank', 'noopener,noreferrer');
+			if (!assessmentWindow) {
+				showWarning('Popup blocked. Please allow popups for this site to launch the assessment in a secure tab.');
+				navigate(`/candidate/start-tech-assessment?${params.toString()}`, {
+					state: sessionPayload
+				});
+			}
 		}
 	};
 
@@ -2056,6 +2062,21 @@ function CanStatusPage() {
 																	<div className="alert alert-danger mt-2 mb-0" style={{fontSize: '13px', padding: '8px 12px'}}>
 																		<i className="fa fa-exclamation-circle me-1"></i>
 																		The assessment window has ended. You can no longer take this assessment.
+																	</div>
+																</div>
+															) : selectedApplication.assessmentStatus === 'suspended' ? (
+																<div>
+																	<button 
+																		className="btn btn-sm btn-danger"
+																		disabled
+																		style={{borderRadius: '6px'}}
+																	>
+																		<i className="fa fa-ban me-1"></i>
+																		Assessment Suspended
+																	</button>
+																	<div className="alert alert-danger mt-2 mb-0" style={{fontSize: '13px', padding: '8px 12px'}}>
+																		<i className="fa fa-exclamation-triangle me-1"></i>
+																		This assessment was suspended after repeated rule violations and cannot be resumed.
 																	</div>
 																</div>
 															) : selectedApplication.assessmentStatus === 'in_progress' ? (

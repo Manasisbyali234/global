@@ -30,7 +30,7 @@ const applicationSchema = new mongoose.Schema({
   // Assessment fields
   assessmentStatus: { 
     type: String, 
-    enum: ['not_required', 'pending', 'available', 'in_progress', 'completed', 'expired'], 
+    enum: ['not_required', 'pending', 'available', 'in_progress', 'completed', 'expired', 'suspended'], 
     default: 'not_required' 
   },
   assessmentReminderSent: { type: Boolean, default: false },

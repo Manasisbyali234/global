@@ -5,7 +5,7 @@ const AssessmentAttemptSchema = new mongoose.Schema({
   candidateId: { type: mongoose.Schema.Types.ObjectId, ref: 'Candidate', required: true },
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
   applicationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Application', required: true },
-  status: { type: String, enum: ['not_started', 'in_progress', 'completed', 'expired'], default: 'not_started' },
+  status: { type: String, enum: ['not_started', 'in_progress', 'completed', 'expired', 'suspended'], default: 'not_started' },
   startTime: { type: Date },
   endTime: { type: Date },
   timeRemaining: { type: Number },
@@ -31,8 +31,11 @@ const AssessmentAttemptSchema = new mongoose.Schema({
   result: { type: String, enum: ['pass', 'fail', 'pending'], default: 'pending' },
   termsAccepted: { type: Boolean, default: false },
   termsAcceptedAt: { type: Date },
+  restrictionWarningCount: { type: Number, default: 0 },
+  suspendedAt: { type: Date },
+  suspensionReason: { type: String },
   violations: [{
-    type: { type: String, enum: ['tab_switch', 'window_minimize', 'window_blur', 'copy_paste', 'copy_attempt', 'right_click', 'time_expired'] },
+    type: { type: String, enum: ['tab_switch', 'window_minimize', 'window_blur', 'copy_paste', 'copy_attempt', 'right_click', 'time_expired', 'screen_capture', 'fullscreen_exit', 'multi_screen'] },
     timestamp: { type: Date },
     details: { type: String }
   }],
