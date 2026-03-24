@@ -675,24 +675,36 @@
   overflow: hidden;
 }
 
-.attachment-link {
-  border: none;
-  background: transparent;
-  color: #2563eb;
+.attachment-item > .attachment-link {
+  display: block !important;
+  width: 100%;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  color: #ff7a00 !important;
   font-weight: 600;
   cursor: pointer;
   text-align: left;
-  width: 100%;
-  white-space: normal;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  white-space: normal !important;
   overflow-wrap: anywhere;
-  word-break: break-word;
+  word-break: break-word !important;
   line-height: 1.45;
-  padding: 0;
 }
 
-.attachment-link:hover {
+.attachment-item > .attachment-link:hover,
+.attachment-item > .attachment-link:focus,
+.attachment-item > .attachment-link:active {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #e8690a !important;
   text-decoration: underline;
-  color: #1d4ed8;
 }
 
 .attachment-preview-modal.modal-dialog {
@@ -976,9 +988,9 @@ body.modal-open .site-header {
     font-size: 0.75rem;
   }
   .response-textarea {
-    height: 120px;
     min-height: 120px;
-    max-height: 120px;
+    height: auto !important;
+    max-height: none;
     font-size: 0.9rem;
   }
   .modal-body {

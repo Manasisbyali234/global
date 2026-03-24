@@ -1,6 +1,6 @@
 
 import JobZImage from "../../../common/jobz-img";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { loadScript, setMenuActive } from "../../../../globals/constants";
 import { admin, adminRoute, publicUser } from "../../../../globals/route-names";
 import { useEffect, useState, useRef } from "react";
@@ -151,14 +151,14 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         const onEmployerStatusChange = () => checkUnderReviewEmployers();
         window.addEventListener('employerApproved', onEmployerStatusChange);
         window.addEventListener('employerRejected', onEmployerStatusChange);
-        
+
         const interval = setInterval(() => {
             checkNewEmployers();
             checkUnderReviewEmployers();
             checkNewPlacements();
             checkNewTickets();
         }, 45000);
-        
+
         // Add arrows after scripts load
         setTimeout(() => {
             if (!document.getElementById('arrowId') && window.jQuery) {
@@ -166,48 +166,15 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                 window.jQuery("<div id='arrowId' class='fa fa-angle-right submenu-toogle'></div>").insertAfter(".has-child > a");
             }
         }, 100);
-        
-        // Check if user is sub-admin and get permissions
-        const adminData = localStorage.getItem('adminData');
-        const subAdminData = localStorage.getItem('subAdminData');
-        
-        if (subAdminData) {
-            const subAdmin = JSON.parse(subAdminData);
-            setUserPermissions(subAdmin.permissions || []);
-            setIsSubAdmin(true);
-            
-            // Fetch fresh profile data immediately
-            fetchSubAdminProfile();
-            
-            // Set up periodic refresh every 30 seconds
-            const refreshInterval = setInterval(fetchSubAdminProfile, 30000);
-            
-            return () => {
-                clearInterval(refreshInterval);
-                clearInterval(interval);
-                window.removeEventListener('employerApproved', onEmployerStatusChange);
-                window.removeEventListener('employerRejected', onEmployerStatusChange);
-            };
-        } else if (adminData) {
-            // Regular admin has all permissions
-            setUserPermissions(['employers', 'placement_officers', 'registered_candidates']);
-            setIsSubAdmin(false);
-        }
-        
-        return () => {
-            clearInterval(interval);
-            window.removeEventListener('employerApproved', onEmployerStatusChange);
-            window.removeEventListener('employerRejected', onEmployerStatusChange);
-        };
 
         // Auto-open menus if current path matches submenu items
         const isEmployerPath = [
             adminRoute(admin.CAN_MANAGE),
-            adminRoute(admin.CAN_APPROVE), 
+            adminRoute(admin.CAN_APPROVE),
             adminRoute(admin.CAN_REJECT),
             adminRoute(admin.OVERVIEW)
         ].includes(currentpath);
-        
+
         const isPlacementPath = [
             adminRoute(admin.PLACEMENT_MANAGE),
             adminRoute(admin.PLACEMENT_APPROVE),
@@ -215,11 +182,43 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             adminRoute(admin.PLACEMENT_BATCH_UPLOAD)
         ].includes(currentpath);
 
-        setOpenMenus({
+        setOpenMenus((prev) => ({
+            ...prev,
             employers: isEmployerPath,
             placement: isPlacementPath
-        });
-    }, [currentpath])
+        }));
+
+        let refreshInterval;
+
+        // Check if user is sub-admin and get permissions
+        const adminData = localStorage.getItem('adminData');
+        const subAdminData = localStorage.getItem('subAdminData');
+
+        if (subAdminData) {
+            const subAdmin = JSON.parse(subAdminData);
+            setUserPermissions(subAdmin.permissions || []);
+            setIsSubAdmin(true);
+
+            // Fetch fresh profile data immediately
+            fetchSubAdminProfile();
+
+            // Set up periodic refresh every 30 seconds
+            refreshInterval = setInterval(fetchSubAdminProfile, 30000);
+        } else if (adminData) {
+            // Regular admin has all permissions
+            setUserPermissions(['employers', 'placement_officers', 'registered_candidates']);
+            setIsSubAdmin(false);
+        }
+
+        return () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+            clearInterval(interval);
+            window.removeEventListener('employerApproved', onEmployerStatusChange);
+            window.removeEventListener('employerRejected', onEmployerStatusChange);
+        };
+    }, [currentpath, currentSearch])
 
     const hasPermission = (permission) => {
         return !isSubAdmin || userPermissions.includes(permission);
@@ -281,7 +280,11 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                 </a>
                                 <ul className={`sub-menu ${openMenus.employers ? 'open' : ''}`}>
                                     <li className={isEmployersAllSubmissionsActive ? 'active' : ''}>
-                                        <NavLink to={adminRoute(admin.CAN_MANAGE)} id="allList">
+                                        <Link
+                                            to={adminRoute(admin.CAN_MANAGE)}
+                                            id="allList"
+                                            className={isEmployersAllSubmissionsActive ? 'active' : ''}
+                                        >
                                             <span className="admin-nav-text">All Submissions</span>
                                             {hasNewEmployers && (
                                                 <span style={{
@@ -293,10 +296,14 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                                     marginLeft: '8px'
                                                 }}></span>
                                             )}
-                                        </NavLink>
+                                        </Link>
                                     </li>
                                     <li className={isEmployersUnderReviewActive ? 'active' : ''}>
-                                        <NavLink to={`${adminRoute(admin.CAN_MANAGE)}?status=under-review`} id="underReviewList">
+                                        <Link
+                                            to={`${adminRoute(admin.CAN_MANAGE)}?status=under-review`}
+                                            id="underReviewList"
+                                            className={isEmployersUnderReviewActive ? 'active' : ''}
+                                        >
                                             <span className="admin-nav-text">Under Review</span>
                                             {hasUnderReviewEmployers && (
                                                 <span style={{
@@ -308,7 +315,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                                     marginLeft: '8px'
                                                 }}></span>
                                             )}
-                                        </NavLink>
+                                        </Link>
                                     </li>
                                     <li className={currentpath === adminRoute(admin.CAN_APPROVE) ? 'active' : ''}>
                                         <NavLink to={adminRoute(admin.CAN_APPROVE)} id="approvedList">

@@ -354,7 +354,14 @@ function CanTransactionsPage() {
                     height: '100%',
                     overflowY: 'auto'
                 }}>
-                    <div className="modal-dialog modal-lg modal-dialog-centered" style={{ margin: 'clamp(0.5rem, 2vw, 1.75rem) auto', maxWidth: 'calc(100% - 1rem)' }}>
+                    <div
+                        className="modal-dialog modal-xl modal-dialog-centered"
+                        style={{
+                            margin: 'clamp(0.5rem, 2vw, 1.25rem) auto',
+                            width: 'min(1100px, calc(100vw - 1.5rem))',
+                            maxWidth: 'min(1100px, calc(100vw - 1.5rem))'
+                        }}
+                    >
                         <div className="modal-content border-0 shadow-lg">
                             <div className="modal-header bg-light" style={{ padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem)' }}>
                                 <h5 className="modal-title d-flex align-items-center gap-2" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>
@@ -363,7 +370,7 @@ function CanTransactionsPage() {
                                 </h5>
                                 <button type="button" className="btn-close" onClick={() => setShowInvoiceModal(false)}></button>
                             </div>
-                            <div className="modal-body" style={{ padding: 'clamp(1rem, 4vw, 1.5rem)' }}>
+                            <div className="modal-body" style={{ padding: 'clamp(0.875rem, 3vw, 1.25rem)' }}>
                                 {fetchingDetails ? (
                                     <div className="text-center py-5">
                                         <div className="spinner-border text-primary" role="status"></div>
@@ -383,20 +390,31 @@ function CanTransactionsPage() {
                                             </div>
                                             <div className="text-start text-md-end" style={{ flex: '1 1 auto' }}>
                                                 <h3 className="mb-2 text-primary fw-bold" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.75rem)' }}>PAYMENT RECEIPT</h3>
-                                                <div className="text-muted" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                                                    <p className="mb-1"><strong>Receipt No:</strong> {getReceiptNumber(selectedTransaction, transactions.findIndex((t) => t?._id === selectedTransaction?._id))}</p>
-                                                    <p className="mb-1"><strong>Date:</strong> {formatDate(selectedTransaction?.createdAt)}</p>
-                                                    <p className="mb-0">
-                                                        <strong>Status:</strong>{' '}
-                                                        {(() => {
-                                                            const receiptStatus = getTransactionStatusDisplay(selectedTransaction);
-                                                            return (
-                                                                <span className="badge" style={{...receiptStatus.style, padding: '6px 12px', borderRadius: '999px', fontSize: '0.88rem', fontWeight: 700, letterSpacing: '0.3px'}}>
-                                                                    {receiptStatus.label}
-                                                                </span>
-                                                            );
-                                                        })()}
-                                                    </p>
+                                                <div className="text-muted small receipt-info-list receipt-meta" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                                                    <div className="receipt-info-row">
+                                                        <span className="receipt-info-label">Receipt No</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value">{getReceiptNumber(selectedTransaction, transactions.findIndex((t) => t?._id === selectedTransaction?._id))}</span>
+                                                    </div>
+                                                    <div className="receipt-info-row">
+                                                        <span className="receipt-info-label">Date</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value">{formatDate(selectedTransaction?.createdAt)}</span>
+                                                    </div>
+                                                    <div className="receipt-info-row">
+                                                        <span className="receipt-info-label">Status</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value">
+                                                            {(() => {
+                                                                const receiptStatus = getTransactionStatusDisplay(selectedTransaction);
+                                                                return (
+                                                                    <span className="badge" style={{...receiptStatus.style, padding: '6px 12px', borderRadius: '999px', fontSize: '0.88rem', fontWeight: 700, letterSpacing: '0.3px'}}>
+                                                                        {receiptStatus.label}
+                                                                    </span>
+                                                                );
+                                                            })()}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -412,23 +430,50 @@ function CanTransactionsPage() {
                                             </div>
                                             <div className="col-12 col-md-6 text-start text-md-end">
                                                 <p className="text-muted mb-2 fw-bold text-uppercase border-bottom pb-1" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.875rem)' }}>Payment Info</p>
-                                                <div className="payment-info" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                                                    <div className="d-flex justify-content-end mb-1 payment-info-row">
-                                                        <span className="text-muted payment-info-label" style={{ minWidth: '100px' }}>Method:</span>
-                                                        <span className="text-dark fw-bold ms-2 payment-info-value">{getPaymentMethodInfo(paymentDetails)}</span>
+                                                <div className="small receipt-info-list payment-info" style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                                                    <div className="receipt-info-row payment-info-row payment-method-row">
+                                                        <span className="receipt-info-label payment-info-label">Method</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value payment-info-value payment-method-value">{getPaymentMethodInfo(paymentDetails)}</span>
                                                     </div>
-                                                    <div className="d-flex justify-content-end mb-1 payment-info-row">
-                                                        <div className="d-flex flex-column payment-info-value">
-                                                            <span className="text-muted payment-info-label">Transaction ID:</span>
-                                                            <span className="text-dark fw-bold">
-                                                                {selectedTransaction?.paymentId}
-                                                            </span>
+                                                    <div className="receipt-info-row payment-info-row">
+                                                        <span className="receipt-info-label payment-info-label">Transaction ID</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value payment-info-value">{selectedTransaction?.paymentId}</span>
+                                                    </div>
+                                                    <div className="receipt-info-row payment-info-row">
+                                                        <span className="receipt-info-label payment-info-label">Order ID</span>
+                                                        <span className="receipt-info-separator">:</span>
+                                                        <span className="receipt-info-value payment-info-value">{selectedTransaction?.orderId}</span>
+                                                    </div>
+                                                    {paymentDetails?.email && (
+                                                        <div className="receipt-info-row payment-info-row">
+                                                            <span className="receipt-info-label payment-info-label">Payer Email</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value payment-info-value">{paymentDetails.email}</span>
                                                         </div>
-                                                    </div>
-                                                    <div className="d-flex justify-content-end mb-0 payment-info-row">
-                                                        <span className="text-muted payment-info-label" style={{ minWidth: '100px' }}>Order ID:</span>
-                                                        <span className="text-dark fw-bold ms-2 payment-info-value">{selectedTransaction?.orderId}</span>
-                                                    </div>
+                                                    )}
+                                                    {(selectedTransaction?.candidateId?.phone || candidateInfo?.phone) && (
+                                                        <div className="receipt-info-row payment-info-row">
+                                                            <span className="receipt-info-label payment-info-label">Phone</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value payment-info-value">{selectedTransaction?.candidateId?.phone || candidateInfo?.phone}</span>
+                                                        </div>
+                                                    )}
+                                                    {(selectedTransaction?.candidateId?.email || candidateInfo?.email) && !paymentDetails?.email && (
+                                                        <div className="receipt-info-row payment-info-row">
+                                                            <span className="receipt-info-label payment-info-label">Payer Email</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value payment-info-value">{selectedTransaction?.candidateId?.email || candidateInfo?.email}</span>
+                                                        </div>
+                                                    )}
+                                                    {selectedTransaction?.candidateId?.name || candidateInfo?.name ? (
+                                                        <div className="receipt-info-row payment-info-row">
+                                                            <span className="receipt-info-label payment-info-label">Payer Name</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value payment-info-value">{selectedTransaction?.candidateId?.name || candidateInfo?.name}</span>
+                                                        </div>
+                                                    ) : null}
                                                 </div>
                                             </div>
                                         </div>

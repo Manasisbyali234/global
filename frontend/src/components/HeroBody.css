@@ -177,9 +177,11 @@ html, body {
 
 .search-error {
   color: #dc3545;
-  font-size: 12px;
+  font-size: clamp(9px, 1.8vw, 12px);
   margin-top: 4px;
   position: absolute;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .search-select.has-error,

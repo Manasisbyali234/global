@@ -38,6 +38,8 @@ function AdminEmployersAllRequest() {
         }
     };
     const [statusFilter, setStatusFilter] = useState(() => getStatusFilterFromSearch(window.location.search));
+    const isUnderReviewPage =
+        String(new URLSearchParams(location.search).get('status') || '').trim().toLowerCase() === 'under-review';
 
     useEffect(() => {
         AOS.init({
@@ -243,23 +245,30 @@ function AdminEmployersAllRequest() {
                     <div className="admin-emp-toolbar">
                         <h4 className="panel-tittle m-a0 toolbar-title">Employers ({filteredEmployers.length})</h4>
                              
-                            <div className="search-section status-filter-section">
-                                <label className="search-label">
-                                    <i className="fa fa-filter"></i> Filter by Status
-                                </label>
-                                <div className="toolbar-control-wrap">
-                                <select 
-                                    className="status-filter-select"
-                                    value={statusFilter}
-                                    onChange={(e) => handleStatusFilter(e.target.value)}
-                                >
-                                    <option value="pending">Under Review</option>
-                                    <option value="incomplete">Profile Incomplete</option>
-                                    <option value="approved">Approved</option>
-                                    <option value="rejected">Rejected</option>
-                                </select>
+                            {!isUnderReviewPage ? (
+                                <div className="search-section status-filter-section">
+                                    <label className="search-label">
+                                        <i className="fa fa-filter"></i> Filter by Status
+                                    </label>
+                                    <div className="toolbar-control-wrap">
+                                    <select 
+                                        className="status-filter-select"
+                                        value={statusFilter}
+                                        onChange={(e) => handleStatusFilter(e.target.value)}
+                                    >
+                                        <option value="pending">Under Review</option>
+                                        <option value="incomplete">Profile Incomplete</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div
+                                    className="status-filter-placeholder"
+                                    aria-hidden="true"
+                                />
+                            )}
                              
                             <div className="search-section employer-search-section">
                                 <label className="search-label">

@@ -13,7 +13,6 @@ export default function AssessmentDashboard() {
 	const [showModal, setShowModal] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [editingAssessment, setEditingAssessment] = useState(null);
-	const [searchTerm, setSearchTerm] = useState('');
 
 	const handleCreateAssessmentClick = () => {
 		const securityMessage = (
@@ -150,21 +149,6 @@ export default function AssessmentDashboard() {
 		);
 	};
 
-	// Handle dropdown selection
-	const handleTitleSelect = (searchValue) => {
-		setSearchTerm(searchValue);
-		if (searchValue) {
-			const filtered = assessments.filter(assessment => 
-				assessment.title?.toLowerCase().includes(searchValue.toLowerCase()) ||
-				assessment.designation?.toLowerCase().includes(searchValue.toLowerCase()) ||
-				assessment.type?.toLowerCase().includes(searchValue.toLowerCase())
-			);
-			setFilteredAssessments(filtered);
-		} else {
-			setFilteredAssessments(assessments);
-		}
-	};
-
 	if (loading) {
 		return (
 			<div className="twm-right-section-panel site-bg-gray" style={{
@@ -211,27 +195,28 @@ export default function AssessmentDashboard() {
 				</div>
 			</div>
 
-			{/* Search Bar */}
+			{/* Assessment Selector */}
 			<div style={{ padding: '0 2rem 1rem 2rem' }}>
 				<div className="d-flex flex-wrap gap-3 align-items-center" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-					<label className="form-label mb-0 fw-semibold" style={{ minWidth: '140px' }}>Search Assessment:</label>
-					<div className="d-flex flex-grow-1 flex-wrap gap-2" style={{minWidth: '250px'}}>
-						<div className="assessment-search-input-wrap" style={{ flex: '1 1 300px' }}>
-							<i className="fa fa-search assessment-search-icon" aria-hidden="true"></i>
-							<input
-								type="text"
-								className="form-control"
-								placeholder="Search by title, designation, or type..."
-								style={{ paddingLeft: '40px' }}
-								value={searchTerm}
-								onChange={(e) => handleTitleSelect(e.target.value)}
-							/>
-						</div>
-						<select 
-							className="form-select" 
-							style={{ flex: '1 1 300px', color: '#007bff' }}
-							onChange={(e) => handleTitleSelect(e.target.value)}
-							value={searchTerm}
+					<label className="form-label mb-0 fw-semibold" style={{ minWidth: '140px' }}>Select Assessment:</label>
+					<div className="d-flex flex-wrap gap-2" style={{ minWidth: '250px', width: '100%', maxWidth: '320px' }}>
+						<select
+							className="form-select"
+							style={{ width: '100%', color: '#007bff' }}
+							onChange={(e) => {
+								const searchValue = e.target.value;
+								if (searchValue) {
+									const filtered = assessments.filter((assessment) =>
+										assessment.title?.toLowerCase().includes(searchValue.toLowerCase()) ||
+										assessment.designation?.toLowerCase().includes(searchValue.toLowerCase()) ||
+										assessment.type?.toLowerCase().includes(searchValue.toLowerCase())
+									);
+									setFilteredAssessments(filtered);
+								} else {
+									setFilteredAssessments(assessments);
+								}
+							}}
+							defaultValue=""
 						>
 							<option value="" style={{ color: '#6c757d' }}>Select Assessment</option>
 							{assessments.map(assessment => (
@@ -251,20 +236,6 @@ export default function AssessmentDashboard() {
 						<div className="text-center py-5">
 							<i className="fa fa-clipboard-list" style={{fontSize: '64px', color: '#ccc'}}></i>
 							<p className="mt-3 text-muted">No assessments yet. Create one to get started.</p>
-						</div>
-					) : filteredAssessments.length === 0 ? (
-						<div className="text-center py-5">
-							<i className="fa fa-search" style={{fontSize: '64px', color: '#ccc'}}></i>
-							<p className="mt-3 text-muted">No assessments match your search criteria.</p>
-							<button 
-								className="btn btn-outline-primary mt-2"
-								onClick={() => {
-									setSearchTerm('');
-									setFilteredAssessments(assessments);
-								}}
-							>
-								Clear Filters
-							</button>
 						</div>
 					) : (
 						<div className="row">

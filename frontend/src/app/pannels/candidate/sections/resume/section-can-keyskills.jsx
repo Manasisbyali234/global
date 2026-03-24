@@ -160,6 +160,10 @@ function SectionCanKeySkills({ profile }) {
         }
     };
 
+    const availableSkills = predefinedSkills.filter(
+        (skill) => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <>
             <div className="panel-heading wt-panel-heading p-a20 d-flex justify-content-between align-items-center">
@@ -197,7 +201,7 @@ function SectionCanKeySkills({ profile }) {
                                         disabled={loading}
                                     />
                                     {showDropdown && (
-                                        <div style={{
+                                        <div className="candidate-skills-dropdown-menu" style={{
                                             position: 'absolute',
                                             top: '100%',
                                             left: 0,
@@ -205,15 +209,13 @@ function SectionCanKeySkills({ profile }) {
                                             background: 'white',
                                             border: '1px solid #ddd',
                                             borderTop: 'none',
-                                            maxHeight: '250px',
-                                            overflowY: 'auto',
                                             zIndex: 2000,
                                             borderRadius: '0 0 4px 4px',
                                             boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
                                         }}>
                                             {/* Select All / Clear All Controls */}
-                                            {predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())).length > 0 && (
-                                                <div style={{
+                                            {availableSkills.length > 0 && (
+                                                <div className="candidate-skills-dropdown-actions" style={{
                                                     padding: '8px 12px',
                                                     borderBottom: '2px solid #e0e0e0',
                                                     backgroundColor: '#f8f9fa',
@@ -222,35 +224,36 @@ function SectionCanKeySkills({ profile }) {
                                                     alignItems: 'center'
                                                 }}>
                                                     <span style={{fontSize: '12px', color: '#666', fontWeight: '500'}}>
-                                                        {selectedSkills.length} of {predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())).length} selected
+                                                        {selectedSkills.length} of {availableSkills.length} selected
                                                     </span>
-                                                    <button
-                                                        type="button"
-                                                        className="dropdown-clear-all"
-                                                        onMouseDown={(e) => {
-                                                            e.preventDefault();
-                                                            setSelectedSkills([]);
-                                                        }}
-                                                    >
-                                                        Clear All
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        className="dropdown-clear-all"
-                                                        onMouseDown={(e) => {
-                                                            e.preventDefault();
-                                                            handleAddFromDropdown();
-                                                            setShowDropdown(false);
-                                                        }}
-                                                        disabled={selectedSkills.length === 0 || loading}
-                                                    >
-                                                        Add Skills ({selectedSkills.length})
-                                                    </button>
+                                                    <div className="candidate-skills-dropdown-actions-buttons">
+                                                        <button
+                                                            type="button"
+                                                            className="dropdown-clear-all"
+                                                            onMouseDown={(e) => {
+                                                                e.preventDefault();
+                                                                setSelectedSkills([]);
+                                                            }}
+                                                        >
+                                                            Clear All
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="dropdown-clear-all"
+                                                            onMouseDown={(e) => {
+                                                                e.preventDefault();
+                                                                handleAddFromDropdown();
+                                                                setShowDropdown(false);
+                                                            }}
+                                                            disabled={selectedSkills.length === 0 || loading}
+                                                        >
+                                                            Add Skills ({selectedSkills.length})
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             )}
-                                            {predefinedSkills
-                                                .filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase()))
-                                                .map(skill => (
+                                            <div className="candidate-skills-dropdown-list">
+                                            {availableSkills.map(skill => (
                                                     <div
                                                         key={skill}
                                                         onMouseDown={(e) => {
@@ -289,9 +292,10 @@ function SectionCanKeySkills({ profile }) {
                                                         <span style={{flex: 1}}>{skill}</span>
                                                     </div>
                                                 ))}
-                                            {predefinedSkills.filter(skill => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 && searchTerm && (
+                                            {availableSkills.length === 0 && searchTerm && (
                                                 <div style={{padding: '10px 12px', color: '#999', textAlign: 'center'}}>No skills found</div>
                                             )}
+                                            </div>
                                         </div>
                                     )}
                                 </div>

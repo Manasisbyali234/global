@@ -69,6 +69,27 @@ select:focus {
     z-index: 1053 !important;
 }
 
+.candidate-skills-dropdown-menu {
+    overflow: hidden !important;
+}
+
+.candidate-skills-dropdown-actions {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.candidate-skills-dropdown-actions-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.candidate-skills-dropdown-list {
+    max-height: 190px;
+    overflow-y: auto;
+}
+
 /* Education section specific z-index and overflow fixes */
 .education-panel-container,
 .education-section-body,
@@ -170,6 +191,17 @@ select:focus {
     
     .resume-page-title {
         font-size: 1.5rem !important;
+    }
+
+    .candidate-skills-dropdown-actions {
+        align-items: flex-start !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    .candidate-skills-dropdown-actions-buttons {
+        width: 100%;
+        justify-content: space-between;
     }
     
     .resume-content-container {

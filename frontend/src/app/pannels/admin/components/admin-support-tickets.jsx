@@ -33,6 +33,13 @@ function AdminSupportTickets() {
     });
     const responseTextareaRef = useRef(null);
 
+    const resizeResponseTextarea = (textareaElement = responseTextareaRef.current) => {
+        if (!textareaElement) return;
+
+        textareaElement.style.height = '0px';
+        textareaElement.style.height = `${textareaElement.scrollHeight}px`;
+    };
+
     const getResponseTargetLabel = (userType) => {
         if (userType === 'employer') return 'employer';
         if (userType === 'candidate') return 'candidate';
@@ -56,12 +63,14 @@ function AdminSupportTickets() {
     }, [filters]);
 
     useEffect(() => {
-        const textarea = responseTextareaRef.current;
-        if (!textarea) return;
+        if (!showModal) return undefined;
 
-        textarea.style.height = 'auto';
-        textarea.style.height = `${textarea.scrollHeight}px`;
-    }, [response, showModal]);
+        const frameId = window.requestAnimationFrame(() => {
+            resizeResponseTextarea();
+        });
+
+        return () => window.cancelAnimationFrame(frameId);
+    }, [response, showModal, selectedTicket?._id]);
 
     useEffect(() => {
         return () => {
@@ -355,6 +364,11 @@ function AdminSupportTickets() {
         setStatus('');
     };
 
+    const handleResponseChange = (event) => {
+        setResponse(event.target.value);
+        resizeResponseTextarea(event.target);
+    };
+
     if (loading) {
         return (
             <div className="dashboard-content">
@@ -562,6 +576,7 @@ function AdminSupportTickets() {
                 id="support-ticket-modal"
                 show={showModal} 
                 onHide={handleCloseModal}
+                onEntered={() => resizeResponseTextarea()}
                 size="lg"
                 centered
                 backdropClassName="support-ticket-modal-backdrop"
@@ -665,7 +680,7 @@ function AdminSupportTickets() {
                                                 className="response-textarea"
                                                 placeholder={getResponsePlaceholder(selectedTicket?.userType)}
                                                 value={response}
-                                                onChange={(e) => setResponse(e.target.value)}
+                                                onChange={handleResponseChange}
                                             />
                                             <small className="text-muted">Enter a clear update or resolution note. Your response will be sent to the {getResponseTargetLabel(selectedTicket?.userType)} as a notification.</small>
                                         </Form.Group>

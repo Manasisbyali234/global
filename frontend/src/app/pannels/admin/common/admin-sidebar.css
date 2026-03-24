@@ -142,14 +142,6 @@ nav#sidebar-admin-wraper {
     font-weight: 600 !important;
 }
 
-#sidebar-admin-wraper .admin-nav ul li .sub-menu li a#underReviewList,
-#sidebar-admin-wraper .admin-nav ul li .sub-menu li a#underReviewList:hover,
-#sidebar-admin-wraper .admin-nav ul li .sub-menu li.active a#underReviewList,
-#sidebar-admin-wraper .admin-nav ul li .sub-menu li a#underReviewList.active {
-    background: transparent !important;
-    box-shadow: none !important;
-}
-
 /* Prevent parent menu from getting active styling when submenu is active */
 #sidebar-admin-wraper .admin-nav ul li > a {
     background: transparent !important;
