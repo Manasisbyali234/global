@@ -270,7 +270,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			const data = await response.json();
 			if (data.success) {
 				handleQuestionChange(qIndex, "imageUrl", data.imageUrl);
-				showSuccess('File uploaded successfully');
+				showSuccess('Image uploaded successfully');
 			} else {
 				showError(data.message || 'Failed to upload file');
 			}

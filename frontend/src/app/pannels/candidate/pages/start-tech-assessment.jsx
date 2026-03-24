@@ -1113,7 +1113,7 @@ const StartAssessment = () => {
 				const updated = [...answers];
 				updated[currentQuestionIndex] = { uploaded: true, fileName: file.name };
 				setAnswers(updated);
-				showSuccess('File uploaded successfully!');
+				showSuccess('Image uploaded successfully!');
 			} else {
 				showError(response.data.message || 'Failed to upload file');
 			}

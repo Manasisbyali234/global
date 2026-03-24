@@ -531,7 +531,7 @@ exports.uploadMarksheet = async (req, res) => {
     res.json({ success: true, filePath: marksheetPath });
   } catch (error) {
     if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({ success: false, message: 'File uploaded successfully' }); // No size limit for marksheet
+      return res.status(400).json({ success: false, message: 'Image uploaded successfully' }); // No size limit for marksheet
     }
     res.status(500).json({ success: false, message: error.message });
   }

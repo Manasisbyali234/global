@@ -1043,16 +1043,6 @@ function PlacementDetails() {
                             </button>
                         </h5>
                         <div className="d-flex flex-wrap gap-2 mb-3">
-                            {placement.status === 'pending' && (
-                                <button
-                                    className="btn btn-success"
-                                    onClick={handleApprove}
-                                    style={{borderRadius: '8px'}}
-                                >
-                                    <i className="fa fa-check me-2"></i>
-                                    Approve Officer
-                                </button>
-                            )}
                             {placement.status === 'approved' && (
                                 <div className="alert alert-success mb-0" style={{borderRadius: '8px', padding: '10px 15px'}}>
                                     <i className="fa fa-check-circle me-2"></i>
