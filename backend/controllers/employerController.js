@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+﻿const jwt = require('jsonwebtoken');
 const Employer = require('../models/Employer');
 const EmployerProfile = require('../models/EmployerProfile');
 const EmployerPublicProfile = require('../models/EmployerPublicProfile');
@@ -1154,14 +1154,14 @@ exports.createJob = async (req, res) => {
             .split(/\n|\r\n|\r/)
             .map(line => line.trim())
             .filter(line => line.length > 0)
-            .map(line => line.replace(/^[\u2022\-\*•]\s*/, '')); // Remove bullet points
+            .map(line => line.replace(/^[\u2022\-\*â€¢]\s*/, '')); // Remove bullet points
         } else if (cleanText.includes('.') && cleanText.split('.').length > 2) {
           // Split by periods if multiple sentences
           responsibilities = cleanText
             .split('.')
             .map(line => line.trim())
             .filter(line => line.length > 0)
-            .map(line => line.replace(/^[\u2022\-\*•]\s*/, ''));
+            .map(line => line.replace(/^[\u2022\-\*â€¢]\s*/, ''));
         } else {
           // Use the entire text as a single responsibility
           responsibilities = [cleanText];
@@ -1302,7 +1302,7 @@ exports.createJob = async (req, res) => {
     // Parse CTC from string format to proper structure
     if (jobData.ctc && typeof jobData.ctc === 'string') {
       const ctcStr = jobData.ctc.trim();
-      const rangeMatch = ctcStr.match(/(\d+(?:\.\d+)?)\s*[-–—]\s*(\d+(?:\.\d+)?)/i);
+      const rangeMatch = ctcStr.match(/(\d+(?:\.\d+)?)\s*[-â€“â€”]\s*(\d+(?:\.\d+)?)/i);
       if (rangeMatch) {
         jobData.ctc = {
           min: parseFloat(rangeMatch[1]) * 100000,
@@ -1474,14 +1474,14 @@ exports.updateJob = async (req, res) => {
               .split(/\n|\r\n|\r/)
               .map(line => line.trim())
               .filter(line => line.length > 0)
-              .map(line => line.replace(/^[\u2022\-\*•]\s*/, '')); // Remove bullet points
+              .map(line => line.replace(/^[\u2022\-\*â€¢]\s*/, '')); // Remove bullet points
           } else if (cleanText.includes('.') && cleanText.split('.').length > 2) {
             // Split by periods if multiple sentences
             responsibilities = cleanText
               .split('.')
               .map(line => line.trim())
               .filter(line => line.length > 0)
-              .map(line => line.replace(/^[\u2022\-\*•]\s*/, ''));
+              .map(line => line.replace(/^[\u2022\-\*â€¢]\s*/, ''));
           } else {
             // Use the entire text as a single responsibility
             responsibilities = [cleanText];
@@ -1519,7 +1519,7 @@ exports.updateJob = async (req, res) => {
     // Parse CTC from string format to proper structure
     if (req.body.ctc && typeof req.body.ctc === 'string') {
       const ctcStr = req.body.ctc.trim();
-      const rangeMatch = ctcStr.match(/(\d+(?:\.\d+)?)\s*[-–—]\s*(\d+(?:\.\d+)?)/i);
+      const rangeMatch = ctcStr.match(/(\d+(?:\.\d+)?)\s*[-â€“â€”]\s*(\d+(?:\.\d+)?)/i);
       if (rangeMatch) {
         req.body.ctc = {
           min: parseFloat(rangeMatch[1]) * 100000,
@@ -2264,14 +2264,14 @@ exports.updateApplicationStatus = async (req, res) => {
             const emailResult = await transporter.sendMail({
               from: process.env.EMAIL_USER,
               to: application.candidateId.email,
-              subject: `🎉 Congratulations! You've been shortlisted for ${jobTitle}`,
+              subject: `ðŸŽ‰ Congratulations! You've been shortlisted for ${jobTitle}`,
               html: `
                 <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa;">
                   <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                    <h1 style="color: #28a745; text-align: center; margin-bottom: 30px;">🎉 Congratulations!</h1>
+                    <h1 style="color: #28a745; text-align: center; margin-bottom: 30px;">ðŸŽ‰ Congratulations!</h1>
                     <p style="color: #666; font-size: 16px; line-height: 1.6;">Dear ${candidateName},</p>
                     <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 100%); padding: 25px; border-radius: 10px; margin: 25px 0; border-left: 5px solid #28a745;">
-                      <p style="color: #155724; margin: 0; font-size: 18px; line-height: 1.6; font-weight: 600;">✅ You have been shortlisted for the position of <strong>${jobTitle}</strong>!</p>
+                      <p style="color: #155724; margin: 0; font-size: 18px; line-height: 1.6; font-weight: 600;">âœ… You have been shortlisted for the position of <strong>${jobTitle}</strong>!</p>
                     </div>
                     ${trimmedNotes ? `<div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 25px 0;"><p style="color: #856404; margin: 0; font-size: 14px;"><strong>Employer Note:</strong> ${trimmedNotes}</p></div>` : ''}
                     <p style="color: #666; font-size: 16px; line-height: 1.6;">Please check your dashboard for next steps and interview details.</p>
@@ -2283,9 +2283,9 @@ exports.updateApplicationStatus = async (req, res) => {
                 </div>
               `
             });
-            console.log('✓ Shortlist email sent successfully:', emailResult.messageId);
+            console.log('âœ“ Shortlist email sent successfully:', emailResult.messageId);
           } catch (emailError) {
-            console.error('✗ Shortlist email failed:', emailError.message);
+            console.error('âœ— Shortlist email failed:', emailError.message);
           }
         }
       }
@@ -2794,7 +2794,7 @@ exports.getRecentActivity = async (req, res) => {
         title: 'New application received',
         description: `Application for ${app.jobId?.title || 'Unknown Job'}`,
         time: app.createdAt,
-        icon: '👤'
+        icon: 'ðŸ‘¤'
       });
     });
     
@@ -2809,7 +2809,7 @@ exports.getRecentActivity = async (req, res) => {
         title: 'Job post created',
         description: `${job.title} position posted`,
         time: job.createdAt,
-        icon: '💼'
+        icon: 'ðŸ’¼'
       });
     });
     
@@ -3042,7 +3042,7 @@ exports.scheduleInterviewRound = async (req, res) => {
         panel: 'Panel',
         group: 'Group',
         situational: 'Situational / Behavioral',
-        others: 'Others – Specify.',
+        others: 'Others â€“ Specify.',
         assessment: 'Assessment'
       };
       
@@ -3075,7 +3075,7 @@ exports.scheduleInterviewRound = async (req, res) => {
           panel: 'Panel',
           group: 'Group',
           situational: 'Situational / Behavioral',
-          others: 'Others – Specify.',
+          others: 'Others â€“ Specify.',
           assessment: 'Assessment'
         };
         
@@ -3230,23 +3230,23 @@ exports.confirmInterview = async (req, res) => {
     const mailOptions = {
       from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
       to: application.candidateId.email,
-      subject: `✓ Interview Confirmed - ${application.jobId.title}`,
+      subject: `âœ“ Interview Confirmed - ${application.jobId.title}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 2px solid #28a745; border-radius: 10px;">
           <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="color: #28a745; margin: 0;">✓ Interview Confirmed!</h2>
+            <h2 style="color: #28a745; margin: 0;">âœ“ Interview Confirmed!</h2>
           </div>
           <p style="font-size: 16px; color: #333;">Dear <strong>${application.candidateId.name}</strong>,</p>
           <p style="font-size: 16px; color: #333;">Great news! We are pleased to confirm your interview for the position of <strong style="color: #ff6600;">${application.jobId.title}</strong> at <strong>${req.user.companyName}</strong>.</p>
           <div style="background-color: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
             <h3 style="color: #155724; margin-top: 0;">Interview Details:</h3>
-            <p style="margin: 10px 0; font-size: 16px;"><strong>📅 Date:</strong> ${formattedDate}</p>
-            <p style="margin: 10px 0; font-size: 16px;"><strong>🕐 Time:</strong> ${confirmedTime}</p>
-            ${application.interviewInvite?.meetingLink ? `<p style="margin: 10px 0; font-size: 16px;"><strong>🔗 Meeting Link:</strong> <a href="${application.interviewInvite.meetingLink}" style="color: #ff6600;">${application.interviewInvite.meetingLink}</a></p>` : ''}
+            <p style="margin: 10px 0; font-size: 16px;"><strong>ðŸ“… Date:</strong> ${formattedDate}</p>
+            <p style="margin: 10px 0; font-size: 16px;"><strong>ðŸ• Time:</strong> ${confirmedTime}</p>
+            ${application.interviewInvite?.meetingLink ? `<p style="margin: 10px 0; font-size: 16px;"><strong>ðŸ”— Meeting Link:</strong> <a href="${application.interviewInvite.meetingLink}" style="color: #ff6600;">${application.interviewInvite.meetingLink}</a></p>` : ''}
           </div>
-          ${application.interviewInvite?.instructions ? `<div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;"><h4 style="color: #856404; margin-top: 0;">📋 Important Instructions:</h4><p style="color: #856404; margin: 0;">${application.interviewInvite.instructions}</p></div>` : ''}
+          ${application.interviewInvite?.instructions ? `<div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;"><h4 style="color: #856404; margin-top: 0;">ðŸ“‹ Important Instructions:</h4><p style="color: #856404; margin: 0;">${application.interviewInvite.instructions}</p></div>` : ''}
           <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <h4 style="color: #333; margin-top: 0;">💡 Preparation Tips:</h4>
+            <h4 style="color: #333; margin-top: 0;">ðŸ’¡ Preparation Tips:</h4>
             <ul style="color: #666; margin: 0; padding-left: 20px;">
               <li>Join the meeting 5 minutes early</li>
               <li>Ensure stable internet connection</li>

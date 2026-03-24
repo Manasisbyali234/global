@@ -203,67 +203,68 @@ function EmpCandidatesPage() {
 
         <div className="panel-body wt-panel-body">
           <div className="page-toolbar mb-3">
-            <div className="page-toolbar__controls page-toolbar__controls--triple" style={{ width: '100%' }}>
-            <div className="page-toolbar__section">
-              <label className="page-toolbar__label">
-                <i className="fa fa-search"></i> Search Applicants
-              </label>
-            <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
-              <div style={{ position: 'absolute', left: '12px', display: 'flex', alignItems: 'center', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
-                <Search size={18} style={{ color: '#e66814' }} />
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', width: '100%' }}>
+              <div className="page-toolbar__section" style={{ flex: '1 1 260px', minWidth: '200px' }}>
+                <label className="page-toolbar__label">
+                  <i className="fa fa-search"></i> Search Applicants
+                </label>
+                <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
+                  <div style={{ position: 'absolute', left: '12px', display: 'flex', alignItems: 'center', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
+                    <Search size={18} style={{ color: '#e66814' }} />
+                  </div>
+                  <input
+                    type="text"
+                    className="form-control page-toolbar__input"
+                    placeholder="Search applicants by name, email, or job"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    list="candidate-job-title-suggestions"
+                    style={{ paddingLeft: '40px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', width: '100%' }}
+                    onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                  />
+                  <datalist id="candidate-job-title-suggestions">
+                    {jobTitleOptions.map((title) => (
+                      <option key={title} value={title} />
+                    ))}
+                  </datalist>
+                </div>
               </div>
-              <input
-                type="text"
-                className="form-control page-toolbar__input"
-                placeholder="Search applicants by name, email, or job"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                list="candidate-job-title-suggestions"
-                style={{ paddingLeft: '40px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', width: '100%' }}
-                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-              />
-              <datalist id="candidate-job-title-suggestions">
-                {jobTitleOptions.map((title) => (
-                  <option key={title} value={title} />
-                ))}
-              </datalist>
-            </div>
-            </div>
-            <div className="page-toolbar__section">
-              <label className="page-toolbar__label">
-                <i className="fa fa-filter"></i> Application Status
-              </label>
-              <select
-                className="form-select page-toolbar__select"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="">All Status (Show All)</option>
-                <option value="pending">Pending</option>
-                <option value="shortlisted">Shortlisted</option>
-                <option value="interviewed">Interviewed</option>
-                <option value="offer_sent">Offer Letter Sent</option>
-                <option value="accepted">Offer Accepted</option>
-                <option value="hired">Hired</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-            <div className="page-toolbar__section">
-              <label className="page-toolbar__label">
-                <i className="fa fa-user"></i> Gender
-              </label>
-              <select
-                className="form-select page-toolbar__select"
-                value={genderFilter}
-                onChange={(e) => setGenderFilter(e.target.value)}
-              >
-                <option value="">All Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="prefer not to say">Prefer not to say</option>
-              </select>
-            </div>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
+                  <label className="page-toolbar__label">
+                    <i className="fa fa-filter"></i> Application Status
+                  </label>
+                  <select
+                    className="form-select page-toolbar__select"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option value="">All Status (Show All)</option>
+                    <option value="pending">Pending</option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="interviewed">Interviewed</option>
+                    <option value="offer_sent">Offer Letter Sent</option>
+                    <option value="accepted">Offer Accepted</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+                <div className="page-toolbar__section" style={{ minWidth: '150px' }}>
+                  <label className="page-toolbar__label">
+                    <i className="fa fa-user"></i> Gender
+                  </label>
+                  <select
+                    className="form-select page-toolbar__select"
+                    value={genderFilter}
+                    onChange={(e) => setGenderFilter(e.target.value)}
+                  >
+                    <option value="">All Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="prefer not to say">Prefer not to say</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 

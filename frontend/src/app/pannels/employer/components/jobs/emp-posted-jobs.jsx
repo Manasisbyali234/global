@@ -186,7 +186,7 @@ export default function EmpPostedJobs() {
 			{/* Header */}
 			<div style={{ padding: '2rem 2rem 2rem 2rem' }}>
 				<div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-					<h2>Manage Jobs</h2>
+					<h2>Manage Interview</h2>
 					<p style={{ margin: '0.5rem 0 0 0', color: '#6b7280' }}>
 						Review your posted jobs, track applications, and manage listing status from one place.
 					</p>

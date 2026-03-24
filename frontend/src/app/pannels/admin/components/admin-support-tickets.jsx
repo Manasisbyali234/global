@@ -623,10 +623,6 @@ function AdminSupportTickets() {
                                         <div className="detail-value detail-value--break">{getRequesterEmail(selectedTicket)}</div>
                                     </div>
                                     <div className="ticket-detail-card">
-                                        <div className="detail-label">User Type</div>
-                                        <div className="detail-value">{getUserTypeBadge(selectedTicket.userType)}</div>
-                                    </div>
-                                    <div className="ticket-detail-card">
                                         <div className="detail-label">Category</div>
                                         <div className="detail-value">{selectedTicket.category || 'General'}</div>
                                     </div>

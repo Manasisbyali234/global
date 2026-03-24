@@ -1204,7 +1204,7 @@ function CanStatusPage() {
 	};
 
 	const handleStartAssessment = (application) => {
-		showInfo('🚀 ALL THE BEST  Not starting assessment...', 3000);
+		showInfo('🚀 ALL THE BEST ...', 3000);
 		console.log('=== HANDLE START ASSESSMENT CALLED ===');
 		const job = application.jobId;
 		const windowInfo = getAssessmentWindowInfo(job);
@@ -1233,7 +1233,11 @@ function CanStatusPage() {
 				}
 			});
 			const assessmentUrl = `${window.location.origin}/candidate/start-tech-assessment?${params.toString()}`;
-			const assessmentWindow = window.open(assessmentUrl, '_blank', 'noopener,noreferrer');
+			
+			// Define window features for a popup-style window (no tabs/address bar)
+			const windowFeatures = `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=no, width=${window.screen.availWidth}, height=${window.screen.availHeight}, fullscreen=yes`;
+			
+			const assessmentWindow = window.open(assessmentUrl, 'AssessmentWindow', windowFeatures);
 			if (!assessmentWindow) {
 				showWarning('Popup blocked. Please allow popups for this site to launch the assessment in a secure tab.');
 				navigate(`/candidate/start-tech-assessment?${params.toString()}`, {

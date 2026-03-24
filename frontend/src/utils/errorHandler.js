@@ -281,7 +281,8 @@ const fieldLabels = {
   state: 'State',
   industrySector: 'Industry Sector',
   companyType: 'Company Type',
-  teamSize: 'Team Size'
+  teamSize: 'Team Size',
+  interviewRoundsCount: 'The number of interview rounds'
 };
 
 
