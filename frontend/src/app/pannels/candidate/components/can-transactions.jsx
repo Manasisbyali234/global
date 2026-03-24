@@ -458,30 +458,11 @@ function CanTransactionsPage() {
                                                         <span className="receipt-info-separator">:</span>
                                                         <span className="receipt-info-value payment-info-value">{selectedTransaction?.paymentId}</span>
                                                     </div>
-                                                    <div className="receipt-info-row payment-info-row">
-                                                        <span className="receipt-info-label payment-info-label">Order ID</span>
-                                                        <span className="receipt-info-separator">:</span>
-                                                        <span className="receipt-info-value payment-info-value">{selectedTransaction?.orderId}</span>
-                                                    </div>
-                                                    {paymentDetails?.email && (
-                                                        <div className="receipt-info-row payment-info-row">
-                                                            <span className="receipt-info-label payment-info-label">Payer Email</span>
-                                                            <span className="receipt-info-separator">:</span>
-                                                            <span className="receipt-info-value payment-info-value">{paymentDetails.email}</span>
-                                                        </div>
-                                                    )}
                                                     {(selectedTransaction?.candidateId?.phone || candidateInfo?.phone) && (
                                                         <div className="receipt-info-row payment-info-row">
                                                             <span className="receipt-info-label payment-info-label">Phone</span>
                                                             <span className="receipt-info-separator">:</span>
                                                             <span className="receipt-info-value payment-info-value">{selectedTransaction?.candidateId?.phone || candidateInfo?.phone}</span>
-                                                        </div>
-                                                    )}
-                                                    {(selectedTransaction?.candidateId?.email || candidateInfo?.email) && !paymentDetails?.email && (
-                                                        <div className="receipt-info-row payment-info-row">
-                                                            <span className="receipt-info-label payment-info-label">Payer Email</span>
-                                                            <span className="receipt-info-separator">:</span>
-                                                            <span className="receipt-info-value payment-info-value">{selectedTransaction?.candidateId?.email || candidateInfo?.email}</span>
                                                         </div>
                                                     )}
                                                     {selectedTransaction?.candidateId?.name || candidateInfo?.name ? (
@@ -500,7 +481,6 @@ function CanTransactionsPage() {
                                                 <thead className="receipt-table-head text-uppercase" style={{ fontSize: '0.76rem' }}>
                                                     <tr>
                                                         <th style={{ minWidth: '200px' }}>Description</th>
-                                                        <th className="text-center">Qty</th>
                                                         <th className="text-end">Rate</th>
                                                         <th className="text-end">Subtotal</th>
                                                     </tr>
@@ -518,22 +498,21 @@ function CanTransactionsPage() {
                                                                 )}
                                                             </div>
                                                         </td>
-                                                        <td className="text-center">1</td>
                                                         <td className="text-end">Application Fee</td>
                                                         <td className="text-end fw-bold">{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).taxableValue.toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot className="receipt-table-foot">
                                                     <tr>
-                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>CGST (9%)</th>
+                                                        <th colSpan="2" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>CGST (9%)</th>
                                                         <th className="text-end fw-bold" style={{ fontSize: '0.95rem' }}>{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).cgst.toFixed(2)}</th>
                                                     </tr>
                                                     <tr>
-                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>SGST (9%)</th>
+                                                        <th colSpan="2" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>SGST (9%)</th>
                                                         <th className="text-end fw-bold" style={{ fontSize: '0.95rem' }}>{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).sgst.toFixed(2)}</th>
                                                     </tr>
                                                     <tr>
-                                                        <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>Total Amount Paid</th>
+                                                        <th colSpan="2" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>Total Amount Paid</th>
                                                         <th className="text-end text-primary fw-bold" style={{ fontSize: '1.1rem' }}>{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).totalPaid.toFixed(2)}</th>
                                                     </tr>
                                                 </tfoot>

@@ -1540,26 +1540,10 @@ exports.updatePlacementStatus = async (req, res) => {
         } catch (emailError) {
           console.error('Failed to send placement rejection email:', emailError);
         }
-
-        // On rejection, permanently remove placement officer data from DB.
-        const placementObjectId = new mongoose.Types.ObjectId(req.params.id);
-
-        await Promise.all([
-          Placement.findByIdAndDelete(req.params.id),
-          PlacementCandidate.deleteMany({ placementId: placementObjectId }),
-          Notification.deleteMany({
-            $or: [
-              { placementId: placementObjectId },
-              { relatedId: placementObjectId },
-              { relatedId: req.params.id }
-            ]
-          })
-        ]);
-
-        return res.json({
-          success: true,
-          message: 'Placement officer rejected and removed from database'
-        });
+        updateData.status = 'rejected';
+        updateData.isApproved = false;
+        updateData.rejectedAt = new Date();
+        updateData.rejectedBy = new mongoose.Types.ObjectId(req.user.id);
       }
     }
 

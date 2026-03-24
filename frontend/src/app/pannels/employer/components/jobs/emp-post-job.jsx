@@ -83,16 +83,18 @@ const formatCountLabel = (count, singular, plural = `${singular}s`) =>
 	`${count} ${count === 1 ? singular : plural}`;
 
 const formatAssessmentOptionLabel = (assessment = {}, employerType = 'company') => {
-	const companyName = String(assessment?.companyName || '').trim() || 'N/A';
+	const companyName = String(assessment?.companyName || '').trim();
 	const assessmentName = formatAssessmentTitle(assessment?.title) || 'Untitled Assessment';
 	const duration = getAssessmentDuration(assessment);
 	const durationLabel = duration === 'N/A' ? 'Duration: N/A' : `${duration} min`;
 
 	if (employerType === 'consultant') {
-		return `${companyName} - ${assessmentName} - ${durationLabel}`;
+		return `${companyName || 'N/A'} - ${assessmentName} - ${durationLabel}`;
 	}
 
-	return `${assessmentName} (${durationLabel}) - ${companyName}`;
+	return companyName
+		? `${assessmentName} (${durationLabel}) - ${companyName}`
+		: `${assessmentName} (${durationLabel})`;
 };
 
 const PREDEFINED_JOB_TITLES = [
