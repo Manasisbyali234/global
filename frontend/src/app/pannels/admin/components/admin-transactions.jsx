@@ -2,11 +2,12 @@ import { useEffect, useState, useMemo } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
 import { createPortal } from "react-dom";
 import { loadScript, publicUrlFor } from "../../../../globals/constants";
-import { Search, Receipt, Download, Eye } from "lucide-react";
+import { Search, IndianRupee, Download, Eye } from "lucide-react";
 import { api } from "../../../../utils/api";
 import "../../../../styles/print-receipt.css";
 
 function AdminTransactionsPage() {
+    const currencySymbol = '\u20B9';
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
@@ -175,7 +176,7 @@ function AdminTransactionsPage() {
                         </div>
                         </div>
                         <div className="text-muted">
-                            Total Platform Revenue: <strong>₹{(transactions.reduce((acc, t) => acc + (t.paymentAmount || 129), 0)).toLocaleString()}</strong> | Count: <strong>{filteredTransactions.length}</strong>
+                            Total Platform Revenue: <strong>{currencySymbol}{(transactions.reduce((acc, t) => acc + (t.paymentAmount || 129), 0)).toLocaleString()}</strong> | Count: <strong>{filteredTransactions.length}</strong>
                         </div>
                     </div>
 
@@ -224,7 +225,7 @@ function AdminTransactionsPage() {
                                                 <td>{t.jobId?.title || 'N/A'}</td>
                                                 <td><code className="text-primary">{t.paymentId}</code></td>
                                                 <td>
-                                                    <span className="fw-bold">₹{t.paymentAmount || 129}</span>
+                                                    <span className="fw-bold">{currencySymbol}{t.paymentAmount || 129}</span>
                                                 </td>
                                                 <td>
                                                     <div className="twm-table-controls">
@@ -281,7 +282,7 @@ function AdminTransactionsPage() {
                         <div className="modal-content border-0 shadow-lg" style={{ width: '100%', maxWidth: '100%', maxHeight: 'calc(100vh - 1rem)' }}>
                             <div className="modal-header bg-light">
                                 <h5 className="modal-title d-flex align-items-center gap-2">
-                                    <Receipt size={20} className="text-primary" />
+                                    <IndianRupee size={20} className="text-primary" />
                                     Platform Transaction Receipt
                                 </h5>
                                 <button type="button" className="btn-close" onClick={() => setShowInvoiceModal(false)}></button>
@@ -305,24 +306,26 @@ function AdminTransactionsPage() {
                                                 </div>
                                             </div>
                                             <div className="text-end">
-                                                <h3 className="mb-2 text-primary fw-bold">TAX INVOICE</h3>
-                                                <div className="text-muted small receipt-info-list receipt-meta">
-                                                    <div className="receipt-info-row">
-                                                        <span className="receipt-info-label">Receipt No</span>
-                                                        <span className="receipt-info-separator">:</span>
-                                                        <span className="receipt-info-value">{getReceiptNumber(selectedTransaction, transactions.findIndex((t) => t?._id === selectedTransaction?._id))}</span>
-                                                    </div>
-                                                    <div className="receipt-info-row">
-                                                        <span className="receipt-info-label">Date</span>
-                                                        <span className="receipt-info-separator">:</span>
-                                                        <span className="receipt-info-value">{formatDate(selectedTransaction?.createdAt)}</span>
-                                                    </div>
-                                                    <div className="receipt-info-row">
-                                                        <span className="receipt-info-label">Status</span>
-                                                        <span className="receipt-info-separator">:</span>
-                                                        <span className="receipt-info-value">
-                                                            <span className="badge bg-success text-uppercase">Paid</span>
-                                                        </span>
+                                                <div className="receipt-meta-block">
+                                                    <h3 className="mb-2 text-primary fw-bold">TAX INVOICE</h3>
+                                                    <div className="text-muted small receipt-info-list receipt-meta">
+                                                        <div className="receipt-info-row">
+                                                            <span className="receipt-info-label">Receipt No</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value">{getReceiptNumber(selectedTransaction, transactions.findIndex((t) => t?._id === selectedTransaction?._id))}</span>
+                                                        </div>
+                                                        <div className="receipt-info-row">
+                                                            <span className="receipt-info-label">Date</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value">{formatDate(selectedTransaction?.createdAt)}</span>
+                                                        </div>
+                                                        <div className="receipt-info-row">
+                                                            <span className="receipt-info-label">Status</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value">
+                                                                <span className="badge bg-success text-uppercase">Paid</span>
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -336,7 +339,7 @@ function AdminTransactionsPage() {
                                                 <p className="text-muted small mb-0"><i className="fa fa-phone me-1"></i> {selectedTransaction?.candidateId?.phone || 'N/A'}</p>
                                             </div>
                                             <div className="col-6">
-                                                <p className="text-muted small mb-2 fw-bold text-uppercase border-bottom pb-1 text-end">Payment Information</p>
+                                                <p className="text-muted small mb-2 fw-bold text-uppercase border-bottom pb-1 receipt-info-heading">Payment Information</p>
                                                 <div className="small receipt-info-list payment-info">
                                                     <div className="receipt-info-row payment-info-row payment-method-row">
                                                         <span className="receipt-info-label payment-info-label">Method</span>
@@ -387,22 +390,22 @@ function AdminTransactionsPage() {
                                                             </div>
                                                         </td>
                                                         <td className="text-center">1</td>
-                                                        <td className="text-end">₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</td>
-                                                        <td className="text-end fw-bold">₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</td>
+                                                        <td className="text-end">{currencySymbol}{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</td>
+                                                        <td className="text-end fw-bold">{currencySymbol}{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot className="table-light">
                                                     <tr>
                                                         <th colSpan="3" className="text-end small text-uppercase">Subtotal</th>
-                                                        <th className="text-end">₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</th>
+                                                        <th className="text-end">{currencySymbol}{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</th>
                                                     </tr>
                                                     <tr>
                                                         <th colSpan="3" className="text-end small text-uppercase">Tax (GST 0%)</th>
-                                                        <th className="text-end">₹0.00</th>
+                                                        <th className="text-end">{currencySymbol}0.00</th>
                                                     </tr>
                                                     <tr className="border-top border-primary border-2">
                                                         <th colSpan="3" className="text-end text-primary fw-bold text-uppercase">Grand Total</th>
-                                                        <th className="text-end text-primary fw-bold fs-5">₹{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</th>
+                                                        <th className="text-end text-primary fw-bold fs-5">{currencySymbol}{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</th>
                                                     </tr>
                                                 </tfoot>
                                             </table>

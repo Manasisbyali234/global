@@ -280,8 +280,22 @@ button.receipt-print-btn:visited {
     margin-left: auto;
 }
 
+#invoice-content .receipt-meta-block {
+    width: 100%;
+    max-width: 340px;
+    margin-left: auto;
+    text-align: left;
+}
+
 #invoice-content .payment-info {
     max-width: 420px;
+}
+
+#invoice-content .receipt-info-heading {
+    width: 100%;
+    max-width: 420px;
+    margin-left: auto;
+    text-align: left;
 }
 
 #invoice-content .payment-method-value {
@@ -291,6 +305,8 @@ button.receipt-print-btn:visited {
 /* Mobile alignment for payment info on receipt */
 @media (max-width: 575.98px) {
     #invoice-content .receipt-info-list,
+    #invoice-content .receipt-meta-block,
+    #invoice-content .receipt-info-heading,
     #invoice-content .payment-info {
         text-align: left !important;
         width: 100%;

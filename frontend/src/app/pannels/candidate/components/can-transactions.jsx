@@ -9,6 +9,7 @@ import "../../../../styles/print-receipt.css";
 
 function CanTransactionsPage() {
     const navigate = useNavigate();
+    const currencySymbol = '\u20B9';
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
@@ -301,7 +302,7 @@ function CanTransactionsPage() {
                                                 <td className="d-none d-md-table-cell">{t.employerId?.brandName || t.employerId?.companyName || 'N/A'}</td>
                                                 <td className="d-none d-lg-table-cell"><code className="text-primary" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.85rem)' }}>{t.paymentId}</code></td>
                                                 <td>
-                                                    <span className="fw-bold">₹{t.paymentAmount ?? 129}</span>
+                                                    <span className="fw-bold">{currencySymbol}{t.paymentAmount ?? 129}</span>
                                                 </td>
                                                 <td>
                                                     <span className="badge" style={{...statusDisplay.style, padding: '10px 16px', borderRadius: '6px', fontSize: '0.95rem', fontWeight: 600, letterSpacing: '0.5px', minWidth: '80px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1}}>
@@ -380,7 +381,7 @@ function CanTransactionsPage() {
                             <div className="modal-header bg-light" style={{ padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem)' }}>
                                 <h5 className="modal-title d-flex align-items-center gap-2" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>
                                     <IndianRupee size={20} className="text-primary" />
-                                    Transaction Receipt
+                                    Payment Transaction Receipt
                                 </h5>
                                 <button type="button" className="btn-close" onClick={() => setShowInvoiceModal(false)}></button>
                             </div>
@@ -403,31 +404,33 @@ function CanTransactionsPage() {
                                                 </div>
                                             </div>
                                             <div className="text-start text-md-end" style={{ flex: '1 1 auto' }}>
-                                                <h3 className="mb-2 text-primary fw-bold" style={{ fontSize: '1.45rem' }}>PAYMENT RECEIPT</h3>
-                                                <div className="text-muted small receipt-info-list receipt-meta" style={{ fontSize: '0.82rem' }}>
-                                                    <div className="receipt-info-row">
-                                                        <span className="receipt-info-label">Receipt No</span>
-                                                        <span className="receipt-info-separator">:</span>
-                                                        <span className="receipt-info-value">{getReceiptNumber(selectedTransaction, transactions.findIndex((t) => t?._id === selectedTransaction?._id))}</span>
-                                                    </div>
-                                                    <div className="receipt-info-row">
-                                                        <span className="receipt-info-label">Date</span>
-                                                        <span className="receipt-info-separator">:</span>
-                                                        <span className="receipt-info-value">{formatDate(selectedTransaction?.createdAt)}</span>
-                                                    </div>
-                                                    <div className="receipt-info-row">
-                                                        <span className="receipt-info-label">Status</span>
-                                                        <span className="receipt-info-separator">:</span>
-                                                        <span className="receipt-info-value">
-                                                            {(() => {
-                                                                const receiptStatus = getTransactionStatusDisplay(selectedTransaction);
-                                                                return (
-                                                                    <span className="badge" style={{...receiptStatus.style, padding: '6px 12px', borderRadius: '999px', fontSize: '0.88rem', fontWeight: 700, letterSpacing: '0.3px'}}>
-                                                                        {receiptStatus.label}
-                                                                    </span>
-                                                                );
-                                                            })()}
-                                                        </span>
+                                                <div className="receipt-meta-block">
+                                                    <h3 className="mb-2 text-primary fw-bold" style={{ fontSize: '1.45rem' }}>PAYMENT RECEIPT</h3>
+                                                    <div className="text-muted small receipt-info-list receipt-meta" style={{ fontSize: '0.82rem' }}>
+                                                        <div className="receipt-info-row">
+                                                            <span className="receipt-info-label">Receipt No</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value">{getReceiptNumber(selectedTransaction, transactions.findIndex((t) => t?._id === selectedTransaction?._id))}</span>
+                                                        </div>
+                                                        <div className="receipt-info-row">
+                                                            <span className="receipt-info-label">Date</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value">{formatDate(selectedTransaction?.createdAt)}</span>
+                                                        </div>
+                                                        <div className="receipt-info-row">
+                                                            <span className="receipt-info-label">Status</span>
+                                                            <span className="receipt-info-separator">:</span>
+                                                            <span className="receipt-info-value">
+                                                                {(() => {
+                                                                    const receiptStatus = getTransactionStatusDisplay(selectedTransaction);
+                                                                    return (
+                                                                        <span className="badge" style={{...receiptStatus.style, padding: '6px 12px', borderRadius: '999px', fontSize: '0.88rem', fontWeight: 700, letterSpacing: '0.3px'}}>
+                                                                            {receiptStatus.label}
+                                                                        </span>
+                                                                    );
+                                                                })()}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -443,7 +446,7 @@ function CanTransactionsPage() {
                                                 )}
                                             </div>
                                             <div className="col-12 col-md-6 text-start text-md-end">
-                                                <p className="text-muted mb-2 fw-bold text-uppercase border-bottom pb-1" style={{ fontSize: '0.78rem' }}>Payment Info</p>
+                                                <p className="text-muted mb-2 fw-bold text-uppercase border-bottom pb-1 receipt-info-heading" style={{ fontSize: '0.78rem' }}>Payment Info</p>
                                                 <div className="small receipt-info-list payment-info" style={{ fontSize: '0.82rem' }}>
                                                     <div className="receipt-info-row payment-info-row payment-method-row">
                                                         <span className="receipt-info-label payment-info-label">Method</span>
@@ -517,21 +520,21 @@ function CanTransactionsPage() {
                                                         </td>
                                                         <td className="text-center">1</td>
                                                         <td className="text-end">Application Fee</td>
-                                                        <td className="text-end fw-bold">Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).taxableValue.toFixed(2)}</td>
+                                                        <td className="text-end fw-bold">{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).taxableValue.toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot className="receipt-table-foot">
                                                     <tr>
                                                         <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>CGST (9%)</th>
-                                                        <th className="text-end fw-bold" style={{ fontSize: '0.95rem' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).cgst.toFixed(2)}</th>
+                                                        <th className="text-end fw-bold" style={{ fontSize: '0.95rem' }}>{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).cgst.toFixed(2)}</th>
                                                     </tr>
                                                     <tr>
                                                         <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>SGST (9%)</th>
-                                                        <th className="text-end fw-bold" style={{ fontSize: '0.95rem' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).sgst.toFixed(2)}</th>
+                                                        <th className="text-end fw-bold" style={{ fontSize: '0.95rem' }}>{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).sgst.toFixed(2)}</th>
                                                     </tr>
                                                     <tr>
                                                         <th colSpan="3" className="text-end text-uppercase" style={{ fontSize: '0.82rem' }}>Total Amount Paid</th>
-                                                        <th className="text-end text-primary fw-bold" style={{ fontSize: '1.1rem' }}>Rs. {getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).totalPaid.toFixed(2)}</th>
+                                                        <th className="text-end text-primary fw-bold" style={{ fontSize: '1.1rem' }}>{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount || 129).totalPaid.toFixed(2)}</th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
