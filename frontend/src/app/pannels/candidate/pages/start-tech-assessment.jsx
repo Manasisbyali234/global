@@ -366,7 +366,132 @@ const StartAssessment = () => {
     }, [assessmentState, handleScreenCaptureAttempt]);
     
     // Webcam capture functions
+    const stopAssessmentWebcam = useCallback((nextStatus = 'disabled') => {
+        webcamInitialized.current = false;
+        capturesStarted.current = false;
+
+        if (captureIntervalRef.current) {
+            clearInterval(captureIntervalRef.current);
+            captureIntervalRef.current = null;
+        }
+
+        if (videoRef.current) {
+            if (videoRef.current.srcObject) {
+                videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+                videoRef.current.srcObject = null;
+            }
+
+            videoRef.current.onloadedmetadata = null;
+            videoRef.current.oncanplay = null;
+            videoRef.current.onerror = null;
+        }
+
+        setWebcamStatus(nextStatus);
+    }, []);
+
+    const ensureWebcamStarted = useCallback(async () => {
+        if (webcamInitialized.current && videoRef.current?.srcObject) {
+            try {
+                if (videoRef.current.paused) {
+                    await videoRef.current.play();
+                }
+                setWebcamStatus('active');
+                return true;
+            } catch (error) {
+                console.error('Existing webcam stream could not resume:', error);
+                stopAssessmentWebcam('failed');
+            }
+        }
+
+        setWebcamStatus('initializing');
+
+        try {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.warn('getUserMedia not supported, continuing without capture');
+                setWebcamStatus('failed');
+                return false;
+            }
+
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { min: 320, ideal: 640, max: 1280 },
+                    height: { min: 240, ideal: 480, max: 720 },
+                    facingMode: 'user',
+                    frameRate: { ideal: 30 }
+                },
+                audio: false
+            });
+
+            const videoElement = videoRef.current;
+            if (!videoElement) {
+                stream.getTracks().forEach((track) => track.stop());
+                setWebcamStatus('failed');
+                return false;
+            }
+
+            videoElement.srcObject = stream;
+            videoElement.muted = true;
+
+            const playVideo = async () => {
+                try {
+                    await videoElement.play();
+                    webcamInitialized.current = true;
+                    setWebcamStatus('active');
+                    return true;
+                } catch (playError) {
+                    console.error('Video play error:', playError);
+                    stopAssessmentWebcam('failed');
+                    return false;
+                }
+            };
+
+            if (videoElement.readyState >= 2) {
+                return await playVideo();
+            }
+
+            return await new Promise((resolve) => {
+                let settled = false;
+
+                const finish = (result) => {
+                    if (settled) return;
+                    settled = true;
+                    videoElement.onloadedmetadata = null;
+                    videoElement.oncanplay = null;
+                    videoElement.onerror = null;
+                    resolve(result);
+                };
+
+                videoElement.onloadedmetadata = async () => finish(await playVideo());
+                videoElement.oncanplay = async () => finish(await playVideo());
+                videoElement.onerror = (error) => {
+                    console.error('Video element error:', error);
+                    stopAssessmentWebcam('failed');
+                    finish(false);
+                };
+            });
+        } catch (error) {
+            console.warn('Webcam initialization failed:', {
+                name: error.name,
+                message: error.message,
+                constraint: error.constraint
+            });
+
+            if (error.name === 'NotAllowedError') {
+                console.log('Camera access denied by user');
+            } else if (error.name === 'NotFoundError') {
+                console.log('No camera device found');
+            } else if (error.name === 'NotReadableError') {
+                console.log('Camera is being used by another application');
+            }
+
+            setWebcamStatus('failed');
+            webcamInitialized.current = false;
+            return false;
+        }
+    }, [stopAssessmentWebcam]);
+
     const initWebcam = useCallback(async () => {
+        return ensureWebcamStarted();
         console.log('🎥 Initializing webcam...');
         
         try {
@@ -455,7 +580,7 @@ const StartAssessment = () => {
             setWebcamStatus('failed');
             webcamInitialized.current = false;
         }
-    }, []);
+    }, [ensureWebcamStarted]);
     
     const captureImage = useCallback(async () => {
         if (!videoRef.current || !canvasRef.current || !attemptId || captureCount >= 5) {
@@ -727,19 +852,12 @@ const StartAssessment = () => {
 	useEffect(() => {
 		if (assessmentState === 'in_progress') {
 			addSecurityListeners();
-			// Initialize webcam immediately
-			initWebcam();
+			if (!webcamInitialized.current) {
+				initWebcam();
+			}
 		} else {
 			removeSecurityListeners();
-			// Stop webcam when assessment ends
-			if (videoRef.current && videoRef.current.srcObject) {
-				videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-				setWebcamStatus('disabled');
-			}
-			if (captureIntervalRef.current) {
-				clearInterval(captureIntervalRef.current);
-				captureIntervalRef.current = null;
-			}
+			stopAssessmentWebcam();
             if (document.fullscreenElement && document.exitFullscreen) {
                 document.exitFullscreen().catch(() => {});
             }
@@ -747,16 +865,9 @@ const StartAssessment = () => {
 
 		return () => {
 			removeSecurityListeners();
-			if (videoRef.current && videoRef.current.srcObject) {
-				videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-				setWebcamStatus('disabled');
-			}
-            if (captureIntervalRef.current) {
-                clearInterval(captureIntervalRef.current);
-                captureIntervalRef.current = null;
-            }
+			stopAssessmentWebcam();
 		};
-	}, [assessmentState, addSecurityListeners, removeSecurityListeners, initWebcam]);
+	}, [assessmentState, addSecurityListeners, removeSecurityListeners, initWebcam, stopAssessmentWebcam]);
 
 	// Start captures when both webcam is active and assessment is loaded
 	useEffect(() => {
@@ -819,6 +930,11 @@ const StartAssessment = () => {
 
 			setShowTermsModal(false);
 
+			const webcamReady = await initWebcam();
+			if (!webcamReady) {
+				showWarning('Camera could not start. Please allow camera access and close any other app using the webcam.');
+			}
+
 			const startResponse = await api.startAssessment({
 				assessmentId,
 				jobId,
@@ -841,12 +957,14 @@ const StartAssessment = () => {
 				setAssessmentState('in_progress');
 				setError(null);
 			} else {
+				stopAssessmentWebcam();
 				setError(startResponse.message || "Failed to start assessment. No attempt ID received.");
 				setShowTermsModal(true);
 				setAssessmentState('terms_pending');
 			}
 		} catch (err) {
 			console.error("Error starting assessment:", err);
+			stopAssessmentWebcam();
 			setError("Failed to start assessment. Please try again.");
 			setShowTermsModal(true);
 			setAssessmentState('terms_pending');
