@@ -253,17 +253,32 @@ function AdminTransactionsPage() {
             {/* Invoice Modal */}
             {showInvoiceModal && createPortal(
                 <div className="modal fade show" style={{ 
-                    display: 'block', 
+                    display: 'grid',
                     backgroundColor: 'rgba(0,0,0,0.5)', 
                     zIndex: 2147483647,
                     position: 'fixed',
                     top: 0,
                     left: 0,
                     width: '100%',
-                    height: '100%'
+                    height: '100%',
+                    minHeight: '100vh',
+                    overflow: 'hidden',
+                    placeItems: 'center',
+                    padding: '0.5rem'
                 }}>
-                    <div className="modal-dialog modal-lg modal-dialog-centered">
-                        <div className="modal-content border-0 shadow-lg">
+                    <div
+                        className="modal-dialog"
+                        style={{
+                            margin: 0,
+                            width: 'min(820px, 90vw)',
+                            maxWidth: 'min(820px, 90vw)',
+                            minWidth: 'min(820px, 90vw)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <div className="modal-content border-0 shadow-lg" style={{ width: '100%', maxWidth: '100%', maxHeight: 'calc(100vh - 1rem)' }}>
                             <div className="modal-header bg-light">
                                 <h5 className="modal-title d-flex align-items-center gap-2">
                                     <Receipt size={20} className="text-primary" />
@@ -271,7 +286,7 @@ function AdminTransactionsPage() {
                                 </h5>
                                 <button type="button" className="btn-close" onClick={() => setShowInvoiceModal(false)}></button>
                             </div>
-                            <div className="modal-body p-4">
+                            <div className="modal-body p-4" style={{ overflowY: 'auto' }}>
                                 {fetchingDetails ? (
                                     <div className="text-center py-5">
                                         <div className="spinner-border text-primary" role="status"></div>
