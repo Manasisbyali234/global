@@ -21,7 +21,7 @@ function AdminPlacementOfficersRejected() {
             const response = await api.getAllPlacements();
             if (response.success) {
                 const rejectedPlacements = response.data.filter(placement => 
-                    placement.status === 'inactive'
+                    placement.status === 'rejected'
                 );
                 setPlacements(rejectedPlacements);
                 setFilteredPlacements(rejectedPlacements);

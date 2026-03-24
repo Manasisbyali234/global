@@ -427,7 +427,7 @@ exports.getCandidateTransactions = async (req, res) => {
       paymentStatus: 'paid'
     })
     .populate('jobId', 'title')
-    .populate('employerId', 'companyName')
+    .populate('employerId', 'companyName brandName')
     .sort({ createdAt: -1 });
 
     res.json({

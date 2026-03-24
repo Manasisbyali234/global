@@ -936,7 +936,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 											<input
 												type="file"
 												className="form-control"
-												accept=".pdf,.doc,.docx,image/*"
+												accept="image/*"
 												onChange={(e) => handleImageUpload(qIndex, e.target.files[0])}
 											/>
 											{q.imageUrl && (

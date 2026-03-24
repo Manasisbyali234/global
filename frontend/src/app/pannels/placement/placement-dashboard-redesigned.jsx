@@ -318,6 +318,8 @@ function PlacementDashboardRedesigned() {
         if (!editFormData.collegeAddress.trim()) errors.collegeAddress = 'College Address is required';
         if (!editFormData.collegeOfficialEmail.trim()) errors.collegeOfficialEmail = 'College Official Email is required';
         if (!editFormData.collegeOfficialPhone.trim()) errors.collegeOfficialPhone = 'College Official Phone is required';
+        if (!logoPreview && !placementData?.logo) errors.logo = 'College Logo is required';
+        if (!idCardPreview && !placementData?.idCard) errors.idCard = 'ID Card is required';
 
         const primaryPhone = normalizePhone(editFormData.phone);
         const officialPhone = normalizePhone(editFormData.collegeOfficialPhone);
@@ -1580,32 +1582,38 @@ function PlacementDashboardRedesigned() {
                                 )}
                             </div>
                             <div className="form-group">
-                                <label>College Logo</label>
+                                <label>College Logo <span style={{color: 'red'}}>*</span></label>
                                 <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
-                                    {logoPreview && (
-                                        <img src={logoPreview} alt="Logo Preview" style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd'}} />
+                                    {(logoPreview || placementData?.logo) && (
+                                        <img src={logoPreview || getImagePreviewSrc(placementData.logo)} alt="Logo Preview" style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd'}} />
                                     )}
                                     <input
                                         type="file"
                                         accept="image/*"
-                                        onChange={handleLogoChange}
-                                        style={{flex: 1}}
+                                        onChange={(e) => { handleLogoChange(e); if (formErrors.logo) setFormErrors({...formErrors, logo: ''}); }}
+                                        style={{flex: 1, borderColor: formErrors.logo ? '#dc3545' : ''}}
                                     />
                                 </div>
+                                {formErrors.logo && (
+                                    <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>{formErrors.logo}</small>
+                                )}
                             </div>
                             <div className="form-group">
-                                <label>ID Card</label>
+                                <label>ID Card <span style={{color: 'red'}}>*</span></label>
                                 <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
-                                    {idCardPreview && (
-                                        <img src={idCardPreview} alt="ID Card Preview" style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd'}} />
+                                    {(idCardPreview || placementData?.idCard) && (
+                                        <img src={idCardPreview || getImagePreviewSrc(placementData.idCard)} alt="ID Card Preview" style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd'}} />
                                     )}
                                     <input
                                         type="file"
                                         accept="image/*"
-                                        onChange={handleIdCardChange}
-                                        style={{flex: 1}}
+                                        onChange={(e) => { handleIdCardChange(e); if (formErrors.idCard) setFormErrors({...formErrors, idCard: ''}); }}
+                                        style={{flex: 1, borderColor: formErrors.idCard ? '#dc3545' : ''}}
                                     />
                                 </div>
+                                {formErrors.idCard && (
+                                    <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>{formErrors.idCard}</small>
+                                )}
                             </div>
                         </div>
                         <div className="modal-footer">
