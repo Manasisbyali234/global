@@ -3635,7 +3635,7 @@ export default function EmpPostJob({ onNext }) {
 										
 										// Check if we've reached the specified count
 										if (specifiedCount > 0 && newState.interviewRoundOrder.length === specifiedCount) {
-											showSuccess(`Perfect! You have selected exactly ${formatCountLabel(specifiedCount, 'interview round')} as specified.`);
+											showSuccess(`Perfect! You have selected exactly ${formatCountLabel(specifiedCount, 'interview round')} as mentioned.`);
 										}
 										
 										return newState;

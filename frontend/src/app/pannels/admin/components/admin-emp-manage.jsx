@@ -211,6 +211,7 @@ function AdminEmployersAllRequest() {
                 setEmployers(updatedEmployers);
                 filterEmployersByStatus(updatedEmployers, statusFilter);
                 showSuccess('Employer rejected successfully! Once rejected, you cannot approve or retake this action.');
+                window.dispatchEvent(new CustomEvent('employerRejected', { detail: { employerId } }));
             } else {
                 showError('Failed to reject employer');
             }

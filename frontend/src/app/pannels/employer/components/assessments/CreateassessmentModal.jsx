@@ -954,7 +954,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 											)}
 										</div>
 										<div className="mt-2 p-2 border rounded" style={{backgroundColor: '#f8f9fa'}}>
-											<small className="text-info">📎 Accepted file types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF, WEBP, BMP, SVG (Max: 2MB recommended)</small>
+											<small className="text-info">📎 Accepted file types: JPG, JPEG, PNG, GIF, WEBP, BMP, SVG (Max: 2MB recommended)</small>
 										</div>
 									</div>
 									<div className="row mb-3">

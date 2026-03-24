@@ -9,6 +9,7 @@ import "./admin-dashboard-styles.css";
 function AdminDashboardPage() {
     const navigate = useNavigate();
     const [stats, setStats] = useState({
+        totalCandidates: 0,
         completedProfileCandidates: 0,
         approvedEmployers: 0,
         activeJobs: 0,
@@ -194,7 +195,7 @@ function AdminDashboardPage() {
                                 <div className="admin-stat-card__top">
                                     <i className="fa fa-users text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
                                     <div className="counter text-orange admin-stat-card__value" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
-                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.completedProfileCandidates} duration={2} />}
+                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.totalCandidates} duration={2} />}
                                     </div>
                                 </div>
                                 <h5 className="admin-stat-card__label" style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Total Candidates</h5>

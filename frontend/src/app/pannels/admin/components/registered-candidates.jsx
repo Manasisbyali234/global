@@ -10,6 +10,7 @@ function RegisteredCandidatesPage() {
     const navigate = useNavigate();
     const [candidates, setCandidates] = useState([]);
     const [filteredCandidates, setFilteredCandidates] = useState([]);
+    const [totalCandidates, setTotalCandidates] = useState(0);
     const [shortlistedApplications, setShortlistedApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -56,6 +57,7 @@ function RegisteredCandidatesPage() {
             
             if (candidatesResponse.success) {
                 setCandidates(candidatesResponse.data);
+                setTotalCandidates(candidatesResponse.total || candidatesResponse.data.length);
             }
             if (shortlistedResponse.success) {
                 setShortlistedApplications(shortlistedResponse.data);
@@ -169,7 +171,7 @@ function RegisteredCandidatesPage() {
                     <div className="page-toolbar">
                         <h4 className="page-toolbar__title">
                             <i className="fa fa-list-alt"></i>
-                            All Registered Candidates ({filteredCandidates.length})
+                            All Registered Candidates ({searchTerm || profileStatusFilter ? filteredCandidates.length : totalCandidates})
                         </h4>
                         <div className="candidates-filters page-toolbar__controls page-toolbar__controls--dual">
                             <div className="search-section page-toolbar__section">

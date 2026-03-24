@@ -1009,7 +1009,7 @@ function EmpCandidateReviewPage() {
                                     <div className="info-field">
                                         <div className="field-icon"><i className="fas fa-user"></i></div>
                                         <div className="field-content">
-                                            <label>First Name</label>
+                                            <label>Full Name</label>
                                             <span>
                                                 {candidate.firstName ? 
                                                     `${candidate.firstName} ${candidate.middleName ? candidate.middleName + ' ' : ''}${candidate.lastName || ''}` : 

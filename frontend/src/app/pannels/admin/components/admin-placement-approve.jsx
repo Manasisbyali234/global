@@ -24,7 +24,7 @@ function AdminPlacementOfficersApproved() {
             const response = await api.getAllPlacements();
             if (response.success) {
                 const approvedPlacements = response.data.filter(placement => 
-                    placement.status === 'active' || placement.isApproved
+                    placement.isApproved === true && placement.status === 'active'
                 );
                 setPlacements(approvedPlacements);
                 setFilteredPlacements(approvedPlacements);

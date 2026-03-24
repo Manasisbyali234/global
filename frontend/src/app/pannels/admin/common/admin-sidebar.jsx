@@ -14,6 +14,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
     const [isSubAdmin, setIsSubAdmin] = useState(false);
     const [openMenus, setOpenMenus] = useState({});
     const [hasNewEmployers, setHasNewEmployers] = useState(false);
+    const [hasUnderReviewEmployers, setHasUnderReviewEmployers] = useState(false);
     const [hasNewPlacements, setHasNewPlacements] = useState(false);
     const [hasNewTickets, setHasNewTickets] = useState(false);
     const employersLinkRef = useRef(null);
@@ -76,6 +77,31 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         }
     };
 
+    // Check specifically for under-review employers (submitted for review, not yet approved/rejected)
+    const checkUnderReviewEmployers = async () => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            if (!token) return;
+
+            const res = await fetch('http://localhost:5000/api/admin/employers', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                const underReview = (data.data || []).filter(emp =>
+                    emp.profileSubmittedForReview &&
+                    emp.isApproved !== true &&
+                    emp.status !== 'approved' &&
+                    emp.status !== 'rejected'
+                );
+                setHasUnderReviewEmployers(underReview.length > 0);
+            }
+        } catch (error) {
+            console.error('Error checking under-review employers:', error);
+        }
+    };
+
     // Check for new placements
     const checkNewPlacements = async () => {
         try {
@@ -118,11 +144,17 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         loadScript("js/custom.js");
         loadScript("js/admin-sidebar.js");
         checkNewEmployers();
+        checkUnderReviewEmployers();
         checkNewPlacements();
         checkNewTickets();
+
+        const onEmployerStatusChange = () => checkUnderReviewEmployers();
+        window.addEventListener('employerApproved', onEmployerStatusChange);
+        window.addEventListener('employerRejected', onEmployerStatusChange);
         
         const interval = setInterval(() => {
             checkNewEmployers();
+            checkUnderReviewEmployers();
             checkNewPlacements();
             checkNewTickets();
         }, 45000);
@@ -153,6 +185,8 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             return () => {
                 clearInterval(refreshInterval);
                 clearInterval(interval);
+                window.removeEventListener('employerApproved', onEmployerStatusChange);
+                window.removeEventListener('employerRejected', onEmployerStatusChange);
             };
         } else if (adminData) {
             // Regular admin has all permissions
@@ -160,7 +194,11 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             setIsSubAdmin(false);
         }
         
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('employerApproved', onEmployerStatusChange);
+            window.removeEventListener('employerRejected', onEmployerStatusChange);
+        };
 
         // Auto-open menus if current path matches submenu items
         const isEmployerPath = [
@@ -260,7 +298,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     <li className={isEmployersUnderReviewActive ? 'active' : ''}>
                                         <NavLink to={`${adminRoute(admin.CAN_MANAGE)}?status=under-review`} id="underReviewList">
                                             <span className="admin-nav-text">Under Review</span>
-                                            {hasNewEmployers && (
+                                            {hasUnderReviewEmployers && (
                                                 <span style={{
                                                     display: 'inline-block',
                                                     width: '8px',
