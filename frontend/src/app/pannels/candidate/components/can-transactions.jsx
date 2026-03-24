@@ -344,7 +344,7 @@ function CanTransactionsPage() {
             {/* Invoice Modal */}
             {showInvoiceModal && createPortal(
                 <div className="modal fade show" style={{ 
-                    display: 'flex',
+                    display: 'grid',
                     backgroundColor: 'rgba(0,0,0,0.5)', 
                     zIndex: 110000,
                     position: 'fixed',
@@ -352,20 +352,31 @@ function CanTransactionsPage() {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    overflowY: 'auto',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '0.5rem'
+                    minHeight: '100vh',
+                    overflow: 'hidden',
+                    placeItems: 'center',
+                    padding: '0.25rem'
                 }}>
                     <div
-                        className="modal-dialog modal-xl modal-dialog-centered"
+                        className="modal-dialog"
                         style={{
-                            margin: '0 auto',
-                            width: 'min(1240px, calc(100vw - 1rem))',
-                            maxWidth: 'min(1240px, calc(100vw - 1rem))'
+                            margin: 0,
+                            width: 'min(820px, 90vw)',
+                            maxWidth: 'min(820px, 90vw)',
+                            minWidth: 'min(820px, 90vw)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
                         }}
                     >
-                        <div className="modal-content border-0 shadow-lg" style={{ maxHeight: 'calc(100vh - 1rem)' }}>
+                        <div
+                            className="modal-content border-0 shadow-lg"
+                            style={{
+                                width: '100%',
+                                maxWidth: '100%',
+                                maxHeight: 'calc(100vh - 1rem)'
+                            }}
+                        >
                             <div className="modal-header bg-light" style={{ padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem)' }}>
                                 <h5 className="modal-title d-flex align-items-center gap-2" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>
                                     <IndianRupee size={20} className="text-primary" />

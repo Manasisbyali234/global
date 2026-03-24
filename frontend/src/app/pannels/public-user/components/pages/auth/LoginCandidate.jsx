@@ -1,8 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { canRoute, candidate, publicUser } from "../../../../../../globals/route-names";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../../../../../../contexts/AuthContext";
-import LetterCaptchaField from "../../../../../../components/LetterCaptchaField";
 import JobZImage from "../../../../../common/jobz-img";
 import "./AuthPages.css";
 
@@ -14,16 +13,10 @@ function LoginCandidate() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const captchaRef = useRef(null);
 
     const handleLogin = async (event) => {
         event.preventDefault();
         setError('');
-        
-        if (!captchaRef.current?.validate()) {
-            return;
-        }
-
         setLoading(true);
 
         const result = await login({
@@ -95,10 +88,6 @@ function LoginCandidate() {
                                         <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"} />
                                     </span>
                                 </div>
-                            </div>
-
-                            <div className="auth-form-group">
-                                <LetterCaptchaField ref={captchaRef} />
                             </div>
 
                             <NavLink to={publicUser.pages.FORGOT} className="forgot-link site-text-primary">
