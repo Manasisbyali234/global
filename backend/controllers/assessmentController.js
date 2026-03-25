@@ -1048,7 +1048,7 @@ exports.getAssessmentResults = async (req, res) => {
     
     const results = await AssessmentAttempt.find({
       assessmentId: req.params.id,
-      status: { $in: ['completed', 'expired'] }
+      status: { $in: ['completed', 'expired', 'suspended'] }
     }).populate('candidateId', 'name email phone')
       .populate('applicationId')
       .sort({ endTime: -1 });

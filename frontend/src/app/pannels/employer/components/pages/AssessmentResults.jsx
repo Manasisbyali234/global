@@ -124,7 +124,7 @@ export default function AssessmentResults() {
                 </p>
               )}
               <p style={{ color: '#6b7280', margin: 0, fontSize: '1rem' }}>
-                {results.length} participants completed this assessment
+                {results.length} candidate{results.length !== 1 ? 's' : ''} attempted this assessment
               </p>
             </div>
             <button
@@ -197,6 +197,10 @@ export default function AssessmentResults() {
                       Percentage
                     </th>
                     <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                      <i className="fa fa-info-circle me-2" style={{color: '#ff6b35'}}></i>
+                      Status
+                    </th>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                       <i className="fa fa-flag me-2" style={{color: '#ff6b35'}}></i>
                       Result
                     </th>
@@ -247,16 +251,31 @@ export default function AssessmentResults() {
                         </span>
                       </td>
                       <td style={{ padding: '1rem' }}>
+                        {result.status === 'suspended' ? (
+                          <span style={{ background: '#fee2e2', color: '#991b1b', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '600' }}>
+                            Suspended
+                          </span>
+                        ) : result.status === 'expired' ? (
+                          <span style={{ background: '#fef3c7', color: '#92400e', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '600' }}>
+                            Expired
+                          </span>
+                        ) : (
+                          <span style={{ background: '#dcfce7', color: '#166534', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '600' }}>
+                            Completed
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ padding: '1rem' }}>
                         <span style={{
-                          background: result.result === 'pass' ? '#dcfce7' : '#fecaca',
-                          color: result.result === 'pass' ? '#166534' : '#991b1b',
+                          background: result.result === 'pass' ? '#dcfce7' : result.status === 'suspended' || result.status === 'expired' ? '#f3f4f6' : '#fecaca',
+                          color: result.result === 'pass' ? '#166534' : result.status === 'suspended' || result.status === 'expired' ? '#6b7280' : '#991b1b',
                           padding: '0.25rem 0.75rem',
                           borderRadius: '9999px',
                           fontSize: '0.875rem',
                           fontWeight: '600',
                           textTransform: 'uppercase'
                         }}>
-                          {result.result || 'N/A'}
+                          {result.status === 'suspended' || result.status === 'expired' ? '—' : (result.result || 'N/A')}
                         </span>
                       </td>
                       <td style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
@@ -276,21 +295,7 @@ export default function AssessmentResults() {
                           }}>
                             {result.violations ? result.violations.length : 0}
                           </span>
-                          {result.violations && result.violations.length > 0 && (
-                            <small style={{ 
-                              color: '#6b7280', 
-                              fontSize: '0.75rem',
-                              lineHeight: '1.2',
-                              wordBreak: 'break-word',
-                              whiteSpace: 'normal'
-                            }}>
-                              {result.violations.map(v => {
-                                // Format violation types to be more readable
-                                const formattedType = v.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                return formattedType;
-                              }).join(', ')}
-                            </small>
-                          )}
+
                         </div>
                       </td>
 

@@ -622,7 +622,7 @@ export default function ViewAnswers() {
                     color: '#6b7280'
                   }}>
                     <span>Marks: {question.marks || 1}</span>
-                    <span>Answered at: {new Date(answer.answeredAt).toLocaleString()}</span>
+
                   </div>
                 </div>
               );
