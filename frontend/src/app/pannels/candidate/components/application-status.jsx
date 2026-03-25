@@ -81,6 +81,28 @@ function CanStatusPage() {
 		};
 	};
 
+	const getAssessmentCompletionInfo = (application = {}) => {
+		const status = String(application?.assessmentStatus || '').toLowerCase();
+		const result = String(application?.assessmentResult || '').toLowerCase();
+		const isPassed = result === 'pass' || result === 'passed' || status === 'passed';
+		const isFailed = result === 'fail' || result === 'failed' || status === 'failed';
+		const isCompleted = ['completed', 'passed', 'failed'].includes(status) || isPassed || isFailed;
+		const isExpired = status === 'expired';
+		const isInProgress = status === 'in_progress';
+		const isSuspended = status === 'suspended';
+
+		return {
+			status,
+			result,
+			isPassed,
+			isFailed,
+			isCompleted,
+			isExpired,
+			isInProgress,
+			isSuspended
+		};
+	};
+
 	const getInterviewRoundWindowInfo = (roundDetails) => {
 		const now = new Date();
 		if (!roundDetails) {
@@ -1038,8 +1060,9 @@ function CanStatusPage() {
 			return String(rawStatus || '').replace(/_/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase());
 		};
 
-		const mapProcessStatusToBadge = (rawStatus) => {
+		const mapProcessStatusToBadge = (rawStatus, options = {}) => {
 			const status = String(rawStatus || '').toLowerCase();
+			const { isFinalStage = false } = options;
 			const mappings = {
 				shortlisted: { text: 'Shortlisted', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				shortlisted_for_next_round: { text: 'Shortlisted for next Round', class: 'bg-info bg-opacity-10 text-info border border-info' },
@@ -1049,7 +1072,10 @@ function CanStatusPage() {
 				interview_completed: { text: 'Interview Completed', class: 'bg-success bg-opacity-10 text-success border border-success' },
 				selected: { text: 'Selected', class: 'bg-success bg-opacity-10 text-success border border-success' },
 				no_show: { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
-				rejected: { text: 'Not Advanced to Next Stage', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
+				rejected: {
+					text: isFinalStage ? 'Rejected' : 'Not Advanced to Next Stage',
+					class: 'bg-danger bg-opacity-10 text-danger border border-danger'
+				},
 				on_hold: { text: 'On Hold', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' },
 				scheduled: { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				in_progress: { text: 'In Progress', class: 'bg-warning bg-opacity-10 text-warning border border-warning' },
@@ -1076,11 +1102,17 @@ function CanStatusPage() {
 
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment' && application.assessmentStatus) {
-			const status = application.assessmentStatus?.toLowerCase?.() || application.assessmentStatus;
+			const { status, isPassed, isFailed, isCompleted, isInProgress } = getAssessmentCompletionInfo(application);
 			
 			// Check if assessment window has expired
 			const windowInfo = getAssessmentWindowInfo(application.jobId);
-			if (windowInfo.isAfterEnd && status !== 'completed' && status !== 'in_progress') {
+			if (isPassed) {
+				return { text: 'Pass', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
+			}
+			if (isFailed) {
+				return { text: 'Fail', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+			}
+			if (windowInfo.isAfterEnd && !isCompleted && !isInProgress) {
 				return { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 			
@@ -1140,12 +1172,26 @@ function CanStatusPage() {
 		// Use current interview process status when available
 		if (Array.isArray(application.interviewProcesses) && application.interviewProcesses.length > 0) {
 			const roundType = getRoundTypeFromName(roundName);
+			const relatedProcessIndexByType = application.interviewProcesses.findIndex((p) => p?.type === roundType);
+			const relatedProcessIndexByName = application.interviewProcesses.findIndex((p) =>
+				String(p?.name || '').toLowerCase().includes(String(roundName || '').toLowerCase())
+			);
+			const relatedProcessIndex =
+				relatedProcessIndexByType !== -1
+					? relatedProcessIndexByType
+					: relatedProcessIndexByName !== -1
+						? relatedProcessIndexByName
+						: roundIndex < application.interviewProcesses.length
+							? roundIndex
+							: -1;
 			const relatedProcess =
-				application.interviewProcesses.find((p) => p?.type === roundType) ||
-				application.interviewProcesses.find((p) => String(p?.name || '').toLowerCase().includes(String(roundName || '').toLowerCase())) ||
-				application.interviewProcesses[roundIndex];
+				relatedProcessIndex !== -1
+					? application.interviewProcesses[relatedProcessIndex]
+					: null;
 
-			const mapped = mapProcessStatusToBadge(relatedProcess?.status);
+			const mapped = mapProcessStatusToBadge(relatedProcess?.status, {
+				isFinalStage: relatedProcessIndex === application.interviewProcesses.length - 1
+			});
 			if (mapped) {
 				return { ...mapped, feedback: '' };
 			}
@@ -2042,7 +2088,13 @@ function CanStatusPage() {
 
 														{/* Assessment Action Buttons */}
 														<div className="mt-3 pt-2 border-top d-flex gap-2 flex-wrap">
-															{(selectedApplication.assessmentStatus === 'completed' || selectedApplication.assessmentResult === 'pass' || selectedApplication.assessmentResult === 'fail') ? (
+															{(() => {
+																const assessmentInfo = getAssessmentCompletionInfo(selectedApplication);
+																const hasFinalAssessmentResult = assessmentInfo.isCompleted;
+																const assessmentWindowClosed = getAssessmentWindowInfo(selectedApplication.jobId).isAfterEnd;
+
+																if (hasFinalAssessmentResult) {
+																	return (
 																<button 
 																	className="btn btn-sm btn-success"
 																	onClick={() => {
@@ -2053,8 +2105,12 @@ function CanStatusPage() {
 																	<i className="fa fa-bar-chart me-1"></i>
 																	View Result
 																</button>
-															) : (selectedApplication.assessmentStatus === 'expired' || getAssessmentWindowInfo(selectedApplication.jobId).isAfterEnd) ? (
-																<div>
+																	);
+																}
+
+																if (assessmentInfo.isExpired || assessmentWindowClosed) {
+																	return (
+																	<div>
 																	<button 
 																		className="btn btn-sm btn-danger"
 																		disabled
@@ -2068,8 +2124,12 @@ function CanStatusPage() {
 																		The assessment window has ended. You can no longer take this assessment.
 																	</div>
 																</div>
-															) : selectedApplication.assessmentStatus === 'suspended' ? (
-																<div>
+																	);
+																}
+
+																if (assessmentInfo.isSuspended) {
+																	return (
+																	<div>
 																	<button 
 																		className="btn btn-sm btn-danger"
 																		disabled
@@ -2083,8 +2143,12 @@ function CanStatusPage() {
 																		This assessment was suspended after repeated rule violations and cannot be resumed.
 																	</div>
 																</div>
-															) : selectedApplication.assessmentStatus === 'in_progress' ? (
-																<button 
+																	);
+																}
+
+																if (assessmentInfo.isInProgress) {
+																	return (
+																	<button 
 																	className="btn btn-sm btn-warning"
 																	onClick={() => {
 																		handleStartAssessment(selectedApplication);
@@ -2094,7 +2158,10 @@ function CanStatusPage() {
 																	<i className="fa fa-play me-1"></i>
 																	Continue Assessment
 																</button>
-															) : (
+																	);
+																}
+
+																return (
 																<button 
 																	className="btn btn-sm btn-primary"
 																	onClick={() => {
@@ -2105,7 +2172,8 @@ function CanStatusPage() {
 																	<i className="fa fa-play me-1"></i>
 																	Start Assessment
 																</button>
-															)}
+																);
+															})()}
 														</div>
 													</div>
 												)}

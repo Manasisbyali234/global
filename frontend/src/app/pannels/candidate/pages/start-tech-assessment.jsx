@@ -114,12 +114,18 @@ const StartAssessment = () => {
     // Webcam capture refs and state
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
+    const webcamStreamRef = useRef(null);
     const [captureCount, setCaptureCount] = useState(0);
+    const captureCountRef = useRef(0);
     const [webcamStatus, setWebcamStatus] = useState('initializing'); // initializing, active, failed, disabled
     const [restrictionWarningCount, setRestrictionWarningCount] = useState(0);
     const webcamInitialized = useRef(false);
     const capturesStarted = useRef(false);
     const captureIntervalRef = useRef(null);
+
+    useEffect(() => {
+        captureCountRef.current = captureCount;
+    }, [captureCount]);
 
     // Violation detection functions
     const logViolation = useCallback(async (violationType, details = '') => {
@@ -375,13 +381,16 @@ const StartAssessment = () => {
             captureIntervalRef.current = null;
         }
 
-        if (videoRef.current) {
-            if (videoRef.current.srcObject) {
-                videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-                videoRef.current.srcObject = null;
-            }
+        if (webcamStreamRef.current) {
+            webcamStreamRef.current.getTracks().forEach((track) => track.stop());
+            webcamStreamRef.current = null;
+        }
 
+        if (videoRef.current) {
+            videoRef.current.pause?.();
+            videoRef.current.srcObject = null;
             videoRef.current.onloadedmetadata = null;
+            videoRef.current.onloadeddata = null;
             videoRef.current.oncanplay = null;
             videoRef.current.onerror = null;
         }
@@ -390,10 +399,15 @@ const StartAssessment = () => {
     }, []);
 
     const ensureWebcamStarted = useCallback(async () => {
-        if (webcamInitialized.current && videoRef.current?.srcObject) {
+        const videoElement = videoRef.current;
+
+        if (webcamInitialized.current && webcamStreamRef.current?.active && videoElement) {
             try {
-                if (videoRef.current.paused) {
-                    await videoRef.current.play();
+                if (videoElement.srcObject !== webcamStreamRef.current) {
+                    videoElement.srcObject = webcamStreamRef.current;
+                }
+                if (videoElement.paused) {
+                    await videoElement.play();
                 }
                 setWebcamStatus('active');
                 return true;
@@ -422,15 +436,20 @@ const StartAssessment = () => {
                 audio: false
             });
 
-            const videoElement = videoRef.current;
             if (!videoElement) {
                 stream.getTracks().forEach((track) => track.stop());
                 setWebcamStatus('failed');
                 return false;
             }
 
+            webcamStreamRef.current = stream;
             videoElement.srcObject = stream;
+            videoElement.autoplay = true;
             videoElement.muted = true;
+            videoElement.defaultMuted = true;
+            videoElement.playsInline = true;
+            videoElement.setAttribute('playsinline', 'true');
+            videoElement.setAttribute('webkit-playsinline', 'true');
 
             const playVideo = async () => {
                 try {
@@ -456,12 +475,14 @@ const StartAssessment = () => {
                     if (settled) return;
                     settled = true;
                     videoElement.onloadedmetadata = null;
+                    videoElement.onloadeddata = null;
                     videoElement.oncanplay = null;
                     videoElement.onerror = null;
                     resolve(result);
                 };
 
                 videoElement.onloadedmetadata = async () => finish(await playVideo());
+                videoElement.onloadeddata = async () => finish(await playVideo());
                 videoElement.oncanplay = async () => finish(await playVideo());
                 videoElement.onerror = (error) => {
                     console.error('Video element error:', error);
@@ -486,6 +507,7 @@ const StartAssessment = () => {
 
             setWebcamStatus('failed');
             webcamInitialized.current = false;
+            webcamStreamRef.current = null;
             return false;
         }
     }, [stopAssessmentWebcam]);
@@ -583,13 +605,15 @@ const StartAssessment = () => {
     }, [ensureWebcamStarted]);
     
     const captureImage = useCallback(async () => {
-        if (!videoRef.current || !canvasRef.current || !attemptId || captureCount >= 5) {
+        const currentCaptureCount = captureCountRef.current;
+
+        if (!videoRef.current || !canvasRef.current || !attemptId || currentCaptureCount >= 5) {
             console.log('🚫 Capture skipped:', {
                 hasVideo: !!videoRef.current,
                 hasCanvas: !!canvasRef.current,
                 hasAttemptId: !!attemptId,
-                captureCount,
-                maxReached: captureCount >= 5
+                captureCount: currentCaptureCount,
+                maxReached: currentCaptureCount >= 5
             });
             return;
         }
@@ -631,7 +655,7 @@ const StartAssessment = () => {
             
             ctx.drawImage(video, 0, 0);
             
-            console.log(`📸 Capturing image ${captureCount + 1}/5`, {
+            console.log(`📸 Capturing image ${currentCaptureCount + 1}/5`, {
                 videoSize: `${video.videoWidth}x${video.videoHeight}`,
                 canvasSize: `${canvas.width}x${canvas.height}`
             });
@@ -662,11 +686,11 @@ const StartAssessment = () => {
                     const formData = new FormData();
                     formData.append('capture', blob, `capture_${Date.now()}.jpg`);
                     formData.append('attemptId', attemptId);
-                    formData.append('captureIndex', captureCount.toString());
+                    formData.append('captureIndex', currentCaptureCount.toString());
                     
                     console.log('📤 Uploading capture...', {
                         attemptId,
-                        captureIndex: captureCount,
+                        captureIndex: currentCaptureCount,
                         blobSize: blob.size,
                         hasAttemptId: !!attemptId,
                         attemptIdLength: attemptId?.length
@@ -740,11 +764,9 @@ const StartAssessment = () => {
         // First capture after 2 seconds
         setTimeout(() => captureImage(), 2000);
         
-        let count = 1;
         captureIntervalRef.current = setInterval(() => {
-            if (count < 5) {
+            if (captureCountRef.current < 5) {
                 captureImage();
-                count++;
             } else {
                 console.log('✅ All captures completed');
                 clearInterval(captureIntervalRef.current);
@@ -852,22 +874,33 @@ const StartAssessment = () => {
 	useEffect(() => {
 		if (assessmentState === 'in_progress') {
 			addSecurityListeners();
-			if (!webcamInitialized.current) {
-				initWebcam();
-			}
 		} else {
 			removeSecurityListeners();
-			stopAssessmentWebcam();
-            if (document.fullscreenElement && document.exitFullscreen) {
-                document.exitFullscreen().catch(() => {});
-            }
 		}
 
 		return () => {
 			removeSecurityListeners();
-			stopAssessmentWebcam();
 		};
-	}, [assessmentState, addSecurityListeners, removeSecurityListeners, initWebcam, stopAssessmentWebcam]);
+	}, [assessmentState, addSecurityListeners, removeSecurityListeners]);
+
+	useEffect(() => {
+		if (assessmentState === 'in_progress') {
+			if (!webcamInitialized.current) {
+				initWebcam();
+			}
+
+			return () => {
+				stopAssessmentWebcam();
+			};
+		}
+
+		stopAssessmentWebcam();
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen().catch(() => {});
+            }
+
+		return undefined;
+	}, [assessmentState, initWebcam, stopAssessmentWebcam]);
 
 	// Start captures when both webcam is active and assessment is loaded
 	useEffect(() => {
@@ -1218,7 +1251,9 @@ const StartAssessment = () => {
 					border: '2px solid #ff6b35', 
 					zIndex: '9999',
 					borderRadius: '8px',
-					backgroundColor: '#000'
+					backgroundColor: '#000',
+					objectFit: 'cover',
+					overflow: 'hidden'
 				}} 
 				autoPlay 
 				playsInline 
