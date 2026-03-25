@@ -2,22 +2,23 @@
   padding: 2rem;
 }
 
-.candidate-interviews-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.candidate-interviews-header-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 1.5rem;
-  padding-left: 16px;
+  text-align: center;
 }
 
-.candidate-interviews-header h2 {
+.candidate-interviews-header-card h2 {
   margin: 0 0 0.35rem;
-  font-size: 1.5rem;
+  font-size: 30px;
   font-weight: 700;
   color: #111827;
 }
 
-.candidate-interviews-header p {
+.candidate-interviews-header-card p {
   margin: 0;
   color: #6b7280;
   font-size: 0.95rem;
@@ -79,9 +80,7 @@
     padding: 1.5rem;
   }
 
-  .candidate-interviews-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+  .candidate-interviews-header-card {
+    padding: 1.25rem 1.5rem;
   }
 }

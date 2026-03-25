@@ -398,11 +398,9 @@ function CanInterviewsPage() {
 
   return (
     <div className="twm-right-section-panel site-bg-gray candidate-interviews">
-        <div className="candidate-interviews-header">
-          <div>
-            <h2>Interviews</h2>
+        <div className="candidate-interviews-header-card">
+          <h2>Interviews</h2>
           <p>All your interviews in one place.</p>
-          </div>
         </div>
 
       {loading ? (
