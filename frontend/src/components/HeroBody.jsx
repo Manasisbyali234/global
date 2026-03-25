@@ -34,6 +34,8 @@ const HeroBody = ({ onSearch }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [industrySuggestions, setIndustrySuggestions] = useState([]);
   const [showIndustrySuggestions, setShowIndustrySuggestions] = useState(false);
+  const [educationSuggestions, setEducationSuggestions] = useState([]);
+  const [showEducationSuggestions, setShowEducationSuggestions] = useState(false);
   const [designationCatalog, setDesignationCatalog] = useState([]);
   const [designationSuggestions, setDesignationSuggestions] = useState([]);
   const [showDesignationSuggestions, setShowDesignationSuggestions] = useState(false);
@@ -212,6 +214,41 @@ const HeroBody = ({ onSearch }) => {
     }
   };
 
+  const educationOptions = [
+    '10th Pass', '12th Pass', 'ITI', 'Diploma', 'Polytechnic', 'Certificate Course',
+    'B.E', 'B.Tech', 'B.Sc', 'BCA', 'BBA', 'B.Com', 'BA', 'B.Pharm', 'B.Arch', 'BDS',
+    'MBBS', 'BAMS (Ayurveda)', 'BHMS (Homeopathy)', 'B.V.Sc (Veterinary)', 'B.Sc Nursing',
+    'GNM (Nursing)', 'ANM (Nursing)', 'BHM (Hotel Management)', 'B.Des (Design)',
+    'B.F.Tech (Fashion)', 'B.Sc Agriculture', 'LLB (Law)', 'B.Ed', 'B.P.Ed (Physical Education)',
+    'BFA (Fine Arts)', 'B.Lib (Library Science)', 'Journalism', 'CA (Chartered Accountant)',
+    'CS (Company Secretary)', 'CMA (Cost Management)', 'M.E', 'M.Tech', 'M.Sc', 'MCA', 'MBA',
+    'M.Com', 'MA', 'M.Pharm', 'M.Arch', 'MDS', 'MD', 'MS (Surgery)', 'M.V.Sc (Veterinary)',
+    'M.Sc Nursing', 'MHM (Hotel Management)', 'M.Des (Design)', 'M.Sc Agriculture', 'LLM (Law)',
+    'M.Ed', 'M.P.Ed (Physical Education)', 'MFA (Fine Arts)', 'M.Lib (Library Science)',
+    'M.Phil', 'PhD', 'Post Doctoral'
+  ];
+
+  const handleEducationChange = (value) => {
+    handleFieldChange('type', value);
+    if (value.length > 0) {
+      const filtered = educationOptions.filter(edu =>
+        edu.toLowerCase().includes(value.toLowerCase())
+      );
+      setEducationSuggestions(filtered);
+      setShowEducationSuggestions(true);
+    } else {
+      setEducationSuggestions(educationOptions.slice(0, 8));
+      setShowEducationSuggestions(true);
+    }
+  };
+
+  const selectEducation = (edu) => {
+    setSearchData({...searchData, type: edu});
+    setShowEducationSuggestions(false);
+    setErrors({...errors, type: ''});
+    setTouched({...touched, type: true});
+  };
+
   const selectIndustry = (industry) => {
     setSearchData({...searchData, category: industry});
     setShowIndustrySuggestions(false);
@@ -372,77 +409,45 @@ const HeroBody = ({ onSearch }) => {
 
         {/* Search Bar */}
         <div className="search-container">
-          <div className="search-field">
+          <div className="search-field location-field">
             <label className="search-label">EDUCATION</label>
-            <select 
-              className={`search-select${touched.type && errors.type ? ' has-error' : ''}`}
-              value={searchData.type}
-              onChange={(e) => handleFieldChange('type', e.target.value)}
-              onBlur={() => handleFieldBlur('type')}
-            >
-              <option value="">Select</option>
-              <option value="10th Pass">10th Pass</option>
-              <option value="12th Pass">12th Pass</option>
-              <option value="ITI">ITI</option>
-              <option value="Diploma">Diploma</option>
-              <option value="Polytechnic">Polytechnic</option>
-              <option value="Certificate Course">Certificate Course</option>
-              <option value="B.E">B.E</option>
-              <option value="B.Tech">B.Tech</option>
-              <option value="B.Sc">B.Sc</option>
-              <option value="BCA">BCA</option>
-              <option value="BBA">BBA</option>
-              <option value="B.Com">B.Com</option>
-              <option value="BA">BA</option>
-              <option value="B.Pharm">B.Pharm</option>
-              <option value="B.Arch">B.Arch</option>
-              <option value="BDS">BDS</option>
-              <option value="MBBS">MBBS</option>
-              <option value="BAMS">BAMS (Ayurveda)</option>
-              <option value="BHMS">BHMS (Homeopathy)</option>
-              <option value="B.V.Sc">B.V.Sc (Veterinary)</option>
-              <option value="B.Sc Nursing">B.Sc Nursing</option>
-              <option value="GNM">GNM (Nursing)</option>
-              <option value="ANM">ANM (Nursing)</option>
-              <option value="BHM">BHM (Hotel Management)</option>
-              <option value="B.Des">B.Des (Design)</option>
-              <option value="B.F.Tech">B.F.Tech (Fashion)</option>
-              <option value="B.Sc Agriculture">B.Sc Agriculture</option>
-              <option value="LLB">LLB (Law)</option>
-              <option value="B.Ed">B.Ed</option>
-              <option value="B.P.Ed">B.P.Ed (Physical Education)</option>
-              <option value="BFA">BFA (Fine Arts)</option>
-              <option value="B.Lib">B.Lib (Library Science)</option>
-              <option value="Journalism">Journalism</option>
-              <option value="CA">CA (Chartered Accountant)</option>
-              <option value="CS">CS (Company Secretary)</option>
-              <option value="CMA">CMA (Cost Management)</option>
-              <option value="M.E">M.E</option>
-              <option value="M.Tech">M.Tech</option>
-              <option value="M.Sc">M.Sc</option>
-              <option value="MCA">MCA</option>
-              <option value="MBA">MBA</option>
-              <option value="M.Com">M.Com</option>
-              <option value="MA">MA</option>
-              <option value="M.Pharm">M.Pharm</option>
-              <option value="M.Arch">M.Arch</option>
-              <option value="MDS">MDS</option>
-              <option value="MD">MD</option>
-              <option value="MS">MS (Surgery)</option>
-              <option value="M.V.Sc">M.V.Sc (Veterinary)</option>
-              <option value="M.Sc Nursing">M.Sc Nursing</option>
-              <option value="MHM">MHM (Hotel Management)</option>
-              <option value="M.Des">M.Des (Design)</option>
-              <option value="M.Sc Agriculture">M.Sc Agriculture</option>
-              <option value="LLM">LLM (Law)</option>
-              <option value="M.Ed">M.Ed</option>
-              <option value="M.P.Ed">M.P.Ed (Physical Education)</option>
-              <option value="MFA">MFA (Fine Arts)</option>
-              <option value="M.Lib">M.Lib (Library Science)</option>
-              <option value="M.Phil">M.Phil</option>
-              <option value="PhD">PhD</option>
-              <option value="Post Doctoral">Post Doctoral</option>
-            </select>
+            <div className="location-input">
+              <svg className="location-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <circle cx="11" cy="11" r="8" stroke="#000000" strokeWidth="2" fill="none"/>
+                <path d="m21 21-4.35-4.35" stroke="#000000" strokeWidth="2" fill="none"/>
+              </svg>
+              <input
+                type="text"
+                className={`search-select location-select${touched.type && errors.type ? ' has-error' : ''}`}
+                value={searchData.type}
+                onChange={(e) => handleEducationChange(e.target.value)}
+                onFocus={() => {
+                  const filtered = searchData.type
+                    ? educationOptions.filter(edu => edu.toLowerCase().includes(searchData.type.toLowerCase())).slice(0, 8)
+                    : educationOptions.slice(0, 8);
+                  setEducationSuggestions(filtered);
+                  setShowEducationSuggestions(filtered.length > 0);
+                }}
+                onBlur={() => {
+                  handleFieldBlur('type');
+                  setTimeout(() => setShowEducationSuggestions(false), 200);
+                }}
+                placeholder="Enter Education"
+              />
+              {showEducationSuggestions && educationSuggestions.length > 0 && (
+                <div className="location-suggestions">
+                  {educationSuggestions.map((edu, index) => (
+                    <div
+                      key={index}
+                      className="suggestion-item"
+                      onMouseDown={(e) => { e.preventDefault(); selectEducation(edu); }}
+                    >
+                      {edu}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             {touched.type && errors.type && (
               <div className="search-error">
                 {errors.type}
@@ -475,7 +480,7 @@ const HeroBody = ({ onSearch }) => {
                     <div
                       key={index}
                       className="suggestion-item"
-                      onClick={() => selectIndustry(industry)}
+                      onMouseDown={(e) => { e.preventDefault(); selectIndustry(industry); }}
                     >
                       {industry}
                     </div>
@@ -522,7 +527,7 @@ const HeroBody = ({ onSearch }) => {
                     <div
                       key={index}
                       className="suggestion-item"
-                      onClick={() => selectDesignation(designation)}
+                      onMouseDown={(e) => { e.preventDefault(); selectDesignation(designation); }}
                     >
                       {designation}
                     </div>
@@ -562,7 +567,7 @@ const HeroBody = ({ onSearch }) => {
                     <div
                       key={index}
                       className="suggestion-item"
-                      onClick={() => selectLocation(location)}
+                      onMouseDown={(e) => { e.preventDefault(); selectLocation(location); }}
                     >
                       {location}
                     </div>

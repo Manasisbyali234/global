@@ -214,7 +214,7 @@ const StartAssessment = () => {
             return;
         }
 
-        showWarning(`${userMessage} Mistake ${nextWarningCount}/${RESTRICTION_WARNING_LIMIT}. On the 3rd mistake, your assessment will be suspended.`);
+        showWarning(`Warning: Unnecessary activity detected. Mistake ${nextWarningCount}/${RESTRICTION_WARNING_LIMIT} — your assessment will be suspended on the 3rd violation.`);
     }, [assessmentState, attemptId, logViolation, showWarning, suspendAssessment]);
 
     const requestAssessmentFullscreen = useCallback(async () => {
@@ -293,7 +293,7 @@ const StartAssessment = () => {
         if (assessmentState === 'in_progress') {
             registerRestrictionViolation(
                 'window_blur',
-                'Minimizing or leaving the assessment window is not allowed.',
+                'Warning: Unnecessary activity detected.',
                 'Candidate moved focus away from the assessment window.'
             );
         }
