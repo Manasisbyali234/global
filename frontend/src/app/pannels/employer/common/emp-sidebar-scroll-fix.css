@@ -1,0 +1,16 @@
+.emp-sidebar#sidebar-admin-wraper {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+.emp-sidebar#sidebar-admin-wraper .page-logo {
+    flex-shrink: 0;
+}
+
+.emp-sidebar#sidebar-admin-wraper .admin-nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+}

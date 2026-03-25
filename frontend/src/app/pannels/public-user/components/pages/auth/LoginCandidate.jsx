@@ -1,8 +1,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { canRoute, candidate, publicUser } from "../../../../../../globals/route-names";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "../../../../../../contexts/AuthContext";
 import JobZImage from "../../../../../common/jobz-img";
+import LetterCaptchaField from "../../../../../../components/LetterCaptchaField";
 import "./AuthPages.css";
 
 function LoginCandidate() {
@@ -13,11 +14,17 @@ function LoginCandidate() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const captchaRef = useRef(null);
 
     const handleLogin = async (event) => {
         event.preventDefault();
         setError('');
         setLoading(true);
+
+        if (!captchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
 
         const result = await login({
             email: email.trim(),
@@ -93,6 +100,10 @@ function LoginCandidate() {
                             <NavLink to={publicUser.pages.FORGOT} className="forgot-link site-text-primary">
                                 Forgot Password?
                             </NavLink>
+
+                            <div className="auth-form-group">
+                                <LetterCaptchaField ref={captchaRef} />
+                            </div>
 
                             <button type="submit" className="login-btn" disabled={loading}>
                                 {loading ? 'Logging in...' : 'Log in'}

@@ -1,10 +1,10 @@
-
 import JobZImage from "../../../common/jobz-img";
 import { NavLink, useLocation } from "react-router-dom";
 import { loadScript, setMenuActive } from "../../../../globals/constants";
 import { employer, empRoute, publicUser } from "../../../../globals/route-names";
 import { useEffect, useState } from "react";
 import { api } from "../../../../utils/api";
+import "./emp-sidebar-scroll-fix.css";
 
 function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
     const currentpath = useLocation().pathname;
@@ -44,6 +44,7 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
     };
 
     const sidebarClasses = [
+        "emp-sidebar",
         sidebarActive ? "active" : "",
         !isMobile && !sidebarActive ? "collapsed" : ""
     ].filter(Boolean).join(" ");
@@ -64,7 +65,9 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
                     zIndex: 10000,
                     background: "#ffffff",
                     height: "100vh",
-                    overflowY: "auto"
+                    display: "flex",
+                    flexDirection: "column",
+                    overflowY: "hidden"
                 } : {}}>
                 <div className="page-logo">
                     <NavLink to={publicUser.INITIAL}><JobZImage id="skin_page_logo" src="images/logo-dark.png" alt="" /></NavLink>
