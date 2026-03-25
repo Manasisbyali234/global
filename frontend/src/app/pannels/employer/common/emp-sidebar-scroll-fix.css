@@ -8,29 +8,37 @@
     flex-shrink: 0;
 }
 
-.emp-sidebar#sidebar-admin-wraper .admin-nav {
+.emp-sidebar#sidebar-admin-wraper .admin-nav,
+.emp-sidebar#sidebar-admin-wraper .admin-nav.scrollbar-macosx {
     flex: 1 1 auto;
     min-height: 0;
-    overflow-y: auto !important;
+    overflow-y: scroll !important;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(15, 23, 42, 0.35) transparent;
+    scrollbar-width: auto;
+    scrollbar-color: rgba(15, 23, 42, 0.55) rgba(15, 23, 42, 0.12);
 }
 
-.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar {
-    width: 8px;
+.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar,
+.emp-sidebar#sidebar-admin-wraper .admin-nav.scrollbar-macosx::-webkit-scrollbar {
+    display: block !important;
+    width: 10px !important;
 }
 
-.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-thumb {
-    background: rgba(15, 23, 42, 0.35);
+.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-track,
+.emp-sidebar#sidebar-admin-wraper .admin-nav.scrollbar-macosx::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.12);
     border-radius: 999px;
 }
 
-.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-thumb:hover {
-    background: rgba(15, 23, 42, 0.5);
+.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-thumb,
+.emp-sidebar#sidebar-admin-wraper .admin-nav.scrollbar-macosx::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.55);
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-thumb:hover,
+.emp-sidebar#sidebar-admin-wraper .admin-nav.scrollbar-macosx::-webkit-scrollbar-thumb:hover {
+    background: rgba(15, 23, 42, 0.7);
 }
