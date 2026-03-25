@@ -13,4 +13,24 @@
     min-height: 0;
     overflow-y: auto !important;
     overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(15, 23, 42, 0.35) transparent;
+}
+
+.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar {
+    width: 8px;
+}
+
+.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.35);
+    border-radius: 999px;
+}
+
+.emp-sidebar#sidebar-admin-wraper .admin-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(15, 23, 42, 0.5);
 }
