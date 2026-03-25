@@ -2,13 +2,17 @@ import JobZImage from "../../../common/jobz-img";
 import { NavLink, useLocation } from "react-router-dom";
 import { loadScript, setMenuActive } from "../../../../globals/constants";
 import { employer, empRoute, publicUser } from "../../../../globals/route-names";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../../../../utils/api";
 import "./emp-sidebar-scroll-fix.css";
 
 function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
     const currentpath = useLocation().pathname;
     const [hasNewTickets, setHasNewTickets] = useState(false);
+    const [showScrollRail, setShowScrollRail] = useState(false);
+    const [scrollThumbHeight, setScrollThumbHeight] = useState(0);
+    const [scrollThumbTop, setScrollThumbTop] = useState(0);
+    const navRef = useRef(null);
 
     const checkNewTickets = async () => {
         try {
@@ -36,6 +40,51 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
 
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        const navElement = navRef.current;
+
+        if (!navElement) {
+            return undefined;
+        }
+
+        const updateScrollRail = () => {
+            const { clientHeight, scrollHeight, scrollTop } = navElement;
+            const hasOverflow = scrollHeight > clientHeight + 1;
+
+            setShowScrollRail(hasOverflow);
+
+            if (!hasOverflow) {
+                setScrollThumbHeight(0);
+                setScrollThumbTop(0);
+                return;
+            }
+
+            const thumbHeight = Math.max((clientHeight / scrollHeight) * clientHeight, 36);
+            const maxThumbTop = clientHeight - thumbHeight;
+            const maxScrollTop = scrollHeight - clientHeight;
+            const thumbTop = maxScrollTop > 0 ? (scrollTop / maxScrollTop) * maxThumbTop : 0;
+
+            setScrollThumbHeight(thumbHeight);
+            setScrollThumbTop(thumbTop);
+        };
+
+        updateScrollRail();
+        navElement.addEventListener("scroll", updateScrollRail);
+        window.addEventListener("resize", updateScrollRail);
+
+        let resizeObserver;
+        if (typeof ResizeObserver !== "undefined") {
+            resizeObserver = new ResizeObserver(updateScrollRail);
+            resizeObserver.observe(navElement);
+        }
+
+        return () => {
+            navElement.removeEventListener("scroll", updateScrollRail);
+            window.removeEventListener("resize", updateScrollRail);
+            resizeObserver?.disconnect();
+        };
+    }, [sidebarActive, isMobile]);
 
     const handleLinkClick = () => {
         if (isMobile && onClose) {
@@ -73,8 +122,9 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
                     <NavLink to={publicUser.INITIAL}><JobZImage id="skin_page_logo" src="images/logo-dark.png" alt="" /></NavLink>
                 </div>
 
-                <div className="admin-nav scrollbar-macosx">
-                    <ul>
+                <div className="emp-sidebar-nav-shell">
+                    <div ref={navRef} className="admin-nav scrollbar-macosx">
+                        <ul>
                         <li
                             className={setMenuActive(currentpath, empRoute(employer.DASHBOARD))}>
                             <NavLink to={empRoute(employer.DASHBOARD)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-home" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Dashboard</span></NavLink>
@@ -130,7 +180,19 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
                                 <span className="admin-nav-text" style={{paddingLeft: '10px'}}>Logout</span>
                             </a>
                         </li>
-                    </ul>
+                        </ul>
+                    </div>
+                    {showScrollRail && (
+                        <div className="emp-sidebar-scroll-rail" aria-hidden="true">
+                            <div
+                                className="emp-sidebar-scroll-thumb"
+                                style={{
+                                    height: `${scrollThumbHeight}px`,
+                                    transform: `translateY(${scrollThumbTop}px)`
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
             </nav>
         </>
