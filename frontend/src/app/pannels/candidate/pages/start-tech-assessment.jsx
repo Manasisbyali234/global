@@ -603,6 +603,12 @@ const StartAssessment = () => {
             webcamInitialized.current = false;
         }
     }, [ensureWebcamStarted]);
+
+    const canvasToBlob = useCallback((canvas, type = 'image/jpeg', quality = 0.85) => (
+        new Promise((resolve) => {
+            canvas.toBlob(resolve, type, quality);
+        })
+    ), []);
     
     const captureImage = useCallback(async () => {
         const currentCaptureCount = captureCountRef.current;
@@ -620,14 +626,21 @@ const StartAssessment = () => {
         
         const canvas = canvasRef.current;
         const video = videoRef.current;
+        const activeTrack =
+            webcamStreamRef.current?.getVideoTracks?.()?.[0] ||
+            video.srcObject?.getVideoTracks?.()?.[0];
+
+        if (video.paused && activeTrack?.readyState === 'live') {
+            await video.play().catch(() => {});
+        }
         
-        if (video.videoWidth === 0 || video.videoHeight === 0) {
+        if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) {
             console.warn(' Video not ready, retrying...', {
                 videoWidth: video.videoWidth,
                 videoHeight: video.videoHeight,
                 readyState: video.readyState
             });
-            setTimeout(() => captureImage(), 2000);
+            setTimeout(() => captureImage(), 1500);
             return;
         }
         
@@ -640,15 +653,14 @@ const StartAssessment = () => {
             const ctx = canvas.getContext('2d');
             
             // Check if video is actually playing
-            const videoTracks = video.srcObject?.getVideoTracks();
-            const hasActiveTrack = videoTracks && videoTracks.length > 0 && videoTracks[0].readyState === 'live';
+            const hasActiveTrack = activeTrack?.readyState === 'live';
             
-            if (video.paused || video.ended || !hasActiveTrack) {
+            if (video.ended || !hasActiveTrack) {
                 console.warn(' Video not ready for capture:', {
                     paused: video.paused,
                     ended: video.ended,
                     hasActiveTrack,
-                    trackState: videoTracks?.[0]?.readyState
+                    trackState: activeTrack?.readyState
                 });
                 return;
             }
@@ -661,19 +673,41 @@ const StartAssessment = () => {
             });
             
             canvas.toBlob(async (blob) => {
-                if (!blob) {
+                let captureBlob = blob;
+
+                if ((!captureBlob || captureBlob.size < 1500) && typeof window !== 'undefined' && window.ImageCapture && activeTrack) {
+                    try {
+                        const imageCapture = new window.ImageCapture(activeTrack);
+
+                        if (typeof imageCapture.takePhoto === 'function') {
+                            captureBlob = await imageCapture.takePhoto();
+                        } else if (typeof imageCapture.grabFrame === 'function') {
+                            const frame = await imageCapture.grabFrame();
+                            canvas.width = frame.width;
+                            canvas.height = frame.height;
+                            ctx.drawImage(frame, 0, 0, frame.width, frame.height);
+                            if (typeof frame.close === 'function') {
+                                frame.close();
+                            }
+                            captureBlob = await canvasToBlob(canvas);
+                        }
+                    } catch (fallbackError) {
+                        console.warn(' ImageCapture fallback failed:', fallbackError);
+                    }
+                }
+                if (!captureBlob) {
                     console.error('❌ Failed to create blob from canvas');
                     return;
                 }
                 
                 // Check if blob is too small (likely corrupted/black image)
-                if (blob.size < 1000) {
-                    console.warn(' Blob size very small, image might be black:', blob.size);
+                if (captureBlob.size < 1000) {
+                    console.warn(' Blob size very small, image might be black:', captureBlob.size);
                 }
                 
                 console.log('📦 Blob created:', {
-                    size: blob.size,
-                    type: blob.type
+                    size: captureBlob.size,
+                    type: captureBlob.type
                 });
                 
                 try {
@@ -684,14 +718,14 @@ const StartAssessment = () => {
                     }
                     
                     const formData = new FormData();
-                    formData.append('capture', blob, `capture_${Date.now()}.jpg`);
+                    formData.append('capture', captureBlob, `capture_${Date.now()}.jpg`);
                     formData.append('attemptId', attemptId);
                     formData.append('captureIndex', currentCaptureCount.toString());
                     
                     console.log('📤 Uploading capture...', {
                         attemptId,
                         captureIndex: currentCaptureCount,
-                        blobSize: blob.size,
+                        blobSize: captureBlob.size,
                         hasAttemptId: !!attemptId,
                         attemptIdLength: attemptId?.length
                     });
@@ -742,7 +776,7 @@ const StartAssessment = () => {
                 stack: error.stack
             });
         }
-    }, [attemptId]);
+    }, [attemptId, canvasToBlob]);
 
     const startPeriodicCapture = useCallback(() => {
         if (!assessment || webcamStatus !== 'active' || captureIntervalRef.current) {
