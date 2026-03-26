@@ -77,62 +77,45 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
     return (
         <div className="mt-5">
             <div className="row justify-content-center">
-                <div className="col-md-8 col-lg-6">
-                    <div className={`card border-${violation.color} shadow`}>
-                        <div className={`card-header bg-${violation.color} text-white text-center`}>
-                            <h3 className="mb-0">
-                                <span className="me-3" style={{ fontSize: '1.1rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                                    {violation.icon}
-                                </span>
-                                Assessment Suspended
-                            </h3>
-                        </div>
+                <div className="col-md-8 col-lg-6 text-center">
+                    <h3 className="mb-3">Assessment Suspended</h3>
 
-                        <div className="card-body text-center p-4">
-                            <h4 className="card-title text-danger mb-4">
-                                {violation.title}
-                            </h4>
+                    <h4 className="text-danger mb-4">{violation.title}</h4>
 
-                            <div className={`alert alert-${violation.color} mb-4`}>
-                                <strong>Assessment:</strong> {assessmentTitle || 'Technical Assessment'}
-                            </div>
+                    <div className={`alert alert-${violation.color} mb-4`}>
+                        <strong>Assessment:</strong> {assessmentTitle || 'Technical Assessment'}
+                    </div>
 
-                            <p className="lead mb-3">
-                                {violation.message}
-                            </p>
+                    <p className="lead mb-3">{violation.message}</p>
 
-                            <div className="mb-4">
-                                <strong>Suspension Time:</strong><br />
-                                <span className="text-muted">
-                                    {violationTimestamp ? new Date(violationTimestamp).toLocaleString() : 'N/A'}
-                                </span>
-                            </div>
+                    <div className="mb-4">
+                        <strong>Suspension Time:</strong><br />
+                        <span className="text-muted">
+                            {violationTimestamp ? new Date(violationTimestamp).toLocaleString() : 'N/A'}
+                        </span>
+                    </div>
 
-                            <div className={`alert alert-${violation.color === 'warning' ? 'info' : 'danger'}`}>
-                                <h6><strong>What happened?</strong></h6>
-                                <p className="mb-0">
-                                    {violation.color === 'warning'
-                                        ? 'Your assessment time has expired. Any answers you provided have been submitted automatically.'
-                                        : 'This assessment has been suspended after repeated rule violations and cannot be resumed. Please contact the employer if you believe this was an error.'
-                                    }
-                                </p>
-                            </div>
+                    <div className={`alert alert-${violation.color === 'warning' ? 'info' : 'danger'}`}>
+                        <h6><strong>What happened?</strong></h6>
+                        <p className="mb-0">
+                            {violation.color === 'warning'
+                                ? 'Your assessment time has expired. Any answers you provided have been submitted automatically.'
+                                : 'This assessment has been suspended after repeated rule violations and cannot be resumed. Please contact the employer if you believe this was an error.'
+                            }
+                        </p>
+                    </div>
 
-                            <div className="mt-4">
-                                <button
-                                    className="btn btn-primary btn-lg"
-                                    onClick={() => navigate('/candidate/status')}
-                                >
-                                    Return to Applications
-                                </button>
-                            </div>
-                        </div>
+                    <div className="mt-4">
+                        <button
+                            className="btn btn-primary btn-lg"
+                            onClick={() => navigate('/candidate/status')}
+                        >
+                            Return to Applications
+                        </button>
+                    </div>
 
-                        <div className="card-footer text-muted text-center">
-                            <small>
-                                For any questions about this suspension, please contact support.
-                            </small>
-                        </div>
+                    <div className="mt-3 text-muted">
+                        <small>For any questions about this suspension, please contact support.</small>
                     </div>
                 </div>
             </div>
