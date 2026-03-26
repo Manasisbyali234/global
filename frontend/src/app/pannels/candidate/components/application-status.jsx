@@ -1700,6 +1700,12 @@ function CanStatusPage() {
 																			const assessmentWindowInfo = roundName === 'Assessment'
 																				? getAssessmentWindowInfo(app.jobId, roundDetails)
 																				: null;
+																			const shouldShowAssessmentCountdown =
+																				roundName === 'Assessment' &&
+																				Boolean(assessmentWindowInfo?.isBeforeStart && assessmentWindowInfo?.startDate) &&
+																				!assessmentRoundInfo?.completionInfo?.isCompleted &&
+																				!assessmentRoundInfo?.completionInfo?.isInProgress &&
+																				!assessmentRoundInfo?.completionInfo?.isSuspended;
 																			const formatRoundDate = (dateStr) => {
 																				if (!dateStr) return null;
 																				try {
@@ -1727,7 +1733,7 @@ function CanStatusPage() {
 																					<div className="round-name" style={{fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', color: '#232323'}}>{roundName}</div>
 																					<div style={{display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'center'}}>
 																						{/* Show countdown timer if assessment hasn't started yet */}
-																						{roundName === 'Assessment' && roundStatus.text === 'Started' && (() => {
+																						{shouldShowAssessmentCountdown && (() => {
 																							const windowInfo = assessmentWindowInfo;
 																							if (windowInfo.isBeforeStart && windowInfo.startDate) {
 																								const now = new Date().getTime();
@@ -1746,7 +1752,7 @@ function CanStatusPage() {
 																							return null;
 																						})()}
 																						{/* Show status badge only if not showing countdown */}
-																						{!(roundName === 'Assessment' && roundStatus.text === 'Started' && assessmentWindowInfo?.isBeforeStart) && (
+																						{!shouldShowAssessmentCountdown && (
 																							<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px', minWidth: 'fit-content', textAlign: 'center'}}>
 																								{roundStatus?.text || 'Pending'}
 																							</span>
