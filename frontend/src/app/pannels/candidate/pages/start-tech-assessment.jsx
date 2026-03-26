@@ -11,8 +11,33 @@ import PopupNotification from "../../../../components/PopupNotification";
 
 const ASSESSMENT_SESSION_KEY = 'candidateCurrentAssessment';
 const ASSESSMENT_ATTEMPT_KEY = 'candidateCurrentAssessmentAttempt';
+const ASSESSMENT_PROGRESS_KEY = 'candidateCurrentAssessmentProgress';
 const RESTRICTION_WARNING_LIMIT = 2;
 const RESTRICTION_SUSPEND_THRESHOLD = 3;
+
+const getStoredAttemptId = () => {
+    if (typeof window === 'undefined' || !window.sessionStorage) {
+        return null;
+    }
+
+    try {
+        return window.sessionStorage.getItem(ASSESSMENT_ATTEMPT_KEY);
+    } catch (err) {
+        return null;
+    }
+};
+
+const getStoredProgress = () => {
+    if (typeof window === 'undefined' || !window.sessionStorage) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(window.sessionStorage.getItem(ASSESSMENT_PROGRESS_KEY) || 'null');
+    } catch (err) {
+        return null;
+    }
+};
 
 const StartAssessment = () => {
     const navigate = useNavigate();
@@ -48,7 +73,7 @@ const StartAssessment = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [attemptId, setAttemptId] = useState(null);
+    const [attemptId, setAttemptId] = useState(getStoredAttemptId);
     const [startTime, setStartTime] = useState(null);
 
     useEffect(() => {
@@ -63,26 +88,157 @@ const StartAssessment = () => {
         }
     }, [assessmentId, jobId, applicationId]);
 
-    useEffect(() => {
-        if (typeof window !== 'undefined' && window.sessionStorage) {
-            try {
-                const savedAttemptId = window.sessionStorage.getItem(ASSESSMENT_ATTEMPT_KEY);
-                if (savedAttemptId) {
-                    setAttemptId(savedAttemptId);
-                }
-            } catch (err) {}
-        }
-    }, []);
-
     const clearStoredAssessment = useCallback(() => {
         if (typeof window !== 'undefined' && window.sessionStorage) {
             try {
                 window.sessionStorage.removeItem(ASSESSMENT_SESSION_KEY);
                 window.sessionStorage.removeItem(ASSESSMENT_ATTEMPT_KEY);
+                window.sessionStorage.removeItem(ASSESSMENT_PROGRESS_KEY);
             } catch (err) {}
         }
         setAttemptId(null);
     }, []);
+
+    const buildResumedAnswers = useCallback((assessmentData, attemptData) => {
+        const hydratedAnswers = new Array(assessmentData.questions.length).fill(null);
+
+        (attemptData.answers || []).forEach((answer) => {
+            const questionIndex = Number(answer.questionIndex);
+            if (!Number.isInteger(questionIndex) || questionIndex < 0 || questionIndex >= hydratedAnswers.length) {
+                return;
+            }
+
+            if (answer.uploadedFile?.originalName) {
+                hydratedAnswers[questionIndex] = {
+                    uploaded: true,
+                    fileName: answer.uploadedFile.originalName,
+                    filePath: answer.uploadedFile.path || ''
+                };
+                return;
+            }
+
+            if (answer.textAnswer !== null && answer.textAnswer !== undefined && answer.textAnswer !== '') {
+                hydratedAnswers[questionIndex] = answer.textAnswer;
+                return;
+            }
+
+            if (answer.selectedAnswer !== null && answer.selectedAnswer !== undefined) {
+                hydratedAnswers[questionIndex] = answer.selectedAnswer;
+            }
+        });
+
+        const storedProgress = getStoredProgress();
+        if (
+            storedProgress?.attemptId === attemptData._id &&
+            Array.isArray(storedProgress.answers) &&
+            storedProgress.answers.length === hydratedAnswers.length
+        ) {
+            storedProgress.answers.forEach((answer, index) => {
+                if (answer !== null && answer !== undefined && !(typeof answer === 'string' && answer === '')) {
+                    hydratedAnswers[index] = answer;
+                }
+            });
+        }
+
+        return hydratedAnswers;
+    }, []);
+
+    const getResumedQuestionIndex = useCallback((assessmentData, attemptData) => {
+        const maxIndex = Math.max(0, assessmentData.questions.length - 1);
+        const storedProgress = getStoredProgress();
+
+        if (
+            storedProgress?.attemptId === attemptData._id &&
+            Number.isInteger(storedProgress.currentQuestionIndex)
+        ) {
+            return Math.min(Math.max(storedProgress.currentQuestionIndex, 0), maxIndex);
+        }
+
+        return Math.min(Math.max(Number(attemptData.currentQuestion || 0), 0), maxIndex);
+    }, []);
+
+    const getRemainingTimeSeconds = useCallback((assessmentData, attemptData) => {
+        const totalSeconds = Number(assessmentData?.timer || 0) * 60;
+        if (!attemptData?.startTime) {
+            return totalSeconds;
+        }
+
+        const startedAt = new Date(attemptData.startTime).getTime();
+        if (Number.isNaN(startedAt)) {
+            return totalSeconds;
+        }
+
+        const elapsedSeconds = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+        return Math.max(0, totalSeconds - elapsedSeconds);
+    }, []);
+
+    const restoreAttemptState = useCallback((assessmentData, attemptData) => {
+        setAttemptId(attemptData._id);
+        setAnswers(buildResumedAnswers(assessmentData, attemptData));
+        setCurrentQuestionIndex(getResumedQuestionIndex(assessmentData, attemptData));
+        setTimeLeft(getRemainingTimeSeconds(assessmentData, attemptData));
+        setStartTime(attemptData.startTime ? new Date(attemptData.startTime) : new Date());
+        setAssessmentState('in_progress');
+        setShowTermsModal(false);
+        setIsSubmitted(false);
+        setError(null);
+
+        const existingWarnings = Number(
+            attemptData.warningCount ??
+            attemptData.restrictionWarningCount ??
+            0
+        );
+        restrictionWarningCountRef.current = existingWarnings;
+        setRestrictionWarningCount(existingWarnings);
+        setCaptureCount(Number(attemptData.captureCount || 0));
+        capturesStarted.current = false;
+    }, [buildResumedAnswers, getRemainingTimeSeconds, getResumedQuestionIndex]);
+
+    const tryResumeAttempt = useCallback(async (assessmentData, activeAttemptId) => {
+        if (!activeAttemptId) {
+            return false;
+        }
+
+        try {
+            const response = await api.getCandidateAssessmentAttempt(activeAttemptId);
+            const attemptData = response?.attempt;
+
+            if (!response?.success || !attemptData) {
+                return false;
+            }
+
+            if (attemptData.status === 'in_progress') {
+                restoreAttemptState(assessmentData, attemptData);
+                return true;
+            }
+
+            clearStoredAssessment();
+
+            if (attemptData.status === 'suspended') {
+                setTerminationReason('suspended');
+                setTerminationTimestamp(attemptData.suspendedAt ? new Date(attemptData.suspendedAt) : new Date());
+                setIsTerminated(true);
+                setAssessmentState('terminated');
+                return true;
+            }
+
+            if (attemptData.status === 'completed') {
+                setError('This assessment has already been completed.');
+                return true;
+            }
+
+            if (attemptData.status === 'expired') {
+                setError('This assessment has expired.');
+                return true;
+            }
+
+            return false;
+        } catch (err) {
+            console.error('Error restoring assessment attempt:', err);
+            clearStoredAssessment();
+            return false;
+        }
+    }, [clearStoredAssessment, restoreAttemptState]);
 
     // Security and modal state
     const [assessmentState, setAssessmentState] = useState('not_started'); // not_started, terms_pending, in_progress, terminated, completed
@@ -117,6 +273,7 @@ const StartAssessment = () => {
     const webcamStreamRef = useRef(null);
     const [captureCount, setCaptureCount] = useState(0);
     const captureCountRef = useRef(0);
+    const attemptIdRef = useRef(attemptId);
     const [webcamStatus, setWebcamStatus] = useState('initializing'); // initializing, active, failed, disabled
     const [restrictionWarningCount, setRestrictionWarningCount] = useState(0);
     const webcamInitialized = useRef(false);
@@ -126,6 +283,13 @@ const StartAssessment = () => {
     useEffect(() => {
         captureCountRef.current = captureCount;
     }, [captureCount]);
+
+    useEffect(() => {
+        attemptIdRef.current = attemptId;
+        if (!attemptId) {
+            capturesStarted.current = false;
+        }
+    }, [attemptId]);
 
     // Violation detection functions
     const logViolation = useCallback(async (violationType, details = '') => {
@@ -612,12 +776,13 @@ const StartAssessment = () => {
     
     const captureImage = useCallback(async () => {
         const currentCaptureCount = captureCountRef.current;
+        const activeAttemptId = attemptIdRef.current;
 
-        if (!videoRef.current || !canvasRef.current || !attemptId || currentCaptureCount >= 5) {
+        if (!videoRef.current || !canvasRef.current || !activeAttemptId || currentCaptureCount >= 5) {
             console.log('🚫 Capture skipped:', {
                 hasVideo: !!videoRef.current,
                 hasCanvas: !!canvasRef.current,
-                hasAttemptId: !!attemptId,
+                hasAttemptId: !!activeAttemptId,
                 captureCount: currentCaptureCount,
                 maxReached: currentCaptureCount >= 5
             });
@@ -719,15 +884,15 @@ const StartAssessment = () => {
                     
                     const formData = new FormData();
                     formData.append('capture', captureBlob, `capture_${Date.now()}.jpg`);
-                    formData.append('attemptId', attemptId);
+                    formData.append('attemptId', activeAttemptId);
                     formData.append('captureIndex', currentCaptureCount.toString());
                     
                     console.log('📤 Uploading capture...', {
-                        attemptId,
+                        attemptId: activeAttemptId,
                         captureIndex: currentCaptureCount,
                         blobSize: captureBlob.size,
-                        hasAttemptId: !!attemptId,
-                        attemptIdLength: attemptId?.length
+                        hasAttemptId: !!activeAttemptId,
+                        attemptIdLength: activeAttemptId?.length
                     });
                     
                     // Use backend URL (will be rewritten by axios interceptor)
@@ -771,18 +936,19 @@ const StartAssessment = () => {
                 }
             }, 'image/jpeg', 0.8);
         } catch (error) {
-            console.error('❌ Capture error:', {
-                message: error.message,
-                stack: error.stack
-            });
+                console.error('❌ Capture error:', {
+                    message: error.message,
+                    stack: error.stack
+                });
         }
-    }, [attemptId, canvasToBlob]);
+    }, [canvasToBlob]);
 
     const startPeriodicCapture = useCallback(() => {
-        if (!assessment || webcamStatus !== 'active' || captureIntervalRef.current) {
+        if (!assessment || webcamStatus !== 'active' || !attemptIdRef.current || captureIntervalRef.current) {
             console.log('🚫 Periodic capture not started:', {
                 hasAssessment: !!assessment,
                 webcamStatus,
+                hasAttemptId: !!attemptIdRef.current,
                 alreadyRunning: !!captureIntervalRef.current
             });
             return;
@@ -807,7 +973,7 @@ const StartAssessment = () => {
                 captureIntervalRef.current = null;
             }
         }, interval);
-    }, [assessment, webcamStatus]);
+    }, [assessment, webcamStatus, captureImage]);
 
     // Security listeners management
     const addSecurityListeners = useCallback(() => {
@@ -938,12 +1104,12 @@ const StartAssessment = () => {
 
 	// Start captures when both webcam is active and assessment is loaded
 	useEffect(() => {
-		if (webcamStatus === 'active' && assessment && assessmentState === 'in_progress' && !capturesStarted.current) {
+		if (webcamStatus === 'active' && assessment && assessmentState === 'in_progress' && attemptId && !capturesStarted.current) {
 			console.log('🚀 Starting periodic capture - conditions met');
 			capturesStarted.current = true;
 			setTimeout(() => startPeriodicCapture(), 2000);
 		}
-	}, [webcamStatus, assessment, assessmentState, startPeriodicCapture]);
+	}, [webcamStatus, assessment, assessmentState, attemptId, startPeriodicCapture]);
 
 
 
@@ -963,6 +1129,20 @@ const StartAssessment = () => {
 		}
 	}, [timeLeft, isSubmitted, assessmentState]);
 
+    useEffect(() => {
+        if (!attemptId || assessmentState !== 'in_progress' || typeof window === 'undefined' || !window.sessionStorage) {
+            return;
+        }
+
+        try {
+            window.sessionStorage.setItem(ASSESSMENT_PROGRESS_KEY, JSON.stringify({
+                attemptId,
+                currentQuestionIndex,
+                answers
+            }));
+        } catch (err) {}
+    }, [attemptId, currentQuestionIndex, answers, assessmentState]);
+
 	const fetchAssessment = async () => {
 		try {
 			setLoading(true);
@@ -973,7 +1153,15 @@ const StartAssessment = () => {
 			if (assessmentResponse.success) {
 				const assessmentData = assessmentResponse.assessment;
 				setAssessment(assessmentData);
+
+                const activeAttemptId = attemptId || getStoredAttemptId();
+                if (await tryResumeAttempt(assessmentData, activeAttemptId)) {
+                    return;
+                }
+
 				setAnswers(new Array(assessmentData.questions.length).fill(null));
+                setCurrentQuestionIndex(0);
+                setTimeLeft(Number(assessmentData.timer || 0) * 60);
 				setAssessmentState('terms_pending');
 				setShowTermsModal(true);
 			} else {
@@ -1009,20 +1197,12 @@ const StartAssessment = () => {
 			});
 
 			if (startResponse.success && startResponse.attempt && startResponse.attempt._id) {
-				setAttemptId(startResponse.attempt._id);
-				const existingWarnings = Number(startResponse.attempt.warningCount || 0);
-				restrictionWarningCountRef.current = existingWarnings;
-				setRestrictionWarningCount(existingWarnings);
 				if (typeof window !== 'undefined' && window.sessionStorage) {
 					try {
 						window.sessionStorage.setItem(ASSESSMENT_ATTEMPT_KEY, startResponse.attempt._id);
 					} catch (err) {}
 				}
-				setStartTime(new Date());
-				const timerSeconds = Number(assessment?.timer || 0) * 60;
-				setTimeLeft(timerSeconds);
-				setAssessmentState('in_progress');
-				setError(null);
+                restoreAttemptState(assessment, startResponse.attempt);
 			} else {
 				stopAssessmentWebcam();
 				setError(startResponse.message || "Failed to start assessment. No attempt ID received.");

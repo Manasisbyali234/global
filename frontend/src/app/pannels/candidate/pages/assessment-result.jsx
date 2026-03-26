@@ -152,6 +152,8 @@ const AssessmentResults = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const { applicationId } = useParams();
+	const searchParams = new URLSearchParams(location.search);
+	const requestedAssessmentId = searchParams.get('assessmentId');
 	const [assessmentResult, setAssessmentResult] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -160,7 +162,7 @@ const AssessmentResults = () => {
 		const fetchAssessmentResult = async () => {
 			try {
 				if (applicationId) {
-					const response = await api.getApplicationAssessmentResult(applicationId);
+					const response = await api.getApplicationAssessmentResult(applicationId, requestedAssessmentId);
 					if (response.success) {
 						setAssessmentResult(response.data);
 					} else {
@@ -176,7 +178,7 @@ const AssessmentResults = () => {
 		};
 
 		fetchAssessmentResult();
-	}, [applicationId]);
+	}, [applicationId, requestedAssessmentId]);
 
 	const {
 		result,

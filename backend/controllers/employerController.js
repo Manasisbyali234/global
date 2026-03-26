@@ -2944,6 +2944,7 @@ exports.scheduleInterviewRound = async (req, res) => {
       interviewRound.fromdate = new Date(fromDate);
       interviewRound.todate = new Date(toDate);
       interviewRound.startTime = normalizeTimeFormat(time || '');
+      interviewRound.assessmentId = roundType === 'assessment' ? assessmentId : interviewRound.assessmentId;
       interviewRound.description = (description && description.trim()) ? description : (roundType !== 'assessment' ? `Interview round for ${roundKey.replace(/_\d+$/, '') || 'candidate evaluation'}.` : interviewRound.description);
       if (subStages || subStagesArray || days || daysArray) {
         const stagesToUse = subStages || subStagesArray || days || daysArray || [];
@@ -2991,6 +2992,7 @@ exports.scheduleInterviewRound = async (req, res) => {
         fromdate: new Date(fromDate),
         todate: new Date(toDate),
         startTime: normalizeTimeFormat(time || ''),
+        assessmentId: roundType === 'assessment' ? assessmentId : null,
         description: (description && description.trim()) ? description : (roundType !== 'assessment' ? `Interview round for ${roundKey.replace(/_\d+$/, '') || 'candidate evaluation'}.` : ''),
         applicationLimit: job.applicationLimit || 50,
         subStages: (subStages || subStagesArray || days || daysArray || []).map(sub => ({

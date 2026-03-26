@@ -418,6 +418,7 @@ const assessmentDebugMiddleware = (req, res, next) => {
 
 router.get('/assessments/available', assessmentController.getAvailableAssessments);
 router.get('/assessments/:id', assessmentController.getAssessmentForCandidate);
+router.get('/assessments/attempt/:attemptId', assessmentController.getCandidateAttemptState);
 router.post('/assessments/start', assessmentDebugMiddleware, assessmentController.startAssessment);
 router.post('/assessments/answer', assessmentDebugMiddleware, assessmentController.submitAnswer);
 router.post('/assessments/upload-answer', uploadAnswerFile.single('answerFile'), assessmentController.uploadFileAnswer);

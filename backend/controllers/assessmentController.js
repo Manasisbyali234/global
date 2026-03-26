@@ -3,6 +3,7 @@ const Assessment = require('../models/Assessment');
 const AssessmentAttempt = require('../models/AssessmentAttempt');
 const Application = require('../models/Application');
 const Job = require('../models/Job');
+const InterviewProcess = require('../models/InterviewProcess');
 
 const RESTRICTION_WARNING_LIMIT = 2;
 const RESTRICTION_SUSPEND_THRESHOLD = 3;
@@ -14,6 +15,37 @@ const RESTRICTED_WARNING_VIOLATIONS = new Set([
   'fullscreen_exit',
   'multi_screen'
 ]);
+
+const updateInterviewProcessAssessmentStage = async (applicationId, assessmentId, updates = {}) => {
+  if (!applicationId || !assessmentId) {
+    return;
+  }
+
+  const interviewProcess = await InterviewProcess.findOne({ applicationId });
+  if (!interviewProcess?.stages?.length) {
+    return;
+  }
+
+  const matchingStage = interviewProcess.stages.find((stage) =>
+    stage?.stageType === 'assessment' &&
+    stage?.assessmentId &&
+    String(stage.assessmentId) === String(assessmentId)
+  );
+
+  if (!matchingStage) {
+    return;
+  }
+
+  Object.entries(updates).forEach(([key, value]) => {
+    if (value !== undefined) {
+      matchingStage[key] = value;
+    }
+  });
+
+  interviewProcess.markModified('stages');
+  interviewProcess.updateProcessStatus();
+  await interviewProcess.save();
+};
 
 // Employer: Create Assessment
 exports.createAssessment = async (req, res) => {
@@ -353,6 +385,27 @@ exports.getAssessmentForCandidate = async (req, res) => {
   }
 };
 
+const buildCandidateAttemptResponse = (attempt, assessment) => {
+  const totalSeconds = Number(assessment?.timer || 0) * 60;
+  const startedAt = attempt?.startTime ? new Date(attempt.startTime).getTime() : null;
+  const elapsedSeconds = startedAt ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000)) : 0;
+  const computedTimeRemaining = startedAt ? Math.max(0, totalSeconds - elapsedSeconds) : totalSeconds;
+
+  return {
+    _id: attempt._id,
+    assessmentId: attempt.assessmentId,
+    startTime: attempt.startTime,
+    timeRemaining: computedTimeRemaining,
+    totalMarks: attempt.totalMarks,
+    currentQuestion: attempt.currentQuestion || 0,
+    warningCount: attempt.restrictionWarningCount || 0,
+    restrictionWarningCount: attempt.restrictionWarningCount || 0,
+    status: attempt.status,
+    answers: attempt.answers || [],
+    captureCount: Array.isArray(attempt.captures) ? attempt.captures.length : 0
+  };
+};
+
 // Candidate: Start Assessment
 exports.startAssessment = async (req, res) => {
   try {
@@ -444,7 +497,42 @@ exports.startAssessment = async (req, res) => {
         jobId: attempt.jobId
       });
     }
-    
+
+    const existingStartTime = attempt.startTime ? new Date(attempt.startTime).getTime() : null;
+    const elapsedSeconds = existingStartTime
+      ? Math.max(0, Math.floor((Date.now() - existingStartTime) / 1000))
+      : 0;
+    const remainingSeconds = Math.max(0, (Number(assessment.timer || 0) * 60) - elapsedSeconds);
+
+    if (attempt.status === 'in_progress' && existingStartTime) {
+      if (remainingSeconds <= 0) {
+        attempt.status = 'expired';
+        attempt.endTime = new Date();
+        attempt.timeRemaining = 0;
+        await attempt.save();
+
+        await Application.findByIdAndUpdate(applicationId, {
+          assessmentStatus: 'expired',
+          assessmentAttemptId: attempt._id
+        });
+
+        await updateInterviewProcessAssessmentStage(applicationId, assessmentId, {
+          assessmentCompletedAt: attempt.endTime
+        });
+
+        return res.status(400).json({
+          success: false,
+          message: 'Assessment time expired. You cannot retake this assessment.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: 'Assessment resumed successfully',
+        attempt: buildCandidateAttemptResponse(attempt, assessment)
+      });
+    }
+
     attempt.status = 'in_progress';
     attempt.startTime = new Date();
     attempt.timeRemaining = assessment.timer * 60;
@@ -459,21 +547,18 @@ exports.startAssessment = async (req, res) => {
       assessmentStatus: 'in_progress',
       assessmentAttemptId: attempt._id
     });
+
+    await updateInterviewProcessAssessmentStage(applicationId, assessmentId, {
+      status: 'in_progress',
+      assessmentStartedAt: attempt.startTime
+    });
     
     console.log(`Assessment started successfully for candidate ${req.user._id}, attempt ${attempt._id}`);
     
     res.json({ 
       success: true, 
       message: 'Assessment started successfully',
-      attempt: {
-        _id: attempt._id,
-        assessmentId: attempt.assessmentId,
-        startTime: attempt.startTime,
-        timeRemaining: attempt.timeRemaining,
-        totalMarks: attempt.totalMarks,
-        currentQuestion: attempt.currentQuestion,
-        warningCount: attempt.restrictionWarningCount || 0
-      }
+      attempt: buildCandidateAttemptResponse(attempt, assessment)
     });
   } catch (error) {
     console.error('Start assessment error:', error);
@@ -482,6 +567,54 @@ exports.startAssessment = async (req, res) => {
       message: 'Failed to start assessment. Please try again.',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
+  }
+};
+
+exports.getCandidateAttemptState = async (req, res) => {
+  try {
+    const attempt = await AssessmentAttempt.findOne({
+      _id: req.params.attemptId,
+      candidateId: req.user._id
+    });
+
+    if (!attempt) {
+      return res.status(404).json({ success: false, message: 'Assessment attempt not found' });
+    }
+
+    const assessment = await Assessment.findById(attempt.assessmentId).select('timer');
+    if (!assessment) {
+      return res.status(404).json({ success: false, message: 'Assessment not found' });
+    }
+
+    if (attempt.status === 'in_progress') {
+      const startedAt = attempt.startTime ? new Date(attempt.startTime).getTime() : null;
+      const elapsedSeconds = startedAt ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000)) : 0;
+      const remainingSeconds = Math.max(0, (Number(assessment.timer || 0) * 60) - elapsedSeconds);
+
+      if (remainingSeconds <= 0) {
+        attempt.status = 'expired';
+        attempt.endTime = new Date();
+        attempt.timeRemaining = 0;
+        await attempt.save();
+
+        await Application.findByIdAndUpdate(attempt.applicationId, {
+          assessmentStatus: 'expired',
+          assessmentAttemptId: attempt._id
+        });
+
+        await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
+          assessmentCompletedAt: attempt.endTime
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      attempt: buildCandidateAttemptResponse(attempt, assessment)
+    });
+  } catch (error) {
+    console.error('Get candidate attempt state error:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -880,6 +1013,14 @@ exports.submitAssessment = async (req, res) => {
     };
     
     await Application.findByIdAndUpdate(attempt.applicationId, updateData);
+
+    await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
+      status: result === 'pass' ? 'passed' : 'failed',
+      assessmentResult: result,
+      assessmentScore: score,
+      assessmentPercentage: attempt.percentage,
+      assessmentCompletedAt: attempt.endTime
+    });
     
     console.log(`Assessment submitted successfully for attempt ${attemptId}:`, {
       score,
@@ -1004,6 +1145,10 @@ exports.recordViolation = async (req, res) => {
         await Application.findByIdAndUpdate(attempt.applicationId, {
           assessmentStatus: 'suspended',
           assessmentAttemptId: attempt._id
+        });
+
+        await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
+          assessmentCompletedAt: attempt.suspendedAt
         });
       }
     }
@@ -1140,18 +1285,28 @@ exports.getAssessmentResultByApplication = async (req, res) => {
   try {
     const applicationId = req.params.applicationId;
     const candidateId = req.user._id;
+    const assessmentId = req.query.assessmentId;
     
     console.log('[getAssessmentResultByApplication] Query params:', {
       applicationId,
       candidateId: candidateId.toString(),
+      assessmentId: assessmentId || null,
       userRole: req.userRole
     });
-    
-    const attempt = await AssessmentAttempt.findOne({
+
+    const attemptQuery = {
       applicationId,
       candidateId,
       status: { $in: ['completed', 'expired'] }
-    }).populate('assessmentId');
+    };
+
+    if (assessmentId) {
+      attemptQuery.assessmentId = assessmentId;
+    }
+
+    const attempt = await AssessmentAttempt.findOne(attemptQuery)
+      .sort({ createdAt: -1 })
+      .populate('assessmentId');
     
     if (!attempt) {
       console.log('[getAssessmentResultByApplication] No attempt found, checking all records for this application...');

@@ -816,6 +816,12 @@ export const api = {
     }).then(handleApiResponse);
   },
 
+  getCandidateAssessmentAttempt: (attemptId) => {
+    return fetch(`${API_BASE_URL}/candidate/assessments/attempt/${attemptId}`, {
+      headers: getAuthHeaders('candidate'),
+    }).then(handleApiResponse);
+  },
+
   startAssessment: (data) => {
     return fetch(`${API_BASE_URL}/candidate/assessments/start`, {
       method: 'POST',
@@ -855,8 +861,13 @@ export const api = {
     }).then(handleApiResponse);
   },
 
-  getApplicationAssessmentResult: (applicationId) => {
-    return fetch(`${API_BASE_URL}/candidate/assessments/result/application/${applicationId}`, {
+  getApplicationAssessmentResult: (applicationId, assessmentId = null) => {
+    const params = new URLSearchParams();
+    if (assessmentId) {
+      params.set('assessmentId', assessmentId);
+    }
+    const query = params.toString();
+    return fetch(`${API_BASE_URL}/candidate/assessments/result/application/${applicationId}${query ? `?${query}` : ''}`, {
       headers: getAuthHeaders('candidate'),
     }).then(handleApiResponse);
   },

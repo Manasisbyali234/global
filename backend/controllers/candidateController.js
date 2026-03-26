@@ -5,6 +5,7 @@ const Job = require('../models/Job');
 const Application = require('../models/Application');
 const Message = require('../models/Message');
 const InterviewProcess = require('../models/InterviewProcess');
+const AssessmentAttempt = require('../models/AssessmentAttempt');
 const { createProfileCompletionNotification, createNotification } = require('./notificationController');
 const { sendWelcomeEmail, sendJobApplicationConfirmationEmail } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
@@ -1296,7 +1297,7 @@ function resolveAssessmentRoundSchedule(job = {}, uniqueKey = '', dbRounds = [])
     startTime,
     endTime,
     description,
-    assessmentId: job?.assessmentId || null
+    assessmentId: matchedDbRound?.assessmentId || roundDetails?.assessmentId || job?.assessmentId || null
   };
 }
 
@@ -1610,6 +1611,7 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
             targetDetails.roundType = round.roundType || targetDetails.roundType;
             targetDetails.key = round.key || targetDetails.key;
             targetDetails.name = round.name || targetDetails.name;
+            targetDetails.assessmentId = round.assessmentId || targetDetails.assessmentId || null;
             targetDetails.description = round.description || targetDetails.description;
             targetDetails.fromDate = round.fromdate || targetDetails.fromDate || targetDetails.date || null;
             targetDetails.toDate = round.todate || targetDetails.toDate || targetDetails.fromDate || targetDetails.date || null;
@@ -1666,19 +1668,69 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
           console.log(`Job ${app.jobId._id} has assessmentId:`, app.jobId.assessmentId, 'Type:', typeof app.jobId.assessmentId);
         }
         
-        // Check if there's an assessment attempt for this application
-        let assessmentAttempt = null;
-        if (app.jobId?.assessmentId) {
-          const AssessmentAttempt = require('../models/AssessmentAttempt');
-          assessmentAttempt = await AssessmentAttempt.findOne({
-            applicationId: app._id,
-            candidateId: req.user._id,
-            assessmentId: app.jobId.assessmentId
-          }).lean();
+        const assessmentAttempts = await AssessmentAttempt.find({
+          applicationId: app._id,
+          candidateId: req.user._id
+        })
+          .sort({ createdAt: -1 })
+          .lean();
 
-          if (assessmentAttempt) {
-            console.log(`Found assessment attempt for app ${app._id}: status=${assessmentAttempt.status}`);
+        const assessmentAttemptsByAssessmentId = assessmentAttempts.reduce((acc, attempt) => {
+          const key = attempt?.assessmentId ? String(attempt.assessmentId) : '';
+          if (key && !acc[key]) {
+            acc[key] = attempt;
           }
+          return acc;
+        }, {});
+
+        let normalizedInterviewProcess = interviewProcess;
+        if (interviewProcess?.stages?.length) {
+          normalizedInterviewProcess = {
+            ...interviewProcess,
+            stages: interviewProcess.stages.map((stage) => {
+              if (stage?.stageType !== 'assessment') {
+                return stage;
+              }
+
+              const assessmentKey = stage?.assessmentId ? String(stage.assessmentId) : '';
+              const matchedAttempt = assessmentKey ? assessmentAttemptsByAssessmentId[assessmentKey] : null;
+              if (!matchedAttempt) {
+                return stage;
+              }
+
+              let stageStatus = stage.status;
+              if (matchedAttempt.status === 'completed') {
+                stageStatus = matchedAttempt.result === 'pass'
+                  ? 'passed'
+                  : matchedAttempt.result === 'fail'
+                    ? 'failed'
+                    : 'completed';
+              } else if (matchedAttempt.status === 'in_progress') {
+                stageStatus = 'in_progress';
+              }
+
+              return {
+                ...stage,
+                status: stageStatus,
+                assessmentAttemptId: matchedAttempt._id,
+                assessmentAttemptStatus: matchedAttempt.status,
+                assessmentResult: matchedAttempt.result || stage.assessmentResult || null,
+                assessmentScore: matchedAttempt.score ?? stage.assessmentScore ?? null,
+                assessmentPercentage: matchedAttempt.percentage ?? stage.assessmentPercentage ?? null,
+                assessmentStartedAt: matchedAttempt.startTime || stage.assessmentStartedAt || null,
+                assessmentCompletedAt: matchedAttempt.endTime || stage.assessmentCompletedAt || null
+              };
+            })
+          };
+        }
+
+        const assessmentAttempt =
+          (app.jobId?.assessmentId && assessmentAttemptsByAssessmentId[String(app.jobId.assessmentId)]) ||
+          assessmentAttempts[0] ||
+          null;
+
+        if (assessmentAttempt) {
+          console.log(`Found assessment attempt for app ${app._id}: status=${assessmentAttempt.status}`);
         }
 
         return {
@@ -1688,8 +1740,10 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
           assessmentPercentage: app.assessmentPercentage || null,
           assessmentResult: app.assessmentResult || null,
           assessmentAttempt: assessmentAttempt,
+          assessmentAttempts,
+          assessmentAttemptsByAssessmentId,
           assessmentTimerInfo,
-          interviewProcess: interviewProcess,
+          interviewProcess: normalizedInterviewProcess,
           interviewRoundIds: interviewRoundIds
         };
       })

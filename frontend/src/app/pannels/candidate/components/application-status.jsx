@@ -89,9 +89,17 @@ function CanStatusPage() {
 		};
 	};
 
-	const getAssessmentCompletionInfo = (application = {}) => {
-		const status = String(application?.assessmentStatus || '').toLowerCase();
-		const result = String(application?.assessmentResult || '').toLowerCase();
+	const normalizeAssessmentId = (value) => {
+		if (!value) return '';
+		if (typeof value === 'object') {
+			return String(value?._id || value?.id || '').trim();
+		}
+		return String(value).trim();
+	};
+
+	const getAssessmentCompletionInfo = (source = {}) => {
+		const status = String(source?.assessmentStatus ?? source?.assessmentAttemptStatus ?? source?.status ?? '').toLowerCase();
+		const result = String(source?.assessmentResult ?? source?.result ?? '').toLowerCase();
 		const isPassed = result === 'pass' || result === 'passed' || status === 'passed';
 		const isFailed = result === 'fail' || result === 'failed' || status === 'failed';
 		const isCompleted = ['completed', 'passed', 'failed'].includes(status) || isPassed || isFailed;
@@ -108,6 +116,57 @@ function CanStatusPage() {
 			isExpired,
 			isInProgress,
 			isSuspended
+		};
+	};
+
+	const getAssessmentRoundInfo = (application = {}, roundName = 'Assessment', roundDetails = null) => {
+		const stageOrder = typeof roundDetails?.__roundIndex === 'number' ? roundDetails.__roundIndex + 1 : null;
+		const stages = Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages : [];
+		const assessmentStages = stages.filter((stage) => stage?.stageType === 'assessment');
+		const requestedAssessmentId = normalizeAssessmentId(roundDetails?.assessmentId);
+
+		let relatedStage = null;
+		if (requestedAssessmentId) {
+			relatedStage = assessmentStages.find((stage) => normalizeAssessmentId(stage?.assessmentId) === requestedAssessmentId) || null;
+		}
+		if (!relatedStage && stageOrder !== null) {
+			relatedStage = assessmentStages.find((stage) => Number(stage?.stageOrder) === stageOrder) || null;
+		}
+		if (!relatedStage && assessmentStages.length === 1) {
+			relatedStage = assessmentStages[0];
+		}
+
+		const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
+		const knownAssessmentIds = Array.from(new Set([
+			...assessmentStages.map((stage) => normalizeAssessmentId(stage?.assessmentId)),
+			...Object.keys(attemptsByAssessmentId || {}),
+			normalizeAssessmentId(application?.jobId?.assessmentId)
+		].filter(Boolean)));
+
+		const fallbackAssessmentId = knownAssessmentIds.length <= 1 ? knownAssessmentIds[0] || '' : '';
+		const assessmentId =
+			requestedAssessmentId ||
+			normalizeAssessmentId(relatedStage?.assessmentId) ||
+			fallbackAssessmentId;
+		const attempt = assessmentId ? attemptsByAssessmentId[assessmentId] || null : null;
+
+		const shouldUseApplicationFallback =
+			knownAssessmentIds.length <= 1 &&
+			(!assessmentId || assessmentId === normalizeAssessmentId(application?.jobId?.assessmentId));
+
+		const completionInfo = getAssessmentCompletionInfo({
+			status: attempt?.status || relatedStage?.assessmentAttemptStatus || relatedStage?.status || (shouldUseApplicationFallback ? application?.assessmentStatus : ''),
+			result: attempt?.result || relatedStage?.assessmentResult || (shouldUseApplicationFallback ? application?.assessmentResult : '')
+		});
+
+		return {
+			assessmentId,
+			attempt,
+			relatedStage,
+			completionInfo,
+			score: attempt?.score ?? relatedStage?.assessmentScore ?? (shouldUseApplicationFallback ? application?.assessmentScore : null),
+			percentage: attempt?.percentage ?? relatedStage?.assessmentPercentage ?? (shouldUseApplicationFallback ? application?.assessmentPercentage : null),
+			roundName
 		};
 	};
 
@@ -1109,8 +1168,9 @@ function CanStatusPage() {
 		};
 
 		// Check assessment status for Assessment rounds
-		if (roundName === 'Assessment' && application.assessmentStatus) {
-			const { status, isPassed, isFailed, isCompleted, isInProgress } = getAssessmentCompletionInfo(application);
+		if (roundName === 'Assessment') {
+			const assessmentRoundInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
+			const { status, isPassed, isFailed, isCompleted, isInProgress, isExpired, isSuspended } = assessmentRoundInfo.completionInfo;
 			
 			// Check if assessment window has expired
 			const windowInfo = getAssessmentWindowInfo(application.jobId, roundDetails);
@@ -1120,7 +1180,7 @@ function CanStatusPage() {
 			if (isFailed) {
 				return { text: 'Fail', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
-			if (windowInfo.isAfterEnd && !isCompleted && !isInProgress) {
+			if ((isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
 				return { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 			
@@ -1143,7 +1203,7 @@ function CanStatusPage() {
 			
 			const result = statusMappings[status];
 			if (!result) {
-				console.warn(`Unknown assessment status: "${application.assessmentStatus}", defaulting to Pending`);
+				console.warn(`Unknown assessment status: "${status}", defaulting to Pending`);
 				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
 			return result;
@@ -1272,7 +1332,7 @@ function CanStatusPage() {
 			showError(endLabel ? `⛔ Assessment Window Closed\n\nThe assessment window ended on ${endLabel}. You can no longer take this assessment.` : '⛔ Assessment window has ended. You can no longer access this assessment.');
 			return;
 		}
-		const assessmentId = job?.assessmentId;
+		const assessmentId = getAssessmentRoundInfo(application, 'Assessment', roundDetails).assessmentId || job?.assessmentId;
 		const jobId = job?._id || job;
 		const applicationId = application._id;
 		if (assessmentId && jobId && applicationId) {
@@ -1623,6 +1683,16 @@ function CanStatusPage() {
 																					}
 																				}
 																			}
+																			roundDetails = {
+																				...(roundDetails || {}),
+																				__uniqueKey: uniqueKey,
+																				__roundType: typeof round === 'object' ? round.roundType : roundName,
+																				__roundName: roundName,
+																				__roundIndex: roundIndex
+																			};
+																			const assessmentRoundInfo = roundName === 'Assessment'
+																				? getAssessmentRoundInfo(app, roundName, roundDetails)
+																				: null;
 																			const roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
 																			const assessmentSchedule = roundName === 'Assessment'
 																				? getAssessmentScheduleSource(app.jobId, roundDetails)
@@ -1682,9 +1752,9 @@ function CanStatusPage() {
 																							</span>
 																						)}
 																						{/* Show pass/fail result for completed assessments */}
-																						{roundName === 'Assessment' && (app.assessmentResult === 'pass' || app.assessmentResult === 'fail') && (
-																							<span className={`badge ${app.assessmentResult === 'pass' ? 'bg-success' : 'bg-danger'}`} style={{fontSize: '9px', padding: '2px 6px', marginTop: '2px'}}>
-																								{app.assessmentResult === 'pass' ? 'Pass' : 'Fail'}
+																						{roundName === 'Assessment' && (assessmentRoundInfo?.completionInfo?.isPassed || assessmentRoundInfo?.completionInfo?.isFailed) && (
+																							<span className={`badge ${assessmentRoundInfo.completionInfo.isPassed ? 'bg-success' : 'bg-danger'}`} style={{fontSize: '9px', padding: '2px 6px', marginTop: '2px'}}>
+																								{assessmentRoundInfo.completionInfo.isPassed ? 'Pass' : 'Fail'}
 																							</span>
 																						)}
 
@@ -1998,6 +2068,16 @@ function CanStatusPage() {
 												roundDetails = { ...roundDetails, employerRemarks: remarks };
 											}
 										}
+										roundDetails = {
+											...(roundDetails || {}),
+											__uniqueKey: uniqueKey,
+											__roundType: typeof round === 'object' ? round.roundType : roundName,
+											__roundName: roundName,
+											__roundIndex: roundIndex
+										};
+										const assessmentRoundInfo = roundName === 'Assessment'
+											? getAssessmentRoundInfo(selectedApplication, roundName, roundDetails)
+											: null;
 										const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName, true, roundDetails);
 										const assessmentSchedule = roundName === 'Assessment'
 											? getAssessmentScheduleSource(selectedApplication.jobId, roundDetails)
@@ -2006,7 +2086,7 @@ function CanStatusPage() {
 											? getAssessmentWindowInfo(selectedApplication.jobId, roundDetails)
 											: null;
 										
-										const assessmentId = selectedApplication.jobId?.assessmentId;
+										const assessmentId = assessmentRoundInfo?.assessmentId || selectedApplication.jobId?.assessmentId;
 
 										return (
 											<div key={roundIndex} className="mb-3 p-3" style={{backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e0e0e0'}}>
@@ -2078,7 +2158,9 @@ function CanStatusPage() {
 
 														{/* Assessment Employer Remarks */}
 														{(() => {
-															const assessmentProcess = selectedApplication.interviewProcesses?.find(p => p.type === 'assessment' || p.name?.toLowerCase().includes('assessment'));
+															const assessmentProcess =
+																selectedApplication.interviewProcesses?.[roundIndex] ||
+																selectedApplication.interviewProcesses?.find(p => p.type === 'assessment' || p.name?.toLowerCase().includes('assessment'));
 															const processRemarks = resolveProcessRemarks(
 																assessmentProcess,
 																'Assessment',
@@ -2106,7 +2188,7 @@ function CanStatusPage() {
 														{/* Assessment Action Buttons */}
 														<div className="mt-3 pt-2 border-top d-flex gap-2 flex-wrap">
 															{(() => {
-																const assessmentInfo = getAssessmentCompletionInfo(selectedApplication);
+																const assessmentInfo = assessmentRoundInfo?.completionInfo || getAssessmentCompletionInfo(selectedApplication);
 																const hasFinalAssessmentResult = assessmentInfo.isCompleted;
 																const assessmentWindowClosed = assessmentWindowInfo?.isAfterEnd;
 
@@ -2115,7 +2197,8 @@ function CanStatusPage() {
 																<button 
 																	className="btn btn-sm btn-success"
 																	onClick={() => {
-																		navigate(canRoute(candidate.RESULT.replace(':applicationId', selectedApplication._id)));
+																		const resultUrl = canRoute(candidate.RESULT.replace(':applicationId', selectedApplication._id));
+																		navigate(assessmentId ? `${resultUrl}?assessmentId=${encodeURIComponent(assessmentId)}` : resultUrl);
 																	}}
 																	style={{borderRadius: '6px'}}
 																>
@@ -2432,10 +2515,8 @@ function CanStatusPage() {
 													const buttonLabel = hasBookedSlot ? 'Join Now' : 'Book Your Slot';
 													const buttonIcon = hasBookedSlot ? 'fa-video-camera' : 'fa-calendar';
 													let canBookThisRound = true;
-													const assessmentResult = String(selectedApplication.assessmentResult || '').toLowerCase();
-													const assessmentStatus = String(selectedApplication.assessmentStatus || '').toLowerCase();
-													const assessmentFailed = assessmentResult === 'fail' || assessmentResult === 'failed' || assessmentStatus === 'failed';
-													const assessmentPassed = assessmentResult === 'pass' || assessmentResult === 'passed' || assessmentStatus === 'completed';
+													let previousAssessmentFailed = false;
+													let previousAssessmentPassed = false;
 
 													if (roundIndex > 0) {
 														const previousRound = roundsList[roundIndex - 1];
@@ -2462,7 +2543,16 @@ function CanStatusPage() {
 														
 														const previousProcessStatus = (previousRelatedProcess?.status || '').toLowerCase();
 														const previousStageStatus = (previousRelatedStage?.status || '').toLowerCase();
-														const previousRoundStatus = getRoundStatus(selectedApplication, roundIndex - 1, previousRoundName, true);
+														const previousRoundDetails = {
+															__uniqueKey: previousRoundKey,
+															__roundType: previousRoundTypeRaw,
+															__roundName: previousRoundName,
+															__roundIndex: roundIndex - 1
+														};
+														const previousAssessmentInfo = previousRoundName === 'Assessment'
+															? getAssessmentRoundInfo(selectedApplication, previousRoundName, previousRoundDetails)
+															: null;
+														const previousRoundStatus = getRoundStatus(selectedApplication, roundIndex - 1, previousRoundName, true, previousRoundDetails);
 														const previousStatusText = (previousRoundStatus?.text || '').toLowerCase();
 
 														const invalidStatusStates = ['', 'pending'];
@@ -2488,11 +2578,13 @@ function CanStatusPage() {
 
 														// For assessment, remarks may not exist; keep completion-based gating.
 														const isPreviousAssessment = previousRoundName === 'Assessment';
+														previousAssessmentFailed = Boolean(previousAssessmentInfo?.completionInfo?.isFailed);
+														previousAssessmentPassed = Boolean(previousAssessmentInfo?.completionInfo?.isPassed);
 														const completedStates = ['completed', 'passed', 'failed', 'rejected', 'expired'];
 														const previousCompleted = completedStates.includes(previousStatusText);
 
 														canBookThisRound = isPreviousAssessment
-															? (previousCompleted && assessmentPassed && !assessmentFailed)
+															? (previousCompleted && previousAssessmentPassed && !previousAssessmentFailed)
 															: isPreviousShortlisted;
 													}
 													
@@ -2500,7 +2592,7 @@ function CanStatusPage() {
 														return null;
 													}
 
-													if (assessmentFailed) {
+													if (previousAssessmentFailed) {
 														return (
 															<div style={{marginTop: '12px', display: 'flex', justifyContent: 'center'}}>
 																<span

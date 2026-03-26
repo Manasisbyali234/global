@@ -9,6 +9,7 @@ const interviewRoundSchema = new mongoose.Schema({
   todate: { type: Date },
   startTime: { type: String },
   endTime: { type: String },
+  assessmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Assessment' },
   description: { type: String },
   applicationLimit: { type: Number },
   subStages: [{
