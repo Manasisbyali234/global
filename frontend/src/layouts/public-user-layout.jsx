@@ -4,6 +4,7 @@ import PublicUserRoutes from "../routing/public-user-routes";
 import InnerPageBanner from "../app/common/inner-page-banner";
 import { showBanner, setBanner } from "../globals/banner-data";
 import { showHeader, showFooter, setFooterType, setHeaderType } from "../globals/layout-config";
+import "../public-pages-mobile-responsive.css";
 
 function PublicUserLayout() {
     const currentpath = useLocation().pathname;
@@ -26,14 +27,14 @@ function PublicUserLayout() {
 
     return (
         <>
-            <div className={`page-wraper ${pageClass}`}>
+            <div className={`page-wraper public-page-layout ${pageClass}`}>
                 {/* Header */}
                 {
                     showHeader(currentpath) &&
                     setHeaderType(currentpath)
                 }
 
-                <div className="page-content">
+                <div className="page-content public-page-content">
                     {
                         showBanner(currentpath) &&
                         <InnerPageBanner _data={setBanner(currentpath)} />

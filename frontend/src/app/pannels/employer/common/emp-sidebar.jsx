@@ -9,10 +9,11 @@ import "./emp-sidebar-scroll-fix.css";
 function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
     const currentpath = useLocation().pathname;
     const [hasNewTickets, setHasNewTickets] = useState(false);
-    const [showScrollRail, setShowScrollRail] = useState(false);
-    const [scrollThumbHeight, setScrollThumbHeight] = useState(0);
+    const [scrollThumbHeight, setScrollThumbHeight] = useState(48);
     const [scrollThumbTop, setScrollThumbTop] = useState(0);
+    const [isScrolling, setIsScrolling] = useState(false);
     const navRef = useRef(null);
+    const scrollTimerRef = useRef(null);
 
     const checkNewTickets = async () => {
         try {
@@ -52,10 +53,8 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
             const { clientHeight, scrollHeight, scrollTop } = navElement;
             const hasOverflow = scrollHeight > clientHeight + 1;
 
-            setShowScrollRail(hasOverflow);
-
             if (!hasOverflow) {
-                setScrollThumbHeight(0);
+                setScrollThumbHeight(Math.max(clientHeight - 20, 48));
                 setScrollThumbTop(0);
                 return;
             }
@@ -69,20 +68,53 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
             setScrollThumbTop(thumbTop);
         };
 
-        updateScrollRail();
-        navElement.addEventListener("scroll", updateScrollRail);
-        window.addEventListener("resize", updateScrollRail);
+        const handleScroll = () => {
+            updateScrollRail();
+            setIsScrolling(true);
+            if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+            scrollTimerRef.current = setTimeout(() => setIsScrolling(false), 800);
+        };
+
+        let frameId = 0;
+        const scheduleUpdate = () => {
+            if (frameId) {
+                cancelAnimationFrame(frameId);
+            }
+
+            frameId = requestAnimationFrame(() => {
+                frameId = 0;
+                updateScrollRail();
+            });
+        };
+
+        scheduleUpdate();
+        window.setTimeout(scheduleUpdate, 0);
+        window.setTimeout(scheduleUpdate, 150);
+
+        navElement.addEventListener("scroll", handleScroll);
+        window.addEventListener("resize", scheduleUpdate);
 
         let resizeObserver;
         if (typeof ResizeObserver !== "undefined") {
-            resizeObserver = new ResizeObserver(updateScrollRail);
+            resizeObserver = new ResizeObserver(scheduleUpdate);
             resizeObserver.observe(navElement);
+            if (navElement.firstElementChild) {
+                resizeObserver.observe(navElement.firstElementChild);
+            }
         }
 
+        const mutationObserver = new MutationObserver(scheduleUpdate);
+        mutationObserver.observe(navElement, { childList: true, subtree: true });
+
         return () => {
-            navElement.removeEventListener("scroll", updateScrollRail);
-            window.removeEventListener("resize", updateScrollRail);
+            if (frameId) {
+                cancelAnimationFrame(frameId);
+            }
+            navElement.removeEventListener("scroll", handleScroll);
+            if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+            window.removeEventListener("resize", scheduleUpdate);
             resizeObserver?.disconnect();
+            mutationObserver.disconnect();
         };
     }, [sidebarActive, isMobile]);
 
@@ -182,17 +214,15 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
                         </li>
                         </ul>
                     </div>
-                    {showScrollRail && (
-                        <div className="emp-sidebar-scroll-rail" aria-hidden="true">
-                            <div
-                                className="emp-sidebar-scroll-thumb"
-                                style={{
-                                    height: `${scrollThumbHeight}px`,
-                                    transform: `translateY(${scrollThumbTop}px)`
-                                }}
-                            />
-                        </div>
-                    )}
+                    <div className="emp-sidebar-scroll-rail" aria-hidden="true">
+                        <div
+                    className={`emp-sidebar-scroll-thumb${isScrolling ? ' is-scrolling' : ''}`}
+                            style={{
+                                height: `${scrollThumbHeight}px`,
+                                transform: `translateY(${scrollThumbTop}px)`
+                            }}
+                        />
+                    </div>
                 </div>
             </nav>
         </>

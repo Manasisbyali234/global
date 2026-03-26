@@ -14,7 +14,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
   const [violations, setViolations] = useState([]);
   const [startTime] = useState(Date.now());
   const { popup, showSuccess, hidePopup } = usePopupNotification();
-  const [captureCount, setCaptureCount] = useState(0);
+  const captureCountRef = React.useRef(0);
   const videoRef = React.useRef(null);
   const canvasRef = React.useRef(null);
 
@@ -87,11 +87,6 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
       return;
     }
     
-    if (captureCount >= 5) {
-      console.log('✅ Already captured 5 images');
-      return;
-    }
-    
     const canvas = canvasRef.current;
     const video = videoRef.current;
     
@@ -107,7 +102,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0);
       
-      console.log(`📸 Capturing image ${captureCount + 1}/5 (${video.videoWidth}x${video.videoHeight})`);
+      console.log(`📸 Capturing image #${captureCountRef.current + 1} (${video.videoWidth}x${video.videoHeight})`);
       
       canvas.toBlob(async (blob) => {
         if (!blob) {
@@ -125,9 +120,9 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
           const formData = new FormData();
           formData.append('capture', blob, `capture_${Date.now()}.jpg`);
           formData.append('attemptId', attemptId);
-          formData.append('captureIndex', captureCount);
+          formData.append('captureIndex', captureCountRef.current);
           
-          console.log(`📤 Uploading capture ${captureCount + 1}... (${(blob.size/1024).toFixed(2)}KB)`);
+          console.log(`📤 Uploading capture #${captureCountRef.current + 1}... (${(blob.size/1024).toFixed(2)}KB)`);
           
           const response = await axios.post('/api/candidate/assessments/capture', formData, {
             headers: { 
@@ -138,8 +133,8 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
           });
           
           if (response.data.success) {
-            console.log(`✅ Capture ${captureCount + 1} uploaded successfully:`, response.data.capturePath);
-            setCaptureCount(prev => prev + 1);
+            captureCountRef.current += 1;
+            console.log(`✅ Capture #${captureCountRef.current} uploaded successfully:`, response.data.capturePath);
           } else {
             console.error('❌ Upload failed:', response.data.message);
           }
@@ -159,11 +154,9 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
     console.log(`   - Assessment time: ${assessment.timer} minutes`);
     console.log(`   - Capture interval: 5 minutes`);
     
-    // Take first capture after 30 seconds to allow user to settle
-    setTimeout(() => {
-      console.log('📸 Taking first capture...');
-      captureImage();
-    }, 30000);
+    // Take first capture immediately
+    console.log('📸 Taking first capture...');
+    captureImage();
     
     // Then capture every 5 minutes
     const interval = setInterval(() => {
@@ -785,7 +778,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
               }}
               type="button"
             >
-              🧪 Test Capture ({captureCount}/5)
+              🧪 Test Capture ({captureCountRef.current})
             </button>
             
             <div>

@@ -1244,6 +1244,62 @@ function getAssessmentTimerInfo(job) {
   };
 }
 
+function normalizeRoundLookupKey(value = '') {
+  return String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function resolveAssessmentRoundSchedule(job = {}, uniqueKey = '', dbRounds = []) {
+  const detailsMap = job?.interviewRoundDetails || {};
+  const detailsEntries = Object.entries(detailsMap);
+  const normalizedUniqueKey = normalizeRoundLookupKey(uniqueKey);
+  const fallbackLookupKeys = [normalizedUniqueKey, normalizeRoundLookupKey('assessment')].filter(Boolean);
+
+  let roundDetails = detailsMap[uniqueKey] || null;
+  if (!roundDetails) {
+    const matchedEntry = detailsEntries.find(([key, value]) => {
+      const detailKeys = [
+        key,
+        value?.key,
+        value?.roundType,
+        value?.name,
+        value?.interviewRoundId
+      ].filter(Boolean).map(normalizeRoundLookupKey);
+      return detailKeys.some((candidateKey) => fallbackLookupKeys.includes(candidateKey));
+    });
+    roundDetails = matchedEntry ? matchedEntry[1] : null;
+  }
+
+  const matchedDbRound = Array.isArray(dbRounds)
+    ? dbRounds.find((round) => {
+        const roundKeys = [
+          round?.key,
+          round?.roundType,
+          round?.name,
+          round?._id
+        ].filter(Boolean).map(normalizeRoundLookupKey);
+        return roundKeys.includes(normalizedUniqueKey);
+      }) || null
+    : null;
+
+  const fromDate = matchedDbRound?.fromdate || roundDetails?.fromDate || roundDetails?.date || job?.assessmentStartDate || null;
+  const toDate = matchedDbRound?.todate || roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || job?.assessmentEndDate || fromDate;
+  const startTime = matchedDbRound?.startTime || roundDetails?.startTime || job?.assessmentStartTime || '';
+  const endTime = matchedDbRound?.endTime || roundDetails?.endTime || job?.assessmentEndTime || '';
+  const description =
+    matchedDbRound?.description ||
+    roundDetails?.description ||
+    'Technical Assessment - Complete the online assessment within the given timeframe';
+
+  return {
+    fromDate,
+    toDate,
+    startTime,
+    endTime,
+    description,
+    assessmentId: job?.assessmentId || null
+  };
+}
+
 function buildCandidateSlotIdentity(candidate = {}) {
   const ids = new Set();
   const emails = new Set();
@@ -1701,7 +1757,7 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
     const applications = await Application.find({ candidateId: req.user._id })
       .populate({
         path: 'jobId',
-        select: 'title interviewRoundTypes interviewRoundDetails interviewRoundOrder dynamicInterviewRounds assessmentId assessmentStartDate assessmentEndDate'
+        select: 'title interviewRoundTypes interviewRoundDetails interviewRoundOrder dynamicInterviewRounds assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime'
       })
       .populate('employerId', 'companyName brandName name')
       .sort({ createdAt: -1 });
@@ -1724,12 +1780,13 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
           const roundType = job.interviewRoundTypes[uniqueKey];
           
           if (roundType === 'assessment' && job.assessmentId) {
+            const assessmentSchedule = resolveAssessmentRoundSchedule(job, uniqueKey);
             // Add assessment round
             interviewProcess.rounds.push({
               type: 'Assessment',
-              description: 'Technical Assessment',
-              fromDate: job.assessmentStartDate,
-              toDate: job.assessmentEndDate,
+              description: assessmentSchedule.description,
+              fromDate: assessmentSchedule.fromDate,
+              toDate: assessmentSchedule.toDate,
               time: null,
               status: application.assessmentStatus || 'not_required',
               order: index + 1
@@ -1978,7 +2035,7 @@ exports.getApplicationInterviewDetails = async (req, res) => {
     })
     .populate({
       path: 'jobId',
-      select: 'title interviewRoundTypes interviewRoundDetails interviewRoundOrder dynamicInterviewRounds assessmentId assessmentStartDate assessmentEndDate'
+      select: 'title interviewRoundTypes interviewRoundDetails interviewRoundOrder dynamicInterviewRounds assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime'
     })
     .populate('employerId', 'companyName brandName');
 
@@ -2012,16 +2069,17 @@ exports.getApplicationInterviewDetails = async (req, res) => {
         const roundType = job.interviewRoundTypes[uniqueKey];
         
         if (roundType === 'assessment' && job.assessmentId) {
+          const assessmentSchedule = resolveAssessmentRoundSchedule(job, uniqueKey, dbRounds);
           // Add assessment round with detailed info
           interviewDetails.rounds.push({
             type: 'Assessment',
-            description: 'Technical Assessment - Complete the online assessment within the given timeframe',
-            fromDate: job.assessmentStartDate,
-            toDate: job.assessmentEndDate,
+            description: assessmentSchedule.description,
+            fromDate: assessmentSchedule.fromDate,
+            toDate: assessmentSchedule.toDate,
             time: 'Available 24/7 during the assessment period',
             status: application.assessmentStatus || 'not_required',
             order: index + 1,
-            assessmentId: job.assessmentId,
+            assessmentId: assessmentSchedule.assessmentId,
             isAssessment: true
           });
         } else if (roundType) {
@@ -2239,7 +2297,7 @@ exports.getInterviewProcessDetails = async (req, res) => {
     })
     .populate({
       path: 'jobId',
-      select: 'title interviewRoundTypes interviewRoundDetails interviewRoundOrder dynamicInterviewRounds assessmentId assessmentStartDate assessmentEndDate'
+      select: 'title interviewRoundTypes interviewRoundDetails interviewRoundOrder dynamicInterviewRounds assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime'
     })
     .populate('employerId', 'companyName brandName')
     .populate('interviewProcessId');
@@ -2289,18 +2347,19 @@ exports.getInterviewProcessDetails = async (req, res) => {
         const roundType = job.interviewRoundTypes[uniqueKey];
         
         if (roundType === 'assessment' && job.assessmentId) {
+          const assessmentSchedule = resolveAssessmentRoundSchedule(job, uniqueKey);
           interviewProcess.stages.push({
             stageType: 'assessment',
             stageName: 'Technical Assessment',
             stageOrder: stageOrder++,
-            fromDate: job.assessmentStartDate,
-            toDate: job.assessmentEndDate,
+            fromDate: assessmentSchedule.fromDate,
+            toDate: assessmentSchedule.toDate,
             status: application.assessmentStatus || 'pending',
-            assessmentId: job.assessmentId,
+            assessmentId: assessmentSchedule.assessmentId,
             assessmentScore: application.assessmentScore,
             assessmentPercentage: application.assessmentPercentage,
             assessmentResult: application.assessmentResult,
-            description: 'Complete the technical assessment within the given timeframe'
+            description: assessmentSchedule.description
           });
         } else if (roundType && job.interviewRoundDetails[uniqueKey]) {
           const details = job.interviewRoundDetails[uniqueKey];

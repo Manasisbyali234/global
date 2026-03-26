@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { formatDate } from '../../../../utils/dateFormatter';
+import { formatDate as formatDisplayDate } from '../../../../utils/dateFormatter';
 import { useNavigate } from "react-router-dom";
 import { api } from '../../../../utils/api';
 import AOS from 'aos';
@@ -58,10 +58,6 @@ function AdminEmployersRejected() {
             employer.employerType?.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setFilteredEmployers(filtered);
-    };
-
-    const formatDate = (dateString) => {
-        return formatDate(dateString);
     };
 
     if (loading) {
@@ -146,7 +142,7 @@ function AdminEmployersRejected() {
                                                 </td>
                                                 <td style={{textAlign: 'center', fontFamily: 'monospace', fontSize: '0.85rem'}}>{employer.email}</td>
                                                 <td style={{textAlign: 'center', fontFamily: 'monospace', fontSize: '0.85rem'}}>{employer.phone || 'N/A'}</td>
-                                                <td style={{textAlign: 'center', fontSize: '0.85rem'}}>{formatDate(employer.updatedAt || employer.createdAt)}</td>
+                                                <td style={{textAlign: 'center', fontSize: '0.85rem'}}>{formatDisplayDate(employer.updatedAt || employer.createdAt)}</td>
                                                 <td style={{textAlign: 'center'}}>
                                                     <button
                                                         className="action-btn btn-view"

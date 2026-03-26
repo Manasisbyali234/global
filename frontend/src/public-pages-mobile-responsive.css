@@ -1,0 +1,387 @@
+.public-page-layout {
+  --public-page-padding: clamp(16px, 4vw, 28px);
+  overflow-x: hidden;
+}
+
+.public-page-layout,
+.public-page-layout .public-page-content,
+.public-page-layout .section-full {
+  max-width: 100%;
+}
+
+.public-page-layout .public-page-content {
+  overflow-x: hidden;
+}
+
+.public-page-layout .container,
+.public-page-layout .container-fluid {
+  width: min(100%, 1320px);
+  padding-left: var(--public-page-padding) !important;
+  padding-right: var(--public-page-padding) !important;
+}
+
+.public-page-layout .row {
+  --bs-gutter-x: clamp(1rem, 3vw, 1.5rem);
+  --bs-gutter-y: 1.25rem;
+}
+
+.public-page-layout .row > * {
+  min-width: 0;
+}
+
+.public-page-layout img,
+.public-page-layout iframe,
+.public-page-layout video,
+.public-page-layout canvas,
+.public-page-layout svg {
+  max-width: 100%;
+}
+
+.public-page-layout iframe {
+  width: 100%;
+  border: 0;
+}
+
+.public-page-layout h1,
+.public-page-layout h2,
+.public-page-layout h3,
+.public-page-layout h4,
+.public-page-layout h5,
+.public-page-layout h6,
+.public-page-layout p,
+.public-page-layout li,
+.public-page-layout a,
+.public-page-layout span,
+.public-page-layout button,
+.public-page-layout label {
+  overflow-wrap: anywhere;
+}
+
+.public-page-layout table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.public-page-layout .section-full.p-t120,
+.public-page-layout .section-full.p-t40 {
+  padding-top: clamp(32px, 7vw, 64px) !important;
+}
+
+.public-page-layout .section-full.p-b90 {
+  padding-bottom: clamp(32px, 7vw, 64px) !important;
+}
+
+.public-page-layout .wt-bnr-inr {
+  min-height: auto;
+  padding: clamp(116px, 18vw, 156px) 0 clamp(40px, 8vw, 64px);
+  background-position: center;
+  background-size: cover;
+}
+
+.public-page-layout .wt-bnr-inr-entry {
+  padding-left: var(--public-page-padding);
+  padding-right: var(--public-page-padding);
+}
+
+.public-page-layout .banner-title-name .wt-title {
+  font-size: clamp(1.9rem, 7vw, 3.4rem);
+  line-height: 1.1;
+  text-align: center;
+}
+
+.public-page-layout .job-grid-page,
+.public-page-layout .emp-grid-page {
+  padding-left: var(--public-page-padding) !important;
+  padding-right: var(--public-page-padding) !important;
+}
+
+.public-page-layout .product-filter-wrap {
+  gap: 0.875rem;
+}
+
+.public-page-layout .woocommerce-ordering.twm-filter-select {
+  flex-wrap: wrap;
+  gap: 0.75rem !important;
+  margin-left: 0 !important;
+}
+
+.public-page-layout .woocommerce-ordering.twm-filter-select .wt-select-bar-2,
+.public-page-layout .woocommerce-ordering.twm-filter-select .form-select,
+.public-page-layout .woocommerce-ordering.twm-filter-select select {
+  width: min(100%, 220px) !important;
+}
+
+.public-page-layout .side-bar,
+.public-page-layout .sidebar-elements,
+.public-page-layout .twm-sidebar-ele-filter,
+.public-page-layout .contact-one-inner,
+.public-page-layout .contact-form-outer,
+.public-page-layout .contact-info,
+.public-page-layout .privacy-container,
+.public-page-layout .blog-post,
+.public-page-layout .company-card,
+.public-page-layout .recruiter-card,
+.public-page-layout .process-card-light,
+.public-page-layout .process-card-dark,
+.public-page-layout .workflow-illustration-card,
+.public-page-layout .cta-container-box {
+  max-width: 100%;
+}
+
+.public-page-layout .contact-one-inner,
+.public-page-layout .contact-form-outer,
+.public-page-layout .contact-info,
+.public-page-layout .privacy-container,
+.public-page-layout .company-card,
+.public-page-layout .blog-post,
+.public-page-layout .cta-container-box {
+  overflow: hidden;
+}
+
+.public-page-layout .form-control,
+.public-page-layout .form-select,
+.public-page-layout .wt-select-bar-2,
+.public-page-layout textarea,
+.public-page-layout select {
+  max-width: 100%;
+}
+
+.public-page-layout .job-skills-container,
+.public-page-layout .social-icons,
+.public-page-layout .footer-bottom-info,
+.public-page-layout .auth-links,
+.public-page-layout .nav-tabs {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.public-page-layout .site-button,
+.public-page-layout .btn,
+.public-page-layout .btn-dark-pill,
+.public-page-layout .btn-orange-pill,
+.public-page-layout .btn-outline-pill,
+.public-page-layout .view-all-companies-btn,
+.public-page-layout .view-details-btn-orange {
+  white-space: normal;
+  text-align: center;
+}
+
+.public-page-layout .twm-job-self-bottom {
+  text-align: left !important;
+  padding-right: 0 !important;
+}
+
+.public-page-layout .footer-bottom-info {
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.public-page-layout .social-icons {
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.public-page-layout .social-icons li {
+  list-style: none;
+}
+
+.public-page-layout .redesign-section {
+  padding: clamp(40px, 8vw, 64px) 0 !important;
+}
+
+.public-page-layout .workflow-illustration-card,
+.public-page-layout .process-card-light,
+.public-page-layout .process-card-dark {
+  padding: clamp(20px, 5vw, 32px) !important;
+}
+
+.public-page-layout .cta-container-box {
+  padding: clamp(24px, 6vw, 48px) !important;
+  border-radius: 24px !important;
+}
+
+.public-page-layout .twm-blog-list-style {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.public-page-layout .twm-blog-list-style .wt-post-media,
+.public-page-layout .twm-blog-list-style .wt-post-info {
+  width: 100%;
+}
+
+.public-page-layout .twm-tabs-style-1 .nav-tabs {
+  gap: 0.75rem;
+  justify-content: center;
+  border-bottom: 0;
+}
+
+.public-page-layout .twm-tabs-style-1 .nav-item {
+  flex: 1 1 180px;
+}
+
+.public-page-layout .twm-tabs-style-1 .nav-link {
+  width: 100%;
+  border-radius: 14px;
+}
+
+.public-page-layout .min-vh-100 .row.g-0 {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.public-page-layout .min-vh-100 .row.g-0 > [class*="col-"] {
+  min-width: 0;
+}
+
+@media (max-width: 991.98px) {
+  .public-page-layout .rightSidebar {
+    margin-top: 0;
+  }
+
+  .public-page-layout .twm-blog-list-style {
+    flex-direction: column;
+  }
+
+  .public-page-layout .contact-one-inner {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  .public-page-layout .contact-info-wrap {
+    margin-top: 0 !important;
+  }
+
+  .public-page-layout .privacy-header {
+    padding: 40px 24px !important;
+  }
+
+  .public-page-layout .privacy-header h1 {
+    font-size: clamp(2rem, 8vw, 2.8rem) !important;
+  }
+
+  .public-page-layout .privacy-content {
+    padding: 28px 24px !important;
+  }
+
+  .public-page-layout .footer-top {
+    padding: 32px 0 !important;
+  }
+
+  .public-page-layout .footer-bottom {
+    padding: 16px 0 !important;
+  }
+
+  .public-page-layout .min-vh-100 {
+    min-height: auto !important;
+    padding: 24px 0;
+    align-items: flex-start !important;
+  }
+
+  .public-page-layout .min-vh-100 .row.g-0 > .col-md-6:last-child {
+    border-left: 0 !important;
+    border-top: 4px solid #ff6a00 !important;
+  }
+
+  .public-page-layout .min-vh-100 .p-5 {
+    padding: clamp(20px, 5vw, 32px) !important;
+  }
+
+  .public-page-layout #myTab2 {
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .public-page-layout #myTab2 .nav-item {
+    flex: 1 1 150px;
+  }
+
+  .public-page-layout #myTab2 .nav-link {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .public-page-layout .container,
+  .public-page-layout .container-fluid,
+  .public-page-layout .job-grid-page,
+  .public-page-layout .emp-grid-page {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .public-page-layout .product-filter-wrap,
+  .public-page-layout .footer-bottom-info {
+    align-items: flex-start !important;
+  }
+
+  .public-page-layout .woocommerce-ordering.twm-filter-select,
+  .public-page-layout .woocommerce-ordering.twm-filter-select .wt-select-bar-2,
+  .public-page-layout .woocommerce-ordering.twm-filter-select .form-select,
+  .public-page-layout .woocommerce-ordering.twm-filter-select select {
+    width: 100% !important;
+  }
+
+  .public-page-layout .job-skills-container .skill-tag,
+  .public-page-layout .hiring-type-badge .badge {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .public-page-layout .wt-post-meta ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+
+  .public-page-layout .contact-one-inner {
+    padding: 20px 16px;
+  }
+
+  .public-page-layout .contact-message-group textarea {
+    min-height: 140px;
+  }
+
+  .public-page-layout .footer-bottom-info,
+  .public-page-layout .social-icons {
+    justify-content: center;
+  }
+
+  .public-page-layout .footer-copy-right,
+  .public-page-layout .copyrights-text {
+    text-align: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .public-page-layout .banner-title-name .wt-title {
+    font-size: clamp(1.6rem, 8vw, 2.1rem);
+  }
+
+  .public-page-layout .privacy-header,
+  .public-page-layout .privacy-content {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+
+  .public-page-layout .process-card-light,
+  .public-page-layout .process-card-dark,
+  .public-page-layout .workflow-illustration-card,
+  .public-page-layout .company-card {
+    border-radius: 18px !important;
+  }
+
+  .public-page-layout .cta-container-box {
+    border-radius: 20px !important;
+  }
+
+  .public-page-layout .min-vh-100 .row.g-0 {
+    border-radius: 18px;
+  }
+}

@@ -37,9 +37,8 @@
     top: 10px;
     right: 4px;
     bottom: 10px;
-    width: 8px;
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.12);
+    width: 6px;
+    background: transparent;
     pointer-events: none;
 }
 
@@ -47,6 +46,11 @@
     width: 100%;
     min-height: 36px;
     border-radius: 999px;
-    background: rgba(15, 23, 42, 0.55);
-    transition: transform 0.1s linear;
+    background: rgba(15, 23, 42, 0.45);
+    transition: transform 0.1s linear, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.emp-sidebar#sidebar-admin-wraper .emp-sidebar-scroll-thumb.is-scrolling {
+    opacity: 1;
 }

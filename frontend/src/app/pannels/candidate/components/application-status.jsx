@@ -37,24 +37,32 @@ function CanStatusPage() {
 		application?.employerId?.brandName ||
 		'Company Name Not Available';
 
-	const getAssessmentWindowInfo = (job) => {
+	const getAssessmentScheduleSource = (job, roundDetails = null) => ({
+		startDate: roundDetails?.fromDate || roundDetails?.date || job?.assessmentStartDate || null,
+		endDate: roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || job?.assessmentEndDate || null,
+		startTime: roundDetails?.startTime || job?.assessmentStartTime || null,
+		endTime: roundDetails?.endTime || job?.assessmentEndTime || null
+	});
+
+	const getAssessmentWindowInfo = (job, roundDetails = null) => {
 		const now = new Date();
-		const startRaw = job?.assessmentStartDate ? new Date(job.assessmentStartDate) : null;
-		const endRaw = job?.assessmentEndDate ? new Date(job.assessmentEndDate) : null;
+		const scheduleSource = getAssessmentScheduleSource(job, roundDetails);
+		const startRaw = scheduleSource.startDate ? new Date(scheduleSource.startDate) : null;
+		const endRaw = scheduleSource.endDate ? new Date(scheduleSource.endDate) : null;
 		const isValid = (date) => date instanceof Date && !isNaN(date.getTime());
 		let startDate = isValid(startRaw) ? startRaw : null;
 		let endDate = isValid(endRaw) ? endRaw : null;
 		
 		// Apply time if available
-		if (startDate && job?.assessmentStartTime) {
-			const [hours, minutes] = job.assessmentStartTime.split(':').map(Number);
+		if (startDate && scheduleSource.startTime) {
+			const [hours, minutes] = scheduleSource.startTime.split(':').map(Number);
 			if (!isNaN(hours) && !isNaN(minutes)) {
 				startDate = new Date(startDate);
 				startDate.setHours(hours, minutes, 0, 0);
 			}
 		}
-		if (endDate && job?.assessmentEndTime) {
-			const [hours, minutes] = job.assessmentEndTime.split(':').map(Number);
+		if (endDate && scheduleSource.endTime) {
+			const [hours, minutes] = scheduleSource.endTime.split(':').map(Number);
 			if (!isNaN(hours) && !isNaN(minutes)) {
 				endDate = new Date(endDate);
 				// Set to end of the minute (59 seconds, 999 milliseconds)
@@ -1044,7 +1052,7 @@ function CanStatusPage() {
 		return [{ name: 'Technical', uniqueKey: 'technical', roundType: 'technical' }, { name: 'HR', uniqueKey: 'hr', roundType: 'hr' }, { name: 'Final', uniqueKey: 'final', roundType: 'final' }];
 	};
 
-	const getRoundStatus = (application, roundIndex, roundName, isPopup = false) => {
+	const getRoundStatus = (application, roundIndex, roundName, isPopup = false, roundDetails = null) => {
 		const formatProcessStatusLabel = (rawStatus) => {
 			const status = String(rawStatus || '').toLowerCase();
 			const labels = {
@@ -1105,7 +1113,7 @@ function CanStatusPage() {
 			const { status, isPassed, isFailed, isCompleted, isInProgress } = getAssessmentCompletionInfo(application);
 			
 			// Check if assessment window has expired
-			const windowInfo = getAssessmentWindowInfo(application.jobId);
+			const windowInfo = getAssessmentWindowInfo(application.jobId, roundDetails);
 			if (isPassed) {
 				return { text: 'Pass', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
 			}
@@ -1249,11 +1257,11 @@ function CanStatusPage() {
 		setPendingInterviewApplicationId(null);
 	};
 
-	const handleStartAssessment = (application) => {
+	const handleStartAssessment = (application, roundDetails = null) => {
 		showInfo('🚀 ALL THE BEST ...', 3000);
 		console.log('=== HANDLE START ASSESSMENT CALLED ===');
 		const job = application.jobId;
-		const windowInfo = getAssessmentWindowInfo(job);
+		const windowInfo = getAssessmentWindowInfo(job, roundDetails);
 		if (!windowInfo.isWithinWindow) {
 			if (windowInfo.isBeforeStart) {
 				const startLabel = windowInfo.startDate ? windowInfo.startDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : null;
@@ -1577,8 +1585,6 @@ function CanStatusPage() {
 																				}
 																			}
 																			
-																			const roundStatus = getRoundStatus(app, roundIndex, roundName);
-																			
 																			// Try to find round details with multiple possible keys
 																			let roundDetails = null;
 																			if (app.jobId?.interviewRoundDetails) {
@@ -1617,7 +1623,14 @@ function CanStatusPage() {
 																					}
 																				}
 																			}
-																			const formatDate = (dateStr) => {
+																			const roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
+																			const assessmentSchedule = roundName === 'Assessment'
+																				? getAssessmentScheduleSource(app.jobId, roundDetails)
+																				: null;
+																			const assessmentWindowInfo = roundName === 'Assessment'
+																				? getAssessmentWindowInfo(app.jobId, roundDetails)
+																				: null;
+																			const formatRoundDate = (dateStr) => {
 																				if (!dateStr) return null;
 																				try {
 																					return formatDate(dateStr);
@@ -1625,16 +1638,14 @@ function CanStatusPage() {
 																					return null;
 																				}
 																			};
-																			// For Assessment, use job-level dates
 																			let startDate, endDate, dateDisplay;
 																			
 																			if (roundName === 'Assessment') {
-																				// Try multiple possible field names for assessment dates
-																				startDate = formatDate(app.jobId?.assessmentStartDate || roundDetails?.fromDate);
-																				endDate = formatDate(app.jobId?.assessmentEndDate || roundDetails?.toDate);
+																				startDate = formatRoundDate(assessmentSchedule?.startDate);
+																				endDate = formatRoundDate(assessmentSchedule?.endDate);
 																			} else {
-																				startDate = formatDate(roundDetails?.fromDate || roundDetails?.date);
-																				endDate = formatDate(roundDetails?.toDate);
+																				startDate = formatRoundDate(roundDetails?.fromDate || roundDetails?.date);
+																				endDate = formatRoundDate(roundDetails?.toDate);
 																			}
 																			
 																			dateDisplay = startDate && endDate ? `${startDate} - ${endDate}` : 
@@ -1647,7 +1658,7 @@ function CanStatusPage() {
 																					<div style={{display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'center'}}>
 																						{/* Show countdown timer if assessment hasn't started yet */}
 																						{roundName === 'Assessment' && roundStatus.text === 'Started' && (() => {
-																							const windowInfo = getAssessmentWindowInfo(app.jobId);
+																							const windowInfo = assessmentWindowInfo;
 																							if (windowInfo.isBeforeStart && windowInfo.startDate) {
 																								const now = new Date().getTime();
 																								const timeUntilStart = windowInfo.startDate.getTime() - now;
@@ -1665,7 +1676,7 @@ function CanStatusPage() {
 																							return null;
 																						})()}
 																						{/* Show status badge only if not showing countdown */}
-																						{!(roundName === 'Assessment' && roundStatus.text === 'Started' && getAssessmentWindowInfo(app.jobId).isBeforeStart) && (
+																						{!(roundName === 'Assessment' && roundStatus.text === 'Started' && assessmentWindowInfo?.isBeforeStart) && (
 																							<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px', minWidth: 'fit-content', textAlign: 'center'}}>
 																								{roundStatus?.text || 'Pending'}
 																							</span>
@@ -1934,7 +1945,6 @@ function CanStatusPage() {
 											roundName = extractedType && stageNameMap[extractedType] ? stageNameMap[extractedType] : 'Interview Round';
 										}
 										
-										const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName, true);
 										const roundType = (typeof round === 'object' ? round.roundType : round.toLowerCase()).replace(/[^a-z]/gi, '');
 										
 										// Find round details from job interviewRoundDetails
@@ -1988,6 +1998,13 @@ function CanStatusPage() {
 												roundDetails = { ...roundDetails, employerRemarks: remarks };
 											}
 										}
+										const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName, true, roundDetails);
+										const assessmentSchedule = roundName === 'Assessment'
+											? getAssessmentScheduleSource(selectedApplication.jobId, roundDetails)
+											: null;
+										const assessmentWindowInfo = roundName === 'Assessment'
+											? getAssessmentWindowInfo(selectedApplication.jobId, roundDetails)
+											: null;
 										
 										const assessmentId = selectedApplication.jobId?.assessmentId;
 
@@ -2009,17 +2026,17 @@ function CanStatusPage() {
 												{roundName === 'Assessment' && (
 													<div className="mt-2">
 														{/* Assessment Period */}
-														{(selectedApplication.jobId?.assessmentStartDate || selectedApplication.jobId?.assessmentEndDate) && (
+														{(assessmentSchedule?.startDate || assessmentSchedule?.endDate) && (
 															<div className="mb-2">
 																{(() => {
-																	const interviewStartDate = selectedApplication.jobId?.assessmentStartDate || selectedApplication.jobId?.assessmentEndDate;
-																	const startTime = selectedApplication.jobId?.assessmentStartTime;
-																	const endTime = selectedApplication.jobId?.assessmentEndTime;
+																	const interviewStartDate = assessmentSchedule?.startDate;
+																	const startTime = assessmentSchedule?.startTime;
+																	const endTime = assessmentSchedule?.endTime;
 																	if (!interviewStartDate || !startTime || !endTime) {
 																		return (
 																			<div>
-																				{selectedApplication.jobId?.assessmentStartDate && (
-																					<span><strong>Date:</strong> {formatDate(selectedApplication.jobId.assessmentStartDate)} {selectedApplication.jobId?.assessmentStartTime && `at ${formatTimeToAMPM(selectedApplication.jobId.assessmentStartTime)}`}</span>
+																				{assessmentSchedule?.startDate && (
+																					<span><strong>Date:</strong> {formatDate(assessmentSchedule.startDate)} {assessmentSchedule?.startTime && `at ${formatTimeToAMPM(assessmentSchedule.startTime)}`}</span>
 																				)}
 																			</div>
 																		);
@@ -2091,7 +2108,7 @@ function CanStatusPage() {
 															{(() => {
 																const assessmentInfo = getAssessmentCompletionInfo(selectedApplication);
 																const hasFinalAssessmentResult = assessmentInfo.isCompleted;
-																const assessmentWindowClosed = getAssessmentWindowInfo(selectedApplication.jobId).isAfterEnd;
+																const assessmentWindowClosed = assessmentWindowInfo?.isAfterEnd;
 
 																if (hasFinalAssessmentResult) {
 																	return (
@@ -2151,7 +2168,7 @@ function CanStatusPage() {
 																	<button 
 																	className="btn btn-sm btn-warning"
 																	onClick={() => {
-																		handleStartAssessment(selectedApplication);
+																		handleStartAssessment(selectedApplication, roundDetails);
 																	}}
 																	style={{borderRadius: '6px'}}
 																>
@@ -2165,7 +2182,7 @@ function CanStatusPage() {
 																<button 
 																	className="btn btn-sm btn-primary"
 																	onClick={() => {
-																		handleStartAssessment(selectedApplication);
+																		handleStartAssessment(selectedApplication, roundDetails);
 																	}}
 																	style={{borderRadius: '6px'}}
 																>
