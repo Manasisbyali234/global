@@ -517,6 +517,7 @@ exports.startAssessment = async (req, res) => {
         });
 
         await updateInterviewProcessAssessmentStage(applicationId, assessmentId, {
+          status: 'expired',
           assessmentCompletedAt: attempt.endTime
         });
 
@@ -603,6 +604,7 @@ exports.getCandidateAttemptState = async (req, res) => {
         });
 
         await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
+          status: 'expired',
           assessmentCompletedAt: attempt.endTime
         });
       }
@@ -1148,6 +1150,7 @@ exports.recordViolation = async (req, res) => {
         });
 
         await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
+          status: 'suspended',
           assessmentCompletedAt: attempt.suspendedAt
         });
       }

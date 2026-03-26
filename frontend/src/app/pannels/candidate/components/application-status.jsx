@@ -1831,12 +1831,9 @@ function CanStatusPage() {
 																							}
 																							return null;
 																						})()}
-																						{/* Show status badge only if not showing countdown */}
-																						{!shouldShowAssessmentCountdown && (
-																							<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px', minWidth: 'fit-content', textAlign: 'center'}}>
-																								{roundStatus?.text || 'Pending'}
-																							</span>
-																						)}
+																						<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px', minWidth: 'fit-content', textAlign: 'center'}}>
+																							{roundStatus?.text || 'Pending'}
+																						</span>
 																						{/* Show assessment remarks if available - removed from table, only in modal */}
 																					</div>
 																				</div>

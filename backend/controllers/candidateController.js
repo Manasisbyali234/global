@@ -1707,6 +1707,10 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
                     : 'completed';
               } else if (matchedAttempt.status === 'in_progress') {
                 stageStatus = 'in_progress';
+              } else if (matchedAttempt.status === 'expired') {
+                stageStatus = 'expired';
+              } else if (matchedAttempt.status === 'suspended') {
+                stageStatus = 'suspended';
               }
 
               return {
