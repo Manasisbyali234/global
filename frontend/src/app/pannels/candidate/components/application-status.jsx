@@ -97,6 +97,11 @@ function CanStatusPage() {
 		return String(value).trim();
 	};
 
+	const getAssessmentRoundOrderKeys = (job = {}) =>
+		(Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : []).filter(
+			(key) => String(job?.interviewRoundTypes?.[key] || '').toLowerCase() === 'assessment'
+		);
+
 	const getAssessmentCompletionInfo = (source = {}) => {
 		const status = String(source?.assessmentStatus ?? source?.assessmentAttemptStatus ?? source?.status ?? '').toLowerCase();
 		const result = String(source?.assessmentResult ?? source?.result ?? '').toLowerCase();
@@ -123,6 +128,10 @@ function CanStatusPage() {
 		const stageOrder = typeof roundDetails?.__roundIndex === 'number' ? roundDetails.__roundIndex + 1 : null;
 		const stages = Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages : [];
 		const assessmentStages = stages.filter((stage) => stage?.stageType === 'assessment');
+		const totalAssessmentRounds = Math.max(
+			assessmentStages.length,
+			getAssessmentRoundOrderKeys(application?.jobId).length
+		);
 		const requestedAssessmentId = normalizeAssessmentId(roundDetails?.assessmentId);
 
 		let relatedStage = null;
@@ -143,7 +152,7 @@ function CanStatusPage() {
 			normalizeAssessmentId(application?.jobId?.assessmentId)
 		].filter(Boolean)));
 
-		const fallbackAssessmentId = knownAssessmentIds.length <= 1 ? knownAssessmentIds[0] || '' : '';
+		const fallbackAssessmentId = totalAssessmentRounds <= 1 && knownAssessmentIds.length <= 1 ? knownAssessmentIds[0] || '' : '';
 		const assessmentId =
 			requestedAssessmentId ||
 			normalizeAssessmentId(relatedStage?.assessmentId) ||
@@ -151,6 +160,7 @@ function CanStatusPage() {
 		const attempt = assessmentId ? attemptsByAssessmentId[assessmentId] || null : null;
 
 		const shouldUseApplicationFallback =
+			totalAssessmentRounds <= 1 &&
 			knownAssessmentIds.length <= 1 &&
 			(!assessmentId || assessmentId === normalizeAssessmentId(application?.jobId?.assessmentId));
 
@@ -167,6 +177,90 @@ function CanStatusPage() {
 			score: attempt?.score ?? relatedStage?.assessmentScore ?? (shouldUseApplicationFallback ? application?.assessmentScore : null),
 			percentage: attempt?.percentage ?? relatedStage?.assessmentPercentage ?? (shouldUseApplicationFallback ? application?.assessmentPercentage : null),
 			roundName
+		};
+	};
+
+	const resolveRoundDetails = (application, round, roundIndex, roundsList = []) => {
+		const roundName = typeof round === 'string' ? round : round?.name;
+		const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round?.uniqueKey;
+		const roundTypeRaw = typeof round === 'object' ? round?.roundType : round?.toLowerCase();
+		const normalized = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+		const job = application?.jobId || {};
+		const allDetails = job?.interviewRoundDetails || {};
+		const baseRoundType = String(roundTypeRaw || '').split('_')[0];
+		const mappedRoundId =
+			application?.interviewRoundIds?.[roundTypeRaw] ||
+			application?.interviewRoundIds?.[baseRoundType] ||
+			null;
+
+		let roundDetails =
+			allDetails[uniqueKey] ||
+			allDetails[roundTypeRaw] ||
+			allDetails[baseRoundType] ||
+			(mappedRoundId ? allDetails[String(mappedRoundId)] : null) ||
+			null;
+
+		if (!roundDetails) {
+			for (const [key, details] of Object.entries(allDetails)) {
+				const keyNorm = normalized(key);
+				const typeNorm = normalized(roundTypeRaw);
+				const baseTypeNorm = normalized(baseRoundType);
+				const detailTypeNorm = normalized(details?.roundType || details?.key || details?.name || '');
+				const detailRoundId = details?.interviewRoundId ? String(details.interviewRoundId) : '';
+				const mappedId = mappedRoundId ? String(mappedRoundId) : '';
+				const matches =
+					(keyNorm && (keyNorm.includes(typeNorm) || keyNorm.includes(baseTypeNorm))) ||
+					(detailTypeNorm && (detailTypeNorm === typeNorm || detailTypeNorm === baseTypeNorm)) ||
+					(mappedId && detailRoundId && mappedId === detailRoundId) ||
+					(mappedId && key === mappedId);
+				if (matches && details) {
+					roundDetails = details;
+					break;
+				}
+			}
+		}
+
+		const assessmentRoundIndex = roundsList
+			.slice(0, roundIndex + 1)
+			.filter((listRound) => {
+				const type = typeof listRound === 'object' ? listRound?.roundType : listRound;
+				return String(type || '').toLowerCase().includes('assessment');
+			}).length - 1;
+
+		if (roundName === 'Assessment') {
+			const orderedAssessmentKeys = getAssessmentRoundOrderKeys(job);
+			const orderedAssessmentKey = assessmentRoundIndex >= 0 ? orderedAssessmentKeys[assessmentRoundIndex] : null;
+			if ((!roundDetails || !roundDetails.assessmentId) && orderedAssessmentKey && allDetails[orderedAssessmentKey]) {
+				roundDetails = allDetails[orderedAssessmentKey];
+			}
+
+			if (!roundDetails) {
+				const assessmentKeys = ['assessment', 'Assessment', 'technical_assessment', 'online_assessment'];
+				for (const key of assessmentKeys) {
+					if (allDetails[key]) {
+						roundDetails = allDetails[key];
+						break;
+					}
+				}
+			}
+
+			if (!roundDetails && orderedAssessmentKeys.length <= 1 && job?.assessmentId) {
+				roundDetails = {
+					description: job.assessmentInstructions || 'Complete the technical assessment within the given timeframe',
+					fromDate: job.assessmentStartDate,
+					toDate: job.assessmentEndDate,
+					assessmentId: job.assessmentId
+				};
+			}
+		}
+
+		return {
+			...(roundDetails || {}),
+			__uniqueKey: uniqueKey,
+			__roundType: roundTypeRaw,
+			__roundName: roundName,
+			__roundIndex: roundIndex,
+			__assessmentOrderIndex: assessmentRoundIndex
 		};
 	};
 
@@ -1662,37 +1756,11 @@ function CanStatusPage() {
 																					}
 																				}
 																				
-																				// For Assessment rounds, also check if there are assessment-specific details
-																				if (roundName === 'Assessment' && !roundDetails) {
-																					// Check for assessment details in various possible keys
-																					const assessmentKeys = ['assessment', 'Assessment', 'technical_assessment', 'online_assessment'];
-																					for (const key of assessmentKeys) {
-																						if (app.jobId.interviewRoundDetails[key]) {
-																							roundDetails = app.jobId.interviewRoundDetails[key];
-																							break;
-																						}
-																					}
-																					
-																					// If still no details, create a basic one from job assessment info
-																					if (!roundDetails && app.jobId?.assessmentId) {
-																						roundDetails = {
-																							description: app.jobId.assessmentInstructions || 'Complete the technical assessment within the given timeframe',
-																							fromDate: app.jobId.assessmentStartDate,
-																							toDate: app.jobId.assessmentEndDate
-																						};
-																					}
-																				}
-																			}
-																			roundDetails = {
-																				...(roundDetails || {}),
-																				__uniqueKey: uniqueKey,
-																				__roundType: typeof round === 'object' ? round.roundType : roundName,
-																				__roundName: roundName,
-																				__roundIndex: roundIndex
-																			};
-																			const assessmentRoundInfo = roundName === 'Assessment'
-																				? getAssessmentRoundInfo(app, roundName, roundDetails)
-																				: null;
+																		}
+																		roundDetails = resolveRoundDetails(app, round, roundIndex, interviewRounds);
+																		const assessmentRoundInfo = roundName === 'Assessment'
+																			? getAssessmentRoundInfo(app, roundName, roundDetails)
+																			: null;
 																			const roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
 																			const assessmentSchedule = roundName === 'Assessment'
 																				? getAssessmentScheduleSource(app.jobId, roundDetails)
@@ -2023,44 +2091,7 @@ function CanStatusPage() {
 										
 										const roundType = (typeof round === 'object' ? round.roundType : round.toLowerCase()).replace(/[^a-z]/gi, '');
 										
-										// Find round details from job interviewRoundDetails
-										let roundDetails = null;
-										if (selectedApplication.jobId?.interviewRoundDetails) {
-											const allDetails = selectedApplication.jobId.interviewRoundDetails;
-											const normalized = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
-											const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
-											const baseRoundType = String(roundTypeRaw || '').split('_')[0];
-											const mappedRoundId =
-												selectedApplication.interviewRoundIds?.[roundTypeRaw] ||
-												selectedApplication.interviewRoundIds?.[baseRoundType] ||
-												null;
-											// Try direct key/id matches first
-											roundDetails =
-												allDetails[uniqueKey] ||
-												allDetails[roundTypeRaw] ||
-												allDetails[baseRoundType] ||
-												(mappedRoundId ? allDetails[String(mappedRoundId)] : null);
-											// Search all keys/details for normalized and id-based match
-											if (!roundDetails) {
-												for (const [key, details] of Object.entries(allDetails)) {
-													const keyNorm = normalized(key);
-													const typeNorm = normalized(roundTypeRaw);
-													const baseTypeNorm = normalized(baseRoundType);
-													const detailTypeNorm = normalized(details?.roundType || details?.key || details?.name || '');
-													const detailRoundId = details?.interviewRoundId ? String(details.interviewRoundId) : '';
-													const mappedId = mappedRoundId ? String(mappedRoundId) : '';
-													const matches =
-														(keyNorm && (keyNorm.includes(typeNorm) || keyNorm.includes(baseTypeNorm))) ||
-														(detailTypeNorm && (detailTypeNorm === typeNorm || detailTypeNorm === baseTypeNorm)) ||
-														(mappedId && detailRoundId && mappedId === detailRoundId) ||
-														(mappedId && key === mappedId);
-													if (matches && details) {
-														roundDetails = details;
-														break;
-													}
-												}
-											}
-										}
+										let roundDetails = resolveRoundDetails(selectedApplication, round, roundIndex, roundsList);
 										// Merge with processRemarks if available
 										if (selectedApplication.interviewProcesses?.[roundIndex]) {
 											const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
@@ -2074,13 +2105,6 @@ function CanStatusPage() {
 												roundDetails = { ...roundDetails, employerRemarks: remarks };
 											}
 										}
-										roundDetails = {
-											...(roundDetails || {}),
-											__uniqueKey: uniqueKey,
-											__roundType: typeof round === 'object' ? round.roundType : roundName,
-											__roundName: roundName,
-											__roundIndex: roundIndex
-										};
 										const assessmentRoundInfo = roundName === 'Assessment'
 											? getAssessmentRoundInfo(selectedApplication, roundName, roundDetails)
 											: null;
