@@ -24,9 +24,13 @@ function AdminOverviewPage() {
   const [viewMode, setViewMode] = useState("employers"); // employers | jobs | applicants
   const [employerSearch, setEmployerSearch] = useState("");
   const [jobSearch, setJobSearch] = useState("");
+  const [applicantSearch, setApplicantSearch] = useState("");
   const autoOpenedEmployerIdRef = useRef(null);
   const visibleEmployerJobs = employerJobs.filter(
     (job) => job.status !== "draft" && job.title.toLowerCase().includes(jobSearch.toLowerCase())
+  );
+  const visibleJobApplicants = jobApplicants.filter((applicant) =>
+    String(applicant?.applicantEmail || "").toLowerCase().includes(applicantSearch.toLowerCase())
   );
 
   const headerTitle =
@@ -191,6 +195,7 @@ function AdminOverviewPage() {
       setSelectedJob(null);
       setJobApplicants([]);
       setApplicantsError("");
+      setApplicantSearch("");
       setViewMode("jobs");
       return;
     }
@@ -198,6 +203,7 @@ function AdminOverviewPage() {
     try {
       setApplicantsLoading(true);
       setApplicantsError("");
+      setApplicantSearch("");
       const response = await api.getAdminJobApplicants(job.jobId);
       if (response.success) {
         setSelectedJob(response.job);
@@ -379,15 +385,18 @@ function AdminOverviewPage() {
 
       {viewMode === "applicants" && selectedJob && (
         <div ref={applicantsSectionRef} className="panel panel-default site-bg-white m-t20">
-          <div className="panel-heading wt-panel-heading p-a20">
-            <div className="d-flex justify-content-between align-items-center">
-              <h4 className="panel-tittle m-a0">
-                <i className="fa fa-users me-2" />
-                Actual Applicants for {selectedJob.title}
-              </h4>
-            </div>
-          </div>
           <div className="panel-body wt-panel-body p-a20">
+            <div className="m-b20">
+              <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                <i className="fa fa-filter me-2 text-primary" />
+                Search by Applicant Email
+              </label>
+              <SearchBar
+                onSearch={setApplicantSearch}
+                placeholder="Search Applicant Email..."
+                className="employer-search"
+              />
+            </div>
             {applicantsLoading && <div className="text-center">Loading applicants...</div>}
             {!applicantsLoading && applicantsError && <div className="alert alert-danger m-b0">{applicantsError}</div>}
 
@@ -406,14 +415,14 @@ function AdminOverviewPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {jobApplicants.length === 0 ? (
+                    {visibleJobApplicants.length === 0 ? (
                       <tr>
                         <td colSpan="7" className="text-center">
-                          No applicants found for this job.
+                          {applicantSearch ? "No applicants match that email." : "No applicants found for this job."}
                         </td>
                       </tr>
                     ) : (
-                      jobApplicants.map((applicant) => (
+                      visibleJobApplicants.map((applicant) => (
                         <tr key={applicant.applicationId}>
                           <td>{applicant.applicantName}</td>
                           <td>{applicant.applicantEmail}</td>

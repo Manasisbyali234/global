@@ -26,7 +26,6 @@ const mongoose = require('mongoose');
 const XLSX = require('xlsx');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
 const { checkEmailExists } = require('../utils/authUtils');
-const { verifyRecaptchaToken } = require('../utils/recaptcha');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -61,7 +60,7 @@ const checkSubAdminPermission = (userPermissions, requiredPermission) => {
 // Authentication Controller
 exports.loginAdmin = async (req, res) => {
   try {
-    const { email, password, recaptchaToken } = req.body;
+    const { email, password } = req.body;
     const normalizedEmail = email.trim();
 
     // First check if it's a regular admin
@@ -72,19 +71,6 @@ exports.loginAdmin = async (req, res) => {
     if (!user) {
       const subAdminUser = await SubAdmin.findByEmail(normalizedEmail);
       if (subAdminUser) {
-        const recaptchaResult = await verifyRecaptchaToken(
-          recaptchaToken,
-          'sub_admin_login',
-          req.ip
-        );
-        if (!recaptchaResult.success) {
-          return res.status(400).json({
-            success: false,
-            message: recaptchaResult.message,
-            shouldResetRecaptcha: recaptchaResult.shouldResetRecaptcha
-          });
-        }
-
         user = subAdminUser;
         userType = 'sub-admin';
       }

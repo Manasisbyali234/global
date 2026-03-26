@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../admin-login-custom.css";
+import LetterCaptchaField from "../../components/LetterCaptchaField";
+import { api } from "../../utils/api";
 
 export default function AdminLogin() {
     const [formData, setFormData] = useState({
@@ -10,6 +12,7 @@ export default function AdminLogin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const captchaRef = useRef(null);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -24,35 +27,32 @@ export default function AdminLogin() {
         setLoading(true);
         setError("");
 
+        if (!captchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await fetch("http://localhost:5000/api/admin/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formData)
-            });
+            const data = await api.adminLogin(formData);
 
-            const data = await response.json();
-
-            if (response.ok && data.success) {
+            if (data.success) {
                 localStorage.setItem("adminToken", data.token);
-                
-                // Handle both admin and sub-admin login
+
                 if (data.admin) {
                     localStorage.setItem("adminData", JSON.stringify(data.admin));
-                    localStorage.removeItem("subAdminData"); // Clear sub-admin data if exists
+                    localStorage.removeItem("subAdminData");
                 } else if (data.subAdmin) {
                     localStorage.setItem("subAdminData", JSON.stringify(data.subAdmin));
-                    localStorage.removeItem("adminData"); // Clear admin data if exists
+                    localStorage.removeItem("adminData");
                 }
-                
+
                 navigate("/admin/dashboard");
-            } else {
-                setError(data.message || `Login failed (${response.status})`);
+                return;
             }
-        } catch (error) {
-            setError(`Network error: ${error.message}. Please ensure backend server is running on port 5000.`);
+
+            setError(data.message || "Login failed. Please try again.");
+        } catch (networkError) {
+            setError(`Network error: ${networkError.message}. Please ensure backend server is running on port 5000.`);
         } finally {
             setLoading(false);
         }
@@ -99,7 +99,7 @@ export default function AdminLogin() {
                                                                 />
                                                             </div>
 
-                                                            <div className="form-group mb-3" style={{ position: 'relative' }}>
+                                                            <div className="form-group mb-3" style={{ position: "relative" }}>
                                                                 <input
                                                                     name="password"
                                                                     type={showPassword ? "text" : "password"}
@@ -108,25 +108,25 @@ export default function AdminLogin() {
                                                                     placeholder="Password"
                                                                     value={formData.password}
                                                                     onChange={handleChange}
-                                                                    style={{ paddingRight: '48px' }}
+                                                                    style={{ paddingRight: "48px" }}
                                                                 />
                                                                 <span
                                                                     onClick={() => setShowPassword(!showPassword)}
                                                                     style={{
-                                                                        position: 'absolute',
-                                                                        right: '8px',
+                                                                        position: "absolute",
+                                                                        right: "8px",
                                                                         top: 0,
                                                                         bottom: 0,
-                                                                        cursor: 'pointer',
-                                                                        color: '#6c757d',
-                                                                        fontSize: '16px',
-                                                                        zIndex: '10',
-                                                                        userSelect: 'none',
-                                                                        display: 'flex',
-                                                                        alignItems: 'center',
-                                                                        justifyContent: 'center',
-                                                                        width: '32px',
-                                                                        textAlign: 'center',
+                                                                        cursor: "pointer",
+                                                                        color: "#6c757d",
+                                                                        fontSize: "16px",
+                                                                        zIndex: "10",
+                                                                        userSelect: "none",
+                                                                        display: "flex",
+                                                                        alignItems: "center",
+                                                                        justifyContent: "center",
+                                                                        width: "32px",
+                                                                        textAlign: "center",
                                                                         lineHeight: 1
                                                                     }}
                                                                 >
@@ -134,13 +134,22 @@ export default function AdminLogin() {
                                                                 </span>
                                                             </div>
 
+                                                            <div className="form-group mb-3">
+                                                                <LetterCaptchaField
+                                                                    ref={captchaRef}
+                                                                    wrapperClassName="admin-letter-captcha"
+                                                                />
+                                                            </div>
+
                                                             <div className="form-group">
                                                                 <button
                                                                     type="submit"
                                                                     className="site-button"
                                                                     disabled={loading}
-                                                                    style={{transition: 'none'}}
-                                                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'none'}
+                                                                    style={{ transition: "none" }}
+                                                                    onMouseEnter={(event) => {
+                                                                        event.currentTarget.style.transform = "none";
+                                                                    }}
                                                                 >
                                                                     {loading ? "Logging in..." : "Login"}
                                                                 </button>

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useRef, useState } from "react";
 import "../../admin-login-custom.css";
-import { executeLoginRecaptcha } from "../../utils/recaptcha";
+import LetterCaptchaField from "../../components/LetterCaptchaField";
+import { api } from "../../utils/api";
 
 export default function SubAdminLogin() {
     const [formData, setFormData] = useState({
@@ -11,7 +11,7 @@ export default function SubAdminLogin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const navigate = useNavigate();
+    const captchaRef = useRef(null);
 
     const handleChange = (e) => {
         setFormData({
@@ -25,46 +25,38 @@ export default function SubAdminLogin() {
         setLoading(true);
         setError("");
 
+        if (!captchaRef.current?.validate()) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const recaptchaToken = await executeLoginRecaptcha("sub_admin_login");
-            const response = await fetch("http://localhost:5000/api/admin/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    recaptchaToken
-                })
-            });
+            const data = await api.subAdminLogin(formData);
 
-            const data = await response.json();
-            
-
-            if (response.ok && data.success) {
+            if (data.success) {
                 localStorage.setItem("adminToken", data.token);
-                
+
                 if (data.subAdmin) {
-                    // Sub-admin login
                     localStorage.setItem("subAdminData", JSON.stringify(data.subAdmin));
                     localStorage.removeItem("adminData");
-                    // Redirect to admin dashboard where sub-admin profile will be displayed
                     window.location.href = "/admin/dashboard";
-                } else if (data.admin && data.admin.role === 'sub-admin') {
-                    // Handle case where sub-admin is returned as admin
+                    return;
+                }
+
+                if (data.admin && data.admin.role === "sub-admin") {
                     localStorage.setItem("subAdminData", JSON.stringify(data.admin));
                     localStorage.removeItem("adminData");
                     window.location.href = "/admin/dashboard";
-                } else {
-                    setError("Access denied. This login is for sub-admins only.");
+                    return;
                 }
-            } else {
-                
-                setError(data.message || `Login failed (${response.status})`);
+
+                setError("Access denied. This login is for sub-admins only.");
+                return;
             }
-        } catch (error) {
-            
-            setError(`Network error: ${error.message}. Please ensure backend server is running.`);
+
+            setError(data.message || "Login failed. Please try again.");
+        } catch (networkError) {
+            setError(`Network error: ${networkError.message}. Please ensure backend server is running.`);
         } finally {
             setLoading(false);
         }
@@ -107,7 +99,7 @@ export default function SubAdminLogin() {
                                                 />
                                             </div>
 
-                                            <div className="form-group mb-3" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                            <div className="form-group mb-3" style={{ position: "relative", display: "flex", alignItems: "center" }}>
                                                 <input
                                                     name="password"
                                                     type={showPassword ? "text" : "password"}
@@ -116,25 +108,32 @@ export default function SubAdminLogin() {
                                                     placeholder="Password"
                                                     value={formData.password}
                                                     onChange={handleChange}
-                                                    style={{ paddingRight: '40px' }}
+                                                    style={{ paddingRight: "40px" }}
                                                 />
                                                 <span
                                                     onClick={() => setShowPassword(!showPassword)}
                                                     style={{
-                                                        position: 'absolute',
-                                                        right: '15px',
-                                                        cursor: 'pointer',
-                                                        color: '#6c757d',
-                                                        fontSize: '16px',
-                                                        zIndex: '10',
-                                                        userSelect: 'none',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        height: '100%'
+                                                        position: "absolute",
+                                                        right: "15px",
+                                                        cursor: "pointer",
+                                                        color: "#6c757d",
+                                                        fontSize: "16px",
+                                                        zIndex: "10",
+                                                        userSelect: "none",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        height: "100%"
                                                     }}
                                                 >
                                                     <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
                                                 </span>
+                                            </div>
+
+                                            <div className="form-group mb-3">
+                                                <LetterCaptchaField
+                                                    ref={captchaRef}
+                                                    wrapperClassName="admin-letter-captcha"
+                                                />
                                             </div>
 
                                             <div className="form-group">

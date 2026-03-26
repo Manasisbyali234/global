@@ -14,7 +14,6 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
     const [isSubAdmin, setIsSubAdmin] = useState(false);
     const [openMenus, setOpenMenus] = useState({});
     const [hasNewEmployers, setHasNewEmployers] = useState(false);
-    const [hasUnderReviewEmployers, setHasUnderReviewEmployers] = useState(false);
     const [hasNewPlacements, setHasNewPlacements] = useState(false);
     const [hasNewTickets, setHasNewTickets] = useState(false);
     const employersLinkRef = useRef(null);
@@ -77,31 +76,6 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         }
     };
 
-    // Check specifically for under-review employers (submitted for review, not yet approved/rejected)
-    const checkUnderReviewEmployers = async () => {
-        try {
-            const token = localStorage.getItem('adminToken');
-            if (!token) return;
-
-            const res = await fetch('http://localhost:5000/api/admin/employers', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                const underReview = (data.data || []).filter(emp =>
-                    emp.profileSubmittedForReview &&
-                    emp.isApproved !== true &&
-                    emp.status !== 'approved' &&
-                    emp.status !== 'rejected'
-                );
-                setHasUnderReviewEmployers(underReview.length > 0);
-            }
-        } catch (error) {
-            console.error('Error checking under-review employers:', error);
-        }
-    };
-
     // Check for new placements
     const checkNewPlacements = async () => {
         try {
@@ -144,17 +118,11 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         loadScript("js/custom.js");
         loadScript("js/admin-sidebar.js");
         checkNewEmployers();
-        checkUnderReviewEmployers();
         checkNewPlacements();
         checkNewTickets();
 
-        const onEmployerStatusChange = () => checkUnderReviewEmployers();
-        window.addEventListener('employerApproved', onEmployerStatusChange);
-        window.addEventListener('employerRejected', onEmployerStatusChange);
-
         const interval = setInterval(() => {
             checkNewEmployers();
-            checkUnderReviewEmployers();
             checkNewPlacements();
             checkNewTickets();
         }, 45000);
@@ -215,8 +183,6 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                 clearInterval(refreshInterval);
             }
             clearInterval(interval);
-            window.removeEventListener('employerApproved', onEmployerStatusChange);
-            window.removeEventListener('employerRejected', onEmployerStatusChange);
         };
     }, [currentpath, currentSearch])
 
@@ -305,16 +271,6 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                             className={isEmployersUnderReviewActive ? 'active' : ''}
                                         >
                                             <span className="admin-nav-text">Under Review</span>
-                                            {hasUnderReviewEmployers && (
-                                                <span style={{
-                                                    display: 'inline-block',
-                                                    width: '8px',
-                                                    height: '8px',
-                                                    backgroundColor: '#ff4444',
-                                                    borderRadius: '50%',
-                                                    marginLeft: '8px'
-                                                }}></span>
-                                            )}
                                         </Link>
                                     </li>
                                     <li className={currentpath === adminRoute(admin.CAN_APPROVE) ? 'active' : ''}>
