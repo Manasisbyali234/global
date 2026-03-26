@@ -1218,11 +1218,28 @@ const StartAssessment = () => {
 		}
 	};
 
-	const handleTermsDecline = () => {
+	const handleTermsDecline = useCallback(() => {
 		setShowTermsModal(false);
 		clearStoredAssessment();
-		navigate(-1);
-	};
+		stopAssessmentWebcam();
+		cleanupSecureMode();
+
+		if (typeof window !== 'undefined' && window.opener && !window.opener.closed) {
+			try {
+				window.opener.focus();
+			} catch (err) {}
+
+			try {
+				window.close();
+			} catch (err) {}
+
+			if (window.closed) {
+				return;
+			}
+		}
+
+		navigate('/candidate/status', { replace: true });
+	}, [clearStoredAssessment, cleanupSecureMode, navigate, stopAssessmentWebcam]);
 
 	const handleViolationAcknowledge = () => {
 		setShowViolationModal(false);

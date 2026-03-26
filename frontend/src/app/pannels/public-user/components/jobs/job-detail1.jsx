@@ -685,7 +685,7 @@ function JobDetail1Page() {
                                                         </div>
                                                     )}
 
-                                                    <div className="twm-job-self-bottom" style={{marginTop: '40px', paddingTop: '20px', textAlign: 'right', paddingRight: '20px'}}>
+                                                    <div className="twm-job-self-bottom job-detail-apply-wrap" style={{marginTop: '40px', paddingTop: '20px', textAlign: 'right'}}>
                                                         <button
                                                             className={`btn btn-outline-primary ${(hasApplied || isEnded) ? 'disabled' : ''}`}
                                                             onClick={handleApplyClick}

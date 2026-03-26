@@ -182,6 +182,11 @@
     animation: fadeInUp 0.6s ease-out 0.9s both;
 }
 
+.twm-job-self-wrap .twm-job-self-info .job-detail-apply-wrap {
+    right: 20px !important;
+    padding-right: 0;
+}
+
 .site-button {
     background: #FF7A0014 !important;
     border: none;

@@ -1837,13 +1837,6 @@ function CanStatusPage() {
 																								{roundStatus?.text || 'Pending'}
 																							</span>
 																						)}
-																						{/* Show pass/fail result for completed assessments */}
-																						{roundName === 'Assessment' && (assessmentRoundInfo?.completionInfo?.isPassed || assessmentRoundInfo?.completionInfo?.isFailed) && (
-																							<span className={`badge ${assessmentRoundInfo.completionInfo.isPassed ? 'bg-success' : 'bg-danger'}`} style={{fontSize: '9px', padding: '2px 6px', marginTop: '2px'}}>
-																								{assessmentRoundInfo.completionInfo.isPassed ? 'Pass' : 'Fail'}
-																							</span>
-																						)}
-
 																						{/* Show assessment remarks if available - removed from table, only in modal */}
 																					</div>
 																				</div>

@@ -162,7 +162,7 @@ function LoginPage() {
                                         </div>
                                     )}
                                             <div className="mb-4">
-                                                <ul className="nav nav-tabs" id="myTab2" role="tablist">
+                                                <ul className="nav nav-tabs login-role-tabs" id="myTab2" role="tablist">
                                                     <li className="nav-item">
                                                         <button className="nav-link active" data-bs-toggle="tab" data-bs-target="#twm-login-candidate" type="button"><i className="fas fa-user-tie me-1" /><span>Candidate</span></button>
                                                     </li>
