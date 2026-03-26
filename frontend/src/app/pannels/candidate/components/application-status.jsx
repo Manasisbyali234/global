@@ -1277,6 +1277,18 @@ function CanStatusPage() {
 			if ((isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
 				return { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
+
+			if (
+				windowInfo.isWithinWindow &&
+				!windowInfo.isBeforeStart &&
+				!windowInfo.isAfterEnd &&
+				!isCompleted &&
+				!isInProgress &&
+				!isSuspended &&
+				['', 'pending', 'not_required', 'not_started', 'available'].includes(status)
+			) {
+				return { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' };
+			}
 			
 			// Check if assessment window hasn't started yet (only in popup)
 			if (isPopup && windowInfo.isBeforeStart && (status === 'available' || status === 'not_required' || status === 'pending')) {
