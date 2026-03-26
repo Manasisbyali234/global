@@ -16,33 +16,39 @@ function CandidateLayout() {
 
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 991);
-            if (window.innerWidth <= 991) {
+            const mobile = window.innerWidth <= 991;
+            setIsMobile(mobile);
+            if (mobile) {
                 setSidebarActive(false);
             } else {
                 setSidebarActive(true);
+                document.body.classList.remove('sidebar-open');
             }
         };
 
         checkMobile();
         window.addEventListener('resize', checkMobile);
 
-        return () => window.removeEventListener('resize', checkMobile);
+        return () => {
+            window.removeEventListener('resize', checkMobile);
+            document.body.classList.remove('sidebar-open');
+        };
     }, []);
 
-    const handleMenuToggle = () => {
-        const newState = !sidebarActive;
-        setSidebarActive(newState);
-        if (newState) {
+    useEffect(() => {
+        if (isMobile && sidebarActive) {
             document.body.classList.add('sidebar-open');
         } else {
             document.body.classList.remove('sidebar-open');
         }
+    }, [isMobile, sidebarActive]);
+
+    const handleMenuToggle = () => {
+        setSidebarActive((current) => !current);
     }
 
     const closeSidebar = () => {
         setSidebarActive(false);
-        document.body.classList.remove('sidebar-open');
     }
 
 

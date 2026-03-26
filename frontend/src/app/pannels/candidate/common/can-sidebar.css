@@ -2,7 +2,7 @@
 #sidebar-admin-wraper,
 #sidebar-admin-wraper .admin-nav,
 #sidebar-admin-wraper .admin-nav.scrollbar-macosx {
-    overflow-y: hidden !important;
+    overflow-y: auto !important;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
 }
@@ -152,7 +152,7 @@
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
-    width: 280px !important;
+    width: min(280px, 84vw) !important;
     height: 100vh !important;
     transform: translateX(-100%) !important;
     transition: transform 0.3s ease !important;
@@ -181,7 +181,7 @@
     min-height: 100vh !important;
     transition: none !important;
     background: #f8fafc !important;
-    padding-top: 90px !important;
+    padding-top: 0 !important;
   }
 
   #header-admin {
@@ -239,7 +239,7 @@ html, body {
   }
 
   #sidebar-admin-wraper {
-    width: 260px !important;
+    width: min(260px, 86vw) !important;
   }
 }
 

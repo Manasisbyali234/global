@@ -127,7 +127,7 @@ function CanChangePasswordPage() {
 
     return (
         <>
-            <div className="twm-right-section-panel site-bg-gray">
+            <div className="twm-right-section-panel site-bg-gray candidate-change-password-page">
                 <form onSubmit={handleSubmit}>
                     {/*Basic Information*/}
                     <div className="panel panel-default">

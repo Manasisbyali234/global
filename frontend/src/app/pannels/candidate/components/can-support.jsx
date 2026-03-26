@@ -348,18 +348,18 @@ function CanSupport() {
 
     if (isSubmitted) {
         return (
-            <div className="twm-right-section-panel site-bg-gray" style={{ height: '100vh', overflow: 'hidden', position: 'fixed', width: '100%', top: 0, left: 0 }}>
-                <div style={{ padding: '2rem 2rem 0 2rem' }}>
-                    <div style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '2rem' }}>
+            <div className="twm-right-section-panel site-bg-gray candidate-support-page candidate-support-success">
+                <div className="candidate-page-shell candidate-support-shell candidate-page-shell--header">
+                    <div className="candidate-page-header-card">
                         <div style={{ textAlign: 'center' }}>
-                            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827', margin: '0 0 0.5rem 0' }}>
+                            <h2 className="candidate-page-title">
                                 <i className="fa fa-headset me-2" style={{color: '#f97316'}}></i>
                                 Support Ticket Submitted
                             </h2>
                         </div>
                     </div>
                 </div>
-                <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '60vh', padding: '0 2rem' }}>
+                <div className="candidate-page-shell candidate-support-shell candidate-page-shell--content d-flex align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
                     <div className="text-center">
                         <div className="success-icon mb-3">
                             <i className="fa fa-check-circle" style={{fontSize: '4rem', color: '#28a745'}}></i>
@@ -381,12 +381,12 @@ function CanSupport() {
     }
 
     return (
-        <div className="twm-right-section-panel site-bg-gray">
+        <div className="twm-right-section-panel site-bg-gray candidate-support-page">
             {/* Support Page Header */}
-            <div style={{ padding: '2rem 2rem 0 2rem' }}>
-                <div style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '2rem' }}>
+            <div className="candidate-page-shell candidate-support-shell candidate-page-shell--header">
+                <div className="candidate-page-header-card">
                     <div style={{ textAlign: 'center' }}>
-                        <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827', margin: '0 0 0.5rem 0' }}>
+                        <h2 className="candidate-page-title">
                             <i className="fa fa-headset me-2" style={{color: '#f97316'}}></i>
                             Get Support
                         </h2>
@@ -395,7 +395,7 @@ function CanSupport() {
             </div>
             
             {/* Support Content */}
-            <div style={{ padding: '0 2rem 2rem 2rem' }}>
+            <div className="candidate-page-shell candidate-support-shell candidate-page-shell--content">
                 <div className="panel panel-default">
                     <div className="panel-body wt-panel-body p-a20 m-b30">
                             <form onSubmit={handleSubmit}>

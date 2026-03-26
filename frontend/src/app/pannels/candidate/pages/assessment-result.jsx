@@ -370,11 +370,12 @@ const AssessmentResults = () => {
 				)}
 
 				{/* Results Cards */}
-				<div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
+				<div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginBottom: "20px" }}>
 					{/* Score Card */}
 					<div
 						style={{
 							flex: 1,
+							minWidth: "min(100%, 260px)",
 							background: "#fff",
 							padding: "20px",
 							borderRadius: "8px",
@@ -402,6 +403,7 @@ const AssessmentResults = () => {
 					<div
 						style={{
 							flex: 1,
+							minWidth: "min(100%, 260px)",
 							background: "#fff",
 							padding: "20px",
 							borderRadius: "8px",

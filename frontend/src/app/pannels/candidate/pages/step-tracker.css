@@ -58,3 +58,29 @@
 .step-line.line-filled {
   background: #28a745;
 }
+
+@media (max-width: 768px) {
+  .stepper {
+    overflow-x: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .step-wrapper {
+    flex: 0 0 auto;
+    min-width: 116px;
+  }
+
+  .step-line {
+    width: 42px;
+    flex: 0 0 42px;
+  }
+
+  .step-label {
+    font-size: 12px;
+    max-width: 100px;
+    line-height: 1.35;
+  }
+}

@@ -254,3 +254,41 @@ ul {
 .start-btn:hover {
 	background: #333;
 }
+
+@media (max-width: 768px) {
+	.popup-overlay {
+		align-items: flex-start;
+		overflow-y: auto;
+		padding: 16px 12px;
+	}
+
+	.popup-container {
+		width: 100%;
+		max-width: 100%;
+		padding: 16px;
+		margin-top: 64px;
+		border-radius: 12px;
+	}
+
+	.popup-title {
+		font-size: 1.25rem;
+		line-height: 1.3;
+	}
+
+	.section-card {
+		padding: 12px;
+	}
+
+	.time-info {
+		align-items: flex-start;
+	}
+
+	.action-row {
+		flex-direction: column-reverse;
+	}
+
+	.cancel-btn,
+	.start-btn {
+		width: 100%;
+	}
+}

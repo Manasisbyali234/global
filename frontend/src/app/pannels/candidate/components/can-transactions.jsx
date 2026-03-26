@@ -208,7 +208,7 @@ function CanTransactionsPage() {
     };
 
     return (
-        <div className="twm-right-section-panel site-bg-gray" style={{
+        <div className="twm-right-section-panel site-bg-gray candidate-transactions-page" style={{
             width: '100%',
             margin: 0,
             padding: 0,
@@ -216,7 +216,7 @@ function CanTransactionsPage() {
             minHeight: '100vh'
         }}>
             {/* Header */}
-            <div style={{ padding: 'clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem) clamp(0.5rem, 2vw, 1rem) clamp(1rem, 4vw, 2rem)' }}>
+            <div className="candidate-page-shell candidate-transactions-shell candidate-page-shell--header" style={{ padding: 'clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem) clamp(0.5rem, 2vw, 1rem) clamp(1rem, 4vw, 2rem)' }}>
                 <div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: 'clamp(1rem, 3vw, 1.5rem) clamp(1rem, 4vw, 2rem)', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
                     <h2 className="m-0" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>My Transactions</h2>
                     <p className="text-muted m-0 mt-1" style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>View and download receipts for your job applications</p>
@@ -224,7 +224,7 @@ function CanTransactionsPage() {
             </div>
 
             {/* Content */}
-            <div style={{ padding: '0 clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem)' }}>
+            <div className="candidate-page-shell candidate-transactions-shell candidate-page-shell--content" style={{ padding: '0 clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem)' }}>
                 <div className="panel panel-default site-bg-white" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0, padding: 'clamp(1rem, 3vw, 1.5rem)' }}>
                     
                     <div className="page-toolbar mb-3 mb-md-4">
@@ -344,7 +344,7 @@ function CanTransactionsPage() {
 
             {/* Invoice Modal */}
             {showInvoiceModal && createPortal(
-                <div className="modal fade show" style={{ 
+                <div className="modal fade show candidate-transaction-modal" style={{ 
                     display: 'grid',
                     backgroundColor: 'rgba(0,0,0,0.5)', 
                     zIndex: 110000,

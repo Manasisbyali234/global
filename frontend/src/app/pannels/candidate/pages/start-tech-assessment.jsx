@@ -1475,10 +1475,10 @@ const StartAssessment = () => {
 				ref={videoRef} 
 				style={{
 					position: 'fixed', 
-					top: '10px', 
-					right: '10px', 
-					width: '200px', 
-					height: '150px', 
+					top: 'clamp(8px, 2vw, 10px)', 
+					right: 'clamp(8px, 2vw, 10px)', 
+					width: 'clamp(96px, 28vw, 200px)', 
+					height: 'clamp(72px, 21vw, 150px)', 
 					border: '2px solid #ff6b35', 
 					zIndex: '9999',
 					borderRadius: '8px',
@@ -1496,8 +1496,8 @@ const StartAssessment = () => {
 			{webcamStatus && (
 				<div style={{
 					position: 'fixed',
-					top: '170px',
-					right: '10px',
+					top: 'calc(clamp(72px, 21vw, 150px) + 20px)',
+					right: 'clamp(8px, 2vw, 10px)',
 					background: webcamStatus === 'active' ? '#4CAF50' : webcamStatus === 'failed' ? '#f44336' : '#ff9800',
 					color: 'white',
 					padding: '4px 8px',
@@ -1530,7 +1530,7 @@ const StartAssessment = () => {
 			<div
 				ref={assessmentContainerRef}
 				style={{
-					padding: "20px",
+					padding: "clamp(12px, 3vw, 20px)",
 					fontFamily: "Arial, sans-serif",
 					backgroundColor: "#f5f6fa",
 					minHeight: "100vh",

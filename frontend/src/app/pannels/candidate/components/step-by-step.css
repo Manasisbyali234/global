@@ -24,3 +24,20 @@
   background: #f9f9f9;
   border-radius: 8px;
 }
+
+@media (max-width: 768px) {
+  .top-bar-a {
+    padding: 16px;
+  }
+
+  .content-a {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .left-panel-a,
+  .right-panel-a {
+    padding: 16px;
+  }
+}

@@ -7,16 +7,16 @@ import { validatePhoneNumber } from "../../../../utils/phoneValidation";
 function CanProfilePage() {
     return (
         <>
-            <div className="twm-right-section-panel site-bg-gray">
+            <div className="twm-right-section-panel site-bg-gray candidate-profile-page">
                 {/* Profile Page Header */}
-                <div style={{ padding: '2rem 2rem 0 2rem' }}>
-                    <div style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '2rem' }}>
+                <div className="candidate-page-shell candidate-profile-shell candidate-page-shell--header">
+                    <div className="candidate-page-header-card">
                         <div style={{ textAlign: 'center' }}>
-                            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827', margin: '0 0 0.5rem 0' }}>
+                            <h2 className="candidate-page-title">
                                 <i className="fa fa-user-circle me-2" style={{color: '#f97316'}}></i>
                                 My Profile
                             </h2>
-                            <p style={{ color: '#6b7280', margin: 0 }}>
+                            <p className="candidate-page-subtitle">
                                 Manage your personal information and contact details
                             </p>
                         </div>
@@ -24,7 +24,7 @@ function CanProfilePage() {
                 </div>
                 
                 {/* Profile Content */}
-                <div style={{ padding: '0 2rem 2rem 2rem' }}>
+                <div className="candidate-page-shell candidate-profile-shell candidate-page-shell--content">
                     <SectionCandicateBasicInfo />
                 </div>
             </div>
