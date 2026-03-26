@@ -103,7 +103,7 @@ function EmpTransactionsPage() {
     }, [transactions, searchText]);
 
     return (
-        <div className="twm-right-section-panel site-bg-gray emp-candidates-page" style={{
+        <div className="twm-right-section-panel site-bg-gray emp-transactions-page" style={{
             width: '100%',
             margin: 0,
             padding: 0,
@@ -111,16 +111,16 @@ function EmpTransactionsPage() {
             minHeight: '100vh'
         }}>
             {/* Header */}
-            <div style={{ padding: '2rem 2rem 1rem 2rem' }}>
-                <div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem 2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                    <h2 className="m-0">Transaction History</h2>
-                    <p className="text-muted m-0 mt-1">View all candidate application payments and invoices</p>
+            <div className="employer-page-shell employer-page-shell--header">
+                <div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem 2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                    <h2 className="m-0 employer-page-title">Transaction History</h2>
+                    <p className="text-muted m-0 mt-1 employer-page-subtitle">View all candidate application payments and invoices</p>
                 </div>
             </div>
 
             {/* Content */}
-            <div style={{ padding: '0 2rem 2rem 2rem' }}>
-                <div className="panel panel-default site-bg-white p-4" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
+            <div className="employer-page-shell employer-page-shell--content">
+                <div className="panel panel-default site-bg-white p-4 employer-page-content-card" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
                     
                     <div className="page-toolbar mb-4">
                         <div className="page-toolbar__controls page-toolbar__controls--single">
@@ -221,7 +221,7 @@ function EmpTransactionsPage() {
 
             {/* Invoice Modal */}
             {showInvoiceModal && createPortal(
-                <div className="modal fade show" style={{ 
+                <div className="emp-transaction-modal modal fade show" style={{ 
                     display: 'block', 
                     backgroundColor: 'rgba(0,0,0,0.5)', 
                     zIndex: 110000,

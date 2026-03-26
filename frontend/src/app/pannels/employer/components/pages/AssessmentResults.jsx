@@ -83,7 +83,7 @@ export default function AssessmentResults() {
   }
 
   return (
-    <div className="twm-right-section-panel site-bg-gray emp-dashboard" style={{
+    <div className="twm-right-section-panel site-bg-gray emp-dashboard emp-assessment-results-page" style={{
       width: '100%',
       margin: 0,
       padding: 0,
@@ -91,8 +91,8 @@ export default function AssessmentResults() {
       minHeight: '100vh'
     }}>
       {/* Header */}
-      <div style={{ padding: '2rem 2rem 2rem 2rem' }}>
-        <div className="wt-admin-right-page-header clearfix" style={{ 
+      <div className="employer-page-shell employer-page-shell--header">
+        <div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ 
           background: 'white', 
           borderRadius: '12px', 
           padding: isMobile ? '1rem' : '2rem', 
@@ -166,8 +166,8 @@ export default function AssessmentResults() {
       </div>
 
       {/* Results Content */}
-      <div style={{ padding: '0 2rem 2rem 2rem' }}>
-        <div style={{
+      <div className="employer-page-shell employer-page-shell--content">
+        <div className="employer-page-content-card" style={{
           background: 'white',
           borderRadius: '12px',
           border: '1px solid #e5e7eb',

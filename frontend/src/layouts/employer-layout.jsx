@@ -13,22 +13,39 @@ function EmployerLayout() {
 
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 991);
-            if (window.innerWidth <= 991) {
+            const mobile = window.innerWidth <= 991;
+            setIsMobile(mobile);
+            if (mobile) {
                 setSidebarActive(false);
             } else {
                 setSidebarActive(true);
+                document.body.classList.remove('sidebar-open');
             }
         };
-        
+
         checkMobile();
         window.addEventListener('resize', checkMobile);
-        
-        return () => window.removeEventListener('resize', checkMobile);
+
+        return () => {
+            window.removeEventListener('resize', checkMobile);
+            document.body.classList.remove('sidebar-open');
+        };
     }, []);
 
+    useEffect(() => {
+        if (isMobile && sidebarActive) {
+            document.body.classList.add('sidebar-open');
+        } else {
+            document.body.classList.remove('sidebar-open');
+        }
+    }, [isMobile, sidebarActive]);
+
     const handleMenuToggle = () => {
-        setSidebarActive(!sidebarActive);
+        setSidebarActive((current) => !current);
+    }
+
+    const closeSidebar = () => {
+        setSidebarActive(false);
     }
 
     const contentClasses = [
@@ -39,24 +56,14 @@ function EmployerLayout() {
     return (
         <>
             <div className="page-wraper">
-                {isMobile && sidebarActive && (
-                    <div 
-                        className="sidebar-overlay active"
-                        onClick={() => setSidebarActive(false)}
-                        style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            background: 'rgba(0,0,0,0.5)',
-                            zIndex: 9998,
-                            backdropFilter: 'blur(2px)'
-                        }}
+                {isMobile && (
+                    <div
+                        className={`sidebar-overlay ${sidebarActive ? "active" : ""}`}
+                        onClick={closeSidebar}
                     ></div>
                 )}
-                
-                <EmpSidebarSection sidebarActive={sidebarActive} isMobile={isMobile} onClose={() => setSidebarActive(false)} />
+
+                <EmpSidebarSection sidebarActive={sidebarActive} isMobile={isMobile} onClose={closeSidebar} />
 
                 <UnifiedHeader 
                     userRole="employer"

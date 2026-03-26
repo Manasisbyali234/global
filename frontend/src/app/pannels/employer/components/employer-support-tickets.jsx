@@ -248,8 +248,8 @@ function EmployerSupportTickets() {
     }
 
     return (
-        <div className="dashboard-content">
-            <div className="wt-admin-right-page-header">
+        <div className="dashboard-content employer-support-tickets-page employer-page-shell employer-page-shell--content">
+            <div className="wt-admin-right-page-header employer-page-header-card">
                 <h2>Candidate Support Tickets</h2>
                 <p>Monitor and respond to candidate support requests</p>
             </div>

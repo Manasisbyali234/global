@@ -130,7 +130,7 @@ export default function ViewAnswers() {
   );
 
   return (
-    <div style={{ 
+    <div className="twm-right-section-panel site-bg-gray view-answers-page" style={{ 
       width: '100%', 
       minHeight: '100vh', 
       background: '#f7f7f7', 
@@ -138,6 +138,7 @@ export default function ViewAnswers() {
     }}>
       <button
         onClick={() => navigate(-1)}
+        className="view-answers-page__back"
         style={{
           background: 'white',
           border: '1px solid #e5e7eb',
@@ -163,7 +164,7 @@ export default function ViewAnswers() {
           padding: '1.5rem', 
           marginBottom: '2rem',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' 
-        }}>
+        }} className="view-answers-page__summary">
           <div style={{ marginBottom: '1rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>
               Assessment Answers
@@ -172,7 +173,7 @@ export default function ViewAnswers() {
               {attempt.candidateId?.name || 'N/A'} • {attempt.candidateId?.email || 'N/A'}
             </p>
           </div>
-          <div style={{ 
+          <div className="view-answers-page__meta" style={{ 
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
             gap: '1rem', 
@@ -233,16 +234,17 @@ export default function ViewAnswers() {
               const question = assessment.questions[answer.questionIndex];
               const isCorrect = (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && parseInt(answer.selectedAnswer) === parseInt(question.correctAnswer);
               return (
-                <div 
-                  key={index}
-                  style={{ 
-                    background: 'white', 
+                  <div
+                    className="view-answers-page__answer"
+                    key={index}
+                    style={{ 
+                      background: 'white', 
                     borderRadius: '12px', 
                     padding: '2rem',
                     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' 
                   }}
                 >
-                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <div className="view-answers-page__question-meta" style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <span style={{ 
                       background: '#ff6b35', 
                       color: 'white', 
@@ -436,10 +438,10 @@ export default function ViewAnswers() {
                               </div>
                             </div>
                           ) : (
-                            <div style={{ 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              gap: '1rem',
+                            <div className="view-answers-page__file" style={{ 
+                               display: 'flex', 
+                               alignItems: 'center', 
+                               gap: '1rem',
                               background: 'white',
                               padding: '1rem',
                               borderRadius: '8px',
@@ -614,7 +616,7 @@ export default function ViewAnswers() {
                     </div>
                   )}
                   
-                  <div style={{ 
+                  <div className="view-answers-page__status-row" style={{ 
                     marginTop: '1rem', 
                     display: 'flex', 
                     justifyContent: 'space-between',

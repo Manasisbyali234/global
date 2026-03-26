@@ -139,7 +139,7 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
                     position: "fixed",
                     top: 0,
                     left: 0,
-                    width: "280px",
+                    width: "min(280px, 84vw)",
                     transform: sidebarActive ? "translateX(0)" : "translateX(-100%)",
                     transition: "transform 0.3s ease",
                     boxShadow: sidebarActive ? "0 4px 24px rgba(0,0,0,0.25)" : "none",

@@ -581,7 +581,8 @@
     background: white;
     border-radius: 15px;
     padding: 20px;
-    max-width: 90%;
+    width: min(1100px, 96vw);
+    max-width: 96%;
     max-height: 90vh;
     position: relative;
     animation: zoomIn 0.3s ease;
@@ -1531,6 +1532,7 @@
     }
     
     .image-modal-content {
+        width: min(1100px, 95vw);
         max-width: 95%;
         padding: 15px;
     }

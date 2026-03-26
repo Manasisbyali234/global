@@ -176,12 +176,12 @@ export default function AssessmentDashboard() {
 			minHeight: '100vh'
 		}}>
 			{/* Header */}
-			<div style={{ padding: '2rem 2rem 2rem 2rem' }}>
-				<div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+			<div className="employer-page-shell employer-page-shell--header">
+				<div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
 						<div className="d-flex justify-content-between align-items-center">
 							<div>
-								<h2>Assessments</h2>
-								<p className="text-muted mb-0">Manage and create your assessments</p>
+								<h2 className="employer-page-title">Assessments</h2>
+								<p className="employer-page-subtitle text-muted mb-0">Manage and create your assessments</p>
 							</div>
 							<div className="d-flex align-items-center gap-3">
 								<span className="badge bg-light text-dark px-3 py-2" style={{fontSize: '14px'}}>
@@ -196,8 +196,8 @@ export default function AssessmentDashboard() {
 			</div>
 
 			{/* Assessment Selector */}
-			<div style={{ padding: '0 2rem 1rem 2rem' }}>
-				<div className="d-flex flex-wrap gap-3 align-items-center" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+			<div className="employer-page-shell">
+				<div className="d-flex flex-wrap gap-3 align-items-center employer-page-content-card" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
 					<label className="form-label mb-0 fw-semibold" style={{ minWidth: '140px' }}>Select Assessment:</label>
 					<div className="d-flex flex-wrap gap-2" style={{ minWidth: '250px', width: '100%', maxWidth: '320px' }}>
 						<select
@@ -230,8 +230,8 @@ export default function AssessmentDashboard() {
 			</div>
 
 			{/* Content */}
-			<div style={{ padding: '0 2rem 2rem 2rem' }}>
-				<div className="panel panel-default site-bg-white p-3" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
+			<div className="employer-page-shell employer-page-shell--content">
+				<div className="panel panel-default site-bg-white p-3 employer-page-content-card" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
 					{assessments.length === 0 ? (
 						<div className="text-center py-5">
 							<i className="fa fa-clipboard-list" style={{fontSize: '64px', color: '#ccc'}}></i>

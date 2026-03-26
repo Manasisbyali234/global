@@ -30,6 +30,8 @@ import "./mobile-responsive-enhancements.css";
 import "./mobile-responsive-fixes.css";
 // CANDIDATE PANEL RESPONSIVE - Shared mobile/tablet fixes for candidate-side pages
 import "./candidate-panel-responsive.css";
+// EMPLOYER PANEL RESPONSIVE - Shared mobile/tablet fixes for employer-side pages
+import "./employer-panel-responsive.css";
 // BADGE TEXT ORANGE - Make all status badge texts orange
 import "./badge-text-orange.css";
 // GLOBAL Z-INDEX FIX - Comprehensive fix for all stacking issues

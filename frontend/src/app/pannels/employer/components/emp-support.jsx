@@ -75,24 +75,6 @@ function EmpSupport() {
         }
     }, []);
 
-    useEffect(() => {
-        const previousBodyOverflow = document.body.style.overflow;
-        const previousHtmlOverflow = document.documentElement.style.overflow;
-
-        if (isSubmitted) {
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = previousBodyOverflow || '';
-            document.documentElement.style.overflow = previousHtmlOverflow || '';
-        }
-
-        return () => {
-            document.body.style.overflow = previousBodyOverflow || '';
-            document.documentElement.style.overflow = previousHtmlOverflow || '';
-        };
-    }, [isSubmitted]);
-
     const categories = [
         { value: 'general', label: 'General Inquiry' },
         { value: 'technical', label: 'Technical Issue' },
@@ -336,27 +318,20 @@ function EmpSupport() {
 
     if (isSubmitted) {
         return (
-            <div className="twm-right-section-panel site-bg-gray emp-support-page" style={{
+            <div className="twm-right-section-panel site-bg-gray emp-support-page emp-support-success" style={{
                 width: '100%',
                 margin: 0,
                 padding: 0,
                 background: '#f7f7f7',
-                height: '100vh',
-                overflow: 'hidden',
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                paddingTop: '92px',
-                overscrollBehavior: 'none'
+                minHeight: '100vh'
             }}>
-                <div style={{ padding: '2rem 2rem 2rem 2rem' }}>
-                    <div className="wt-admin-right-page-header clearfix emp-support-success-header" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                        <h2>Support Ticket Submitted</h2>
+                <div className="employer-page-shell employer-page-shell--header">
+                    <div className="wt-admin-right-page-header clearfix employer-page-header-card emp-support-success-header">
+                        <h2 className="employer-page-title">Support Ticket Submitted</h2>
+                        <p className="employer-page-subtitle">We have received your ticket and will respond within 2 to 3 working days.</p>
                     </div>
                 </div>
-                <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '60vh', padding: '0 2rem' }}>
+                <div className="employer-page-shell employer-page-shell--content d-flex align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
                     <div className="text-center">
                         <div className="success-icon mb-3">
                             <i className="fa fa-check-circle" style={{fontSize: '4rem', color: '#28a745'}}></i>
@@ -386,14 +361,15 @@ function EmpSupport() {
             minHeight: '100vh'
         }}>
             {/* Header */}
-            <div style={{ padding: '2rem 2rem 2rem 2rem' }}>
-                <div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                    <h2>Support</h2>
+            <div className="employer-page-shell employer-page-shell--header">
+                <div className="wt-admin-right-page-header clearfix employer-page-header-card">
+                    <h2 className="employer-page-title">Support</h2>
+                    <p className="employer-page-subtitle">Raise a ticket for technical issues, account help, or job posting questions.</p>
                 </div>
             </div>
             {/* Content */}
-            <div style={{ padding: '0 2rem 2rem 2rem' }}>
-                <div className="panel panel-default" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
+            <div className="employer-page-shell employer-page-shell--content">
+                <div className="panel panel-default employer-page-content-card" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
                     <div className="panel-heading wt-panel-heading p-a20">
                         <h4 className="panel-tittle m-a0">Get Support</h4>
                     </div>

@@ -184,18 +184,18 @@ export default function EmpPostedJobs() {
 			minHeight: '100vh'
 		}}>
 			{/* Header */}
-			<div style={{ padding: '2rem 2rem 2rem 2rem' }}>
-				<div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-					<h2>Manage Interview</h2>
-					<p style={{ margin: '0.5rem 0 0 0', color: '#6b7280' }}>
+			<div className="employer-page-shell employer-page-shell--header">
+				<div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+					<h2 className="employer-page-title">Manage Interview</h2>
+					<p className="employer-page-subtitle" style={{ margin: '0.5rem 0 0 0', color: '#6b7280' }}>
 						Review your posted jobs, track applications, and manage listing status from one place.
 					</p>
 				</div>
 			</div>
 
 			{/* Content */}
-			<div style={{ padding: '0 2rem 2rem 2rem' }}>
-				<div className="panel panel-default site-bg-white p-3" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
+			<div className="employer-page-shell employer-page-shell--content">
+				<div className="panel panel-default site-bg-white p-3 employer-page-content-card" style={{ background: 'white', borderRadius: '12px', border: '1px solid #eef2f7', boxShadow: 'none', margin: 0 }}>
 				<div className="panel-heading wt-panel-heading mb-3 d-flex justify-content-between">
                     <div>
                         <h4 className="panel-tittle">

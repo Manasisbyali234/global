@@ -1,0 +1,239 @@
+/* Employer-side responsive overrides */
+
+#content,
+.content-admin-main,
+.twm-right-section-panel,
+.dashboard-content {
+  min-width: 0;
+}
+
+.employer-page-shell {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.employer-page-shell--header {
+  padding-top: 2rem;
+}
+
+.employer-page-shell--content {
+  padding-bottom: 2rem;
+}
+
+.employer-page-header-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.employer-page-content-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #eef2f7;
+  box-shadow: none;
+  margin: 0;
+}
+
+.employer-page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.employer-page-subtitle {
+  color: #6b7280;
+  margin: 0;
+}
+
+body.sidebar-open {
+  overflow: hidden;
+}
+
+@media (max-width: 991px) {
+  #content.mobile-view {
+    margin-top: 60px !important;
+    padding-top: 0 !important;
+  }
+
+  #content.mobile-view .content-admin-main,
+  #content.mobile-view .twm-right-section-panel {
+    min-height: calc(100vh - 60px) !important;
+  }
+
+  #content.mobile-view .dashboard-content,
+  #content.mobile-view .emp-dashboard,
+  #content.mobile-view .emp-company-profile,
+  #content.mobile-view .emp-candidates-page,
+  #content.mobile-view .emp-posted-jobs-page,
+  #content.mobile-view .emp-assessment-page,
+  #content.mobile-view .emp-assessment-results-page,
+  #content.mobile-view .emp-support-page,
+  #content.mobile-view .emp-transactions-page,
+  #content.mobile-view .view-answers-page {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  #content.mobile-view .employer-page-shell {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.mobile-view .employer-page-shell--header {
+    padding-top: 1rem !important;
+  }
+
+  #content.mobile-view .employer-page-shell--content {
+    padding-bottom: 1rem !important;
+  }
+
+  #content.mobile-view .employer-page-header-card,
+  #content.mobile-view .employer-page-content-card,
+  #content.mobile-view .emp-company-profile .panel,
+  #content.mobile-view .dashboard-content .stats-card,
+  #content.mobile-view .dashboard-content .filters-section,
+  #content.mobile-view .dashboard-content .tickets-card,
+  #content.mobile-view .view-answers-page__summary,
+  #content.mobile-view .view-answers-page__answer {
+    padding: 1rem !important;
+    border-radius: 12px !important;
+  }
+
+  #content.mobile-view .employer-page-title {
+    font-size: 1.5rem !important;
+  }
+
+  #content.mobile-view .employer-page-subtitle {
+    font-size: 0.925rem !important;
+  }
+
+  #content.mobile-view .wt-admin-right-page-header,
+  #content.mobile-view .panel-heading.wt-panel-heading,
+  #content.mobile-view .panel-body.wt-panel-body {
+    padding: 1rem !important;
+  }
+
+  #content.mobile-view .page-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+  }
+
+  #content.mobile-view .page-toolbar__controls,
+  #content.mobile-view .page-toolbar__controls--single,
+  #content.mobile-view .page-toolbar__section,
+  #content.mobile-view .page-toolbar__control-wrap {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .page-toolbar > div:first-child,
+  #content.mobile-view .emp-posted-jobs-page .panel-body > .mb-4.d-flex.flex-wrap.gap-3.justify-content-between.align-items-center,
+  #content.mobile-view .emp-assessment-page .d-flex.justify-content-between.align-items-center,
+  #content.mobile-view .emp-assessment-page .d-flex.flex-wrap.gap-3.align-items-center,
+  #content.mobile-view .dashboard-content .filters-section__header,
+  #content.mobile-view .view-answers-page__question-meta,
+  #content.mobile-view .view-answers-page__status-row,
+  #content.mobile-view .view-answers-page__file {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .row,
+  #content.mobile-view .emp-posted-jobs-page .row,
+  #content.mobile-view .emp-assessment-page .row {
+    row-gap: 1rem;
+  }
+
+  #content.mobile-view .emp-candidates-page .d-flex.justify-content-between.align-items-center.p-3.border.rounded.mb-3.shadow-sm,
+  #content.mobile-view .emp-posted-jobs-page .manage-jobs-card {
+    padding: 1rem !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .d-flex.justify-content-between.align-items-center.p-3.border.rounded.mb-3.shadow-sm,
+  #content.mobile-view .emp-posted-jobs-page .manage-jobs-card .d-flex.justify-content-between.align-items-start.mb-3 {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  #content.mobile-view .emp-posted-jobs-page .mb-4.d-flex.flex-wrap.gap-3.justify-content-between.align-items-center .d-flex.gap-2 {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  #content.mobile-view .emp-posted-jobs-page .mb-4.d-flex.flex-wrap.gap-3.justify-content-between.align-items-center .btn {
+    flex: 1 1 calc(33.333% - 0.5rem);
+    min-width: 92px;
+  }
+
+  #content.mobile-view .table-responsive {
+    border-radius: 12px !important;
+    overflow-x: auto !important;
+  }
+
+  #content.mobile-view .emp-transactions-page table,
+  #content.mobile-view .dashboard-content .tickets-table,
+  #content.mobile-view .emp-assessment-results-page table,
+  #content.mobile-view .emp-candidate-review table {
+    min-width: 640px !important;
+  }
+
+  #content.mobile-view .emp-support-success {
+    position: static !important;
+    min-height: auto !important;
+  }
+
+  #content.mobile-view .emp-company-profile {
+    padding-top: 0 !important;
+  }
+
+  #content.mobile-view .dashboard-content .action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #content.mobile-view .dashboard-content .action-buttons .btn {
+    width: 100%;
+  }
+
+  #content.mobile-view .view-answers-page__back {
+    width: 100%;
+    margin: 1rem 0 !important;
+    justify-content: center;
+  }
+
+  .emp-transaction-modal .modal-dialog,
+  #support-ticket-modal .modal-dialog {
+    width: calc(100vw - 1rem) !important;
+    max-width: calc(100vw - 1rem) !important;
+    margin: 0.5rem auto !important;
+  }
+
+  .emp-transaction-modal .modal-content,
+  #support-ticket-modal .modal-content {
+    max-height: calc(100vh - 1rem) !important;
+    border-radius: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #content.mobile-view {
+    margin-top: 56px !important;
+  }
+
+  #content.mobile-view .content-admin-main,
+  #content.mobile-view .twm-right-section-panel {
+    min-height: calc(100vh - 56px) !important;
+  }
+
+  #content.mobile-view .employer-page-title {
+    font-size: 1.25rem !important;
+  }
+
+  #content.mobile-view .employer-page-subtitle {
+    font-size: 0.875rem !important;
+  }
+}
