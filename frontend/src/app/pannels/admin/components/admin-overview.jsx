@@ -43,6 +43,65 @@ function AdminOverviewPage() {
         ? "Review all posted jobs for the selected employer and drill down into applicant activity."
         : "Review employer activity, total job postings, and applicant counts in one place.";
 
+  const getApplicationTypeBadge = (applicationType) => {
+    const normalizedType = String(applicationType || "").toLowerCase();
+
+    if (normalizedType === "credit") {
+      return {
+        label: "Credit",
+        style: {
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minWidth: "74px",
+          padding: "4px 10px",
+          borderRadius: "999px",
+          fontSize: "12px",
+          fontWeight: 700,
+          backgroundColor: "#fff4cc",
+          color: "#8a5a00",
+          border: "1px solid #f0c14b"
+        }
+      };
+    }
+
+    if (normalizedType === "paid") {
+      return {
+        label: "Paid",
+        style: {
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minWidth: "74px",
+          padding: "4px 10px",
+          borderRadius: "999px",
+          fontSize: "12px",
+          fontWeight: 700,
+          backgroundColor: "#e7f7ee",
+          color: "#146c43",
+          border: "1px solid #8fd19e"
+        }
+      };
+    }
+
+    return {
+      label: "Unknown",
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minWidth: "74px",
+        padding: "4px 10px",
+        borderRadius: "999px",
+        fontSize: "12px",
+        fontWeight: 700,
+        backgroundColor: "#f1f3f5",
+        color: "#495057",
+        border: "1px solid #ced4da"
+      }
+    };
+  };
+
   useEffect(() => {
     fetchOverview();
   }, []);
@@ -339,6 +398,7 @@ function AdminOverviewPage() {
                     <tr>
                       <th>Applicant Name</th>
                       <th>Email</th>
+                      <th>Apply Type</th>
                       <th>Status</th>
                       <th>Applied Date</th>
                       <th>Interviews</th>
@@ -348,7 +408,7 @@ function AdminOverviewPage() {
                   <tbody>
                     {jobApplicants.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="text-center">
+                        <td colSpan="7" className="text-center">
                           No applicants found for this job.
                         </td>
                       </tr>
@@ -357,6 +417,12 @@ function AdminOverviewPage() {
                         <tr key={applicant.applicationId}>
                           <td>{applicant.applicantName}</td>
                           <td>{applicant.applicantEmail}</td>
+                          <td>
+                            {(() => {
+                              const badge = getApplicationTypeBadge(applicant.applicationType);
+                              return <span style={badge.style}>{badge.label}</span>;
+                            })()}
+                          </td>
                           <td>{applicant.status}</td>
                           <td>{formatDate(applicant.appliedAt)}</td>
                           <td>{applicant.interviewRoundsCount ?? 0}</td>

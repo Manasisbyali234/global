@@ -286,7 +286,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     const applications = await Application.find({ jobId })
       .populate('candidateId', 'name email')
       .populate('jobId', 'interviewRoundOrder interviewRoundTypes interviewRoundDetails')
-      .select('candidateId applicantName applicantEmail status appliedAt isGuestApplication interviewProcesses interviewProcess processRemarks jobId')
+      .select('candidateId applicantName applicantEmail status appliedAt isGuestApplication interviewProcesses interviewProcess processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency')
       .sort({ appliedAt: -1 })
       .lean();
 
@@ -365,8 +365,27 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       return [];
     };
 
+    const resolveApplicationType = (application = {}) => {
+      const isCreditApplication =
+        String(application?.paymentId || '').startsWith('credit_') ||
+        String(application?.orderId || '').startsWith('credit_order_') ||
+        String(application?.paymentCurrency || '').toUpperCase() === 'CREDITS' ||
+        Number(application?.paymentAmount) === 0;
+
+      if (isCreditApplication) {
+        return 'credit';
+      }
+
+      if (String(application?.paymentStatus || '').toLowerCase() === 'paid') {
+        return 'paid';
+      }
+
+      return 'unknown';
+    };
+
     const data = applications.map((application) => {
       const interviewRounds = buildInterviewRounds(application);
+      const applicationType = resolveApplicationType(application);
       return {
         applicationId: application._id,
         applicantName:
@@ -380,6 +399,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         status: application.status || 'pending',
         appliedAt: application.appliedAt,
         isGuestApplication: !!application.isGuestApplication,
+        applicationType,
         interviewRoundsCount: interviewRounds.length,
         interviewRounds
       };

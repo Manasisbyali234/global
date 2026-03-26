@@ -15,13 +15,20 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
     const timeLimit = assessment?.timer ?? assessment?.timeLimit ?? '--';
     return (
         <div className="modal fade twm-model-popup show" id="termsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-hidden="false" style={{ display: 'block' }}>
-            <div className="modal-dialog modal-xl" style={{maxWidth: '900px'}}>
-                <div className="modal-content">
+            <div
+                className="modal-dialog modal-xl"
+                style={{
+                    width: 'min(96vw, 1180px)',
+                    maxWidth: '1180px',
+                    margin: '1.5rem auto'
+                }}
+            >
+                <div className="modal-content" style={{ borderRadius: '16px' }}>
                     <div className="modal-header">
                         <h5 className="modal-title">Assessment Terms & Conditions</h5>
                     </div>
 
-                    <div className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto', padding: '0' }}>
+                    <div className="modal-body" style={{ maxHeight: '68vh', overflowY: 'auto', padding: '0' }}>
                         <div className="terms-content" style={{ padding: '24px 32px' }}>
                             <div style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '2px solid #ff6b35' }}>
                                 <h5 style={{ color: '#2c3e50', fontWeight: '600', marginBottom: '8px' }}>Assessment Rules & Guidelines</h5>
