@@ -381,15 +381,12 @@
     line-height: 1.1 !important;
 }
 
-/* Override text-success when used as badge */
-.badge.text-success,
-.interview-round-item .text-success,
-.table .text-success.badge,
-.interview-progress-wrapper .text-success,
-.text-success.badge,
-span.text-success,
-p.text-success.badge,
-.interview-round-item span.text-success {
+/* Keep generic success text compact without shrinking badges */
+.interview-round-item .text-success:not(.badge),
+.interview-progress-wrapper .text-success:not(.badge),
+span.text-success:not(.badge),
+p.text-success:not(.badge),
+.interview-round-item span.text-success:not(.badge) {
     font-size: 8px !important;
     padding: 1px 3px !important;
     border-radius: 4px !important;
@@ -407,12 +404,12 @@ p.text-success.badge,
     margin-bottom: 0 !important;
 }
 
-/* Force override for any text-success in table context */
-.table-responsive .text-success,
-.table .text-success,
-tbody .text-success,
-tr .text-success,
-td .text-success {
+/* Force override for compact success text in table context, excluding badges */
+.table-responsive .text-success:not(.badge),
+.table .text-success:not(.badge),
+tbody .text-success:not(.badge),
+tr .text-success:not(.badge),
+td .text-success:not(.badge) {
     font-size: 8px !important;
     padding: 1px 3px !important;
     margin: 0 !important;
@@ -427,6 +424,21 @@ td .text-success {
     min-width: 60px !important;
     line-height: 1.2 !important;
     font-weight: 600 !important;
+}
+
+/* Keep pass badges visually aligned with the other status badges */
+.badge.text-success,
+.table .badge.text-success,
+.interview-progress-wrapper .badge.text-success,
+.interview-round-item .badge.text-success,
+.table tbody td:nth-child(5) .badge.text-success {
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    min-width: 60px !important;
+    line-height: 1.2 !important;
+    font-weight: 600 !important;
+    display: inline-block !important;
 }
 
 .status-page-header-container {
