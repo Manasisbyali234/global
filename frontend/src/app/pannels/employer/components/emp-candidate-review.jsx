@@ -75,14 +75,34 @@ function EmpCandidateReviewPage() {
         const totalMarks = assessmentAttempt?.totalMarks ?? null;
         const percentage = assessmentAttempt?.percentage ?? applicationData?.assessmentPercentage ?? null;
         const result = assessmentAttempt?.result ?? applicationData?.assessmentResult ?? null;
+        const status = String(
+            assessmentAttempt?.status ??
+            applicationData?.assessmentStatus ??
+            ''
+        ).toLowerCase();
 
         return {
-            hasData: score !== null || percentage !== null || !!result,
+            hasData: score !== null || percentage !== null || !!result || ['suspended', 'expired', 'in_progress', 'completed'].includes(status),
             score,
             totalMarks,
             percentage,
-            result
+            result,
+            status
         };
+    };
+
+    const resolveAssessmentProcessStatus = (stageStatus, assessmentSummary) => {
+        const normalizedStageStatus = String(stageStatus || '').toLowerCase();
+        const normalizedAssessmentStatus = String(assessmentSummary?.status || '').toLowerCase();
+
+        if (
+            ['suspended', 'expired', 'in_progress', 'completed', 'passed', 'failed'].includes(normalizedAssessmentStatus) &&
+            ['', 'pending', 'scheduled', 'available', 'not_started'].includes(normalizedStageStatus)
+        ) {
+            return normalizedAssessmentStatus;
+        }
+
+        return normalizedStageStatus || 'pending';
     };
 
     useEffect(() => {
@@ -135,30 +155,42 @@ function EmpCandidateReviewPage() {
                     processes = data.application.interviewProcess.stages
                         .filter(stage => stage && stage.stageName && stage.stageType)
                         .sort((a, b) => (a.stageOrder || 0) - (b.stageOrder || 0))
-                        .map(stage => ({
-                            id: stage._id || `${stage.stageType}-${stage.stageOrder}`,
-                            name: stage.stageName,
-                            type: stage.stageType,
-                            description: stage.description || '',
-                            status: stage.status,
-                            isCompleted: stage.status === 'completed' || stage.status === 'passed',
-                            result: stage.assessmentResult || (stage.stageType === 'assessment' ? assessmentSummary.result : null),
-                            assessmentScore: stage.stageType === 'assessment' ? assessmentSummary.score : null,
-                            assessmentPercentage: stage.stageType === 'assessment' ? assessmentSummary.percentage : null,
-                            assessmentTotalMarks: stage.stageType === 'assessment' ? assessmentSummary.totalMarks : null
-                        }));
+                        .map(stage => {
+                            const resolvedStatus = stage.stageType === 'assessment'
+                                ? resolveAssessmentProcessStatus(stage.assessmentAttemptStatus || stage.status, assessmentSummary)
+                                : (stage.status || 'pending');
+
+                            return {
+                                id: stage._id || `${stage.stageType}-${stage.stageOrder}`,
+                                name: stage.stageName,
+                                type: stage.stageType,
+                                description: stage.description || '',
+                                status: resolvedStatus,
+                                isCompleted: resolvedStatus === 'completed' || resolvedStatus === 'passed',
+                                result: stage.assessmentResult || (stage.stageType === 'assessment' ? assessmentSummary.result : null),
+                                assessmentScore: stage.stageType === 'assessment' ? assessmentSummary.score : null,
+                                assessmentPercentage: stage.stageType === 'assessment' ? assessmentSummary.percentage : null,
+                                assessmentTotalMarks: stage.stageType === 'assessment' ? assessmentSummary.totalMarks : null
+                            };
+                        });
                 } else if (data.application.interviewProcesses && data.application.interviewProcesses.length > 0) {
-                    processes = data.application.interviewProcesses.filter(p => p && p.name && p.type).map(p => ({
-                        id: p.id,
-                        name: p.name,
-                        type: p.type,
-                        status: p.status,
-                        isCompleted: p.isCompleted,
-                        result: p.result || (p.type === 'assessment' ? assessmentSummary.result : null),
-                        assessmentScore: p.type === 'assessment' ? assessmentSummary.score : null,
-                        assessmentPercentage: p.type === 'assessment' ? assessmentSummary.percentage : null,
-                        assessmentTotalMarks: p.type === 'assessment' ? assessmentSummary.totalMarks : null
-                    }));
+                    processes = data.application.interviewProcesses.filter(p => p && p.name && p.type).map(p => {
+                        const resolvedStatus = p.type === 'assessment'
+                            ? resolveAssessmentProcessStatus(p.status, assessmentSummary)
+                            : (p.status || 'pending');
+
+                        return {
+                            id: p.id,
+                            name: p.name,
+                            type: p.type,
+                            status: resolvedStatus,
+                            isCompleted: resolvedStatus === 'completed' || resolvedStatus === 'passed',
+                            result: p.result || (p.type === 'assessment' ? assessmentSummary.result : null),
+                            assessmentScore: p.type === 'assessment' ? assessmentSummary.score : null,
+                            assessmentPercentage: p.type === 'assessment' ? assessmentSummary.percentage : null,
+                            assessmentTotalMarks: p.type === 'assessment' ? assessmentSummary.totalMarks : null
+                        };
+                    });
                 } else if (data.application.jobId?.interviewRoundOrder && data.application.jobId.interviewRoundOrder.length > 0) {
                     const roundNames = {
                         oneOnOne: 'One-to-One',
@@ -185,7 +217,9 @@ function EmpCandidateReviewPage() {
                             id: `initial-${roundKey}-${index}`,
                             name: displayName,
                             type: roundType,
-                            status: 'pending',
+                            status: roundType === 'assessment'
+                                ? resolveAssessmentProcessStatus('pending', assessmentSummary)
+                                : 'pending',
                             isCompleted: false,
                             result: roundType === 'assessment' ? assessmentSummary.result : null,
                             assessmentScore: roundType === 'assessment' ? assessmentSummary.score : null,
@@ -436,7 +470,7 @@ function EmpCandidateReviewPage() {
     };
 
     const hasNegativeStatus = () => {
-        const negativeStatuses = new Set(['rejected', 'no_show', 'pending_decision', 'on_hold', 'pending']);
+        const negativeStatuses = new Set(['rejected', 'no_show', 'pending_decision', 'on_hold', 'pending', 'suspended', 'expired']);
         return interviewProcesses.some(p => negativeStatuses.has(p.status));
     };
 

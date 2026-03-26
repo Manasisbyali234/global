@@ -36,7 +36,7 @@ const InterviewProcessSchema = new mongoose.Schema({
     // Stage status and results
     status: { 
       type: String, 
-      enum: ['pending', 'scheduled', 'in_progress', 'completed', 'passed', 'failed', 'cancelled'], 
+      enum: ['pending', 'scheduled', 'in_progress', 'completed', 'passed', 'failed', 'expired', 'suspended', 'cancelled'], 
       default: 'pending' 
     },
     
@@ -173,7 +173,9 @@ InterviewProcessSchema.methods.updateProcessStatus = function() {
   const completedStages = this.stages.filter(stage => 
     stage.status === 'completed' || stage.status === 'passed'
   ).length;
-  const failedStages = this.stages.filter(stage => stage.status === 'failed').length;
+  const failedStages = this.stages.filter(stage =>
+    ['failed', 'expired', 'suspended'].includes(stage.status)
+  ).length;
   
   this.totalStages = totalStages;
   this.completedStages = completedStages;

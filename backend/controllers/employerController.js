@@ -2547,16 +2547,92 @@ exports.getApplicationDetails = async (req, res) => {
       candidateId: application.candidateId._id || application.candidateId 
     });
     
-    // Get assessment attempt details if job has assessment
+    // Get assessment attempt details and normalize stages with round-specific attempts
+    const normalizeAssessmentId = (value) => {
+      if (!value) return '';
+      if (typeof value === 'object') {
+        return String(value?._id || value?.id || '').trim();
+      }
+      return String(value).trim();
+    };
+
     let assessmentAttempt = null;
-    if (application.jobId?.assessmentId) {
-      assessmentAttempt = await AssessmentAttempt.findOne({
+    let assessmentAttempts = [];
+    let assessmentAttemptsByAssessmentId = {};
+    if (application.jobId?.assessmentId || application.jobId?.interviewRoundDetails) {
+      assessmentAttempts = await AssessmentAttempt.find({
         applicationId: application._id
-      }).populate('assessmentId', 'title timer totalQuestions passingPercentage');
+      })
+        .sort({ updatedAt: -1, createdAt: -1 })
+        .populate('assessmentId', 'title timer totalQuestions passingPercentage');
+
+      assessmentAttempt = assessmentAttempts[0] || null;
+      assessmentAttemptsByAssessmentId = assessmentAttempts.reduce((acc, attempt) => {
+        const key = normalizeAssessmentId(attempt?.assessmentId);
+        if (key && !acc[key]) {
+          acc[key] = attempt;
+        }
+        return acc;
+      }, {});
     }
     
     // Get interview process if exists
     const interviewProcess = await InterviewProcess.findOne({ applicationId: application._id });
+    let normalizedInterviewProcess = interviewProcess ? interviewProcess.toObject() : null;
+    if (normalizedInterviewProcess?.stages?.length) {
+      const assessmentStages = normalizedInterviewProcess.stages.filter((stage) => stage?.stageType === 'assessment');
+      const knownAssessmentIds = Object.keys(assessmentAttemptsByAssessmentId);
+      const singleAssessmentAttempt =
+        assessmentStages.length <= 1 && knownAssessmentIds.length <= 1
+          ? assessmentAttemptsByAssessmentId[knownAssessmentIds[0]] || assessmentAttempt || null
+          : null;
+
+      normalizedInterviewProcess = {
+        ...normalizedInterviewProcess,
+        stages: normalizedInterviewProcess.stages.map((stage) => {
+          if (stage?.stageType !== 'assessment') {
+            return stage;
+          }
+
+          const assessmentKey = normalizeAssessmentId(stage?.assessmentId);
+          const matchedAttempt =
+            (assessmentKey && assessmentAttemptsByAssessmentId[assessmentKey]) ||
+            singleAssessmentAttempt ||
+            null;
+
+          if (!matchedAttempt) {
+            return stage;
+          }
+
+          let stageStatus = stage.status;
+          if (matchedAttempt.status === 'completed') {
+            stageStatus = matchedAttempt.result === 'pass'
+              ? 'passed'
+              : matchedAttempt.result === 'fail'
+                ? 'failed'
+                : 'completed';
+          } else if (matchedAttempt.status === 'in_progress') {
+            stageStatus = 'in_progress';
+          } else if (matchedAttempt.status === 'expired') {
+            stageStatus = 'expired';
+          } else if (matchedAttempt.status === 'suspended') {
+            stageStatus = 'suspended';
+          }
+
+          return {
+            ...stage,
+            status: stageStatus,
+            assessmentAttemptId: matchedAttempt._id,
+            assessmentAttemptStatus: matchedAttempt.status,
+            assessmentResult: matchedAttempt.result || stage.assessmentResult || null,
+            assessmentScore: matchedAttempt.score ?? stage.assessmentScore ?? null,
+            assessmentPercentage: matchedAttempt.percentage ?? stage.assessmentPercentage ?? null,
+            assessmentStartedAt: matchedAttempt.startTime || stage.assessmentStartedAt || null,
+            assessmentCompletedAt: matchedAttempt.endTime || matchedAttempt.suspendedAt || stage.assessmentCompletedAt || null
+          };
+        })
+      };
+    }
     
     // Merge candidate and profile data
     const candidateProfileObj = candidateProfile ? candidateProfile.toObject() : {};
@@ -2579,7 +2655,9 @@ exports.getApplicationDetails = async (req, res) => {
       ...application.toObject(),
       candidateId: candidateData,
       assessmentAttempt: assessmentAttempt,
-      interviewProcess: interviewProcess,
+      assessmentAttempts,
+      assessmentAttemptsByAssessmentId,
+      interviewProcess: normalizedInterviewProcess,
       jobId: {
         ...application.jobId.toObject(),
         assessmentId: application.jobId.assessmentId

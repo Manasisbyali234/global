@@ -164,8 +164,21 @@ function CanStatusPage() {
 			knownAssessmentIds.length <= 1 &&
 			(!assessmentId || assessmentId === normalizeAssessmentId(application?.jobId?.assessmentId));
 
+		const applicationFallbackStatus = shouldUseApplicationFallback
+			? String(application?.assessmentStatus || '').toLowerCase()
+			: '';
+		const stageStatus = String(relatedStage?.status || '').toLowerCase();
+		const shouldPreferApplicationStatus =
+			Boolean(applicationFallbackStatus) &&
+			['', 'pending', 'scheduled', 'not_started', 'available'].includes(stageStatus) &&
+			['suspended', 'expired', 'in_progress', 'completed', 'passed', 'failed'].includes(applicationFallbackStatus);
+
 		const completionInfo = getAssessmentCompletionInfo({
-			status: attempt?.status || relatedStage?.assessmentAttemptStatus || relatedStage?.status || (shouldUseApplicationFallback ? application?.assessmentStatus : ''),
+			status:
+				attempt?.status ||
+				relatedStage?.assessmentAttemptStatus ||
+				(shouldPreferApplicationStatus ? applicationFallbackStatus : relatedStage?.status) ||
+				applicationFallbackStatus,
 			result: attempt?.result || relatedStage?.assessmentResult || (shouldUseApplicationFallback ? application?.assessmentResult : '')
 		});
 
@@ -1469,10 +1482,10 @@ function CanStatusPage() {
 
 	const getRoundStatusPillStyle = (statusText = '') => {
 		const status = String(statusText).toLowerCase();
-		if (['selected', 'completed', 'passed'].includes(status)) {
+		if (['selected', 'completed', 'passed', 'pass'].includes(status)) {
 			return { backgroundColor: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' };
 		}
-		if (['rejected', 'failed', 'expired', 'no show', 'not advanced to next stage'].includes(status)) {
+		if (['rejected', 'failed', 'fail', 'expired', 'suspended', 'no show', 'not advanced to next stage'].includes(status)) {
 			return { backgroundColor: '#fdeaea', color: '#c82333', border: '1px solid #c82333' };
 		}
 		if (['scheduled', 'started', 'interview scheduled'].includes(status)) {
