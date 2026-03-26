@@ -11,6 +11,7 @@ import { pendingPaymentManager } from '../../../../../utils/pendingPaymentManage
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
 import "../../../../../job-detail-section-spacing.css";
+import "../../../../../job-detail-typography-fix.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 
@@ -585,7 +586,7 @@ function JobDetail1Page() {
                 </div>
             )}
             
-            <div className="section-full p-t120 p-b90 bg-white">
+            <div className="section-full p-t120 p-b90 bg-white job-detail-page">
                 <div className="container">
                     <div className="section-content">
                         <div className="row d-flex justify-content-center">

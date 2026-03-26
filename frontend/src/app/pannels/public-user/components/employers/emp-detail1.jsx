@@ -16,6 +16,7 @@ import "../../../../../emp-detail-responsive-fix.css";
 import "../../../../../emp-detail-form-fix.css";
 import "../../../../../emp-detail-review-mobile-fix.css";
 import "../../../../../emp-detail-white-container.css";
+import "../../../../../emp-detail-typography-fix.css";
 import "../../../../../review-posted-alignment-fix.css";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';

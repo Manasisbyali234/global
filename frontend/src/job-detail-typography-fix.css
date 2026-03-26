@@ -1,0 +1,43 @@
+.job-detail-page {
+  --job-detail-heading-size: 22px;
+  --job-detail-body-size: 15px;
+  --job-detail-input-size: 15px;
+}
+
+.job-detail-page .twm-s-title,
+.job-detail-page .job-title,
+.job-detail-page .section-title,
+.job-detail-page .salary-amount {
+  font-size: var(--job-detail-heading-size) !important;
+  line-height: 1.3;
+}
+
+.job-detail-page .twm-job-company,
+.job-detail-page .twm-job-address,
+.job-detail-page .twm-job-post-duration,
+.job-detail-page .twm-job-shift,
+.job-detail-page .salary-info div,
+.job-detail-page .section-content p,
+.job-detail-page .section-content li,
+.job-detail-page .section-content span,
+.job-detail-page .section-content strong,
+.job-detail-page .skill-tag {
+  font-size: var(--job-detail-body-size);
+  line-height: 1.6;
+}
+
+.job-detail-page input.form-control,
+.job-detail-page textarea.form-control,
+.job-detail-page input.form-control::placeholder,
+.job-detail-page textarea.form-control::placeholder {
+  font-size: var(--job-detail-input-size);
+  line-height: 1.5;
+}
+
+@media (max-width: 767px) {
+  .job-detail-page {
+    --job-detail-heading-size: 20px;
+    --job-detail-body-size: 14px;
+    --job-detail-input-size: 14px;
+  }
+}

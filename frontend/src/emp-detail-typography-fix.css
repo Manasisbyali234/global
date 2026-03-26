@@ -1,0 +1,54 @@
+.emp-detail {
+  --emp-detail-heading-size: 22px;
+  --emp-detail-subtitle-size: 15px;
+  --emp-detail-input-size: 15px;
+}
+
+.emp-detail .twm-s-title,
+.emp-detail .submitted-reviews-list .card-header h6,
+.emp-detail .submitted-reviews-list .card-body h6,
+.emp-detail .review-form .form-label,
+.emp-detail .job-listing .job-title,
+.emp-detail .job-listing h4 {
+  font-size: var(--emp-detail-heading-size);
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.emp-detail .twm-employer-industry,
+.emp-detail .twm-job-address,
+.emp-detail .company-rich-text,
+.emp-detail .company-rich-text p,
+.emp-detail .company-rich-text li,
+.emp-detail .submitted-reviews-list p,
+.emp-detail .submitted-reviews-list small,
+.emp-detail .submitted-reviews-list span,
+.emp-detail .review-form,
+.emp-detail .review-form .form-label,
+.emp-detail .review-form .rating-input {
+  font-size: var(--emp-detail-subtitle-size);
+  line-height: 1.6;
+}
+
+.emp-detail .review-form .form-control,
+.emp-detail .review-form input.form-control,
+.emp-detail .review-form textarea.form-control,
+.emp-detail .review-form input[type="file"].form-control,
+.emp-detail .review-form .form-control::placeholder,
+.emp-detail .review-form textarea.form-control::placeholder,
+.emp-detail .review-form input.form-control::placeholder {
+  font-size: var(--emp-detail-input-size);
+  line-height: 1.5;
+}
+
+.emp-detail .review-form textarea.form-control {
+  min-height: 128px;
+}
+
+@media (max-width: 767px) {
+  .emp-detail {
+    --emp-detail-heading-size: 20px;
+    --emp-detail-subtitle-size: 14px;
+    --emp-detail-input-size: 14px;
+  }
+}
