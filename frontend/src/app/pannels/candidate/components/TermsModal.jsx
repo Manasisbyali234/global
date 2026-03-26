@@ -13,6 +13,10 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
 
     if (!isOpen) return null;
     const timeLimit = assessment?.timer ?? assessment?.timeLimit ?? '--';
+    const rawPassingPercentage = assessment?.passingPercentage ?? 60;
+    const passingPercentage = Number.isFinite(Number(rawPassingPercentage))
+        ? Number(rawPassingPercentage)
+        : 60;
     return (
         <div className="modal fade twm-model-popup show" id="termsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-hidden="false" style={{ display: 'block' }}>
             <div
@@ -40,6 +44,15 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
                                     <span style={{ marginRight: '8px' }}>⏱️</span> Time Limit
                                 </h6>
                                 <p style={{ margin: '0', color: '#495057', lineHeight: '1.6' }}>You have <strong style={{ color: '#ff6b35' }}>{timeLimit} minutes</strong> to complete this assessment. The timer will start once you begin the assessment.</p>
+                            </div>
+
+                            <div className="mb-4" style={{ backgroundColor: '#edf7ed', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #198754' }}>
+                                <h6 style={{ color: '#1f5132', fontWeight: '600', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                                    <i className="fa fa-percent" style={{ marginRight: '8px' }}></i> Passing Percentage
+                                </h6>
+                                <p style={{ margin: '0', color: '#495057', lineHeight: '1.6' }}>
+                                    You need at least <strong style={{ color: '#198754' }}>{passingPercentage}%</strong> to pass this assessment.
+                                </p>
                             </div>
 
                             <div className="mb-4">

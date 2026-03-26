@@ -466,6 +466,10 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const rawPassingPercentage = assessment?.passingPercentage ?? 60;
+  const passingPercentage = Number.isFinite(Number(rawPassingPercentage))
+    ? Number(rawPassingPercentage)
+    : 60;
   const question = assessment.questions[currentQuestion];
 
   return (
@@ -486,7 +490,11 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
             <h5 className="mb-0">
               {assessment.title}{assessment.jobTitle && ` - ${assessment.jobTitle}`}
             </h5>
-            <small className="text-muted">Question {currentQuestion + 1} of {assessment.questions.length}</small>
+            <small className="text-muted d-block">Question {currentQuestion + 1} of {assessment.questions.length}</small>
+            <small className="text-success fw-semibold">
+              <i className="fa fa-percent me-1"></i>
+              Passing Percentage: {passingPercentage}%
+            </small>
           </div>
           <div className={`badge ${timeRemaining < 300 ? 'bg-danger' : 'bg-primary'} fs-6`}>
             <i className="fa fa-clock me-2"></i>

@@ -432,6 +432,18 @@
     color: #fd7e14;
 }
 
+.assessment-process-value.result.suspended {
+    color: #dc3545;
+}
+
+.assessment-process-value.result.expired {
+    color: #6c757d;
+}
+
+.assessment-process-value.result.in_progress {
+    color: #fd7e14;
+}
+
 /* Ensure long status labels wrap inside the badge in this page */
 .emp-candidate-review-page .status-badge {
     white-space: normal !important;
@@ -519,6 +531,15 @@
 .stat-box .value.result.fail { 
     color: #dc3545;
 }
+.stat-box .value.result.suspended {
+    color: #dc3545;
+}
+.stat-box .value.result.expired {
+    color: #6c757d;
+}
+.stat-box .value.result.in_progress {
+    color: #fd7e14;
+}
 
 /* Enhanced Assessment Actions */
 .assessment-actions {
@@ -583,6 +604,9 @@
 
 .summary-stats .stat .value.result.pass { color: #28a745; }
 .summary-stats .stat .value.result.fail { color: #dc3545; }
+.summary-stats .stat .value.result.suspended { color: #dc3545; }
+.summary-stats .stat .value.result.expired { color: #6c757d; }
+.summary-stats .stat .value.result.in_progress { color: #fd7e14; }
 
 .answers-section h4 {
     margin-bottom: 20px;

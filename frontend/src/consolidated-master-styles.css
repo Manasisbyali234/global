@@ -221,6 +221,12 @@ body {
 .modal-lg { max-width: 800px !important; }
 .modal-xl { max-width: 1140px !important; }
 
+#termsModal .modal-dialog {
+  width: min(96vw, 1180px) !important;
+  max-width: 1180px !important;
+  margin: 1.5rem auto !important;
+}
+
 @media (max-width: 576px) {
   .modal-dialog {
     max-width: 95% !important;

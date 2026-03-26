@@ -80,6 +80,7 @@ function EmpCandidateReviewPage() {
             applicationData?.assessmentStatus ??
             ''
         ).toLowerCase();
+        const resultDisplay = getAssessmentResultDisplay(result, status);
 
         return {
             hasData: score !== null || percentage !== null || !!result || ['suspended', 'expired', 'in_progress', 'completed'].includes(status),
@@ -87,9 +88,26 @@ function EmpCandidateReviewPage() {
             totalMarks,
             percentage,
             result,
-            status
+            status,
+            resultDisplay,
+            resultClass: getAssessmentResultClass(resultDisplay)
         };
     };
+
+    const getAssessmentResultDisplay = (resultValue, statusValue) => {
+        const normalizedStatus = String(statusValue || '').toLowerCase();
+        if (normalizedStatus === 'suspended') return 'Suspended';
+        if (normalizedStatus === 'expired') return 'Expired';
+        if (normalizedStatus === 'in_progress') return 'In Progress';
+        if (resultValue) {
+            const normalizedResult = String(resultValue).replace(/_/g, ' ').trim();
+            return normalizedResult.charAt(0).toUpperCase() + normalizedResult.slice(1);
+        }
+        return 'Pending';
+    };
+
+    const getAssessmentResultClass = (resultLabel) =>
+        String(resultLabel || 'pending').toLowerCase().replace(/\s+/g, '_');
 
     const resolveAssessmentProcessStatus = (stageStatus, assessmentSummary) => {
         const normalizedStageStatus = String(stageStatus || '').toLowerCase();
@@ -167,7 +185,12 @@ function EmpCandidateReviewPage() {
                                 description: stage.description || '',
                                 status: resolvedStatus,
                                 isCompleted: resolvedStatus === 'completed' || resolvedStatus === 'passed',
-                                result: stage.assessmentResult || (stage.stageType === 'assessment' ? assessmentSummary.result : null),
+                                result: stage.stageType === 'assessment'
+                                    ? getAssessmentResultDisplay(stage.assessmentResult || assessmentSummary.result, resolvedStatus || assessmentSummary.status)
+                                    : null,
+                                resultClass: stage.stageType === 'assessment'
+                                    ? getAssessmentResultClass(getAssessmentResultDisplay(stage.assessmentResult || assessmentSummary.result, resolvedStatus || assessmentSummary.status))
+                                    : '',
                                 assessmentScore: stage.stageType === 'assessment' ? assessmentSummary.score : null,
                                 assessmentPercentage: stage.stageType === 'assessment' ? assessmentSummary.percentage : null,
                                 assessmentTotalMarks: stage.stageType === 'assessment' ? assessmentSummary.totalMarks : null
@@ -185,7 +208,12 @@ function EmpCandidateReviewPage() {
                             type: p.type,
                             status: resolvedStatus,
                             isCompleted: resolvedStatus === 'completed' || resolvedStatus === 'passed',
-                            result: p.result || (p.type === 'assessment' ? assessmentSummary.result : null),
+                            result: p.type === 'assessment'
+                                ? getAssessmentResultDisplay(p.result || assessmentSummary.result, resolvedStatus || assessmentSummary.status)
+                                : null,
+                            resultClass: p.type === 'assessment'
+                                ? getAssessmentResultClass(getAssessmentResultDisplay(p.result || assessmentSummary.result, resolvedStatus || assessmentSummary.status))
+                                : '',
                             assessmentScore: p.type === 'assessment' ? assessmentSummary.score : null,
                             assessmentPercentage: p.type === 'assessment' ? assessmentSummary.percentage : null,
                             assessmentTotalMarks: p.type === 'assessment' ? assessmentSummary.totalMarks : null
@@ -221,7 +249,8 @@ function EmpCandidateReviewPage() {
                                 ? resolveAssessmentProcessStatus('pending', assessmentSummary)
                                 : 'pending',
                             isCompleted: false,
-                            result: roundType === 'assessment' ? assessmentSummary.result : null,
+                            result: roundType === 'assessment' ? assessmentSummary.resultDisplay : null,
+                            resultClass: roundType === 'assessment' ? assessmentSummary.resultClass : '',
                             assessmentScore: roundType === 'assessment' ? assessmentSummary.score : null,
                             assessmentPercentage: roundType === 'assessment' ? assessmentSummary.percentage : null,
                             assessmentTotalMarks: roundType === 'assessment' ? assessmentSummary.totalMarks : null
@@ -762,7 +791,7 @@ function EmpCandidateReviewPage() {
                                                                     {process.result && (
                                                                         <div className="assessment-process-item">
                                                                             <span className="assessment-process-label">Result</span>
-                                                                            <span className={`assessment-process-value result ${String(process.result).toLowerCase()}`}>
+                                                                            <span className={`assessment-process-value result ${process.resultClass || getAssessmentResultClass(process.result)}`}>
                                                                                 {process.result}
                                                                             </span>
                                                                         </div>
@@ -887,8 +916,8 @@ function EmpCandidateReviewPage() {
                                                 </div>
                                                 <div className="stat-box">
                                                     <span className="label">Result</span>
-                                                    <span className={`value result ${String(assessmentSummary.result || 'pending').toLowerCase()}`}>
-                                                        {assessmentSummary.result || 'Pending'}
+                                                    <span className={`value result ${assessmentSummary.resultClass || 'pending'}`}>
+                                                        {assessmentSummary.resultDisplay}
                                                     </span>
                                                 </div>
                                             </div>
