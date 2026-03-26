@@ -49,7 +49,12 @@ export default function AssessmentResults() {
           applicationIdType: typeof r.applicationId,
           hasApplicationId: !!r.applicationId
         })));
-        setResults(response.data.results);
+        const sortedResults = response.data.results.sort((a, b) => {
+          const dateA = new Date(a.endTime || a.suspendedAt || a.updatedAt || 0);
+          const dateB = new Date(b.endTime || b.suspendedAt || b.updatedAt || 0);
+          return dateB - dateA;
+        });
+        setResults(sortedResults);
       } else {
         console.error('API returned success: false', response.data);
       }
@@ -279,7 +284,7 @@ export default function AssessmentResults() {
                         </span>
                       </td>
                       <td style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
-                        {formatDate(result.endTime)}
+                        {formatDate(result.endTime || result.suspendedAt || result.updatedAt)}
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxWidth: '150px' }}>

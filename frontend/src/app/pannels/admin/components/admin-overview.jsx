@@ -309,14 +309,6 @@ function AdminOverviewPage() {
 
       {viewMode === "jobs" && selectedEmployer && (
         <div ref={jobsSectionRef} className="panel panel-default site-bg-white m-t20">
-          <div className="panel-heading wt-panel-heading p-a20">
-            <div className="d-flex justify-content-between align-items-center">
-              <h4 className="panel-tittle m-a0">
-                <i className="fa fa-briefcase me-2" />
-                Jobs posted by {selectedEmployer.employerName}
-              </h4>
-            </div>
-          </div>
           <div className="panel-body wt-panel-body p-a20">
             <div className="m-b20">
               <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
@@ -407,7 +399,7 @@ function AdminOverviewPage() {
                     <tr>
                       <th>Applicant Name</th>
                       <th>Email</th>
-                      <th>Apply Type</th>
+                      <th>Payment Method</th>
                       <th>Status</th>
                       <th>Applied Date</th>
                       <th>Interviews</th>

@@ -1407,7 +1407,7 @@ export default function EmpPostJob({ onNext }) {
 		const selectedRoundsCount = formData.interviewRoundOrder.length;
 		
 		if (specifiedRoundsCount > 0 && selectedRoundsCount !== specifiedRoundsCount) {
-			errorMessages.push(`You specified ${formatCountLabel(specifiedRoundsCount, 'interview round')} but selected ${formatCountLabel(selectedRoundsCount, 'round')}.`);
+			errorMessages.push(`You mentioned ${formatCountLabel(specifiedRoundsCount, 'interview round')} but selected ${formatCountLabel(selectedRoundsCount, 'round')}.`);
 		}
 
 		// Logical date validation for Step 2
@@ -3620,7 +3620,7 @@ export default function EmpPostJob({ onNext }) {
 									const currentCount = formData.interviewRoundOrder.length;
 									
 									if (specifiedCount > 0 && currentCount >= specifiedCount) {
-										showWarning(`Cannot add more rounds! You specified ${formatCountLabel(specifiedCount, 'interview round')} and have already selected ${formatCountLabel(currentCount, 'round')}. Please increase the "Number of Interview Rounds" field if you need more rounds.`);
+										showWarning(`Cannot add more rounds! You mentioned ${formatCountLabel(specifiedCount, 'interview round')} and have already selected ${formatCountLabel(currentCount, 'round')}. Please increase the "Number of Interview Rounds" field if you need more rounds.`);
 										return;
 									}
 									
@@ -4382,7 +4382,7 @@ export default function EmpPostJob({ onNext }) {
 																if (currentDetails?.fromDate && currentDetails?.startTime && currentDetails?.endTime) {
 																	showInfo(`Assessment scheduled on ${formatDate(currentDetails.fromDate)} from ${formatTimeToAMPM(currentDetails.startTime)} to ${formatTimeToAMPM(currentDetails.endTime)}`, 4000);
 																} else {
-																	showInfo('Please set assessment dates and times below to complete the schedule.', 3000);
+																	showInfo('Please set assessment date and time below to complete the schedule.', 3000);
 																}
 															}
 														}}

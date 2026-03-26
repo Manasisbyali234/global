@@ -2229,20 +2229,20 @@ function CanStatusPage() {
 
 																if (assessmentInfo.isSuspended) {
 																	return (
-																	<div>
-																	<button 
-																		className="btn btn-sm btn-danger"
-																		disabled
-																		style={{borderRadius: '6px'}}
-																	>
-																		<i className="fa fa-ban me-1"></i>
-																		Assessment Suspended
-																	</button>
-																	<div className="alert alert-danger mt-2 mb-0" style={{fontSize: '13px', padding: '8px 12px'}}>
-																		<i className="fa fa-exclamation-triangle me-1"></i>
-																		This assessment was suspended after repeated rule violations and cannot be resumed.
-																	</div>
-																</div>
+																		<>
+																		<button 
+																			className="btn btn-sm btn-danger"
+																			disabled
+																			style={{borderRadius: '6px'}}
+																		>
+																			<i className="fa fa-ban me-1"></i>
+																			Assessment Suspended
+																		</button>
+																		<div className="alert alert-danger mt-2 mb-0" style={{fontSize: '13px', padding: '8px 12px'}}>
+																			<i className="fa fa-exclamation-triangle me-1"></i>
+																			This assessment was suspended after repeated rule violations and cannot be resumed.
+																		</div>
+																		</>
 																	);
 																}
 
