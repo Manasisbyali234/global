@@ -819,7 +819,8 @@ export default function EmpPostJob({ onNext }) {
 										fromDate: round.fromdate ? new Date(round.fromdate).toISOString().split('T')[0] : '',
 										startTime: round.startTime || '',
 										endTime: round.endTime || '',
-										customType: round.name
+										customType: round.name,
+										assessmentId: round.assessmentId?._id || round.assessmentId || ''
 									};
 								}
 							});
@@ -830,6 +831,7 @@ export default function EmpPostJob({ onNext }) {
 								if (oldDetails[key]) {
 									details[key] = {
 										...oldDetails[key],
+										assessmentId: oldDetails[key].assessmentId?._id || oldDetails[key].assessmentId || '',
 										fromDate: oldDetails[key].fromDate ? new Date(oldDetails[key].fromDate).toISOString().split('T')[0] : ''
 									};
 								}
@@ -862,7 +864,7 @@ export default function EmpPostJob({ onNext }) {
 					workMode: job.workMode || ''
 				});
 
-				// Set selected assessment
+				// Keep legacy selectedAssessment only for single-assessment jobs/edit flows
 				if (job.assessmentId) {
 					setSelectedAssessment(job.assessmentId._id || job.assessmentId);
 				}
@@ -1095,7 +1097,7 @@ export default function EmpPostJob({ onNext }) {
 
 			// Auto-calculate end time for assessments if startTime is changed
 			if ((s.interviewRoundTypes[roundType] === 'assessment' || roundType === 'assessment' || String(roundType).startsWith('assessment_')) && field === 'startTime' && value) {
-				const currentAssessmentId = selectedAssessment || s.assignedAssessment || s.assessmentId;
+				const currentAssessmentId = s.interviewRoundDetails?.[roundType]?.assessmentId || selectedAssessment || s.assignedAssessment || s.assessmentId;
 				if (currentAssessmentId) {
 					const assessment = availableAssessments.find(a => (a._id === currentAssessmentId || a.id === currentAssessmentId));
 					const duration = assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime;
@@ -1491,10 +1493,14 @@ export default function EmpPostJob({ onNext }) {
 			}
 		}
 
-		// Special check for assessment selection if assessment rounds exist
-		if (formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'assessment') && !selectedAssessment) {
-			errorMessages.push('Please select an assessment for each assessment round.');
-		}
+		// Each assessment round needs its own assigned assessment
+		formData.interviewRoundOrder
+			.filter((key) => formData.interviewRoundTypes[key] === 'assessment')
+			.forEach((assessmentKey, assessmentIndex) => {
+				if (!formData.interviewRoundDetails?.[assessmentKey]?.assessmentId) {
+					errorMessages.push(`Please select an assessment for Assessment ${assessmentIndex + 1}.`);
+				}
+			});
 
 		// Validate Offer Letter Date vs Interview Rounds
 		if (formData.offerLetterDate && allRoundDates.length > 0) {
@@ -1739,8 +1745,9 @@ export default function EmpPostJob({ onNext }) {
 
 			setIsSubmitting(true);
 
-			// Extract assessment dates from interview round details
-			const assessmentRoundKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
+			// Extract the first assessment round for legacy top-level fields
+			const assessmentRoundKeys = formData.interviewRoundOrder.filter(key => formData.interviewRoundTypes[key] === 'assessment');
+			const assessmentRoundKey = assessmentRoundKeys[0] || null;
 			const assessmentDetails = assessmentRoundKey ? formData.interviewRoundDetails[assessmentRoundKey] : null;
 			
 			// Map interview round details from unique keys to base round types
@@ -1773,7 +1780,7 @@ export default function EmpPostJob({ onNext }) {
 				interviewRoundTypes: formData.interviewRoundTypes,
 				interviewRoundDetails: mappedInterviewRoundDetails,
 				interviewRoundOrder: formData.interviewRoundOrder || [],
-				assignedAssessment: selectedAssessment || null,
+				assignedAssessment: assessmentRoundKeys.length === 1 ? (assessmentDetails?.assessmentId || selectedAssessment || null) : null,
 				assessmentStartDate: assessmentDetails?.fromDate || null,
 				assessmentEndDate: assessmentDetails?.fromDate || null,
 				assessmentStartTime: assessmentDetails?.startTime || null,
@@ -4284,6 +4291,7 @@ export default function EmpPostJob({ onNext }) {
 									const details = formData.interviewRoundDetails[uniqueKey] || {};
 									const subStages = details.subStages || [];
 									const isAssessmentRound = roundType === 'assessment';
+									const selectedAssessmentForRound = details.assessmentId || '';
 									const assessmentIndex = formData.interviewRoundOrder
 										.filter(key => formData.interviewRoundTypes[key] === 'assessment')
 										.indexOf(uniqueKey) + 1;
@@ -4328,7 +4336,7 @@ export default function EmpPostJob({ onNext }) {
 														style={{ 
 															...input, 
 															cursor: 'pointer', 
-															borderColor: selectedAssessment ? '#10b981' : '#cbd5e1', 
+															borderColor: selectedAssessmentForRound ? '#10b981' : '#cbd5e1', 
 															paddingRight: '40px',
 															borderRadius: '10px',
 															background: '#fff',
@@ -4336,15 +4344,13 @@ export default function EmpPostJob({ onNext }) {
 															fontSize: 14,
 															minWidth: isMobile ? '220px' : '320px'
 														}}
-														value={selectedAssessment}
+														value={selectedAssessmentForRound}
 														onChange={(e) => {
 															const newAssessmentId = e.target.value;
 															setSelectedAssessment(newAssessmentId);
+															updateRoundDetails(uniqueKey, 'assessmentId', newAssessmentId);
 															
-															// Also store in formData for better sync in updateRoundDetails
-															update({ assignedAssessment: newAssessmentId });
-															
-															// Auto-calculate endTime for existing assessment rounds
+															// Auto-calculate endTime for this assessment round
 															if (newAssessmentId) {
 																const assessment = availableAssessments.find(a => (a._id === newAssessmentId || a.id === newAssessmentId));
 																const duration = assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime;
@@ -4352,33 +4358,29 @@ export default function EmpPostJob({ onNext }) {
 																if (duration) {
 																	setFormData(prev => {
 																		const newDetails = { ...prev.interviewRoundDetails };
-																		let changed = false;
+																		const startTime = newDetails[uniqueKey]?.startTime;
+																		if (!startTime) {
+																			return prev;
+																		}
+																		const [hours, mins] = startTime.split(':').map(Number);
+																		if (isNaN(hours) || isNaN(mins)) {
+																			return prev;
+																		}
+																		const date = new Date();
+																		date.setHours(hours);
+																		date.setMinutes(mins + parseInt(duration));
+																		const endTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+																		newDetails[uniqueKey] = { ...newDetails[uniqueKey], endTime };
 																		
-																		prev.interviewRoundOrder.forEach(key => {
-																			if (prev.interviewRoundTypes[key] === 'assessment') {
-																				const startTime = newDetails[key]?.startTime;
-																				if (startTime) {
-																					const [hours, mins] = startTime.split(':').map(Number);
-																					const date = new Date();
-																					date.setHours(hours);
-																					date.setMinutes(mins + parseInt(duration));
-																					const endTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-																					newDetails[key] = { ...newDetails[key], endTime };
-																					changed = true;
-																				}
-																			}
-																		});
-																		
-																		return changed ? { ...prev, interviewRoundDetails: newDetails } : prev;
+																		return { ...prev, interviewRoundDetails: newDetails };
 																	});
 																}
 
 																// Show assessment info when selecting an assessment
-																const assessmentKey = formData.interviewRoundOrder.find(key => formData.interviewRoundTypes[key] === 'assessment');
-																const details = assessmentKey ? formData.interviewRoundDetails[assessmentKey] : null;
+																const currentDetails = formData.interviewRoundDetails[uniqueKey];
 																
-																if (details?.fromDate && details?.startTime && details?.endTime) {
-																	showInfo(`Assessment scheduled on ${formatDate(details.fromDate)} from ${formatTimeToAMPM(details.startTime)} to ${formatTimeToAMPM(details.endTime)}`, 4000);
+																if (currentDetails?.fromDate && currentDetails?.startTime && currentDetails?.endTime) {
+																	showInfo(`Assessment scheduled on ${formatDate(currentDetails.fromDate)} from ${formatTimeToAMPM(currentDetails.startTime)} to ${formatTimeToAMPM(currentDetails.endTime)}`, 4000);
 																} else {
 																	showInfo('Please set assessment dates and times below to complete the schedule.', 3000);
 																}
@@ -4403,7 +4405,7 @@ export default function EmpPostJob({ onNext }) {
 														<i className="fa fa-chevron-down" style={{fontSize: 12}}></i>
 													</div>
 												</div>
-												{selectedAssessment && (
+												{selectedAssessmentForRound && (
 													<div style={{
 														display: 'flex', 
 														alignItems: 'center', 
@@ -4532,7 +4534,7 @@ export default function EmpPostJob({ onNext }) {
 													</div>
 												</div>
 
-												{selectedAssessment && (
+												{selectedAssessmentForRound && (
 													<>
 														<div style={{
 															margin: '0 20px 12px',
@@ -5177,7 +5179,7 @@ export default function EmpPostJob({ onNext }) {
 														onClick={() => {
 															const assessmentDetails = formData.interviewRoundDetails[assessmentKey];
 															
-															if (!selectedAssessment) {
+															if (!assessmentDetails?.assessmentId) {
 																showWarning('Please select an assessment first');
 																return;
 															}

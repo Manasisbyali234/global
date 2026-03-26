@@ -1269,10 +1269,12 @@ exports.createJob = async (req, res) => {
           interviewRounds.push({
             key: key,
             name: value.customType || (isAssessment ? 'Assessment' : key.replace(/_\d+$/, '')),
+            roundType: roundType,
             fromdate: fromDate,
             todate: value.toDate || value.todate || fromDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
             endTime: normalizeTimeFormat(String(value.endTime || '')),
+            assessmentId: value.assessmentId || null,
             description: value.description || '',
             applicationLimit: parseInt(jobData.applicationLimit) || 50,
             subStages: value.subStages || value.subStagesArray || value.days || value.daysArray || [],
@@ -1365,10 +1367,12 @@ exports.createJob = async (req, res) => {
             jobId: job._id,
             key: round.key,
             name: round.name,
+            roundType: round.roundType,
             fromdate: round.fromdate,
             todate: round.todate,
             startTime: round.startTime,
             endTime: round.endTime,
+            assessmentId: round.assessmentId || null,
             description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
             applicationLimit: round.applicationLimit,
             subStages: (round.subStages || round.subStagesArray || []).map(sub => ({
@@ -1633,6 +1637,7 @@ exports.updateJob = async (req, res) => {
             todate: value.toDate || value.todate || fromDate,
             startTime: normalizeTimeFormat(String(value.startTime || value.time || '')),
             endTime: normalizeTimeFormat(String(value.endTime || '')),
+            assessmentId: value.assessmentId || null,
             description: value.description || '',
             applicationLimit: parseInt(req.body.applicationLimit) || parseInt(value.applicationLimit) || 50,
             subStages: value.subStages || value.subStagesArray || value.days || value.daysArray || [],
@@ -1726,6 +1731,7 @@ exports.updateJob = async (req, res) => {
               existingRound.todate = round.todate;
               existingRound.startTime = round.startTime;
               existingRound.endTime = round.endTime;
+              existingRound.assessmentId = round.assessmentId || null;
               existingRound.description = (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : existingRound.description);
               existingRound.applicationLimit = round.applicationLimit;
               existingRound.subStages = (round.subStages || round.days || round.daysArray || []).map(sub => ({
@@ -1772,6 +1778,7 @@ exports.updateJob = async (req, res) => {
                 todate: round.todate,
                 startTime: round.startTime,
                 endTime: round.endTime,
+                assessmentId: round.assessmentId || null,
                 description: (round.description && round.description.trim()) ? round.description : (round.key !== 'assessment' ? `Interview round for ${round.name || 'candidate evaluation'}.` : ''),
                 applicationLimit: round.applicationLimit,
                 subStages: (round.subStages || round.days || round.daysArray || []).map(sub => ({
