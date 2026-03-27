@@ -8,6 +8,7 @@ import SectionJobsGrid from "../../sections/jobs/section-jobs-grid";
 import SectionJobsSidebar1 from "../../sections/jobs/sidebar/section-jobs-sidebar1";
 import "../../../../../job-grid-optimizations.css";
 import "../../../../../job-grid-spacing-fix.css";
+import "../../../../../job-grid-mobile-sidebar-fix.css";
 
 function JobsGridPage() {
     const [searchParams] = useSearchParams();
@@ -88,7 +89,7 @@ function JobsGridPage() {
 
                         <Col lg={8} md={12} data-aos="fade-left" data-aos-delay="200">
                             {/*Sidebar - Mobile (Before Job Cards)*/}
-                            <div className="d-lg-none mb-4">
+                            <div className="d-lg-none mb-4 mobile-jobs-filter-sidebar">
                                 <SectionJobsSidebar1 onFilterChange={handleFilterChange} />
                             </div>
                             {/*Filter Short By - Desktop & Mobile*/}

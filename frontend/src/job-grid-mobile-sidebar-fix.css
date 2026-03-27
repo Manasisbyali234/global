@@ -1,0 +1,118 @@
+@media (max-width: 991px) {
+  .job-grid-page .mobile-jobs-filter-sidebar,
+  .job-grid-page .mobile-jobs-filter-sidebar .job-filters-sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .job-filters-sidebar {
+    position: static !important;
+    transform: none !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .sidebar-elements {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+    padding: 18px 16px !important;
+    overflow: hidden !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .section-head-small {
+    margin-bottom: 14px !important;
+    color: #0f172a !important;
+    line-height: 1.3 !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .form-group,
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter {
+    padding-top: 16px !important;
+    margin-top: 16px !important;
+    border-top: 1px solid #f1f5f9 !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter:first-of-type {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+    border-top: 0 !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter ul,
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter li {
+    max-width: 100% !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter li {
+    gap: 10px !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter .form-check {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter .form-check-input[type="checkbox"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    margin: 1px 0 0 0 !important;
+    border: 2px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    transform: none !important;
+    display: inline-grid !important;
+    place-content: center !important;
+    flex: 0 0 18px !important;
+    position: relative !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter .form-check-input[type="checkbox"]::after {
+    content: "" !important;
+    width: 6px !important;
+    height: 10px !important;
+    border-right: 2px solid #ffffff !important;
+    border-bottom: 2px solid #ffffff !important;
+    transform: rotate(45deg) scale(0) !important;
+    transform-origin: center !important;
+    transition: transform 0.15s ease !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter .form-check-input[type="checkbox"]:checked {
+    background: #ff7a00 !important;
+    border-color: #ff7a00 !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter .form-check-input[type="checkbox"]:checked::after {
+    transform: rotate(45deg) scale(1) !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-sidebar-ele-filter .form-check-label {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    color: #334155 !important;
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+    word-break: break-word !important;
+  }
+
+  .job-grid-page .mobile-jobs-filter-sidebar .twm-job-type-count {
+    flex-shrink: 0 !important;
+    margin-left: 10px !important;
+  }
+}
