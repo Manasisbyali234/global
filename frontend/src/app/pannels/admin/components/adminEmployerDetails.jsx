@@ -362,21 +362,22 @@ function EmployerDetails() {
 
     return (
         <div className="employer-details-container">
-            <div className="employer-details-header" data-aos="fade-down">
-                <h2 style={{ color: 'white !important' }}>
-                    <i className="fa fa-building me-3"></i>
-                    Employer Profile Details
-                </h2>
-                <p className="employer-details-subtitle mb-0">
-                    <i className="fa fa-info-circle me-2"></i>
-                    Complete employer information and document verification
-                </p>
+            <div className="employer-details-header" data-aos="fade-down" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                    <h2 style={{ color: 'white !important' }}>
+                        <i className="fa fa-building me-3"></i>
+                        Employer Profile Details
+                    </h2>
+                    <p className="employer-details-subtitle mb-0">
+                        <i className="fa fa-info-circle me-2"></i>
+                        Complete employer information and document verification
+                    </p>
+                </div>
+                <button className="btn btn-outline-primary" onClick={() => navigate(-1)} style={{ backgroundColor: 'transparent', borderColor: '#ff6b35', color: '#ff6b35', whiteSpace: 'nowrap' }}>
+                    <i className="fa fa-arrow-left"></i>
+                    Back to Management
+                </button>
             </div>
-            
-            <button className="btn btn-outline-primary" onClick={() => navigate(-1)} data-aos="fade-right" style={{ backgroundColor: 'transparent', borderColor: '#ff6b35', color: '#ff6b35', marginBottom: '20px' }}>
-                <i className="fa fa-arrow-left"></i>
-                Back to Management
-            </button>
             
             {/* Logo and Cover Images Section */}
             <div className="profile-info-card" data-aos="fade-up" data-aos-delay="100">
