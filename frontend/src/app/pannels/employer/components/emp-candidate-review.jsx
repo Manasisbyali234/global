@@ -69,30 +69,50 @@ function EmpCandidateReviewPage() {
         return stageStatusOptions;
     };
 
-    const getAssessmentSummary = (applicationData) => {
-        const assessmentAttempt = applicationData?.assessmentAttempt;
-        const score = assessmentAttempt?.score ?? applicationData?.assessmentScore ?? null;
-        const totalMarks = assessmentAttempt?.totalMarks ?? null;
-        const percentage = assessmentAttempt?.percentage ?? applicationData?.assessmentPercentage ?? null;
-        const result = assessmentAttempt?.result ?? applicationData?.assessmentResult ?? null;
-        const status = String(
-            assessmentAttempt?.status ??
-            applicationData?.assessmentStatus ??
-            ''
-        ).toLowerCase();
+    const buildAssessmentSummary = ({
+        score = null,
+        totalMarks = null,
+        percentage = null,
+        result = null,
+        status = '',
+        captures = []
+    } = {}) => {
+        const normalizedStatus = String(status || '').toLowerCase();
         const resultDisplay = getAssessmentResultDisplay(result, status);
 
         return {
-            hasData: score !== null || percentage !== null || !!result || ['suspended', 'expired', 'in_progress', 'completed'].includes(status),
+            hasData: score !== null || percentage !== null || !!result || ['suspended', 'expired', 'in_progress', 'completed'].includes(normalizedStatus),
             score,
             totalMarks,
             percentage,
             result,
-            status,
+            status: normalizedStatus,
+            captures: Array.isArray(captures) ? captures : [],
             resultDisplay,
             resultClass: getAssessmentResultClass(resultDisplay)
         };
     };
+
+    const getAssessmentSummary = (applicationData) => {
+        const assessmentAttempt = applicationData?.assessmentAttempt;
+        return buildAssessmentSummary({
+            score: assessmentAttempt?.score ?? applicationData?.assessmentScore ?? null,
+            totalMarks: assessmentAttempt?.totalMarks ?? null,
+            percentage: assessmentAttempt?.percentage ?? applicationData?.assessmentPercentage ?? null,
+            result: assessmentAttempt?.result ?? applicationData?.assessmentResult ?? null,
+            status: assessmentAttempt?.status ?? applicationData?.assessmentStatus ?? '',
+            captures: assessmentAttempt?.captures || assessmentAttempt?.capturedImages || []
+        });
+    };
+
+    const getStageAssessmentSummary = (stageData, fallbackSummary = null) => buildAssessmentSummary({
+        score: stageData?.assessmentScore ?? fallbackSummary?.score ?? null,
+        totalMarks: stageData?.assessmentTotalMarks ?? fallbackSummary?.totalMarks ?? null,
+        percentage: stageData?.assessmentPercentage ?? fallbackSummary?.percentage ?? null,
+        result: stageData?.assessmentResult ?? stageData?.result ?? fallbackSummary?.result ?? null,
+        status: stageData?.assessmentAttemptStatus ?? stageData?.status ?? fallbackSummary?.status ?? '',
+        captures: stageData?.assessmentCaptures || fallbackSummary?.captures || []
+    });
 
     const getAssessmentResultDisplay = (resultValue, statusValue) => {
         const normalizedStatus = String(statusValue || '').toLowerCase();
@@ -170,12 +190,16 @@ function EmpCandidateReviewPage() {
                 // Load interview processes
                 let processes = [];
                 if (data.application.interviewProcess?.stages && data.application.interviewProcess.stages.length > 0) {
+                    const assessmentStageCount = data.application.interviewProcess.stages.filter(stage => stage?.stageType === 'assessment').length;
                     processes = data.application.interviewProcess.stages
                         .filter(stage => stage && stage.stageName && stage.stageType)
                         .sort((a, b) => (a.stageOrder || 0) - (b.stageOrder || 0))
                         .map(stage => {
+                            const stageAssessmentSummary = stage.stageType === 'assessment'
+                                ? getStageAssessmentSummary(stage, assessmentStageCount > 1 ? null : assessmentSummary)
+                                : null;
                             const resolvedStatus = stage.stageType === 'assessment'
-                                ? resolveAssessmentProcessStatus(stage.assessmentAttemptStatus || stage.status, assessmentSummary)
+                                ? resolveAssessmentProcessStatus(stage.assessmentAttemptStatus || stage.status, stageAssessmentSummary)
                                 : (stage.status || 'pending');
 
                             return {
@@ -186,20 +210,25 @@ function EmpCandidateReviewPage() {
                                 status: resolvedStatus,
                                 isCompleted: resolvedStatus === 'completed' || resolvedStatus === 'passed',
                                 result: stage.stageType === 'assessment'
-                                    ? getAssessmentResultDisplay(stage.assessmentResult || assessmentSummary.result, resolvedStatus || assessmentSummary.status)
+                                    ? stageAssessmentSummary.resultDisplay
                                     : null,
                                 resultClass: stage.stageType === 'assessment'
-                                    ? getAssessmentResultClass(getAssessmentResultDisplay(stage.assessmentResult || assessmentSummary.result, resolvedStatus || assessmentSummary.status))
+                                    ? stageAssessmentSummary.resultClass
                                     : '',
-                                assessmentScore: stage.stageType === 'assessment' ? assessmentSummary.score : null,
-                                assessmentPercentage: stage.stageType === 'assessment' ? assessmentSummary.percentage : null,
-                                assessmentTotalMarks: stage.stageType === 'assessment' ? assessmentSummary.totalMarks : null
+                                assessmentScore: stage.stageType === 'assessment' ? stageAssessmentSummary.score : null,
+                                assessmentPercentage: stage.stageType === 'assessment' ? stageAssessmentSummary.percentage : null,
+                                assessmentTotalMarks: stage.stageType === 'assessment' ? stageAssessmentSummary.totalMarks : null,
+                                assessmentCaptures: stage.stageType === 'assessment' ? stageAssessmentSummary.captures : []
                             };
                         });
                 } else if (data.application.interviewProcesses && data.application.interviewProcesses.length > 0) {
+                    const assessmentStageCount = data.application.interviewProcesses.filter(p => p?.type === 'assessment').length;
                     processes = data.application.interviewProcesses.filter(p => p && p.name && p.type).map(p => {
+                        const stageAssessmentSummary = p.type === 'assessment'
+                            ? getStageAssessmentSummary(p, assessmentStageCount > 1 ? null : assessmentSummary)
+                            : null;
                         const resolvedStatus = p.type === 'assessment'
-                            ? resolveAssessmentProcessStatus(p.status, assessmentSummary)
+                            ? resolveAssessmentProcessStatus(p.status, stageAssessmentSummary)
                             : (p.status || 'pending');
 
                         return {
@@ -209,17 +238,22 @@ function EmpCandidateReviewPage() {
                             status: resolvedStatus,
                             isCompleted: resolvedStatus === 'completed' || resolvedStatus === 'passed',
                             result: p.type === 'assessment'
-                                ? getAssessmentResultDisplay(p.result || assessmentSummary.result, resolvedStatus || assessmentSummary.status)
+                                ? stageAssessmentSummary.resultDisplay
                                 : null,
                             resultClass: p.type === 'assessment'
-                                ? getAssessmentResultClass(getAssessmentResultDisplay(p.result || assessmentSummary.result, resolvedStatus || assessmentSummary.status))
+                                ? stageAssessmentSummary.resultClass
                                 : '',
-                            assessmentScore: p.type === 'assessment' ? assessmentSummary.score : null,
-                            assessmentPercentage: p.type === 'assessment' ? assessmentSummary.percentage : null,
-                            assessmentTotalMarks: p.type === 'assessment' ? assessmentSummary.totalMarks : null
+                            assessmentScore: p.type === 'assessment' ? stageAssessmentSummary.score : null,
+                            assessmentPercentage: p.type === 'assessment' ? stageAssessmentSummary.percentage : null,
+                            assessmentTotalMarks: p.type === 'assessment' ? stageAssessmentSummary.totalMarks : null,
+                            assessmentCaptures: p.type === 'assessment' ? stageAssessmentSummary.captures : []
                         };
                     });
                 } else if (data.application.jobId?.interviewRoundOrder && data.application.jobId.interviewRoundOrder.length > 0) {
+                    const assessmentRoundCount = data.application.jobId.interviewRoundOrder.filter(roundKey => {
+                        const roundType = data.application.jobId.interviewRoundTypes?.[roundKey] || roundKey;
+                        return roundType === 'assessment';
+                    }).length;
                     const roundNames = {
                         oneOnOne: 'One-to-One',
                         oneOnOnePanel: 'One-on-One / Panel',
@@ -241,19 +275,24 @@ function EmpCandidateReviewPage() {
                             displayName = roundDetails.customType;
                         }
 
+                        const stageAssessmentSummary = roundType === 'assessment'
+                            ? getStageAssessmentSummary(roundDetails, assessmentRoundCount > 1 ? null : assessmentSummary)
+                            : null;
+
                         return {
                             id: `initial-${roundKey}-${index}`,
                             name: displayName,
                             type: roundType,
                             status: roundType === 'assessment'
-                                ? resolveAssessmentProcessStatus('pending', assessmentSummary)
+                                ? resolveAssessmentProcessStatus('pending', stageAssessmentSummary)
                                 : 'pending',
                             isCompleted: false,
-                            result: roundType === 'assessment' ? assessmentSummary.resultDisplay : null,
-                            resultClass: roundType === 'assessment' ? assessmentSummary.resultClass : '',
-                            assessmentScore: roundType === 'assessment' ? assessmentSummary.score : null,
-                            assessmentPercentage: roundType === 'assessment' ? assessmentSummary.percentage : null,
-                            assessmentTotalMarks: roundType === 'assessment' ? assessmentSummary.totalMarks : null
+                            result: roundType === 'assessment' ? stageAssessmentSummary.resultDisplay : null,
+                            resultClass: roundType === 'assessment' ? stageAssessmentSummary.resultClass : '',
+                            assessmentScore: roundType === 'assessment' ? stageAssessmentSummary.score : null,
+                            assessmentPercentage: roundType === 'assessment' ? stageAssessmentSummary.percentage : null,
+                            assessmentTotalMarks: roundType === 'assessment' ? stageAssessmentSummary.totalMarks : null,
+                            assessmentCaptures: roundType === 'assessment' ? stageAssessmentSummary.captures : []
                         };
                     });
                 }

@@ -2582,12 +2582,28 @@ exports.getApplicationDetails = async (req, res) => {
     const interviewProcess = await InterviewProcess.findOne({ applicationId: application._id });
     let normalizedInterviewProcess = interviewProcess ? interviewProcess.toObject() : null;
     if (normalizedInterviewProcess?.stages?.length) {
+      const orderedAssessmentIds = Array.isArray(application.jobId?.interviewRoundOrder)
+        ? application.jobId.interviewRoundOrder.reduce((acc, roundKey) => {
+            const roundType = application.jobId?.interviewRoundTypes?.[roundKey] || roundKey;
+            if (roundType !== 'assessment') {
+              return acc;
+            }
+
+            const roundDetails = application.jobId?.interviewRoundDetails?.[roundKey];
+            const roundAssessmentId = roundDetails?.assessmentId || application.jobId?.assessmentId || null;
+            if (roundAssessmentId) {
+              acc.push(roundAssessmentId);
+            }
+            return acc;
+          }, [])
+        : (application.jobId?.assessmentId ? [application.jobId.assessmentId] : []);
       const assessmentStages = normalizedInterviewProcess.stages.filter((stage) => stage?.stageType === 'assessment');
       const knownAssessmentIds = Object.keys(assessmentAttemptsByAssessmentId);
       const singleAssessmentAttempt =
         assessmentStages.length <= 1 && knownAssessmentIds.length <= 1
           ? assessmentAttemptsByAssessmentId[knownAssessmentIds[0]] || assessmentAttempt || null
           : null;
+      let assessmentStageIndex = 0;
 
       normalizedInterviewProcess = {
         ...normalizedInterviewProcess,
@@ -2596,14 +2612,20 @@ exports.getApplicationDetails = async (req, res) => {
             return stage;
           }
 
-          const assessmentKey = normalizeAssessmentId(stage?.assessmentId);
+          const resolvedAssessmentId = stage?.assessmentId || orderedAssessmentIds[assessmentStageIndex] || null;
+          assessmentStageIndex += 1;
+
+          const assessmentKey = normalizeAssessmentId(resolvedAssessmentId);
           const matchedAttempt =
             (assessmentKey && assessmentAttemptsByAssessmentId[assessmentKey]) ||
             singleAssessmentAttempt ||
             null;
 
           if (!matchedAttempt) {
-            return stage;
+            return {
+              ...stage,
+              assessmentId: resolvedAssessmentId || stage?.assessmentId || null
+            };
           }
 
           let stageStatus = stage.status;
@@ -2623,12 +2645,15 @@ exports.getApplicationDetails = async (req, res) => {
 
           return {
             ...stage,
+            assessmentId: resolvedAssessmentId || stage?.assessmentId || null,
             status: stageStatus,
             assessmentAttemptId: matchedAttempt._id,
             assessmentAttemptStatus: matchedAttempt.status,
             assessmentResult: matchedAttempt.result || stage.assessmentResult || null,
             assessmentScore: matchedAttempt.score ?? stage.assessmentScore ?? null,
+            assessmentTotalMarks: matchedAttempt.totalMarks ?? stage.assessmentTotalMarks ?? null,
             assessmentPercentage: matchedAttempt.percentage ?? stage.assessmentPercentage ?? null,
+            assessmentCaptures: Array.isArray(matchedAttempt.captures) ? matchedAttempt.captures : [],
             assessmentStartedAt: matchedAttempt.startTime || stage.assessmentStartedAt || null,
             assessmentCompletedAt: matchedAttempt.endTime || matchedAttempt.suspendedAt || stage.assessmentCompletedAt || null
           };
