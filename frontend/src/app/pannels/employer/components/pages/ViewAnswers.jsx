@@ -290,7 +290,7 @@ export default function ViewAnswers() {
                     color: '#111827', 
                     marginBottom: '1rem' 
                   }}>
-                    {question.question ? question.question.replace(/<[^>]*>/g, '') : 'Image-based question'}
+                    {question.question ? question.question.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').trim() : 'Image-based question'}
                   </h3>
                   {question.imageUrl && (
                     <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>

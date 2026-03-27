@@ -224,7 +224,7 @@ function AdminOverviewPage() {
       <div className="admin-overview-header">
         <div>
           <h2>
-            <i className="fa fa-table me-2" />
+            <i className="fa fa-table me-2" style={{ color: "orange" }} />
             {headerTitle}
           </h2>
           <p>{headerSubtitle}</p>

@@ -272,7 +272,6 @@ function AdminCandidateReviewPage() {
                 </button>
                 <div className="header-title">
                     <h2>Candidate Profile Review</h2>
-                    <p>Comprehensive candidate information and documents</p>
                 </div>
             </div>
 

@@ -117,7 +117,7 @@ function AdminDashboardActivityChart() {
 		datasets: [
 			{
 				data: [
-					stats.completedProfileCandidates || 0, 
+					stats.totalCandidates || 0, 
 					stats.totalPlacements || 0, 
 					stats.approvedEmployers || 0
 				],
