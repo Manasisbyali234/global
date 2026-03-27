@@ -304,10 +304,28 @@ html body div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="back
 
   /* Prevent overflow on cards */
   .new-job-card,
-  .twm-w-process-steps3,
-  .category-card {
+  .twm-w-process-steps3 {
     overflow: hidden;
     word-wrap: break-word;
+  }
+
+  .category-card,
+  .category-card > div:first-child {
+    min-width: 0 !important;
+  }
+
+  .category-card .category-text-title,
+  .category-card .category-text-sub {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+  }
+
+  .category-card .plus-badge {
+    flex-shrink: 0 !important;
+    margin-left: 10px !important;
   }
 }
 

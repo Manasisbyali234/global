@@ -417,6 +417,7 @@ const assessmentDebugMiddleware = (req, res, next) => {
 };
 
 router.get('/assessments/available', assessmentController.getAvailableAssessments);
+router.get('/assessments/current-attempt', assessmentController.getCurrentCandidateAttempt);
 router.get('/assessments/:id', assessmentController.getAssessmentForCandidate);
 router.get('/assessments/attempt/:attemptId', assessmentController.getCandidateAttemptState);
 router.post('/assessments/start', assessmentDebugMiddleware, assessmentController.startAssessment);

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Row, Col } from "react-bootstrap";
 import { loadScript } from "../../../../globals/constants";
 import { api, BACKEND_URL } from "../../../../utils/api";
 import { canRoute, candidate } from "../../../../globals/route-names";
+import TermsModal from "../../../../components/TermsModal";
 import "../../../../emp-grid-optimizations.css";
 import "./can-interviews.css";
 
@@ -276,9 +277,12 @@ const getStatusBadge = (status) => {
 };
 
 function CanInterviewsPage() {
+  const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [employerLogos, setEmployerLogos] = useState({});
+  const [showInterviewInstructionsModal, setShowInterviewInstructionsModal] = useState(false);
+  const [pendingInterviewApplicationId, setPendingInterviewApplicationId] = useState(null);
 
   useEffect(() => {
     loadScript("js/custom.js");
@@ -361,6 +365,31 @@ function CanInterviewsPage() {
     };
   }, [applications, employerLogos]);
 
+  const handleBookInterviewClick = (applicationId) => {
+    if (!applicationId) return;
+    setPendingInterviewApplicationId(applicationId);
+    setShowInterviewInstructionsModal(true);
+  };
+
+  const handleAcceptInterviewInstructions = () => {
+    if (!pendingInterviewApplicationId) {
+      setShowInterviewInstructionsModal(false);
+      return;
+    }
+
+    const targetApplicationId = pendingInterviewApplicationId;
+    setShowInterviewInstructionsModal(false);
+    setPendingInterviewApplicationId(null);
+    navigate(
+      canRoute(candidate.INTERVIEW_DETAILS.replace(":applicationId", targetApplicationId))
+    );
+  };
+
+  const handleCloseInterviewInstructions = () => {
+    setShowInterviewInstructionsModal(false);
+    setPendingInterviewApplicationId(null);
+  };
+
   const applicationCards = useMemo(() => {
     const cards = [];
     applications.forEach((application) => {
@@ -442,22 +471,28 @@ function CanInterviewsPage() {
                      </div>
 
                      {card.applicationId && (
-                       <NavLink
-                         to={canRoute(
-                           candidate.INTERVIEW_DETAILS.replace(":applicationId", card.applicationId)
-                         )}
-                         className="view-details-btn-orange"
-                       >
-                        Book Interview/Assessment
-                       </NavLink>
-                     )}
-                  </div>
-                </Col>
-              );
+                        <button
+                          type="button"
+                          className="view-details-btn-orange"
+                          onClick={() => handleBookInterviewClick(card.applicationId)}
+                        >
+                         Book Interview/Assessment
+                        </button>
+                      )}
+                   </div>
+                 </Col>
+               );
             })}
           </Row>
         </div>
       )}
+
+      <TermsModal
+        isOpen={showInterviewInstructionsModal}
+        onClose={handleCloseInterviewInstructions}
+        onAccept={handleAcceptInterviewInstructions}
+        role="candidateInterviewInstructions"
+      />
     </div>
   );
 }

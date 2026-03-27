@@ -406,6 +406,80 @@ const buildCandidateAttemptResponse = (attempt, assessment) => {
   };
 };
 
+const findLatestCandidateAssessmentAttempt = ({ assessmentId, applicationId, candidateId, jobId }) => {
+  const query = {
+    assessmentId,
+    applicationId,
+    candidateId
+  };
+
+  if (jobId) {
+    query.jobId = jobId;
+  }
+
+  return AssessmentAttempt.findOne(query).sort({ createdAt: -1, _id: -1 });
+};
+
+exports.getCurrentCandidateAttempt = async (req, res) => {
+  try {
+    const { assessmentId, applicationId, jobId } = req.query;
+
+    if (!assessmentId || !applicationId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Assessment ID and Application ID are required'
+      });
+    }
+
+    const attempt = await findLatestCandidateAssessmentAttempt({
+      assessmentId,
+      applicationId,
+      candidateId: req.user._id,
+      jobId
+    });
+
+    if (!attempt) {
+      return res.json({ success: true, attempt: null });
+    }
+
+    const assessment = await Assessment.findById(attempt.assessmentId).select('timer');
+    if (!assessment) {
+      return res.status(404).json({ success: false, message: 'Assessment not found' });
+    }
+
+    if (attempt.status === 'in_progress') {
+      const startedAt = attempt.startTime ? new Date(attempt.startTime).getTime() : null;
+      const elapsedSeconds = startedAt ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000)) : 0;
+      const remainingSeconds = Math.max(0, (Number(assessment.timer || 0) * 60) - elapsedSeconds);
+
+      if (remainingSeconds <= 0) {
+        attempt.status = 'expired';
+        attempt.endTime = new Date();
+        attempt.timeRemaining = 0;
+        await attempt.save();
+
+        await Application.findByIdAndUpdate(attempt.applicationId, {
+          assessmentStatus: 'expired',
+          assessmentAttemptId: attempt._id
+        });
+
+        await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
+          status: 'expired',
+          assessmentCompletedAt: attempt.endTime
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      attempt: buildCandidateAttemptResponse(attempt, assessment)
+    });
+  } catch (error) {
+    console.error('Get current candidate attempt error:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Candidate: Start Assessment
 exports.startAssessment = async (req, res) => {
   try {
@@ -424,10 +498,11 @@ exports.startAssessment = async (req, res) => {
     });
     
     // Check if already attempted
-    let attempt = await AssessmentAttempt.findOne({
+    let attempt = await findLatestCandidateAssessmentAttempt({
       assessmentId,
+      applicationId,
       candidateId: req.user._id,
-      applicationId
+      jobId
     });
     
     if (attempt && attempt.status === 'completed') {

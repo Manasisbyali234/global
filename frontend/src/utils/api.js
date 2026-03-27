@@ -822,6 +822,23 @@ export const api = {
     }).then(handleApiResponse);
   },
 
+  getCurrentCandidateAssessmentAttempt: ({ assessmentId, applicationId, jobId } = {}) => {
+    const params = new URLSearchParams();
+    if (assessmentId) {
+      params.set('assessmentId', assessmentId);
+    }
+    if (applicationId) {
+      params.set('applicationId', applicationId);
+    }
+    if (jobId) {
+      params.set('jobId', jobId);
+    }
+
+    return fetch(`${API_BASE_URL}/candidate/assessments/current-attempt?${params.toString()}`, {
+      headers: getAuthHeaders('candidate'),
+    }).then(handleApiResponse);
+  },
+
   startAssessment: (data) => {
     return fetch(`${API_BASE_URL}/candidate/assessments/start`, {
       method: 'POST',

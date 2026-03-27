@@ -99,6 +99,16 @@ const StartAssessment = () => {
         setAttemptId(null);
     }, []);
 
+    const storeAttemptId = useCallback((nextAttemptId) => {
+        if (!nextAttemptId || typeof window === 'undefined' || !window.sessionStorage) {
+            return;
+        }
+
+        try {
+            window.sessionStorage.setItem(ASSESSMENT_ATTEMPT_KEY, nextAttemptId);
+        } catch (err) {}
+    }, []);
+
     const buildResumedAnswers = useCallback((assessmentData, attemptData) => {
         const hydratedAnswers = new Array(assessmentData.questions.length).fill(null);
 
@@ -173,6 +183,7 @@ const StartAssessment = () => {
     }, []);
 
     const restoreAttemptState = useCallback((assessmentData, attemptData) => {
+        storeAttemptId(attemptData._id);
         setAttemptId(attemptData._id);
         setAnswers(buildResumedAnswers(assessmentData, attemptData));
         setCurrentQuestionIndex(getResumedQuestionIndex(assessmentData, attemptData));
@@ -192,7 +203,40 @@ const StartAssessment = () => {
         setRestrictionWarningCount(existingWarnings);
         setCaptureCount(Number(attemptData.captureCount || 0));
         capturesStarted.current = false;
-    }, [buildResumedAnswers, getRemainingTimeSeconds, getResumedQuestionIndex]);
+    }, [buildResumedAnswers, getRemainingTimeSeconds, getResumedQuestionIndex, storeAttemptId]);
+
+    const applyAttemptResponse = useCallback((assessmentData, attemptData) => {
+        if (!attemptData) {
+            return false;
+        }
+
+        if (attemptData.status === 'in_progress') {
+            restoreAttemptState(assessmentData, attemptData);
+            return true;
+        }
+
+        clearStoredAssessment();
+
+        if (attemptData.status === 'suspended') {
+            setTerminationReason('suspended');
+            setTerminationTimestamp(attemptData.suspendedAt ? new Date(attemptData.suspendedAt) : new Date());
+            setIsTerminated(true);
+            setAssessmentState('terminated');
+            return true;
+        }
+
+        if (attemptData.status === 'completed') {
+            setError('This assessment has already been completed.');
+            return true;
+        }
+
+        if (attemptData.status === 'expired') {
+            setError('This assessment has expired.');
+            return true;
+        }
+
+        return false;
+    }, [clearStoredAssessment, restoreAttemptState]);
 
     const tryResumeAttempt = useCallback(async (assessmentData, activeAttemptId) => {
         if (!activeAttemptId) {
@@ -207,38 +251,36 @@ const StartAssessment = () => {
                 return false;
             }
 
-            if (attemptData.status === 'in_progress') {
-                restoreAttemptState(assessmentData, attemptData);
-                return true;
-            }
-
-            clearStoredAssessment();
-
-            if (attemptData.status === 'suspended') {
-                setTerminationReason('suspended');
-                setTerminationTimestamp(attemptData.suspendedAt ? new Date(attemptData.suspendedAt) : new Date());
-                setIsTerminated(true);
-                setAssessmentState('terminated');
-                return true;
-            }
-
-            if (attemptData.status === 'completed') {
-                setError('This assessment has already been completed.');
-                return true;
-            }
-
-            if (attemptData.status === 'expired') {
-                setError('This assessment has expired.');
-                return true;
-            }
-
-            return false;
+            return applyAttemptResponse(assessmentData, attemptData);
         } catch (err) {
             console.error('Error restoring assessment attempt:', err);
             clearStoredAssessment();
             return false;
         }
-    }, [clearStoredAssessment, restoreAttemptState]);
+    }, [applyAttemptResponse, clearStoredAssessment]);
+
+    const tryResumeAttemptByContext = useCallback(async (assessmentData) => {
+        if (!assessmentId || !applicationId) {
+            return false;
+        }
+
+        try {
+            const response = await api.getCurrentCandidateAssessmentAttempt({
+                assessmentId,
+                applicationId,
+                jobId
+            });
+
+            if (!response?.success || !response.attempt) {
+                return false;
+            }
+
+            return applyAttemptResponse(assessmentData, response.attempt);
+        } catch (err) {
+            console.error('Error restoring current assessment attempt:', err);
+            return false;
+        }
+    }, [applicationId, assessmentId, applyAttemptResponse, jobId]);
 
     // Security and modal state
     const [assessmentState, setAssessmentState] = useState('not_started'); // not_started, terms_pending, in_progress, terminated, completed
@@ -1159,6 +1201,10 @@ const StartAssessment = () => {
                     return;
                 }
 
+                if (await tryResumeAttemptByContext(assessmentData)) {
+                    return;
+                }
+
 				setAnswers(new Array(assessmentData.questions.length).fill(null));
                 setCurrentQuestionIndex(0);
                 setTimeLeft(Number(assessmentData.timer || 0) * 60);
@@ -1190,6 +1236,17 @@ const StartAssessment = () => {
 				showWarning('Camera could not start. Please allow camera access and close any other app using the webcam.');
 			}
 
+            if (assessment) {
+                const activeAttemptId = attemptIdRef.current || getStoredAttemptId();
+                if (await tryResumeAttempt(assessment, activeAttemptId)) {
+                    return;
+                }
+
+                if (await tryResumeAttemptByContext(assessment)) {
+                    return;
+                }
+            }
+
 			const startResponse = await api.startAssessment({
 				assessmentId,
 				jobId,
@@ -1197,11 +1254,6 @@ const StartAssessment = () => {
 			});
 
 			if (startResponse.success && startResponse.attempt && startResponse.attempt._id) {
-				if (typeof window !== 'undefined' && window.sessionStorage) {
-					try {
-						window.sessionStorage.setItem(ASSESSMENT_ATTEMPT_KEY, startResponse.attempt._id);
-					} catch (err) {}
-				}
                 restoreAttemptState(assessment, startResponse.attempt);
 			} else {
 				stopAssessmentWebcam();

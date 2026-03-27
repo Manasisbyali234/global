@@ -9,6 +9,7 @@ import './admin-header-mobile-fix.css';
 import SearchBar from '../../../../components/SearchBar';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+
 function AdminEmployersAllRequest() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -40,6 +41,38 @@ function AdminEmployersAllRequest() {
     const [statusFilter, setStatusFilter] = useState(() => getStatusFilterFromSearch(window.location.search));
     const isUnderReviewPage =
         String(new URLSearchParams(location.search).get('status') || '').trim().toLowerCase() === 'under-review';
+
+    const getEmployerReviewStatus = (employer) => {
+        if (!employer) return 'incomplete';
+        if (employer.isApproved === true || employer.status === 'approved') {
+            return 'approved';
+        }
+        if (
+            employer.status === 'rejected' ||
+            (employer.status === 'inactive' && employer.isApproved !== true)
+        ) {
+            return 'rejected';
+        }
+        if (employer.profileSubmittedForReview) {
+            return 'pending';
+        }
+        return 'incomplete';
+    };
+
+    const getEmployerStatusText = (employer) => {
+        const normalizedStatus = getEmployerReviewStatus(employer);
+        switch (normalizedStatus) {
+            case 'approved':
+                return 'Approved';
+            case 'rejected':
+                return 'Rejected';
+            case 'pending':
+                return 'Under Review';
+            case 'incomplete':
+            default:
+                return 'Profile Incomplete';
+        }
+    };
 
     useEffect(() => {
         AOS.init({
@@ -103,41 +136,10 @@ function AdminEmployersAllRequest() {
     };
 
     const filterEmployersByStatus = (employersList, status) => {
-        let filtered = [];
-        
-        switch(status) {
-            case 'pending':
-                filtered = employersList.filter(emp => 
-                    emp.isApproved !== true && 
-                    emp.status !== 'approved' && 
-                    emp.status !== 'rejected' &&
-                    emp.status !== 'inactive' &&
-                    emp.profileSubmittedForReview
-                );
-                break;
-            case 'incomplete':
-                filtered = employersList.filter(emp => 
-                    !emp.profileSubmittedForReview &&
-                    emp.isApproved !== true && 
-                    emp.status !== 'approved'
-                );
-                break;
-            case 'approved':
-                filtered = employersList.filter(emp => 
-                    emp.isApproved === true || emp.status === 'approved'
-                );
-                break;
-            case 'rejected':
-                filtered = employersList.filter(emp => 
-                    emp.status === 'rejected'
-                );
-                break;
-            case 'all':
-            default:
-                filtered = employersList;
-                break;
-        }
-        
+        const filtered = status === 'all'
+            ? employersList
+            : employersList.filter((emp) => getEmployerReviewStatus(emp) === status);
+
         setFilteredEmployers(filtered);
     };
 
@@ -148,11 +150,15 @@ function AdminEmployersAllRequest() {
 
     const handleSearch = (searchTerm) => {
         if (!searchTerm.trim()) {
-            setFilteredEmployers(employers);
+            filterEmployersByStatus(employers, statusFilter);
             return;
         }
-        
-        const filtered = employers.filter(employer => 
+
+        const statusScopedEmployers = statusFilter === 'all'
+            ? employers
+            : employers.filter((employer) => getEmployerReviewStatus(employer) === statusFilter);
+
+        const filtered = statusScopedEmployers.filter(employer => 
             employer.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             employer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             employer.phone?.includes(searchTerm) ||
@@ -178,10 +184,11 @@ function AdminEmployersAllRequest() {
                     status: response.employer.status
                 });
                 
-                // Force immediate removal from UI
-                const updatedEmployers = employers.filter(emp => emp._id !== employerId);
-                console.log('Employers before filter:', employers.length);
-                console.log('Employers after filter:', updatedEmployers.length);
+                const updatedEmployers = employers.map((emp) =>
+                    emp._id === employerId ? { ...emp, ...response.employer } : emp
+                );
+                console.log('Employers before update:', employers.length);
+                console.log('Employers after update:', updatedEmployers.length);
                 
                 setEmployers(updatedEmployers);
                 filterEmployersByStatus(updatedEmployers, statusFilter);
@@ -209,7 +216,9 @@ function AdminEmployersAllRequest() {
             setActionLoading(prev => ({ ...prev, [employerId]: true }));
             const response = await api.updateEmployerStatus(employerId, { status: 'rejected', isApproved: false });
             if (response.success) {
-                const updatedEmployers = employers.filter(emp => emp._id !== employerId);
+                const updatedEmployers = employers.map((emp) =>
+                    emp._id === employerId ? { ...emp, ...response.employer } : emp
+                );
                 setEmployers(updatedEmployers);
                 filterEmployersByStatus(updatedEmployers, statusFilter);
                 showSuccess('Employer rejected successfully! Once rejected, you cannot approve or retake this action.');
@@ -388,12 +397,8 @@ function AdminEmployersAllRequest() {
                                                             }
                                                         };
                                                         
-                                                        const status = employer.isApproved ? 'approved' : 
-                                                                      employer.status === 'rejected' ? 'rejected' :
-                                                                      employer.profileSubmittedForReview ? 'pending' : 'incomplete';
-                                                        const statusText = employer.isApproved ? 'Approved' : 
-                                                                          employer.status === 'rejected' ? 'Rejected' :
-                                                                          employer.profileSubmittedForReview ? 'Under Review' : 'Profile Incomplete';
+                                                        const status = getEmployerReviewStatus(employer);
+                                                        const statusText = getEmployerStatusText(employer);
                                                         const style = getStatusStyle(status);
                                                         
                                                         return (
@@ -421,7 +426,7 @@ function AdminEmployersAllRequest() {
                                                 </td>
                                                 <td style={{textAlign: 'center'}}>
                                                     <div className="action-buttons">
-                                                        {employer.isProfileComplete && employer.profileSubmittedForReview && !employer.isApproved && employer.status !== 'rejected' && employer.status !== 'approved' ? (
+                                                        {employer.isProfileComplete && getEmployerReviewStatus(employer) === 'pending' ? (
                                                             <>
                                                                 <button
                                                                     type="button"
@@ -442,7 +447,7 @@ function AdminEmployersAllRequest() {
                                                                     Reject
                                                                 </button>
                                                             </>
-                                                        ) : (!employer.isApproved && employer.status !== 'rejected' && employer.status !== 'approved') ? (
+                                                        ) : (getEmployerReviewStatus(employer) === 'incomplete') ? (
                                                             <span style={{color: '#dc3545', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'}}>
                                                                 <i className="fa fa-exclamation-circle"></i>
                                                                 Profile not completed
