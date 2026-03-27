@@ -2582,21 +2582,24 @@ exports.getApplicationDetails = async (req, res) => {
     const interviewProcess = await InterviewProcess.findOne({ applicationId: application._id });
     let normalizedInterviewProcess = interviewProcess ? interviewProcess.toObject() : null;
     if (normalizedInterviewProcess?.stages?.length) {
-      const orderedAssessmentIds = Array.isArray(application.jobId?.interviewRoundOrder)
-        ? application.jobId.interviewRoundOrder.reduce((acc, roundKey) => {
+      const orderedAssessmentRoundKeys = Array.isArray(application.jobId?.interviewRoundOrder)
+        ? application.jobId.interviewRoundOrder.filter((roundKey) => {
             const roundType = application.jobId?.interviewRoundTypes?.[roundKey] || roundKey;
-            if (roundType !== 'assessment') {
-              return acc;
-            }
-
-            const roundDetails = application.jobId?.interviewRoundDetails?.[roundKey];
-            const roundAssessmentId = roundDetails?.assessmentId || application.jobId?.assessmentId || null;
-            if (roundAssessmentId) {
-              acc.push(roundAssessmentId);
-            }
-            return acc;
-          }, [])
-        : (application.jobId?.assessmentId ? [application.jobId.assessmentId] : []);
+            return roundType === 'assessment';
+          })
+        : [];
+      const orderedAssessmentIds = orderedAssessmentRoundKeys.reduce((acc, roundKey) => {
+        const roundDetails = application.jobId?.interviewRoundDetails?.[roundKey];
+        const roundAssessmentId = roundDetails?.assessmentId || null;
+        if (roundAssessmentId) {
+          acc.push(roundAssessmentId);
+        }
+        return acc;
+      }, []);
+      const singleConfiguredAssessmentId =
+        orderedAssessmentRoundKeys.length <= 1 && application.jobId?.assessmentId
+          ? application.jobId.assessmentId
+          : null;
       const assessmentStages = normalizedInterviewProcess.stages.filter((stage) => stage?.stageType === 'assessment');
       const knownAssessmentIds = Object.keys(assessmentAttemptsByAssessmentId);
       const singleAssessmentAttempt =
@@ -2612,7 +2615,11 @@ exports.getApplicationDetails = async (req, res) => {
             return stage;
           }
 
-          const resolvedAssessmentId = stage?.assessmentId || orderedAssessmentIds[assessmentStageIndex] || null;
+          const resolvedAssessmentId =
+            stage?.assessmentId ||
+            orderedAssessmentIds[assessmentStageIndex] ||
+            singleConfiguredAssessmentId ||
+            null;
           assessmentStageIndex += 1;
 
           const assessmentKey = normalizeAssessmentId(resolvedAssessmentId);

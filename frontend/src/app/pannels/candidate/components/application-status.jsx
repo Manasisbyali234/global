@@ -1303,20 +1303,31 @@ function CanStatusPage() {
 				return { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' };
 			}
 			
-			// Check if assessment window hasn't started yet (only in popup)
-			if (isPopup && windowInfo.isBeforeStart && (status === 'available' || status === 'not_required' || status === 'pending')) {
-				return { text: 'Assessment scheduled. Test will open on the scheduled date and time.', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
+			if (
+				windowInfo.isBeforeStart &&
+				['', 'available', 'not_required', 'not_started', 'pending'].includes(status) &&
+				!isCompleted &&
+				!isInProgress &&
+				!isSuspended
+			) {
+				return isPopup
+					? { text: 'Assessment scheduled. Test will open on the scheduled date and time.', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
+					: { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
 			
 			// Map all possible assessment status values
 			const statusMappings = {
 				'completed': { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' },
 				'in_progress': { text: 'In Progress', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' },
-				'available': { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
+				'available': windowInfo.isBeforeStart
+					? { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
+					: { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
 				'expired': { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'suspended': { text: 'Suspended', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'pending': { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
-				'not_required': { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
+				'not_required': windowInfo.isBeforeStart
+					? { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
+					: { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
 				'not_started': { text: 'Assessment scheduled. Test will open on the scheduled date and time.', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
 			};
 			
