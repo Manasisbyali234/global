@@ -1499,7 +1499,8 @@ const StartAssessment = () => {
 	}
 
 	const question = assessment.questions[currentQuestionIndex];
-	const decodeHtmlEntities = (value) => {
+	const decodeHtmlEntities = (value, options = {}) => {
+		const { preserveWhitespace = false } = options;
 		if (!value || typeof value !== 'string') return '';
 
 		const normalizeLegacyNbsp = (input) =>
@@ -1524,29 +1525,30 @@ const StartAssessment = () => {
 		}
 
 		if (typeof document === 'undefined') {
-			return normalizeLegacyNbsp(normalizedValue).replace(/\s+/g, ' ').trim();
+			const decodedValue = normalizeLegacyNbsp(normalizedValue);
+			return preserveWhitespace
+				? decodedValue.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim()
+				: decodedValue.replace(/\s+/g, ' ').trim();
 		}
 
 		const wrapper = document.createElement('div');
 		wrapper.innerHTML = normalizedValue;
 
-		return normalizeLegacyNbsp(wrapper.textContent || wrapper.innerText || normalizedValue)
-			.replace(/\s+/g, ' ')
-			.trim();
+		const textValue = normalizeLegacyNbsp(wrapper.textContent || wrapper.innerText || normalizedValue);
+		return preserveWhitespace
+			? textValue.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim()
+			: textValue.replace(/\s+/g, ' ').trim();
 	};
-	const normalizeInstructionLine = (line) =>
-		line
-			.replace(/^\s*\d+[\).\-\s]+/, '')
-			.replace(/^\s*[\u2022\u00B7\u25CF\u25AA\u25E6\-]+\s*/, '')
-			.trim();
 	const instructionsRaw = assessment?.instructions || assessment?.description || '';
-	const instructionsText = decodeHtmlEntities(String(instructionsRaw || '').replace(/<[^>]*>/g, ''));
-	const instructionLines = instructionsText
-		? instructionsText
-				.split(/\r?\n/)
-				.map(line => normalizeInstructionLine(line))
-				.filter(Boolean)
-		: [];
+	const instructionsText = decodeHtmlEntities(
+		String(instructionsRaw || '')
+			.replace(/<br\s*\/?>/gi, '\n')
+			.replace(/<\/li>/gi, '\n')
+			.replace(/<li[^>]*>/gi, '• ')
+			.replace(/<\/(p|div|ul|ol)>/gi, '\n')
+			.replace(/<[^>]*>/g, ''),
+		{ preserveWhitespace: true }
+	);
 
 	return (
 		<>
@@ -1733,17 +1735,9 @@ const StartAssessment = () => {
 						}}
 					>
 						<div style={{ fontWeight: "600", color: "#1f2937", marginBottom: "8px" }}>Instructions</div>
-						{instructionLines.length > 1 ? (
-							<ul style={{ margin: 0, paddingLeft: "18px", color: "#374151", lineHeight: "1.7" }}>
-								{instructionLines.map((line, idx) => (
-									<li key={`assessment-instruction-${idx}`} style={{ marginBottom: "6px" }}>{line}</li>
-								))}
-							</ul>
-						) : (
-							<div style={{ color: "#374151", lineHeight: "1.7" }}>
-								{instructionLines[0] || instructionsText}
-							</div>
-						)}
+						<div style={{ color: "#374151", lineHeight: "1.7", whiteSpace: "pre-wrap" }}>
+							{instructionsText}
+						</div>
 					</div>
 				)}
 
