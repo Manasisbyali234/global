@@ -69,7 +69,7 @@ function SectionCanPersonalDetail({ profile }) {
         if (profile) {
             // Fetch profile data to get pincode, stateCode, and location
             fetchProfileData();
-            setFormData({
+            const newFormData = {
                 firstName: profile.firstName || profile.candidateId?.name || '',
                 middleName: profile.middleName || '',
                 lastName: profile.lastName || '',
@@ -85,7 +85,27 @@ function SectionCanPersonalDetail({ profile }) {
                 residentialAddress: profile.residentialAddress || '',
                 permanentAddress: profile.permanentAddress || '',
                 correspondenceAddress: profile.correspondenceAddress || ''
+            };
+            setFormData(newFormData);
+
+            // Show errors for any empty required fields on load
+            const requiredFields = ['dateOfBirth', 'gender', 'fatherName', 'motherName', 'residentialAddress', 'permanentAddress'];
+            const initialErrors = {};
+            requiredFields.forEach(field => {
+                const value = newFormData[field];
+                if (!value || !value.trim()) {
+                    const labels = {
+                        dateOfBirth: 'Date of birth is required',
+                        gender: 'Gender is required',
+                        fatherName: "Father's/Husband's Name is required",
+                        motherName: "Mother's Name is required",
+                        residentialAddress: 'Residential Address is required',
+                        permanentAddress: 'Permanent Address is required'
+                    };
+                    initialErrors[field] = labels[field];
+                }
             });
+            setErrors(initialErrors);
         }
     }, [profile]);
 
