@@ -20,6 +20,7 @@
 .emp-detail .company-rich-text,
 .emp-detail .company-rich-text p,
 .emp-detail .company-rich-text li,
+.emp-detail .company-rich-text div,
 .emp-detail .submitted-reviews-list p,
 .emp-detail .submitted-reviews-list small,
 .emp-detail .submitted-reviews-list span,
@@ -28,6 +29,22 @@
 .emp-detail .review-form .rating-input {
   font-size: var(--emp-detail-subtitle-size);
   line-height: 1.6;
+}
+
+.emp-detail .company-rich-text,
+.emp-detail .company-rich-text p,
+.emp-detail .company-rich-text li,
+.emp-detail .company-rich-text div,
+.emp-detail .company-rich-text span,
+.emp-detail .company-rich-text strong,
+.emp-detail .company-rich-text b {
+  color: #4a5568 !important;
+  font-weight: 400 !important;
+}
+
+.emp-detail .company-rich-text strong,
+.emp-detail .company-rich-text b {
+  font-weight: 500 !important;
 }
 
 .emp-detail .review-form .form-control,

@@ -491,25 +491,35 @@ function EmployersDetail1Page() {
 														<div className="col-md-8" style={{ paddingLeft: 0 }}>
 														<form onSubmit={handleReviewSubmit} className="review-form">
 															<div className="mb-3">
-																<input
-																	type="text"
-																	className="form-control"
-																	placeholder="Your Name *"
-																	value={reviewForm.reviewerName}
-																	onChange={(e) => setReviewForm({...reviewForm, reviewerName: e.target.value})}
-																	required
-																/>
+																<label className="form-label" htmlFor="reviewerName">Your Name <span style={{ color: 'red' }}>*</span></label>
+																<div className="ls-inputicon-box">
+																	<input
+																		id="reviewerName"
+																		type="text"
+																		className="form-control"
+																		placeholder="Enter your full name"
+																		value={reviewForm.reviewerName}
+																		onChange={(e) => setReviewForm({...reviewForm, reviewerName: e.target.value})}
+																		required
+																	/>
+																	<i className="fs-input-icon fa fa-user" />
+																</div>
 															</div>
 															
 															<div className="mb-3">
-																<input
-																	type="email"
-																	className="form-control"
-																	placeholder="Your Email *"
-																	value={reviewForm.reviewerEmail}
-																	onChange={(e) => setReviewForm({...reviewForm, reviewerEmail: e.target.value})}
-																	required
-																/>
+																<label className="form-label" htmlFor="reviewerEmail">Email Address <span style={{ color: 'red' }}>*</span></label>
+																<div className="ls-inputicon-box">
+																	<input
+																		id="reviewerEmail"
+																		type="email"
+																		className="form-control"
+																		placeholder="Enter your email address"
+																		value={reviewForm.reviewerEmail}
+																		onChange={(e) => setReviewForm({...reviewForm, reviewerEmail: e.target.value})}
+																		required
+																	/>
+																	<i className="fs-input-icon fas fa-at" />
+																</div>
 															</div>
 															
 															<div className="mb-3">
@@ -520,18 +530,25 @@ function EmployersDetail1Page() {
 															</div>
 															
 															<div className="mb-3">
-																<textarea
-																	className="form-control"
-																	rows="4"
-																	value={reviewForm.description}
-																	onChange={(e) => setReviewForm({...reviewForm, description: e.target.value})}
-																	placeholder="Your Review * (Share your experience with this company...)"
-																	required
-																/>
+																<label className="form-label" htmlFor="reviewDescription">Your Review <span style={{ color: 'red' }}>*</span></label>
+																<div className="ls-inputicon-box review-textarea-box">
+																	<textarea
+																		id="reviewDescription"
+																		className="form-control"
+																		rows="4"
+																		value={reviewForm.description}
+																		onChange={(e) => setReviewForm({...reviewForm, description: e.target.value})}
+																		placeholder="Share your experience with this company"
+																		required
+																	/>
+																	<i className="fs-input-icon fa fa-comment-alt" />
+																</div>
 															</div>
 															
 															<div className="mb-3">
+																<label className="form-label" htmlFor="reviewImage">Upload Screenshot or Image</label>
 																<input
+																	id="reviewImage"
 																	type="file"
 																	className="form-control"
 																	accept="image/*"

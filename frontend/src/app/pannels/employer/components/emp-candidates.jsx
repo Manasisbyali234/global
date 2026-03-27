@@ -209,23 +209,23 @@ function EmpCandidatesPage() {
 
         <div className="panel-body wt-panel-body">
           <div className="page-toolbar mb-3">
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', width: '100%' }}>
+            <div className="emp-candidates-toolbar">
               <div className="page-toolbar__section" style={{ flex: '1 1 260px', minWidth: '200px' }}>
                 <label className="page-toolbar__label">
                   <i className="fa fa-search"></i> Search Applicants
                 </label>
-                <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
-                  <div style={{ position: 'absolute', left: '12px', display: 'flex', alignItems: 'center', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
+                <div className="emp-candidates-search-control">
+                  <div className="emp-candidates-search-icon">
                     <Search size={18} style={{ color: '#e66814' }} />
                   </div>
                   <input
                     type="text"
-                    className="form-control page-toolbar__input"
+                    className="form-control page-toolbar__input emp-candidates-search-input"
                     placeholder="Search applicants by name, email, or job"
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
                     list="candidate-job-title-suggestions"
-                    style={{ paddingLeft: '40px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', width: '100%' }}
+                    style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', width: '100%' }}
                     onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                     onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                   />
@@ -236,7 +236,7 @@ function EmpCandidatesPage() {
                   </datalist>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              <div className="emp-candidates-toolbar__filters">
                 <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
                   <label className="page-toolbar__label">
                     <i className="fa fa-filter"></i> Application Status
@@ -281,7 +281,7 @@ function EmpCandidatesPage() {
               </div>
             </div>
           ) : (
-            <div className="row" style={{maxWidth: '1200px', margin: '0 auto'}}>
+            <div className="row emp-candidates-grid" style={{maxWidth: '1200px', margin: '0 auto'}}>
               {filteredApplications.length === 0 ? (
                 <div className="col-12 text-center py-4">
                   <p className="text-muted">
@@ -294,11 +294,11 @@ function EmpCandidatesPage() {
                 filteredApplications.map((application) => (
                   <div className="col-lg-6 col-12" key={application._id}>
                     <div 
-                      className="d-flex justify-content-between align-items-center p-3 border rounded mb-3 shadow-sm"
+                      className="emp-candidates-card d-flex justify-content-between align-items-center p-3 border rounded mb-3 shadow-sm"
                       style={{cursor: "pointer"}}
                       onClick={() => navigate(`/employer/candidates-list/${application.jobId?._id}`)}
                     >
-                      <div className="d-flex align-items-center gap-3" style={{flex: '1', minWidth: '0', marginRight: '1rem'}}>
+                      <div className="emp-candidates-card__body d-flex align-items-center gap-3" style={{flex: '1', minWidth: '0', marginRight: '1rem'}}>
                         <div
                           className="twm-media-pic rounded-circle overflow-hidden"
                           style={{ width: "50px", height: "50px", flexShrink: 0 }}
@@ -325,7 +325,7 @@ function EmpCandidatesPage() {
                           )}
                         </div>
 
-                        <div style={{minWidth: '0', flex: 1}}>
+                        <div className="emp-candidates-card__details" style={{minWidth: '0', flex: 1}}>
                           <h5 className="mb-1" style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                             {application.candidateId?.name || "Unknown"}
                           </h5>
@@ -352,7 +352,7 @@ function EmpCandidatesPage() {
                         </div>
                       </div>
 
-                      <div style={{flexShrink: 0}}>
+                      <div className="emp-candidates-card__action" style={{flexShrink: 0}}>
                         <button
                           className="btn btn-outline-primary btn-sm"
                           onClick={(e) => {
