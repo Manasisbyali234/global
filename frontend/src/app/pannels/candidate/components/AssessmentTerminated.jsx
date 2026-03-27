@@ -73,31 +73,137 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
     };
 
     const violation = getViolationDetails(violationType);
+    const suspensionTime = violationTimestamp ? new Date(violationTimestamp).toLocaleString() : 'N/A';
+    const infoCardBorder = violation.color === 'warning' ? '#0dcaf0' : '#dc3545';
+    const infoCardBackground = violation.color === 'warning' ? '#f0fbff' : '#fff5f5';
 
     return (
-        <div className="mt-5">
-            <div className="row justify-content-center">
-                <div className="col-md-8 col-lg-6 text-center">
-                    <h3 className="mb-3">Assessment Suspended</h3>
+        <div
+            style={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '32px 16px',
+                background: 'linear-gradient(180deg, #fff8f5 0%, #f8fafc 100%)'
+            }}
+        >
+            <div
+                style={{
+                    width: '100%',
+                    maxWidth: '760px',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '24px',
+                    boxShadow: '0 24px 60px rgba(15, 23, 42, 0.12)',
+                    border: '1px solid #f1f5f9',
+                    overflow: 'hidden'
+                }}
+            >
+                <div
+                    style={{
+                        padding: '28px 32px 20px',
+                        background: violation.color === 'warning'
+                            ? 'linear-gradient(135deg, #fff7e6 0%, #fff 100%)'
+                            : 'linear-gradient(135deg, #fff1f2 0%, #fff 100%)',
+                        borderBottom: '1px solid #e5e7eb',
+                        textAlign: 'center'
+                    }}
+                >
+                    <div
+                        style={{
+                            width: '72px',
+                            height: '72px',
+                            margin: '0 auto 16px',
+                            borderRadius: '18px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: violation.color === 'warning' ? '#fff3cd' : '#fee2e2',
+                            color: violation.color === 'warning' ? '#b45309' : '#b91c1c',
+                            fontSize: '28px',
+                            fontWeight: '700'
+                        }}
+                    >
+                        !
+                    </div>
+                    <h2 style={{ margin: '0 0 8px', color: '#111827', fontWeight: '700' }}>Assessment Suspended</h2>
+                    <p style={{ margin: 0, color: '#b91c1c', fontSize: '18px', fontWeight: '600' }}>{violation.title}</p>
+                </div>
 
-                    <h4 className="text-danger mb-4">{violation.title}</h4>
+                <div style={{ padding: '28px 32px 32px' }}>
+                    <div
+                        style={{
+                            display: 'grid',
+                            gap: '16px',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                            marginBottom: '24px'
+                        }}
+                    >
+                        <div
+                            style={{
+                                backgroundColor: '#f8fafc',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '16px',
+                                padding: '18px 20px',
+                                textAlign: 'left'
+                            }}
+                        >
+                            <div style={{ color: '#6b7280', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
+                                Assessment
+                            </div>
+                            <div style={{ color: '#111827', fontSize: '18px', fontWeight: '600', wordBreak: 'break-word' }}>
+                                {assessmentTitle || 'Technical Assessment'}
+                            </div>
+                        </div>
 
-                    <div className={`alert alert-${violation.color} mb-4`}>
-                        <strong>Assessment:</strong> {assessmentTitle || 'Technical Assessment'}
+                        <div
+                            style={{
+                                backgroundColor: '#f8fafc',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '16px',
+                                padding: '18px 20px',
+                                textAlign: 'left'
+                            }}
+                        >
+                            <div style={{ color: '#6b7280', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
+                                Suspension Time
+                            </div>
+                            <div style={{ color: '#111827', fontSize: '16px', fontWeight: '600' }}>
+                                {suspensionTime}
+                            </div>
+                        </div>
                     </div>
 
-                    <p className="lead mb-3">{violation.message}</p>
-
-                    <div className="mb-4">
-                        <strong>Suspension Time:</strong><br />
-                        <span className="text-muted">
-                            {violationTimestamp ? new Date(violationTimestamp).toLocaleString() : 'N/A'}
-                        </span>
+                    <div
+                        style={{
+                            backgroundColor: '#fffaf0',
+                            border: '1px solid #fde68a',
+                            borderRadius: '16px',
+                            padding: '18px 20px',
+                            marginBottom: '20px',
+                            textAlign: 'left'
+                        }}
+                    >
+                        <div style={{ color: '#92400e', fontSize: '13px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                            Violation Detected
+                        </div>
+                        <p style={{ margin: 0, color: '#374151', lineHeight: '1.7', fontSize: '16px' }}>
+                            {violation.message}
+                        </p>
                     </div>
 
-                    <div className={`alert alert-${violation.color === 'warning' ? 'info' : 'danger'}`}>
-                        <h6><strong>What happened?</strong></h6>
-                        <p className="mb-0">
+                    <div
+                        style={{
+                            backgroundColor: infoCardBackground,
+                            border: `1px solid ${infoCardBorder}`,
+                            borderRadius: '16px',
+                            padding: '20px',
+                            marginBottom: '28px',
+                            textAlign: 'left'
+                        }}
+                    >
+                        <h6 style={{ margin: '0 0 10px', color: '#111827', fontSize: '16px', fontWeight: '700' }}>What happened?</h6>
+                        <p style={{ margin: 0, color: '#4b5563', lineHeight: '1.7', fontSize: '15px' }}>
                             {violation.color === 'warning'
                                 ? 'Your assessment time has expired. Any answers you provided have been submitted automatically.'
                                 : 'This assessment has been suspended after repeated rule violations and cannot be resumed. Please contact the employer if you believe this was an error.'
@@ -105,17 +211,24 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
                         </p>
                     </div>
 
-                    <div className="mt-4">
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
                         <button
-                            className="btn btn-primary btn-lg"
+                            className="btn btn-primary"
+                            style={{
+                                minWidth: '240px',
+                                padding: '12px 22px',
+                                borderRadius: '12px',
+                                fontSize: '15px',
+                                fontWeight: '600'
+                            }}
                             onClick={() => navigate('/candidate/status')}
                         >
                             Return to Applications
                         </button>
                     </div>
 
-                    <div className="mt-3 text-muted">
-                        <small>For any questions about this suspension, please contact support.</small>
+                    <div style={{ marginTop: '18px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
+                        For any questions about this suspension, please contact support.
                     </div>
                 </div>
             </div>

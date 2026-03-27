@@ -2455,7 +2455,8 @@ exports.getEmployerApplications = async (req, res) => {
           ...application.toObject(),
           candidateId: {
             ...application.candidateId.toObject(),
-            profilePicture: candidateProfile?.profilePicture
+            profilePicture: candidateProfile?.profilePicture,
+            gender: candidateProfile?.gender
           }
         };
       })
@@ -2500,7 +2501,8 @@ exports.getJobApplications = async (req, res) => {
           ...application.toObject(),
           candidateId: {
             ...application.candidateId.toObject(),
-            profilePicture: candidateProfile?.profilePicture
+            profilePicture: candidateProfile?.profilePicture,
+            gender: candidateProfile?.gender
           }
         };
       })

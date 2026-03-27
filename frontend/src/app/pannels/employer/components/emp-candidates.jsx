@@ -107,6 +107,12 @@ function EmpCandidatesPage() {
     }
   };
 
+  const normalizeGender = (value) =>
+    String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[_\s]+/g, " ");
+
 
 
   // Derived filtering
@@ -131,7 +137,7 @@ function EmpCandidatesPage() {
         ? application.status === statusFilter
         : true;
       const matchesGender = genderFilter
-        ? application.candidateId?.gender?.toLowerCase() === genderFilter.toLowerCase()
+        ? normalizeGender(application.candidateId?.gender) === normalizeGender(genderFilter)
         : true;
       return matchesSearch && matchesStatus && matchesGender;
     });
@@ -261,7 +267,7 @@ function EmpCandidatesPage() {
                     <option value="">All Gender</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
-                    <option value="prefer not to say">Prefer not to say</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
                   </select>
                 </div>
               </div>

@@ -478,8 +478,10 @@ input[type="file"]:focus {
 .uploaded-auth-letter-card__file-name {
   font-weight: 700;
   color: #232323;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-wrap: break-word;
+  white-space: normal;
+  hyphens: auto;
   line-height: 1.4;
 }
 
@@ -517,8 +519,9 @@ input[type="file"]:focus {
 
 .uploaded-auth-letter-card__meta span {
   min-width: 0;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 @media (max-width: 1199px) {
@@ -529,11 +532,16 @@ input[type="file"]:focus {
 
 @media (max-width: 767px) {
   .uploaded-auth-letters-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(260px, 78vw);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.35rem;
   }
 
   .uploaded-auth-letter-card {
-    max-width: 100% !important;
+    max-width: none !important;
   }
 }
 
