@@ -1502,10 +1502,13 @@ const StartAssessment = () => {
 	const decodeHtmlEntities = (value) => {
 		if (!value || typeof value !== 'string') return '';
 
+		const normalizeLegacyNbsp = (input) =>
+			String(input || '').replace(/(?:&nbsp;|nbsp;|&#160;|\u00a0)+/gi, ' ');
+
 		let normalizedValue = value;
 		for (let index = 0; index < 3; index += 1) {
 			if (typeof document === 'undefined') {
-				normalizedValue = normalizedValue.replace(/&nbsp;/gi, ' ');
+				normalizedValue = normalizeLegacyNbsp(normalizedValue);
 				break;
 			}
 
@@ -1521,15 +1524,13 @@ const StartAssessment = () => {
 		}
 
 		if (typeof document === 'undefined') {
-			return normalizedValue.replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+			return normalizeLegacyNbsp(normalizedValue).replace(/\s+/g, ' ').trim();
 		}
 
 		const wrapper = document.createElement('div');
 		wrapper.innerHTML = normalizedValue;
 
-		return (wrapper.textContent || wrapper.innerText || normalizedValue)
-			.replace(/\u00a0/g, ' ')
-			.replace(/&nbsp;/gi, ' ')
+		return normalizeLegacyNbsp(wrapper.textContent || wrapper.innerText || normalizedValue)
 			.replace(/\s+/g, ' ')
 			.trim();
 	};

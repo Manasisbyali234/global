@@ -297,38 +297,37 @@ const HeroBody = ({ onSearch }) => {
     navigate(`/job-grid?${queryString}`);
   };
 
-  const handleSearch = () => {
-    // Mark all fields as touched
-    setTouched({
-      what: true,
-      category: true,
-      type: true,
-      location: true
-    });
-    
-    // Validate all fields
-    if (!validateAllFields()) {
-      alert('Please fix the validation errors before searching');
-      return;
-    }
-    
+  const buildSearchFilters = () => {
     const filters = {};
     if (searchData.what && searchData.what !== '') filters.search = searchData.what.trim();
     if (searchData.category && searchData.category !== '') filters.category = searchData.category;
-    if (searchData.type && searchData.type !== '') filters.jobType = searchData.type;
+    if (searchData.type && searchData.type !== '') filters.education = searchData.type;
     if (searchData.location && searchData.location !== '') filters.location = searchData.location.trim();
-    
-    // If onSearch prop exists, use it for home page filtering
+
+    return filters;
+  };
+
+  const handleHomeSearch = () => {
+    const filters = buildSearchFilters();
+
     if (onSearch && typeof onSearch === 'function') {
       onSearch(filters);
+      setTimeout(() => scrollToTopJobs(), 200);
     } else {
-      // Navigate to job grid page with filters
       const queryString = Object.keys(filters)
         .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(filters[key])}`)
         .join('&');
-      
+
       navigate(`/job-grid${queryString ? '?' + queryString : ''}`);
     }
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key !== 'Enter') return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    handleHomeSearch();
   };
 
   const scrollToTopJobs = () => {
@@ -432,6 +431,7 @@ const HeroBody = ({ onSearch }) => {
                   handleFieldBlur('type');
                   setTimeout(() => setShowEducationSuggestions(false), 200);
                 }}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Enter Education"
               />
               {showEducationSuggestions && educationSuggestions.length > 0 && (
@@ -472,6 +472,7 @@ const HeroBody = ({ onSearch }) => {
                   handleFieldBlur('category');
                   setTimeout(() => setShowIndustrySuggestions(false), 200);
                 }}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Enter Industry"
               />
               {showIndustrySuggestions && industrySuggestions.length > 0 && (
@@ -519,6 +520,7 @@ const HeroBody = ({ onSearch }) => {
                   handleFieldBlur('what');
                   setTimeout(() => setShowDesignationSuggestions(false), 200);
                 }}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Enter Designation"
               />
               {showDesignationSuggestions && designationSuggestions.length > 0 && (
@@ -559,6 +561,7 @@ const HeroBody = ({ onSearch }) => {
                   handleFieldBlur('location');
                   setTimeout(() => setShowSuggestions(false), 200);
                 }}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Enter Location"
               />
               {showSuggestions && locationSuggestions.length > 0 && (
@@ -582,22 +585,7 @@ const HeroBody = ({ onSearch }) => {
             )}
           </div>
           
-          <button className="search-btn" onClick={() => {
-            // Apply current filters without strict validation for Find Jobs button
-            const filters = {};
-            if (searchData.what && searchData.what.trim() !== '') filters.search = searchData.what.trim();
-            if (searchData.category && searchData.category !== '') filters.category = searchData.category;
-            if (searchData.type && searchData.type !== '') filters.education = searchData.type; // Map to education filter
-            if (searchData.location && searchData.location.trim() !== '') filters.location = searchData.location.trim();
-            
-            // Apply filters if onSearch prop exists (for home page)
-            if (onSearch && typeof onSearch === 'function') {
-              onSearch(filters);
-            }
-            
-            // Scroll to Top Jobs section with a slight delay to ensure filtering is complete
-            setTimeout(() => scrollToTopJobs(), 200);
-          }}>
+          <button className="search-btn" type="button" onClick={handleHomeSearch}>
             Find Jobs
           </button>
         </div>
