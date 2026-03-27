@@ -1501,10 +1501,37 @@ const StartAssessment = () => {
 	const question = assessment.questions[currentQuestionIndex];
 	const decodeHtmlEntities = (value) => {
 		if (!value || typeof value !== 'string') return '';
-		if (typeof document === 'undefined') return value;
-		const textarea = document.createElement('textarea');
-		textarea.innerHTML = value;
-		return textarea.value.replace(/\u00a0/g, ' ').trim();
+
+		let normalizedValue = value;
+		for (let index = 0; index < 3; index += 1) {
+			if (typeof document === 'undefined') {
+				normalizedValue = normalizedValue.replace(/&nbsp;/gi, ' ');
+				break;
+			}
+
+			const textarea = document.createElement('textarea');
+			textarea.innerHTML = normalizedValue;
+			const decodedValue = textarea.value;
+
+			if (decodedValue === normalizedValue) {
+				break;
+			}
+
+			normalizedValue = decodedValue;
+		}
+
+		if (typeof document === 'undefined') {
+			return normalizedValue.replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+		}
+
+		const wrapper = document.createElement('div');
+		wrapper.innerHTML = normalizedValue;
+
+		return (wrapper.textContent || wrapper.innerText || normalizedValue)
+			.replace(/\u00a0/g, ' ')
+			.replace(/&nbsp;/gi, ' ')
+			.replace(/\s+/g, ' ')
+			.trim();
 	};
 	const normalizeInstructionLine = (line) =>
 		line

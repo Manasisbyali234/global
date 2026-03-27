@@ -459,8 +459,30 @@
   .emp-dashboard .dashboard-card-2 .text-info,
   .emp-dashboard .dashboard-card-2 .text-warning,
   .emp-dashboard .dashboard-card-2 .text-success {
-    text-align: left !important;
+    text-align: center !important;
     display: block !important;
+  }
+
+  .emp-dashboard .dashboard-stat-card {
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+  }
+
+  .emp-dashboard .dashboard-stat-top {
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  .emp-dashboard .dashboard-stat-label,
+  .emp-dashboard .dashboard-stat-label h5,
+  .emp-dashboard .dashboard-stat-top .counter,
+  .emp-dashboard .dashboard-stat-top .wt-card-icon-2 {
+    text-align: center !important;
+    justify-content: center !important;
   }
 
   .emp-dashboard .wt-card-icon-2 {
@@ -536,29 +558,29 @@
 /* Global mobile fixes for all employer pages */
 @media (max-width: 767px) {
   /* Remove margins and padding from main content areas */
-  .twm-right-section-panel {
+  .emp-dashboard.twm-right-section-panel {
     padding: 0.5rem !important;
     overflow-x: hidden !important;
   }
 
-  .twm-right-section-panel > div {
+  .emp-dashboard.twm-right-section-panel > div {
     padding: 0 !important;
   }
 
   /* Remove panel margins */
-  .twm-right-section-panel .panel {
+  .emp-dashboard.twm-right-section-panel .panel {
     margin: 0 0 1rem 0 !important;
   }
 
   /* Force all Bootstrap grid columns to stack vertically */
-  .twm-right-section-panel .row {
+  .emp-dashboard.twm-right-section-panel .row {
     display: flex !important;
     flex-direction: column !important;
     margin: 0 !important;
     width: 100% !important;
   }
 
-  .twm-right-section-panel .row > div[class*="col-"] {
+  .emp-dashboard.twm-right-section-panel .row > div[class*="col-"] {
     display: block !important;
     width: 100% !important;
     margin-bottom: 1rem !important;
@@ -568,20 +590,20 @@
   }
 
   /* Ensure all flex containers stack on mobile */
-  .twm-right-section-panel .d-flex {
+  .emp-dashboard.twm-right-section-panel .d-flex {
     flex-direction: column !important;
   }
 
-  .twm-right-section-panel .justify-content-between {
+  .emp-dashboard.twm-right-section-panel .justify-content-between {
     justify-content: flex-start !important;
   }
 
-  .twm-right-section-panel .align-items-center {
+  .emp-dashboard.twm-right-section-panel .align-items-center {
     align-items: flex-start !important;
   }
 
   /* Remove any remaining margins */
-  .twm-right-section-panel .wt-admin-right-page-header {
+  .emp-dashboard.twm-right-section-panel .wt-admin-right-page-header {
     margin: 0 0 1rem 0 !important;
   }
 
@@ -639,14 +661,14 @@
 
 /* Critical Mobile Fixes - Override All Inline Styles */
 @media (max-width: 767px) {
-  .emp-dashboard .twm-right-section-panel {
+  .emp-dashboard.twm-right-section-panel {
     padding: 0 !important;
     width: 100vw !important;
     max-width: 100vw !important;
     overflow-x: hidden !important;
   }
 
-  .emp-dashboard .twm-right-section-panel > div[style*="padding"] {
+  .emp-dashboard.twm-right-section-panel > div[style*="padding"] {
     padding: 0.5rem !important;
   }
 

@@ -268,8 +268,8 @@ export default function EmpPostedJobs() {
 									<div className="col-lg-6 col-12" key={job._id}>
 										<div className="manage-jobs-card p-4 border rounded-3 mb-4 shadow-sm bg-white position-relative" style={{cursor: 'pointer', transition: 'all 0.3s ease'}} onClick={() => handleJobClick(job._id)}>
 											{/* Top Section: Title and Status */}
-											<div className="d-flex justify-content-between align-items-start mb-3">
-												<h5 className="mb-0 fw-bold text-dark" style={{fontSize: '1.2rem'}}>{job.title}</h5>
+											<div className="d-flex justify-content-between align-items-start mb-3 manage-jobs-card__header">
+												<h5 className="mb-0 fw-bold text-dark manage-jobs-card__title" style={{fontSize: '1.2rem'}}>{job.title}</h5>
 												{job.status !== 'closed' && (
 													<span className={`badge ${getStatusBadge(job.status)} text-capitalize px-3 py-2 rounded-pill`}>
 														{job.status}
@@ -278,21 +278,21 @@ export default function EmpPostedJobs() {
 											</div>
 
 											{/* Company and Location */}
-											<div className="mb-3">
+											<div className="mb-3 manage-jobs-card__meta">
 												{job.companyName && (
-													<div className="d-flex align-items-center mb-1 text-muted">
+													<div className="d-flex align-items-center mb-1 text-muted manage-jobs-card__meta-row">
 														<Building2 size={16} className="me-2" style={{ color: '#fd7e14' }} />
 														<span className="fw-medium">{job.companyName}</span>
 													</div>
 												)}
-												<div className="d-flex align-items-center text-muted">
+												<div className="d-flex align-items-center text-muted manage-jobs-card__meta-row">
 													<MapPin size={16} className="me-2" style={{ color: '#fd7e14' }} />
 													<span>{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}</span>
 												</div>
 											</div>
 
 											{/* Middle Section: Info Tags */}
-											<div className="d-flex flex-wrap gap-2 mb-3">
+											<div className="d-flex flex-wrap gap-2 mb-3 manage-jobs-card__chips">
 												<div className="px-3 py-1 bg-light border rounded-pill small fw-bold text-dark">
 													Annual CTC: {formatCtc(job)}
 												</div>
@@ -308,27 +308,27 @@ export default function EmpPostedJobs() {
 											<hr className="my-3 opacity-10" />
 
 											{/* Bottom Section: Dates and Action */}
-											<div className="d-flex justify-content-between align-items-end">
-												<div className="text-muted small" style={{ marginRight: '16px', flex: '1 1 auto' }}>
-													<div className="d-flex align-items-center mb-1">
+											<div className="d-flex justify-content-between align-items-end manage-jobs-card__footer">
+												<div className="text-muted small manage-jobs-card__dates" style={{ marginRight: '16px', flex: '1 1 auto' }}>
+													<div className="d-flex align-items-center mb-1 manage-jobs-card__date-row">
 														<Calendar size={14} className="me-2" />
 														<span>Posted: {formatDate(job.createdAt)}</span>
 													</div>
 													{job.status === 'closed' && (
-														<div className="d-flex align-items-center mt-1 text-danger fw-bold">
+														<div className="d-flex align-items-center mt-1 text-danger fw-bold manage-jobs-card__date-row">
 															<AlertCircle size={14} className="me-2" />
 															<span style={{ whiteSpace: 'nowrap' }}>Status: Application Closed</span>
 														</div>
 													)}
 													{job.offerLetterDate && (
-														<div className="d-flex align-items-center">
+														<div className="d-flex align-items-center manage-jobs-card__date-row">
 															<Calendar size={14} className="me-2" />
 															<span>Offer Date: {formatDate(job.offerLetterDate)}</span>
 														</div>
 													)}
 												</div>
 
-												<div onClick={(e) => e.stopPropagation()} style={{ flexShrink: 0, marginLeft: '-8px' }}>
+												<div className="manage-jobs-card__action" onClick={(e) => e.stopPropagation()} style={{ flexShrink: 0, marginLeft: '-8px' }}>
 													<button
 														className="btn border-0 text-white px-4 py-2 fw-bold rounded-3 shadow-sm"
 														style={{ backgroundColor: '#fd7e14' }}

@@ -29,6 +29,51 @@
   min-height: 180px !important;
 }
 
+.emp-posted-jobs-page .manage-jobs-card__header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 0.75rem !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-card__title {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-card__meta-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-card__chips {
+  justify-content: flex-start !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-card__footer {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-card__dates {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  margin-right: 0 !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-card__date-row {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-card__action {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+}
+
 /* Ensure equal height for all job cards in the row */
 .emp-posted-jobs-page .row > .col-lg-6 {
   display: flex !important;
@@ -160,6 +205,45 @@
 }
 
 @media (max-width: 767px) {
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__header.d-flex.justify-content-between,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__footer.d-flex.justify-content-between,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__meta-row.d-flex,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__date-row.d-flex,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__chips.d-flex.flex-wrap {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__header.d-flex.justify-content-between {
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__footer.d-flex.justify-content-between {
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__dates,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__dates *,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__title,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__title *,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__meta,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__meta *,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__chips,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__chips * {
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+    hyphens: manual !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__action,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .manage-jobs-card__action *,
+  .emp-posted-jobs-page .manage-jobs-card.manage-jobs-card .badge {
+    white-space: nowrap !important;
+  }
+
   .emp-posted-jobs-page {
     margin: 0 !important;
     padding: 0.5rem !important;
@@ -205,23 +289,39 @@
   }
   
   /* Maintain desktop card structure on mobile */
-  .emp-posted-jobs-page .manage-jobs-card > .d-flex:first-child {
-    flex-direction: column !important;
+  .emp-posted-jobs-page .manage-jobs-card__header {
+    flex-direction: row !important;
     align-items: flex-start !important;
-    gap: 0.5rem !important;
+    justify-content: space-between !important;
+    gap: 0.75rem !important;
     width: 100% !important;
   }
   
   /* Keep action buttons on the right with proper alignment */
-  .emp-posted-jobs-page .manage-jobs-card > .d-flex:last-child,
+  .emp-posted-jobs-page .manage-jobs-card__footer,
   .emp-posted-jobs-page .manage-jobs-card .job-card-actions {
     flex-direction: row !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
+    align-items: flex-end !important;
+    gap: 1rem !important;
     justify-content: space-between !important;
     width: 100% !important;
     padding-top: 0.5rem !important;
     border-top: 1px solid #f0f0f0 !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-card__meta-row,
+  .emp-posted-jobs-page .manage-jobs-card__date-row {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-card__dates {
+    text-align: left !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-card__action {
+    margin-left: auto !important;
   }
   
   .emp-posted-jobs-page .manage-jobs-card .badge {
@@ -330,6 +430,14 @@
   .emp-posted-jobs-page .manage-jobs-card .d-flex.gap-2 {
     flex-direction: row !important;
     gap: 0.5rem !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-card__footer {
+    gap: 0.75rem !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-card__action .btn {
+    white-space: nowrap !important;
   }
 }
 
