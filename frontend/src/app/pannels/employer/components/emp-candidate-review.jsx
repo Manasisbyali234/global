@@ -825,16 +825,8 @@ function EmpCandidateReviewPage() {
                                                                     {(process.status || 'pending').replace('_', ' ')}
                                                                 </span>
                                                             </div>
-                                                            {process.type === 'assessment' && (process.result || process.assessmentScore !== null || process.assessmentPercentage !== null) && (
+                                                            {process.type === 'assessment' && (process.assessmentScore !== null || process.assessmentPercentage !== null) && (
                                                                 <div className="assessment-process-summary">
-                                                                    {process.result && (
-                                                                        <div className="assessment-process-item">
-                                                                            <span className="assessment-process-label">Result</span>
-                                                                            <span className={`assessment-process-value result ${process.resultClass || getAssessmentResultClass(process.result)}`}>
-                                                                                {process.result}
-                                                                            </span>
-                                                                        </div>
-                                                                    )}
                                                                     {process.assessmentScore !== null && process.assessmentTotalMarks !== null && (
                                                                         <div className="assessment-process-item">
                                                                             <span className="assessment-process-label">Score</span>
@@ -931,10 +923,13 @@ function EmpCandidateReviewPage() {
                                     </div>
                                 )}
 
-                                {assessmentSummary.hasData && (
+                                {assessmentSummary.hasData && (() => {
+                                    const assessmentStageIndex = interviewProcesses.findIndex(p => p.type === 'assessment');
+                                    const assessmentStageNumber = assessmentStageIndex !== -1 ? assessmentStageIndex + 1 : null;
+                                    return (
                                     <div className="section-card mt-4">
                                         <div className="section-header">
-                                            <h4><i className="fas fa-award"></i> Assessment Results</h4>
+                                            <h4><i className="fas fa-award"></i>{assessmentStageNumber ? ` Stage ${assessmentStageNumber} -` : ''} Assessment Results</h4>
                                         </div>
                                         <div className="section-body">
                                             <div className="assessment-stats">
@@ -987,7 +982,8 @@ function EmpCandidateReviewPage() {
                                             )}
                                         </div>
                                     </div>
-                                )}
+                                    );
+                                })()}
                             </div>
 
                             <div className="review-sidebar">
