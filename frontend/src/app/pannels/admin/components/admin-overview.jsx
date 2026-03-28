@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
-import { formatDate } from "../../../../utils/dateFormatter";
+import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
 import SearchBar from "../../../../components/SearchBar";
 import "./admin-search-styles.css";
 import "./admin-overview.css";
@@ -104,6 +104,49 @@ function AdminOverviewPage() {
         border: "1px solid #ced4da"
       }
     };
+  };
+
+  const formatRoundTime = (round = {}) => {
+    const timeLabel = String(round?.scheduledTime || "").trim();
+    if (timeLabel) {
+      if (timeLabel.includes("-")) {
+        const [startTime, endTime] = timeLabel.split("-").map((value) => value.trim()).filter(Boolean);
+        if (startTime && endTime) {
+          return `${formatTimeToAMPM(startTime)} - ${formatTimeToAMPM(endTime)}`;
+        }
+      }
+      return formatTimeToAMPM(timeLabel);
+    }
+
+    if (round?.startTime && round?.endTime) {
+      return `${formatTimeToAMPM(round.startTime)} - ${formatTimeToAMPM(round.endTime)}`;
+    }
+
+    if (round?.startTime) {
+      return formatTimeToAMPM(round.startTime);
+    }
+
+    return "";
+  };
+
+  const formatRoundDate = (round = {}) => {
+    const fromDate = round?.fromDate || round?.scheduledDate;
+    const toDate = round?.toDate;
+
+    if (fromDate && toDate) {
+      const fromLabel = formatDate(fromDate);
+      const toLabel = formatDate(toDate);
+      if (fromLabel !== toLabel) {
+        return `${fromLabel} - ${toLabel}`;
+      }
+      return fromLabel;
+    }
+
+    if (fromDate) {
+      return formatDate(fromDate);
+    }
+
+    return "";
   };
 
   useEffect(() => {
@@ -332,6 +375,8 @@ function AdminOverviewPage() {
                     <tr>
                       <th>Job Title</th>
                       <th>Applications</th>
+                      <th>Paid Applicants</th>
+                      <th>Credit Applicants</th>
                       <th>Status</th>
                       <th>Posted Date</th>
                       <th>Offer Letter Sent Date</th>
@@ -341,7 +386,7 @@ function AdminOverviewPage() {
                   <tbody>
                     {visibleEmployerJobs.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="text-center">
+                        <td colSpan="8" className="text-center">
                           {jobSearch ? "No matching jobs found." : "No jobs found for this employer."}
                         </td>
                       </tr>
@@ -350,6 +395,8 @@ function AdminOverviewPage() {
                           <tr key={job.jobId}>
                             <td>{job.title}</td>
                             <td>{job.applicationsCount}</td>
+                            <td>{job.paidApplicationsCount ?? 0}</td>
+                            <td>{job.creditApplicationsCount ?? 0}</td>
                             <td>{job.status}</td>
                             <td>{formatDate(job.createdAt)}</td>
                             <td>{job.offerLetterDate ? formatDate(job.offerLetterDate) : 'N/A'}</td>
@@ -403,7 +450,7 @@ function AdminOverviewPage() {
                       <th>Status</th>
                       <th>Applied Date</th>
                       <th>Interviews</th>
-                      <th>Round Status & Remarks</th>
+                      <th>Round Status, Schedule & Remarks</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -443,12 +490,25 @@ function AdminOverviewPage() {
                                     <div style={{ fontWeight: 600, fontSize: "12px", color: "#232323" }}>
                                       {round.name || round.type || `Round ${index + 1}`}
                                     </div>
-                                    <div style={{ fontSize: "12px", color: "#495057" }}>
-                                      <strong>Status:</strong> {round.status || "pending"}
-                                    </div>
-                                    <div style={{ fontSize: "12px", color: "#495057", whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word" }}>
-                                      <strong>Remarks:</strong> {round.remark || "No remarks"}
-                                    </div>
+                                     <div style={{ fontSize: "12px", color: "#495057" }}>
+                                       <strong>Status:</strong> {round.status || "pending"}
+                                     </div>
+                                     <div style={{ fontSize: "12px", color: "#495057", whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word" }}>
+                                       <strong>Schedule:</strong>{" "}
+                                       {(() => {
+                                         const dateLabel = formatRoundDate(round);
+                                         const timeLabel = formatRoundTime(round);
+
+                                         if (dateLabel && timeLabel) {
+                                           return `${dateLabel} | ${timeLabel}`;
+                                         }
+
+                                         return dateLabel || timeLabel || "Not scheduled";
+                                       })()}
+                                     </div>
+                                     <div style={{ fontSize: "12px", color: "#495057", whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word" }}>
+                                       <strong>Remarks:</strong> {round.remark || "No remarks"}
+                                     </div>
                                   </div>
                                 ))}
                               </div>

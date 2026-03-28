@@ -561,9 +561,9 @@ function SectionCanEmployment({ profile, onUpdate }) {
                     width: '100%',
                     height: '100%',
                     zIndex: 99999,
-                    overflow: 'auto'
+                    overflow: 'hidden'
                 }} onClick={() => setShowDetailsModal(false)}>
-                    <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()} style={{ 
+                    <div className="modal-dialog modal-lg employment-details-dialog" onClick={(e) => e.stopPropagation()} style={{ 
                         zIndex: 99999,
                         position: 'relative'
                     }}>
@@ -574,19 +574,21 @@ function SectionCanEmployment({ profile, onUpdate }) {
                                 </h5>
                                 <button type="button" className="btn-close" onClick={() => setShowDetailsModal(false)}></button>
                             </div>
-                            <div className="modal-body">
-                                {selectedEmployment.description && (
-                                    <div className="mb-3">
-                                        <h6 className="text-primary mb-2">Job Responsibilities:</h6>
-                                        <p className="text-muted" style={{whiteSpace: 'pre-wrap'}}>{selectedEmployment.description}</p>
-                                    </div>
-                                )}
-                                {selectedEmployment.projectDetails && (
-                                    <div>
-                                        <h6 className="text-primary mb-2">Project Details:</h6>
-                                        <p className="text-muted" style={{whiteSpace: 'pre-wrap'}}>{selectedEmployment.projectDetails}</p>
-                                    </div>
-                                )}
+                            <div className="modal-body employment-details-body">
+                                <div className="employment-details-scroll-region">
+                                    {selectedEmployment.description && (
+                                        <div className="mb-3">
+                                            <h6 className="text-primary mb-2">Job Responsibilities:</h6>
+                                            <p className="text-muted employment-details-text" style={{whiteSpace: 'pre-wrap'}}>{selectedEmployment.description}</p>
+                                        </div>
+                                    )}
+                                    {selectedEmployment.projectDetails && (
+                                        <div>
+                                            <h6 className="text-primary mb-2">Project Details:</h6>
+                                            <p className="text-muted employment-details-text" style={{whiteSpace: 'pre-wrap'}}>{selectedEmployment.projectDetails}</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowDetailsModal(false)}>Close</button>

@@ -43,6 +43,24 @@
   margin-bottom: 6px;
 }
 
+.interview-card-location {
+  width: 100%;
+  align-items: flex-start;
+}
+
+.interview-card-location i {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.interview-card-location-text {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .interview-avatar-circle {
   background-color: #fff7ed;
   color: #c2410c;

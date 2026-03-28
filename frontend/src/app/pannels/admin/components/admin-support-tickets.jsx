@@ -343,6 +343,19 @@ function AdminSupportTickets() {
         return ticket.requesterDisplayName || ticket.actualUserName || ticket.name || 'N/A';
     };
 
+    const getCompanyName = (ticket) => {
+        if (!ticket) return '';
+        if (ticket.userType === 'employer') {
+            return ticket.actualCompanyName || '';
+        }
+        if (ticket.userType === 'candidate') {
+            return ticket.associatedCompanyName || '';
+        }
+        return '';
+    };
+
+    const getJobTitle = (ticket) => ticket?.jobId?.title || '';
+
     const getRequesterEmail = (ticket) => ticket?.actualUserEmail || ticket?.email || 'No email provided';
 
     const getRequesterLabel = (ticket) => ticket?.userType === 'employer' ? 'Company Name' : 'Name';
@@ -352,9 +365,14 @@ function AdminSupportTickets() {
         if (!normalizedSearchTerm) return true;
 
         const requesterName = getRequesterName(ticket).toLowerCase();
+        const companyName = getCompanyName(ticket).toLowerCase();
+        const jobTitle = getJobTitle(ticket).toLowerCase();
         const requesterEmail = getRequesterEmail(ticket).toLowerCase();
 
-        return requesterName.includes(normalizedSearchTerm) || requesterEmail.includes(normalizedSearchTerm);
+        return requesterName.includes(normalizedSearchTerm)
+            || companyName.includes(normalizedSearchTerm)
+            || jobTitle.includes(normalizedSearchTerm)
+            || requesterEmail.includes(normalizedSearchTerm);
     });
 
     const handleCloseModal = () => {
@@ -430,13 +448,13 @@ function AdminSupportTickets() {
                                             <path d="m20 20-3.5-3.5"></path>
                                         </svg>
                                     </span>
-                                    <Form.Control
-                                        type="search"
-                                        className="search-input"
-                                        placeholder="Search By Requester Name Or Email"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
+                                        <Form.Control
+                                            type="search"
+                                            className="search-input"
+                                            placeholder="Search By Requester, Company, Job, Or Email"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
                                 </div>
                             </Col>
                             <Col md={4}>
@@ -497,7 +515,7 @@ function AdminSupportTickets() {
                                         <p>
                                             {tickets.length === 0
                                                 ? 'Customer support requests will appear here as soon as they are submitted.'
-                                                : 'Try a different requester name or email, or clear the active filters.'}
+                                                : 'Try a different requester, company, job, or email, or clear the active filters.'}
                                         </p>
                                     </div>
                                 ) : (
@@ -508,6 +526,7 @@ function AdminSupportTickets() {
                                                     <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Subject</th>
                                                     <th style={{width: '24%', whiteSpace: 'nowrap'}}>Requester</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>User Type</th>
+                                                    <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Job</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
                                                     <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
@@ -522,20 +541,26 @@ function AdminSupportTickets() {
                                                         className={`tickets-row ${!ticket.isRead ? 'unread-ticket' : ''}`}
                                                         onClick={() => handleTicketClick(ticket)}
                                                     >
-                                                        <td style={{whiteSpace: 'normal', wordWrap: 'break-word'}} title={ticket.subject}>
-                                                            <div className="ticket-subject" style={{ display: 'flex', alignItems: 'center' }}>
+                                                        <td className="tickets-cell--subject" title={ticket.subject}>
+                                                            <div className={`ticket-subject ${!ticket.isRead ? 'ticket-subject--with-indicator' : ''}`}>
                                                                 {!ticket.isRead && <span className="unread-dot" title="New Ticket"></span>}
-                                                                {ticket.subject}
+                                                                <span className="ticket-subject-text">{ticket.subject}</span>
                                                             </div>
                                                             {!ticket.isRead && <span className="new-badge">Unread</span>}
                                                         </td>
-                                                        <td style={{whiteSpace: 'nowrap'}} title={`${getRequesterName(ticket)} - ${getRequesterEmail(ticket)}`}>
+                                                        <td style={{whiteSpace: 'nowrap'}} title={[getRequesterName(ticket), getCompanyName(ticket), getRequesterEmail(ticket)].filter(Boolean).join(' - ')}>
                                                             <div className="user-info">
                                                                 <div className="user-name">{getRequesterName(ticket)}</div>
+                                                                {getCompanyName(ticket) && (
+                                                                    <div className="user-email">{getCompanyName(ticket)}</div>
+                                                                )}
                                                                 <div className="user-email">{getRequesterEmail(ticket)}</div>
                                                             </div>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getUserTypeBadge(ticket.userType)}</td>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getJobTitle(ticket) || 'No job selected'}>
+                                                            <span className="category-badge">{getJobTitle(ticket) || 'N/A'}</span>
+                                                        </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.category || 'General'}>
                                                             <span className="category-badge">{ticket.category || 'General'}</span>
                                                         </td>
@@ -618,6 +643,18 @@ function AdminSupportTickets() {
                                         <div className="detail-label">{getRequesterLabel(selectedTicket)}</div>
                                         <div className="detail-value">{getRequesterName(selectedTicket)}</div>
                                     </div>
+                                    {getCompanyName(selectedTicket) && (
+                                        <div className="ticket-detail-card">
+                                            <div className="detail-label">Company Name</div>
+                                            <div className="detail-value">{getCompanyName(selectedTicket)}</div>
+                                        </div>
+                                    )}
+                                    {getJobTitle(selectedTicket) && (
+                                        <div className="ticket-detail-card">
+                                            <div className="detail-label">Job</div>
+                                            <div className="detail-value">{getJobTitle(selectedTicket)}</div>
+                                        </div>
+                                    )}
                                     <div className="ticket-detail-card">
                                         <div className="detail-label">Email</div>
                                         <div className="detail-value detail-value--break">{getRequesterEmail(selectedTicket)}</div>

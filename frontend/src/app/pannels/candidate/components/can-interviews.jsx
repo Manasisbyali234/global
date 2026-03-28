@@ -461,9 +461,11 @@ function CanInterviewsPage() {
                       {card.jobTitle}
                     </div>
 
-                     <div className="company-card-location">
-                       <i className="feather-map-pin" />
-                      {card.location || "Location to be announced"}
+                     <div className="company-card-location interview-card-location">
+                        <i className="feather-map-pin" />
+                       <span className="interview-card-location-text">
+                         {card.location || "Location to be announced"}
+                       </span>
                      </div>
 
                      <div className="industry-tag-pill interview-status-pill">

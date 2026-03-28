@@ -85,7 +85,8 @@ router.post('/support', (req, res, next) => {
   body('message').notEmpty().withMessage('Message is required'),
   body('userType').isIn(['employer', 'candidate', 'guest']).withMessage('Valid user type is required'),
   body('category').optional().isIn(['technical', 'billing', 'account', 'job-posting', 'application', 'general']),
-  body('priority').optional().isIn(['low', 'medium', 'high', 'urgent'])
+  body('priority').optional().isIn(['low', 'medium', 'high', 'urgent']),
+  body('jobId').optional({ checkFalsy: true }).isMongoId().withMessage('Valid job is required')
   // Removed phone validation to make it truly optional
 ], handleValidationErrors, publicController.submitSupportTicket);
 

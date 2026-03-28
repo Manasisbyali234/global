@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Job = require('../models/Job');
+const Application = require('../models/Application');
 const Blog = require('../models/Blog');
 const Contact = require('../models/Contact');
 const Support = require('../models/Support');
@@ -1078,7 +1079,7 @@ exports.submitSupportTicket = async (req, res) => {
       attachmentsCount: req.files ? req.files.length : 0
     });
 
-    const { name, email, phone, userType, userId, subject, category, priority, message, receiverRole, receiverId } = req.body;
+    const { name, email, phone, userType, userId, subject, category, priority, message, receiverRole, receiverId, jobId } = req.body;
     
     // Validate required fields manually as backup to express-validator
     if (!name || !email || !subject || !message || !userType) {
@@ -1129,6 +1130,73 @@ exports.submitSupportTicket = async (req, res) => {
     }
 
     // Create support ticket
+    const normalizedReceiverRole = receiverRole || 'admin';
+    const normalizedReceiverId = receiverId || null;
+    const normalizedJobId = jobId || null;
+    let relatedCompanyName = '';
+    let relatedJobTitle = '';
+
+    if (normalizedReceiverRole === 'employer' && userType === 'candidate') {
+      if (!normalizedReceiverId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please select an employer for HR support.'
+        });
+      }
+
+      if (!normalizedJobId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please select the related job for this employer ticket.'
+        });
+      }
+
+      if (
+        !mongoose.Types.ObjectId.isValid(normalizedReceiverId) ||
+        !mongoose.Types.ObjectId.isValid(normalizedJobId)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid employer or job selected.'
+        });
+      }
+
+      const matchedApplication = await Application.findOne({
+        candidateId: userId || null,
+        jobId: normalizedJobId,
+        paymentStatus: 'paid'
+      })
+        .select('_id employerId')
+        .lean();
+
+      if (!matchedApplication) {
+        return res.status(400).json({
+          success: false,
+          message: 'The selected job is not linked to your submitted applications.'
+        });
+      }
+
+      if (String(matchedApplication.employerId) !== String(normalizedReceiverId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'The selected job does not belong to the selected employer.'
+        });
+      }
+
+      const matchedJob = await Job.findById(normalizedJobId)
+        .populate('employerId', 'companyName brandName name')
+        .select('title companyName employerId')
+        .lean();
+
+      relatedJobTitle = matchedJob?.title || '';
+      relatedCompanyName =
+        matchedJob?.companyName ||
+        matchedJob?.employerId?.brandName ||
+        matchedJob?.employerId?.companyName ||
+        matchedJob?.employerId?.name ||
+        '';
+    }
+
     const supportData = {
       name,
       email,
@@ -1138,8 +1206,11 @@ exports.submitSupportTicket = async (req, res) => {
       category: category || 'general',
       priority: priority || 'medium',
       message,
-      receiverRole: receiverRole || 'admin',
-      receiverId: receiverId || null,
+      receiverRole: normalizedReceiverRole,
+      receiverId: normalizedReceiverId,
+      jobId: normalizedJobId,
+      relatedCompanyName,
+      relatedJobTitle,
       attachments
     };
 

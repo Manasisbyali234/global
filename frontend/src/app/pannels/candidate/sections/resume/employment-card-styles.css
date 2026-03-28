@@ -226,12 +226,89 @@
 /* Employment Details Modal - Ensure it appears above sidebar */
 .employment-details-modal {
     z-index: 99999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 16px !important;
+    overflow: hidden !important;
+    inset: 0 !important;
 }
 
 .employment-details-modal .modal-dialog {
     z-index: 99999 !important;
+    width: min(100%, 800px) !important;
+    max-width: 800px !important;
+    max-height: calc(100vh - 32px) !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+}
+
+.employment-details-modal .modal-dialog.modal-dialog-centered {
+    min-height: auto !important;
 }
 
 .employment-details-modal .modal-content {
     z-index: 99999 !important;
+    max-height: calc(100vh - 32px) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+}
+
+.employment-details-dialog {
+    width: min(100%, 800px) !important;
+    max-width: 800px !important;
+    margin: 0 !important;
+}
+
+.employment-details-dialog .modal-content {
+    max-height: calc(100vh - 32px) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+}
+
+.employment-details-dialog .modal-header,
+.employment-details-dialog .modal-footer {
+    flex-shrink: 0;
+}
+
+.employment-details-body {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+.employment-details-scroll-region {
+    max-height: 100% !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-right: 4px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.employment-details-text {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+@media (max-width: 576px) {
+    .employment-details-modal {
+        padding: 10px !important;
+    }
+
+    .employment-details-dialog {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .employment-details-dialog .modal-content {
+        max-height: calc(100vh - 20px) !important;
+    }
 }

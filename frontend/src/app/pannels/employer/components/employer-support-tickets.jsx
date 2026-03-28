@@ -239,6 +239,9 @@ function EmployerSupportTickets() {
         setStatus('');
     };
 
+    const getJobTitle = (ticket) => ticket?.supportDesignation || ticket?.relatedJobTitle || ticket?.jobId?.title || '';
+    const getCompanyName = (ticket) => ticket?.supportCompanyName || ticket?.relatedCompanyName || ticket?.jobId?.companyName || 'N/A';
+
     if (loading) {
         return (
             <div className="dashboard-content">
@@ -345,12 +348,14 @@ function EmployerSupportTickets() {
                                             <thead>
                                                 <tr>
                                                     <th style={{width: '18%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Subject</th>
-                                                    <th style={{width: '16%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Candidate</th>
-                                                    <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
-                                                    <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
-                                                    <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
-                                                    <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Created</th>
-                                                    <th className="text-center" style={{width: '18%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Actions</th>
+                                                    <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Company Name</th>
+                                                    <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Designation</th>
+                                                    <th style={{width: '16%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Name / Email</th>
+                                                    <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
+                                                    <th style={{width: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
+                                                    <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
+                                                    <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Created</th>
+                                                    <th className="text-center" style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -360,12 +365,18 @@ function EmployerSupportTickets() {
                                                         className={`tickets-row ${!ticket.isRead ? 'unread-ticket' : ''}`}
                                                         onClick={() => handleTicketClick(ticket)}
                                                     >
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.subject}>
-                                                            <div className="ticket-subject" style={{ display: 'flex', alignItems: 'center' }}>
+                                                        <td className="tickets-cell--subject" title={ticket.subject}>
+                                                            <div className={`ticket-subject ${!ticket.isRead ? 'ticket-subject--with-indicator' : ''}`}>
                                                                 {!ticket.isRead && <span className="unread-dot" title="New Ticket"></span>}
-                                                                {ticket.subject}
+                                                                <span className="ticket-subject-text">{ticket.subject}</span>
                                                             </div>
                                                             {!ticket.isRead && <span className="new-badge">Unread</span>}
+                                                        </td>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getCompanyName(ticket)}>
+                                                            <span className="category-badge">{getCompanyName(ticket)}</span>
+                                                        </td>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getJobTitle(ticket) || 'No designation selected'}>
+                                                            <span className="category-badge">{getJobTitle(ticket) || 'N/A'}</span>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={`${ticket.name || 'N/A'} - ${ticket.email || 'No email'}`}>
                                                             <div className="user-info">
@@ -423,8 +434,31 @@ function EmployerSupportTickets() {
                         <>
                             <Row className="mb-3">
                                 <Col md={6}>
+                                    <div className="detail-label">Company Name</div>
+                                    <div className="detail-value detail-value--break">{getCompanyName(selectedTicket)}</div>
+                                </Col>
+                                <Col md={6}>
+                                    <div className="detail-label">Designation</div>
+                                    <div className="detail-value detail-value--break">{getJobTitle(selectedTicket) || 'N/A'}</div>
+                                </Col>
+                            </Row>
+                            <Row className="mb-3">
+                                <Col md={6}>
+                                    <div className="detail-label">Name / Email</div>
+                                    <div className="detail-value detail-value--break">{selectedTicket.name || 'N/A'}</div>
+                                    <div className="detail-value detail-value--break" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>
+                                        {selectedTicket.email || 'No email'}
+                                    </div>
+                                </Col>
+                                <Col md={6}>
                                     <div className="detail-label">Subject</div>
-                                    <div>{selectedTicket.subject}</div>
+                                    <div className="detail-value detail-value--break">{selectedTicket.subject}</div>
+                                </Col>
+                            </Row>
+                            <Row className="mb-3">
+                                <Col md={6}>
+                                    <div className="detail-label">Category</div>
+                                    <div className="detail-value detail-value--break">{selectedTicket.category || 'General'}</div>
                                 </Col>
                                 <Col md={6}>
                                     <div className="detail-label">Priority</div>
@@ -433,13 +467,12 @@ function EmployerSupportTickets() {
                             </Row>
                             <Row className="mb-3">
                                 <Col md={6}>
-                                    <div className="detail-label">Candidate</div>
-                                    <div>{selectedTicket.name || 'N/A'}</div>
-                                    <small className="text-muted">{selectedTicket.email || 'No email'}</small>
+                                    <div className="detail-label">Status</div>
+                                    <div>{getStatusBadge(selectedTicket.status)}</div>
                                 </Col>
                                 <Col md={6}>
-                                    <div className="detail-label">Category</div>
-                                    <div>{selectedTicket.category || 'General'}</div>
+                                    <div className="detail-label">Created</div>
+                                    <div className="detail-value">{formatDate(selectedTicket.createdAt)}</div>
                                 </Col>
                             </Row>
                             <Row className="mb-3">

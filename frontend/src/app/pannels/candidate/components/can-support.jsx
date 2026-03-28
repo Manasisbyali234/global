@@ -13,7 +13,8 @@ function CanSupport() {
         priority: 'medium',
         message: '',
         receiverRole: 'admin',
-        receiverId: ''
+        receiverId: '',
+        jobId: ''
     });
     const [files, setFiles] = useState([]);
     const [employers, setEmployers] = useState([]);
@@ -45,12 +46,36 @@ function CanSupport() {
 
                 response.applications.forEach(app => {
                     const employer = app.employerId || app.jobId?.employerId;
-                    if (employer && !seenEmployerIds.has(employer._id)) {
-                        seenEmployerIds.add(employer._id);
+                    const job = app.jobId;
+                    if (!employer?._id) {
+                        return;
+                    }
+
+                    const employerId = employer._id;
+                    const normalizedJob = job?._id
+                        ? {
+                            id: job._id,
+                            title: job.title || 'Untitled Job'
+                        }
+                        : null;
+
+                    if (!seenEmployerIds.has(employerId)) {
+                        seenEmployerIds.add(employerId);
                         uniqueEmployers.push({
-                            id: employer._id,
-                            name: employer.brandName || employer.companyName || employer.name
+                            id: employerId,
+                            name: employer.brandName || employer.companyName || employer.name,
+                            jobs: normalizedJob ? [normalizedJob] : []
                         });
+                        return;
+                    }
+
+                    if (!normalizedJob) {
+                        return;
+                    }
+
+                    const existingEmployer = uniqueEmployers.find((item) => item.id === employerId);
+                    if (existingEmployer && !existingEmployer.jobs.some((item) => item.id === normalizedJob.id)) {
+                        existingEmployer.jobs.push(normalizedJob);
                     }
                 });
                 setEmployers(uniqueEmployers);
@@ -130,15 +155,40 @@ function CanSupport() {
         if (formData.receiverRole === 'employer' && !formData.receiverId) {
             newErrors.receiverId = 'Please select an employer';
         }
+        if (formData.receiverRole === 'employer' && !formData.jobId) {
+            newErrors.jobId = 'Please select a job';
+        }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => {
+            if (name === 'receiverRole') {
+                return {
+                    ...prev,
+                    receiverRole: value,
+                    receiverId: '',
+                    jobId: ''
+                };
+            }
+
+            if (name === 'receiverId') {
+                return {
+                    ...prev,
+                    receiverId: value,
+                    jobId: ''
+                };
+            }
+
+            return { ...prev, [name]: value };
+        });
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+        if ((name === 'receiverRole' || name === 'receiverId') && errors.jobId) {
+            setErrors(prev => ({ ...prev, jobId: '' }));
         }
     };
 
@@ -274,7 +324,8 @@ function CanSupport() {
                 priority: formData.priority,
                 message: formData.message.trim(),
                 receiverRole: formData.receiverRole,
-                receiverId: formData.receiverId
+                receiverId: formData.receiverId,
+                jobId: formData.receiverRole === 'employer' ? formData.jobId : ''
             };
             
             console.log('Submitting candidate support ticket with data:', requiredData);
@@ -300,7 +351,9 @@ function CanSupport() {
                     subject: '',
                     category: 'general',
                     priority: 'medium',
-                    message: ''
+                    message: '',
+                    receiverId: prev.receiverRole === 'employer' ? prev.receiverId : '',
+                    jobId: ''
                 }));
                 setFiles([]);
                 // Clear file input
@@ -380,6 +433,9 @@ function CanSupport() {
         );
     }
 
+    const selectedEmployer = employers.find((item) => item.id === formData.receiverId);
+    const selectedEmployerJobs = selectedEmployer?.jobs || [];
+
     return (
         <div className="twm-right-section-panel site-bg-gray candidate-support-page">
             {/* Support Page Header */}
@@ -452,27 +508,57 @@ function CanSupport() {
                                     </div>
 
                                     {formData.receiverRole === 'employer' && (
-                                        <div className="col-xl-6 col-lg-6 col-md-12">
-                                            <div className="form-group">
-                                                <label>Select Employer <span style={{ color: 'red' }}>*</span></label>
-                                                <select 
-                                                    name="receiverId" 
-                                                    className={`form-control ${errors.receiverId ? 'is-invalid' : ''}`}
-                                                    value={formData.receiverId}
-                                                    onChange={handleChange}
-                                                    disabled={isLoadingEmployers}
-                                                >
-                                                    <option value="">{isLoadingEmployers ? 'Loading employers...' : 'Choose an employer'}</option>
-                                                    {employers.map(emp => (
-                                                        <option key={emp.id} value={emp.id}>{emp.name}</option>
-                                                    ))}
-                                                </select>
-                                                {errors.receiverId && <div className="invalid-feedback">{errors.receiverId}</div>}
-                                                {employers.length === 0 && !isLoadingEmployers && (
-                                                    <small className="text-muted">No employers found. You can only send tickets to employers you've applied to.</small>
-                                                )}
+                                        <>
+                                            <div className="col-xl-6 col-lg-6 col-md-12">
+                                                <div className="form-group">
+                                                    <label>Select Employer <span style={{ color: 'red' }}>*</span></label>
+                                                    <select 
+                                                        name="receiverId" 
+                                                        className={`form-control ${errors.receiverId ? 'is-invalid' : ''}`}
+                                                        value={formData.receiverId}
+                                                        onChange={handleChange}
+                                                        disabled={isLoadingEmployers}
+                                                    >
+                                                        <option value="">{isLoadingEmployers ? 'Loading employers...' : 'Choose an employer'}</option>
+                                                        {employers.map(emp => (
+                                                            <option key={emp.id} value={emp.id}>{emp.name}</option>
+                                                        ))}
+                                                    </select>
+                                                    {errors.receiverId && <div className="invalid-feedback">{errors.receiverId}</div>}
+                                                    {employers.length === 0 && !isLoadingEmployers && (
+                                                        <small className="text-muted">No employers found. You can only send tickets to employers you've applied to.</small>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
+
+                                            <div className="col-xl-6 col-lg-6 col-md-12">
+                                                <div className="form-group">
+                                                    <label>Select Job <span style={{ color: 'red' }}>*</span></label>
+                                                    <select
+                                                        name="jobId"
+                                                        className={`form-control ${errors.jobId ? 'is-invalid' : ''}`}
+                                                        value={formData.jobId}
+                                                        onChange={handleChange}
+                                                        disabled={!formData.receiverId || selectedEmployerJobs.length === 0}
+                                                    >
+                                                        <option value="">
+                                                            {!formData.receiverId
+                                                                ? 'Choose an employer first'
+                                                                : selectedEmployerJobs.length === 0
+                                                                    ? 'No jobs available'
+                                                                    : 'Choose a job'}
+                                                        </option>
+                                                        {selectedEmployerJobs.map((job) => (
+                                                            <option key={job.id} value={job.id}>{job.title}</option>
+                                                        ))}
+                                                    </select>
+                                                    {errors.jobId && <div className="invalid-feedback">{errors.jobId}</div>}
+                                                    {formData.receiverId && selectedEmployerJobs.length === 0 && (
+                                                        <small className="text-muted">No applied jobs were found for the selected employer.</small>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </>
                                     )}
 
                                     <div className="col-xl-12 col-lg-12 col-md-12">

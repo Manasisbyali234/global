@@ -3685,6 +3685,108 @@ exports.getGSTInfo = async (req, res) => {
 };
 
 // Support Ticket Controllers
+const normalizeObjectId = (value) => {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (value._id) return String(value._id);
+  return String(value);
+};
+
+const applyEmployerSupportTicketFallbacks = (ticket, fallbackApplication = null) => {
+  if (!ticket) return ticket;
+
+  const populatedJob = ticket.jobId && typeof ticket.jobId === 'object' ? ticket.jobId : null;
+  const populatedReceiver = ticket.receiverId && typeof ticket.receiverId === 'object' ? ticket.receiverId : null;
+  const fallbackJob = fallbackApplication?.jobId && typeof fallbackApplication.jobId === 'object'
+    ? fallbackApplication.jobId
+    : null;
+
+  const supportCompanyName =
+    populatedJob?.companyName ||
+    ticket.relatedCompanyName ||
+    fallbackJob?.companyName ||
+    populatedReceiver?.brandName ||
+    populatedReceiver?.companyName ||
+    populatedReceiver?.name ||
+    'N/A';
+
+  const supportDesignation =
+    populatedJob?.title ||
+    ticket.relatedJobTitle ||
+    fallbackJob?.title ||
+    'N/A';
+
+  return {
+    ...ticket,
+    supportCompanyName,
+    supportDesignation
+  };
+};
+
+const enrichEmployerSupportTickets = async (tickets = []) => {
+  if (!Array.isArray(tickets) || tickets.length === 0) {
+    return tickets;
+  }
+
+  const ticketsNeedingFallback = tickets.filter((ticket) => {
+    const hasDesignation = ticket?.jobId?.title || ticket?.relatedJobTitle;
+    return !hasDesignation && ticket?.userType === 'candidate' && ticket?.userId && ticket?.receiverId;
+  });
+
+  if (ticketsNeedingFallback.length === 0) {
+    return tickets.map((ticket) => applyEmployerSupportTicketFallbacks(ticket));
+  }
+
+  const candidateIds = Array.from(new Set(
+    ticketsNeedingFallback
+      .map((ticket) => normalizeObjectId(ticket.userId))
+      .filter(Boolean)
+  ));
+
+  const employerIds = Array.from(new Set(
+    ticketsNeedingFallback
+      .map((ticket) => normalizeObjectId(ticket.receiverId))
+      .filter(Boolean)
+  ));
+
+  const relatedApplications = await Application.find({
+    candidateId: { $in: candidateIds },
+    employerId: { $in: employerIds },
+    paymentStatus: 'paid'
+  })
+    .populate('jobId', 'title companyName')
+    .select('candidateId employerId jobId createdAt')
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const applicationsByPair = relatedApplications.reduce((acc, application) => {
+    const candidateId = normalizeObjectId(application.candidateId);
+    const employerId = normalizeObjectId(application.employerId);
+    const key = `${candidateId}:${employerId}`;
+    if (!acc.has(key)) {
+      acc.set(key, []);
+    }
+    acc.get(key).push(application);
+    return acc;
+  }, new Map());
+
+  return tickets.map((ticket) => {
+    const candidateId = normalizeObjectId(ticket.userId);
+    const employerId = normalizeObjectId(ticket.receiverId);
+    const pairKey = `${candidateId}:${employerId}`;
+    const candidateApplications = applicationsByPair.get(pairKey) || [];
+
+    const fallbackApplication = candidateApplications.find((application) => {
+      if (!ticket.createdAt || !application.createdAt) {
+        return false;
+      }
+      return new Date(application.createdAt).getTime() <= new Date(ticket.createdAt).getTime();
+    }) || candidateApplications[0] || null;
+
+    return applyEmployerSupportTicketFallbacks(ticket, fallbackApplication);
+  });
+};
+
 exports.getSupportTickets = async (req, res) => {
   try {
     const { status, userType, priority, page = 1, limit = 20 } = req.query;
@@ -3700,6 +3802,8 @@ exports.getSupportTickets = async (req, res) => {
     if (priority) query.priority = priority;
 
     const tickets = await Support.find(query)
+      .populate('receiverId', 'name companyName brandName')
+      .populate('jobId', 'title companyName')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
@@ -3710,7 +3814,7 @@ exports.getSupportTickets = async (req, res) => {
 
     res.json({ 
       success: true, 
-      tickets: tickets,
+      tickets: await enrichEmployerSupportTickets(tickets),
       totalTickets,
       unreadCount,
       currentPage: parseInt(page),
@@ -3729,13 +3833,17 @@ exports.getSupportTicketById = async (req, res) => {
       { _id: req.params.id, receiverId: employerId },
       { isRead: true },
       { new: true }
-    ).lean();
+    )
+      .populate('receiverId', 'name companyName brandName')
+      .populate('jobId', 'title companyName')
+      .lean();
     
     if (!ticket) {
       return res.status(404).json({ success: false, message: 'Support ticket not found' });
     }
 
-    res.json({ success: true, ticket });
+    const [enrichedTicket] = await enrichEmployerSupportTickets([ticket]);
+    res.json({ success: true, ticket: enrichedTicket });
   } catch (error) {
     console.error('Error in getSupportTicketById:', error);
     return res.status(500).json({ success: false, message: error.message || 'Failed to fetch ticket' });
@@ -3774,7 +3882,10 @@ exports.updateSupportTicketStatus = async (req, res) => {
       { _id: ticketId, receiverId: employerId },
       updateData,
       { new: true, runValidators: true }
-    ).populate('userId', 'name email companyName');
+    )
+      .populate('userId', 'name email companyName')
+      .populate('receiverId', 'name companyName brandName')
+      .populate('jobId', 'title companyName');
 
     if (!ticket) {
       return res.status(404).json({ success: false, message: 'Support ticket not found or unauthorized' });
@@ -3823,7 +3934,7 @@ exports.updateSupportTicketStatus = async (req, res) => {
 
     res.json({ 
       success: true, 
-      ticket,
+      ticket: (await enrichEmployerSupportTickets([ticket.toObject ? ticket.toObject() : ticket]))[0],
       message: `Support ticket ${status === 'closed' ? 'closed' : 'updated'} successfully`
     });
   } catch (error) {

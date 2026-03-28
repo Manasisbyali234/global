@@ -20,6 +20,8 @@ const SiteSettings = require('../models/SiteSettings');
 const EmployerProfile = require('../models/EmployerProfile');
 const EmployerAdminProfile = require('../models/EmployerAdminProfile');
 const Notification = require('../models/Notification');
+const InterviewProcess = require('../models/InterviewProcess');
+const InterviewRound = require('../models/InterviewRound');
 const { base64ToBuffer, generateFilename } = require('../utils/base64Helper');
 const { createNotification } = require('./notificationController');
 const mongoose = require('mongoose');
@@ -55,6 +57,24 @@ const generateToken = (id, role) => {
 
 const checkSubAdminPermission = (userPermissions, requiredPermission) => {
   return userPermissions && userPermissions.includes(requiredPermission);
+};
+
+const resolveApplicationType = (application = {}) => {
+  const isCreditApplication =
+    String(application?.paymentId || '').startsWith('credit_') ||
+    String(application?.orderId || '').startsWith('credit_order_') ||
+    String(application?.paymentCurrency || '').toUpperCase() === 'CREDITS' ||
+    Number(application?.paymentAmount) === 0;
+
+  if (isCreditApplication) {
+    return 'credit';
+  }
+
+  if (String(application?.paymentStatus || '').toLowerCase() === 'paid') {
+    return 'paid';
+  }
+
+  return 'unknown';
 };
 
 // Authentication Controller
@@ -222,21 +242,32 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       .lean();
 
     const jobIds = jobs.map(job => job._id);
-    const applicationsByJob = jobIds.length
-      ? await Application.aggregate([
-          { $match: { jobId: { $in: jobIds } } },
-          {
-            $group: {
-              _id: '$jobId',
-              applicationsCount: { $sum: 1 }
-            }
-          }
-        ])
+    const applications = jobIds.length
+      ? await Application.find({ jobId: { $in: jobIds } })
+          .select('jobId paymentStatus paymentId orderId paymentAmount paymentCurrency')
+          .lean()
       : [];
 
-    const applicationsByJobMap = new Map(
-      applicationsByJob.map(item => [String(item._id), item.applicationsCount])
-    );
+    const applicationsByJobMap = applications.reduce((acc, application) => {
+      const jobKey = String(application.jobId);
+      const currentCounts = acc.get(jobKey) || {
+        applicationsCount: 0,
+        paidApplicationsCount: 0,
+        creditApplicationsCount: 0
+      };
+
+      currentCounts.applicationsCount += 1;
+
+      const applicationType = resolveApplicationType(application);
+      if (applicationType === 'paid') {
+        currentCounts.paidApplicationsCount += 1;
+      } else if (applicationType === 'credit') {
+        currentCounts.creditApplicationsCount += 1;
+      }
+
+      acc.set(jobKey, currentCounts);
+      return acc;
+    }, new Map());
 
     const data = jobs.map((job) => ({
       jobId: job._id,
@@ -244,7 +275,9 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       status: job.status,
       createdAt: job.createdAt,
       offerLetterDate: job.offerLetterDate,
-      applicationsCount: applicationsByJobMap.get(String(job._id)) || 0
+      applicationsCount: applicationsByJobMap.get(String(job._id))?.applicationsCount || 0,
+      paidApplicationsCount: applicationsByJobMap.get(String(job._id))?.paidApplicationsCount || 0,
+      creditApplicationsCount: applicationsByJobMap.get(String(job._id))?.creditApplicationsCount || 0
     }));
 
     res.json({
@@ -272,11 +305,31 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     const applications = await Application.find({ jobId })
       .populate('candidateId', 'name email')
       .populate('jobId', 'interviewRoundOrder interviewRoundTypes interviewRoundDetails')
-      .select('candidateId applicantName applicantEmail status appliedAt isGuestApplication interviewProcesses interviewProcess processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency')
+      .select('candidateId applicantName applicantEmail status appliedAt isGuestApplication interviewProcesses interviewProcessId processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency')
       .sort({ appliedAt: -1 })
       .lean();
 
+    const applicationIds = applications.map((application) => application._id);
+    const [interviewProcesses, interviewRounds] = await Promise.all([
+      applicationIds.length
+        ? InterviewProcess.find({ applicationId: { $in: applicationIds } })
+            .select('applicationId stages')
+            .lean()
+        : [],
+      InterviewRound.find({ jobId })
+        .select('key name roundType fromdate todate startTime endTime scheduleObject formDataObject subStages')
+        .lean()
+    ]);
+
+    const interviewProcessMap = new Map(
+      interviewProcesses.map((process) => [String(process.applicationId), process])
+    );
+
     const normalizeKey = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const formatTimeRange = (startTime, endTime) => {
+      if (startTime && endTime) return `${startTime} - ${endTime}`;
+      return startTime || endTime || '';
+    };
     const resolveRemark = (round, remarksMap = {}) => {
       if (!remarksMap || typeof remarksMap !== 'object') return '';
       const candidates = [round?.id, round?._id, round?.type, round?.name].filter(Boolean);
@@ -295,24 +348,168 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       return '';
     };
 
+    const findNestedTimeWindow = (value) => {
+      if (!value) return null;
+
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          const found = findNestedTimeWindow(item);
+          if (found) return found;
+        }
+        return null;
+      }
+
+      if (typeof value === 'object') {
+        const directStart =
+          value.startTime ||
+          value.fromTime ||
+          value.start ||
+          value.from ||
+          value?.interviewTime?.start;
+        const directEnd =
+          value.endTime ||
+          value.toTime ||
+          value.end ||
+          value.to ||
+          value?.interviewTime?.end;
+
+        if (directStart || directEnd) {
+          return {
+            startTime: directStart || '',
+            endTime: directEnd || ''
+          };
+        }
+
+        const nestedKeys = [
+          'subStages',
+          'subStagesArray',
+          'days',
+          'daysArray',
+          'schedulesArray',
+          'daySchedulesArray',
+          'roomsArray',
+          'scheduleObject',
+          'schedule',
+          'schedules',
+          'daySchedules',
+          'rooms'
+        ];
+
+        for (const key of nestedKeys) {
+          if (value[key]) {
+            const found = findNestedTimeWindow(value[key]);
+            if (found) return found;
+          }
+        }
+      }
+
+      return null;
+    };
+
+    const buildRoundLookup = (roundDocs = []) => {
+      const lookup = new Map();
+      roundDocs.forEach((round) => {
+        const aliases = [round.key, round.roundType, round.name, round._id].filter(Boolean);
+        aliases.forEach((alias) => {
+          lookup.set(String(alias), round);
+          lookup.set(normalizeKey(alias), round);
+        });
+      });
+      return lookup;
+    };
+
+    const roundLookup = buildRoundLookup(interviewRounds);
+
+    const getRoundDetails = (jobDetails, identifiers = []) => {
+      const detailEntries = Object.entries(jobDetails?.interviewRoundDetails || {});
+      let matchedConfig = null;
+
+      for (const identifier of identifiers.filter(Boolean)) {
+        if (jobDetails?.interviewRoundDetails?.[identifier]) {
+          matchedConfig = jobDetails.interviewRoundDetails[identifier];
+          break;
+        }
+      }
+
+      if (!matchedConfig) {
+        const normalizedIdentifiers = identifiers.map(normalizeKey).filter(Boolean);
+        const matchedEntry = detailEntries.find(([key]) =>
+          normalizedIdentifiers.includes(normalizeKey(key))
+        );
+        matchedConfig = matchedEntry ? matchedEntry[1] : null;
+      }
+
+      let matchedRound = null;
+      for (const identifier of identifiers.filter(Boolean)) {
+        matchedRound = roundLookup.get(String(identifier)) || roundLookup.get(normalizeKey(identifier));
+        if (matchedRound) break;
+      }
+
+      const nestedTime = findNestedTimeWindow(matchedConfig);
+      const startTime = matchedRound?.startTime || matchedConfig?.startTime || nestedTime?.startTime || '';
+      const endTime = matchedRound?.endTime || matchedConfig?.endTime || nestedTime?.endTime || '';
+
+      return {
+        scheduledDate:
+          matchedConfig?.scheduledDate ||
+          matchedRound?.fromdate ||
+          matchedConfig?.fromDate ||
+          matchedConfig?.date ||
+          matchedConfig?.fromdate ||
+          null,
+        fromDate:
+          matchedRound?.fromdate ||
+          matchedConfig?.fromDate ||
+          matchedConfig?.date ||
+          matchedConfig?.fromdate ||
+          null,
+        toDate:
+          matchedRound?.todate ||
+          matchedConfig?.toDate ||
+          matchedConfig?.todate ||
+          null,
+        scheduledTime:
+          matchedConfig?.time ||
+          formatTimeRange(startTime, endTime),
+        startTime,
+        endTime
+      };
+    };
+
     const buildInterviewRounds = (application) => {
-      if (application?.interviewProcess?.stages?.length) {
-        return application.interviewProcess.stages.map((stage) => ({
+      const interviewProcess = interviewProcessMap.get(String(application._id));
+      if (interviewProcess?.stages?.length) {
+        return interviewProcess.stages.map((stage) => ({
           id: stage._id,
           name: stage.stageName,
           type: stage.stageType,
           status: stage.status || 'pending',
-          remark: resolveRemark({ id: stage._id, name: stage.stageName, type: stage.stageType }, application.processRemarks)
+          remark: resolveRemark({ id: stage._id, name: stage.stageName, type: stage.stageType }, application.processRemarks),
+          scheduledDate: stage.scheduledDate || stage.fromDate || null,
+          fromDate: stage.fromDate || stage.scheduledDate || null,
+          toDate: stage.toDate || null,
+          scheduledTime: stage.scheduledTime || '',
+          startTime: '',
+          endTime: ''
         }));
       }
       if (Array.isArray(application?.interviewProcesses) && application.interviewProcesses.length) {
-        return application.interviewProcesses.map((process) => ({
+        return application.interviewProcesses.map((process) => {
+          const roundDetails = getRoundDetails(application?.jobId, [
+            process.id,
+            process._id,
+            process.type,
+            process.name
+          ]);
+          return {
           id: process.id || process._id,
           name: process.name,
           type: process.type,
           status: process.status || 'pending',
-          remark: resolveRemark(process, application.processRemarks)
-        }));
+          remark: resolveRemark(process, application.processRemarks),
+          ...roundDetails
+        };
+        });
       }
       const job = application?.jobId;
       if (job?.interviewRoundOrder?.length) {
@@ -335,6 +532,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
           if (roundType === 'others' && roundDetails?.customType) {
             displayName = roundDetails.customType;
           }
+          const scheduleDetails = getRoundDetails(job, [roundKey, roundType, displayName]);
           const remark = resolveRemark(
             { id: roundKey, name: displayName, type: roundType },
             application.processRemarks
@@ -344,29 +542,12 @@ exports.getJobApplicantsForOverview = async (req, res) => {
             name: displayName,
             type: roundType,
             status: 'pending',
-            remark
+            remark,
+            ...scheduleDetails
           };
         });
       }
       return [];
-    };
-
-    const resolveApplicationType = (application = {}) => {
-      const isCreditApplication =
-        String(application?.paymentId || '').startsWith('credit_') ||
-        String(application?.orderId || '').startsWith('credit_order_') ||
-        String(application?.paymentCurrency || '').toUpperCase() === 'CREDITS' ||
-        Number(application?.paymentAmount) === 0;
-
-      if (isCreditApplication) {
-        return 'credit';
-      }
-
-      if (String(application?.paymentStatus || '').toLowerCase() === 'paid') {
-        return 'paid';
-      }
-
-      return 'unknown';
     };
 
     const data = applications.map((application) => {
@@ -3586,18 +3767,23 @@ const enrichSupportTicketRequester = (ticket) => {
   if (!ticket) return ticket;
 
   const populatedUser = ticket.userId && typeof ticket.userId === 'object' ? ticket.userId : null;
+  const populatedReceiver = ticket.receiverId && typeof ticket.receiverId === 'object' ? ticket.receiverId : null;
   const actualUserEmail = populatedUser?.email || ticket.email || '';
   const actualUserName = populatedUser?.name || ticket.name || '';
-  const actualCompanyName = ticket.userType === 'employer'
+  const requesterCompanyName = ticket.userType === 'employer'
     ? (populatedUser?.companyName || ticket.companyName || '')
     : '';
-  const requesterDisplayName = actualCompanyName || actualUserName || ticket.name || 'N/A';
+  const associatedCompanyName = ticket.userType === 'candidate'
+    ? (populatedReceiver?.brandName || populatedReceiver?.companyName || populatedReceiver?.name || '')
+    : requesterCompanyName;
+  const requesterDisplayName = requesterCompanyName || actualUserName || ticket.name || 'N/A';
 
   return {
     ...ticket,
     actualUserName,
     actualUserEmail,
-    actualCompanyName,
+    actualCompanyName: requesterCompanyName,
+    associatedCompanyName,
     requesterDisplayName
   };
 };
@@ -3614,6 +3800,8 @@ exports.getSupportTickets = async (req, res) => {
 
     const tickets = await Support.find(query)
       .populate('userId', 'name email companyName')
+      .populate('receiverId', 'name companyName brandName')
+      .populate('jobId', 'title companyName')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
@@ -3644,6 +3832,8 @@ exports.getSupportTicketById = async (req, res) => {
       { new: true }
     )
       .populate('userId', 'name email companyName')
+      .populate('receiverId', 'name companyName brandName')
+      .populate('jobId', 'title companyName')
       .lean();
     
     if (!ticket) {
@@ -3688,7 +3878,11 @@ exports.updateSupportTicketStatus = async (req, res) => {
       req.params.id,
       updateData,
       { new: true, runValidators: true }
-    ).populate('userId', 'name email companyName').populate('respondedBy', 'name email');
+    )
+      .populate('userId', 'name email companyName')
+      .populate('receiverId', 'name companyName brandName')
+      .populate('jobId', 'title companyName')
+      .populate('respondedBy', 'name email');
 
     if (!ticket) {
       return res.status(404).json({ success: false, message: 'Support ticket not found' });
