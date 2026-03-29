@@ -1,0 +1,62 @@
+@media (max-width: 991px) {
+  /* Keep the main app interactive unless a real mobile drawer is open. */
+  body:not(.sidebar-open):not(.hamburger-open) #root,
+  body:not(.sidebar-open):not(.hamburger-open) main,
+  body:not(.sidebar-open):not(.hamburger-open) .page-wraper,
+  body:not(.sidebar-open):not(.hamburger-open) #content,
+  body:not(.sidebar-open):not(.hamburger-open) .content-admin-main,
+  body:not(.sidebar-open):not(.hamburger-open) .twm-right-section-panel {
+    pointer-events: auto !important;
+  }
+
+  /* Hidden mobile overlays should never keep eating taps. */
+  body:not(.sidebar-open):not(.hamburger-open) .sidebar-overlay:not(.active),
+  body:not(.sidebar-open):not(.hamburger-open) .hamburger-overlay:not(.show) {
+    pointer-events: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  /* Restore tap behavior for interactive controls across public and panel pages. */
+  button,
+  .btn,
+  .site-button,
+  .search-btn,
+  a[href],
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  label[for],
+  .mobile-menu-toggle,
+  .hamburger-btn {
+    position: relative;
+    z-index: 2;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  button > *,
+  .btn > *,
+  .site-button > *,
+  .search-btn > *,
+  a[href] > *,
+  .mobile-menu-toggle > *,
+  .hamburger-btn > * {
+    pointer-events: none;
+  }
+
+  /* Decorative layers must not block taps on cards and banners. */
+  .overlay-main,
+  .home-job-card::before,
+  .home-job-card::after,
+  .manage-jobs-card::before,
+  .manage-jobs-card::after,
+  .stats-card::before,
+  .stats-card::after,
+  .panel::before,
+  .panel::after {
+    pointer-events: none !important;
+  }
+}

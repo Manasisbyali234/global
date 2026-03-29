@@ -62,6 +62,8 @@ import "./title-case-platform.css";
 import "./about-page-banner-fix.css";
 // CREATE PASSWORD BANNER FIX - Reduce top banner space on create-password page only
 import "./create-password-banner-fix.css";
+// MOBILE CLICKABILITY FIX - restore taps after broad mobile CSS overrides
+import "./mobile-clickability-fix.css";
 
 
 function App() {
