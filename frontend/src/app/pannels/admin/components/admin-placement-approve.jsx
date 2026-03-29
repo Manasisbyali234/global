@@ -52,6 +52,26 @@ function AdminPlacementOfficersApproved() {
         setFilteredPlacements(filtered);
     };
 
+    const getUniqueCourseLabels = (files = []) => {
+        const seen = new Set();
+
+        return files
+            .map((file) => String(file?.customName || file?.batch || '').trim())
+            .filter((label) => {
+                if (!label) {
+                    return false;
+                }
+
+                const normalizedLabel = label.toLowerCase();
+                if (seen.has(normalizedLabel)) {
+                    return false;
+                }
+
+                seen.add(normalizedLabel);
+                return true;
+            });
+    };
+
 
 
     if (loading) {
@@ -121,8 +141,29 @@ function AdminPlacementOfficersApproved() {
                                     </tr>
                                 ) : (
                                     filteredPlacements.map((placement) => (
-                                        <tr key={placement._id}>
-                                            <td style={{textAlign: 'center', fontSize: '0.9rem'}}>{placement.collegeName || 'N/A'}</td>
+                                        <tr
+                                            key={placement._id}
+                                            className={placement.hasNewBatchUploads ? 'emp-table-row--new-upload' : ''}
+                                        >
+                                            <td style={{textAlign: 'center', fontSize: '0.9rem'}}>
+                                                <div className={`company-name-wrap ${placement.hasNewBatchUploads ? 'company-name-wrap--new' : ''}`}>
+                                                    <span className={`company-name ${placement.hasNewBatchUploads ? 'company-name--new' : ''}`}>
+                                                        {placement.hasNewBatchUploads && (
+                                                            <span className="company-name-dot" aria-hidden="true"></span>
+                                                        )}
+                                                        {placement.collegeName || 'N/A'}
+                                                    </span>
+                                                    {placement.hasNewBatchUploads && placement.newBatchUploads?.length > 0 && (
+                                                        <span className="company-name-subnote">
+                                                            {getUniqueCourseLabels(placement.newBatchUploads).map((courseName) => (
+                                                                <span key={courseName} className="company-name-subnote-line">
+                                                                    {courseName}
+                                                                </span>
+                                                            ))}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td style={{textAlign: 'center'}}>
                                                 <span className="company-name">
                                                     {placement.name}

@@ -88,6 +88,15 @@ function EmployerDetails() {
         return `data:image/jpeg;base64,${trimmed}`;
     };
 
+    const normalizeCompanyName = (value) => String(value || '').trim().toLowerCase();
+
+    const getLetterCompanyName = (letter) => (
+        letter?.companyName
+        || profile?.companyName
+        || profile?.employerId?.companyName
+        || 'N/A'
+    );
+
     const downloadDocument = async (employerId, documentType) => {
         try {
             const token = localStorage.getItem('adminToken');
@@ -359,6 +368,42 @@ function EmployerDetails() {
     const gstMeta = getSingleDocumentMeta('gstImage');
     const incorporationMeta = getSingleDocumentMeta('certificateOfIncorporation');
     const companyIdMeta = getSingleDocumentMeta('companyIdCardPicture');
+    const isConsultantProfile = ['consultancy', 'consultant'].includes(
+        String(profile.employerCategory || '').trim().toLowerCase()
+    );
+    const authorizationLetters = Array.isArray(profile.authorizationLetters) ? profile.authorizationLetters : [];
+    const approvedAuthorizationCompanies = new Set(
+        authorizationLetters
+            .filter((letter) => letter?.status === 'approved')
+            .map((letter) => normalizeCompanyName(getLetterCompanyName(letter)))
+            .filter(Boolean)
+    );
+    const newConsultantCompanyKeys = new Set(
+        approvedAuthorizationCompanies.size > 0
+            ? authorizationLetters
+                .filter((letter) => letter?.status !== 'approved')
+                .map((letter) => normalizeCompanyName(getLetterCompanyName(letter)))
+                .filter((companyKey) => companyKey && !approvedAuthorizationCompanies.has(companyKey))
+            : []
+    );
+    const consultantCompanies = Array.from(
+        new Map(
+            [
+                ...(Array.isArray(profile.hiringCompanies) ? profile.hiringCompanies : []),
+                ...authorizationLetters.map((letter) => getLetterCompanyName(letter))
+            ]
+                .map((companyName) => String(companyName || '').trim())
+                .filter(Boolean)
+                .map((companyName) => [normalizeCompanyName(companyName), companyName])
+        ).values()
+    ).sort((left, right) => {
+        const leftIsNew = newConsultantCompanyKeys.has(normalizeCompanyName(left));
+        const rightIsNew = newConsultantCompanyKeys.has(normalizeCompanyName(right));
+        if (leftIsNew !== rightIsNew) return leftIsNew ? -1 : 1;
+        return left.localeCompare(right);
+    });
+    const hasNewConsultantCompanies = newConsultantCompanyKeys.size > 0;
+    const isNewConsultantCompany = (companyName) => newConsultantCompanyKeys.has(normalizeCompanyName(companyName));
 
     return (
         <div className="employer-details-container">
@@ -672,6 +717,38 @@ function EmployerDetails() {
                     </div>
                 )}
             </div>
+
+            {isConsultantProfile && consultantCompanies.length > 0 && (
+                <div className="profile-info-card" data-aos="fade-up" data-aos-delay="275">
+                    <h4 className="profile-section-title">
+                        <i className="fa fa-building-circle-check"></i>
+                        Consultant Hiring Companies
+                    </h4>
+                    <p className="consultant-company-note">
+                        {hasNewConsultantCompanies
+                            ? 'New companies added after approval are highlighted for admin review.'
+                            : 'Approved and linked companies are listed below.'}
+                    </p>
+                    <div className="consultant-company-list">
+                        {consultantCompanies.map((companyName, index) => {
+                            const isNewCompany = isNewConsultantCompany(companyName);
+
+                            return (
+                                <div
+                                    key={`${normalizeCompanyName(companyName)}-${index}`}
+                                    className={`consultant-company-chip ${isNewCompany ? 'consultant-company-chip--new' : ''}`}
+                                >
+                                    <span className={`consultant-company-dot ${isNewCompany ? 'consultant-company-dot--new' : ''}`}></span>
+                                    <span className="consultant-company-chip__name">{companyName}</span>
+                                    {isNewCompany && (
+                                        <span className="consultant-company-chip__badge">New</span>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
             <div className="documents-section" data-aos="fade-up" data-aos-delay="300">
                 <h4 className="profile-section-title">
@@ -1042,7 +1119,7 @@ function EmployerDetails() {
             </div>
 
             {/* Multiple Authorization Letters Section */}
-            {profile.authorizationLetters && profile.authorizationLetters.length > 0 && (
+            {authorizationLetters.length > 0 && (
                 <div className="documents-section" data-aos="fade-up" data-aos-delay="450">
                     <h4 className="profile-section-title">
                         <i className="fa fa-file-signature"></i>
@@ -1060,16 +1137,28 @@ function EmployerDetails() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {profile.authorizationLetters.map((doc, index) => (
-                                    <tr key={doc._id || index} data-aos="fade-left" data-aos-delay={500 + (index * 50)}>
+                                {authorizationLetters.map((doc, index) => {
+                                    const companyName = getLetterCompanyName(doc);
+                                    const isNewCompany = isConsultantProfile && isNewConsultantCompany(companyName);
+
+                                    return (
+                                    <tr
+                                        key={doc._id || index}
+                                        data-aos="fade-left"
+                                        data-aos-delay={500 + (index * 50)}
+                                        className={isNewCompany ? 'documents-table__row--new-company' : ''}
+                                    >
                                         <td>
-                                            <i className="fa fa-building me-2 text-muted"></i>
-                                            {(() => {
-                                                
-                                                
-                                                
-                                                return doc.companyName || profile.companyName || profile.employerId?.companyName || 'N/A';
-                                            })()}
+                                            <div className={`authorization-company-cell ${isNewCompany ? 'authorization-company-cell--new' : ''}`}>
+                                                <i className="fa fa-building me-2 text-muted"></i>
+                                                {isNewCompany && (
+                                                    <span className="consultant-company-dot consultant-company-dot--new"></span>
+                                                )}
+                                                <span className="authorization-company-name">{companyName}</span>
+                                                {isNewCompany && (
+                                                    <span className="consultant-company-chip__badge">New</span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td><i className="fa fa-file-alt me-2 text-muted"></i>{doc.fileName}</td>
                                         <td><i className="fa fa-clock me-2 text-muted"></i>{formatDate(doc.uploadedAt)}</td>
@@ -1150,7 +1239,7 @@ function EmployerDetails() {
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
+                                )})}
                             </tbody>
                         </table>
                     </div>

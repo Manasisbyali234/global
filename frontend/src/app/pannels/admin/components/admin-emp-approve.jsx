@@ -152,11 +152,24 @@ function AdminEmployersApproved() {
                                         </tr>
                                     ) : (
                                         filteredEmployers.map((employer) => (
-                                            <tr key={employer._id}>
+                                            <tr
+                                                key={employer._id}
+                                                className={employer.hasNewConsultantCompanies ? 'emp-table-row--new-company' : ''}
+                                            >
                                                 <td style={{textAlign: 'center'}}>
-                                                    <span className="company-name">
-                                                        {employer.companyName || employer.email}
-                                                    </span>
+                                                    <div className={`company-name-wrap ${employer.hasNewConsultantCompanies ? 'company-name-wrap--new' : ''}`}>
+                                                        <span className={`company-name ${employer.hasNewConsultantCompanies ? 'company-name--new' : ''}`}>
+                                                            {employer.hasNewConsultantCompanies && (
+                                                                <span className="company-name-dot" aria-hidden="true"></span>
+                                                            )}
+                                                            {employer.companyName || employer.email}
+                                                        </span>
+                                                        {employer.hasNewConsultantCompanies && employer.newConsultantCompanies?.length > 0 && (
+                                                            <span className="company-name-subnote">
+                                                                {employer.newConsultantCompanies.join(', ')}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td style={{textAlign: 'center'}}>
                                                     <span style={{

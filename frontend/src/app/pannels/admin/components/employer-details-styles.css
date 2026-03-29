@@ -99,6 +99,67 @@
     color: #ff9c00;
 }
 
+.consultant-company-note {
+    margin: -10px 0 20px;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.consultant-company-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.consultant-company-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    font-weight: 600;
+}
+
+.consultant-company-chip--new {
+    background: #fff1f2;
+    border-color: #fda4af;
+    color: #be123c;
+    box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.08);
+}
+
+.consultant-company-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #fb923c;
+    flex-shrink: 0;
+}
+
+.consultant-company-dot--new {
+    background: #f43f5e;
+    box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.14);
+}
+
+.consultant-company-chip__name {
+    line-height: 1.2;
+}
+
+.consultant-company-chip__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid currentColor;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
 .profile-field {
     margin-bottom: 20px;
     padding: 15px;
@@ -317,6 +378,15 @@
     box-shadow: 0 2px 8px rgba(253, 195, 96, 0.15) !important;
 }
 
+.documents-table tbody tr.documents-table__row--new-company {
+    background: #fff1f2 !important;
+    border-left: 4px solid #f43f5e !important;
+}
+
+.documents-table tbody tr.documents-table__row--new-company:hover {
+    background: #ffe4e6 !important;
+}
+
 .documents-table tbody tr:last-child {
     border-bottom: none !important;
 }
@@ -348,6 +418,22 @@
 .documents-table tbody td:nth-child(1) i {
     color: #FDC360 !important;
     margin-right: 5px !important;
+}
+
+.authorization-company-cell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.authorization-company-cell--new {
+    color: #be123c;
+}
+
+.authorization-company-name {
+    line-height: 1.3;
 }
 
 .documents-table tbody td:nth-child(2) {

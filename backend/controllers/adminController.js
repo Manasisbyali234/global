@@ -872,11 +872,37 @@ exports.getAllEmployers = async (req, res) => {
     const employersWithProfile = employers.map(employer => {
       const profile = profileMap.get(employer._id.toString());
       const isProfileComplete = profile && requiredFields.every(field => profile[field]);
+      const authorizationLetters = Array.isArray(profile?.authorizationLetters) ? profile.authorizationLetters : [];
+      const normalizeCompanyName = (value) => String(value || '').trim().toLowerCase();
+      const isConsultantEmployer = ['consultancy', 'consultant'].includes(
+        String(profile?.employerCategory || employer?.employerType || '').trim().toLowerCase()
+      );
+      const approvedAuthorizationCompanies = new Set(
+        authorizationLetters
+          .filter((letter) => letter?.status === 'approved')
+          .map((letter) => normalizeCompanyName(letter?.companyName || profile?.companyName || employer?.companyName))
+          .filter(Boolean)
+      );
+      const newConsultantCompanies = isConsultantEmployer && approvedAuthorizationCompanies.size > 0
+        ? Array.from(new Set(
+            authorizationLetters
+              .filter((letter) => letter?.status !== 'approved')
+              .map((letter) => String(letter?.companyName || '').trim())
+              .filter((companyName) => {
+                const companyKey = normalizeCompanyName(companyName);
+                return companyKey && !approvedAuthorizationCompanies.has(companyKey);
+              })
+          ))
+        : [];
       
       return {
         ...employer,
         hasProfile: !!profile,
         isProfileComplete,
+        hiringCompanies: Array.isArray(profile?.hiringCompanies) ? profile.hiringCompanies : [],
+        authorizationLetters,
+        hasNewConsultantCompanies: newConsultantCompanies.length > 0,
+        newConsultantCompanies,
         profileCompletionPercentage: profile 
           ? Math.round((requiredFields.filter(field => profile[field]).length / requiredFields.length) * 100)
           : 0
@@ -1697,7 +1723,29 @@ exports.getAllPlacements = async (req, res) => {
       .skip((page - 1) * limit)
       .lean();
 
-    res.json({ success: true, data: placements });
+    const placementsWithUploadFlags = placements.map((placement) => {
+      const approvalReference = placement.approvalEmailSentAt || placement.createdAt || null;
+      const fileHistory = Array.isArray(placement.fileHistory) ? placement.fileHistory : [];
+      const newBatchUploads = approvalReference
+        ? fileHistory.filter((file) => {
+            if (!file?.uploadedAt) return false;
+            return new Date(file.uploadedAt).getTime() > new Date(approvalReference).getTime();
+          })
+        : [];
+
+      return {
+        ...placement,
+        hasNewBatchUploads: newBatchUploads.length > 0,
+        newBatchUploads: newBatchUploads.map((file) => ({
+          _id: file._id,
+          batch: file.batch || '',
+          customName: file.customName || '',
+          uploadedAt: file.uploadedAt
+        }))
+      };
+    });
+
+    res.json({ success: true, data: placementsWithUploadFlags });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

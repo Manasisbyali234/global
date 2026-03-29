@@ -326,6 +326,34 @@
     border-left: 3px solid #FDC360 !important;
 }
 
+.emp-table tbody tr.emp-table-row--new-company {
+    background: linear-gradient(90deg, rgba(255, 241, 242, 0.95) 0%, rgba(255, 247, 237, 0.95) 100%) !important;
+    border-left: 4px solid #f43f5e !important;
+}
+
+.emp-table tbody tr.emp-table-row--new-company:hover {
+    background: linear-gradient(90deg, rgba(255, 228, 230, 0.98) 0%, rgba(255, 237, 213, 0.98) 100%) !important;
+    border-left: 4px solid #e11d48 !important;
+}
+
+.emp-table tbody tr.emp-table-row--new-company td {
+    background: transparent !important;
+}
+
+.emp-table tbody tr.emp-table-row--new-upload {
+    background: linear-gradient(90deg, rgba(239, 246, 255, 0.97) 0%, rgba(255, 247, 237, 0.95) 100%) !important;
+    border-left: 4px solid #2563eb !important;
+}
+
+.emp-table tbody tr.emp-table-row--new-upload:hover {
+    background: linear-gradient(90deg, rgba(219, 234, 254, 0.98) 0%, rgba(255, 237, 213, 0.98) 100%) !important;
+    border-left: 4px solid #1d4ed8 !important;
+}
+
+.emp-table tbody tr.emp-table-row--new-upload td {
+    background: transparent !important;
+}
+
 .emp-table tbody tr:last-child {
     border-bottom: none;
 }
@@ -365,6 +393,60 @@
     font-weight: 700 !important;
     color: #000000 !important;
     font-size: 1.1rem;
+}
+
+.company-name-wrap {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+}
+
+.company-name--new {
+    color: #be123c !important;
+}
+
+.company-name-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    border-radius: 999px;
+    background: #f43f5e;
+    box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.14);
+    vertical-align: middle;
+}
+
+.company-name-subnote {
+    display: block;
+    max-width: min(220px, 100%);
+    color: #be123c;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: normal !important;
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: none;
+    text-align: center;
+}
+
+.company-name-subnote-line {
+    display: block;
+}
+
+.emp-table tbody td:first-child {
+    white-space: normal !important;
+}
+
+.emp-table tbody td:first-child .company-name {
+    white-space: normal !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: center;
 }
 
 .status-badge {
