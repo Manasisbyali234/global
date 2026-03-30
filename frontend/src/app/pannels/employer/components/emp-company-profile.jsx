@@ -2587,17 +2587,7 @@ function EmpCompanyProfilePage() {
                                         </div>
 
                                         <div className="form-group">
-                                            {(() => {
-                                                const uploadedLetter = formData.authorizationLetters?.find(doc =>
-                                                    section.companyName && doc.companyName === section.companyName
-                                                );
-                                                return (
-                                                    <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                                                        <label className="required-field mb-0">Authorization Letter</label>
-                                                        {uploadedLetter && renderStatusBadge(uploadedLetter.status, uploadedLetter.reuploadedAt)}
-                                                    </div>
-                                                );
-                                            })()}
+                                            <label className="required-field mb-0">Authorization Letter</label>
                                             <input
                                                 className="form-control"
                                                 type="file"
