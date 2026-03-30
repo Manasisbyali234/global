@@ -3,8 +3,10 @@ import { formatDate } from '../../../../../utils/dateFormatter';
 import { usePopupNotification } from '../../../../../hooks/usePopupNotification';
 import PopupNotification from '../../../../../components/PopupNotification';
 import ConfirmationDialog from '../../../../../components/ConfirmationDialog';
+import './create-assessment.css';
 
 function ManageAssessmentPage() {
+    const stripHtml = (value = '') => String(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     const [assessments, setAssessments] = useState([
         {
             _id: '1',
@@ -37,7 +39,7 @@ function ManageAssessmentPage() {
 
     const filteredAssessments = assessments.filter(assessment => 
         assessment.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
-        assessment.description.toLowerCase().includes(searchFilter.toLowerCase())
+        stripHtml(assessment.description).toLowerCase().includes(searchFilter.toLowerCase())
     );
 
     const handleDeleteClick = (id, title) => {
@@ -105,7 +107,10 @@ function ManageAssessmentPage() {
                                         <div className="d-flex justify-content-between">
                                             <div>
                                                 <h5 className="text-primary">{assessment.title}</h5>
-                                                <p className="text-muted small">{assessment.description}</p>
+                                                <div
+                                                    className="text-muted small assessment-rich-text assessment-rich-text--compact"
+                                                    dangerouslySetInnerHTML={{ __html: assessment.description }}
+                                                />
                                                 <p className="text-muted"><i className="fa fa-clock text-warning m-r10" />Duration: {assessment.timeLimit} mins</p>
                                             </div>
                                             <button className="btn btn-link text-danger p-0" onClick={() => handleDeleteClick(assessment._id, assessment.title)}>

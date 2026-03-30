@@ -371,6 +371,14 @@ function EmployerDetails() {
     const isConsultantProfile = ['consultancy', 'consultant'].includes(
         String(profile.employerCategory || '').trim().toLowerCase()
     );
+    const renderDocumentType = (iconClass, label) => (
+        <span className="documents-table__type-label">
+            <span className="documents-table__type-icon">
+                <i className={`${iconClass} text-muted`} aria-hidden="true"></i>
+            </span>
+            <span className="documents-table__type-text">{label}</span>
+        </span>
+    );
     const authorizationLetters = Array.isArray(profile.authorizationLetters) ? profile.authorizationLetters : [];
     const approvedAuthorizationCompanies = new Set(
         authorizationLetters
@@ -768,7 +776,7 @@ function EmployerDetails() {
                         </thead>
                         <tbody>
                             <tr data-aos="fade-left" data-aos-delay="400">
-                                <td><i className="fa fa-id-card me-2 text-muted"></i>PAN Card Image</td>
+                                <td className="documents-table__type-cell">{renderDocumentType('fa fa-id-card', 'PAN Card Image')}</td>
                                 <td>
                                     {panCardMeta.uploaded ? 
                                         <span className="status-badge badge-uploaded">
@@ -837,7 +845,7 @@ function EmployerDetails() {
                                 </td>
                             </tr>
                             <tr data-aos="fade-left" data-aos-delay="450">
-                                <td><i className="fa fa-certificate me-2 text-muted"></i>CIN Document</td>
+                                <td className="documents-table__type-cell">{renderDocumentType('fa fa-certificate', 'CIN Document')}</td>
                                 <td>
                                     {cinMeta.uploaded ? 
                                         <span className="status-badge badge-uploaded">
@@ -906,7 +914,7 @@ function EmployerDetails() {
                                 </td>
                             </tr>
                             <tr data-aos="fade-left" data-aos-delay="500">
-                                <td><i className="fa fa-receipt me-2 text-muted"></i>GST Certificate</td>
+                                <td className="documents-table__type-cell">{renderDocumentType('fa fa-receipt', 'GST Certificate')}</td>
                                 <td>
                                     {gstMeta.uploaded ? 
                                         <span className="status-badge badge-uploaded">
@@ -975,7 +983,7 @@ function EmployerDetails() {
                                 </td>
                             </tr>
                             <tr data-aos="fade-left" data-aos-delay="550">
-                                <td><i className="fa fa-file-contract me-2 text-muted"></i>Certificate of Incorporation</td>
+                                <td className="documents-table__type-cell">{renderDocumentType('fa fa-file-contract', 'Certificate of Incorporation')}</td>
                                 <td>
                                     {incorporationMeta.uploaded ? 
                                         <span className="status-badge badge-uploaded">
@@ -1044,7 +1052,7 @@ function EmployerDetails() {
                                 </td>
                             </tr>
                             <tr data-aos="fade-left" data-aos-delay="600">
-                                <td><i className="fa fa-address-card me-2 text-muted"></i>Company ID Card</td>
+                                <td className="documents-table__type-cell">{renderDocumentType('fa fa-address-card', 'Company ID Card')}</td>
                                 <td>
                                     {companyIdMeta.uploaded ? 
                                         <span className="status-badge badge-uploaded">

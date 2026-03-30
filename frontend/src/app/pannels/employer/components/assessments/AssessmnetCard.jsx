@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import "./create-assessment.css";
 
 export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 	const navigate = useNavigate();
@@ -58,7 +59,11 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					</small>
 				</div>
 				{data.description && (
-					<p className="card-text text-muted small" style={{wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', wordBreak: 'break-word', maxWidth: '100%'}}>{data.description}</p>
+					<div
+						className="card-text text-muted small assessment-rich-text assessment-rich-text--compact"
+						style={{ maxWidth: '100%' }}
+						dangerouslySetInnerHTML={{ __html: data.description }}
+					/>
 				)}
 				<div className="d-flex flex-wrap gap-3 mb-3">
 					<small className="text-muted">

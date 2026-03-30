@@ -9,6 +9,8 @@ function AdminSupportTickets() {
     const [loading, setLoading] = useState(true);
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [isTicketModalMinimized, setIsTicketModalMinimized] = useState(false);
+    const [isTicketModalMaximized, setIsTicketModalMaximized] = useState(false);
     const [response, setResponse] = useState('');
     const [status, setStatus] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -71,6 +73,26 @@ function AdminSupportTickets() {
 
         return () => window.cancelAnimationFrame(frameId);
     }, [response, showModal, selectedTicket?._id]);
+
+    useEffect(() => {
+        if (!showModal) return undefined;
+
+        if (isTicketModalMinimized) {
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            return undefined;
+        }
+
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        };
+    }, [showModal, isTicketModalMinimized]);
 
     useEffect(() => {
         return () => {
@@ -158,6 +180,8 @@ function AdminSupportTickets() {
         setSelectedTicket(ticket);
         setResponse(ticket.response || '');
         setStatus(ticket.status);
+        setIsTicketModalMinimized(false);
+        setIsTicketModalMaximized(false);
         setShowModal(true);
 
         if (!ticket.isRead) {
@@ -377,9 +401,31 @@ function AdminSupportTickets() {
 
     const handleCloseModal = () => {
         setShowModal(false);
+        setIsTicketModalMinimized(false);
+        setIsTicketModalMaximized(false);
         setSelectedTicket(null);
         setResponse('');
         setStatus('');
+    };
+
+    const handleToggleTicketModalMinimized = () => {
+        setIsTicketModalMinimized((previous) => {
+            const next = !previous;
+            if (next) {
+                setIsTicketModalMaximized(false);
+            }
+            return next;
+        });
+    };
+
+    const handleToggleTicketModalMaximized = () => {
+        setIsTicketModalMaximized((previous) => {
+            const next = !previous;
+            if (next) {
+                setIsTicketModalMinimized(false);
+            }
+            return next;
+        });
     };
 
     const handleResponseChange = (event) => {
@@ -599,80 +645,123 @@ function AdminSupportTickets() {
             {/* Ticket Detail Modal */}
             <Modal 
                 id="support-ticket-modal"
+                className={`support-ticket-modal${isTicketModalMinimized ? ' support-ticket-modal--minimized' : ''}`}
                 show={showModal} 
                 onHide={handleCloseModal}
                 onEntered={() => resizeResponseTextarea()}
-                size="lg"
-                centered
+                size={isTicketModalMaximized ? undefined : 'lg'}
+                fullscreen={isTicketModalMaximized}
+                centered={!isTicketModalMinimized && !isTicketModalMaximized}
+                backdrop={isTicketModalMinimized ? false : true}
                 backdropClassName="support-ticket-modal-backdrop"
+                dialogClassName={[
+                    'support-ticket-dialog',
+                    isTicketModalMinimized ? 'support-ticket-dialog--minimized' : '',
+                    isTicketModalMaximized ? 'support-ticket-dialog--maximized' : ''
+                ].filter(Boolean).join(' ')}
+                contentClassName={[
+                    'support-ticket-content',
+                    isTicketModalMinimized ? 'support-ticket-content--minimized' : '',
+                    isTicketModalMaximized ? 'support-ticket-content--maximized' : ''
+                ].filter(Boolean).join(' ')}
             >
-                <Modal.Header closeButton>
-                    <Modal.Title>Ticket Details</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {selectedTicket && (
+                <div className="support-ticket-modal-shell">
+                    <div className="support-ticket-modal-topbar">
+                        <h5 className="support-ticket-modal-title">{isTicketModalMinimized ? (selectedTicket?.subject || 'Ticket Details') : 'Ticket Details'}</h5>
+                        <div className="support-ticket-window-controls">
+                            <button
+                                type="button"
+                                className="support-ticket-window-btn"
+                                onClick={handleToggleTicketModalMinimized}
+                                aria-label={isTicketModalMinimized ? 'Restore modal' : 'Minimize modal'}
+                                title={isTicketModalMinimized ? 'Restore' : 'Minimize'}
+                            >
+                                <i className={`fas ${isTicketModalMinimized ? 'fa-window-restore' : 'fa-minus'}`} aria-hidden="true"></i>
+                            </button>
+                            <button
+                                type="button"
+                                className="support-ticket-window-btn"
+                                onClick={handleToggleTicketModalMaximized}
+                                aria-label={isTicketModalMaximized ? 'Restore modal size' : 'Maximize modal'}
+                                title={isTicketModalMaximized ? 'Restore' : 'Maximize'}
+                            >
+                                <i className={`${isTicketModalMaximized ? 'fas fa-window-restore' : 'far fa-square'}`} aria-hidden="true"></i>
+                            </button>
+                            <button
+                                type="button"
+                                className="support-ticket-window-btn support-ticket-window-btn--close"
+                                onClick={handleCloseModal}
+                                aria-label="Close modal"
+                                title="Close"
+                            >
+                                <i className="fas fa-times" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {!isTicketModalMinimized && selectedTicket && (
                         <>
-                            <div className="ticket-details-shell">
-                                <div className="ticket-details-hero">
-                                    <div className="ticket-details-hero__content">
-                                        <span className="ticket-details-hero__eyebrow">Support Ticket</span>
-                                        <h4 className="ticket-details-hero__title">{selectedTicket.subject}</h4>
-                                        <div className="ticket-details-hero__meta">
-                                            <span>Ticket ID: {selectedTicket._id?.slice(-8)?.toUpperCase() || 'N/A'}</span>
-                                            <span>Created: {formatDate(selectedTicket.createdAt)}</span>
+                            <div className="support-ticket-modal-body">
+                                <div className="ticket-details-shell">
+                                    <div className="ticket-details-hero">
+                                        <div className="ticket-details-hero__content">
+                                            <span className="ticket-details-hero__eyebrow">Support Ticket</span>
+                                            <h4 className="ticket-details-hero__title">{selectedTicket.subject}</h4>
+                                            <div className="ticket-details-hero__meta">
+                                                <span>Ticket ID: {selectedTicket._id?.slice(-8)?.toUpperCase() || 'N/A'}</span>
+                                                <span>Created: {formatDate(selectedTicket.createdAt)}</span>
+                                            </div>
+                                        </div>
+                                        <div className="ticket-details-hero__badges">
+                                            <div className="ticket-details-badge-group">
+                                                <span className="ticket-details-badge-label">Priority</span>
+                                                {getPriorityBadge(selectedTicket.priority)}
+                                            </div>
+                                            <div className="ticket-details-badge-group">
+                                                <span className="ticket-details-badge-label">Status</span>
+                                                {getStatusBadge(selectedTicket.status)}
+                                            </div>
+                                            <div className="ticket-details-badge-group">
+                                                <span className="ticket-details-badge-label">User Type</span>
+                                                {getUserTypeBadge(selectedTicket.userType)}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="ticket-details-hero__badges">
-                                        <div className="ticket-details-badge-group">
-                                            <span className="ticket-details-badge-label">Priority</span>
-                                            {getPriorityBadge(selectedTicket.priority)}
-                                        </div>
-                                        <div className="ticket-details-badge-group">
-                                            <span className="ticket-details-badge-label">Status</span>
-                                            {getStatusBadge(selectedTicket.status)}
-                                        </div>
-                                        <div className="ticket-details-badge-group">
-                                            <span className="ticket-details-badge-label">User Type</span>
-                                            {getUserTypeBadge(selectedTicket.userType)}
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div className="ticket-details-grid">
-                                    <div className="ticket-detail-card">
-                                        <div className="detail-label">{getRequesterLabel(selectedTicket)}</div>
-                                        <div className="detail-value">{getRequesterName(selectedTicket)}</div>
-                                    </div>
-                                    {getCompanyName(selectedTicket) && (
+                                    <div className="ticket-details-grid">
                                         <div className="ticket-detail-card">
-                                            <div className="detail-label">Company Name</div>
-                                            <div className="detail-value">{getCompanyName(selectedTicket)}</div>
+                                            <div className="detail-label">{getRequesterLabel(selectedTicket)}</div>
+                                            <div className="detail-value">{getRequesterName(selectedTicket)}</div>
                                         </div>
-                                    )}
-                                    {getJobTitle(selectedTicket) && (
+                                        {getCompanyName(selectedTicket) && (
+                                            <div className="ticket-detail-card">
+                                                <div className="detail-label">Company Name</div>
+                                                <div className="detail-value">{getCompanyName(selectedTicket)}</div>
+                                            </div>
+                                        )}
+                                        {getJobTitle(selectedTicket) && (
+                                            <div className="ticket-detail-card">
+                                                <div className="detail-label">Job</div>
+                                                <div className="detail-value">{getJobTitle(selectedTicket)}</div>
+                                            </div>
+                                        )}
                                         <div className="ticket-detail-card">
-                                            <div className="detail-label">Job</div>
-                                            <div className="detail-value">{getJobTitle(selectedTicket)}</div>
+                                            <div className="detail-label">Email</div>
+                                            <div className="detail-value detail-value--break">{getRequesterEmail(selectedTicket)}</div>
                                         </div>
-                                    )}
-                                    <div className="ticket-detail-card">
-                                        <div className="detail-label">Email</div>
-                                        <div className="detail-value detail-value--break">{getRequesterEmail(selectedTicket)}</div>
+                                        <div className="ticket-detail-card">
+                                            <div className="detail-label">Category</div>
+                                            <div className="detail-value">{selectedTicket.category || 'General'}</div>
+                                        </div>
                                     </div>
-                                    <div className="ticket-detail-card">
-                                        <div className="detail-label">Category</div>
-                                        <div className="detail-value">{selectedTicket.category || 'General'}</div>
-                                    </div>
-                                </div>
 
-                                <div className="ticket-detail-section mb-3">
-                                    <div className="detail-label">Message</div>
-                                    <div className="message-box">
-                                        {selectedTicket.message}
+                                    <div className="ticket-detail-section mb-3">
+                                        <div className="detail-label">Message</div>
+                                        <div className="message-box">
+                                            {selectedTicket.message}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
+                                {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
                                 <div className="ticket-detail-section mb-3">
                                     <div className="detail-label">Attachments</div>
                                     <ul className="attachment-list">
@@ -720,27 +809,27 @@ function AdminSupportTickets() {
                                     </Col>
                                 </Row>
                             </div>
-
+                        </div>
+                            <div className="support-ticket-modal-footer">
+                                <Button
+                                    variant="outline-primary"
+                                    className="update-btn"
+                                    onClick={handleUpdateTicket}
+                                    disabled={updating}
+                                >
+                                    {updating ? (
+                                        <>
+                                            <Spinner animation="border" size="sm" className="me-2" />
+                                            Saving
+                                        </>
+                                    ) : (
+                                        'Save Changes'
+                                    )}
+                                </Button>
+                            </div>
                         </>
                     )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button 
-                        variant="outline-primary"
-                        className="update-btn" 
-                        onClick={handleUpdateTicket}
-                        disabled={updating}
-                    >
-                        {updating ? (
-                            <>
-                                <Spinner animation="border" size="sm" className="me-2" />
-                                Saving
-                            </>
-                        ) : (
-                            'Save Changes'
-                        )}
-                    </Button>
-                </Modal.Footer>
+                </div>
             </Modal>
 
             <Modal

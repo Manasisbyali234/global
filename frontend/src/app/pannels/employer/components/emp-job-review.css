@@ -49,6 +49,35 @@
   line-height: 1.6;
 }
 
+.emp-job-review-page .job-review-rich-text,
+.emp-job-review-page .job-review-rich-text * {
+  color: inherit;
+}
+
+.emp-job-review-page .job-review-rich-text {
+  line-height: 1.7;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.emp-job-review-page .job-review-rich-text p {
+  margin: 0 0 0.75rem;
+}
+
+.emp-job-review-page .job-review-rich-text p:last-child {
+  margin-bottom: 0;
+}
+
+.emp-job-review-page .job-review-rich-text ul,
+.emp-job-review-page .job-review-rich-text ol {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.emp-job-review-page .job-review-rich-text li + li {
+  margin-top: 0.35rem;
+}
+
 @media (max-width: 767px) {
   .emp-job-review-page .panel-heading .panel-tittle {
     display: inline-flex !important;

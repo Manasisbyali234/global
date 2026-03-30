@@ -465,12 +465,15 @@ function EmpJobReviewPage() {
                             <div className="col-lg-12 col-12">
                                 <div className="mt-2">
                                     <h5 className="mb-1">Job Description</h5>
-                                    <div className="mb-0 text-muted" dangerouslySetInnerHTML={{ __html: jobDetails.description }} />
+                                    <div
+                                        className="mb-0 text-muted job-review-rich-text"
+                                        dangerouslySetInnerHTML={{ __html: jobDetails.description }}
+                                    />
                                 </div>
 
                                 <div className="mt-4">
                                     <h5 className="mb-1">Roles and Responsibilities</h5>
-                                    <div className="mb-0 text-muted">
+                                    <div className="mb-0 text-muted job-review-rich-text">
                                         {jobDetails.responsibilities ? (
                                             typeof jobDetails.responsibilities === 'string' ? (
                                                 <div dangerouslySetInnerHTML={{ __html: jobDetails.responsibilities }} />

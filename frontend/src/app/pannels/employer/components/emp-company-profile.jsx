@@ -124,7 +124,8 @@ function EmpCompanyProfilePage() {
         cin: { pattern: /^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/, patternMessage: 'Invalid CIN format. Must be 21 characters (e.g., U12345AB1234ABC123456)' },
         gstNumber: { required: true, pattern: /^\s*(?:[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}|[A-Z]{2}\/\d{4}\/\d{7})\s*$/, patternMessage: 'Enter a valid GST number (e.g., 12ABCDE1234F1Z5) or Darpan ID (e.g., RJ/2024/1234567)' },
         industrySector: { required: true },
-        panNumber: { pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, patternMessage: 'Invalid PAN format. Must be 10 characters (e.g., ABCDE1234F)' },
+        panNumber: { required: true, pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, patternMessage: 'Invalid PAN format. Must be 10 characters (e.g., ABCDE1234F)' },
+        panCardImage: { required: true },
         contactFullName: { required: true, minLength: 2 },
         contactLastName: { required: true, minLength: 2 },
         contactDesignation: { required: true, minLength: 2 },
@@ -199,6 +200,25 @@ function EmpCompanyProfilePage() {
             companyName: section.companyName,
             documentId: section.documentId
         }));
+    };
+
+    const normalizeEmailValue = (value) => String(value || '').trim().toLowerCase();
+
+    const getDuplicateEmailField = (field, value, sourceData = formData) => {
+        const normalizedValue = normalizeEmailValue(value);
+        if (!normalizedValue) return null;
+
+        const currentEmails = {
+            email: normalizeEmailValue(sourceData.email),
+            officialEmail: normalizeEmailValue(sourceData.officialEmail),
+            contactOfficialEmail: normalizeEmailValue(sourceData.contactOfficialEmail)
+        };
+
+        currentEmails[field] = normalizedValue;
+
+        return Object.keys(currentEmails).find((key) =>
+            key !== field && currentEmails[key] && currentEmails[key] === normalizedValue
+        );
     };
 
     const fetchProfile = async () => {
@@ -421,7 +441,7 @@ function EmpCompanyProfilePage() {
                 break;
             case 'pending':
                 badgeClass = 'bg-warning';
-                statusText = 'Pending';
+                statusText = 'Approval Pending';
                 break;
             default:
                 return null;
@@ -487,6 +507,22 @@ function EmpCompanyProfilePage() {
                 return; // Don't update the field if duplicate found
             }
         }
+
+        const emailFields = ['email', 'officialEmail', 'contactOfficialEmail'];
+        if (emailFields.includes(field)) {
+            const duplicateField = getDuplicateEmailField(field, value);
+
+            if (duplicateField) {
+                const sectionNames = {
+                    email: 'Basic Information section',
+                    officialEmail: 'Company Details section',
+                    contactOfficialEmail: 'Primary Contact Person section'
+                };
+
+                showError(`This email is already used in ${sectionNames[duplicateField]}.`);
+                return;
+            }
+        }
         
         setFormData(prev => ({ ...prev, [field]: value }));
 
@@ -529,6 +565,17 @@ function EmpCompanyProfilePage() {
 
     const validateFormData = () => {
         const formErrors = validateForm(formData, validationRules);
+        const profileEmails = [
+            normalizeEmailValue(formData.email),
+            normalizeEmailValue(formData.officialEmail),
+            normalizeEmailValue(formData.contactOfficialEmail)
+        ].filter(Boolean);
+
+        if (new Set(profileEmails).size !== profileEmails.length) {
+            formErrors.profileEmails = [
+                'Basic email, company official email, and primary contact official email must all be different.'
+            ];
+        }
         
         // Add document upload validation
         const requiredDocuments = {};
@@ -637,7 +684,9 @@ function EmpCompanyProfilePage() {
 
         // Handle all other files normally
         const maxBytes = 5 * 1024 * 1024;
-        const allowed = ['image/jpeg', 'image/png', 'application/pdf'];
+        const allowed = fieldName === 'panCardImage'
+            ? ['image/jpeg', 'image/png']
+            : ['image/jpeg', 'image/png', 'application/pdf'];
         const label = getFieldLabel(fieldName);
         
         if (file.size > maxBytes) {
@@ -645,7 +694,9 @@ function EmpCompanyProfilePage() {
             return;
         }
         if (!allowed.includes(file.type)) {
-            showError(`${label}: Invalid file type. Allowed: JPEG, PNG, PDF.`);
+            showError(
+                `${label}: Invalid file type. Allowed: ${fieldName === 'panCardImage' ? 'JPEG, PNG images only.' : 'JPEG, PNG, PDF.'}`
+            );
             return;
         }
 
@@ -2152,13 +2203,14 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label><Hash size={16} className="me-2" /> Company PAN Card Number</label>
+                                    <label className="required-field"><Hash size={16} className="me-2" /> Company PAN Card Number</label>
                                     <input
                                         className="form-control"
                                         type="text"
                                         value={formData.panNumber}
                                         onChange={(e) => handleInputChange('panNumber', e.target.value)}
                                         placeholder="ABCDE1234F"
+                                        required
                                     />
                                 </div>
                             </div>
@@ -2169,9 +2221,10 @@ function EmpCompanyProfilePage() {
                                     <input
                                         className="form-control"
                                         type="file"
-                                        accept=".jpg,.jpeg,.png,.pdf"
+                                        accept=".jpg,.jpeg,.png"
                                         onChange={(e) => handleDocumentUpload(e, 'panCardImage')}
                                         disabled={formData.panCardVerified === 'approved'}
+                                        required={!formData.panCardImage && formData.panCardVerified !== 'approved'}
                                     />
                                     {formData.panCardImage ? (
                                         <>

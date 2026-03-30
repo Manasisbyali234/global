@@ -67,11 +67,15 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					</small>
 				</div>
 				{data.description && (
-					<p className="card-text text-muted small" style={{
-						wordWrap: 'break-word',
-						overflowWrap: 'break-word',
-						whiteSpace: 'normal'
-					}}>{data.description}</p>
+					<div
+						className="card-text text-muted small assessment-rich-text assessment-rich-text--compact"
+						style={{
+							wordWrap: 'break-word',
+							overflowWrap: 'break-word',
+							whiteSpace: 'normal'
+						}}
+						dangerouslySetInnerHTML={{ __html: data.description }}
+					/>
 				)}
 				<div className="d-flex flex-wrap gap-3 mb-3">
 					<small className="text-muted">

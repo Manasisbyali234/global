@@ -135,6 +135,66 @@
   display: block !important;
 }
 
+.assessment-rich-text {
+  color: inherit;
+  white-space: normal;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+  hyphens: none !important;
+}
+
+.assessment-rich-text p,
+.assessment-rich-text ul,
+.assessment-rich-text ol {
+  margin: 0 0 0.65rem;
+}
+
+.assessment-rich-text p:last-child,
+.assessment-rich-text ul:last-child,
+.assessment-rich-text ol:last-child {
+  margin-bottom: 0;
+}
+
+.assessment-rich-text ul,
+.assessment-rich-text ol {
+  padding-left: 1.2rem;
+}
+
+.assessment-rich-text li + li {
+  margin-top: 0.25rem;
+}
+
+.assessment-rich-text *,
+.assessment-rich-text p,
+.assessment-rich-text ul,
+.assessment-rich-text ol,
+.assessment-rich-text li,
+.assessment-rich-text span,
+.assessment-rich-text strong,
+.assessment-rich-text em,
+.assessment-rich-text u {
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+  hyphens: none !important;
+}
+
+.assessment-rich-text strong {
+  font-weight: 700;
+}
+
+.assessment-rich-text em {
+  font-style: italic;
+}
+
+.assessment-rich-text u {
+  text-decoration: underline;
+}
+
+.assessment-rich-text--compact {
+  line-height: 1.5;
+}
+
 /* Stats Section */
 .stats-row {
   border-top: 1px solid #e9ecef;

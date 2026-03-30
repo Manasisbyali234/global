@@ -6,6 +6,7 @@ import './mobile-text-fix.css';
 import '../../../../../assessment-title-hide.css';
 
 function CreateAssessmentPage() {
+    const stripHtml = (value = '') => String(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     const [assessments, setAssessments] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingAssessment, setEditingAssessment] = useState(null);
@@ -238,7 +239,11 @@ function CreateAssessmentPage() {
                                                         <span style={{color: '#8B7355'}}>Assessment Title:</span> {assessment.title}
                                                     </h6>
                                                 )}
-                                                <p className="card-text mb-2 text-muted" style={{fontSize: '0.9rem', wordWrap: 'break-word', overflowWrap: 'break-word'}}>{assessment.description}</p>
+                                                <div
+                                                    className="card-text mb-2 text-muted assessment-rich-text assessment-rich-text--compact"
+                                                    style={{fontSize: '0.9rem', wordWrap: 'break-word', overflowWrap: 'break-word'}}
+                                                    dangerouslySetInnerHTML={{ __html: assessment.description || stripHtml(assessment.description) }}
+                                                />
                                                 <div className="d-flex gap-3">
                                                     <small className="text-muted"><i className="fa fa-question-circle me-1"></i>Questions: {assessment.questions?.length || 0}</small>
                                                     <small className="text-muted"><i className="fa fa-clock me-1"></i>Time: {assessment.timer || 0} min</small>

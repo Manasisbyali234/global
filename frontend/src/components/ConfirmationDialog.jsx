@@ -31,9 +31,6 @@ const ConfirmationDialog = ({
   return (
     <div className="popup-overlay popup-overlay-blocking" onClick={handleOverlayClick}>
       <div className={`popup-box popup-${type}`}>
-        <button className="popup-close-button" onClick={onCancel} aria-label="Close">
-          {'\u00D7'}
-        </button>
         <div className="popup-content">
           <div className="popup-icon">{icons[type] || icons.info}</div>
           <div className="popup-message">{message}</div>

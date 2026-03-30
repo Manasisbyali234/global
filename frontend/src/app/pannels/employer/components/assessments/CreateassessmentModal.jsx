@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import './CreateassessmentModal.css';
 import { disableBodyScroll, enableBodyScroll } from "../../../../../utils/scrollUtils";
@@ -25,13 +25,13 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 	const [isMaximized, setIsMaximized] = useState(false);
 	const [showPreview, setShowPreview] = useState(false);
 	const [optionErrors, setOptionErrors] = useState({});
-	const descriptionTextareaRef = useRef(null);
 	const isConsultantEmployer = employerCategory === 'consultancy' || employerCategory === 'consultant';
 
-	const autoResizeTextarea = (textarea) => {
-		if (!textarea) return;
-		textarea.style.height = "auto";
-		textarea.style.height = `${textarea.scrollHeight}px`;
+	const getPlainText = (html = "") => {
+		if (!html) return "";
+		const temp = document.createElement("div");
+		temp.innerHTML = html;
+		return temp.textContent || temp.innerText || "";
 	};
 
 	useEffect(() => {
@@ -81,10 +81,6 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		fetchApprovedCompanies();
 		return () => enableBodyScroll();
 	}, []);
-
-	useEffect(() => {
-		autoResizeTextarea(descriptionTextareaRef.current);
-	}, [description, isMinimized, showPreview]);
 
 	const handleQuestionChange = (index, field, value) => {
 		const updated = [...questions];
@@ -296,7 +292,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 			return;
 		}
 		
-		if (!description.trim()) {
+		if (!getPlainText(description).trim()) {
 			showWarning("Please provide instructions for the assessment");
 			return;
 		}
@@ -664,25 +660,13 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 						<label className="form-label small text-muted mb-2">
 							Instructions <span style={{color: '#dc2626'}}>*</span>
 						</label>
-						<textarea
-							ref={descriptionTextareaRef}
-							className="form-control"
-							placeholder="Provide instructions for this assessment..."
-							rows={3}
+						<RichTextEditor
 							value={description}
-							onChange={(e) => {
-								setDescription(e.target.value);
-								autoResizeTextarea(e.target);
-							}}
-							required
-							style={{
-								borderColor: description ? '#10b981' : '#dc2626',
-								borderWidth: 2,
-								resize: 'none',
-								overflowY: 'hidden'
-							}}
+							onChange={setDescription}
+							placeholder="Provide instructions for this assessment..."
+							className="form-control-editor"
 						/>
-						{!description && (
+						{!getPlainText(description).trim() && (
 							<small style={{color: '#dc2626', fontSize: 12, marginTop: 6, display: 'block'}}>
 								<i className="fa fa-exclamation-circle" style={{marginRight: 4}}></i>
 								Please provide instructions for the assessment

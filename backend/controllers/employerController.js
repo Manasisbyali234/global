@@ -65,6 +65,36 @@ const dedupeHiringCompanies = (companies = []) => (
   )
 );
 
+const normalizeEmailValue = (value) => (
+  typeof value === 'string' ? value.trim().toLowerCase() : ''
+);
+
+const getDuplicateProfileEmailFields = (emailFields = {}) => {
+  const fieldLabels = {
+    email: 'Basic email',
+    officialEmail: 'Company official email',
+    contactOfficialEmail: 'Primary contact official email'
+  };
+  const seenEmails = new Map();
+  const duplicatePairs = [];
+
+  Object.entries(emailFields).forEach(([field, value]) => {
+    const normalizedValue = normalizeEmailValue(value);
+    if (!normalizedValue) return;
+
+    if (seenEmails.has(normalizedValue)) {
+      duplicatePairs.push([seenEmails.get(normalizedValue), field]);
+      return;
+    }
+
+    seenEmails.set(normalizedValue, field);
+  });
+
+  return duplicatePairs.map(([firstField, secondField]) => (
+    `${fieldLabels[firstField]} and ${fieldLabels[secondField]}`
+  ));
+};
+
 // Authentication Controllers
 exports.registerEmployer = async (req, res) => {
   try {
@@ -322,6 +352,12 @@ exports.updateProfile = async (req, res) => {
     
     // Merge the text field set operations into updateData to ensure they're saved
     Object.assign(updateData, setOperations);
+
+    ['email', 'officialEmail', 'contactOfficialEmail'].forEach((field) => {
+      if (typeof updateData[field] === 'string') {
+        updateData[field] = normalizeEmailValue(updateData[field]);
+      }
+    });
     
     // Force include whyJoinUs and googleMapsEmbed even if empty strings
     if (req.body.hasOwnProperty('whyJoinUs')) {
@@ -367,6 +403,25 @@ exports.updateProfile = async (req, res) => {
         adminData[key] = updateData[key];
       }
     });
+
+    const [existingPublicProfile, existingAdminProfile, existingEmployerProfile] = await Promise.all([
+      EmployerPublicProfile.findOne({ employerId: req.user._id }).select('email'),
+      EmployerAdminProfile.findOne({ employerId: req.user._id }).select('officialEmail contactOfficialEmail'),
+      EmployerProfile.findOne({ employerId: req.user._id }).select('email officialEmail contactOfficialEmail')
+    ]);
+
+    const duplicateProfileEmails = getDuplicateProfileEmailFields({
+      email: publicData.email ?? existingPublicProfile?.email ?? existingEmployerProfile?.email ?? req.user.email,
+      officialEmail: adminData.officialEmail ?? existingAdminProfile?.officialEmail ?? existingEmployerProfile?.officialEmail,
+      contactOfficialEmail: adminData.contactOfficialEmail ?? existingAdminProfile?.contactOfficialEmail ?? existingEmployerProfile?.contactOfficialEmail
+    });
+
+    if (duplicateProfileEmails.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Basic email, company official email, and primary contact official email must all be different.'
+      });
+    }
 
     if (Object.prototype.hasOwnProperty.call(updateData, 'brandName')) {
       await Employer.findByIdAndUpdate(
