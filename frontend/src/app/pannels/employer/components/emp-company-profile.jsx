@@ -114,6 +114,7 @@ function EmpCompanyProfilePage() {
         teamSize: { required: true },
         description: { required: true, minLength: 10 },
         location: { required: true, minLength: 2 },
+        googleMapsEmbed: { required: true, minLength: 10 },
         corporateAddress: { required: true, minLength: 10 },
         pincode: { required: true, pattern: /^\d{6}$/, patternMessage: 'Pincode must be 6 digits' },
         city: { required: true, minLength: 2 },
@@ -1726,7 +1727,7 @@ function EmpCompanyProfilePage() {
 
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label><MapPin size={16} className="me-2" /> Google Maps Embed Code</label>
+                                    <label className="required-field"><MapPin size={16} className="me-2" /> Google Maps Embed Code</label>
                                     <textarea
                                         className="form-control"
                                         rows={3}

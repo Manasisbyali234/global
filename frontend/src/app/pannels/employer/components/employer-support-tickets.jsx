@@ -18,11 +18,11 @@ function EmployerSupportTickets() {
     const [filters, setFilters] = useState({
         status: '',
         priority: '',
-        receiver: 'employer'
+        receiver: 'employer',
+        search: ''
     });
     const [stats, setStats] = useState({
         total: 0,
-        unread: 0,
         new: 0,
         inProgress: 0,
         resolved: 0
@@ -75,7 +75,6 @@ function EmployerSupportTickets() {
                 
                 const newStats = {
                     total: data.totalTickets || 0,
-                    unread: data.unreadCount || 0,
                     new: data.tickets?.filter(t => t.status === 'new').length || 0,
                     inProgress: data.tickets?.filter(t => t.status === 'in-progress').length || 0,
                     resolved: data.tickets?.filter(t => t.status === 'resolved').length || 0
@@ -307,10 +306,6 @@ function EmployerSupportTickets() {
                     <div className="stats-card stats-card--total">
                         <span className="stats-card__label">Total</span>
                         <span className="stats-card__value">{stats.total}</span>
-                    </div>
-                    <div className="stats-card stats-card--unread">
-                        <span className="stats-card__label">Unread</span>
-                        <span className="stats-card__value">{stats.unread}</span>
                     </div>
                     <div className="stats-card stats-card--new">
                         <span className="stats-card__label">New</span>

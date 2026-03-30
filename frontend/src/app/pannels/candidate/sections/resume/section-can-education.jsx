@@ -723,8 +723,8 @@ function SectionCanEducation({ profile, onUpdate }) {
                                             required
                                         >
                                             <option value="">Select Result</option>
-                                            <option value="Passed">Passed</option>
-                                            <option value="Failed">Failed</option>
+                                            <option value="Passed">Pass</option>
+                                            <option value="Failed">Fail</option>
                                         </select>
                                         {errors.result && <div className="invalid-feedback">{errors.result}</div>}
                                     </div>

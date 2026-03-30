@@ -453,10 +453,6 @@ function AdminSupportTickets() {
                             <span className="stats-card__label">Total</span>
                             <span className="stats-card__value">{stats.total}</span>
                         </div>
-                        <div className="stats-card stats-card--unread">
-                            <span className="stats-card__label">Unread</span>
-                            <span className="stats-card__value">{stats.unread}</span>
-                        </div>
                         <div className="stats-card stats-card--new">
                             <span className="stats-card__label">New</span>
                             <span className="stats-card__value">{stats.new}</span>
