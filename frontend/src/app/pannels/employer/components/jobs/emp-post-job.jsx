@@ -582,7 +582,7 @@ export default function EmpPostJob({ onNext }) {
 				onConfirm,
 				null,
 				'warning',
-				{ confirmText: 'Yes Continue', cancelText: 'No' }
+				{ confirmText: 'Yes, Continue', cancelText: 'No' }
 			);
 			return;
 		}
@@ -1014,7 +1014,7 @@ export default function EmpPostJob({ onNext }) {
 				const otherRoundKey = formData.interviewRoundOrder[i];
 				const otherRoundDetails = formData.interviewRoundDetails[otherRoundKey];
 				if (otherRoundDetails?.fromDate === value) {
-					showWarning(`This date clashes with Stage ${i + 1}. Interview rounds should be scheduled on consecutive days.`);
+					showWarning(`This date clashes with Stage ${i + 1}. Interview round should be scheduled on consecutive days.`);
 					return;
 				}
 			}
@@ -1087,7 +1087,7 @@ export default function EmpPostJob({ onNext }) {
 					const otherRoundKey = s.interviewRoundOrder[i];
 					const otherRoundDetails = s.interviewRoundDetails[otherRoundKey];
 					if (otherRoundDetails?.fromDate === value) {
-						showWarning(`This date clashes with Stage ${i + 1}. Interview rounds should be scheduled on consecutive days.`);
+						showWarning(`This date clashes with Stage ${i + 1}. Interview round should be scheduled on consecutive days.`);
 						return s;
 					}
 				}
@@ -2046,7 +2046,7 @@ export default function EmpPostJob({ onNext }) {
 					{currentStep === 2 
 						? 'Define the interview rounds and schedule for this job posting.'
 						: isEditMode 
-							? 'Update your job posting details below. All fields marked with * are required.'
+							? 'Update your job posting details below. All fields marked with * are mandatory.'
 							: 'Fill in the details below to create a new job posting. All fields marked with * are required.'}
 				</p>
 			</div>

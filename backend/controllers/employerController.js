@@ -758,7 +758,7 @@ exports.uploadAuthorizationLetter = async (req, res) => {
     if (existingDocIndex !== -1 && existingLetters[existingDocIndex]?.status === 'approved') {
       return res.status(400).json({
         success: false,
-        message: 'Approved authorization letter cannot be overwritten.'
+        message: 'Approved authorization letter cannot be re-uploaded.'
       });
     }
 

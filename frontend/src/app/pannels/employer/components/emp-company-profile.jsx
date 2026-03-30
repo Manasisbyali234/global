@@ -851,7 +851,7 @@ function EmpCompanyProfilePage() {
 
     const persistHiringCompanies = async (sections = authSections, options = {}) => {
         const {
-            successMessage = 'Hiring companies saved successfully!',
+            successMessage = 'Hiring Company(s) Saved Successfully!',
             showSuccessMessage = true
         } = options;
 
