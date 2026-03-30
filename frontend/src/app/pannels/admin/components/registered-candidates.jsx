@@ -195,7 +195,7 @@ function RegisteredCandidatesPage() {
                                     value={profileStatusFilter}
                                     onChange={(event) => setProfileStatusFilter(event.target.value)}
                                 >
-                                    <option value="">All statuses</option>
+                                    <option value="">All status</option>
                                     <option value="completed">Completed</option>
                                     <option value="incomplete">Incomplete</option>
                                 </select>

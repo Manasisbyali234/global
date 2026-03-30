@@ -420,7 +420,8 @@ const StartAssessment = () => {
             return;
         }
 
-        showWarning(`Warning: Unnecessary activity detected. Mistake ${nextWarningCount}/${RESTRICTION_WARNING_LIMIT} — your assessment will be suspended on the 3rd violation.`);
+        showWarning(`Warning: Unnecessary activity detected (screenshot, tab switch, or right-click). Mistake ${nextWarningCount}/${RESTRICTION_WARNING_LIMIT}.
+On the 3rd violation, your assessment will be terminated/suspended.`);
     }, [assessmentState, attemptId, logViolation, showWarning, suspendAssessment]);
 
     const requestAssessmentFullscreen = useCallback(async () => {
