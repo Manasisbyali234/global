@@ -11,6 +11,8 @@ function EmployerSupportTickets() {
     const [loading, setLoading] = useState(true);
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [isTicketModalMinimized, setIsTicketModalMinimized] = useState(false);
+    const [isTicketModalMaximized, setIsTicketModalMaximized] = useState(false);
     const [response, setResponse] = useState('');
     const [status, setStatus] = useState('');
     const [filters, setFilters] = useState({
@@ -35,6 +37,26 @@ function EmployerSupportTickets() {
     useEffect(() => {
         fetchSupportTickets();
     }, [filters]);
+
+    useEffect(() => {
+        if (!showModal) return undefined;
+
+        if (isTicketModalMinimized) {
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            return undefined;
+        }
+
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        };
+    }, [showModal, isTicketModalMinimized]);
 
     const fetchSupportTickets = async () => {
         try {
@@ -80,6 +102,8 @@ function EmployerSupportTickets() {
         setSelectedTicket(ticket);
         setResponse(ticket.response || '');
         setStatus(ticket.status);
+        setIsTicketModalMinimized(false);
+        setIsTicketModalMaximized(false);
         setShowModal(true);
 
         if (!ticket.isRead) {
@@ -234,9 +258,31 @@ function EmployerSupportTickets() {
 
     const handleCloseModal = () => {
         setShowModal(false);
+        setIsTicketModalMinimized(false);
+        setIsTicketModalMaximized(false);
         setSelectedTicket(null);
         setResponse('');
         setStatus('');
+    };
+
+    const handleToggleTicketModalMinimized = () => {
+        setIsTicketModalMinimized((previous) => {
+            const next = !previous;
+            if (next) {
+                setIsTicketModalMaximized(false);
+            }
+            return next;
+        });
+    };
+
+    const handleToggleTicketModalMaximized = () => {
+        setIsTicketModalMaximized((previous) => {
+            const next = !previous;
+            if (next) {
+                setIsTicketModalMinimized(false);
+            }
+            return next;
+        });
     };
 
     const getJobTitle = (ticket) => ticket?.supportDesignation || ticket?.relatedJobTitle || ticket?.jobId?.title || '';
@@ -421,135 +467,182 @@ function EmployerSupportTickets() {
 
             <Modal 
                 id="support-ticket-modal"
+                className={`support-ticket-modal${isTicketModalMinimized ? ' support-ticket-modal--minimized' : ''}`}
                 show={showModal} 
                 onHide={handleCloseModal}
-                size="lg"
-                centered
+                size={isTicketModalMaximized ? undefined : 'lg'}
+                fullscreen={isTicketModalMaximized}
+                centered={!isTicketModalMinimized && !isTicketModalMaximized}
+                backdrop={isTicketModalMinimized ? false : true}
+                backdropClassName="support-ticket-modal-backdrop"
+                dialogClassName={[
+                    'support-ticket-dialog',
+                    isTicketModalMinimized ? 'support-ticket-dialog--minimized' : '',
+                    isTicketModalMaximized ? 'support-ticket-dialog--maximized' : ''
+                ].filter(Boolean).join(' ')}
+                contentClassName={[
+                    'support-ticket-content',
+                    isTicketModalMinimized ? 'support-ticket-content--minimized' : '',
+                    isTicketModalMaximized ? 'support-ticket-content--maximized' : ''
+                ].filter(Boolean).join(' ')}
             >
-                <Modal.Header closeButton>
-                    <Modal.Title>Ticket details</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {selectedTicket && (
+                <div className="support-ticket-modal-shell">
+                    <div className="support-ticket-modal-topbar">
+                        <h5 className="support-ticket-modal-title">
+                            {isTicketModalMinimized ? (selectedTicket?.subject || 'Ticket details') : 'Ticket details'}
+                        </h5>
+                        <div className="support-ticket-window-controls">
+                            <button
+                                type="button"
+                                className="support-ticket-window-btn"
+                                onClick={handleToggleTicketModalMinimized}
+                                aria-label={isTicketModalMinimized ? 'Restore modal' : 'Minimize modal'}
+                                title={isTicketModalMinimized ? 'Restore' : 'Minimize'}
+                            >
+                                <i className={`fas ${isTicketModalMinimized ? 'fa-window-restore' : 'fa-minus'}`} aria-hidden="true"></i>
+                            </button>
+                            <button
+                                type="button"
+                                className="support-ticket-window-btn"
+                                onClick={handleToggleTicketModalMaximized}
+                                aria-label={isTicketModalMaximized ? 'Restore modal size' : 'Maximize modal'}
+                                title={isTicketModalMaximized ? 'Restore' : 'Maximize'}
+                            >
+                                <i className={`${isTicketModalMaximized ? 'fas fa-window-restore' : 'far fa-square'}`} aria-hidden="true"></i>
+                            </button>
+                            <button
+                                type="button"
+                                className="support-ticket-window-btn support-ticket-window-btn--close"
+                                onClick={handleCloseModal}
+                                aria-label="Close modal"
+                                title="Close"
+                            >
+                                <i className="fas fa-times" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {!isTicketModalMinimized && selectedTicket && (
                         <>
-                            <Row className="mb-3">
-                                <Col md={6}>
-                                    <div className="detail-label">Company Name</div>
-                                    <div className="detail-value detail-value--break">{getCompanyName(selectedTicket)}</div>
-                                </Col>
-                                <Col md={6}>
-                                    <div className="detail-label">Designation</div>
-                                    <div className="detail-value detail-value--break">{getJobTitle(selectedTicket) || 'N/A'}</div>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col md={6}>
-                                    <div className="detail-label">Name / Email</div>
-                                    <div className="detail-value detail-value--break">{selectedTicket.name || 'N/A'}</div>
-                                    <div className="detail-value detail-value--break" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>
-                                        {selectedTicket.email || 'No email'}
-                                    </div>
-                                </Col>
-                                <Col md={6}>
-                                    <div className="detail-label">Subject</div>
-                                    <div className="detail-value detail-value--break">{selectedTicket.subject}</div>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col md={6}>
-                                    <div className="detail-label">Category</div>
-                                    <div className="detail-value detail-value--break">{selectedTicket.category || 'General'}</div>
-                                </Col>
-                                <Col md={6}>
-                                    <div className="detail-label">Priority</div>
-                                    <div>{getPriorityBadge(selectedTicket.priority)}</div>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col md={6}>
-                                    <div className="detail-label">Status</div>
-                                    <div>{getStatusBadge(selectedTicket.status)}</div>
-                                </Col>
-                                <Col md={6}>
-                                    <div className="detail-label">Created</div>
-                                    <div className="detail-value">{formatDate(selectedTicket.createdAt)}</div>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col>
-                                    <div className="detail-label">Message</div>
-                                    <div className="message-box">
-                                        {selectedTicket.message}
-                                    </div>
-                                </Col>
-                            </Row>
-                            {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
+                            <div className="support-ticket-modal-body">
                                 <Row className="mb-3">
-                                    <Col>
-                                        <div className="detail-label">Attachments</div>
-                                        <ul className="attachment-list">
-                                            {selectedTicket.attachments.map((attachment, index) => (
-                                                <li key={index} className="attachment-item">
-                                                    <button 
-                                                        className="attachment-link"
-                                                        onClick={(event) => handleAttachmentClick(event, selectedTicket._id, index, attachment.originalName)}
-                                                    >
-                                                        {attachment.originalName}
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                    <Col md={6}>
+                                        <div className="detail-label">Company Name</div>
+                                        <div className="detail-value detail-value--break">{getCompanyName(selectedTicket)}</div>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="detail-label">Designation</div>
+                                        <div className="detail-value detail-value--break">{getJobTitle(selectedTicket) || 'N/A'}</div>
                                     </Col>
                                 </Row>
-                            )}
-                            <Row className="mb-3">
-                                <Col md={6}>
-                                    <Form.Group>
-                                        <Form.Label className="detail-label">Status</Form.Label>
-                                        <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                                            <option value="new">New</option>
-                                            <option value="in-progress">In progress</option>
-                                            <option value="resolved">Resolved</option>
-                                            <option value="closed">Closed</option>
-                                        </Form.Select>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col md={12}>
-                                    <Form.Group>
-                                        <Form.Label className="detail-label">Your Response</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            className="response-textarea"
-                                            placeholder="Type your response here... This will be sent as a notification to the candidate."
-                                            value={response}
-                                            onChange={(e) => setResponse(e.target.value)}
-                                        />
-                                        <small className="text-muted">Your response will be sent as a notification to the candidate.</small>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                                <Row className="mb-3">
+                                    <Col md={6}>
+                                        <div className="detail-label">Name / Email</div>
+                                        <div className="detail-value detail-value--break">{selectedTicket.name || 'N/A'}</div>
+                                        <div className="detail-value detail-value--break" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>
+                                            {selectedTicket.email || 'No email'}
+                                        </div>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="detail-label">Subject</div>
+                                        <div className="detail-value detail-value--break">{selectedTicket.subject}</div>
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Col md={6}>
+                                        <div className="detail-label">Category</div>
+                                        <div className="detail-value detail-value--break">{selectedTicket.category || 'General'}</div>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="detail-label">Priority</div>
+                                        <div>{getPriorityBadge(selectedTicket.priority)}</div>
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Col md={6}>
+                                        <div className="detail-label">Status</div>
+                                        <div>{getStatusBadge(selectedTicket.status)}</div>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="detail-label">Created</div>
+                                        <div className="detail-value">{formatDate(selectedTicket.createdAt)}</div>
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Col>
+                                        <div className="detail-label">Message</div>
+                                        <div className="message-box">
+                                            {selectedTicket.message}
+                                        </div>
+                                    </Col>
+                                </Row>
+                                {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
+                                    <Row className="mb-3">
+                                        <Col>
+                                            <div className="detail-label">Attachments</div>
+                                            <ul className="attachment-list">
+                                                {selectedTicket.attachments.map((attachment, index) => (
+                                                    <li key={index} className="attachment-item">
+                                                        <button
+                                                            className="attachment-link"
+                                                            onClick={(event) => handleAttachmentClick(event, selectedTicket._id, index, attachment.originalName)}
+                                                        >
+                                                            {attachment.originalName}
+                                                        </button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </Col>
+                                    </Row>
+                                )}
+                                <Row className="mb-3">
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="detail-label">Status</Form.Label>
+                                            <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                                                <option value="new">New</option>
+                                                <option value="in-progress">In progress</option>
+                                                <option value="resolved">Resolved</option>
+                                                <option value="closed">Closed</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Col md={12}>
+                                        <Form.Group>
+                                            <Form.Label className="detail-label">Your Response</Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                className="response-textarea"
+                                                placeholder="Type your response here... This will be sent as a notification to the candidate."
+                                                value={response}
+                                                onChange={(e) => setResponse(e.target.value)}
+                                            />
+                                            <small className="text-muted">Your response will be sent as a notification to the candidate.</small>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                            </div>
+                            <div className="support-ticket-modal-footer">
+                                <Button
+                                    variant="outline-primary"
+                                    className="update-btn"
+                                    onClick={handleUpdateTicket}
+                                    disabled={updating}
+                                >
+                                    {updating ? (
+                                        <>
+                                            <Spinner animation="border" size="sm" className="me-2" />
+                                            Saving
+                                        </>
+                                    ) : (
+                                        'Save changes'
+                                    )}
+                                </Button>
+                            </div>
                         </>
                     )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button 
-                        variant="outline-primary"
-                        className="update-btn" 
-                        onClick={handleUpdateTicket}
-                        disabled={updating}
-                    >
-                        {updating ? (
-                            <>
-                                <Spinner animation="border" size="sm" className="me-2" />
-                                Saving
-                            </>
-                        ) : (
-                            'Save changes'
-                        )}
-                    </Button>
-                </Modal.Footer>
+                </div>
             </Modal>
         </div>
     );
