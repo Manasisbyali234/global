@@ -1,6 +1,8 @@
 const nodemailer = require('nodemailer');
 const { formatTimeToAMPM } = require('./timeUtils');
 
+const MAIL_GREETING_LINE = '<p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #333;">Greeting from Taleglobal</p>';
+
 const createTransport = () => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.error('❌ EMAIL_USER or EMAIL_PASS not set in environment variables');
@@ -33,6 +35,30 @@ const createTransport = () => {
     }
   });
 };
+
+const prependMailGreeting = (html = '') => {
+  if (typeof html !== 'string' || !html.trim() || html.includes('Greeting from Taleglobal')) {
+    return html;
+  }
+
+  const containerMatches = [...html.matchAll(/<div\b[^>]*>/gi)];
+  const insertionMatch = containerMatches[1] || containerMatches[0];
+
+  if (!insertionMatch || insertionMatch.index === undefined) {
+    return `${MAIL_GREETING_LINE}${html}`;
+  }
+
+  const insertAt = insertionMatch.index + insertionMatch[0].length;
+  return `${html.slice(0, insertAt)}
+          ${MAIL_GREETING_LINE}${html.slice(insertAt)}`;
+};
+
+const sendMailWithGreeting = async (transporter, mailOptions = {}) => (
+  transporter.sendMail({
+    ...mailOptions,
+    html: prependMailGreeting(mailOptions.html)
+  })
+);
 
 const sendWelcomeEmail = async (email, name, userType, collegeName = null, officialEmail = null) => {
   const transporter = createTransport();
@@ -252,7 +278,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null, offic
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendResetEmail = async (email, resetToken, userType) => {
@@ -275,7 +301,7 @@ const sendResetEmail = async (email, resetToken, userType) => {
     `
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendPasswordCreationEmail = async (email, name) => {
@@ -327,7 +353,7 @@ const sendPasswordCreationEmail = async (email, name) => {
     html: welcomeTemplate
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const formatAssessmentDate = (date) => {
@@ -380,7 +406,7 @@ const sendAssessmentNotificationEmail = async ({ email, name, jobTitle, startDat
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendOTPEmail = async (email, otp, name) => {
@@ -429,7 +455,7 @@ const sendOTPEmail = async (email, otp, name) => {
   };
 
   console.log('Mail Options:', JSON.stringify(mailOptions, null, 2));
-  const result = await transporter.sendMail(mailOptions);
+  const result = await sendMailWithGreeting(transporter, mailOptions);
   console.log('Email sent successfully:', result);
   return result;
 };
@@ -478,7 +504,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const retryFailedEmail = async (email, name, password, placementOfficerName, collegeName, maxRetries = 3) => {
@@ -627,7 +653,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null, offi
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName, jobTitle, companyName, applicationDate, jobDetails = null) => {
@@ -861,7 +887,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
     html: applicationTemplate
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendCandidateActiveProfileEmail = async (email, name, password) => {
@@ -946,7 +972,7 @@ const sendCandidateActiveProfileEmail = async (email, name, password) => {
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendPlacementAccessEnabledEmail = async (email, name, collegeName, officialEmail = null) => {
@@ -1031,7 +1057,7 @@ const sendPlacementAccessEnabledEmail = async (email, name, collegeName, officia
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
@@ -1088,7 +1114,7 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendPlacementOfficerApprovalEmail = async (email, name) => {
@@ -1122,7 +1148,7 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendEmployerAccountApprovalEmail = async (email, name, companyName = null) => {
@@ -1164,7 +1190,7 @@ const sendEmployerAccountApprovalEmail = async (email, name, companyName = null)
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
@@ -1213,7 +1239,7 @@ const sendConsultantApprovalEmail = async (email, name, companyName = null) => {
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 const sendPlacementRejectionEmail = async (email, officialEmail = null) => {
@@ -1240,7 +1266,7 @@ const sendPlacementRejectionEmail = async (email, officialEmail = null) => {
     html: template
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMailWithGreeting(transporter, mailOptions);
 };
 
 module.exports = { 
@@ -1259,5 +1285,7 @@ module.exports = {
   sendCandidateDetailsUpdatedEmail,
   sendEmployerAccountApprovalEmail,
   sendConsultantApprovalEmail,
-  sendPlacementRejectionEmail
+  sendPlacementRejectionEmail,
+  prependMailGreeting,
+  sendMailWithGreeting
 };

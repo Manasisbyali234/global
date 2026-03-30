@@ -193,11 +193,15 @@ const AssessmentResults = () => {
 	const totalMarks = result?.totalMarks || 0;
 	const resultStatus = result?.result || 'pending';
 	const status = result?.status || 'completed';
+	const manualEvaluationPendingCount = Number(result?.manualEvaluationPendingCount ?? 0);
+	const isPendingManualReview = resultStatus === 'pending' || manualEvaluationPendingCount > 0;
 	const rawPassingPercentage = assessment?.passingPercentage ?? result?.passingPercentage ?? 60;
 	const passingPercentage = Number.isFinite(Number(rawPassingPercentage))
 		? Number(rawPassingPercentage)
 		: 60;
-	const isPassed = resultStatus === 'pass'
+	const isPassed = isPendingManualReview
+		? false
+		: resultStatus === 'pass'
 		? true
 		: resultStatus === 'fail'
 			? false
@@ -369,6 +373,30 @@ const AssessmentResults = () => {
 					</div>
 				)}
 
+				{isPendingManualReview && (
+					<div
+						style={{
+							background: "#fff7ed",
+							borderLeft: "5px solid #f97316",
+							padding: "15px 20px",
+							borderRadius: "8px",
+							marginBottom: "20px",
+							display: "flex",
+							alignItems: "center",
+							gap: "15px",
+							boxShadow: "0px 2px 5px rgba(0,0,0,0.05)"
+						}}
+					>
+						<i className="fa fa-clock-o" style={{ fontSize: "24px", color: "#f97316" }}></i>
+						<div>
+							<strong style={{ display: "block", color: "#c2410c", marginBottom: "2px" }}>Pending Manual Review</strong>
+							<span style={{ fontSize: "14px", color: "#7c2d12" }}>
+								Your non-MCQ answers are awaiting employer evaluation.
+							</span>
+						</div>
+					</div>
+				)}
+
 				{/* Results Cards */}
 				<div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginBottom: "20px" }}>
 					{/* Score Card */}
@@ -388,7 +416,7 @@ const AssessmentResults = () => {
 							style={{
 								fontSize: "48px",
 								fontWeight: "bold",
-								color: isPassed ? "#28a745" : "#dc3545",
+								color: isPendingManualReview ? "#f97316" : isPassed ? "#28a745" : "#dc3545",
 								marginBottom: "10px",
 							}}
 						>
@@ -417,19 +445,19 @@ const AssessmentResults = () => {
 								display: "inline-block",
 								padding: "10px 20px",
 								borderRadius: "25px",
-								background: isPassed ? "#d4edda" : "#f8d7da",
-								color: isPassed ? "#155724" : "#721c24",
+								background: isPendingManualReview ? "#ffedd5" : isPassed ? "#d4edda" : "#f8d7da",
+								color: isPendingManualReview ? "#9a3412" : isPassed ? "#155724" : "#721c24",
 								fontWeight: "bold",
 								fontSize: "18px",
 							}}
 						>
-							{isPassed ? "Pass" : "Fail"}
+							{isPendingManualReview ? "Pending Review" : isPassed ? "Pass" : "Fail"}
 						</span>
 					</div>
 				</div>
 
 				{/* Pie Chart */}
-				<div
+				{!isPendingManualReview && <div
 					style={{
 						background: "#fff",
 						padding: "20px",
@@ -444,7 +472,7 @@ const AssessmentResults = () => {
 					<div style={{ maxWidth: "400px", margin: "0 auto" }}>
 						<Pie data={chartData} options={chartOptions} />
 					</div>
-				</div>
+				</div>}
 
 				{/* Detailed Stats */}
 				<div

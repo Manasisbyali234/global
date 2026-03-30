@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from "react";
+import React, { useEffect, useState, memo, useRef } from "react";
 import ReactDOM from "react-dom";
 import { api } from "../../../../../utils/api";
 import { showSuccess, showError } from '../../../../../utils/popupNotification';
@@ -38,6 +38,43 @@ const hasEmploymentContent = (emp = {}) => Boolean(
     String(emp.projectDetails || "").trim() ||
     emp.isCurrentCompany
 );
+
+function AutoResizingTextarea({ isVisible = true, style, ...props }) {
+    const textareaRef = useRef(null);
+
+    useEffect(() => {
+        if (!isVisible || !textareaRef.current) {
+            return undefined;
+        }
+
+        const syncHeight = () => {
+            const textarea = textareaRef.current;
+            if (!textarea) {
+                return;
+            }
+
+            textarea.style.height = "auto";
+            textarea.style.height = `${textarea.scrollHeight}px`;
+        };
+
+        syncHeight();
+        const frameId = window.requestAnimationFrame(syncHeight);
+
+        return () => window.cancelAnimationFrame(frameId);
+    }, [props.value, isVisible]);
+
+    return (
+        <textarea
+            ref={textareaRef}
+            {...props}
+            style={{
+                resize: "none",
+                overflow: "hidden",
+                ...style
+            }}
+        />
+    );
+}
 
 const EmploymentCard = ({ 
     emp, 
@@ -212,24 +249,26 @@ const EmploymentCard = ({
                     {/* Key Responsibilities and Project Details - Now at the bottom */}
                     <div className="col-12 mb-3 mt-3">
                         <label className="form-label">Job Responsibilities</label>
-                        <textarea 
+                        <AutoResizingTextarea
                             className="form-control"
                             rows="3"
                             value={emp.description || ""}
                             onChange={(e) => handleInputChange('description', e.target.value)}
                             placeholder="Describe your role and main responsibilities..."
-                        ></textarea>
+                            isVisible={isOpen}
+                        />
                     </div>
 
                     <div className="col-12 mb-3">
                         <label className="form-label">Project Details</label>
-                        <textarea 
+                        <AutoResizingTextarea
                             className="form-control"
                             rows="3"
                             value={emp.projectDetails || ""}
                             onChange={(e) => handleInputChange('projectDetails', e.target.value)}
                             placeholder="Mention key projects you worked on..."
-                        ></textarea>
+                            isVisible={isOpen}
+                        />
                     </div>
                 </div>
             </div>

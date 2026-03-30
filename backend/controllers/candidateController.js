@@ -7,7 +7,7 @@ const Message = require('../models/Message');
 const InterviewProcess = require('../models/InterviewProcess');
 const AssessmentAttempt = require('../models/AssessmentAttempt');
 const { createProfileCompletionNotification, createNotification } = require('./notificationController');
-const { sendWelcomeEmail, sendJobApplicationConfirmationEmail } = require('../utils/emailService');
+const { sendWelcomeEmail, sendJobApplicationConfirmationEmail, sendMailWithGreeting } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { sendSMS } = require('../utils/smsProvider');
 const { formatDate } = require('../utils/dateFormatter');
@@ -776,7 +776,7 @@ exports.respondToInterviewInvite = async (req, res) => {
     // Send email notification to employer
     try {
       const nodemailer = require('nodemailer');
-      const transporter = nodemailer.createTransporter({
+      const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
           user: process.env.EMAIL_USER,
@@ -800,7 +800,7 @@ exports.respondToInterviewInvite = async (req, res) => {
         `
       };
       
-      await transporter.sendMail(mailOptions);
+      await sendMailWithGreeting(transporter, mailOptions);
     } catch (emailError) {
       console.error('Email notification failed:', emailError);
     }

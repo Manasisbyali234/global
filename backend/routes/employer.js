@@ -267,6 +267,7 @@ router.put('/assessments/:id', assessmentBodyParser, assessmentController.update
 router.delete('/assessments/:id', assessmentController.deleteAssessment);
 router.get('/assessments/:id/results', assessmentController.getAssessmentResults);
 router.get('/assessment-attempts/:attemptId', assessmentController.getAttemptDetails);
+router.put('/assessment-attempts/:attemptId/manual-evaluation', assessmentController.saveManualEvaluation);
 
 // Support Ticket Routes
 router.get('/support-tickets', employerController.getSupportTickets);

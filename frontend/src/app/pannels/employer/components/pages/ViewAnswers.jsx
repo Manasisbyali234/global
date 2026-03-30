@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { BACKEND_URL } from '../../../../../utils/api';
+import { showError, showSuccess } from '../../../../../utils/popupNotification';
 
 export default function ViewAnswers() {
   const { attemptId } = useParams();
@@ -14,12 +15,52 @@ export default function ViewAnswers() {
   const [assessment, setAssessment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [evaluationDrafts, setEvaluationDrafts] = useState({});
+  const [savingEvaluation, setSavingEvaluation] = useState(false);
 
   const resolveFileUrl = (path) => {
     if (!path || typeof path !== 'string') return '';
     if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     return `${BACKEND_URL}${normalizedPath}`;
+  };
+
+  const OBJECTIVE_QUESTION_TYPES = new Set(['mcq', 'visual-mcq', 'questionary-image-mcq', 'image-mcq']);
+  const MANUAL_QUESTION_TYPES = new Set(['subjective', 'image', 'upload']);
+
+  const isObjectiveQuestionType = (questionType = '') => OBJECTIVE_QUESTION_TYPES.has(String(questionType || '').trim());
+  const isManualQuestionType = (questionType = '') => MANUAL_QUESTION_TYPES.has(String(questionType || '').trim());
+  const hasManualResponse = (answer = {}) =>
+    Boolean(
+      (typeof answer?.textAnswer === 'string' && answer.textAnswer.trim()) ||
+      answer?.uploadedFile?.path ||
+      answer?.uploadedFile?.originalName ||
+      answer?.uploadedFile?.filename ||
+      answer?.uploadedFile?.data
+    );
+
+  const buildEvaluationDrafts = (attemptData) => {
+    const questions = attemptData?.assessmentId?.questions || [];
+    return (attemptData?.answers || []).reduce((acc, answer) => {
+      const question = questions?.[answer?.questionIndex];
+      if (question && isManualQuestionType(question.type)) {
+        acc[answer.questionIndex] = {
+          awardedMarks: answer?.awardedMarks ?? '',
+          evaluationFeedback: answer?.evaluationFeedback || ''
+        };
+      }
+      return acc;
+    }, {});
+  };
+
+  const getResultLabel = (attemptData) => {
+    if (!attemptData) return 'Pending';
+    if (attemptData.status === 'suspended') return 'Suspended';
+    if (attemptData.status === 'expired') return 'Expired';
+    if (Number(attemptData.manualEvaluationPendingCount || 0) > 0) return 'Pending Review';
+    if (attemptData.result === 'pass') return 'Pass';
+    if (attemptData.result === 'fail') return 'Fail';
+    return 'Pending';
   };
 
   useEffect(() => {
@@ -54,6 +95,7 @@ export default function ViewAnswers() {
         });
         setAttempt(response.data.attempt);
         setAssessment(response.data.attempt.assessmentId);
+        setEvaluationDrafts(buildEvaluationDrafts(response.data.attempt));
       } else {
         console.error('API returned success: false', response.data);
       }
@@ -64,6 +106,74 @@ export default function ViewAnswers() {
       setError(error.response?.data?.message || error.message || 'Failed to load answers');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateEvaluationDraft = (questionIndex, field, value) => {
+    setEvaluationDrafts((prev) => ({
+      ...prev,
+      [questionIndex]: {
+        awardedMarks: prev?.[questionIndex]?.awardedMarks ?? '',
+        evaluationFeedback: prev?.[questionIndex]?.evaluationFeedback || '',
+        [field]: value
+      }
+    }));
+  };
+
+  const saveManualEvaluation = async () => {
+    if (!attempt || !assessment) {
+      return;
+    }
+
+    const manualAnswersToEvaluate = (attempt.answers || []).filter((answer) => {
+      const question = assessment.questions?.[answer.questionIndex];
+      return question && isManualQuestionType(question.type) && hasManualResponse(answer);
+    });
+
+    if (!manualAnswersToEvaluate.length) {
+      showError('No manual evaluation is required for this attempt.');
+      return;
+    }
+
+    const missingEvaluation = manualAnswersToEvaluate.find((answer) => {
+      const draftMarks = evaluationDrafts?.[answer.questionIndex]?.awardedMarks;
+      return draftMarks === '' || draftMarks === null || draftMarks === undefined;
+    });
+
+    if (missingEvaluation) {
+      showError(`Enter awarded marks for question ${missingEvaluation.questionIndex + 1}.`);
+      return;
+    }
+
+    try {
+      setSavingEvaluation(true);
+      const token = localStorage.getItem('employerToken');
+      const payload = {
+        evaluations: manualAnswersToEvaluate.map((answer) => ({
+          questionIndex: answer.questionIndex,
+          awardedMarks: evaluationDrafts?.[answer.questionIndex]?.awardedMarks,
+          evaluationFeedback: evaluationDrafts?.[answer.questionIndex]?.evaluationFeedback || ''
+        }))
+      };
+
+      const response = await axios.put(`${API_BASE_URL}/employer/assessment-attempts/${attemptId}/manual-evaluation`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data?.success && response.data?.attempt) {
+        setAttempt(response.data.attempt);
+        setAssessment(response.data.attempt.assessmentId);
+        setEvaluationDrafts(buildEvaluationDrafts(response.data.attempt));
+        showSuccess('Manual evaluation saved successfully.');
+        return;
+      }
+
+      showError(response.data?.message || 'Failed to save manual evaluation.');
+    } catch (saveError) {
+      console.error('Error saving manual evaluation:', saveError);
+      showError(saveError.response?.data?.message || saveError.message || 'Failed to save manual evaluation.');
+    } finally {
+      setSavingEvaluation(false);
     }
   };
 
@@ -117,6 +227,14 @@ export default function ViewAnswers() {
     const question = assessment.questions[a.questionIndex];
     return question ? a : null;
   }).filter(a => a !== null) || [];
+
+  const manualAnswersToEvaluate = allAnswers.filter((answer) => {
+    const question = assessment.questions?.[answer.questionIndex];
+    return question && isManualQuestionType(question.type) && hasManualResponse(answer);
+  });
+  const manualEvaluationPendingCount = Number(attempt.manualEvaluationPendingCount || 0);
+  const manualEvaluationCompletedCount = Number(attempt.manualEvaluationCompletedCount || 0);
+  const resultLabel = getResultLabel(attempt);
 
   console.log('Total answers:', attempt.answers?.length);
   console.log('Displayed answers:', allAnswers.length);
@@ -193,7 +311,50 @@ export default function ViewAnswers() {
               <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Percentage</div>
               <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{attempt.percentage}%</div>
             </div>
+            <div>
+              <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Result</div>
+              <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{resultLabel}</div>
+            </div>
           </div>
+          {manualAnswersToEvaluate.length > 0 && (
+            <div style={{
+              marginTop: '1rem',
+              padding: '1rem',
+              borderRadius: '8px',
+              background: manualEvaluationPendingCount > 0 ? '#fff7ed' : '#ecfdf5',
+              border: `1px solid ${manualEvaluationPendingCount > 0 ? '#fdba74' : '#86efac'}`,
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              flexWrap: 'wrap',
+              alignItems: 'center'
+            }}>
+              <div>
+                <div style={{ fontWeight: '700', color: '#111827', marginBottom: '0.35rem' }}>Manual Evaluation</div>
+                <div style={{ color: '#4b5563', fontSize: '0.875rem' }}>
+                  {manualEvaluationPendingCount > 0
+                    ? `${manualEvaluationPendingCount} answer${manualEvaluationPendingCount === 1 ? '' : 's'} pending review`
+                    : `${manualEvaluationCompletedCount} answer${manualEvaluationCompletedCount === 1 ? '' : 's'} reviewed`}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={saveManualEvaluation}
+                disabled={savingEvaluation}
+                style={{
+                  background: savingEvaluation ? '#9ca3af' : '#f97316',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '0.75rem 1rem',
+                  fontWeight: '600',
+                  cursor: savingEvaluation ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {savingEvaluation ? 'Saving...' : 'Save Manual Evaluation'}
+              </button>
+            </div>
+          )}
         </div>
 
         {allAnswers.length === 0 ? (
@@ -232,7 +393,14 @@ export default function ViewAnswers() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {allAnswers.map((answer, index) => {
               const question = assessment.questions[answer.questionIndex];
-              const isCorrect = (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') && parseInt(answer.selectedAnswer) === parseInt(question.correctAnswer);
+              const isObjectiveQuestion = isObjectiveQuestionType(question.type);
+              const isManualQuestion = isManualQuestionType(question.type);
+              const canEvaluateThisAnswer = isManualQuestion && hasManualResponse(answer);
+              const evaluationDraft = evaluationDrafts?.[answer.questionIndex] || {
+                awardedMarks: answer?.awardedMarks ?? '',
+                evaluationFeedback: answer?.evaluationFeedback || ''
+              };
+              const isCorrect = isObjectiveQuestion && parseInt(answer.selectedAnswer) === parseInt(question.correctAnswer);
               return (
                   <div
                     className="view-answers-page__answer"
@@ -308,7 +476,7 @@ export default function ViewAnswers() {
                     </div>
                   )}
                   
-                  {(question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') ? (
+                  {isObjectiveQuestion ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       {question.options.map((option, idx) => {
                         const isSelected = parseInt(answer.selectedAnswer) === idx;
@@ -616,6 +784,107 @@ export default function ViewAnswers() {
                     </div>
                   )}
                   
+                  {isManualQuestion && (
+                    <div style={{
+                      marginTop: '1.25rem',
+                      padding: '1rem',
+                      borderRadius: '10px',
+                      background: canEvaluateThisAnswer ? '#f8fafc' : '#f9fafb',
+                      border: '1px solid #e5e7eb'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        gap: '0.75rem',
+                        flexWrap: 'wrap',
+                        alignItems: 'center',
+                        marginBottom: '0.75rem'
+                      }}>
+                        <div style={{ fontWeight: '700', color: '#111827' }}>Employer Evaluation</div>
+                        <span style={{
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.75rem',
+                          fontWeight: '700',
+                          background: answer.evaluationStatus === 'evaluated' ? '#dcfce7' : canEvaluateThisAnswer ? '#ffedd5' : '#f3f4f6',
+                          color: answer.evaluationStatus === 'evaluated' ? '#166534' : canEvaluateThisAnswer ? '#9a3412' : '#6b7280'
+                        }}>
+                          {answer.evaluationStatus === 'evaluated'
+                            ? 'Reviewed'
+                            : canEvaluateThisAnswer
+                              ? 'Pending Review'
+                              : 'No Response'}
+                        </span>
+                      </div>
+
+                      {canEvaluateThisAnswer ? (
+                        <>
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'minmax(140px, 180px) minmax(0, 1fr)',
+                            gap: '1rem',
+                            alignItems: 'start'
+                          }}>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#374151', marginBottom: '0.4rem' }}>
+                                Awarded Marks
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max={question.marks || 1}
+                                step="0.01"
+                                value={evaluationDraft.awardedMarks}
+                                onChange={(e) => updateEvaluationDraft(answer.questionIndex, 'awardedMarks', e.target.value)}
+                                style={{
+                                  width: '100%',
+                                  border: '1px solid #d1d5db',
+                                  borderRadius: '8px',
+                                  padding: '0.7rem 0.85rem',
+                                  fontSize: '0.95rem'
+                                }}
+                              />
+                              <div style={{ marginTop: '0.35rem', color: '#6b7280', fontSize: '0.75rem' }}>
+                                Max: {question.marks || 1}
+                              </div>
+                            </div>
+
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#374151', marginBottom: '0.4rem' }}>
+                                Feedback
+                              </label>
+                              <textarea
+                                rows="3"
+                                value={evaluationDraft.evaluationFeedback}
+                                onChange={(e) => updateEvaluationDraft(answer.questionIndex, 'evaluationFeedback', e.target.value)}
+                                placeholder="Add feedback for this answer"
+                                style={{
+                                  width: '100%',
+                                  border: '1px solid #d1d5db',
+                                  borderRadius: '8px',
+                                  padding: '0.7rem 0.85rem',
+                                  fontSize: '0.95rem',
+                                  resize: 'vertical',
+                                  minHeight: '96px'
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          {answer.evaluationStatus === 'evaluated' && (
+                            <div style={{ marginTop: '0.75rem', color: '#6b7280', fontSize: '0.8rem' }}>
+                              Saved marks: {answer.awardedMarks ?? 0}/{question.marks || 1}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                          Manual evaluation is not required because the candidate did not submit a response for this question.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="view-answers-page__status-row" style={{ 
                     marginTop: '1rem', 
                     display: 'flex', 
@@ -624,7 +893,7 @@ export default function ViewAnswers() {
                     color: '#6b7280'
                   }}>
                     <span>Marks: {question.marks || 1}</span>
-
+                    {isManualQuestion && <span>Awarded: {answer.awardedMarks ?? 0}</span>}
                   </div>
                 </div>
               );

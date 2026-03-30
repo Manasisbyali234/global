@@ -29,6 +29,9 @@ function AdminOverviewPage() {
   const visibleEmployerJobs = employerJobs.filter(
     (job) => job.status !== "draft" && job.title.toLowerCase().includes(jobSearch.toLowerCase())
   );
+  const showJobCompanyColumn =
+    selectedEmployer?.employerType === "consultant" ||
+    visibleEmployerJobs.some((job) => String(job.companyName || "").trim());
   const visibleJobApplicants = jobApplicants.filter((applicant) =>
     String(applicant?.applicantEmail || "").toLowerCase().includes(applicantSearch.toLowerCase())
   );
@@ -374,6 +377,7 @@ function AdminOverviewPage() {
                   <thead>
                     <tr>
                       <th>Job Title</th>
+                      {showJobCompanyColumn && <th>Company Name</th>}
                       <th>Applications</th>
                       <th>Paid Applicants</th>
                       <th>Credit Applicants</th>
@@ -386,7 +390,7 @@ function AdminOverviewPage() {
                   <tbody>
                     {visibleEmployerJobs.length === 0 ? (
                       <tr>
-                        <td colSpan="8" className="text-center">
+                        <td colSpan={showJobCompanyColumn ? 9 : 8} className="text-center">
                           {jobSearch ? "No matching jobs found." : "No jobs found for this employer."}
                         </td>
                       </tr>
@@ -394,6 +398,7 @@ function AdminOverviewPage() {
                       visibleEmployerJobs.map((job) => (
                           <tr key={job.jobId}>
                             <td>{job.title}</td>
+                            {showJobCompanyColumn && <td>{job.companyName || selectedEmployer?.employerName || "N/A"}</td>}
                             <td>{job.applicationsCount}</td>
                             <td>{job.paidApplicationsCount ?? 0}</td>
                             <td>{job.creditApplicationsCount ?? 0}</td>

@@ -23,12 +23,20 @@ const AssessmentAttemptSchema = new mongoose.Schema({
       uploadedAt: { type: Date }
     },
     timeSpent: { type: Number },
-    answeredAt: { type: Date }
+    answeredAt: { type: Date },
+    awardedMarks: { type: Number, default: null },
+    evaluationStatus: { type: String, enum: ['pending', 'auto_evaluated', 'evaluated'], default: 'pending' },
+    evaluationFeedback: { type: String, default: '' },
+    evaluatedAt: { type: Date },
+    evaluatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Employer' }
   }],
   score: { type: Number, default: 0 },
   totalMarks: { type: Number },
   percentage: { type: Number },
   result: { type: String, enum: ['pass', 'fail', 'pending'], default: 'pending' },
+  manualEvaluationRequiredCount: { type: Number, default: 0 },
+  manualEvaluationCompletedCount: { type: Number, default: 0 },
+  manualEvaluationPendingCount: { type: Number, default: 0 },
   termsAccepted: { type: Boolean, default: false },
   termsAcceptedAt: { type: Date },
   restrictionWarningCount: { type: Number, default: 0 },

@@ -12,7 +12,7 @@ const Subscription = require('../models/Subscription');
 const Support = require('../models/Support');
 const mongoose = require('mongoose');
 const { createNotification } = require('./notificationController');
-const { sendWelcomeEmail } = require('../utils/emailService');
+const { sendWelcomeEmail, sendMailWithGreeting } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { cacheInvalidation } = require('../utils/cacheInvalidation');
 const { sendSMS } = require('../utils/smsProvider');
@@ -2323,7 +2323,7 @@ exports.updateApplicationStatus = async (req, res) => {
               auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
               tls: { rejectUnauthorized: false }
             });
-            const emailResult = await transporter.sendMail({
+            const emailResult = await sendMailWithGreeting(transporter, {
               from: process.env.EMAIL_USER,
               to: application.candidateId.email,
               subject: `ðŸŽ‰ Congratulations! You've been shortlisted for ${jobTitle}`,
@@ -3339,7 +3339,7 @@ exports.sendInterviewInvite = async (req, res) => {
     };
     
     console.log('Attempting to send interview invite email to:', application.candidateId.email);
-    const emailResult = await transporter.sendMail(mailOptions);
+    const emailResult = await sendMailWithGreeting(transporter, mailOptions);
     console.log('Email sent successfully:', emailResult.messageId);
     
     // Save interview invite details to application
@@ -3440,7 +3440,7 @@ exports.confirmInterview = async (req, res) => {
       `
     };
     
-    await transporter.sendMail(mailOptions);
+    await sendMailWithGreeting(transporter, mailOptions);
     
     // Update application with confirmed schedule
     await Application.findByIdAndUpdate(applicationId, {

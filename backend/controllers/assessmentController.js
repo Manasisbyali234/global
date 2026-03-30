@@ -16,6 +16,217 @@ const RESTRICTED_WARNING_VIOLATIONS = new Set([
   'multi_screen'
 ]);
 
+const OBJECTIVE_QUESTION_TYPES = new Set([
+  'mcq',
+  'visual-mcq',
+  'questionary-image-mcq',
+  'image-mcq'
+]);
+
+const MANUAL_QUESTION_TYPES = new Set([
+  'subjective',
+  'image',
+  'upload'
+]);
+
+const isObjectiveQuestionType = (questionType = '') =>
+  OBJECTIVE_QUESTION_TYPES.has(String(questionType || '').trim());
+
+const isManualQuestionType = (questionType = '') =>
+  MANUAL_QUESTION_TYPES.has(String(questionType || '').trim());
+
+const hasCandidateResponse = (answer = {}) =>
+  Boolean(
+    (typeof answer?.textAnswer === 'string' && answer.textAnswer.trim()) ||
+    answer?.uploadedFile?.path ||
+    answer?.uploadedFile?.originalName ||
+    answer?.uploadedFile?.filename ||
+    answer?.uploadedFile?.data ||
+    answer?.selectedAnswer === 0 ||
+    answer?.selectedAnswer
+  );
+
+const normalizeMarksValue = (value, maxMarks) => {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return null;
+  }
+
+  const cappedValue = Math.min(Math.max(numericValue, 0), Math.max(Number(maxMarks) || 0, 0));
+  return Math.round(cappedValue * 100) / 100;
+};
+
+const buildAttemptEvaluationSummary = (assessment, attempt) => {
+  const questions = Array.isArray(assessment?.questions) ? assessment.questions : [];
+  const answers = Array.isArray(attempt?.answers) ? attempt.answers : [];
+
+  let score = 0;
+  let totalAnswered = 0;
+  let correctAnswers = 0;
+  let manualEvaluationRequiredCount = 0;
+  let manualEvaluationCompletedCount = 0;
+  let manualEvaluationPendingCount = 0;
+
+  const normalizedAnswers = answers.map((answer) => {
+    const question = questions[answer?.questionIndex];
+    if (!question) {
+      return answer;
+    }
+
+    const marks = Number(question?.marks) || 1;
+    const normalizedQuestionType = String(question?.type || '').trim();
+
+    if (isObjectiveQuestionType(normalizedQuestionType)) {
+      const selectedAnswer = Number.parseInt(answer?.selectedAnswer, 10);
+      const correctAnswer = Number.parseInt(question?.correctAnswer, 10);
+      const isAnswered = !Number.isNaN(selectedAnswer);
+      const isCorrect =
+        isAnswered &&
+        !Number.isNaN(correctAnswer) &&
+        selectedAnswer === correctAnswer;
+      const awardedMarks = isCorrect ? marks : 0;
+
+      if (isAnswered) {
+        totalAnswered += 1;
+      }
+      if (isCorrect) {
+        correctAnswers += 1;
+      }
+      score += awardedMarks;
+
+      return {
+        ...answer,
+        awardedMarks,
+        evaluationStatus: 'auto_evaluated',
+        evaluationFeedback: answer?.evaluationFeedback || '',
+        evaluatedAt: answer?.evaluatedAt || null,
+        evaluatedBy: answer?.evaluatedBy || null
+      };
+    }
+
+    if (isManualQuestionType(normalizedQuestionType)) {
+      const hasResponse = hasCandidateResponse(answer);
+      if (hasResponse) {
+        totalAnswered += 1;
+        manualEvaluationRequiredCount += 1;
+      }
+
+      if (!hasResponse) {
+        return {
+          ...answer,
+          awardedMarks: 0,
+          evaluationStatus: 'auto_evaluated',
+          evaluationFeedback: answer?.evaluationFeedback || '',
+          evaluatedAt: answer?.evaluatedAt || null,
+          evaluatedBy: answer?.evaluatedBy || null
+        };
+      }
+
+      const awardedMarks = normalizeMarksValue(answer?.awardedMarks, marks);
+      const isEvaluated = answer?.evaluationStatus === 'evaluated' && awardedMarks !== null;
+
+      if (isEvaluated) {
+        manualEvaluationCompletedCount += 1;
+        score += awardedMarks;
+      } else {
+        manualEvaluationPendingCount += 1;
+      }
+
+      return {
+        ...answer,
+        awardedMarks: isEvaluated ? awardedMarks : null,
+        evaluationStatus: isEvaluated ? 'evaluated' : 'pending',
+        evaluationFeedback: answer?.evaluationFeedback || '',
+        evaluatedAt: isEvaluated ? (answer?.evaluatedAt || null) : null,
+        evaluatedBy: isEvaluated ? (answer?.evaluatedBy || null) : null
+      };
+    }
+
+    if (hasCandidateResponse(answer)) {
+      totalAnswered += 1;
+    }
+
+    return answer;
+  });
+
+  const totalMarks = questions.reduce((sum, question) => sum + (Number(question?.marks) || 1), 0);
+  const percentage = totalMarks > 0 ? (score / totalMarks) * 100 : 0;
+  const passingPercentage = Number(assessment?.passingPercentage) || 60;
+  const result =
+    manualEvaluationPendingCount > 0
+      ? 'pending'
+      : percentage >= passingPercentage
+        ? 'pass'
+        : 'fail';
+
+  return {
+    normalizedAnswers,
+    score: Math.round(score * 100) / 100,
+    totalMarks,
+    percentage: Math.round(percentage * 100) / 100,
+    result,
+    correctAnswers,
+    totalAnswered,
+    manualEvaluationRequiredCount,
+    manualEvaluationCompletedCount,
+    manualEvaluationPendingCount
+  };
+};
+
+const resolveAssessmentStageStatus = (attemptStatus, attemptResult) => {
+  const normalizedStatus = String(attemptStatus || '').trim().toLowerCase();
+  const normalizedResult = String(attemptResult || '').trim().toLowerCase();
+
+  if (normalizedStatus === 'suspended') return 'suspended';
+  if (normalizedStatus === 'expired') return 'expired';
+  if (normalizedStatus === 'in_progress') return 'in_progress';
+  if (normalizedStatus === 'not_started') return 'pending';
+  if (normalizedResult === 'pass') return 'passed';
+  if (normalizedResult === 'fail') return 'failed';
+  return 'completed';
+};
+
+const persistAssessmentOutcome = async ({ attempt, assessment }) => {
+  const evaluation = buildAttemptEvaluationSummary(assessment, attempt);
+
+  attempt.answers = evaluation.normalizedAnswers;
+  attempt.score = evaluation.score;
+  attempt.totalMarks = evaluation.totalMarks;
+  attempt.percentage = evaluation.percentage;
+  attempt.result = evaluation.result;
+  attempt.manualEvaluationRequiredCount = evaluation.manualEvaluationRequiredCount;
+  attempt.manualEvaluationCompletedCount = evaluation.manualEvaluationCompletedCount;
+  attempt.manualEvaluationPendingCount = evaluation.manualEvaluationPendingCount;
+
+  await attempt.save();
+
+  const statusMap = {
+    not_started: 'pending',
+    in_progress: 'in_progress',
+    completed: 'completed',
+    expired: 'expired',
+    suspended: 'suspended'
+  };
+
+  await Application.findByIdAndUpdate(attempt.applicationId, {
+    assessmentStatus: statusMap[attempt.status] || 'pending',
+    assessmentScore: evaluation.score,
+    assessmentPercentage: evaluation.percentage,
+    assessmentResult: evaluation.result,
+    assessmentAttemptId: attempt._id
+  });
+
+  await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
+    status: resolveAssessmentStageStatus(attempt.status, evaluation.result),
+    assessmentResult: evaluation.result,
+    assessmentScore: evaluation.score,
+    assessmentPercentage: evaluation.percentage,
+    assessmentCompletedAt: attempt.endTime || attempt.suspendedAt || new Date()
+  });
+
+  return evaluation;
+};
+
 const updateInterviewProcessAssessmentStage = async (applicationId, assessmentId, updates = {}) => {
   if (!applicationId || !assessmentId) {
     return;
@@ -989,64 +1200,13 @@ exports.submitAssessment = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Assessment not found' });
     }
     
-    // Calculate score with enhanced validation
-    let score = 0;
-    let correctAnswers = 0;
-    let totalAnswered = 0;
-    
-    // Validate all answers before scoring
-    for (const answer of attempt.answers) {
-      const question = assessment.questions[answer.questionIndex];
-      if (!question) {
-        console.warn(`Question not found for index: ${answer.questionIndex}`);
-        continue;
-      }
-      
-      totalAnswered++;
-      
-      // Handle different question types
-      if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') {
-        // Ensure both values are integers for accurate comparison
-        const selectedAnswer = parseInt(answer.selectedAnswer);
-        const correctAnswer = parseInt(question.correctAnswer);
-        
-        // Validate answer is within valid range and not null/undefined
-        if (!isNaN(selectedAnswer) && selectedAnswer >= 0 && selectedAnswer < question.options.length) {
-          if (selectedAnswer === correctAnswer) {
-            score += (question.marks || 1);
-            correctAnswers++;
-          }
-        } else {
-          console.warn(`Invalid MCQ answer ${selectedAnswer} for question ${answer.questionIndex}`);
-        }
-      } else if (question.type === 'subjective' || question.type === 'image' || question.type === 'upload') {
-        // For subjective, image, and upload questions, check for text answers or uploaded files
-        if ((answer.textAnswer && answer.textAnswer.trim()) || answer.uploadedFile) {
-          // Give full marks for answered questions (manual evaluation may be needed)
-          score += (question.marks || 1);
-          correctAnswers++;
-        }
-      }
-    }
-    
-    // Ensure totalMarks is valid - calculate from all questions, not just answered ones
-    const totalMarks = assessment.questions.reduce((sum, q) => sum + (q.marks || 1), 0);
-    const percentage = totalMarks > 0 ? (score / totalMarks) * 100 : 0;
-    const passingPercentage = assessment.passingPercentage || 60; // Default 60%
-    const result = percentage >= passingPercentage ? 'pass' : 'fail';
-    
     // Check if time expired
     const timeElapsed = (new Date() - new Date(attempt.startTime)) / 1000; // in seconds
     const timeLimit = assessment.timer * 60; // in seconds
     const isExpired = timeElapsed > timeLimit;
     
-    // Update attempt with results
-    attempt.score = score;
-    attempt.percentage = Math.round(percentage * 100) / 100; // Round to 2 decimal places
-    attempt.result = result;
     attempt.status = isExpired ? 'expired' : 'completed';
     attempt.endTime = new Date();
-    attempt.totalMarks = totalMarks; // Ensure totalMarks is set
     
     // Merge violations from request with existing violations
     if (!attempt.violations) {
@@ -1069,57 +1229,31 @@ exports.submitAssessment = async (req, res) => {
     }
     
     attempt.markModified('violations');
-    await attempt.save();
-    
-    // Update application with assessment results
-    // Map AssessmentAttempt status to Application assessmentStatus
-    const statusMap = {
-      'not_started': 'pending',
-      'in_progress': 'in_progress',
-      'completed': 'completed',
-      'expired': 'expired',
-      'suspended': 'suspended'
-    };
-    
-    const updateData = {
-      assessmentStatus: statusMap[attempt.status] || 'pending',
-      assessmentScore: score,
-      assessmentPercentage: attempt.percentage,
-      assessmentResult: result,
-      assessmentAttemptId: attempt._id
-    };
-    
-    await Application.findByIdAndUpdate(attempt.applicationId, updateData);
-
-    await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
-      status: result === 'pass' ? 'passed' : 'failed',
-      assessmentResult: result,
-      assessmentScore: score,
-      assessmentPercentage: attempt.percentage,
-      assessmentCompletedAt: attempt.endTime
-    });
+    const evaluation = await persistAssessmentOutcome({ attempt, assessment });
     
     console.log(`Assessment submitted successfully for attempt ${attemptId}:`, {
-      score,
-      totalMarks,
-      percentage: attempt.percentage,
-      result,
-      correctAnswers,
-      totalAnswered
+      score: evaluation.score,
+      totalMarks: evaluation.totalMarks,
+      percentage: evaluation.percentage,
+      result: evaluation.result,
+      correctAnswers: evaluation.correctAnswers,
+      totalAnswered: evaluation.totalAnswered,
+      manualEvaluationPendingCount: evaluation.manualEvaluationPendingCount
     });
     
     res.json({ 
       success: true, 
       message: 'Assessment submitted successfully',
       result: {
-        score,
-        totalMarks,
-        percentage: attempt.percentage,
-        result,
-        correctAnswers,
+        score: evaluation.score,
+        totalMarks: evaluation.totalMarks,
+        percentage: evaluation.percentage,
+        result: evaluation.result,
+        correctAnswers: evaluation.correctAnswers,
         totalQuestions: assessment.totalQuestions,
-        totalAnswered,
-        unanswered: assessment.totalQuestions - totalAnswered,
+        totalAnswered: evaluation.totalAnswered,
+        unanswered: assessment.totalQuestions - evaluation.totalAnswered,
+        manualEvaluationPendingCount: evaluation.manualEvaluationPendingCount,
         attemptId: attempt._id
       }
     });
@@ -1145,28 +1279,21 @@ exports.getAssessmentResult = async (req, res) => {
     if (!attempt) {
       return res.status(404).json({ success: false, message: 'Result not found' });
     }
+
+    const evaluation = buildAttemptEvaluationSummary(attempt.assessmentId, attempt);
     
     res.json({ 
       success: true, 
       result: {
-        score: attempt.score,
-        totalMarks: attempt.totalMarks,
-        percentage: attempt.percentage,
-        result: attempt.result,
+        score: evaluation.score,
+        totalMarks: evaluation.totalMarks,
+        percentage: evaluation.percentage,
+        result: evaluation.result,
         status: attempt.status,
-        correctAnswers: attempt.answers.filter(a => {
-          const question = attempt.assessmentId.questions[a.questionIndex];
-          if (!question) return false;
-
-          if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') {
-            return !isNaN(parseInt(a.selectedAnswer)) && parseInt(a.selectedAnswer) === parseInt(question.correctAnswer);
-          } else if (question.type === 'subjective' || question.type === 'image' || question.type === 'upload') {
-            return (a.textAnswer && a.textAnswer.trim()) || a.uploadedFile;
-          }
-          return false;
-        }).length,
+        correctAnswers: evaluation.correctAnswers,
         totalQuestions: attempt.assessmentId.totalQuestions,
-        violations: attempt.violations
+        violations: attempt.violations,
+        manualEvaluationPendingCount: evaluation.manualEvaluationPendingCount
       }
     });
   } catch (error) {
@@ -1281,6 +1408,7 @@ exports.getAssessmentResults = async (req, res) => {
     // Ensure violations array exists for each result and convert to plain objects
     const resultsWithViolations = results.map(r => {
       const resultObj = r.toObject();
+      const evaluation = buildAttemptEvaluationSummary(assessment, resultObj);
       
       // Debug logging for applicationId and violations
       console.log('Processing result:', {
@@ -1293,6 +1421,13 @@ exports.getAssessmentResults = async (req, res) => {
       
       return {
         ...resultObj,
+        score: evaluation.score,
+        totalMarks: evaluation.totalMarks,
+        percentage: evaluation.percentage,
+        result: evaluation.result,
+        manualEvaluationRequiredCount: evaluation.manualEvaluationRequiredCount,
+        manualEvaluationCompletedCount: evaluation.manualEvaluationCompletedCount,
+        manualEvaluationPendingCount: evaluation.manualEvaluationPendingCount,
         violations: Array.isArray(resultObj.violations) ? resultObj.violations : [],
         // Ensure candidate data is available
         candidateId: resultObj.candidateId || {
@@ -1351,8 +1486,24 @@ exports.getAttemptDetails = async (req, res) => {
     
     console.log('Attempt details - Total answers:', attempt.answers?.length);
     console.log('Attempt details - Answers:', JSON.stringify(attempt.answers, null, 2));
+
+    const attemptObj = attempt.toObject();
+    const evaluation = buildAttemptEvaluationSummary(attempt.assessmentId, attemptObj);
     
-    res.json({ success: true, attempt });
+    res.json({
+      success: true,
+      attempt: {
+        ...attemptObj,
+        answers: evaluation.normalizedAnswers,
+        score: evaluation.score,
+        totalMarks: evaluation.totalMarks,
+        percentage: evaluation.percentage,
+        result: evaluation.result,
+        manualEvaluationRequiredCount: evaluation.manualEvaluationRequiredCount,
+        manualEvaluationCompletedCount: evaluation.manualEvaluationCompletedCount,
+        manualEvaluationPendingCount: evaluation.manualEvaluationPendingCount
+      }
+    });
   } catch (error) {
     console.error('Get attempt details error:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -1394,29 +1545,22 @@ exports.getAssessmentResultByApplication = async (req, res) => {
     }
     
     console.log('[getAssessmentResultByApplication] Found attempt:', attempt._id);
+
+    const evaluation = buildAttemptEvaluationSummary(attempt.assessmentId, attempt);
     
     res.json({ 
       success: true, 
       data: {
         result: {
-          score: attempt.score,
-          totalMarks: attempt.totalMarks,
-          percentage: attempt.percentage,
-          result: attempt.result,
+          score: evaluation.score,
+          totalMarks: evaluation.totalMarks,
+          percentage: evaluation.percentage,
+          result: evaluation.result,
           status: attempt.status,
-          correctAnswers: attempt.answers.filter(a => {
-            const question = attempt.assessmentId.questions[a.questionIndex];
-            if (!question) return false;
-
-            if (question.type === 'mcq' || question.type === 'visual-mcq' || question.type === 'questionary-image-mcq' || question.type === 'image-mcq') {
-              return !isNaN(parseInt(a.selectedAnswer)) && parseInt(a.selectedAnswer) === parseInt(question.correctAnswer);
-            } else if (question.type === 'subjective' || question.type === 'image' || question.type === 'upload') {
-              return (a.textAnswer && a.textAnswer.trim()) || a.uploadedFile;
-            }
-            return false;
-          }).length,
+          correctAnswers: evaluation.correctAnswers,
           totalQuestions: attempt.assessmentId.totalQuestions,
-          violations: attempt.violations
+          violations: attempt.violations,
+          manualEvaluationPendingCount: evaluation.manualEvaluationPendingCount
         },
         assessment: {
           title: attempt.assessmentId.title,
@@ -1427,6 +1571,100 @@ exports.getAssessmentResultByApplication = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Employer: Save manual evaluation for non-MCQ answers
+exports.saveManualEvaluation = async (req, res) => {
+  try {
+    const { attemptId } = req.params;
+    const { evaluations } = req.body;
+
+    if (!Array.isArray(evaluations)) {
+      return res.status(400).json({ success: false, message: 'Evaluations must be an array' });
+    }
+
+    const attempt = await AssessmentAttempt.findById(attemptId).populate('assessmentId');
+    if (!attempt) {
+      return res.status(404).json({ success: false, message: 'Assessment attempt not found' });
+    }
+
+    if (!attempt.assessmentId || String(attempt.assessmentId.employerId) !== String(req.user._id)) {
+      return res.status(403).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const assessment = attempt.assessmentId;
+    const evaluationMap = new Map(
+      evaluations
+        .filter((entry) => entry && Number.isInteger(Number(entry.questionIndex)))
+        .map((entry) => [Number(entry.questionIndex), entry])
+    );
+
+    attempt.answers = (attempt.answers || []).map((answer) => {
+      const question = assessment.questions?.[answer.questionIndex];
+      if (!question || !isManualQuestionType(question.type)) {
+        return answer;
+      }
+
+      const nextEvaluation = evaluationMap.get(Number(answer.questionIndex));
+      if (!nextEvaluation) {
+        return answer;
+      }
+
+      const hasResponse = hasCandidateResponse(answer);
+      if (!hasResponse) {
+        return {
+          ...(answer.toObject?.() || answer),
+          awardedMarks: 0,
+          evaluationStatus: 'auto_evaluated',
+          evaluationFeedback: '',
+          evaluatedAt: null,
+          evaluatedBy: null
+        };
+      }
+
+      const awardedMarks = normalizeMarksValue(nextEvaluation.awardedMarks, question.marks || 1);
+      if (awardedMarks === null) {
+        throw new Error(`Awarded marks are required for question ${answer.questionIndex + 1}`);
+      }
+
+      return {
+        ...(answer.toObject?.() || answer),
+        awardedMarks,
+        evaluationStatus: 'evaluated',
+        evaluationFeedback: String(nextEvaluation.evaluationFeedback || ''),
+        evaluatedAt: new Date(),
+        evaluatedBy: req.user._id
+      };
+    });
+
+    if (attempt.status === 'not_started') {
+      attempt.status = 'completed';
+    }
+    if (!attempt.endTime) {
+      attempt.endTime = new Date();
+    }
+
+    const evaluation = await persistAssessmentOutcome({ attempt, assessment });
+
+    res.json({
+      success: true,
+      message: 'Manual evaluation saved successfully',
+      attempt: {
+        ...attempt.toObject(),
+        answers: evaluation.normalizedAnswers,
+        score: evaluation.score,
+        totalMarks: evaluation.totalMarks,
+        percentage: evaluation.percentage,
+        result: evaluation.result,
+        manualEvaluationRequiredCount: evaluation.manualEvaluationRequiredCount,
+        manualEvaluationCompletedCount: evaluation.manualEvaluationCompletedCount,
+        manualEvaluationPendingCount: evaluation.manualEvaluationPendingCount
+      }
+    });
+  } catch (error) {
+    console.error('Save manual evaluation error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to save manual evaluation' });
   }
 };
 

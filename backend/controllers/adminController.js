@@ -227,7 +227,7 @@ exports.getEmployerOverview = async (req, res) => {
 exports.getEmployerOverviewJobs = async (req, res) => {
   try {
     const { employerId } = req.params;
-    const employer = await Employer.findOne({ _id: employerId, isApproved: true }).select('_id companyName name').lean();
+    const employer = await Employer.findOne({ _id: employerId, isApproved: true }).select('_id companyName name employerType').lean();
 
     if (!employer) {
       return res.status(404).json({ success: false, message: 'Approved employer not found' });
@@ -237,7 +237,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       employerId,
       status: { $ne: 'draft' }
     })
-      .select('_id title status createdAt offerLetterDate')
+      .select('_id title status createdAt offerLetterDate companyName')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -272,6 +272,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
     const data = jobs.map((job) => ({
       jobId: job._id,
       title: job.title,
+      companyName: job.companyName || employer.companyName || employer.name || 'N/A',
       status: job.status,
       createdAt: job.createdAt,
       offerLetterDate: job.offerLetterDate,
@@ -284,7 +285,8 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       success: true,
       employer: {
         employerId: employer._id,
-        employerName: employer.companyName || employer.name || 'N/A'
+        employerName: employer.companyName || employer.name || 'N/A',
+        employerType: employer.employerType || 'company'
       },
       data
     });
