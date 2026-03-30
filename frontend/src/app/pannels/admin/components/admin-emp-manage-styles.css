@@ -186,8 +186,13 @@
     white-space: nowrap;
 }
 
-.admin-emp-toolbar .search-section {
+.admin-emp-manage-container .admin-emp-toolbar .search-section {
     min-width: 0;
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+    box-shadow: none !important;
 }
 
 .toolbar-control-wrap {
