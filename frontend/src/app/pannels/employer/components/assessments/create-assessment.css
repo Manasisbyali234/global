@@ -5,7 +5,7 @@
 }
 
 /* Search Bar Styles */
-.search-section {
+.create-assessment-page .search-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
   padding: 20px;
@@ -424,7 +424,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .search-section {
+  .create-assessment-page .search-section {
     padding: 15px;
   }
   
@@ -490,11 +490,11 @@
 }
 
 @media (max-width: 576px) {
-  .search-section .row > div {
+  .create-assessment-page .search-section .row > div {
     margin-bottom: 10px;
   }
   
-  .search-section .row > div:last-child {
+  .create-assessment-page .search-section .row > div:last-child {
     margin-bottom: 0;
   }
   

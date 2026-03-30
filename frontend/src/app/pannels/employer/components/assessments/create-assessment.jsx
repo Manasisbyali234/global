@@ -103,7 +103,7 @@ function CreateAssessmentPage() {
     };
 
     return (
-        <>
+        <div className="create-assessment-page">
             <div className="wt-admin-right-page-header clearfix">
                 <h2>Create Assessment</h2>
                 <div className="breadcrumbs">
@@ -285,7 +285,7 @@ function CreateAssessmentPage() {
                     editData={editingAssessment}
                 />
             )}
-        </>
+        </div>
     );
 }
 
