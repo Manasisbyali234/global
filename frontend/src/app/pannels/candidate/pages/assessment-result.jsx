@@ -186,8 +186,6 @@ const AssessmentResults = () => {
 	} = location.state || assessmentResult || {};
 
 	// Handle both old format (answers array) and new format (result object)
-	const correctAnswers = result?.correctAnswers || 0;
-	const totalQuestions = result?.totalQuestions || assessment?.totalQuestions || 0;
 	const percentage = Number(result?.percentage ?? 0);
 	const score = result?.score || 0;
 	const totalMarks = result?.totalMarks || 0;
@@ -208,17 +206,17 @@ const AssessmentResults = () => {
 			? false
 			: percentage >= passingPercentage;
 
-	// Calculate incorrect answers
-	const incorrectAnswers = totalQuestions - correctAnswers;
+	const chartPercentage = Math.max(0, Math.min(percentage, 100));
+	const remainingPercentage = Math.max(0, 100 - chartPercentage);
 
 	// Pie chart data
 	const chartData = {
-		labels: ['Correct Answers', 'Incorrect Answers'],
+		labels: ['Scored Percentage', 'Remaining Percentage'],
 		datasets: [
 			{
-				data: [correctAnswers, incorrectAnswers],
-				backgroundColor: ['#28a745', '#dc3545'],
-				borderColor: ['#28a745', '#dc3545'],
+				data: [chartPercentage, remainingPercentage],
+				backgroundColor: ['#28a745', '#e5e7eb'],
+				borderColor: ['#28a745', '#e5e7eb'],
 				borderWidth: 1,
 			},
 		],
@@ -235,8 +233,7 @@ const AssessmentResults = () => {
 					label: function(context) {
 						const label = context.label || '';
 						const value = context.parsed;
-						const percentage = ((value / totalQuestions) * 100).toFixed(1);
-						return `${label}: ${value} (${percentage}%)`;
+						return `${label}: ${Number(value).toFixed(1)}%`;
 					}
 				}
 			}
@@ -562,58 +559,12 @@ const AssessmentResults = () => {
 					}}
 				>
 					<h3 style={{ margin: "0 0 20px 0", textAlign: "center", color: "#232323" }}>
-						Performance Breakdown
+						Score Breakdown
 					</h3>
 					<div style={{ maxWidth: "400px", margin: "0 auto" }}>
 						<Pie data={chartData} options={chartOptions} />
 					</div>
 				</div>}
-
-				{/* Detailed Stats */}
-				{!shouldHideScoringDetails && <div
-					style={{
-						background: "#fff",
-						padding: "20px",
-						borderRadius: "8px",
-						boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
-						marginBottom: "20px",
-					}}
-				>
-					<h3 style={{ margin: "0 0 20px 0", color: "#232323" }}>Detailed Statistics</h3>
-					<div
-						style={{
-							display: "grid",
-							gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-							gap: "20px",
-						}}
-					>
-						<div style={{ textAlign: "center" }}>
-							<strong style={{ color: "#232323" }}>Total Questions</strong>
-							<div style={{ fontSize: "24px", fontWeight: "bold", color: "#007bff" }}>
-								{totalQuestions}
-							</div>
-						</div>
-						<div style={{ textAlign: "center" }}>
-							<strong style={{ color: "#232323" }}>Correct Answers</strong>
-							<div style={{ fontSize: "24px", fontWeight: "bold", color: "#28a745" }}>
-								{correctAnswers}
-							</div>
-						</div>
-						<div style={{ textAlign: "center" }}>
-							<strong style={{ color: "#232323" }}>Incorrect Answers</strong>
-							<div style={{ fontSize: "24px", fontWeight: "bold", color: "#dc3545" }}>
-								{incorrectAnswers}
-							</div>
-						</div>
-						<div style={{ textAlign: "center" }}>
-							<strong style={{ color: "#232323" }}>Accuracy</strong>
-							<div style={{ fontSize: "24px", fontWeight: "bold", color: "#ffc107" }}>
-								{percentage.toFixed(1)}%
-							</div>
-						</div>
-					</div>
-				</div>}
-
 
 			</div>
 		</div>
