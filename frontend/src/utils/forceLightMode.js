@@ -25,12 +25,14 @@ export const forceLightMode = () => {
   // Force light color scheme on document
   const forceStyles = () => {
     document.documentElement.style.setProperty('color-scheme', 'light only', 'important');
+    document.documentElement.style.setProperty('scroll-behavior', 'auto', 'important');
 
     document.documentElement.style.setProperty('color', '#111827', 'important');
 
 
     document.body.style.setProperty('color', '#111827', 'important');
     document.body.style.setProperty('color-scheme', 'light only', 'important');
+    document.body.style.setProperty('scroll-behavior', 'auto', 'important');
 
 
     
@@ -54,7 +56,11 @@ export const forceLightMode = () => {
     const docStyle = getComputedStyle(document.documentElement);
     const bodyStyle = getComputedStyle(document.body);
 
-    if (docStyle.colorScheme !== 'light only') {
+    if (
+      docStyle.colorScheme !== 'light only' ||
+      docStyle.scrollBehavior !== 'auto' ||
+      bodyStyle.scrollBehavior !== 'auto'
+    ) {
       forceStyles();
     }
 

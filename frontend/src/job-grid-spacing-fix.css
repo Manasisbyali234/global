@@ -1,8 +1,11 @@
 /* Job Grid Page - Mobile Spacing Fix */
 
 .job-grid-banner-active .wt-bnr-inr {
-  height: 84px !important;
-  min-height: 84px !important;
+  height: 72px !important;
+  min-height: 72px !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .job-grid-banner-active .wt-bnr-inr .container,
@@ -12,17 +15,31 @@
 }
 
 .job-grid-banner-active .wt-bnr-inr-entry {
-  height: 84px !important;
+  height: 72px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   padding: 0 !important;
+  vertical-align: middle !important;
 }
 
 .job-grid-banner-active .banner-title-outer,
 .job-grid-banner-active .banner-title-name,
 .job-grid-banner-active .banner-title-name .wt-title {
   margin: 0 !important;
+}
+
+.job-grid-banner-active .banner-title-name .wt-title {
+  line-height: 1.1 !important;
+}
+
+.job-grid-banner-active .banner-title-outer {
+  position: static !important;
+}
+
+.job-grid-banner-active .banner-title-name {
+  display: block !important;
+  margin-bottom: 0 !important;
 }
 
 @media (min-width: 992px) {
@@ -59,14 +76,15 @@
 
 @media (max-width: 991px) {
   .job-grid-banner-active .wt-bnr-inr {
-    padding: 2px 0 !important;
-    min-height: 80px !important;
-    height: 10vh !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    padding: 0 !important;
     position: relative !important;
   }
   
   .job-grid-banner-active .wt-bnr-inr-entry {
-    padding: 5px 0 !important;
+    height: 60px !important;
+    padding: 0 !important;
   }
   
   .job-grid-banner-active .banner-title-outer {
@@ -83,6 +101,7 @@
     margin: 0 0 2px 0 !important;
     padding: 0 !important;
     font-size: 18px !important;
+    line-height: 1.1 !important;
   }
   
   .job-grid-banner-active .wt-breadcrumb {
@@ -107,5 +126,21 @@
   .overlay-wraper .overlay-main,
   .overlay-main {
     position: absolute !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .job-grid-banner-active .wt-bnr-inr {
+    height: 52px !important;
+    min-height: 52px !important;
+    padding: 0 !important;
+  }
+
+  .job-grid-banner-active .wt-bnr-inr-entry {
+    height: 52px !important;
+  }
+
+  .job-grid-banner-active .banner-title-name .wt-title {
+    font-size: 20px !important;
   }
 }

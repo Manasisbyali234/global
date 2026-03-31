@@ -5,7 +5,7 @@ html, body {
   padding: 0 !important;
   overflow-x: hidden !important;
   width: 100% !important;
-  max-width: 100vw !important;
+  max-width: 100% !important;
 }
 
 .hero-body {
@@ -17,7 +17,7 @@ html, body {
   justify-content: center;
   padding-top: 80px;
   width: 100%;
-  max-width: 100vw;
+  max-width: 100%;
   overflow-x: hidden;
   overflow-y: visible;
   position: relative;
@@ -355,7 +355,7 @@ html, body {
 
 .categories-carousel {
   width: 100%;
-  overflow: visible;
+  overflow: hidden;
   margin: 0;
   padding: 0;
 }
@@ -364,32 +364,11 @@ html, body {
   display: flex !important;
   gap: 1.5rem !important;
   padding: 1rem 0 !important;
-  animation: scroll-categories 20s linear infinite !important;
-  animation-duration: 20s !important;
-  animation-timing-function: linear !important;
-  animation-iteration-count: infinite !important;
-  width: calc(200% + 1.5rem) !important;
-  will-change: transform !important;
-  flex-wrap: nowrap !important;
-}
-
-@keyframes scroll-categories {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-/* Force animation even with reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .categories-track {
-    animation: scroll-categories 20s linear infinite !important;
-    animation-duration: 20s !important;
-    animation-timing-function: linear !important;
-    animation-iteration-count: infinite !important;
-  }
+  width: 100% !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  animation: none !important;
+  transform: none !important;
 }
 
 .hero-body .category-card {
@@ -545,7 +524,6 @@ html, body {
   .categories-track {
     padding-left: 1rem;
     padding-right: 1rem;
-    animation-duration: 20s;
   }
 
   .hero-image {
@@ -624,10 +602,10 @@ html, body {
   }
 
   .categories-track {
-    animation: scroll-categories 20s linear infinite;
-    width: calc(200% + 1.5rem);
+    width: 100%;
     padding: 1rem 0;
     gap: 1.5rem;
+    justify-content: center;
   }
 
   .category-card {
@@ -659,10 +637,10 @@ html, body {
   }
 
   .categories-track {
-    animation: scroll-categories 20s linear infinite;
-    width: calc(200% + 1.5rem);
+    width: 100%;
     padding: 1rem 0;
     gap: 1.5rem;
+    justify-content: center;
   }
 
   .category-card {
@@ -846,10 +824,10 @@ html, body {
   }
 
   .categories-track {
-    animation: scroll-categories 20s linear infinite;
-    width: calc(200% + 1.5rem);
+    width: 100%;
     padding: 1rem 0;
     gap: 1.5rem;
+    justify-content: center;
   }
 
   .category-card {
@@ -1022,10 +1000,10 @@ html, body {
   }
 
   .categories-track {
-    animation: scroll-categories 20s linear infinite;
-    width: calc(200% + 1.5rem);
+    width: 100%;
     padding: 1rem 0;
     gap: 1.5rem;
+    justify-content: center;
   }
 
   .category-card {

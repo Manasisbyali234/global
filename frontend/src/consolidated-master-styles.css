@@ -88,10 +88,7 @@ font-family: 'Poppins', sans-serif !important;
   color: #000000 !important;
 }
 
-/* Smooth scrolling for the entire page */
 html {
-  scroll-behavior: smooth;
-  /* Hide scrollbar for home page */
   overflow-x: hidden;
 }
 

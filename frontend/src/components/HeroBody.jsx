@@ -312,7 +312,6 @@ const HeroBody = ({ onSearch }) => {
 
     if (onSearch && typeof onSearch === 'function') {
       onSearch(filters);
-      setTimeout(() => scrollToTopJobs(), 200);
     } else {
       const queryString = Object.keys(filters)
         .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(filters[key])}`)
@@ -328,47 +327,6 @@ const HeroBody = ({ onSearch }) => {
     e.preventDefault();
     e.stopPropagation();
     handleHomeSearch();
-  };
-
-  const scrollToTopJobs = () => {
-    // Try multiple selectors to find the Top Jobs section
-    const selectors = [
-      '.twm-jobs-grid-wrap',
-      '[data-section="top-jobs"]',
-      '.section-content .twm-jobs-grid-wrap',
-      '.twm-jobs-list-wrap'
-    ];
-    
-    let topJobsSection = null;
-    for (const selector of selectors) {
-      topJobsSection = document.querySelector(selector);
-      if (topJobsSection) break;
-    }
-    
-    if (topJobsSection) {
-      // Ensure smooth scrolling is enabled
-      document.documentElement.style.scrollBehavior = 'smooth';
-      
-      // Calculate offset to account for fixed header
-      const headerHeight = 80; // Approximate header height
-      const elementPosition = topJobsSection.getBoundingClientRect().top + window.pageYOffset;
-      const offsetPosition = elementPosition - headerHeight;
-      
-      // Use both methods for better browser compatibility
-      try {
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      } catch (e) {
-        // Fallback for older browsers
-        topJobsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    } else {
-      console.warn('Top Jobs section not found. Available sections:', 
-        Array.from(document.querySelectorAll('[class*="job"], [class*="section"]')).map(el => el.className)
-      );
-    }
   };
 
   return (
@@ -600,8 +558,7 @@ const HeroBody = ({ onSearch }) => {
             overflow: 'hidden'
           }}>
             <div className="categories-track">
-              {/* Duplicate categories for seamless loop */}
-              {[...jobCategories, ...jobCategories].map((category, index) => (
+              {jobCategories.map((category, index) => (
                 <button
                   key={index}
                   type="button"
@@ -618,17 +575,6 @@ const HeroBody = ({ onSearch }) => {
             </div>
           </div>
         </div>
-        
-        <style jsx>{`
-          @keyframes scroll-categories {
-            from {
-              transform: translateX(0);
-            }
-            to {
-              transform: translateX(-50%);
-            }
-          }
-        `}</style>
       </div>
     </div>
   );

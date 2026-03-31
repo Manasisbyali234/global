@@ -51,11 +51,6 @@ textarea:focus::placeholder {
     opacity: 0.5;
 }
 
-/* ===== Smooth Scrolling Enhancement ===== */
-html {
-    scroll-behavior: smooth;
-}
-
 /* ===== Card Hover Animations ===== */
 .hover-card {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

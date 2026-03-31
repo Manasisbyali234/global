@@ -28,7 +28,7 @@ body.modal-open {
 
 /* Prevent scrollbar jump when locking scroll */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto !important;
 }
 
 /* Mobile scroll lock support */

@@ -34,6 +34,46 @@
   min-width: 150px;
 }
 
+.admin-overview-round-schedule {
+  font-size: 12px;
+  color: #495057;
+  text-align: left;
+}
+
+.admin-overview-round-schedule-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-overview-round-schedule-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.admin-overview-round-schedule-value {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.admin-overview-round-detail {
+  font-size: 12px;
+  color: #495057;
+  text-align: left;
+}
+
+.admin-overview-round-remarks {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 @media (max-width: 767px) {
   .admin-overview-page {
     padding: 12px;

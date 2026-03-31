@@ -236,6 +236,45 @@ export default function ViewAnswers() {
     ? Math.round(((Number(attempt.totalMarks || 0) * passingPercentage) / 100) * 100) / 100
     : 0;
   const resultLabel = getResultLabel(attempt);
+  const manualEvaluationSummary = manualAnswersToEvaluate.length > 0 && (
+    <div style={{
+      marginTop: '2rem',
+      padding: '1rem',
+      borderRadius: '8px',
+      background: manualEvaluationPendingCount > 0 ? '#fff7ed' : '#ecfdf5',
+      border: `1px solid ${manualEvaluationPendingCount > 0 ? '#fdba74' : '#86efac'}`,
+      display: 'flex',
+      justifyContent: 'space-between',
+      gap: '1rem',
+      flexWrap: 'wrap',
+      alignItems: 'center'
+    }}>
+      <div>
+        <div style={{ fontWeight: '700', color: '#111827', marginBottom: '0.35rem' }}>Manual Evaluation</div>
+        <div style={{ color: '#4b5563', fontSize: '0.875rem' }}>
+          {manualEvaluationPendingCount > 0
+            ? `${manualEvaluationPendingCount} answer${manualEvaluationPendingCount === 1 ? '' : 's'} pending review`
+            : `${manualEvaluationCompletedCount} answer${manualEvaluationCompletedCount === 1 ? '' : 's'} reviewed`}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={saveManualEvaluation}
+        disabled={savingEvaluation}
+        style={{
+          background: savingEvaluation ? '#9ca3af' : '#f97316',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          padding: '0.75rem 1rem',
+          fontWeight: '600',
+          cursor: savingEvaluation ? 'not-allowed' : 'pointer'
+        }}
+      >
+        {savingEvaluation ? 'Saving...' : 'Save Manual Evaluation'}
+      </button>
+    </div>
+  );
 
   console.log('Total answers:', attempt.answers?.length);
   console.log('Displayed answers:', allAnswers.length);
@@ -325,45 +364,6 @@ export default function ViewAnswers() {
               <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{passingMarks}/{attempt.totalMarks}</div>
             </div>
           </div>
-          {manualAnswersToEvaluate.length > 0 && (
-            <div style={{
-              marginTop: '1rem',
-              padding: '1rem',
-              borderRadius: '8px',
-              background: manualEvaluationPendingCount > 0 ? '#fff7ed' : '#ecfdf5',
-              border: `1px solid ${manualEvaluationPendingCount > 0 ? '#fdba74' : '#86efac'}`,
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: '1rem',
-              flexWrap: 'wrap',
-              alignItems: 'center'
-            }}>
-              <div>
-                <div style={{ fontWeight: '700', color: '#111827', marginBottom: '0.35rem' }}>Manual Evaluation</div>
-                <div style={{ color: '#4b5563', fontSize: '0.875rem' }}>
-                  {manualEvaluationPendingCount > 0
-                    ? `${manualEvaluationPendingCount} answer${manualEvaluationPendingCount === 1 ? '' : 's'} pending review`
-                    : `${manualEvaluationCompletedCount} answer${manualEvaluationCompletedCount === 1 ? '' : 's'} reviewed`}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={saveManualEvaluation}
-                disabled={savingEvaluation}
-                style={{
-                  background: savingEvaluation ? '#9ca3af' : '#f97316',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '0.75rem 1rem',
-                  fontWeight: '600',
-                  cursor: savingEvaluation ? 'not-allowed' : 'pointer'
-                }}
-              >
-                {savingEvaluation ? 'Saving...' : 'Save Manual Evaluation'}
-              </button>
-            </div>
-          )}
         </div>
 
         {allAnswers.length === 0 ? (
@@ -885,6 +885,8 @@ export default function ViewAnswers() {
             </div>
           </div>
         )}
+
+        {manualEvaluationSummary}
       </div>
     </div>
   );

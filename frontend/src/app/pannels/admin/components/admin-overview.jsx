@@ -495,25 +495,44 @@ function AdminOverviewPage() {
                                     <div style={{ fontWeight: 600, fontSize: "12px", color: "#232323" }}>
                                       {round.name || round.type || `Round ${index + 1}`}
                                     </div>
-                                     <div style={{ fontSize: "12px", color: "#495057" }}>
-                                       <strong>Status:</strong> {round.status || "pending"}
-                                     </div>
-                                     <div style={{ fontSize: "12px", color: "#495057", whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word" }}>
-                                       <strong>Schedule:</strong>{" "}
-                                       {(() => {
-                                         const dateLabel = formatRoundDate(round);
-                                         const timeLabel = formatRoundTime(round);
+                                      <div className="admin-overview-round-detail">
+                                        <strong>Status:</strong> {round.status || "pending"}
+                                      </div>
+                                      <div className="admin-overview-round-schedule">
+                                        {(() => {
+                                          const dateLabel = formatRoundDate(round);
+                                          const timeLabel = formatRoundTime(round);
+                                          const hasSchedule = dateLabel || timeLabel;
 
-                                         if (dateLabel && timeLabel) {
-                                           return `${dateLabel} | ${timeLabel}`;
-                                         }
+                                          if (!hasSchedule) {
+                                            return (
+                                              <div className="admin-overview-round-schedule-line">
+                                                <span className="admin-overview-round-schedule-value">Not scheduled</span>
+                                              </div>
+                                            );
+                                          }
 
-                                         return dateLabel || timeLabel || "Not scheduled";
-                                       })()}
-                                     </div>
-                                     <div style={{ fontSize: "12px", color: "#495057", whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word" }}>
-                                       <strong>Remarks:</strong> {round.remark || "No remarks"}
-                                     </div>
+                                          return (
+                                            <div className="admin-overview-round-schedule-meta">
+                                              <div className="admin-overview-round-schedule-line">
+                                                <strong>Date:</strong>
+                                                <span className="admin-overview-round-schedule-value">
+                                                  {dateLabel || "Not set"}
+                                                </span>
+                                              </div>
+                                              <div className="admin-overview-round-schedule-line">
+                                                <strong>Time:</strong>
+                                                <span className="admin-overview-round-schedule-value">
+                                                  {timeLabel || "Not set"}
+                                                </span>
+                                              </div>
+                                            </div>
+                                          );
+                                        })()}
+                                      </div>
+                                      <div className="admin-overview-round-detail admin-overview-round-remarks">
+                                        <strong>Remarks:</strong> {round.remark || "No remarks"}
+                                      </div>
                                   </div>
                                 ))}
                               </div>

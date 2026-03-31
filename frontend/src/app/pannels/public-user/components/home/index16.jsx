@@ -139,6 +139,9 @@ function Home16Page() {
     };
 
     useEffect(() => {
+        document.documentElement.classList.add('home-scrollbar-hidden');
+        document.body.classList.add('home-scrollbar-hidden');
+
         updateSkinStyle("8", false, false)
         loadScript("js/custom.js")
         fetchHomeData();
@@ -153,8 +156,7 @@ function Home16Page() {
             });
         }, 100);
 
-        // Add smooth scrolling behavior
-        document.documentElement.style.scrollBehavior = 'smooth';
+        document.documentElement.style.scrollBehavior = 'auto';
 
         // Add intersection observer for animations
         const observer = new IntersectionObserver((entries) => {
@@ -170,6 +172,9 @@ function Home16Page() {
         sections.forEach(section => observer.observe(section));
 
         return () => {
+            document.documentElement.classList.remove('home-scrollbar-hidden');
+            document.body.classList.remove('home-scrollbar-hidden');
+            document.documentElement.style.scrollBehavior = 'auto';
             sections.forEach(section => observer.unobserve(section));
         };
     }, [])
