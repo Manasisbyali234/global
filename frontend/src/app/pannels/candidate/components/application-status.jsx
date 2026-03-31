@@ -1460,7 +1460,7 @@ function CanStatusPage() {
 				return;
 			}
 			const endLabel = windowInfo.endDate ? windowInfo.endDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : null;
-			showError(endLabel ? `⛔ Assessment Window Closed\n\nThe assessment window ended on ${endLabel}. You can no longer take this assessment.` : '⛔ Assessment window has ended. You can no longer access this assessment.');
+			showError(endLabel ? `⛔ Assessment Window Closed\n\nThe assessment window ended on ${endLabel}.` : '⛔ Assessment window has ended.');
 			return;
 		}
 		const assessmentId = getAssessmentRoundInfo(application, 'Assessment', roundDetails).assessmentId || job?.assessmentId;
@@ -2272,7 +2272,7 @@ function CanStatusPage() {
 																	</button>
 																	<div className="alert alert-danger mt-2 mb-0" style={{fontSize: '13px', padding: '8px 12px'}}>
 																		<i className="fa fa-exclamation-circle me-1"></i>
-																		The assessment window has ended. You can no longer take this assessment.
+																		The assessment window has ended.
 																	</div>
 																</div>
 																	);
