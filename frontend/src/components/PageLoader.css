@@ -34,6 +34,25 @@
     letter-spacing: 0.02em;
 }
 
+.page-loader--compact {
+    min-height: 160px;
+    padding: 24px 16px;
+    gap: 12px;
+}
+
+.page-loader--compact .page-loader__orb {
+    width: 64px;
+    height: 64px;
+}
+
+.page-loader--compact .page-loader__icon {
+    font-size: 28px;
+}
+
+.page-loader--compact .page-loader__text {
+    font-size: 0.98rem;
+}
+
 @media (max-width: 767px) {
     .page-loader {
         min-height: 220px;
@@ -47,5 +66,19 @@
 
     .page-loader__icon {
         font-size: 30px;
+    }
+
+    .page-loader--compact {
+        min-height: 140px;
+        padding: 20px 12px;
+    }
+
+    .page-loader--compact .page-loader__orb {
+        width: 58px;
+        height: 58px;
+    }
+
+    .page-loader--compact .page-loader__icon {
+        font-size: 24px;
     }
 }

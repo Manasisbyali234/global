@@ -2,6 +2,7 @@
 import { Route, Routes } from "react-router-dom";
 import { publicUser } from "../globals/route-names";
 import { lazy, Suspense } from "react";
+import PageLoader from "../components/PageLoader";
 
 // Lazy load components for better performance
 const Home16Page = lazy(() => import("../app/pannels/public-user/components/home/index16"));
@@ -51,7 +52,7 @@ const CreatePassword = lazy(() => import("../app/common/CreatePassword"));
 
 function PublicUserRoutes() {
     return (
-        <Suspense fallback={<div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px'}}><div>Loading...</div></div>}>
+        <Suspense fallback={<PageLoader pageName="Public Page" compact />}>
             <Routes>
             <Route path={publicUser.INITIAL} element={<Home16Page />} />
             <Route path={publicUser.HOME} element={<Home16Page />} />

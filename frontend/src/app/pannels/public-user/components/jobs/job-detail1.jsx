@@ -7,6 +7,7 @@ import ApplyJobPopup from "../../../../common/popups/popup-apply-job";
 import SectionShareProfile from "../../sections/common/section-share-profile";
 import SectionJobsSidebar2 from "../../sections/jobs/sidebar/section-jobs-sidebar2";
 import TermsModal from "../../../../../components/TermsModal";
+import PageLoader from "../../../../../components/PageLoader";
 import { pendingPaymentManager } from '../../../../../utils/pendingPaymentManager';
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
@@ -198,12 +199,7 @@ function JobDetail1Page() {
     };
 
     if (loading) {
-        return (
-            <div className="loading-container">
-                <div className="loading-spinner"></div>
-                <p style={{marginLeft: '16px', color: '#6c757d'}}>Loading job details...</p>
-            </div>
-        );
+        return <PageLoader pageName="Job Details" />;
     }
 
     if (!job) {

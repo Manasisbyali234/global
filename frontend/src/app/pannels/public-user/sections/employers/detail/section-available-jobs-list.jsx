@@ -3,6 +3,7 @@
 import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { publicUser } from "../../../../../../globals/route-names";
+import PageLoader from "../../../../../../components/PageLoader";
 import "../../../../../../new-job-card.css";
 
 function SectionAvailableJobsList({ employerId }) {
@@ -94,7 +95,7 @@ function SectionAvailableJobsList({ employerId }) {
 	};
 
 	if (loading) {
-		return <div className="text-center p-3">Loading jobs...</div>;
+		return <PageLoader pageName="Jobs" compact />;
 	}
 
 	return (

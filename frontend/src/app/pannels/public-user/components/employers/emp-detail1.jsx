@@ -18,6 +18,7 @@ import "../../../../../emp-detail-review-mobile-fix.css";
 import "../../../../../emp-detail-white-container.css";
 import "../../../../../emp-detail-typography-fix.css";
 import "../../../../../review-posted-alignment-fix.css";
+import PageLoader from "../../../../../components/PageLoader";
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 function EmployersDetail1Page() {
@@ -189,7 +190,7 @@ function EmployersDetail1Page() {
     };
 
     if (loading) {
-        return <div className="text-center p-5">Loading employer details...</div>;
+        return <PageLoader pageName="Employer Details" />;
     }
 
     if (!employer) {

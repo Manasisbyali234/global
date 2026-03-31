@@ -6,6 +6,7 @@ import SectionAvailableJobsGrid from "../../sections/employers/detail/section-av
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { loadScript } from "../../../../../globals/constants";
+import PageLoader from "../../../../../components/PageLoader";
 
 function EmployersDetail2Page() {
     const { id } = useParams();
@@ -33,7 +34,7 @@ function EmployersDetail2Page() {
         }
     };
 
-    if (loading) return <div className="loading-container">Loading...</div>;
+    if (loading) return <PageLoader pageName="Employer Details" />;
     if (!employer) return <div className="error-container">Employer not found</div>;
 
     return (
