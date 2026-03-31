@@ -9,6 +9,7 @@ import { api } from '../../../../utils/api';
 function EmployerSupportTickets() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [isTicketModalMinimized, setIsTicketModalMinimized] = useState(false);
@@ -36,7 +37,7 @@ function EmployerSupportTickets() {
 
     useEffect(() => {
         fetchSupportTickets();
-    }, [filters]);
+    }, [filters.status, filters.priority, filters.receiver]);
 
     useEffect(() => {
         if (!showModal) return undefined;
@@ -286,6 +287,14 @@ function EmployerSupportTickets() {
 
     const getJobTitle = (ticket) => ticket?.supportDesignation || ticket?.relatedJobTitle || ticket?.jobId?.title || '';
     const getCompanyName = (ticket) => ticket?.supportCompanyName || ticket?.relatedCompanyName || ticket?.jobId?.companyName || 'N/A';
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+    const filteredTickets = normalizedSearchTerm
+        ? tickets.filter((ticket) => {
+            const candidateName = String(ticket?.name || '').toLowerCase();
+            const candidateEmail = String(ticket?.email || '').toLowerCase();
+            return candidateName.includes(normalizedSearchTerm) || candidateEmail.includes(normalizedSearchTerm);
+        })
+        : tickets;
 
     if (loading) {
         return (
@@ -327,13 +336,33 @@ function EmployerSupportTickets() {
                         <Button
                             variant="link"
                             className="clear-filters-btn"
-                            onClick={() => setFilters({ status: '', priority: '', receiver: 'employer' })}
+                            onClick={() => {
+                                setFilters({ status: '', priority: '', receiver: 'employer', search: '' });
+                                setSearchTerm('');
+                            }}
                         >
                             Reset filters
                         </Button>
                     </div>
                     <Row className="g-3">
                         <Col md={6}>
+                            <div className="search-input-wrapper">
+                                <span className="search-input-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" focusable="false">
+                                        <circle cx="11" cy="11" r="7"></circle>
+                                        <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+                                    </svg>
+                                </span>
+                                <Form.Control
+                                    type="text"
+                                    className="search-input"
+                                    placeholder="Search by candidate name or email"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </Col>
+                        <Col md={3}>
                             <div className="filter-select-wrapper">
                                 <Form.Select
                                     className="filter-select"
@@ -349,7 +378,7 @@ function EmployerSupportTickets() {
                                 <i className="fa fa-chevron-down filter-select-icon" aria-hidden="true"></i>
                             </div>
                         </Col>
-                        <Col md={6}>
+                        <Col md={3}>
                             <div className="filter-select-wrapper">
                                 <Form.Select
                                     className="filter-select"
@@ -373,15 +402,19 @@ function EmployerSupportTickets() {
                         <Card className="tickets-card">
                             <div className="tickets-header">
                                 <div>
-                                    <h5>Support Tickets ({tickets.length})</h5>
+                                    <h5>Support Tickets ({filteredTickets.length})</h5>
                                     <span className="tickets-header__subtitle">Track ticket lifecycle and respond with clarity.</span>
                                 </div>
                             </div>
                             <Card.Body className="p-0">
-                                {tickets.length === 0 ? (
+                                {filteredTickets.length === 0 ? (
                                     <div className="empty-state">
-                                        <h6>No tickets available</h6>
-                                        <p>Candidate support requests will appear here once submitted.</p>
+                                        <h6>{tickets.length === 0 ? 'No tickets available' : 'No matching tickets found'}</h6>
+                                        <p>
+                                            {tickets.length === 0
+                                                ? 'Candidate support requests will appear here once submitted.'
+                                                : 'Try a different candidate name or email address.'}
+                                        </p>
                                     </div>
                                 ) : (
                                     <div className="table-responsive">
@@ -400,7 +433,7 @@ function EmployerSupportTickets() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {tickets.map((ticket) => (
+                                                {filteredTickets.map((ticket) => (
                                                     <tr
                                                         key={ticket._id}
                                                         className={`tickets-row ${!ticket.isRead ? 'unread-ticket' : ''}`}

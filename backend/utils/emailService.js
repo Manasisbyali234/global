@@ -409,6 +409,55 @@ const sendAssessmentNotificationEmail = async ({ email, name, jobTitle, startDat
   await sendMailWithGreeting(transporter, mailOptions);
 };
 
+const sendAssessmentResultPublishedEmail = async ({
+  email,
+  name,
+  jobTitle,
+  companyName,
+  assessmentTitle,
+  resultUrl
+}) => {
+  const transporter = createTransport();
+  const safeJobTitle = jobTitle || assessmentTitle || 'your assessment';
+  const safeCompanyName = companyName || 'the hiring company';
+  const safeAssessmentTitle = assessmentTitle || 'Assessment';
+  const safeResultUrl = resultUrl || `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/candidate/status`;
+
+  const template = `
+    <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #f7f7f9;">
+      <div style="background-color: #ffffff; padding: 32px; border-radius: 12px; box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);">
+        <h2 style="margin-top: 0; color: #1e293b; font-size: 22px;">Hello ${name || 'Candidate'},</h2>
+        <p style="color: #475569; font-size: 16px; line-height: 1.6;">
+          The employer has completed the evaluation for your assessment.
+        </p>
+        <div style="background-color: #fff7ed; border: 1px solid #fdba74; color: #9a3412; padding: 16px 20px; border-radius: 10px; margin: 24px 0;">
+          <p style="margin: 0; font-size: 15px; line-height: 1.6;"><strong>Job:</strong> ${safeJobTitle}</p>
+          <p style="margin: 8px 0 0; font-size: 15px; line-height: 1.6;"><strong>Company:</strong> ${safeCompanyName}</p>
+          <p style="margin: 8px 0 0; font-size: 15px; line-height: 1.6;"><strong>Assessment:</strong> ${safeAssessmentTitle}</p>
+        </div>
+        <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+          Your assessment result is now available on TaleGlobal. Please log in to your candidate dashboard to review the final score and status.
+        </p>
+        <div style="text-align: center; margin: 32px 0 12px;">
+          <a href="${safeResultUrl}" style="background: #2563eb; color: #ffffff; padding: 14px 26px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">View Assessment Result</a>
+        </div>
+        <p style="color: #94a3b8; font-size: 14px; text-align: center; margin-bottom: 0;">
+          This email is only a notification. Please sign in to your account to view the detailed result.
+        </p>
+      </div>
+    </div>
+  `;
+
+  const mailOptions = {
+    from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `Assessment result announced for ${safeJobTitle}`,
+    html: template
+  };
+
+  await sendMailWithGreeting(transporter, mailOptions);
+};
+
 const sendOTPEmail = async (email, otp, name) => {
   const transporter = createTransport();
   
@@ -1274,6 +1323,7 @@ module.exports = {
   sendResetEmail, 
   sendPasswordCreationEmail, 
   sendAssessmentNotificationEmail, 
+  sendAssessmentResultPublishedEmail,
   sendOTPEmail, 
   sendPlacementCandidateWelcomeEmail,
   retryFailedEmail,

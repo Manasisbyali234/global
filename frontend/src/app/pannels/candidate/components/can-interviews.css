@@ -46,17 +46,19 @@
 .interview-card-location {
   width: 100%;
   align-items: flex-start;
+  justify-content: center;
+  text-align: center;
 }
 
 .interview-card-location i {
-  margin-top: 0.2rem;
   flex-shrink: 0;
+  margin-top: 0.15rem;
 }
 
 .interview-card-location-text {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
-  text-align: left;
+  text-align: center;
   overflow-wrap: anywhere;
   word-break: break-word;
 }

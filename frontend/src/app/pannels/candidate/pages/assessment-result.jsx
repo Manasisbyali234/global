@@ -195,6 +195,7 @@ const AssessmentResults = () => {
 	const status = result?.status || 'completed';
 	const manualEvaluationPendingCount = Number(result?.manualEvaluationPendingCount ?? 0);
 	const isPendingManualReview = resultStatus === 'pending' || manualEvaluationPendingCount > 0;
+	const shouldHideScoringDetails = isPendingManualReview;
 	const rawPassingPercentage = assessment?.passingPercentage ?? result?.passingPercentage ?? 60;
 	const passingPercentage = Number.isFinite(Number(rawPassingPercentage))
 		? Number(rawPassingPercentage)
@@ -376,23 +377,86 @@ const AssessmentResults = () => {
 				{isPendingManualReview && (
 					<div
 						style={{
-							background: "#fff7ed",
-							borderLeft: "5px solid #f97316",
-							padding: "15px 20px",
-							borderRadius: "8px",
+							background: "linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)",
+							border: "1px solid #fdba74",
+							padding: "24px",
+							borderRadius: "18px",
 							marginBottom: "20px",
 							display: "flex",
-							alignItems: "center",
+							alignItems: "flex-start",
 							gap: "15px",
-							boxShadow: "0px 2px 5px rgba(0,0,0,0.05)"
+							boxShadow: "0px 12px 30px rgba(249, 115, 22, 0.12)"
 						}}
 					>
-						<i className="fa fa-clock-o" style={{ fontSize: "24px", color: "#f97316" }}></i>
-						<div>
-							<strong style={{ display: "block", color: "#c2410c", marginBottom: "2px" }}>Pending Manual Review</strong>
-							<span style={{ fontSize: "14px", color: "#7c2d12" }}>
-								Your non-MCQ answers are awaiting employer evaluation.
-							</span>
+						<div
+							style={{
+								width: "52px",
+								height: "52px",
+								borderRadius: "16px",
+								background: "#fff",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								flexShrink: 0,
+								boxShadow: "0px 8px 18px rgba(194, 65, 12, 0.12)",
+								marginTop: "2px",
+							}}
+						>
+							<i className="fa fa-hourglass-half" style={{ fontSize: "22px", color: "#ea580c" }}></i>
+						</div>
+						<div
+							style={{
+								flex: 1,
+								display: "flex",
+								flexDirection: "column",
+								alignItems: "flex-start",
+								textAlign: "left",
+								gap: "10px",
+							}}
+						>
+							<strong style={{ display: "block", color: "#9a3412", fontSize: "18px", margin: 0 }}>
+								Assessment submitted. Result is under review.
+							</strong>
+							<p style={{ fontSize: "14px", color: "#7c2d12", margin: 0, lineHeight: 1.6 }}>
+								Your assessment has been submitted successfully. Final marks and pass/fail status will appear after evaluation, and <strong>once the result is announced, you will be notified by email.</strong>
+							</p>
+							<div
+								style={{
+									display: "flex",
+									flexWrap: "wrap",
+									gap: "10px",
+									justifyContent: "flex-start",
+								}}
+							>
+								<span
+									style={{
+										display: "inline-flex",
+										alignItems: "center",
+										padding: "8px 12px",
+										borderRadius: "999px",
+										background: "rgba(255,255,255,0.75)",
+										color: "#9a3412",
+										fontSize: "13px",
+										fontWeight: 600,
+									}}
+								>
+									Employer evaluation is pending.
+								</span>
+								<span
+									style={{
+										display: "inline-flex",
+										alignItems: "center",
+										padding: "8px 12px",
+										borderRadius: "999px",
+										background: "rgba(255,255,255,0.75)",
+										color: "#9a3412",
+										fontSize: "13px",
+										fontWeight: 600,
+									}}
+								>
+									Final score is hidden until review is complete.
+								</span>
+							</div>
 						</div>
 					</div>
 				)}
@@ -412,19 +476,45 @@ const AssessmentResults = () => {
 						}}
 					>
 						<h3 style={{ margin: "0 0 15px 0", color: "#232323" }}>Your Score</h3>
-						<div
-							style={{
-								fontSize: "48px",
-								fontWeight: "bold",
-								color: isPendingManualReview ? "#f97316" : isPassed ? "#28a745" : "#dc3545",
-								marginBottom: "10px",
-							}}
-						>
-							{percentage.toFixed(1)}%
-						</div>
-						<p style={{ margin: "0", color: "#666" }}>
-							{score}/{totalMarks} marks
-						</p>
+						{shouldHideScoringDetails ? (
+							<>
+								<div
+									style={{
+										display: "inline-flex",
+										alignItems: "center",
+										justifyContent: "center",
+										padding: "10px 18px",
+										borderRadius: "999px",
+										background: "#fff7ed",
+										color: "#c2410c",
+										fontWeight: "bold",
+										fontSize: "16px",
+										marginBottom: "14px",
+									}}
+								>
+									Result Locked
+								</div>
+								<p style={{ margin: "0", color: "#666", lineHeight: 1.6 }}>
+									Marks will appear here after every manually reviewed answer is evaluated.
+								</p>
+							</>
+						) : (
+							<>
+								<div
+									style={{
+										fontSize: "48px",
+										fontWeight: "bold",
+										color: isPassed ? "#28a745" : "#dc3545",
+										marginBottom: "10px",
+									}}
+								>
+									{`${percentage.toFixed(1)}%`}
+								</div>
+								<p style={{ margin: "0", color: "#666" }}>
+									{`${score}/${totalMarks} marks`}
+								</p>
+							</>
+						)}
 					</div>
 
 					{/* Status Card */}
@@ -451,8 +541,13 @@ const AssessmentResults = () => {
 								fontSize: "18px",
 							}}
 						>
-							{isPendingManualReview ? "Pending Review" : isPassed ? "Pass" : "Fail"}
+							{isPendingManualReview ? "Under Review" : isPassed ? "Pass" : "Fail"}
 						</span>
+						{isPendingManualReview && (
+							<p style={{ margin: "14px 0 0 0", color: "#7c2d12", fontSize: "14px", lineHeight: 1.6 }}>
+								You will see the final outcome here once the evaluation is completed.
+							</p>
+						)}
 					</div>
 				</div>
 
@@ -475,7 +570,7 @@ const AssessmentResults = () => {
 				</div>}
 
 				{/* Detailed Stats */}
-				<div
+				{!shouldHideScoringDetails && <div
 					style={{
 						background: "#fff",
 						padding: "20px",
@@ -517,7 +612,7 @@ const AssessmentResults = () => {
 							</div>
 						</div>
 					</div>
-				</div>
+				</div>}
 
 
 			</div>

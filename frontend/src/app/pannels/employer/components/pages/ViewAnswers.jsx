@@ -45,8 +45,7 @@ export default function ViewAnswers() {
       const question = questions?.[answer?.questionIndex];
       if (question && isManualQuestionType(question.type)) {
         acc[answer.questionIndex] = {
-          awardedMarks: answer?.awardedMarks ?? '',
-          evaluationFeedback: answer?.evaluationFeedback || ''
+          awardedMarks: answer?.awardedMarks ?? ''
         };
       }
       return acc;
@@ -114,7 +113,6 @@ export default function ViewAnswers() {
       ...prev,
       [questionIndex]: {
         awardedMarks: prev?.[questionIndex]?.awardedMarks ?? '',
-        evaluationFeedback: prev?.[questionIndex]?.evaluationFeedback || '',
         [field]: value
       }
     }));
@@ -148,13 +146,12 @@ export default function ViewAnswers() {
     try {
       setSavingEvaluation(true);
       const token = localStorage.getItem('employerToken');
-      const payload = {
-        evaluations: manualAnswersToEvaluate.map((answer) => ({
-          questionIndex: answer.questionIndex,
-          awardedMarks: evaluationDrafts?.[answer.questionIndex]?.awardedMarks,
-          evaluationFeedback: evaluationDrafts?.[answer.questionIndex]?.evaluationFeedback || ''
-        }))
-      };
+        const payload = {
+          evaluations: manualAnswersToEvaluate.map((answer) => ({
+            questionIndex: answer.questionIndex,
+            awardedMarks: evaluationDrafts?.[answer.questionIndex]?.awardedMarks
+          }))
+        };
 
       const response = await axios.put(`${API_BASE_URL}/employer/assessment-attempts/${attemptId}/manual-evaluation`, payload, {
         headers: { Authorization: `Bearer ${token}` }
@@ -234,6 +231,10 @@ export default function ViewAnswers() {
   });
   const manualEvaluationPendingCount = Number(attempt.manualEvaluationPendingCount || 0);
   const manualEvaluationCompletedCount = Number(attempt.manualEvaluationCompletedCount || 0);
+  const passingPercentage = Number(assessment?.passingPercentage ?? 60);
+  const passingMarks = Number.isFinite(passingPercentage)
+    ? Math.round(((Number(attempt.totalMarks || 0) * passingPercentage) / 100) * 100) / 100
+    : 0;
   const resultLabel = getResultLabel(attempt);
 
   console.log('Total answers:', attempt.answers?.length);
@@ -314,6 +315,14 @@ export default function ViewAnswers() {
             <div>
               <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Result</div>
               <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{resultLabel}</div>
+            </div>
+            <div>
+              <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Passing Percentage</div>
+              <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{passingPercentage}%</div>
+            </div>
+            <div>
+              <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Passing Marks</div>
+              <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{passingMarks}/{attempt.totalMarks}</div>
             </div>
           </div>
           {manualAnswersToEvaluate.length > 0 && (
@@ -397,8 +406,7 @@ export default function ViewAnswers() {
               const isManualQuestion = isManualQuestionType(question.type);
               const canEvaluateThisAnswer = isManualQuestion && hasManualResponse(answer);
               const evaluationDraft = evaluationDrafts?.[answer.questionIndex] || {
-                awardedMarks: answer?.awardedMarks ?? '',
-                evaluationFeedback: answer?.evaluationFeedback || ''
+                awardedMarks: answer?.awardedMarks ?? ''
               };
               const isCorrect = isObjectiveQuestion && parseInt(answer.selectedAnswer) === parseInt(question.correctAnswer);
               return (
@@ -820,13 +828,10 @@ export default function ViewAnswers() {
                       {canEvaluateThisAnswer ? (
                         <>
                           <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'minmax(140px, 180px) minmax(0, 1fr)',
-                            gap: '1rem',
-                            alignItems: 'start'
+                            maxWidth: '180px'
                           }}>
                             <div>
-                              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#374151', marginBottom: '0.4rem' }}>
+                              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', color: '#111827', marginBottom: '0.4rem' }}>
                                 Awarded Marks
                               </label>
                               <input
@@ -847,27 +852,6 @@ export default function ViewAnswers() {
                               <div style={{ marginTop: '0.35rem', color: '#6b7280', fontSize: '0.75rem' }}>
                                 Max: {question.marks || 1}
                               </div>
-                            </div>
-
-                            <div>
-                              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#374151', marginBottom: '0.4rem' }}>
-                                Feedback
-                              </label>
-                              <textarea
-                                rows="3"
-                                value={evaluationDraft.evaluationFeedback}
-                                onChange={(e) => updateEvaluationDraft(answer.questionIndex, 'evaluationFeedback', e.target.value)}
-                                placeholder="Add feedback for this answer"
-                                style={{
-                                  width: '100%',
-                                  border: '1px solid #d1d5db',
-                                  borderRadius: '8px',
-                                  padding: '0.7rem 0.85rem',
-                                  fontSize: '0.95rem',
-                                  resize: 'vertical',
-                                  minHeight: '96px'
-                                }}
-                              />
                             </div>
                           </div>
 
@@ -892,8 +876,8 @@ export default function ViewAnswers() {
                     fontSize: '0.875rem',
                     color: '#6b7280'
                   }}>
-                    <span>Marks: {question.marks || 1}</span>
-                    {isManualQuestion && <span>Awarded: {answer.awardedMarks ?? 0}</span>}
+                    <span><strong style={{ color: '#111827' }}>Marks:</strong> {question.marks || 1}</span>
+                    {isManualQuestion && <span><strong style={{ color: '#111827' }}>Awarded Marks:</strong> {answer.awardedMarks ?? 0}</span>}
                   </div>
                 </div>
               );

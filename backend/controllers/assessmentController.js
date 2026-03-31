@@ -4,6 +4,7 @@ const AssessmentAttempt = require('../models/AssessmentAttempt');
 const Application = require('../models/Application');
 const Job = require('../models/Job');
 const InterviewProcess = require('../models/InterviewProcess');
+const { sendAssessmentResultPublishedEmail } = require('../utils/emailService');
 
 const RESTRICTION_WARNING_LIMIT = 2;
 const RESTRICTION_SUSPEND_THRESHOLD = 3;
@@ -1584,7 +1585,17 @@ exports.saveManualEvaluation = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Evaluations must be an array' });
     }
 
-    const attempt = await AssessmentAttempt.findById(attemptId).populate('assessmentId');
+    const attempt = await AssessmentAttempt.findById(attemptId)
+      .populate('assessmentId')
+      .populate('candidateId', 'name email')
+      .populate({
+        path: 'jobId',
+        select: 'title companyName employerId',
+        populate: {
+          path: 'employerId',
+          select: 'companyName name'
+        }
+      });
     if (!attempt) {
       return res.status(404).json({ success: false, message: 'Assessment attempt not found' });
     }
@@ -1594,6 +1605,7 @@ exports.saveManualEvaluation = async (req, res) => {
     }
 
     const assessment = attempt.assessmentId;
+    const previousEvaluation = buildAttemptEvaluationSummary(assessment, attempt);
     const evaluationMap = new Map(
       evaluations
         .filter((entry) => entry && Number.isInteger(Number(entry.questionIndex)))
@@ -1646,10 +1658,40 @@ exports.saveManualEvaluation = async (req, res) => {
     }
 
     const evaluation = await persistAssessmentOutcome({ attempt, assessment });
+    const shouldNotifyCandidate =
+      previousEvaluation.manualEvaluationPendingCount > 0 &&
+      evaluation.manualEvaluationPendingCount === 0 &&
+      evaluation.result !== 'pending';
+
+    let emailNotificationSent = false;
+    if (shouldNotifyCandidate && attempt.candidateId?.email) {
+      const assessmentId = attempt.assessmentId?._id || attempt.assessmentId;
+      const resultUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/candidate/assessment-result/${attempt.applicationId}?assessmentId=${assessmentId}`;
+      const companyName =
+        attempt.jobId?.companyName ||
+        attempt.jobId?.employerId?.companyName ||
+        attempt.jobId?.employerId?.name ||
+        'the hiring company';
+
+      try {
+        await sendAssessmentResultPublishedEmail({
+          email: attempt.candidateId.email,
+          name: attempt.candidateId.name,
+          jobTitle: attempt.jobId?.title || assessment?.title || 'your application',
+          companyName,
+          assessmentTitle: assessment?.title || 'Assessment',
+          resultUrl
+        });
+        emailNotificationSent = true;
+      } catch (emailError) {
+        console.error('Assessment result notification email failed:', emailError);
+      }
+    }
 
     res.json({
       success: true,
       message: 'Manual evaluation saved successfully',
+      emailNotificationSent,
       attempt: {
         ...attempt.toObject(),
         answers: evaluation.normalizedAnswers,

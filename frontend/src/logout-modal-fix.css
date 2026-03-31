@@ -127,3 +127,27 @@ html body .modal-header .btn-close,
   background: transparent !important;
   background-color: transparent !important;
 }
+
+.twm-model-popup.assessment-terms-modal .modal-body,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__body,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content h5,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content h6,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content p,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content ul,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content ol,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content li,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content summary,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content details {
+  text-align: left !important;
+}
+
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content ul,
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content ol {
+  margin: 0 !important;
+  padding-left: 24px !important;
+}
+
+.twm-model-popup.assessment-terms-modal .assessment-terms-modal__content li {
+  list-style-position: outside !important;
+}
