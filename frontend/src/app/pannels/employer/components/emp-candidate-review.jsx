@@ -1016,7 +1016,12 @@ function EmpCandidateReviewPage() {
                                                     <div>Candidate has Accepted the Offer</div>
                                                 </div>
                                             )}
-                                            {hasNegativeStatus() ? (
+                                            {application.status === 'rejected' && application.statusHistory?.some(h => h.status === 'offer_sent') ? (
+                                                <div className="alert alert-warning d-flex align-items-center mb-3" style={{ width: '100%', fontSize: '14px', padding: '10px' }}>
+                                                    <i className="fas fa-times-circle me-2"></i>
+                                                    <div>Candidate has NotAccepted the Offer</div>
+                                                </div>
+                                            ) : hasNegativeStatus() ? (
                                                 <>
                                                     <button 
                                                         className={`${application.status === 'rejected' ? 'active' : ''}`}

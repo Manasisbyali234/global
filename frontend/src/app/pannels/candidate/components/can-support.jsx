@@ -466,13 +466,12 @@ function CanSupport() {
                                             <input 
                                                 name="name" 
                                                 type="text" 
-                                                className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                                                className="form-control"
                                                 placeholder={isLoadingProfile ? "Loading..." : "Your name"}
                                                 value={formData.name}
-                                                onChange={handleChange}
-                                                disabled={isLoadingProfile}
+                                                readOnly
                                             />
-                                            {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+
                                         </div>
                                     </div>
                                     
@@ -482,13 +481,12 @@ function CanSupport() {
                                             <input 
                                                 name="email" 
                                                 type="email" 
-                                                className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                                                className="form-control"
                                                 placeholder={isLoadingProfile ? "Loading..." : "Your email address"}
                                                 value={formData.email}
-                                                onChange={handleChange}
-                                                disabled={isLoadingProfile}
+                                                readOnly
                                             />
-                                            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+
                                         </div>
                                     </div>
                                     
