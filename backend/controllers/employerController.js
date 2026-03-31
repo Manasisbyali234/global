@@ -758,7 +758,7 @@ exports.uploadAuthorizationLetter = async (req, res) => {
     if (existingDocIndex !== -1 && existingLetters[existingDocIndex]?.status === 'approved') {
       return res.status(400).json({
         success: false,
-        message: 'Approved authorization letter cannot be overwritten.'
+        message: 'Approved authorization letter cannot be re-uploaded.'
       });
     }
 
@@ -3844,7 +3844,7 @@ const enrichEmployerSupportTickets = async (tickets = []) => {
 
 exports.getSupportTickets = async (req, res) => {
   try {
-    const { status, userType, priority, page = 1, limit = 20 } = req.query;
+    const { status, userType, priority, search, page = 1, limit = 20 } = req.query;
     const employerId = req.user.id;
     
     let query = { 
@@ -3855,6 +3855,19 @@ exports.getSupportTickets = async (req, res) => {
     if (status) query.status = status;
     if (userType) query.userType = userType;
     if (priority) query.priority = priority;
+
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      query.$or = [
+        { name: searchRegex },
+        { email: searchRegex },
+        { relatedCompanyName: searchRegex },
+        { subject: searchRegex },
+        { message: searchRegex },
+        { supportCompanyName: searchRegex },
+        { supportDesignation: searchRegex }
+      ];
+    }
 
     const tickets = await Support.find(query)
       .populate('receiverId', 'name companyName brandName')

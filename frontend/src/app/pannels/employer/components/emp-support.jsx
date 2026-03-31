@@ -397,6 +397,21 @@ function EmpSupport() {
                                         </div>
                                     </div>
                                     
+                                    <div className="col-xl-12 col-lg-12 col-md-12">
+                                        <div className="form-group">
+                                            <label>Message<span style={{ color: 'red' }}>*</span></label>
+                                            <textarea 
+                                                name="message" 
+                                                className={`form-control ${errors.message ? 'is-invalid' : ''}`}
+                                                rows={5} 
+                                                placeholder="Describe your issue or question in detail..." 
+                                                value={formData.message}
+                                                onChange={handleChange}
+                                            />
+                                            {errors.message && <div className="invalid-feedback">{errors.message}</div>}
+                                        </div>
+                                    </div>
+
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
                                             <label>Category</label>
@@ -426,21 +441,6 @@ function EmpSupport() {
                                                     <option key={pri.value} value={pri.value}>{pri.label}</option>
                                                 ))}
                                             </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="col-xl-12 col-lg-12 col-md-12">
-                                        <div className="form-group">
-                                            <label>Message<span style={{ color: 'red' }}>*</span></label>
-                                            <textarea 
-                                                name="message" 
-                                                className={`form-control ${errors.message ? 'is-invalid' : ''}`}
-                                                rows={5} 
-                                                placeholder="Describe your issue or question in detail..." 
-                                                value={formData.message}
-                                                onChange={handleChange}
-                                            />
-                                            {errors.message && <div className="invalid-feedback">{errors.message}</div>}
                                         </div>
                                     </div>
                                     

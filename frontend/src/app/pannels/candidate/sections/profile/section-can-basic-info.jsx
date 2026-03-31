@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { api } from "../../../../../utils/api";
 import TermsModal from "../../../../../components/TermsModal";
+import PageLoader from "../../../../../components/PageLoader";
 import '../../../../../remove-profile-hover-effects.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 import { fetchLocationFromPincode } from '../../../../../utils/pincodeService';
@@ -513,8 +514,8 @@ function SectionCandicateBasicInfo() {
     if (loading) {
         return (
             <div className="panel panel-default">
-                <div className="panel-body p-a20 text-center">
-                    Loading profile...
+                <div className="panel-body p-a20">
+                    <PageLoader pageName="Profile" />
                 </div>
             </div>
         );

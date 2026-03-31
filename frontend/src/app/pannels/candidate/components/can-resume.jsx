@@ -15,6 +15,7 @@ import SectionCanResumeHeadline from "../sections/resume/section-can-resume-head
 import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
 import { initializeAllModals } from "../../../../utils/modalUtils";
+import PageLoader from "../../../../components/PageLoader";
 import "../../../../table-overflow-fix.css";
 import "../../../../resume-table-hot-scroll-fix.css";
 import "../../../../table-overflow-override-fix.css";
@@ -84,13 +85,7 @@ function CanMyResumePage() {
 					{/* Resume Content */}
 					<div className="resume-content-container">
 						{loading ? (
-							<div className="text-center p-5">
-								<div className="d-flex flex-column align-items-center">
-									<i className="fa fa-spinner fa-spin fa-3x site-text-primary mb-3"></i>
-									<h5 className="text-muted">Loading your resume...</h5>
-									<p className="text-muted small">Please wait while we fetch your profile data</p>
-								</div>
-							</div>
+							<PageLoader pageName="Resume" />
 						) : error ? (
 							<div className="text-center p-5">
 								<div className="alert alert-danger">

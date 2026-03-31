@@ -241,7 +241,12 @@ export default function AssessmentResults() {
                         {result.candidateId?.email || 'N/A'}
                       </td>
                       <td style={{ padding: '1rem', color: '#111827', fontWeight: '600' }}>
-                        {result.score}/{result.totalMarks}
+                        <div>{result.score}/{result.totalMarks}</div>
+                        {Number(result.manualEvaluationPendingCount || 0) > 0 ? (
+                          <div style={{ fontSize: '0.75rem', color: '#c2410c', marginTop: '0.2rem' }}>
+                            {result.manualEvaluationPendingCount} pending review
+                          </div>
+                        ) : null}
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <span style={{
@@ -272,15 +277,33 @@ export default function AssessmentResults() {
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <span style={{
-                          background: result.result === 'pass' ? '#dcfce7' : result.status === 'suspended' || result.status === 'expired' ? '#f3f4f6' : '#fecaca',
-                          color: result.result === 'pass' ? '#166534' : result.status === 'suspended' || result.status === 'expired' ? '#6b7280' : '#991b1b',
+                          background:
+                            Number(result.manualEvaluationPendingCount || 0) > 0
+                              ? '#ffedd5'
+                              : result.result === 'pass'
+                                ? '#dcfce7'
+                                : result.status === 'suspended' || result.status === 'expired'
+                                  ? '#f3f4f6'
+                                  : '#fecaca',
+                          color:
+                            Number(result.manualEvaluationPendingCount || 0) > 0
+                              ? '#9a3412'
+                              : result.result === 'pass'
+                                ? '#166534'
+                                : result.status === 'suspended' || result.status === 'expired'
+                                  ? '#6b7280'
+                                  : '#991b1b',
                           padding: '0.25rem 0.75rem',
                           borderRadius: '9999px',
                           fontSize: '0.875rem',
                           fontWeight: '600',
                           textTransform: 'uppercase'
                         }}>
-                          {result.status === 'suspended' || result.status === 'expired' ? '—' : (result.result || 'N/A')}
+                          {result.status === 'suspended' || result.status === 'expired'
+                            ? '-'
+                            : Number(result.manualEvaluationPendingCount || 0) > 0
+                              ? 'Pending Review'
+                              : (result.result || 'N/A')}
                         </span>
                       </td>
                       <td style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>

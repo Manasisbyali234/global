@@ -688,7 +688,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					}}>
 						<i className="fa fa-info-circle" style={{color: '#2196f3', fontSize: 14}}></i>
 						<small style={{color: '#1565c0', fontSize: 12, margin: 0}}>
-							Supports MCQ, Question with image,  Options with image, Image MCQ, Subjective (text), and Upload File/image questions
+							Supports MCQ, Question with image,  Options with image , Subjective (text), and Upload File/image questions
 						</small>
 					</div>
 
@@ -714,7 +714,6 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 										<option value="upload">Upload File/image</option>
 										<option value="questionary-image-mcq">Options with image</option>
 										<option value="visual-mcq">Question with image</option>
-										<option value="image-mcq">Image MCQ</option>
 									</select>
 									<button
 										type="button"

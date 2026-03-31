@@ -12,6 +12,7 @@ import { pubRoute, publicUser, canRoute, candidate } from "../../../../globals/r
 import CanPostedJobs from "./can-posted-jobs";
 import PopupInterviewRoundDetails from "../../../common/popups/popup-interview-round-details";
 import TermsModal from "../../../../components/TermsModal";
+import PageLoader from "../../../../components/PageLoader";
 import "./status-styles.css";
 import "../../../../table-overflow-fix.css";
 
@@ -1556,6 +1557,10 @@ function CanStatusPage() {
 
 				{/* Status Content */}
 				<div className="status-page-content-container">
+					{loading ? (
+						<PageLoader pageName="Application Status" />
+					) : (
+						<>
 
 					{/* Highlight notification */}
 					{highlightShortlisted && (
@@ -1625,16 +1630,7 @@ function CanStatusPage() {
 										</thead>
 
 										<tbody>
-											{loading ? (
-												<tr>
-													<td colSpan="7" className="text-center py-5">
-														<div className="d-flex flex-column align-items-center">
-															<i className="fa fa-spinner fa-spin fa-3x mb-3" style={{color: '#ff6b35'}}></i>
-															<p className="text-muted mb-0">Loading your applications...</p>
-														</div>
-													</td>
-												</tr>
-											) : applications.length === 0 ? (
+											{applications.length === 0 ? (
 												<tr>
 													<td colSpan="7" className="text-center py-5">
 														<div className="d-flex flex-column align-items-center">
@@ -1949,6 +1945,8 @@ function CanStatusPage() {
 							</div>
 						</div>
 					</div>
+						</>
+					)}
 				</div>
 			</div>
 			)}
@@ -1965,10 +1963,7 @@ function CanStatusPage() {
 							Back to Status
 						</button>
 						{loading ? (
-							<div className="text-center py-4">
-								<i className="fa fa-spinner fa-spin fa-2x mb-3" style={{color: '#ff6b35'}}></i>
-								<p className="mb-0 text-muted">Loading interview process details...</p>
-							</div>
+							<PageLoader pageName="Interview Details" />
 						) : (
 							<div className="text-center py-4">
 								<i className="fa fa-info-circle fa-2x mb-3" style={{color: '#ff6b35'}}></i>
