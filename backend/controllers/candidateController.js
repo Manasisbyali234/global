@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const Candidate = require('../models/Candidate');
 const CandidateProfile = require('../models/CandidateProfile');
 const Job = require('../models/Job');
@@ -65,8 +66,12 @@ exports.registerCandidate = async (req, res) => {
     
     // Create profile with validated candidateId
     try {
+      const profileCandidateId = candidate._id || candidate.id;
+      if (!profileCandidateId || !mongoose.Types.ObjectId.isValid(String(profileCandidateId))) {
+        throw new Error('Candidate ID is invalid after creation');
+      }
       await CandidateProfile.create({ 
-        candidateId: candidate._id,
+        candidateId: profileCandidateId,
         firstName,
         middleName,
         lastName
