@@ -10,14 +10,14 @@ const { validateEmailMiddleware } = require('../middlewares/emailValidation');
 
 // Authentication Routes
 router.post('/register', [
-  body('firstName').trim().notEmpty().withMessage('First name is required'),
-  body('lastName').trim().notEmpty().withMessage('Last name is required'),
-  body('email').trim().isEmail().withMessage('Valid email is required'),
+  body('firstName').notEmpty().trim().withMessage('First name is required'),
+  body('lastName').notEmpty().trim().withMessage('Last name is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
   ...mobileValidationRules()
 ], validateEmailMiddleware, handleValidationErrors, candidateController.registerCandidate);
 
 router.post('/login', [
-  body('email').trim().isEmail().withMessage('Valid email is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required')
 ], validateEmailMiddleware, handleValidationErrors, candidateController.loginCandidate);
 
