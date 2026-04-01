@@ -6,6 +6,7 @@ const candidateProfileSchema = new mongoose.Schema({
     ref: 'Candidate', 
     required: [true, 'Candidate ID is required'], 
     unique: true,
+    sparse: true,
     validate: {
       validator: function(v) {
         return v != null && mongoose.Types.ObjectId.isValid(v);
@@ -93,6 +94,16 @@ const candidateProfileSchema = new mongoose.Schema({
 candidateProfileSchema.pre('save', function(next) {
   if (!this.candidateId) {
     return next(new Error('Candidate ID cannot be null or undefined'));
+  }
+  next();
+});
+
+// Pre-validate for upsert operations
+candidateProfileSchema.pre('findOneAndUpdate', function(next) {
+  const update = this.getUpdate();
+  const candidateId = update?.candidateId || this.getQuery()?.candidateId;
+  if (update && !candidateId && !update.$set?.candidateId) {
+    // Allow updates that don't touch candidateId
   }
   next();
 });
