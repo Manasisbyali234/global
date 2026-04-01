@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HeroBody.css';
 import { Megaphone, Banknote, Users, Settings, Tag, Terminal, TrendingUp } from 'lucide-react';
@@ -39,6 +39,10 @@ const HeroBody = ({ onSearch }) => {
   const [designationCatalog, setDesignationCatalog] = useState([]);
   const [designationSuggestions, setDesignationSuggestions] = useState([]);
   const [showDesignationSuggestions, setShowDesignationSuggestions] = useState(false);
+  const educationInputRef = useRef(null);
+  const industryInputRef = useRef(null);
+  const designationInputRef = useRef(null);
+  const locationInputRef = useRef(null);
   const [errors, setErrors] = useState({
     what: '',
     category: '',
@@ -256,6 +260,52 @@ const HeroBody = ({ onSearch }) => {
     setTouched({...touched, category: true});
   };
 
+  const focusEducationField = () => {
+    educationInputRef.current?.focus();
+    const filtered = searchData.type
+      ? educationOptions.filter((edu) => edu.toLowerCase().includes(searchData.type.toLowerCase())).slice(0, 8)
+      : educationOptions.slice(0, 8);
+    setEducationSuggestions(filtered);
+    setShowEducationSuggestions(filtered.length > 0);
+  };
+
+  const focusIndustryField = () => {
+    industryInputRef.current?.focus();
+    if (searchData.category.length > 0) {
+      const filtered = industries.filter((industry) =>
+        industry.toLowerCase().includes(searchData.category.toLowerCase())
+      );
+      setIndustrySuggestions(filtered);
+      setShowIndustrySuggestions(filtered.length > 0);
+    }
+  };
+
+  const focusDesignationField = () => {
+    designationInputRef.current?.focus();
+    const designationSource = designationCatalog.length > 0 ? designationCatalog : DEFAULT_DESIGNATIONS;
+    const filtered = searchData.what
+      ? designationSource.filter((designation) => designation.toLowerCase().includes(searchData.what.toLowerCase())).slice(0, 8)
+      : designationSource.slice(0, 8);
+    setDesignationSuggestions(filtered);
+    setShowDesignationSuggestions(filtered.length > 0);
+  };
+
+  const focusLocationField = () => {
+    locationInputRef.current?.focus();
+    if (searchData.location.length > 0) {
+      const filtered = locations.filter((loc) =>
+        loc.toLowerCase().includes(searchData.location.toLowerCase())
+      );
+      setLocationSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    }
+  };
+
+  const handleFieldContainerClick = (event, focusHandler) => {
+    if (event.target.closest('.suggestion-item')) return;
+    focusHandler();
+  };
+
   const handleDesignationChange = (value) => {
     handleFieldChange('what', value);
     const designationSource = designationCatalog.length > 0 ? designationCatalog : DEFAULT_DESIGNATIONS;
@@ -366,25 +416,21 @@ const HeroBody = ({ onSearch }) => {
 
         {/* Search Bar */}
         <div className="search-container">
-          <div className="search-field location-field">
-            <label className="search-label">EDUCATION</label>
-            <div className="location-input">
+          <div className="search-field location-field" onClick={(event) => handleFieldContainerClick(event, focusEducationField)}>
+            <label className="search-label" htmlFor="home-education-field">EDUCATION</label>
+            <div className="location-input" onClick={(event) => handleFieldContainerClick(event, focusEducationField)}>
               <svg className="location-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="8" stroke="#000000" strokeWidth="2" fill="none"/>
                 <path d="m21 21-4.35-4.35" stroke="#000000" strokeWidth="2" fill="none"/>
               </svg>
               <input
+                id="home-education-field"
+                ref={educationInputRef}
                 type="text"
                 className={`search-select location-select${touched.type && errors.type ? ' has-error' : ''}`}
                 value={searchData.type}
                 onChange={(e) => handleEducationChange(e.target.value)}
-                onFocus={() => {
-                  const filtered = searchData.type
-                    ? educationOptions.filter(edu => edu.toLowerCase().includes(searchData.type.toLowerCase())).slice(0, 8)
-                    : educationOptions.slice(0, 8);
-                  setEducationSuggestions(filtered);
-                  setShowEducationSuggestions(filtered.length > 0);
-                }}
+                onFocus={focusEducationField}
                 onBlur={() => {
                   handleFieldBlur('type');
                   setTimeout(() => setShowEducationSuggestions(false), 200);
@@ -413,19 +459,21 @@ const HeroBody = ({ onSearch }) => {
             )}
           </div>
           
-          <div className="search-field location-field">
-            <label className="search-label">INDUSTRY</label>
-            <div className="location-input">
+          <div className="search-field location-field" onClick={(event) => handleFieldContainerClick(event, focusIndustryField)}>
+            <label className="search-label" htmlFor="home-industry-field">INDUSTRY</label>
+            <div className="location-input" onClick={(event) => handleFieldContainerClick(event, focusIndustryField)}>
               <svg className="location-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="8" stroke="#000000" strokeWidth="2" fill="none"/>
                 <path d="m21 21-4.35-4.35" stroke="#000000" strokeWidth="2" fill="none"/>
               </svg>
               <input
+                id="home-industry-field"
+                ref={industryInputRef}
                 type="text"
                 className={`search-select location-select${touched.category && errors.category ? ' has-error' : ''}`}
                 value={searchData.category}
                 onChange={(e) => handleIndustryChange(e.target.value)}
-                onFocus={() => searchData.category && setShowIndustrySuggestions(true)}
+                onFocus={focusIndustryField}
                 onBlur={() => {
                   handleFieldBlur('category');
                   setTimeout(() => setShowIndustrySuggestions(false), 200);
@@ -454,26 +502,21 @@ const HeroBody = ({ onSearch }) => {
             )}
           </div>
           
-          <div className="search-field location-field">
-            <label className="search-label">DESIGNATION</label>
-            <div className="location-input">
+          <div className="search-field location-field" onClick={(event) => handleFieldContainerClick(event, focusDesignationField)}>
+            <label className="search-label" htmlFor="home-designation-field">DESIGNATION</label>
+            <div className="location-input" onClick={(event) => handleFieldContainerClick(event, focusDesignationField)}>
               <svg className="location-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="8" stroke="#000000" strokeWidth="2" fill="none"/>
                 <path d="m21 21-4.35-4.35" stroke="#000000" strokeWidth="2" fill="none"/>
               </svg>
               <input
+                id="home-designation-field"
+                ref={designationInputRef}
                 type="text"
                 className={`search-select location-select${touched.what && errors.what ? ' has-error' : ''}`}
                 value={searchData.what}
                 onChange={(e) => handleDesignationChange(e.target.value)}
-                onFocus={() => {
-                  const designationSource = designationCatalog.length > 0 ? designationCatalog : DEFAULT_DESIGNATIONS;
-                  const filtered = searchData.what
-                    ? designationSource.filter((designation) => designation.toLowerCase().includes(searchData.what.toLowerCase())).slice(0, 8)
-                    : designationSource.slice(0, 8);
-                  setDesignationSuggestions(filtered);
-                  setShowDesignationSuggestions(filtered.length > 0);
-                }}
+                onFocus={focusDesignationField}
                 onBlur={() => {
                   handleFieldBlur('what');
                   setTimeout(() => setShowDesignationSuggestions(false), 200);
@@ -502,19 +545,21 @@ const HeroBody = ({ onSearch }) => {
             )}
           </div>
           
-          <div className="search-field location-field">
-            <label className="search-label">LOCATION</label>
-            <div className="location-input">
+          <div className="search-field location-field" onClick={(event) => handleFieldContainerClick(event, focusLocationField)}>
+            <label className="search-label" htmlFor="home-location-field">LOCATION</label>
+            <div className="location-input" onClick={(event) => handleFieldContainerClick(event, focusLocationField)}>
               <svg className="location-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="8" stroke="#000000" strokeWidth="2" fill="none"/>
                 <path d="m21 21-4.35-4.35" stroke="#000000" strokeWidth="2" fill="none"/>
               </svg>
               <input
+                id="home-location-field"
+                ref={locationInputRef}
                 type="text"
                 className={`search-select location-select${touched.location && errors.location ? ' has-error' : ''}`}
                 value={searchData.location}
                 onChange={(e) => handleLocationChange(e.target.value)}
-                onFocus={() => searchData.location && setShowSuggestions(true)}
+                onFocus={focusLocationField}
                 onBlur={() => {
                   handleFieldBlur('location');
                   setTimeout(() => setShowSuggestions(false), 200);

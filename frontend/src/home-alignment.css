@@ -16,6 +16,86 @@
     overflow-x: hidden !important;
 }
 
+@media (max-width: 991px) {
+    .home-page-alignment {
+        position: relative !important;
+        isolation: isolate !important;
+    }
+
+    .home-page-alignment .category-cards-container > a,
+    .home-page-alignment .header-btn-container > a,
+    .home-page-alignment .cta-container-box a,
+    .home-page-alignment .twm-jobs-grid-wrap a,
+    .home-page-alignment .twm-recruiters5-wrap a {
+        display: block !important;
+        width: 100% !important;
+        pointer-events: auto !important;
+    }
+
+    .home-page-alignment .hero-body,
+    .home-page-alignment .hero-content,
+    .home-page-alignment .section-full,
+    .home-page-alignment .container,
+    .home-page-alignment .container-fluid,
+    .home-page-alignment .row,
+    .home-page-alignment .col,
+    .home-page-alignment [class*="col-"],
+    .home-page-alignment .section-header-with-btn,
+    .home-page-alignment .header-btn-container,
+    .home-page-alignment .cta-container-box {
+        position: relative !important;
+        z-index: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .home-page-alignment button,
+    .home-page-alignment a,
+    .home-page-alignment .btn,
+    .home-page-alignment .site-button,
+    .home-page-alignment .search-btn,
+    .home-page-alignment .hero-cta,
+    .home-page-alignment .category-card,
+    .home-page-alignment .apply-now-btn,
+    .home-page-alignment .view-all-companies-btn,
+    .home-page-alignment .btn-dark-pill,
+    .home-page-alignment .btn-orange-pill,
+    .home-page-alignment .btn-outline-pill {
+        position: relative !important;
+        z-index: 3 !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    .home-page-alignment .hero-image,
+    .home-page-alignment .site-button::before,
+    .home-page-alignment .site-button::after,
+    .home-page-alignment .search-btn::before,
+    .home-page-alignment .search-btn::after,
+    .home-page-alignment .hero-cta::before,
+    .home-page-alignment .hero-cta::after,
+    .home-page-alignment .btn-dark-pill::before,
+    .home-page-alignment .btn-dark-pill::after,
+    .home-page-alignment .btn-orange-pill::before,
+    .home-page-alignment .btn-orange-pill::after,
+    .home-page-alignment .btn-outline-pill::before,
+    .home-page-alignment .btn-outline-pill::after,
+    .home-page-alignment .view-all-companies-btn::before,
+    .home-page-alignment .view-all-companies-btn::after,
+    .home-page-alignment .section-full::before,
+    .home-page-alignment .section-full::after,
+    .home-page-alignment .category-card::before,
+    .home-page-alignment .category-card::after,
+    .home-page-alignment .recruiter-card::before,
+    .home-page-alignment .recruiter-card::after,
+    .home-page-alignment .process-card-light::before,
+    .home-page-alignment .process-card-light::after,
+    .home-page-alignment .cta-container-box::before,
+    .home-page-alignment .cta-container-box::after {
+        pointer-events: none !important;
+    }
+}
+
 html.home-scrollbar-hidden,
 body.home-scrollbar-hidden,
 body.home-scrollbar-hidden .page-wraper,

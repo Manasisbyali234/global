@@ -111,6 +111,9 @@ function Footer1() {
                     padding: 20px 0;
                     margin-top: 64px;
                 }
+                .footer-brand-logo {
+                    margin-top: -40px;
+                }
                 .social-icon-outline {
                     width: 36px;
                     height: 36px;
@@ -129,6 +132,21 @@ function Footer1() {
                     color: #FF6A3D;
                     background: rgba(255, 106, 61, 0.05);
                 }
+                @media (max-width: 768px) {
+                    .site-footer-new {
+                        padding: 48px 0 0 !important;
+                        padding-left: 0 !important;
+                    }
+                    .footer-brand-logo {
+                        margin-top: 0;
+                    }
+                    .footer-brand-logo img {
+                        display: block;
+                        max-width: 100%;
+                        height: 56px !important;
+                        object-fit: contain;
+                    }
+                }
             `}</style>
 
                 <Container>
@@ -136,7 +154,7 @@ function Footer1() {
                         {/* Column 1: Brand & Contact */}
                         <Col lg={4} md={6}>
                             <div className="footer-brand mb-4">
-                                <div className="logo-footer mb-3" style={{ marginTop: '-40px' }}>
+                                <div className="logo-footer footer-brand-logo mb-3">
                                     <NavLink to={publicUser.INITIAL}>
                                         <JobZImage
                                             id="skin_footer_light_logo"
