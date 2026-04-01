@@ -2146,7 +2146,7 @@ function EmpCompanyProfilePage() {
                                     <div className="form-group">
                                         <label className="mb-3">
                                             <FileText size={16} className="me-2" /> 
-                                            Authorization Letters (if registering on behalf of someone else)
+                                            Authorization Letters 
                                         </label>
                                         
                                         <div className="row">
@@ -2544,7 +2544,27 @@ function EmpCompanyProfilePage() {
                 {/* Hiring Companies Section - Only for consultancy */}
                 {formData.employerCategory === 'consultancy' && <div className="panel panel-default" id="hiring-companies">
                     <div className="panel-heading wt-panel-heading p-a20">
-                        <h4 className="panel-tittle m-a0"><Building size={18} className="me-2" /> Hiring Companies</h4>
+                        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <h4 className="panel-tittle m-a0"><Building size={18} className="me-2" /> Hiring Companies</h4>
+                            <div className="d-flex gap-2">
+                                <button
+                                    type="button"
+                                    className="btn btn-sm"
+                                    style={{backgroundColor: '#ffb366', color: 'white', border: 'none'}}
+                                    onClick={addNewAuthSection}
+                                >
+                                    <i className="fas fa-plus me-1"></i> Add New Hiring Company
+                                </button>
+                                <button
+                                    type="button"
+                                    className="site-button btn-sm"
+                                    onClick={handleSaveHiringCompanies}
+                                    disabled={savingHiringCompanies}
+                                >
+                                    {savingHiringCompanies ? 'Saving...' : 'Save Hiring Companies'}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div className="panel-body wt-panel-body p-a20 m-b30">
                         {formData.employerCategory === 'consultancy' && (
@@ -2643,33 +2663,14 @@ function EmpCompanyProfilePage() {
                             ))}
                         </div>
 
-                        <div className="mt-3 d-flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                className="btn btn-sm"
-                                style={{backgroundColor: '#ffb366', color: 'white', border: 'none'}}
-                                onClick={addNewAuthSection}
-                            >
-                                <i className="fas fa-plus me-1"></i> Add New Hiring Company
-                            </button>
-                            <button
-                                type="button"
-                                className="site-button"
-                                onClick={handleSaveHiringCompanies}
-                                disabled={savingHiringCompanies}
-                            >
-                                {savingHiringCompanies ? 'Saving...' : 'Save Hiring Companies'}
-                            </button>
-                        </div>
-
-                        {formData.authorizationLetters && formData.authorizationLetters.length > 0 && (
+                        {formData.authorizationLetters && formData.authorizationLetters.filter(doc => doc.status !== 'approved').length > 0 && (
                             <div className="mt-4">
                                 <h6 className="text-success mb-3">
                                     <i className="fas fa-check-circle me-2"></i>
-                                    Uploaded Authorization Letters ({formData.authorizationLetters.length})
+                                    Uploaded Authorization Letters ({formData.authorizationLetters.filter(doc => doc.status !== 'approved').length})
                                 </h6>
                                 <div className="row uploaded-auth-letters-grid">
-                                    {formData.authorizationLetters.map((doc, index) => (
+                                    {formData.authorizationLetters.filter(doc => doc.status !== 'approved').map((doc, index) => (
                                         <div key={doc._id || index} className="col-md-6 mb-3">
                                             <div className="document-card uploaded-auth-letter-card p-3 border rounded shadow-sm">
                                                 <div className="uploaded-auth-letter-card__header">
