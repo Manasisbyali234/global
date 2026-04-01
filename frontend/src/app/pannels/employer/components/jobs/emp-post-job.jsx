@@ -1046,7 +1046,7 @@ export default function EmpPostJob({ onNext }) {
 					() => updateRoundDetails(roundType, field, value, true),
 					null,
 					'warning',
-					{ confirmText: 'Yes Continue', cancelText: 'No' }
+					{ confirmText: 'Yes, Continue', cancelText: 'No' }
 				);
 				return;
 			}
@@ -4879,7 +4879,7 @@ export default function EmpPostJob({ onNext }) {
 																				() => setShowSubStageConfirm({ uniqueKey, subStage, subIndex, selectedDate }),
 																				null,
 																				'warning',
-																				{ confirmText: 'Yes Continue', cancelText: 'No' }
+																				{ confirmText: 'Yes, Continue', cancelText: 'No' }
 																			);
 																			return;
 																		}
