@@ -2477,7 +2477,7 @@ function EmpCompanyProfilePage() {
                                                 <span className="hiring-company-serial">#{index + 1}</span>{" "}
                                                 Hiring Company
                                             </h6>
-                                            {authSections.length > 1 && (
+                                            {authSections.length > 1 && !formData.authorizationLetters?.find(doc => section.companyName && doc.companyName === section.companyName && doc.status === 'approved') && (
                                                 <button
                                                     type="button"
                                                     className="btn btn-outline-danger btn-sm"
