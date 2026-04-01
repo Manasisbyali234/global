@@ -2576,49 +2576,68 @@ function EmpCompanyProfilePage() {
                                             )}
                                         </div>
 
-                                        <div className="form-group mb-3">
-                                            <label className="required-field">Company Name</label>
-                                            <input
-                                                className={`form-control ${!section.companyName?.trim() ? 'is-invalid' : ''}`}
-                                                type="text"
-                                                value={section.companyName}
-                                                onChange={(e) => handleAuthSectionCompanyNameChange(section.id, e.target.value)}
-                                                placeholder="Enter hiring company name"
-                                                required
-                                            />
-                                            {!section.companyName?.trim() && (
-                                                <div className="invalid-feedback">Company name is required</div>
-                                            )}
-                                        </div>
+                                        {(() => {
+                                            const uploadedLetter = formData.authorizationLetters?.find(doc =>
+                                                section.companyName && doc.companyName === section.companyName
+                                            );
+                                            const isApproved = uploadedLetter?.status === 'approved';
+                                            return (
+                                                <>
+                                                    <div className="form-group mb-3">
+                                                        <label className="required-field">Company Name</label>
+                                                        <input
+                                                            className={`form-control ${!section.companyName?.trim() ? 'is-invalid' : ''}`}
+                                                            type="text"
+                                                            value={section.companyName}
+                                                            onChange={(e) => handleAuthSectionCompanyNameChange(section.id, e.target.value)}
+                                                            placeholder="Enter hiring company name"
+                                                            required
+                                                            disabled={isApproved}
+                                                            style={isApproved ? {backgroundColor: '#f8f9fa', color: '#495057'} : {}}
+                                                        />
+                                                        {!section.companyName?.trim() && (
+                                                            <div className="invalid-feedback">Company name is required</div>
+                                                        )}
+                                                    </div>
 
-                                        <div className="form-group">
-                                            <label className="required-field mb-0">Authorization Letter</label>
-                                            <input
-                                                className="form-control"
-                                                type="file"
-                                                accept=".jpg,.jpeg,.png,.pdf"
-                                                ref={(input) => {
-                                                    const uploadedLetter = formData.authorizationLetters?.find(doc =>
-                                                        section.companyName && doc.companyName === section.companyName
-                                                    );
-                                                    if (!input || !uploadedLetter?.fileName) return;
-                                                    try {
-                                                        const dataTransfer = new DataTransfer();
-                                                        dataTransfer.items.add(new File([''], uploadedLetter.fileName, { type: 'application/octet-stream' }));
-                                                        input.files = dataTransfer.files;
-                                                    } catch (fileSyncError) {}
-                                                }}
-                                                onChange={(e) => handleAuthorizationLetterUpload(e, section.id)}
-                                            />
-                                            {(() => {
-                                                const uploadedLetter = formData.authorizationLetters?.find(doc =>
-                                                    section.companyName && doc.companyName === section.companyName
-                                                );
-                                                return uploadedLetter ? null : (
-                                                    <small className="text-muted">Upload authorization letter for this company (JPG, PNG, PDF, max 5MB)</small>
-                                                );
-                                            })()}
-                                        </div>
+                                                    <div className="form-group">
+                                                        <label className="required-field mb-0">Authorization Letter</label>
+                                                        {isApproved ? (
+                                                            <div className="mt-1">
+                                                                <div className="d-flex align-items-center gap-2">
+                                                                    <i className="fas fa-file-alt text-primary"></i>
+                                                                    <span className="text-muted" style={{fontSize: '0.875rem'}}>{uploadedLetter.fileName}</span>
+                                                                </div>
+                                                                <span className="badge bg-success mt-1">Approved</span>
+                                                                <div className="text-muted mt-1" style={{fontSize: '0.75rem'}}>
+                                                                    <i className></i>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <input
+                                                                    className="form-control"
+                                                                    type="file"
+                                                                    accept=".jpg,.jpeg,.png,.pdf"
+                                                                    ref={(input) => {
+                                                                        if (!input || !uploadedLetter?.fileName) return;
+                                                                        try {
+                                                                            const dataTransfer = new DataTransfer();
+                                                                            dataTransfer.items.add(new File([''], uploadedLetter.fileName, { type: 'application/octet-stream' }));
+                                                                            input.files = dataTransfer.files;
+                                                                        } catch (fileSyncError) {}
+                                                                    }}
+                                                                    onChange={(e) => handleAuthorizationLetterUpload(e, section.id)}
+                                                                />
+                                                                {!uploadedLetter && (
+                                                                    <small className="text-muted">Upload authorization letter for this company (JPG, PNG, PDF, max 5MB)</small>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             ))}
