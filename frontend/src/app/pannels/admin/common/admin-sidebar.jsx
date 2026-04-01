@@ -16,6 +16,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
     const [hasNewEmployers, setHasNewEmployers] = useState(false);
     const [hasNewPlacements, setHasNewPlacements] = useState(false);
     const [hasNewTickets, setHasNewTickets] = useState(false);
+    const [hasProfileUpdates, setHasProfileUpdates] = useState(false);
     const employersLinkRef = useRef(null);
     const placementLinkRef = useRef(null);
 
@@ -76,6 +77,30 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         }
     };
 
+    // Check for employers with reuploaded documents (profile updates under review)
+    const checkProfileUpdates = async () => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            if (!token) return;
+
+            const res = await fetch('http://localhost:5000/api/admin/employers', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                const employers = data.data || [];
+                const hasUpdates = employers.some(emp =>
+                    emp.profileSubmittedForReview &&
+                    (emp.panCardReuploadedAt || emp.cinReuploadedAt || emp.gstReuploadedAt || emp.incorporationReuploadedAt)
+                );
+                setHasProfileUpdates(hasUpdates);
+            }
+        } catch (error) {
+            console.error('Error checking profile updates:', error);
+        }
+    };
+
     // Check for new placements
     const checkNewPlacements = async () => {
         try {
@@ -120,11 +145,13 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         checkNewEmployers();
         checkNewPlacements();
         checkNewTickets();
+        checkProfileUpdates();
 
         const interval = setInterval(() => {
             checkNewEmployers();
             checkNewPlacements();
             checkNewTickets();
+            checkProfileUpdates();
         }, 45000);
 
         // Add arrows after scripts load
@@ -271,6 +298,16 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                             className={isEmployersUnderReviewActive ? 'active' : ''}
                                         >
                                             <span className="admin-nav-text">Under Review</span>
+                                            {hasProfileUpdates && (
+                                                <span style={{
+                                                    display: 'inline-block',
+                                                    width: '8px',
+                                                    height: '8px',
+                                                    backgroundColor: '#ff4444',
+                                                    borderRadius: '50%',
+                                                    marginLeft: '8px'
+                                                }}></span>
+                                            )}
                                         </Link>
                                     </li>
                                     <li className={currentpath === adminRoute(admin.CAN_APPROVE) ? 'active' : ''}>

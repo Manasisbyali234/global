@@ -378,7 +378,7 @@ function AdminSupportTickets() {
         return '';
     };
 
-    const getJobTitle = (ticket) => ticket?.jobId?.title || '';
+    const getJobTitle = (ticket) => ticket?.jobId?.title || null;
 
     const getRequesterEmail = (ticket) => ticket?.actualUserEmail || ticket?.email || 'No email provided';
 
@@ -590,18 +590,15 @@ function AdminSupportTickets() {
                                                             </div>
                                                             {!ticket.isRead && <span className="new-badge">Unread</span>}
                                                         </td>
-                                                        <td style={{whiteSpace: 'nowrap'}} title={[getRequesterName(ticket), getCompanyName(ticket), getRequesterEmail(ticket)].filter(Boolean).join(' - ')}>
+                                                        <td style={{whiteSpace: 'nowrap'}} title={[getRequesterName(ticket), getRequesterEmail(ticket)].filter(Boolean).join(' - ')}>
                                                             <div className="user-info">
                                                                 <div className="user-name">{getRequesterName(ticket)}</div>
-                                                                {getCompanyName(ticket) && (
-                                                                    <div className="user-email">{getCompanyName(ticket)}</div>
-                                                                )}
                                                                 <div className="user-email">{getRequesterEmail(ticket)}</div>
                                                             </div>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getUserTypeBadge(ticket.userType)}</td>
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getJobTitle(ticket) || 'No job selected'}>
-                                                            <span className="category-badge">{getJobTitle(ticket) || 'N/A'}</span>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getJobTitle(ticket) || (ticket.userType === 'employer' ? '-' : 'No job selected')}>
+                                                            <span className="category-badge">{getJobTitle(ticket) || (ticket.userType === 'employer' ? '-' : 'N/A')}</span>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.category || 'General'}>
                                                             <span className="category-badge">{ticket.category || 'General'}</span>
@@ -728,7 +725,7 @@ function AdminSupportTickets() {
                                             <div className="detail-label">{getRequesterLabel(selectedTicket)}</div>
                                             <div className="detail-value">{getRequesterName(selectedTicket)}</div>
                                         </div>
-                                        {getCompanyName(selectedTicket) && (
+                                        {selectedTicket.userType !== 'employer' && getCompanyName(selectedTicket) && (
                                             <div className="ticket-detail-card">
                                                 <div className="detail-label">Company Name</div>
                                                 <div className="detail-value">{getCompanyName(selectedTicket)}</div>

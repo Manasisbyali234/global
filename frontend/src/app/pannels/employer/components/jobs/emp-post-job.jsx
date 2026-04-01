@@ -1046,7 +1046,7 @@ export default function EmpPostJob({ onNext }) {
 					() => updateRoundDetails(roundType, field, value, true),
 					null,
 					'warning',
-					{ confirmText: 'Yes Continue', cancelText: 'No' }
+					{ confirmText: 'Yes, Continue', cancelText: 'No' }
 				);
 				return;
 			}
@@ -2051,7 +2051,7 @@ export default function EmpPostJob({ onNext }) {
 						? 'Define the interview rounds and schedule for this job posting.'
 						: isEditMode 
 							? 'Update your job posting details below. All fields marked with * are mandatory.'
-							: 'Fill in the details below to create a new job posting. All fields marked with * are required.'}
+							: 'Fill in the details below to create a new job posting. All fields marked with * are mandatory.'}
 				</p>
 			</div>
 
@@ -4879,7 +4879,7 @@ export default function EmpPostJob({ onNext }) {
 																				() => setShowSubStageConfirm({ uniqueKey, subStage, subIndex, selectedDate }),
 																				null,
 																				'warning',
-																				{ confirmText: 'Yes Continue', cancelText: 'No' }
+																				{ confirmText: 'Yes, Continue', cancelText: 'No' }
 																			);
 																			return;
 																		}
@@ -4976,30 +4976,6 @@ export default function EmpPostJob({ onNext }) {
 																	/>
 																</div>
 															</div>
-															<div style={{ flex: 1, minWidth: isMobile ? '100%' : '150px' }}>
-																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-																	<i className="fa fa-coffee"></i> BREAK TIME (MINS)
-																</label>
-																<div style={{ position: 'relative' }}>
-																	<input
-																		type="number"
-																		style={{
-																			background: '#f9fafb',
-																			border: '1px solid #e5e7eb',
-																			borderRadius: '10px',
-																			padding: '10px 14px',
-																			width: '100%',
-																			fontSize: '14px'
-																		}}
-																		value={subStage.breakTime || 0}
-																		onChange={(e) => {
-																			const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, breakTime: parseInt(e.target.value) || 0 } : s);
-																			setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages } } }));
-																		}}
-																	/>
-																</div>
-															</div>
-
 														</div>
 													</div>
 												))}

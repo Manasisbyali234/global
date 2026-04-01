@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const Candidate = require('../models/Candidate');
 const CandidateProfile = require('../models/CandidateProfile');
 const Job = require('../models/Job');
@@ -54,7 +55,8 @@ exports.registerCandidate = async (req, res) => {
     const existingUser = await checkEmailExists(email);
     if (existingUser) {
       console.log('Email already exists:', email, 'Role:', existingUser.role);
-      return res.status(400).json({ success: false, message: 'Email already registered' });
+      const roleMsg = existingUser.role !== 'candidate' ? ` as a ${existingUser.role}` : '';
+      return res.status(409).json({ success: false, message: `This email is already registered${roleMsg}. Please log in instead.` });
     }
 
     // Create candidate without password - they will create it via email link
@@ -93,11 +95,22 @@ exports.registerCandidate = async (req, res) => {
     
     // Create profile with validated candidateId
     try {
+      const profileCandidateId = candidate._id || candidate.id;
+      if (!profileCandidateId || !mongoose.Types.ObjectId.isValid(String(profileCandidateId))) {
+        throw new Error('Candidate ID is invalid after creation');
+      }
       await CandidateProfile.create({ 
+<<<<<<< HEAD
         candidateId: candidate._id,
         firstName: resolvedFirstName,
         middleName: normalizedMiddleName,
         lastName: resolvedLastName
+=======
+        candidateId: profileCandidateId,
+        firstName,
+        middleName,
+        lastName
+>>>>>>> df8033221a0ada9e0f9a6f008c9e272d8759ad65
       });
       console.log('Profile created for candidate:', candidate._id);
     } catch (profileError) {
@@ -127,6 +140,9 @@ exports.registerCandidate = async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: 'Email already registered' });
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };

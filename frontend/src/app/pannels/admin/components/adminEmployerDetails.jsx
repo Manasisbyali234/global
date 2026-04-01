@@ -718,7 +718,7 @@ function EmployerDetails() {
                                         <i className="fa fa-eye"></i>
                                         View ID Card
                                     </button>
-                                    <p className="text-success mt-1">✓ Company ID Card uploaded</p>
+                                    <p className="text-success mt-1"></p>
                                 </div>
                             </div>
                         </div>
