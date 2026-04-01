@@ -100,17 +100,10 @@ exports.registerCandidate = async (req, res) => {
         throw new Error('Candidate ID is invalid after creation');
       }
       await CandidateProfile.create({ 
-<<<<<<< HEAD
-        candidateId: candidate._id,
+        candidateId: profileCandidateId,
         firstName: resolvedFirstName,
         middleName: normalizedMiddleName,
         lastName: resolvedLastName
-=======
-        candidateId: profileCandidateId,
-        firstName,
-        middleName,
-        lastName
->>>>>>> df8033221a0ada9e0f9a6f008c9e272d8759ad65
       });
       console.log('Profile created for candidate:', candidate._id);
     } catch (profileError) {
