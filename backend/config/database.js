@@ -1,5 +1,22 @@
 const mongoose = require('mongoose');
 
+const dropLegacyCandidateIndex = async () => {
+  try {
+    const candidatesCollection = mongoose.connection.db.collection('candidates');
+    const indexes = await candidatesCollection.indexes();
+    const legacyCandidateIdIndex = indexes.find((index) => index.name === 'candidateId_1');
+
+    if (!legacyCandidateIdIndex) {
+      return;
+    }
+
+    await candidatesCollection.dropIndex(legacyCandidateIdIndex.name);
+    console.log('Dropped legacy candidates.candidateId_1 index');
+  } catch (error) {
+    console.error('Failed to clean up legacy candidate index:', error.message);
+  }
+};
+
 const connectDB = async () => {
   try {
     console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Found' : 'Not found');
@@ -34,6 +51,7 @@ const connectDB = async () => {
     
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     console.log(`Database: ${conn.connection.name}`);
+    await dropLegacyCandidateIndex();
   } catch (error) {
     console.error('Database connection error:', error.message);
     process.exit(1);

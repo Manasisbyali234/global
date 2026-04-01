@@ -19,9 +19,37 @@ const generateToken = (id, role) => {
 // Authentication Controllers
 exports.registerCandidate = async (req, res) => {
   try {
-    const { firstName, middleName, lastName, email, password, phone, sendWelcomeEmail: shouldSendWelcome, skipOtpVerification } = req.body;
-    const name = `${firstName}${middleName ? ' ' + middleName : ''} ${lastName}`.trim();
-    console.log('Registration attempt:', { firstName, middleName, lastName, email, phone, shouldSendWelcome, skipOtpVerification });
+    const {
+      firstName,
+      middleName,
+      lastName,
+      name: legacyName,
+      email,
+      password,
+      phone,
+      sendWelcomeEmail: shouldSendWelcome,
+      skipOtpVerification
+    } = req.body;
+
+    const normalizedFirstName = typeof firstName === 'string' ? firstName.trim() : '';
+    const normalizedMiddleName = typeof middleName === 'string' ? middleName.trim() : '';
+    const normalizedLastName = typeof lastName === 'string' ? lastName.trim() : '';
+    const normalizedLegacyName = typeof legacyName === 'string' ? legacyName.trim() : '';
+    const legacyNameParts = normalizedLegacyName ? normalizedLegacyName.split(/\s+/).filter(Boolean) : [];
+
+    const resolvedFirstName = normalizedFirstName || legacyNameParts[0] || '';
+    const resolvedLastName = normalizedLastName || legacyNameParts.slice(1).join(' ');
+    const fullName = [resolvedFirstName, normalizedMiddleName, resolvedLastName].filter(Boolean).join(' ').trim();
+
+    console.log('Registration attempt:', {
+      firstName: resolvedFirstName,
+      middleName: normalizedMiddleName,
+      lastName: resolvedLastName,
+      email,
+      phone,
+      shouldSendWelcome,
+      skipOtpVerification
+    });
 
     const existingUser = await checkEmailExists(email);
     if (existingUser) {
@@ -31,10 +59,10 @@ exports.registerCandidate = async (req, res) => {
 
     // Create candidate without password - they will create it via email link
     const candidateData = { 
-      firstName,
-      middleName,
-      lastName,
-      name, 
+      firstName: resolvedFirstName,
+      middleName: normalizedMiddleName,
+      lastName: resolvedLastName,
+      name: fullName, 
       email: email.trim(), // Preserve original email format, just trim whitespace
       phone,
       registrationMethod: 'email_signup',
@@ -51,7 +79,7 @@ exports.registerCandidate = async (req, res) => {
       candidateData.phoneOTP = otp;
       candidateData.phoneOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
       // Send SMS OTP
-      await sendSMS(phone, otp, name);
+      await sendSMS(phone, otp, fullName);
     }
     
     const candidate = await Candidate.create(candidateData);
@@ -67,9 +95,9 @@ exports.registerCandidate = async (req, res) => {
     try {
       await CandidateProfile.create({ 
         candidateId: candidate._id,
-        firstName,
-        middleName,
-        lastName
+        firstName: resolvedFirstName,
+        middleName: normalizedMiddleName,
+        lastName: resolvedLastName
       });
       console.log('Profile created for candidate:', candidate._id);
     } catch (profileError) {

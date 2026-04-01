@@ -37,6 +37,14 @@ function SignUpPopup() {
     const [currentRole, setCurrentRole] = useState('candidate');
     const [termsAccepted, setTermsAccepted] = useState({ candidate: false, employer: false, placement: false });
 
+    const splitCandidateName = (fullName) => {
+        const parts = (fullName || '').trim().split(/\s+/).filter(Boolean);
+        return {
+            firstName: parts[0] || '',
+            lastName: parts.slice(1).join(' ')
+        };
+    };
+
     useEffect(() => {
         setCandidateData({ username: '', email: '', mobile: '', countryCode: '+91' });
         setEmployerData({ name: '', email: '', mobile: '', employerCategory: '', countryCode: '+91' });
@@ -292,10 +300,13 @@ function SignUpPopup() {
         
         try {
             const apiUrl = process.env.REACT_APP_API_URL || '';
+            const { firstName, lastName } = splitCandidateName(candidateData.username);
             const response = await fetch(`${apiUrl}/api/candidate/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    firstName,
+                    lastName,
                     name: candidateData.username,
                     email: candidateData.email,
                     phone: candidateData.countryCode + candidateData.mobile,

@@ -38,6 +38,17 @@ const createIndexes = async () => {
     // Candidate indexes
     console.log('Creating Candidate indexes...');
     try {
+      try {
+        const candidateIndexes = await db.collection('candidates').indexes();
+        const legacyCandidateIndex = candidateIndexes.find((idx) => idx.name === 'candidateId_1');
+        if (legacyCandidateIndex) {
+          await db.collection('candidates').dropIndex(legacyCandidateIndex.name);
+          console.log('Dropped legacy candidates candidateId_1 index');
+        }
+      } catch (cleanupError) {
+        console.log('Candidate legacy index cleanup skipped:', cleanupError.message);
+      }
+
       await db.collection('candidates').createIndex({ createdAt: -1 });
       await db.collection('candidates').createIndex({ email: 1 });
       console.log('✓ Candidate indexes created');

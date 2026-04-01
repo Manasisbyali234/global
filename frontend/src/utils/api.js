@@ -81,6 +81,19 @@ const handleApiResponse = async (response) => {
   }
 };
 
+const normalizeCandidateRegistrationPayload = (data = {}) => {
+  if (data.firstName || data.lastName || !data.name) {
+    return data;
+  }
+
+  const parts = String(data.name).trim().split(/\s+/).filter(Boolean);
+  return {
+    ...data,
+    firstName: parts[0] || '',
+    lastName: parts.slice(1).join(' ')
+  };
+};
+
 export const api = {
   // Health check with iOS Safari compatibility
   healthCheck: () => {
@@ -148,7 +161,7 @@ export const api = {
     return fetch(`${API_BASE_URL}/candidate/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: JSON.stringify(normalizeCandidateRegistrationPayload(data)),
     }).then((res) => res.json());
   },
 
