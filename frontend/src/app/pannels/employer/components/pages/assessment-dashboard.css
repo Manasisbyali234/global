@@ -59,18 +59,110 @@
   width: 100% !important;
   max-width: 320px !important;
   min-width: 0 !important;
-  overflow: hidden !important;
+  overflow: visible !important;
+  position: relative;
 }
 
-.twm-right-section-panel.emp-assessment-page .assessment-selector-control.form-select,
-.twm-right-section-panel .assessment-selector-control.form-select {
+.emp-assessment-page .assessment-selector-trigger {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
-  display: block !important;
+  min-height: 50px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px !important;
+  background: #fff !important;
+  color: #111827 !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  text-align: left;
   overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+}
+
+.emp-assessment-page .assessment-selector-trigger:hover,
+.emp-assessment-page .assessment-selector-trigger:focus {
+  border-color: #2563eb !important;
+  background-color: #f8fafc !important;
+}
+
+.emp-assessment-page .assessment-selector-trigger-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #007bff;
+}
+
+.emp-assessment-page .assessment-selector-trigger-text.is-placeholder {
+  color: #6c757d;
+}
+
+.emp-assessment-page .assessment-selector-trigger-icon {
+  flex: 0 0 auto;
+  color: #6b7280;
+}
+
+.emp-assessment-page .assessment-selector-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 1085;
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.emp-assessment-page .assessment-selector-option {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+  min-width: 0;
+}
+
+.emp-assessment-page .assessment-selector-option:hover,
+.emp-assessment-page .assessment-selector-option.is-active {
+  background: #f8fafc;
+}
+
+.emp-assessment-page .assessment-selector-option-title,
+.emp-assessment-page .assessment-selector-option-meta {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.emp-assessment-page .assessment-selector-option-title {
+  color: #0f172a;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.emp-assessment-page .assessment-selector-option-meta {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 @media (max-width: 768px) {
@@ -87,6 +179,10 @@
     flex-basis: 100% !important;
     max-width: 100% !important;
     width: 100% !important;
+  }
+
+  .emp-assessment-page .assessment-selector-menu {
+    max-height: 280px;
   }
 
   /* Fix search bar size on mobile */

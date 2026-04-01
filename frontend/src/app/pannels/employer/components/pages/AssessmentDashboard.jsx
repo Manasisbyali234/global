@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AssessmentCard from "../assessments/AssessmnetCard";
 import CreateAssessmentModal from "../assessments/CreateassessmentModal";
 import { api } from '../../../../../utils/api';
@@ -13,6 +13,32 @@ export default function AssessmentDashboard() {
 	const [showModal, setShowModal] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [editingAssessment, setEditingAssessment] = useState(null);
+	const [selectedAssessmentId, setSelectedAssessmentId] = useState("");
+	const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+	const selectorRef = useRef(null);
+
+	const truncateText = (value, maxLength) => {
+		const text = String(value || '').trim();
+		if (text.length <= maxLength) {
+			return text;
+		}
+		return `${text.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+	};
+
+	const getAssessmentOptionLabel = (assessment) => {
+		const title = truncateText(assessment.title || 'Untitled Assessment', 32);
+		const designation = truncateText(assessment.designation || 'N/A', 18);
+		const duration = assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A';
+		return `${title} | ${designation} | ${duration} min`;
+	};
+
+	const getAssessmentOptionTitle = (assessment) => {
+		const duration = assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A';
+		return `${assessment.title || 'Untitled Assessment'} - ${assessment.designation || 'N/A'} (${duration} min)`;
+	};
+
+	const getSelectedAssessment = () =>
+		assessments.find((assessment) => assessment._id === selectedAssessmentId) || null;
 
 	const handleCreateAssessmentClick = () => {
 		const securityMessage = (
@@ -74,12 +100,41 @@ export default function AssessmentDashboard() {
 		fetchAssessments();
 	}, []);
 
+	useEffect(() => {
+		if (!selectedAssessmentId) {
+			setFilteredAssessments(assessments);
+			return;
+		}
+
+		const filtered = assessments.filter(
+			(assessment) => assessment._id === selectedAssessmentId
+		);
+
+		if (filtered.length === 0) {
+			setSelectedAssessmentId("");
+			setFilteredAssessments(assessments);
+			return;
+		}
+
+		setFilteredAssessments(filtered);
+	}, [assessments, selectedAssessmentId]);
+
+	useEffect(() => {
+		const handlePointerDown = (event) => {
+			if (selectorRef.current && !selectorRef.current.contains(event.target)) {
+				setIsSelectorOpen(false);
+			}
+		};
+
+		document.addEventListener("mousedown", handlePointerDown);
+		return () => document.removeEventListener("mousedown", handlePointerDown);
+	}, []);
+
 	const fetchAssessments = async () => {
 		try {
 			const response = await api.getEmployerAssessments();
 			if (response.success) {
 				setAssessments(response.assessments);
-				setFilteredAssessments(response.assessments);
 			}
 		} catch (error) {
 			console.error('Error fetching assessments:', error);
@@ -97,7 +152,6 @@ export default function AssessmentDashboard() {
 				if (response.success) {
 					const updatedAssessments = assessments.map(a => a._id === assessmentData.id ? response.assessment : a);
 					setAssessments(updatedAssessments);
-					setFilteredAssessments(updatedAssessments);
 					setShowModal(false);
 					setEditingAssessment(null);
 					const successMessage = assessmentData.status === 'draft' ? 'Assessment Draft updated successfully!' : 'Assessment updated successfully!';
@@ -109,7 +163,6 @@ export default function AssessmentDashboard() {
 				if (response.success) {
 					const newAssessments = [response.assessment, ...assessments];
 					setAssessments(newAssessments);
-					setFilteredAssessments(newAssessments);
 					setShowModal(false);
 					showSuccess('Assessment created successfully!');
 				}
@@ -137,7 +190,6 @@ export default function AssessmentDashboard() {
 					await api.deleteEmployerAssessment(id);
 					const updatedAssessments = assessments.filter(a => a._id !== id);
 					setAssessments(updatedAssessments);
-					setFilteredAssessments(updatedAssessments);
 					showSuccess('Assessment deleted successfully');
 				} catch (error) {
 					console.error('Error deleting assessment:', error);
@@ -166,6 +218,8 @@ export default function AssessmentDashboard() {
 			</div>
 		);
 	}
+
+	const selectedAssessment = getSelectedAssessment();
 
 	return (
 		<div className="twm-right-section-panel site-bg-gray emp-assessment-page" style={{
@@ -199,38 +253,55 @@ export default function AssessmentDashboard() {
 			<div className="employer-page-shell">
 				<div className="d-flex flex-wrap gap-3 align-items-center employer-page-content-card assessment-selector-row" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
 					<label className="form-label mb-0 fw-semibold assessment-selector-label">Select Assessment:</label>
-					<div className="d-flex flex-wrap gap-2 assessment-selector-control-wrap">
-						<select
-							className="form-select assessment-selector-control"
-							style={{ color: '#007bff' }}
-							title="Select Assessment"
-							onChange={(e) => {
-								const searchValue = e.target.value;
-								if (searchValue) {
-									const filtered = assessments.filter((assessment) =>
-										assessment.title?.toLowerCase().includes(searchValue.toLowerCase()) ||
-										assessment.designation?.toLowerCase().includes(searchValue.toLowerCase()) ||
-										assessment.type?.toLowerCase().includes(searchValue.toLowerCase())
-									);
-									setFilteredAssessments(filtered);
-								} else {
-									setFilteredAssessments(assessments);
-								}
-							}}
-							defaultValue=""
+					<div className="assessment-selector-control-wrap" ref={selectorRef}>
+						<button
+							type="button"
+							className="assessment-selector-trigger"
+							onClick={() => setIsSelectorOpen((current) => !current)}
+							aria-expanded={isSelectorOpen}
+							aria-haspopup="listbox"
+							title={selectedAssessment ? getAssessmentOptionTitle(selectedAssessment) : "Select Assessment"}
 						>
-							<option value="" style={{ color: '#6c757d' }}>Select Assessment</option>
-							{assessments.map(assessment => (
-								<option
-									key={assessment._id}
-									value={assessment.title}
-									style={{ color: '#28a745' }}
-									title={`${assessment.title} - ${assessment.designation || 'N/A'} (${assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)`}
+							<span className={`assessment-selector-trigger-text${selectedAssessment ? "" : " is-placeholder"}`}>
+								{selectedAssessment ? getAssessmentOptionLabel(selectedAssessment) : "Select Assessment"}
+							</span>
+							<i className={`fa ${isSelectorOpen ? "fa-chevron-up" : "fa-chevron-down"} assessment-selector-trigger-icon`} aria-hidden="true"></i>
+						</button>
+						{isSelectorOpen && (
+							<div className="assessment-selector-menu" role="listbox" aria-label="Select Assessment">
+								<button
+									type="button"
+									className={`assessment-selector-option${selectedAssessmentId ? "" : " is-active"}`}
+									onClick={() => {
+										setSelectedAssessmentId("");
+										setIsSelectorOpen(false);
+									}}
+									title="Select Assessment"
 								>
-									{assessment.title} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)
-								</option>
-							))}
-						</select>
+									<span className="assessment-selector-option-title">Select Assessment</span>
+									<span className="assessment-selector-option-meta">Show all assessments</span>
+								</button>
+								{assessments.map((assessment) => (
+									<button
+										key={assessment._id}
+										type="button"
+										className={`assessment-selector-option${selectedAssessmentId === assessment._id ? " is-active" : ""}`}
+										onClick={() => {
+											setSelectedAssessmentId(assessment._id);
+											setIsSelectorOpen(false);
+										}}
+										title={getAssessmentOptionTitle(assessment)}
+									>
+										<span className="assessment-selector-option-title">
+											{assessment.title || 'Untitled Assessment'}
+										</span>
+										<span className="assessment-selector-option-meta">
+											{assessment.designation || 'N/A'} | {assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min
+										</span>
+									</button>
+								))}
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
