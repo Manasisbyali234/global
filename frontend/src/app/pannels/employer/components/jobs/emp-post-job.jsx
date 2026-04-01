@@ -2051,7 +2051,7 @@ export default function EmpPostJob({ onNext }) {
 						? 'Define the interview rounds and schedule for this job posting.'
 						: isEditMode 
 							? 'Update your job posting details below. All fields marked with * are mandatory.'
-							: 'Fill in the details below to create a new job posting. All fields marked with * are required.'}
+							: 'Fill in the details below to create a new job posting. All fields marked with * are mandatory.'}
 				</p>
 			</div>
 

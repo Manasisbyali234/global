@@ -2536,8 +2536,8 @@ function EmpCompanyProfilePage() {
                     </div>
                 </div>
 
-                {/* Hiring Companies Section */}
-                <div className="panel panel-default" id="hiring-companies">
+                {/* Hiring Companies Section - Only for consultancy */}
+                {formData.employerCategory === 'consultancy' && <div className="panel panel-default" id="hiring-companies">
                     <div className="panel-heading wt-panel-heading p-a20">
                         <h4 className="panel-tittle m-a0"><Building size={18} className="me-2" /> Hiring Companies</h4>
                     </div>
@@ -2686,7 +2686,7 @@ function EmpCompanyProfilePage() {
                             </div>
                         )}
                     </div>
-                </div>
+                </div>}
 
                 <div className="panel panel-default">
                     <div className="panel-body wt-panel-body p-a20 m-b30">
