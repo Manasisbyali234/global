@@ -27,7 +27,8 @@ exports.registerCandidate = async (req, res) => {
     const existingUser = await checkEmailExists(email);
     if (existingUser) {
       console.log('Email already exists:', email, 'Role:', existingUser.role);
-      return res.status(400).json({ success: false, message: 'Email already registered' });
+      const roleMsg = existingUser.role !== 'candidate' ? ` as a ${existingUser.role}` : '';
+      return res.status(409).json({ success: false, message: `This email is already registered${roleMsg}. Please log in instead.` });
     }
 
     // Create candidate without password - they will create it via email link

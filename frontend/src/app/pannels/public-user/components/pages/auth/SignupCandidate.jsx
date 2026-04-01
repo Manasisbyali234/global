@@ -139,8 +139,13 @@ function SignupCandidate() {
                 showSuccess('Sign up successful. Please check your email to set your password and sign in to complete your profile..');
                 setCandidateData({ firstName: '', middleName: '', lastName: '', email: '', mobile: '', countryCode: '+91' });
                 navigate(publicUser.pages.LOGIN_CANDIDATE);
+            } else if (response.status === 409) {
+                showError(data.message || 'This email is already registered. Please log in instead.');
+                setTimeout(() => navigate(publicUser.pages.LOGIN_CANDIDATE), 2000);
             } else {
-                showError(data.message || 'Registration failed.');
+                // Show first validation error if present, otherwise show general message
+                const errMsg = data.errors?.[0]?.msg || data.message || 'Registration failed.';
+                showError(errMsg);
             }
         } catch (error) {
             showError('Network error. Please try again.');
