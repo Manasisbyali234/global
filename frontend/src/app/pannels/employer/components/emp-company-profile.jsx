@@ -239,6 +239,11 @@ function EmpCompanyProfilePage() {
             if (data.success && data.profile) {
                 const profileData = { ...data.profile };
 
+                // Fallback: derive employerCategory from employerId.employerType if not set
+                if (!profileData.employerCategory && profileData.employerId?.employerType) {
+                    profileData.employerCategory = profileData.employerId.employerType === 'consultant' ? 'consultancy' : 'company';
+                }
+
                 // Split phone numbers into country code and number parts
                 if (profileData.phone) {
                     const phoneStr = String(profileData.phone).trim();
