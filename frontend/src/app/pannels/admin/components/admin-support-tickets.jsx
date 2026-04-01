@@ -4,6 +4,7 @@ import { Container, Row, Col, Card, Badge, Button, Modal, Form, Alert, Spinner }
 import './admin-support-tickets.css';
 import './admin-emp-manage-styles.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../utils/popupNotification';
+import PageLoader from '../../../../components/PageLoader';
 function AdminSupportTickets() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -436,7 +437,7 @@ function AdminSupportTickets() {
     if (loading) {
         return (
             <div className="dashboard-content">
-                <div className="text-center">Loading...</div>
+                <PageLoader pageName="Support Tickets" />
             </div>
         );
     }

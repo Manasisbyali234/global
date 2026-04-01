@@ -197,12 +197,13 @@ export default function AssessmentDashboard() {
 
 			{/* Assessment Selector */}
 			<div className="employer-page-shell">
-				<div className="d-flex flex-wrap gap-3 align-items-center employer-page-content-card" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-					<label className="form-label mb-0 fw-semibold" style={{ minWidth: '140px' }}>Select Assessment:</label>
-					<div className="d-flex flex-wrap gap-2" style={{ minWidth: '250px', width: '100%', maxWidth: '320px' }}>
+				<div className="d-flex flex-wrap gap-3 align-items-center employer-page-content-card assessment-selector-row" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+					<label className="form-label mb-0 fw-semibold assessment-selector-label">Select Assessment:</label>
+					<div className="d-flex flex-wrap gap-2 assessment-selector-control-wrap">
 						<select
-							className="form-select"
-							style={{ width: '100%', color: '#007bff' }}
+							className="form-select assessment-selector-control"
+							style={{ color: '#007bff' }}
+							title="Select Assessment"
 							onChange={(e) => {
 								const searchValue = e.target.value;
 								if (searchValue) {
@@ -220,7 +221,12 @@ export default function AssessmentDashboard() {
 						>
 							<option value="" style={{ color: '#6c757d' }}>Select Assessment</option>
 							{assessments.map(assessment => (
-								<option key={assessment._id} value={assessment.title} style={{ color: '#28a745' }}>
+								<option
+									key={assessment._id}
+									value={assessment.title}
+									style={{ color: '#28a745' }}
+									title={`${assessment.title} - ${assessment.designation || 'N/A'} (${assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)`}
+								>
 									{assessment.title} - {assessment.designation || 'N/A'} ({assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min)
 								</option>
 							))}

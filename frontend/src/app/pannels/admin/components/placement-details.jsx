@@ -3,6 +3,7 @@ import { formatDate } from '../../../../utils/dateFormatter';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../../../utils/api';
 import { useWebSocket } from '../../../../contexts/WebSocketContext';
+import PageLoader from '../../../../components/PageLoader';
 import './placement-details.css';
 import '../../../../table-id-fix.css';
 import '../../../../placement-rejection-styles.css';
@@ -408,11 +409,7 @@ function PlacementDetails() {
     };
 
     if (loading) {
-        return (
-            <div className="wt-admin-right-page-header clearfix">
-                <h2>Loading...</h2>
-            </div>
-        );
+        return <PageLoader pageName="Placement Details" />;
     }
 
     if (error) {

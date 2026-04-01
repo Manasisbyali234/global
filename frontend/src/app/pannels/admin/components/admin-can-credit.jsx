@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { showSuccess, showError } from '../../../../utils/popupNotification';
+import PageLoader from '../../../../components/PageLoader';
 import '../../../../admin-credits-button-fix.css';
 
 function AdminCreditsPage() {
@@ -184,12 +185,7 @@ function AdminCreditsPage() {
 	if (loading) {
 		return (
 			<div className="container py-4">
-				<div className="text-center">
-					<div className="spinner-border" role="status">
-						<span className="visually-hidden">Loading...</span>
-					</div>
-					<p className="mt-2">Loading candidates...</p>
-				</div>
+				<PageLoader pageName="Candidate Credits" />
 			</div>
 		);
 	}

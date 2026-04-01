@@ -7,6 +7,7 @@ import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
 import './admin-header-mobile-fix.css';
 import SearchBar from '../../../../components/SearchBar';
+import PageLoader from '../../../../components/PageLoader';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 
@@ -236,11 +237,7 @@ function AdminEmployersAllRequest() {
 
 
     if (loading) {
-        return (
-            <div className="wt-admin-right-page-header clearfix">
-                <h2>Loading...</h2>
-            </div>
-        );
+        return <PageLoader pageName="Employer Requests" />;
     }
 
     return (

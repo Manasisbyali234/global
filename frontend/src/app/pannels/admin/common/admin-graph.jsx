@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Bar, Pie } from "react-chartjs-2";
 import { api } from "../../../../utils/api";
+import PageLoader from "../../../../components/PageLoader";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -66,7 +67,7 @@ function AdminDashboardActivityChart() {
 	};
 
 	if (loading) {
-		return <div className="text-center p-5">Loading charts...</div>;
+		return <PageLoader pageName="Charts" compact />;
 	}
 
 	if (error) {

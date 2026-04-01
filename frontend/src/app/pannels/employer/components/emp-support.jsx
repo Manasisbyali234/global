@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './emp-support.css';
 
 function EmpSupport() {
@@ -18,6 +18,8 @@ function EmpSupport() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isCompressing, setIsCompressing] = useState(false);
+    const subjectRef = useRef(null);
+    const messageRef = useRef(null);
 
     useEffect(() => {
         // Debug: Check all localStorage keys
@@ -75,6 +77,17 @@ function EmpSupport() {
         }
     }, []);
 
+    useEffect(() => {
+        const autoResize = (element) => {
+            if (!element) return;
+            element.style.height = 'auto';
+            element.style.height = `${element.scrollHeight}px`;
+        };
+
+        autoResize(subjectRef.current);
+        autoResize(messageRef.current);
+    }, [formData.subject, formData.message]);
+
     const categories = [
         { value: 'general', label: 'General Inquiry' },
         { value: 'technical', label: 'Technical Issue' },
@@ -100,6 +113,12 @@ function EmpSupport() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+
+        if (e.target.tagName === 'TEXTAREA') {
+            e.target.style.height = 'auto';
+            e.target.style.height = `${e.target.scrollHeight}px`;
+        }
+
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
@@ -385,12 +404,13 @@ function EmpSupport() {
                                     <div className="col-xl-12 col-lg-12 col-md-12">
                                         <div className="form-group">
                                             <label>Subject <span style={{ color: 'red' }}>*</span></label>
-                                            <input 
+                                            <textarea 
+                                                ref={subjectRef}
                                                 name="subject" 
-                                                type="text" 
-                                                className={`form-control ${errors.subject ? 'is-invalid' : ''}`}
+                                                className={`form-control emp-support-textarea emp-support-textarea--subject ${errors.subject ? 'is-invalid' : ''}`}
                                                 placeholder="Brief description of your issue" 
                                                 value={formData.subject}
+                                                rows={1}
                                                 onChange={handleChange}
                                             />
                                             {errors.subject && <div className="invalid-feedback">{errors.subject}</div>}
@@ -401,9 +421,10 @@ function EmpSupport() {
                                         <div className="form-group">
                                             <label>Message<span style={{ color: 'red' }}>*</span></label>
                                             <textarea 
+                                                ref={messageRef}
                                                 name="message" 
-                                                className={`form-control ${errors.message ? 'is-invalid' : ''}`}
-                                                rows={5} 
+                                                className={`form-control emp-support-textarea ${errors.message ? 'is-invalid' : ''}`}
+                                                rows={5}
                                                 placeholder="Describe your issue or question in detail..." 
                                                 value={formData.message}
                                                 onChange={handleChange}

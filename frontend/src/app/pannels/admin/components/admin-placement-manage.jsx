@@ -6,6 +6,7 @@ import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
 import './button-override.css';
 import SearchBar from '../../../../components/SearchBar';
+import PageLoader from '../../../../components/PageLoader';
 import PlacementNavigationButtons from './PlacementNavigationButtons';
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
@@ -136,7 +137,7 @@ function AdminPlacementOfficersAllRequest() {
     if (loading) {
         return (
             <div className="dashboard-content">
-                <div className="text-center">Loading...</div>
+                <PageLoader pageName="Placement Officers" />
             </div>
         );
     }

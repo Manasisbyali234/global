@@ -5,6 +5,7 @@ import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
 import './button-override.css';
 import SearchBar from '../../../../components/SearchBar';
+import PageLoader from '../../../../components/PageLoader';
 import PlacementNavigationButtons from './PlacementNavigationButtons';
 
 function AdminBatchUploads() {
@@ -64,7 +65,7 @@ function AdminBatchUploads() {
     if (loading) {
         return (
             <div className="dashboard-content">
-                <div className="text-center">Loading...</div>
+                <PageLoader pageName="Batch Uploads" />
             </div>
         );
     }

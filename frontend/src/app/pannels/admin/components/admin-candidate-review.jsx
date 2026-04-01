@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
 import JobZImage from "../../../common/jobz-img";
 import { useNavigate, useParams } from "react-router-dom";
+import PageLoader from '../../../../components/PageLoader';
 import './admin-candidate-review.css';
 import { BACKEND_URL } from '../../../../utils/api';
 
@@ -112,14 +113,7 @@ function AdminCandidateReviewPage() {
     };
 
     if (loading) {
-        return (
-            <div className="candidate-review-loading">
-                <div className="loading-spinner">
-                    <div className="spinner"></div>
-                    <p>Loading candidate details...</p>
-                </div>
-            </div>
-        );
+        return <PageLoader pageName="Candidate Review" />;
     }
 
     if (!candidate) {

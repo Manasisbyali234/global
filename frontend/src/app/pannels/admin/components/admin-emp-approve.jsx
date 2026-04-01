@@ -6,6 +6,7 @@ import 'aos/dist/aos.css';
 import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
 import SearchBar from '../../../../components/SearchBar';
+import PageLoader from '../../../../components/PageLoader';
 import { formatDate } from '../../../../utils/dateFormatter';
 
 function AdminEmployersApproved() {
@@ -80,11 +81,7 @@ function AdminEmployersApproved() {
 
 
     if (loading) {
-        return (
-            <div className="wt-admin-right-page-header clearfix">
-                <h2>Loading...</h2>
-            </div>
-        );
+        return <PageLoader pageName="Approved Employers" />;
     }
 
     return (

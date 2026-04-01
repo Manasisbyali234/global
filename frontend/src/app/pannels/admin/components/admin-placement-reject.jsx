@@ -4,6 +4,7 @@ import { api } from '../../../../utils/api';
 import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
 import SearchBar from '../../../../components/SearchBar';
+import PageLoader from '../../../../components/PageLoader';
 
 function AdminPlacementOfficersRejected() {
     const [placements, setPlacements] = useState([]);
@@ -52,7 +53,7 @@ function AdminPlacementOfficersRejected() {
     if (loading) {
         return (
             <div className="dashboard-content">
-                <div className="text-center">Loading...</div>
+                <PageLoader pageName="Rejected Placement Officers" />
             </div>
         );
     }

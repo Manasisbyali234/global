@@ -31,6 +31,19 @@
   margin: 0 !important;
 }
 
+.emp-support-page .emp-support-textarea {
+  min-height: 120px;
+  height: auto;
+  resize: none;
+  overflow-y: hidden;
+  line-height: 1.5;
+  transition: height 0.15s ease;
+}
+
+.emp-support-page .emp-support-textarea--subject {
+  min-height: 48px;
+}
+
 @media (max-width: 992px) {
   .emp-support-page .wt-admin-right-page-header {
     padding: 20px !important;

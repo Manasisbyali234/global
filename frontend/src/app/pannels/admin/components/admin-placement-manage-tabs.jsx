@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { api } from '../../../../utils/api';
 import SearchBar from '../../../../components/SearchBar';
+import PageLoader from '../../../../components/PageLoader';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 function AdminPlacementOfficersTabs() {
@@ -111,7 +112,7 @@ function AdminPlacementOfficersTabs() {
     };
 
     if (loading) {
-        return <div className="dashboard-content"><div className="text-center">Loading...</div></div>;
+        return <div className="dashboard-content"><PageLoader pageName="Placement Management" /></div>;
     }
 
     return (

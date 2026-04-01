@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { formatDate } from '../../../../../utils/dateFormatter';
 import JobZImage from "../../../../common/jobz-img";
 import { api } from '../../../../utils/api';
+import PageLoader from '../../../../../components/PageLoader';
 import './emp-manage-jobs.css';
 
 function EmpManageJobsPage() {
@@ -76,10 +77,7 @@ function EmpManageJobsPage() {
                     <h2><i className="fa fa-briefcase"></i> Manage Interview</h2>
                 </div>
                 <div className="loading-container">
-                    <div className="loading-spinner">
-                        <i className="fa fa-spinner fa-spin"></i>
-                        <p>Loading your jobs...</p>
-                    </div>
+                    <PageLoader pageName="Manage Jobs" compact />
                 </div>
             </div>
         );

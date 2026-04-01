@@ -45,7 +45,50 @@
   pointer-events: none;
 }
 
+.emp-assessment-page .assessment-selector-row {
+  min-width: 0;
+}
+
+.emp-assessment-page .assessment-selector-label {
+  min-width: 140px;
+  flex: 0 0 auto;
+}
+
+.emp-assessment-page .assessment-selector-control-wrap {
+  flex: 1 1 320px !important;
+  width: 100% !important;
+  max-width: 320px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.twm-right-section-panel.emp-assessment-page .assessment-selector-control.form-select,
+.twm-right-section-panel .assessment-selector-control.form-select {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  display: block !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
 @media (max-width: 768px) {
+  .emp-assessment-page .assessment-selector-row {
+    align-items: stretch !important;
+  }
+
+  .emp-assessment-page .assessment-selector-label {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .emp-assessment-page .assessment-selector-control-wrap {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
   /* Fix search bar size on mobile */
   .emp-assessment-page .d-flex.flex-grow-1 .form-control,
   .emp-assessment-page .d-flex.flex-grow-1 .form-select {

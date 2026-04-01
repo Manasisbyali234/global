@@ -7,6 +7,7 @@ import 'aos/dist/aos.css';
 import './admin-emp-manage-styles.css';
 import './admin-search-styles.css';
 import SearchBar from '../../../../components/SearchBar';
+import PageLoader from '../../../../components/PageLoader';
 
 function AdminEmployersRejected() {
     const navigate = useNavigate();
@@ -61,11 +62,7 @@ function AdminEmployersRejected() {
     };
 
     if (loading) {
-        return (
-            <div className="wt-admin-right-page-header clearfix">
-                <h2>Loading...</h2>
-            </div>
-        );
+        return <PageLoader pageName="Rejected Employers" />;
     }
 
     return (

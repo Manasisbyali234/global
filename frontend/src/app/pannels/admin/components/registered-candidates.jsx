@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './registered-candidates-styles.css';
 import './admin-search-styles.css';
 import SearchBar from '../../../../components/SearchBar';
+import PageLoader from '../../../../components/PageLoader';
 
 function RegisteredCandidatesPage() {
     const navigate = useNavigate();
@@ -100,8 +101,7 @@ function RegisteredCandidatesPage() {
     if (loading) {
         return (
             <div className="dashboard-content">
-
-                <div className="text-center">Loading...</div>
+                <PageLoader pageName="Registered Candidates" />
             </div>
         );
     }

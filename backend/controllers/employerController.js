@@ -95,6 +95,109 @@ const getDuplicateProfileEmailFields = (emailFields = {}) => {
   ));
 };
 
+const employerProfileFieldLabels = {
+  companyName: 'Company Name',
+  brandName: 'Brand Name',
+  phone: 'Phone Number',
+  email: 'Email Address',
+  website: 'Website',
+  teamSize: 'Team Size',
+  description: 'Company Description',
+  location: 'Headquarters Location',
+  googleMapsEmbed: 'Google Maps Embed',
+  corporateAddress: 'Corporate Address',
+  pincode: 'Pincode',
+  city: 'City',
+  state: 'State',
+  officialEmail: 'Official Email',
+  officialMobile: 'Official Mobile Number',
+  companyType: 'Company Type',
+  gstNumber: 'GST Number / Darpan ID',
+  industrySector: 'Industry Sector',
+  panNumber: 'PAN Number',
+  contactFullName: 'Primary Contact First Name',
+  contactLastName: 'Primary Contact Last Name',
+  contactDesignation: 'Primary Contact Designation',
+  contactOfficialEmail: 'Primary Contact Official Email',
+  contactMobile: 'Primary Contact Mobile Number',
+  employerCode: 'Employer Code',
+  panCardImage: 'PAN Card',
+  cinImage: 'CIN Document',
+  gstImage: 'GST Certificate',
+  certificateOfIncorporation: 'Certificate of Incorporation',
+  companyIdCardPicture: 'Company ID Card',
+  logo: 'Company Logo',
+  coverImage: 'Background Banner'
+};
+
+const employerProfileRequiredFields = [
+  'companyName',
+  'brandName',
+  'phone',
+  'email',
+  'website',
+  'teamSize',
+  'description',
+  'location',
+  'googleMapsEmbed',
+  'corporateAddress',
+  'pincode',
+  'city',
+  'state',
+  'officialEmail',
+  'officialMobile',
+  'companyType',
+  'gstNumber',
+  'industrySector',
+  'panNumber',
+  'contactFullName',
+  'contactLastName',
+  'contactDesignation',
+  'contactOfficialEmail',
+  'contactMobile',
+  'employerCode',
+  'panCardImage',
+  'cinImage',
+  'gstImage',
+  'certificateOfIncorporation',
+  'companyIdCardPicture',
+  'logo',
+  'coverImage'
+];
+
+const hasEmployerProfileValue = (value) => {
+  if (Array.isArray(value)) return value.length > 0;
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'string') return value.trim() !== '';
+  return true;
+};
+
+const validateEmployerProfileBeforeSave = (profile = {}) => {
+  const errors = [];
+
+  employerProfileRequiredFields.forEach((field) => {
+    if (!hasEmployerProfileValue(profile[field])) {
+      errors.push({
+        field,
+        msg: `${employerProfileFieldLabels[field] || field} is required`
+      });
+    }
+  });
+
+  const galleryItems = Array.isArray(profile.gallery)
+    ? profile.gallery.filter((item) => item && (item.url || item.fileName || (typeof item === 'string' && item.trim())))
+    : [];
+
+  if (galleryItems.length < 5) {
+    errors.push({
+      field: 'gallery',
+      msg: 'Company Gallery must contain at least 5 images'
+    });
+  }
+
+  return errors;
+};
+
 // Authentication Controllers
 exports.registerEmployer = async (req, res) => {
   try {
@@ -407,7 +510,7 @@ exports.updateProfile = async (req, res) => {
     const [existingPublicProfile, existingAdminProfile, existingEmployerProfile] = await Promise.all([
       EmployerPublicProfile.findOne({ employerId: req.user._id }).select('email'),
       EmployerAdminProfile.findOne({ employerId: req.user._id }).select('officialEmail contactOfficialEmail'),
-      EmployerProfile.findOne({ employerId: req.user._id }).select('email officialEmail contactOfficialEmail')
+      EmployerProfile.findOne({ employerId: req.user._id }).lean()
     ]);
 
     const duplicateProfileEmails = getDuplicateProfileEmailFields({
@@ -420,6 +523,20 @@ exports.updateProfile = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Basic email, company official email, and primary contact official email must all be different.'
+      });
+    }
+
+    const mergedProfileForValidation = {
+      ...(existingEmployerProfile || {}),
+      ...updateData
+    };
+    const requiredFieldErrors = validateEmployerProfileBeforeSave(mergedProfileForValidation);
+
+    if (requiredFieldErrors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please complete all required employer profile fields before saving.',
+        errors: requiredFieldErrors
       });
     }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { api } from '../../../../utils/api';
+import PageLoader from '../../../../components/PageLoader';
 
 function AdminEmployerJobs() {
     const [jobs, setJobs] = useState([]);
@@ -65,7 +66,7 @@ function AdminEmployerJobs() {
                 <h2>Employer Jobs</h2>
                 <div className="panel panel-default site-bg-white m-t30">
                     <div className="panel-body wt-panel-body p-a20">
-                        <div className="text-center">Loading jobs...</div>
+                        <PageLoader pageName="Employer Jobs" compact />
                     </div>
                 </div>
             </div>

@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
+import PageLoader from '../../../../components/PageLoader';
 import './employer-details-styles.css';
 
 function EmployerDetails() {
@@ -318,14 +319,7 @@ function EmployerDetails() {
     };
 
     if (loading) {
-        return (
-            <div className="employer-details-container">
-                <div className="loading-container" data-aos="fade-up">
-                    <div className="loading-spinner"></div>
-                    <div className="loading-text">Loading employer details...</div>
-                </div>
-            </div>
-        );
+        return <PageLoader pageName="Employer Details" />;
     }
     
     if (!profile) {

@@ -1202,11 +1202,14 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
 
 const sendEmployerAccountApprovalEmail = async (email, name, companyName = null) => {
   const transporter = createTransport();
+  const employerGreetingName = (typeof name === 'string' && name.trim())
+    || (typeof companyName === 'string' && companyName.trim())
+    || 'Employer';
   
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Employer,</p>
+        <p>Dear ${employerGreetingName},</p>
         
         <p>Congratulations! 🎉</p>
         

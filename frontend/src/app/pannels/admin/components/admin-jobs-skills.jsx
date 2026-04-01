@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../../utils/api';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+import PageLoader from '../../../../components/PageLoader';
 function AdminJobsSkills() {
     const [jobs, setJobs] = useState([]);
     const [skills, setSkills] = useState([]);
@@ -34,7 +35,7 @@ function AdminJobsSkills() {
     };
 
     if (loading) {
-        return <div className="dashboard-content"><div className="text-center">Loading...</div></div>;
+        return <div className="dashboard-content"><PageLoader pageName="Job Skills" /></div>;
     }
 
     return (
