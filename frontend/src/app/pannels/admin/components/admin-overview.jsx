@@ -383,7 +383,7 @@ function AdminOverviewPage() {
                       <th>Credit Applicants</th>
                       <th>Status</th>
                       <th>Posted Date</th>
-                      <th>Offer Letter Sent Date</th>
+                      <th>Offer Letter Date</th>
                       <th>Action</th>
                     </tr>
                   </thead>
