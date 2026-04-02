@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../../../../utils/api';
 
 function CanSupport() {
@@ -24,6 +24,8 @@ function CanSupport() {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isLoadingProfile, setIsLoadingProfile] = useState(true);
     const [isCompressing, setIsCompressing] = useState(false);
+    const subjectRef = useRef(null);
+    const messageRef = useRef(null);
 
     useEffect(() => {
         fetchCandidateData();
@@ -34,6 +36,14 @@ function CanSupport() {
             fetchAppliedEmployers();
         }
     }, [formData.receiverRole]);
+
+    useEffect(() => {
+        autoResizeTextarea(subjectRef.current);
+    }, [formData.subject]);
+
+    useEffect(() => {
+        autoResizeTextarea(messageRef.current);
+    }, [formData.message]);
 
     const fetchAppliedEmployers = async () => {
         setIsLoadingEmployers(true);
@@ -160,6 +170,12 @@ function CanSupport() {
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+    };
+
+    const autoResizeTextarea = (element) => {
+        if (!element) return;
+        element.style.height = 'auto';
+        element.style.height = `${element.scrollHeight}px`;
     };
 
     const handleChange = (e) => {
@@ -562,13 +578,18 @@ function CanSupport() {
                                     <div className="col-xl-12 col-lg-12 col-md-12">
                                         <div className="form-group">
                                             <label>Subject <span style={{ color: 'red' }}>*</span></label>
-                                            <input 
+                                            <textarea
+                                                ref={subjectRef}
                                                 name="subject" 
-                                                type="text" 
                                                 className={`form-control ${errors.subject ? 'is-invalid' : ''}`}
+                                                rows={1}
                                                 placeholder="Brief description of your issue" 
                                                 value={formData.subject}
-                                                onChange={handleChange}
+                                                onChange={(e) => {
+                                                    autoResizeTextarea(e.target);
+                                                    handleChange(e);
+                                                }}
+                                                style={{ resize: 'none', overflow: 'hidden', minHeight: '44px' }}
                                             />
                                             {errors.subject && <div className="invalid-feedback">{errors.subject}</div>}
                                         </div>
@@ -609,13 +630,18 @@ function CanSupport() {
                                     <div className="col-xl-12 col-lg-12 col-md-12">
                                         <div className="form-group">
                                             <label>Message <span style={{ color: 'red' }}>*</span></label>
-                                            <textarea 
+                                            <textarea
+                                                ref={messageRef}
                                                 name="message" 
                                                 className={`form-control ${errors.message ? 'is-invalid' : ''}`}
-                                                rows={5} 
+                                                rows={5}
                                                 placeholder="Describe your issue or question in detail..." 
                                                 value={formData.message}
-                                                onChange={handleChange}
+                                                onChange={(e) => {
+                                                    autoResizeTextarea(e.target);
+                                                    handleChange(e);
+                                                }}
+                                                style={{ resize: 'none', overflow: 'hidden', minHeight: '140px' }}
                                             />
                                             {errors.message && <div className="invalid-feedback">{errors.message}</div>}
                                         </div>

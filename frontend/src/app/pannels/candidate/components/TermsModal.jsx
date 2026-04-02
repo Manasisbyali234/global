@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { disableBodyScroll, enableBodyScroll } from '../../../../utils/scrollUtils';
+import './assessment-terms-modal.css';
 
 const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
     useEffect(() => {
@@ -18,15 +19,15 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
         ? Number(rawPassingPercentage)
         : 60;
     return (
-        <div className="modal fade twm-model-popup show" id="termsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-hidden="false" style={{ display: 'block' }}>
+        <div className="modal fade twm-model-popup assessment-terms-modal show" id="termsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-hidden="false" style={{ display: 'block' }}>
             <div className="modal-dialog modal-xl" style={{ maxWidth: '900px' }}>
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title">Assessment Terms & Conditions</h5>
                     </div>
 
-                    <div className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto', padding: '0' }}>
-                        <div className="terms-content" style={{ padding: '24px 32px' }}>
+                    <div className="modal-body assessment-terms-modal__body" style={{ maxHeight: '60vh', overflowY: 'auto', padding: '0' }}>
+                        <div className="terms-content assessment-terms-modal__content" style={{ padding: '24px 32px' }}>
                             <div style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '2px solid #ff6b35' }}>
                                 <h5 style={{ color: '#2c3e50', fontWeight: '600', marginBottom: '8px' }}>Assessment Rules & Guidelines</h5>
                                 <p style={{ color: '#6c757d', fontSize: '14px', margin: '0' }}>Please read carefully before proceeding</p>

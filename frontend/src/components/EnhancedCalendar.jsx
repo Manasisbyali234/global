@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { holidaysApi } from '../utils/holidaysApi';
+import { normalizeToYMD } from '../utils/holidayUtils';
 
 const EnhancedCalendar = ({ 
   selectedDate, 
@@ -36,12 +37,12 @@ const EnhancedCalendar = ({
   };
 
   const isHoliday = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = normalizeToYMD(date);
     return holidays.some(holiday => holiday.date === dateStr);
   };
 
   const getHolidayInfo = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = normalizeToYMD(date);
     return holidays.find(holiday => holiday.date === dateStr);
   };
 

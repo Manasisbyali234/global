@@ -1,10 +1,16 @@
+import { normalizeToYMD } from './holidayUtils';
+
 const API_BASE = 'http://localhost:5000/api';
 
 export const holidaysApi = {
   async checkHoliday(date, country = 'IN') {
     try {
-      console.log(`Checking holiday for date: ${date}`);
-      const response = await fetch(`${API_BASE}/check/${date}?country=${country}`);
+      const normalizedDate = normalizeToYMD(date);
+      if (!normalizedDate) {
+        return { success: false, isHoliday: false };
+      }
+      console.log(`Checking holiday for date: ${normalizedDate}`);
+      const response = await fetch(`${API_BASE}/check/${normalizedDate}?country=${country}`);
       console.log('Holiday API response status:', response.status);
       const data = await response.json();
       console.log('Holiday API response data:', data);

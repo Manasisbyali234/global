@@ -1,10 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { formatDate as formatDateUtil } from '../../../../utils/dateFormatter';
 import { Container, Row, Col, Card, Badge, Button, Modal, Form, Spinner } from 'react-bootstrap';
 import '../../admin/components/admin-support-tickets.css';
 import '../../admin/components/admin-emp-manage-styles.css';
 import { showSuccess, showError, showConfirmation } from '../../../../utils/popupNotification';
 import { api } from '../../../../utils/api';
+
+function AutoExpandTextarea({
+    value = '',
+    className = '',
+    minRows = 1,
+    onChange,
+    ...props
+}) {
+    const textareaRef = useRef(null);
+
+    useEffect(() => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+    }, [value]);
+
+    return (
+        <Form.Control
+            {...props}
+            ref={textareaRef}
+            as="textarea"
+            rows={minRows}
+            value={value}
+            className={className}
+            onChange={(event) => {
+                const textarea = event.target;
+                textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
+                if (onChange) onChange(event);
+            }}
+        />
+    );
+}
 
 function EmployerSupportTickets() {
     const [tickets, setTickets] = useState([]);
@@ -555,30 +589,58 @@ function EmployerSupportTickets() {
                                 <Row className="mb-3">
                                     <Col md={6}>
                                         <div className="detail-label">Company Name</div>
-                                        <div className="detail-value detail-value--break">{getCompanyName(selectedTicket)}</div>
+                                        <AutoExpandTextarea
+                                            value={getCompanyName(selectedTicket)}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
+                                        />
                                     </Col>
                                     <Col md={6}>
                                         <div className="detail-label">Designation</div>
-                                        <div className="detail-value detail-value--break">{getJobTitle(selectedTicket) || 'N/A'}</div>
+                                        <AutoExpandTextarea
+                                            value={getJobTitle(selectedTicket) || 'N/A'}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
+                                        />
                                     </Col>
                                 </Row>
                                 <Row className="mb-3">
                                     <Col md={6}>
                                         <div className="detail-label">Name / Email</div>
-                                        <div className="detail-value detail-value--break">{selectedTicket.name || 'N/A'}</div>
-                                        <div className="detail-value detail-value--break" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>
-                                            {selectedTicket.email || 'No email'}
-                                        </div>
+                                        <AutoExpandTextarea
+                                            value={selectedTicket.name || 'N/A'}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
+                                        />
+                                        <AutoExpandTextarea
+                                            value={selectedTicket.email || 'No email'}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea ticket-detail-textarea--secondary detail-value--break mt-2"
+                                        />
                                     </Col>
                                     <Col md={6}>
                                         <div className="detail-label">Subject</div>
-                                        <div className="detail-value detail-value--break">{selectedTicket.subject}</div>
+                                        <AutoExpandTextarea
+                                            value={selectedTicket.subject || ''}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
+                                        />
                                     </Col>
                                 </Row>
                                 <Row className="mb-3">
                                     <Col md={6}>
                                         <div className="detail-label">Category</div>
-                                        <div className="detail-value detail-value--break">{selectedTicket.category || 'General'}</div>
+                                        <AutoExpandTextarea
+                                            value={selectedTicket.category || 'General'}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
+                                        />
                                     </Col>
                                     <Col md={6}>
                                         <div className="detail-label">Priority</div>
@@ -592,15 +654,23 @@ function EmployerSupportTickets() {
                                     </Col>
                                     <Col md={6}>
                                         <div className="detail-label">Created</div>
-                                        <div className="detail-value">{formatDate(selectedTicket.createdAt)}</div>
+                                        <AutoExpandTextarea
+                                            value={formatDate(selectedTicket.createdAt)}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea"
+                                        />
                                     </Col>
                                 </Row>
                                 <Row className="mb-3">
                                     <Col>
                                         <div className="detail-label">Message</div>
-                                        <div className="message-box">
-                                            {selectedTicket.message}
-                                        </div>
+                                        <AutoExpandTextarea
+                                            value={selectedTicket.message || ''}
+                                            readOnly
+                                            minRows={4}
+                                            className="auto-expand-textarea ticket-detail-textarea ticket-detail-textarea--message detail-value--break"
+                                        />
                                     </Col>
                                 </Row>
                                 {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
@@ -639,8 +709,7 @@ function EmployerSupportTickets() {
                                     <Col md={12}>
                                         <Form.Group>
                                             <Form.Label className="detail-label">Your Response</Form.Label>
-                                            <Form.Control
-                                                as="textarea"
+                                            <AutoExpandTextarea
                                                 className="response-textarea"
                                                 placeholder="Type your response here... This will be sent as a notification to the candidate."
                                                 value={response}

@@ -595,8 +595,6 @@
   word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word;
-  max-height: 200px;
-  overflow-y: auto;
 }
 
 .ticket-details-shell {
@@ -697,9 +695,46 @@
   font-weight: 600;
 }
 
+.auto-expand-textarea {
+  resize: none !important;
+  overflow: hidden !important;
+  white-space: pre-wrap;
+}
+
 .detail-value--break {
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+.ticket-detail-textarea {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.8rem 0.95rem;
+  min-height: 46px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.ticket-detail-textarea[readonly] {
+  background: #f8fafc;
+  color: #0f172a;
+  opacity: 1;
+}
+
+.ticket-detail-textarea--secondary {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.ticket-detail-textarea--secondary[readonly] {
+  color: #64748b;
+}
+
+.ticket-detail-textarea--message {
+  min-height: 140px;
 }
 
 .attachment-list {

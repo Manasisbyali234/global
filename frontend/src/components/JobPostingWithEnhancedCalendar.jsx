@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import EnhancedCalendar from './EnhancedCalendar';
 import EnhancedHolidayIndicator from './EnhancedHolidayIndicator';
 import HolidayDashboard from './HolidayDashboard';
+import { normalizeToYMD, parseLocalDate } from '../utils/holidayUtils';
 
 // Example of how to integrate enhanced holiday features into your job posting form
 const JobPostingWithEnhancedCalendar = () => {
@@ -73,8 +74,8 @@ const JobPostingWithEnhancedCalendar = () => {
           <div style={{ position: 'relative' }}>
             <input
               type="date"
-              value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''}
-              onChange={(e) => setSelectedDate(new Date(e.target.value))}
+              value={selectedDate ? normalizeToYMD(selectedDate) : ''}
+              onChange={(e) => setSelectedDate(parseLocalDate(e.target.value))}
               style={{
                 width: '100%',
                 padding: '12px 14px',
@@ -105,7 +106,7 @@ const JobPostingWithEnhancedCalendar = () => {
           {/* Enhanced Holiday Indicator */}
           {selectedDate && (
             <EnhancedHolidayIndicator 
-              date={selectedDate.toISOString().split('T')[0]}
+              date={normalizeToYMD(selectedDate)}
               showTooltip={true}
               showWeekends={true}
               showDetails={true}

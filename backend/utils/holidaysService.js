@@ -36,6 +36,60 @@ class HolidaysService {
     };
   }
 
+  getYearFromDateInput(date) {
+    if (typeof date === 'string') {
+      const trimmed = date.trim();
+      const ymdMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (ymdMatch) {
+        return Number(ymdMatch[1]);
+      }
+    }
+
+    const parsedDate = new Date(date);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return null;
+    }
+
+    return parsedDate.getFullYear();
+  }
+
+  getDateObject(date) {
+    if (typeof date === 'string') {
+      const trimmed = date.trim();
+      const ymdMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (ymdMatch) {
+        const [, year, month, day] = ymdMatch;
+        return new Date(Number(year), Number(month) - 1, Number(day));
+      }
+    }
+
+    const parsedDate = new Date(date);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return null;
+    }
+
+    return parsedDate;
+  }
+
+  normalizeDateInput(date) {
+    if (typeof date === 'string') {
+      const trimmed = date.trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+        return trimmed;
+      }
+    }
+
+    const parsedDate = this.getDateObject(date);
+    if (!parsedDate) {
+      return '';
+    }
+
+    const year = String(parsedDate.getFullYear());
+    const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(parsedDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   async getHolidays(year, countryCode = 'IN') {
     const cacheKey = `${year}-${countryCode}`;
     const cached = this.cache.get(cacheKey);
@@ -91,18 +145,27 @@ class HolidaysService {
   }
 
   async isHoliday(date, countryCode = 'IN') {
-    const year = new Date(date).getFullYear();
+    const normalizedDate = this.normalizeDateInput(date);
+    const year = this.getYearFromDateInput(normalizedDate);
+    if (!year) return false;
+
     const holidays = await this.getHolidays(year, countryCode);
-    return holidays.some(holiday => holiday.date === date);
+    return holidays.some(holiday => holiday.date === normalizedDate);
   }
 
   async getHolidayInfo(date, countryCode = 'IN') {
-    const year = new Date(date).getFullYear();
+    const normalizedDate = this.normalizeDateInput(date);
+    const year = this.getYearFromDateInput(normalizedDate);
+    if (!year) return null;
+
     const holidays = await this.getHolidays(year, countryCode);
-    return holidays.find(holiday => holiday.date === date) || null;
+    return holidays.find(holiday => holiday.date === normalizedDate) || null;
   }
   isWeekend(date) {
-    const day = new Date(date).getDay();
+    const parsedDate = this.getDateObject(date);
+    if (!parsedDate) return false;
+
+    const day = parsedDate.getDay();
     return day === 0 || day === 6;
   }
 

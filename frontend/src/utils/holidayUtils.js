@@ -133,6 +133,16 @@ export const normalizeToYMD = (date) => {
   return '';
 };
 
+export const parseLocalDate = (date) => {
+  const normalized = normalizeToYMD(date);
+  if (!normalized) return null;
+
+  const [yyyy, mm, dd] = normalized.split('-').map(Number);
+  if (!yyyy || !mm || !dd) return null;
+
+  return new Date(yyyy, mm - 1, dd);
+};
+
 export const getLocalHolidayName = (date) => {
   const normalized = normalizeToYMD(date);
   if (!normalized) return null;
@@ -144,8 +154,8 @@ export const getLocalHolidayName = (date) => {
 };
 
 export const isWeekendDate = (date) => {
-  const normalized = normalizeToYMD(date);
-  if (!normalized) return false;
-  const day = new Date(normalized).getDay();
+  const parsedDate = parseLocalDate(date);
+  if (!parsedDate) return false;
+  const day = parsedDate.getDay();
   return day === 0 || day === 6;
 };

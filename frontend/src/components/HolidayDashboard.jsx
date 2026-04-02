@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { holidaysApi } from '../utils/holidaysApi';
+import { parseLocalDate } from '../utils/holidayUtils';
 
 const HolidayDashboard = ({ country = 'IN', showUpcoming = true, maxUpcoming = 5 }) => {
   const [holidays, setHolidays] = useState([]);
@@ -20,9 +21,17 @@ const HolidayDashboard = ({ country = 'IN', showUpcoming = true, maxUpcoming = 5
         
         if (showUpcoming) {
           const today = new Date();
+          today.setHours(0, 0, 0, 0);
           const upcoming = result.holidays
-            .filter(holiday => new Date(holiday.date) >= today)
-            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .filter((holiday) => {
+              const holidayDate = parseLocalDate(holiday.date);
+              return holidayDate && holidayDate >= today;
+            })
+            .sort((a, b) => {
+              const firstDate = parseLocalDate(a.date);
+              const secondDate = parseLocalDate(b.date);
+              return (firstDate?.getTime() || 0) - (secondDate?.getTime() || 0);
+            })
             .slice(0, maxUpcoming);
           setUpcomingHolidays(upcoming);
         }
@@ -34,7 +43,8 @@ const HolidayDashboard = ({ country = 'IN', showUpcoming = true, maxUpcoming = 5
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = parseLocalDate(dateString);
+    if (!date) return dateString;
     return date.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -45,7 +55,11 @@ const HolidayDashboard = ({ country = 'IN', showUpcoming = true, maxUpcoming = 5
 
   const getDaysUntil = (dateString) => {
     const today = new Date();
-    const holidayDate = new Date(dateString);
+    today.setHours(0, 0, 0, 0);
+
+    const holidayDate = parseLocalDate(dateString);
+    if (!holidayDate) return null;
+
     const diffTime = holidayDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
@@ -54,7 +68,10 @@ const HolidayDashboard = ({ country = 'IN', showUpcoming = true, maxUpcoming = 5
   const getMonthlyHolidays = () => {
     const monthlyData = {};
     holidays.forEach(holiday => {
-      const month = new Date(holiday.date).toLocaleDateString('en-US', { month: 'long' });
+      const holidayDate = parseLocalDate(holiday.date);
+      if (!holidayDate) return;
+
+      const month = holidayDate.toLocaleDateString('en-US', { month: 'long' });
       if (!monthlyData[month]) {
         monthlyData[month] = [];
       }
@@ -248,7 +265,7 @@ const HolidayDashboard = ({ country = 'IN', showUpcoming = true, maxUpcoming = 5
                           fontSize: '12px',
                           color: '#64748b'
                         }}>
-                          {new Date(holiday.date).getDate()}
+                          {parseLocalDate(holiday.date)?.getDate() || ''}
                         </span>
                       </div>
                     ))}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { holidaysApi } from '../utils/holidaysApi';
+import { isWeekendDate, parseLocalDate } from '../utils/holidayUtils';
 
 const EnhancedHolidayIndicator = ({ 
   date, 
@@ -46,7 +47,8 @@ const EnhancedHolidayIndicator = ({
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = parseLocalDate(dateString);
+    if (!date) return dateString;
     return date.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -56,7 +58,8 @@ const EnhancedHolidayIndicator = ({
   };
 
   const getDayOfWeek = (dateString) => {
-    const date = new Date(dateString);
+    const date = parseLocalDate(dateString);
+    if (!date) return '';
     return date.toLocaleDateString('en-US', { weekday: 'long' });
   };
 
@@ -76,7 +79,7 @@ const EnhancedHolidayIndicator = ({
     );
   }
 
-  const isWeekend = date ? (new Date(date).getDay() === 0 || new Date(date).getDay() === 6) : false;
+  const isWeekend = date ? isWeekendDate(date) : false;
 
   if (!holidayInfo && (!isWeekend || !showWeekends)) {
     return null;

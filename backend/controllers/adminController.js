@@ -3843,7 +3843,7 @@ exports.getSupportTickets = async (req, res) => {
   try {
     const { status, userType, priority, page = 1, limit = 20 } = req.query;
     
-    let query = {};
+    let query = { receiverRole: 'admin' };
     if (status) query.status = status;
     if (userType) query.userType = userType;
     if (priority) query.priority = priority;
@@ -3876,8 +3876,8 @@ exports.getSupportTickets = async (req, res) => {
 
 exports.getSupportTicketById = async (req, res) => {
   try {
-    const ticket = await Support.findByIdAndUpdate(
-      req.params.id,
+    const ticket = await Support.findOneAndUpdate(
+      { _id: req.params.id, receiverRole: 'admin' },
       { isRead: true },
       { new: true }
     )
@@ -3924,8 +3924,8 @@ exports.updateSupportTicketStatus = async (req, res) => {
       updateData.respondedBy = req.user.id;
     }
 
-    const ticket = await Support.findByIdAndUpdate(
-      req.params.id,
+    const ticket = await Support.findOneAndUpdate(
+      { _id: req.params.id, receiverRole: 'admin' },
       updateData,
       { new: true, runValidators: true }
     )
@@ -4029,7 +4029,7 @@ exports.deleteSupportTicket = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid ticket ID provided' });
     }
     
-    const ticket = await Support.findByIdAndDelete(ticketId);
+    const ticket = await Support.findOneAndDelete({ _id: ticketId, receiverRole: 'admin' });
     
     if (!ticket) {
       return res.status(404).json({ success: false, message: 'Support ticket not found' });
@@ -4046,7 +4046,7 @@ exports.downloadSupportAttachment = async (req, res) => {
   try {
     const { ticketId, attachmentIndex } = req.params;
     
-    const ticket = await Support.findById(ticketId).lean();
+    const ticket = await Support.findOne({ _id: ticketId, receiverRole: 'admin' }).lean();
     if (!ticket) {
       return res.status(404).json({ success: false, message: 'Support ticket not found' });
     }
