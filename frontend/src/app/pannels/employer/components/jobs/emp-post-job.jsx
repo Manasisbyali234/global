@@ -2002,6 +2002,11 @@ export default function EmpPostJob({ onNext }) {
 		gap: 12,
 		letterSpacing: "-0.025em",
 	};
+	const compactSectionHeader = {
+		...sectionHeader,
+		margin: "40px 0 6px 0",
+		paddingBottom: 0,
+	};
 
 	const gatePostJob = !isEditMode;
 	const overTicketLimit = postJobAccess.candidateSupportTicketsCount > POST_JOB_TICKET_LIMIT;
@@ -3426,7 +3431,7 @@ export default function EmpPostJob({ onNext }) {
 
 					{/* Additional Details Section */}
 					<div style={fullRow}>
-						<h3 style={sectionHeader}>
+						<h3 style={compactSectionHeader}>
 							<i className="fa fa-file-alt" style={{color: '#ff6b35'}}></i>
 							Additional Details
 						</h3>

@@ -285,9 +285,9 @@ export default function EmpPostedJobs() {
 														<span className="fw-medium">{job.companyName}</span>
 													</div>
 												)}
-												<div className="d-flex align-items-center text-muted manage-jobs-card__meta-row">
-													<MapPin size={16} className="me-2" style={{ color: '#fd7e14' }} />
-													<span>{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}</span>
+												<div className="d-flex align-items-center text-muted manage-jobs-card__meta-row manage-jobs-card__location-row">
+													<MapPin size={16} className="me-2 manage-jobs-card__location-icon" style={{ color: '#fd7e14' }} />
+													<span className="manage-jobs-card__location-text">{Array.isArray(job.location) ? job.location.join(', ') : (job.location || 'N/A')}</span>
 												</div>
 											</div>
 

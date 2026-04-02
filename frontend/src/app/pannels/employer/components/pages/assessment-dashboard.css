@@ -73,19 +73,23 @@
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px !important;
-  background: #fff !important;
+  background: transparent !important;
+  background-color: transparent !important;
   color: #111827 !important;
   border: 1px solid #d1d5db !important;
   border-radius: 12px !important;
   box-shadow: none !important;
   text-align: left;
   overflow: hidden !important;
+  white-space: nowrap !important;
+  word-break: normal !important;
 }
 
 .emp-assessment-page .assessment-selector-trigger:hover,
 .emp-assessment-page .assessment-selector-trigger:focus {
   border-color: #2563eb !important;
-  background-color: #f8fafc !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
 .emp-assessment-page .assessment-selector-trigger-text {
@@ -116,31 +120,40 @@
   flex-direction: column;
   max-height: 320px;
   padding: 8px;
-  background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
+  background: #fff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15) !important;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 .emp-assessment-page .assessment-selector-option {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
   gap: 4px;
-  padding: 12px 14px;
-  border: 0;
-  border-radius: 10px;
-  background: transparent;
-  text-align: left;
-  min-width: 0;
+  padding: 12px 14px !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #111827 !important;
+  text-align: left !important;
+  box-shadow: none !important;
+  white-space: normal !important;
+  word-break: break-word !important;
 }
 
 .emp-assessment-page .assessment-selector-option:hover,
 .emp-assessment-page .assessment-selector-option.is-active {
-  background: #f8fafc;
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 .emp-assessment-page .assessment-selector-option-title,
@@ -151,6 +164,7 @@
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: break-word;
+  text-align: left;
 }
 
 .emp-assessment-page .assessment-selector-option-title {

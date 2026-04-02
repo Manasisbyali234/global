@@ -47,6 +47,25 @@
   gap: 0.25rem !important;
 }
 
+.emp-posted-jobs-page .manage-jobs-card__location-row {
+  align-items: flex-start !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-card__location-icon {
+  flex: 0 0 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  flex-shrink: 0 !important;
+  margin-top: 0.15rem !important;
+}
+
+.emp-posted-jobs-page .manage-jobs-card__location-text {
+  min-width: 0 !important;
+  overflow-wrap: anywhere;
+}
+
 .emp-posted-jobs-page .manage-jobs-card__chips {
   justify-content: flex-start !important;
 }
