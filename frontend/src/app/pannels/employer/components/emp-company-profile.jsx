@@ -1229,6 +1229,12 @@ function EmpCompanyProfilePage() {
             ? Math.max(...authSections.map(s => s.id)) + 1
             : 1;
         setAuthSections(prev => [...prev, { id: newId, companyName: '', documentId: null }]);
+        setTimeout(() => {
+            const cards = document.querySelectorAll('#hiring-companies .col-md-6.mb-4');
+            if (cards.length > 0) {
+                cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }, 100);
     };
 
     const handleAuthSectionCompanyNameChange = (sectionId, companyName) => {
