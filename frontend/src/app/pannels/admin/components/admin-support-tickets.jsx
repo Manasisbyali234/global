@@ -789,7 +789,7 @@ function AdminSupportTickets() {
                                 <Row className="mb-0">
                                     <Col md={12}>
                                         <Form.Group>
-                                            <Form.Label className="detail-label">Admin Response</Form.Label>
+                                            <Form.Label className="detail-label">Admin Response<span style={{ color: 'red' }}>*</span></Form.Label>
                                             <Form.Control
                                                 ref={responseTextareaRef}
                                                 as="textarea"
@@ -805,7 +805,7 @@ function AdminSupportTickets() {
                             </div>
                         </div>
                             <div className="support-ticket-modal-footer">
-                                <Button
+                                {response.trim() && <Button
                                     variant="outline-primary"
                                     className="update-btn"
                                     onClick={handleUpdateTicket}
@@ -819,7 +819,7 @@ function AdminSupportTickets() {
                                     ) : (
                                         'Save Changes'
                                     )}
-                                </Button>
+                                </Button>}
                             </div>
                         </>
                     )}

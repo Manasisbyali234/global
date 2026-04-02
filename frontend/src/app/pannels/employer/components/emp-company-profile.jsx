@@ -1238,6 +1238,17 @@ function EmpCompanyProfilePage() {
     };
 
     const handleAuthSectionCompanyNameChange = (sectionId, companyName) => {
+        const trimmed = companyName.trim();
+        if (trimmed) {
+            const duplicate = authSections.find(
+                section => section.id !== sectionId &&
+                section.companyName.trim().toLowerCase() === trimmed.toLowerCase()
+            );
+            if (duplicate) {
+                showError(`"${trimmed}" already exists in your hiring companies list.`);
+                return;
+            }
+        }
         setAuthSections(prev => prev.map(section => 
             section.id === sectionId ? { ...section, companyName } : section
         ));

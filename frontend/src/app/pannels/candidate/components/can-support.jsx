@@ -516,7 +516,7 @@ function CanSupport() {
                                                 onChange={handleChange}
                                             >
                                                 <option value="employer">HR Support</option>
-                                                <option value="admin">Admin Support</option>
+                                                <option value="admin">Contact Taleglobal</option>
                                             </select>
                                         </div>
                                     </div>

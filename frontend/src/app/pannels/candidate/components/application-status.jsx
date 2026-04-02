@@ -2657,7 +2657,7 @@ function CanStatusPage() {
 																	}}
 																>
 																	<i className="fa fa-ban me-2"></i>
-																	Not eligible for next round (Assessment failed).
+																	Not eligible for this round.
 																</span>
 															</div>
 														);
