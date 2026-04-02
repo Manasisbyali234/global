@@ -522,7 +522,6 @@ function AdminSupportTickets() {
                                     <option value="">All User Types</option>
                                     <option value="employer">Employer</option>
                                     <option value="candidate">Candidate</option>
-                                    <option value="guest">Guest</option>
                                 </Form.Select>
                             </Col>
                             <Col md={12}>
