@@ -628,10 +628,18 @@ function SectionCanEducation({ profile, onUpdate }) {
     return (
         <>
             <div className="panel-heading wt-panel-heading p-a20">
-                <h4 className="panel-tittle m-a0">Educational Qualification Details</h4>
+                <h4 className="panel-tittle m-a0">Educational Qualification Details <span style={{color: 'red'}}>*</span></h4>
             </div>
             <div className="panel-body wt-panel-body p-a20 education-section-body">
                 <div className="twm-panel-inner">
+                    {/* Mandatory notice */}
+                    {educationEntries.length === 0 && (
+                        <div className="alert alert-danger py-2 mb-3" role="alert">
+                            <i className="fa fa-exclamation-circle me-2"></i>
+                            <strong>Required:</strong> Please add at least one education entry.
+                        </div>
+                    )}
+
                     {/* Education Level Dropdown */}
                     <div className="mb-4" style={{ maxWidth: '300px', position: 'relative', zIndex: 1001 }}>
                         <label className="form-label fw-bold">Select Education Level</label>

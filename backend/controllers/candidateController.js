@@ -2016,43 +2016,66 @@ exports.getCandidateCompleteProfile = async (req, res) => {
   }
 };
 
-// Get recommended jobs based on candidate skills
+// Get recommended jobs based on candidate skills and education
 exports.getRecommendedJobs = async (req, res) => {
   try {
     const profile = await CandidateProfile.findOne({ candidateId: req.user._id });
-    
-    if (!profile || !profile.skills || profile.skills.length === 0) {
+
+    const hasSkills = profile && profile.skills && profile.skills.length > 0;
+
+    // Extract candidate education degree names (normalize to lowercase)
+    const candidateEducation = (profile && profile.education || []).map(edu =>
+      (edu.degreeName || edu.educationLevel || '').toLowerCase().trim()
+    ).filter(Boolean);
+
+    if (!hasSkills && candidateEducation.length === 0) {
       return res.json({ success: true, jobs: [] });
     }
 
-    // Get active jobs that match candidate skills
+    // Build query: match on skills OR education
+    const orConditions = [];
+    if (hasSkills) orConditions.push({ requiredSkills: { $in: profile.skills } });
+    if (candidateEducation.length > 0) {
+      orConditions.push({ education: { $in: candidateEducation } });
+    }
+
     const jobs = await Job.find({
       status: 'active',
-      requiredSkills: { $in: profile.skills }
+      $or: orConditions
     })
     .populate('employerId', 'companyName brandName')
     .sort({ createdAt: -1 })
-    .limit(10);
+    .limit(20);
 
-    // Calculate skill match score for each job
+    // Calculate combined match score
     const jobsWithScore = jobs.map(job => {
       const jobObj = job.toObject();
-      const matchingSkills = job.requiredSkills.filter(skill => 
-        profile.skills.includes(skill)
-      );
-      const matchScore = Math.round((matchingSkills.length / job.requiredSkills.length) * 100);
-      
+
+      const matchingSkills = hasSkills
+        ? job.requiredSkills.filter(skill => profile.skills.includes(skill))
+        : [];
+      const skillScore = job.requiredSkills.length > 0
+        ? (matchingSkills.length / job.requiredSkills.length) * 70
+        : 0;
+
+      const jobEducation = (job.education || []).map(e => e.toLowerCase().trim());
+      const educationMatched = candidateEducation.some(edu => jobEducation.includes(edu));
+      const educationScore = educationMatched ? 30 : 0;
+
+      const matchScore = Math.round(skillScore + educationScore);
+
       return {
         ...jobObj,
         matchingSkills,
+        educationMatched,
         matchScore
       };
     });
 
-    // Sort by match score (highest first)
+    // Sort by match score (highest first), limit to top 10
     jobsWithScore.sort((a, b) => b.matchScore - a.matchScore);
 
-    res.json({ success: true, jobs: jobsWithScore });
+    res.json({ success: true, jobs: jobsWithScore.slice(0, 10) });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
