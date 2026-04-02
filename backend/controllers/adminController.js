@@ -2889,7 +2889,7 @@ exports.approveIndividualFile = async (req, res) => {
       if (createdCount === 0 && skippedCount > 0) {
         message = `File "${displayName}" processed! ${skippedCount} students already exist in the system. Use "Resend Welcome Emails" to send emails to existing students.`;
       } else {
-        message = `File "${displayName}" approved! ${createdCount} students created and ${emailsSent} welcome emails sent. All students can now create their passwords and access their accounts.`;
+        message = `File "${displayName}" approved! All students can now create their passwords and access their accounts.`;
       }
       
       res.json({
