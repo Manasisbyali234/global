@@ -421,6 +421,10 @@ function EmpCandidateReviewPage() {
             });
             
             if (response.ok) {
+                const data = await response.json();
+                if (data?.application?.status) {
+                    setApplication(prev => ({ ...prev, status: data.application.status }));
+                }
                 showSuccess('Review saved successfully!');
             } else {
                 const errorData = await response.json();
@@ -456,6 +460,13 @@ function EmpCandidateReviewPage() {
                     processRemarks: processRemarks
                 })
             });
+
+            if (response.ok) {
+                const data = await response.json().catch(() => ({}));
+                if (data?.application?.status) {
+                    setApplication(prev => ({ ...prev, status: data.application.status }));
+                }
+            }
 
             if (showToast) {
                 if (response.ok) {

@@ -50,6 +50,9 @@ function AdminOverviewPage() {
         ? "Review all posted jobs for the selected employer and drill down into applicant activity."
         : "Review employer activity, total job postings, and applicant counts in one place.";
 
+  const formatEmployerType = (employerType) =>
+    String(employerType || "").trim().toLowerCase() === "consultant" ? "Consultant" : "Company";
+
   const getApplicationTypeBadge = (applicationType) => {
     const normalizedType = String(applicationType || "").toLowerCase();
 
@@ -311,6 +314,7 @@ function AdminOverviewPage() {
                   <thead>
                     <tr>
                       <th>Employer Name</th>
+                      <th>Employer Type</th>
                       <th>Number of Jobs</th>
                       <th>Number Applicants</th>
                       <th>Action</th>
@@ -319,7 +323,7 @@ function AdminOverviewPage() {
                   <tbody>
                     {employers.filter(emp => emp.employerName.toLowerCase().includes(employerSearch.toLowerCase())).length === 0 ? (
                       <tr>
-                        <td colSpan="4" className="text-center">
+                        <td colSpan="5" className="text-center">
                           {employerSearch ? "No matching company records found." : "No employer records found."}
                         </td>
                       </tr>
@@ -329,6 +333,7 @@ function AdminOverviewPage() {
                         .map((employer) => (
                           <tr key={employer.employerId}>
                             <td>{employer.employerName}</td>
+                            <td>{formatEmployerType(employer.employerType)}</td>
                             <td>{employer.jobsCount}</td>
                             <td>{employer.applicationsCount}</td>
                             <td>

@@ -3631,17 +3631,20 @@ exports.saveInterviewReview = async (req, res) => {
     const shouldNotifyInterviewStatusUpdates = Array.isArray(interviewProcesses);
     let previousInterviewProcesses = null;
 
+    let existingApplicationStatus = null;
+
     if (shouldNotifyInterviewStatusUpdates) {
       const existingApplication = await Application.findOne({
         _id: applicationId,
         employerId: req.user._id
-      }).select('interviewProcesses').lean();
+      }).select('interviewProcesses status').lean();
 
       if (!existingApplication) {
         return res.status(404).json({ success: false, message: 'Application not found' });
       }
 
       previousInterviewProcesses = existingApplication.interviewProcesses || [];
+      existingApplicationStatus = String(existingApplication.status || '').trim().toLowerCase();
     }
     
     const updateData = { 
@@ -3661,6 +3664,25 @@ exports.saveInterviewReview = async (req, res) => {
         isCompleted: Boolean(p.isCompleted),
         result: p.result ? String(p.result) : null
       }));
+
+      const shouldAutoRejectFromStageStatus = updateData.interviewProcesses.some((process) =>
+        ['rejected', 'no_show'].includes(String(process.status || '').trim().toLowerCase())
+      );
+
+      if (shouldAutoRejectFromStageStatus) {
+        updateData.status = 'rejected';
+
+        if (existingApplicationStatus !== 'rejected') {
+          updateData.$push = {
+            statusHistory: {
+              status: 'rejected',
+              changedBy: req.user._id,
+              changedByModel: 'Employer',
+              notes: 'Auto-updated from interview stage status'
+            }
+          };
+        }
+      }
     }
     
     if (processRemarks && typeof processRemarks === 'object') {

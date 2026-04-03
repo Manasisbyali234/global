@@ -383,10 +383,7 @@ export default function EmpPostJob({ onNext }) {
 	};
 
 	const getMinDateForRoundFromState = (state, roundKey) => {
-		const roundType = state.interviewRoundTypes?.[roundKey];
-		const baseMinDate = roundType === 'assessment'
-			? getAssessmentMinDate(state.lastDateOfApplication)
-			: (state.lastDateOfApplication || today);
+		const baseMinDate = getAssessmentMinDate(state.lastDateOfApplication);
 		const roundIndex = state.interviewRoundOrder.indexOf(roundKey);
 
 		if (roundIndex <= 0) {
@@ -1009,11 +1006,11 @@ export default function EmpPostJob({ onNext }) {
 			const isAssessment = formData.interviewRoundTypes[roundType] === 'assessment';
 			const currentRoundIndex = formData.interviewRoundOrder.indexOf(roundType);
 			const minAllowedInterviewDate = getMinDateForRoundFromState(formData, roundType);
-			const assessmentMinDate = isAssessment ? getAssessmentMinDate(formData.lastDateOfApplication) : '';
+			const applicationMinDate = getAssessmentMinDate(formData.lastDateOfApplication);
 
 			if (minAllowedInterviewDate && value < minAllowedInterviewDate) {
-				if (isAssessment && currentRoundIndex <= 0 && assessmentMinDate === minAllowedInterviewDate) {
-					showError(`Assessment date must be on the next day after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
+				if (currentRoundIndex <= 0 && applicationMinDate === minAllowedInterviewDate) {
+					showError(`${isAssessment ? 'Assessment' : 'Interview'} date must be on the next day after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
 				} else {
 					showError(`Interview date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
 				}
@@ -1086,11 +1083,11 @@ export default function EmpPostJob({ onNext }) {
 				const isAssessmentRound = s.interviewRoundTypes[roundType] === 'assessment';
 				const currentRoundIndex = s.interviewRoundOrder.indexOf(roundType);
 				const minAllowedInterviewDate = getMinDateForRoundFromState(s, roundType);
-				const assessmentMinDate = isAssessmentRound ? getAssessmentMinDate(s.lastDateOfApplication) : '';
+				const applicationMinDate = getAssessmentMinDate(s.lastDateOfApplication);
 
 				if (minAllowedInterviewDate && value < minAllowedInterviewDate) {
-					if (isAssessmentRound && currentRoundIndex <= 0 && assessmentMinDate === minAllowedInterviewDate) {
-						showWarning(`Assessment date must be on the next day after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
+					if (currentRoundIndex <= 0 && applicationMinDate === minAllowedInterviewDate) {
+						showWarning(`${isAssessmentRound ? 'Assessment' : 'Interview'} date must be on the next day after the Last Date of Application. Please select ${formatDate(minAllowedInterviewDate)} or later.`);
 					} else {
 						showWarning(`Interview date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
 					}
@@ -1476,11 +1473,12 @@ export default function EmpPostJob({ onNext }) {
 			} else {
 				const roundDate = new Date(details.fromDate);
 				const dateStr = details.fromDate;
+				const currentRoundIndex = selectedRounds.indexOf(uniqueKey);
 				allRoundDates.push(roundDate);
 				const minAllowedInterviewDate = getMinDateForRoundFromState(formData, uniqueKey);
-				const assessmentMinDate = roundType === 'assessment' ? getAssessmentMinDate(formData.lastDateOfApplication) : '';
+				const applicationMinDate = getAssessmentMinDate(formData.lastDateOfApplication);
 				if (minAllowedInterviewDate && dateStr < minAllowedInterviewDate) {
-					if (roundType === 'assessment' && assessmentMinDate === minAllowedInterviewDate) {
+					if (currentRoundIndex <= 0 && applicationMinDate === minAllowedInterviewDate) {
 						errorMessages.push(`${roundName} must be scheduled on the next day after Last Date of Application. Select ${formatDate(minAllowedInterviewDate)} or later.`);
 					} else {
 						errorMessages.push(`${roundName} date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
@@ -1511,9 +1509,14 @@ export default function EmpPostJob({ onNext }) {
 					if (!subStage.fromDate) {
 						errorMessages.push(`Please select Date for ${roundName} - Day ${index + 1}`);
 					} else if (lastAppDate) {
-						const minAllowedInterviewDate = formData.lastDateOfApplication;
+						const minAllowedInterviewDate = getMinDateForSubStage(uniqueKey, index);
 						if (subStage.fromDate < minAllowedInterviewDate) {
-							errorMessages.push(`${roundName} - Day ${index + 1} date must be on or after Last Date of Application. Select ${formatDate(minAllowedInterviewDate)} or later.`);
+							const applicationMinDate = getAssessmentMinDate(formData.lastDateOfApplication);
+							if (index === 0 && minAllowedInterviewDate === applicationMinDate) {
+								errorMessages.push(`${roundName} - Day ${index + 1} must be scheduled on the next day after Last Date of Application. Select ${formatDate(minAllowedInterviewDate)} or later.`);
+							} else {
+								errorMessages.push(`${roundName} - Day ${index + 1} date must be on or after ${formatDate(minAllowedInterviewDate)}.`);
+							}
 						}
 					}
 					if (!subStage.startTime) {

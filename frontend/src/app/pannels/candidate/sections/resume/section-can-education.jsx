@@ -4,6 +4,7 @@ import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmat
 import SearchableSelect from '../../../../../components/SearchableSelect';
 function SectionCanEducation({ profile, onUpdate }) {
     const [selectedEducationLevel, setSelectedEducationLevel] = useState('');
+    const [showEducationSelector, setShowEducationSelector] = useState(false);
     const [educationEntries, setEducationEntries] = useState([]);
     const [editingEntry, setEditingEntry] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -194,12 +195,38 @@ function SectionCanEducation({ profile, onUpdate }) {
 
     const handleEducationLevelChange = (level) => {
         setSelectedEducationLevel(level);
+        setShowEducationSelector(true);
         setFormData(prev => ({
             ...prev,
             educationLevel: level,
             courseName: '',
             specialization: ''
         }));
+        setErrors({});
+    };
+
+    const resetEducationForm = () => {
+        setFormData({
+            educationLevel: '',
+            schoolCollegeName: '',
+            boardUniversityName: '',
+            registrationNumber: '',
+            state: '',
+            result: '',
+            percentage: '',
+            cgpa: '',
+            securedMarks: '',
+            maximumMarks: '',
+            courseName: '',
+            yearOfPassing: '',
+            specialization: '',
+            document: null,
+            documentName: '',
+            documentBase64: null
+        });
+        setSelectedEducationLevel('');
+        setEditingEntry(null);
+        setShowEducationSelector(false);
         setErrors({});
     };
 
@@ -392,27 +419,7 @@ function SectionCanEducation({ profile, onUpdate }) {
         setEducationEntries(prev => [...prev, newEntry]);
         setHasUnsavedChanges(true);
 
-        // Reset form
-        setFormData({
-            educationLevel: '',
-            schoolCollegeName: '',
-            boardUniversityName: '',
-            registrationNumber: '',
-            state: '',
-            result: '',
-            percentage: '',
-            cgpa: '',
-            securedMarks: '',
-            maximumMarks: '',
-            courseName: '',
-            yearOfPassing: '',
-            specialization: '',
-            document: null,
-            documentName: '',
-            documentBase64: null
-        });
-        setSelectedEducationLevel('');
-        setErrors({});
+        resetEducationForm();
 
         showSuccess('Education entry added successfully! Please click "Save All Education Details" to save changes.');
     };
@@ -421,6 +428,7 @@ function SectionCanEducation({ profile, onUpdate }) {
         setEditingEntry(entry);
         setFormData({ ...entry });
         setSelectedEducationLevel(entry.educationLevel);
+        setShowEducationSelector(true);
     };
 
     const handleUpdateEducation = () => {
@@ -444,28 +452,7 @@ function SectionCanEducation({ profile, onUpdate }) {
         );
         setHasUnsavedChanges(true);
 
-        // Reset form
-        setFormData({
-            educationLevel: '',
-            schoolCollegeName: '',
-            boardUniversityName: '',
-            registrationNumber: '',
-            state: '',
-            result: '',
-            percentage: '',
-            cgpa: '',
-            securedMarks: '',
-            maximumMarks: '',
-            courseName: '',
-            yearOfPassing: '',
-            specialization: '',
-            document: null,
-            documentName: '',
-            documentBase64: null
-        });
-        setSelectedEducationLevel('');
-        setEditingEntry(null);
-        setErrors({});
+        resetEducationForm();
 
         showSuccess('Academic details updated successfully');
     };
@@ -627,23 +614,43 @@ function SectionCanEducation({ profile, onUpdate }) {
 
     return (
         <>
-            <div className="panel-heading wt-panel-heading p-a20">
+            <div className="panel-heading wt-panel-heading p-a20 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h4 className="panel-tittle m-a0">Educational Qualification Details</h4>
+                {!showEducationSelector && !selectedEducationLevel && !editingEntry ? (
+                    <button
+                        type="button"
+                        className="site-button-link text-primary"
+                        onClick={() => setShowEducationSelector(true)}
+                    >
+                        <i className="fa fa-plus me-2"></i>
+                        Add More
+                    </button>
+                ) : !editingEntry && !selectedEducationLevel ? (
+                    <button
+                        type="button"
+                        className="site-button-link text-secondary"
+                        onClick={resetEducationForm}
+                    >
+                        Cancel
+                    </button>
+                ) : null}
             </div>
             <div className="panel-body wt-panel-body p-a20 education-section-body">
                 <div className="twm-panel-inner">
                     {/* Education Level Dropdown */}
-                    <div className="mb-4" style={{ maxWidth: '300px', position: 'relative', zIndex: 1001 }}>
-                        <label className="form-label fw-bold">Select Education Level</label>
-                        <SearchableSelect
-                            options={educationLevels}
-                            value={selectedEducationLevel}
-                            onChange={handleEducationLevelChange}
-                            placeholder="Choose Education Level"
-                            className={`form-control ${errors.educationLevel ? 'is-invalid' : ''}`}
-                        />
-                        {errors.educationLevel && <div className="invalid-feedback d-block">{errors.educationLevel}</div>}
-                    </div>
+                    {showEducationSelector && (
+                        <div className="mb-4" style={{ maxWidth: '300px', position: 'relative', zIndex: 1001 }}>
+                            <label className="form-label fw-bold">Select Education Level</label>
+                            <SearchableSelect
+                                options={educationLevels}
+                                value={selectedEducationLevel}
+                                onChange={handleEducationLevelChange}
+                                placeholder="Choose Education Level"
+                                className={`form-control ${errors.educationLevel ? 'is-invalid' : ''}`}
+                            />
+                            {errors.educationLevel && <div className="invalid-feedback d-block">{errors.educationLevel}</div>}
+                        </div>
+                    )}
 
                     {/* Dynamic Form */}
                     {selectedEducationLevel && (
@@ -868,29 +875,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                                             <button
                                                 type="button"
                                                 className="site-button"
-                                                onClick={() => {
-                                                    setEditingEntry(null);
-                                                    setFormData({
-                                                        educationLevel: '',
-                                                        schoolCollegeName: '',
-                                                        boardUniversityName: '',
-                                                        registrationNumber: '',
-                                                        state: '',
-                                                        result: '',
-                                                        percentage: '',
-                                                        cgpa: '',
-                                                        securedMarks: '',
-                                                        maximumMarks: '',
-                                                        courseName: '',
-                                                        yearOfPassing: '',
-                                                        specialization: '',
-                                                        document: null,
-                                                        documentName: '',
-                                                        documentBase64: null
-                                                    });
-                                                    setSelectedEducationLevel('');
-                                                    setErrors({});
-                                                }}
+                                                onClick={resetEducationForm}
                                             >
                                                 <i className="fa fa-times me-1"></i> Cancel
                                             </button>

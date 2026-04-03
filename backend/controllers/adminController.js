@@ -167,7 +167,7 @@ exports.getDashboardStats = async (req, res) => {
 exports.getEmployerOverview = async (req, res) => {
   try {
     const [employers, jobsByEmployer, applicationsByEmployer] = await Promise.all([
-      Employer.find({ isApproved: true }).select('_id companyName name createdAt').lean(),
+      Employer.find({ isApproved: true }).select('_id companyName name employerType createdAt').lean(),
       Job.aggregate([
         {
           $match: {
@@ -212,6 +212,7 @@ exports.getEmployerOverview = async (req, res) => {
       .map((employer) => ({
         employerId: employer._id,
         employerName: employer.companyName || employer.name || 'N/A',
+        employerType: employer.employerType || 'company',
         createdAt: employer.createdAt,
         jobsCount: jobsCountMap.get(String(employer._id)) || 0,
         applicationsCount: applicationsCountMap.get(String(employer._id)) || 0

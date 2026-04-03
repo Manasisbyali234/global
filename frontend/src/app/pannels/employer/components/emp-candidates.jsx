@@ -3,7 +3,7 @@ import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import JobZImage from "../../../common/jobz-img";
-import { ArrowLeft, ListChecks, Eye, Search } from "lucide-react";
+import { ArrowLeft, ListChecks, Search } from "lucide-react";
 import { api } from "../../../../utils/api";
 import './emp-candidates.css';
 
@@ -19,6 +19,7 @@ function EmpCandidatesPage() {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [genderFilter, setGenderFilter] = useState("");
+  const [designationFilter, setDesignationFilter] = useState("");
 
   useEffect(() => {
     loadScript("js/custom.js");
@@ -139,9 +140,12 @@ function EmpCandidatesPage() {
       const matchesGender = genderFilter
         ? normalizeGender(application.candidateId?.gender) === normalizeGender(genderFilter)
         : true;
-      return matchesSearch && matchesStatus && matchesGender;
+      const matchesDesignation = designationFilter
+        ? String(application.jobId?.title || "").trim().toLowerCase() === designationFilter.toLowerCase()
+        : true;
+      return matchesSearch && matchesStatus && matchesGender && matchesDesignation;
     });
-  }, [applications, searchText, statusFilter, genderFilter]);
+  }, [applications, searchText, statusFilter, genderFilter, designationFilter]);
 
   const jobTitleOptions = useMemo(() => {
     const titles = new Set();
@@ -236,10 +240,27 @@ function EmpCandidatesPage() {
                   </datalist>
                 </div>
               </div>
-              <div className="emp-candidates-toolbar__filters">
-                <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
-                  <label className="page-toolbar__label">
-                    <i className="fa fa-filter"></i> Application Status
+                <div className="emp-candidates-toolbar__filters">
+                  <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
+                    <label className="page-toolbar__label">
+                      <i className="fa fa-briefcase"></i> Designation
+                    </label>
+                    <select
+                      className="form-select page-toolbar__select"
+                      value={designationFilter}
+                      onChange={(e) => setDesignationFilter(e.target.value)}
+                    >
+                      <option value="">All Designation</option>
+                      {jobTitleOptions.map((title) => (
+                        <option key={title} value={title}>
+                          {title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
+                    <label className="page-toolbar__label">
+                      <i className="fa fa-filter"></i> Application Status
                   </label>
                   <select
                     className="form-select page-toolbar__select"
@@ -336,6 +357,16 @@ function EmpCandidatesPage() {
                             Applied for {application.jobId?.title || "Unknown Job"}
                           </small>{" "}
                           <br />
+                          {application.jobId?.companyName && (
+                            <>
+                              <small
+                                className="text-muted d-block"
+                                style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                              >
+                                Company: {application.jobId.companyName}
+                              </small>
+                            </>
+                          )}
                           <small className="text-muted">
                             Submitted {formatDate(application.createdAt)}
                           </small>{" "}

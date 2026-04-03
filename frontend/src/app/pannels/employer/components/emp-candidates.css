@@ -29,15 +29,16 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   width: 100%;
 }
 
 .emp-candidates-toolbar__filters {
   display: flex;
   gap: 1rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: flex-end;
+  flex: 0 0 auto;
 }
 
 .emp-candidates-search-control {
@@ -45,6 +46,7 @@
   width: 100%;
   display: flex;
   align-items: center;
+  min-height: 44px;
 }
 
 .emp-candidates-search-icon {
@@ -61,6 +63,29 @@
 
 .emp-candidates-search-input {
   padding-left: 46px !important;
+  height: 44px;
+  line-height: 44px;
+}
+
+.emp-candidates-page .page-toolbar__input,
+.emp-candidates-page .page-toolbar__select {
+  height: 44px;
+  min-height: 44px;
+}
+
+.emp-candidates-page .page-toolbar__section {
+  display: flex;
+  flex-direction: column;
+}
+
+.emp-candidates-toolbar > .page-toolbar__section {
+  flex: 1 1 0;
+  min-width: 260px;
+}
+
+.emp-candidates-toolbar__filters .page-toolbar__section {
+  flex: 0 0 170px;
+  min-width: 170px;
 }
 
 .emp-candidates-grid {
@@ -90,11 +115,13 @@
 
   .emp-candidates-toolbar {
     flex-direction: column;
+    flex-wrap: wrap;
     align-items: stretch;
   }
 
   .emp-candidates-toolbar__filters {
     width: 100% !important;
+    flex-wrap: wrap;
     align-items: stretch;
   }
 
