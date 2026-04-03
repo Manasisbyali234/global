@@ -381,14 +381,14 @@ function AdminOverviewPage() {
                 <table className="table table-bordered">
                   <thead>
                     <tr>
-                      <th>Job Title</th>
                       {showJobCompanyColumn && <th>Company Name</th>}
+                      <th>Job Title</th>
                       <th>Applications</th>
                       <th>Paid Applicants</th>
                       <th>Credit Applicants</th>
                       <th>Status</th>
                       <th>Posted Date</th>
-                      <th>Offer Letter Sent Date</th>
+                      <th>Offer Letter Date</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -402,8 +402,8 @@ function AdminOverviewPage() {
                     ) : (
                       visibleEmployerJobs.map((job) => (
                           <tr key={job.jobId}>
-                            <td>{job.title}</td>
                             {showJobCompanyColumn && <td>{job.companyName || selectedEmployer?.employerName || "N/A"}</td>}
+                            <td>{job.title}</td>
                             <td>{job.applicationsCount}</td>
                             <td>{job.paidApplicationsCount ?? 0}</td>
                             <td>{job.creditApplicationsCount ?? 0}</td>

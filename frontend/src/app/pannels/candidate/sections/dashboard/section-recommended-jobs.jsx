@@ -108,7 +108,7 @@ function SectionRecommendedJobs() {
                 <div className="panel-body wt-panel-body p-a20 text-center">
                     <i className="fa fa-info-circle text-muted fa-2x mb-3"></i>
                     <p className="text-muted mb-2">No job recommendations available</p>
-                    <small className="text-muted">Add skills to your profile to get personalized job recommendations</small>
+                    <small className="text-muted">Add skills or education to your profile to get personalized job recommendations</small>
                 </div>
             </div>
         );
@@ -122,7 +122,7 @@ function SectionRecommendedJobs() {
                     Recommended Jobs
                 </h4>
                 <p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>
-                    Based on your skills and profile
+                    Based on your skills and education
                     <span className="badge bg-primary ms-2" style={{ fontSize: '0.75rem' }}>
                         {jobs.length}
                     </span>
@@ -198,44 +198,58 @@ function SectionRecommendedJobs() {
                                     </div>
                                 )}
 
-                                {job.requiredSkills && job.requiredSkills.length > 0 && (
-                                    <div className="d-flex flex-wrap gap-1">
-                                        {job.requiredSkills.slice(0, 3).map((skill, skillIndex) => {
-                                            const isMatching = job.matchingSkills && job.matchingSkills.includes(skill);
-                                            return (
-                                                <span 
-                                                    key={skillIndex}
-                                                    className="badge"
-                                                    style={{
-                                                        backgroundColor: isMatching ? '#dcfdf7' : '#eff6ff',
-                                                        color: isMatching ? '#065f46' : '#1d4ed8',
-                                                        fontSize: '0.7rem',
-                                                        fontWeight: '500',
-                                                        padding: '0.25rem 0.5rem',
-                                                        border: isMatching ? '1px solid #10b981' : 'none'
-                                                    }}
-                                                >
-                                                    {skill}
-                                                    {isMatching && <i className="fa fa-check ms-1" style={{ fontSize: '0.6rem' }}></i>}
-                                                </span>
-                                            );
-                                        })}
-                                        {job.requiredSkills.length > 3 && (
-                                            <span 
+                                <div className="d-flex flex-wrap gap-1">
+                                    {job.educationMatched && (
+                                        <span
+                                            className="badge"
+                                            style={{
+                                                backgroundColor: '#ede9fe',
+                                                color: '#5b21b6',
+                                                fontSize: '0.7rem',
+                                                fontWeight: '500',
+                                                padding: '0.25rem 0.5rem',
+                                                border: '1px solid #7c3aed'
+                                            }}
+                                        >
+                                            <i className="fa fa-graduation-cap me-1" style={{ fontSize: '0.6rem' }}></i>
+                                            Education Match
+                                        </span>
+                                    )}
+                                    {job.requiredSkills && job.requiredSkills.slice(0, 3).map((skill, skillIndex) => {
+                                        const isMatching = job.matchingSkills && job.matchingSkills.includes(skill);
+                                        return (
+                                            <span
+                                                key={skillIndex}
                                                 className="badge"
                                                 style={{
-                                                    backgroundColor: '#f3f4f6',
-                                                    color: '#6b7280',
+                                                    backgroundColor: isMatching ? '#dcfdf7' : '#eff6ff',
+                                                    color: isMatching ? '#065f46' : '#1d4ed8',
                                                     fontSize: '0.7rem',
                                                     fontWeight: '500',
-                                                    padding: '0.25rem 0.5rem'
+                                                    padding: '0.25rem 0.5rem',
+                                                    border: isMatching ? '1px solid #10b981' : 'none'
                                                 }}
                                             >
-                                                +{job.requiredSkills.length - 3} more
+                                                {skill}
+                                                {isMatching && <i className="fa fa-check ms-1" style={{ fontSize: '0.6rem' }}></i>}
                                             </span>
-                                        )}
-                                    </div>
-                                )}
+                                        );
+                                    })}
+                                    {job.requiredSkills && job.requiredSkills.length > 3 && (
+                                        <span
+                                            className="badge"
+                                            style={{
+                                                backgroundColor: '#f3f4f6',
+                                                color: '#6b7280',
+                                                fontSize: '0.7rem',
+                                                fontWeight: '500',
+                                                padding: '0.25rem 0.5rem'
+                                            }}
+                                        >
+                                            +{job.requiredSkills.length - 3} more
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))}

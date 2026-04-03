@@ -32,9 +32,7 @@ function CanSupport() {
     }, []);
 
     useEffect(() => {
-        if (formData.receiverRole === 'employer') {
-            fetchAppliedEmployers();
-        }
+        fetchAppliedEmployers();
     }, [formData.receiverRole]);
 
     useEffect(() => {
@@ -162,10 +160,10 @@ function CanSupport() {
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Valid email is required';
         if (!formData.subject.trim()) newErrors.subject = 'Subject is required';
         if (!formData.message.trim()) newErrors.message = 'Message is required';
-        if (formData.receiverRole === 'employer' && !formData.receiverId) {
+        if (!formData.receiverId) {
             newErrors.receiverId = 'Please select an employer';
         }
-        if (formData.receiverRole === 'employer' && !formData.jobId) {
+        if (!formData.jobId) {
             newErrors.jobId = 'Please select a job';
         }
         setErrors(newErrors);
@@ -341,7 +339,7 @@ function CanSupport() {
                 message: formData.message.trim(),
                 receiverRole: formData.receiverRole,
                 receiverId: formData.receiverId,
-                jobId: formData.receiverRole === 'employer' ? formData.jobId : ''
+                jobId: formData.jobId
             };
             
             console.log('Submitting candidate support ticket with data:', requiredData);
@@ -516,64 +514,60 @@ function CanSupport() {
                                                 onChange={handleChange}
                                             >
                                                 <option value="employer">HR Support</option>
-                                                <option value="admin">Admin Support</option>
+                                                <option value="admin">Contact Taleglobal</option>
                                             </select>
                                         </div>
                                     </div>
 
-                                    {formData.receiverRole === 'employer' && (
-                                        <>
-                                            <div className="col-xl-6 col-lg-6 col-md-12">
-                                                <div className="form-group">
-                                                    <label>Select Employer <span style={{ color: 'red' }}>*</span></label>
-                                                    <select 
-                                                        name="receiverId" 
-                                                        className={`form-control ${errors.receiverId ? 'is-invalid' : ''}`}
-                                                        value={formData.receiverId}
-                                                        onChange={handleChange}
-                                                        disabled={isLoadingEmployers}
-                                                    >
-                                                        <option value="">{isLoadingEmployers ? 'Loading employers...' : 'Choose an employer'}</option>
-                                                        {employers.map(emp => (
-                                                            <option key={emp.id} value={emp.id}>{emp.name}</option>
-                                                        ))}
-                                                    </select>
-                                                    {errors.receiverId && <div className="invalid-feedback">{errors.receiverId}</div>}
-                                                    {employers.length === 0 && !isLoadingEmployers && (
-                                                        <small className="text-muted">No employers found. You can only send tickets to employers you've applied to.</small>
-                                                    )}
-                                                </div>
-                                            </div>
+                                    <div className="col-xl-6 col-lg-6 col-md-12">
+                                        <div className="form-group">
+                                            <label>Select Employer <span style={{ color: 'red' }}>*</span></label>
+                                            <select 
+                                                name="receiverId" 
+                                                className={`form-control ${errors.receiverId ? 'is-invalid' : ''}`}
+                                                value={formData.receiverId}
+                                                onChange={handleChange}
+                                                disabled={isLoadingEmployers}
+                                            >
+                                                <option value="">{isLoadingEmployers ? 'Loading employers...' : 'Choose an employer'}</option>
+                                                {employers.map(emp => (
+                                                    <option key={emp.id} value={emp.id}>{emp.name}</option>
+                                                ))}
+                                            </select>
+                                            {errors.receiverId && <div className="invalid-feedback">{errors.receiverId}</div>}
+                                            {employers.length === 0 && !isLoadingEmployers && (
+                                                <small className="text-muted">No employers found. You can only send tickets to employers you've applied to.</small>
+                                            )}
+                                        </div>
+                                    </div>
 
-                                            <div className="col-xl-6 col-lg-6 col-md-12">
-                                                <div className="form-group">
-                                                    <label>Select Job <span style={{ color: 'red' }}>*</span></label>
-                                                    <select
-                                                        name="jobId"
-                                                        className={`form-control ${errors.jobId ? 'is-invalid' : ''}`}
-                                                        value={formData.jobId}
-                                                        onChange={handleChange}
-                                                        disabled={!formData.receiverId || selectedEmployerJobs.length === 0}
-                                                    >
-                                                        <option value="">
-                                                            {!formData.receiverId
-                                                                ? 'Choose an employer first'
-                                                                : selectedEmployerJobs.length === 0
-                                                                    ? 'No jobs available'
-                                                                    : 'Choose a job'}
-                                                        </option>
-                                                        {selectedEmployerJobs.map((job) => (
-                                                            <option key={job.id} value={job.id}>{job.title}</option>
-                                                        ))}
-                                                    </select>
-                                                    {errors.jobId && <div className="invalid-feedback">{errors.jobId}</div>}
-                                                    {formData.receiverId && selectedEmployerJobs.length === 0 && (
-                                                        <small className="text-muted">No applied jobs were found for the selected employer.</small>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
+                                    <div className="col-xl-6 col-lg-6 col-md-12">
+                                        <div className="form-group">
+                                            <label>Select Designation<span style={{ color: 'red' }}>*</span></label>
+                                            <select
+                                                name="jobId"
+                                                className={`form-control ${errors.jobId ? 'is-invalid' : ''}`}
+                                                value={formData.jobId}
+                                                onChange={handleChange}
+                                                disabled={!formData.receiverId || selectedEmployerJobs.length === 0}
+                                            >
+                                                <option value="">
+                                                    {!formData.receiverId
+                                                        ? 'Choose an employer first'
+                                                        : selectedEmployerJobs.length === 0
+                                                            ? 'No jobs available'
+                                                            : 'Choose a job'}
+                                                </option>
+                                                {selectedEmployerJobs.map((job) => (
+                                                    <option key={job.id} value={job.id}>{job.title}</option>
+                                                ))}
+                                            </select>
+                                            {errors.jobId && <div className="invalid-feedback">{errors.jobId}</div>}
+                                            {formData.receiverId && selectedEmployerJobs.length === 0 && (
+                                                <small className="text-muted">No applied jobs were found for the selected employer.</small>
+                                            )}
+                                        </div>
+                                    </div>
 
                                     <div className="col-xl-12 col-lg-12 col-md-12">
                                         <div className="form-group">
@@ -595,6 +589,26 @@ function CanSupport() {
                                         </div>
                                     </div>
                                     
+                                    <div className="col-xl-12 col-lg-12 col-md-12">
+                                        <div className="form-group">
+                                            <label>Message <span style={{ color: 'red' }}>*</span></label>
+                                            <textarea
+                                                ref={messageRef}
+                                                name="message" 
+                                                className={`form-control ${errors.message ? 'is-invalid' : ''}`}
+                                                rows={5}
+                                                placeholder="Describe your issue or question in detail..." 
+                                                value={formData.message}
+                                                onChange={(e) => {
+                                                    autoResizeTextarea(e.target);
+                                                    handleChange(e);
+                                                }}
+                                                style={{ resize: 'none', overflow: 'hidden', minHeight: '140px' }}
+                                            />
+                                            {errors.message && <div className="invalid-feedback">{errors.message}</div>}
+                                        </div>
+                                    </div>
+
                                     <div className="col-xl-6 col-lg-6 col-md-12">
                                         <div className="form-group">
                                             <label>Category</label>
@@ -624,26 +638,6 @@ function CanSupport() {
                                                     <option key={pri.value} value={pri.value}>{pri.label}</option>
                                                 ))}
                                             </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="col-xl-12 col-lg-12 col-md-12">
-                                        <div className="form-group">
-                                            <label>Message <span style={{ color: 'red' }}>*</span></label>
-                                            <textarea
-                                                ref={messageRef}
-                                                name="message" 
-                                                className={`form-control ${errors.message ? 'is-invalid' : ''}`}
-                                                rows={5}
-                                                placeholder="Describe your issue or question in detail..." 
-                                                value={formData.message}
-                                                onChange={(e) => {
-                                                    autoResizeTextarea(e.target);
-                                                    handleChange(e);
-                                                }}
-                                                style={{ resize: 'none', overflow: 'hidden', minHeight: '140px' }}
-                                            />
-                                            {errors.message && <div className="invalid-feedback">{errors.message}</div>}
                                         </div>
                                     </div>
                                     

@@ -353,18 +353,18 @@ function AdminCandidateReviewPage() {
                     Documents
                 </button>
                 <button 
-                    className={`tab-btn ${activeTab === 'company' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('company')}
-                >
-                    <i className="fas fa-building"></i>
-                    Company Details
-                </button>
-                <button 
                     className={`tab-btn ${activeTab === 'employment' ? 'active' : ''}`}
                     onClick={() => setActiveTab('employment')}
                 >
                     <i className="fas fa-briefcase"></i>
                     Employment
+                </button>
+                <button 
+                    className={`tab-btn ${activeTab === 'company' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('company')}
+                >
+                    <i className="fas fa-building"></i>
+                    Company Details
                 </button>
             </div>
 

@@ -708,10 +708,10 @@ function EmployerSupportTickets() {
                                 <Row className="mb-3">
                                     <Col md={12}>
                                         <Form.Group>
-                                            <Form.Label className="detail-label">Your Response</Form.Label>
+                                            <Form.Label className="detail-label">Your Response<span style={{ color: 'red' }}>*</span></Form.Label>
                                             <AutoExpandTextarea
                                                 className="response-textarea"
-                                                placeholder="Type your response here... This will be sent as a notification to the candidate."
+                                                placeholder="Type your response here..."
                                                 value={response}
                                                 onChange={(e) => setResponse(e.target.value)}
                                             />
@@ -721,7 +721,7 @@ function EmployerSupportTickets() {
                                 </Row>
                             </div>
                             <div className="support-ticket-modal-footer">
-                                <Button
+                                {response.trim() && <Button
                                     variant="outline-primary"
                                     className="update-btn"
                                     onClick={handleUpdateTicket}
@@ -735,7 +735,7 @@ function EmployerSupportTickets() {
                                     ) : (
                                         'Save changes'
                                     )}
-                                </Button>
+                                </Button>}
                             </div>
                         </>
                     )}
