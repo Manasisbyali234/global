@@ -178,6 +178,51 @@ function EmpCompanyProfilePage() {
         )
     );
 
+    const normalizeCompanyName = (companyName = '') => String(companyName || '').trim().toLowerCase();
+
+    const getConsultancyValidationMessages = (
+        sections = authSections,
+        authorizationLetters = formData.authorizationLetters || []
+    ) => {
+        if (formData.employerCategory !== 'consultancy') {
+            return [];
+        }
+
+        const populatedSections = sections
+            .map(section => ({
+                ...section,
+                companyName: String(section.companyName || '').trim()
+            }))
+            .filter(section => section.companyName);
+        const validAuthorizationLetters = (Array.isArray(authorizationLetters) ? authorizationLetters : [])
+            .filter(letter => letter && (letter.fileData || letter.fileName || letter._id));
+        const messages = [];
+
+        if (populatedSections.length === 0) {
+            messages.push('Add at least one hiring company before saving a consultancy profile.');
+        }
+
+        if (sections.some(section => !String(section.companyName || '').trim())) {
+            messages.push('All hiring company names are required for consultancy employers.');
+        }
+
+        if (validAuthorizationLetters.length === 0) {
+            messages.push('Upload at least one authorization letter before saving a consultancy profile.');
+        }
+
+        const missingAuthorizationLetters = populatedSections
+            .map(section => section.companyName)
+            .filter(companyName => !validAuthorizationLetters.some(
+                letter => normalizeCompanyName(letter.companyName) === normalizeCompanyName(companyName)
+            ));
+
+        if (missingAuthorizationLetters.length > 0) {
+            messages.push(`Upload an authorization letter for each hiring company before saving. Missing: ${missingAuthorizationLetters.join(', ')}`);
+        }
+
+        return Array.from(new Set(messages));
+    };
+
     const buildAuthSections = (companyNames = [], authorizationLetters = []) => {
         const sectionMap = new Map();
 
@@ -606,12 +651,12 @@ function EmpCompanyProfilePage() {
         
         // For consultancy employers, validate hiring company names
         if (formData.employerCategory === 'consultancy') {
-            const emptyCompanyNames = authSections.filter(section => !section.companyName?.trim());
-            if (emptyCompanyNames.length > 0) {
-                if (!formErrors.hiringCompanyNames) {
-                    formErrors.hiringCompanyNames = [];
+            const consultancyValidationMessages = getConsultancyValidationMessages();
+            if (consultancyValidationMessages.length > 0) {
+                if (!formErrors.authorizationLetters) {
+                    formErrors.authorizationLetters = [];
                 }
-                formErrors.hiringCompanyNames.push('All hiring company names are required for consultancy employers');
+                formErrors.authorizationLetters.push(...consultancyValidationMessages);
             }
         }
         
@@ -1319,6 +1364,11 @@ function EmpCompanyProfilePage() {
             if (firstErrorField) {
                 firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 firstErrorField.focus();
+            } else if (formData.employerCategory === 'consultancy') {
+                const hiringCompaniesSection = document.getElementById('hiring-companies');
+                if (hiringCompaniesSection) {
+                    hiringCompaniesSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             }
             return;
         }

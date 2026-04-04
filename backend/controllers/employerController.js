@@ -127,7 +127,9 @@ const employerProfileFieldLabels = {
   certificateOfIncorporation: 'Certificate of Incorporation',
   companyIdCardPicture: 'Company ID Card',
   logo: 'Company Logo',
-  coverImage: 'Background Banner'
+  coverImage: 'Background Banner',
+  hiringCompanies: 'Hiring Companies',
+  authorizationLetters: 'Authorization Letters'
 };
 
 const employerProfileRequiredFields = [
@@ -172,7 +174,28 @@ const hasEmployerProfileValue = (value) => {
   return true;
 };
 
-const validateEmployerProfileBeforeSave = (profile = {}) => {
+const normalizeCompanyName = (value = '') => String(value || '').trim().toLowerCase();
+
+const getValidAuthorizationLetters = (letters = []) => (
+  dedupeAuthorizationLetters(Array.isArray(letters) ? letters : []).filter((letter) => {
+    if (!letter) return false;
+
+    const fileData = typeof letter.fileData === 'string' ? letter.fileData.trim() : '';
+    const fileName = typeof letter.fileName === 'string' ? letter.fileName.trim() : '';
+    return Boolean(fileData || fileName || letter._id);
+  })
+);
+
+const isConsultancyEmployerProfile = (profile = {}, user = {}) => {
+  const employerCategory = String(profile.employerCategory || user.employerCategory || '').trim().toLowerCase();
+  const employerType = String(profile.employerType || user.employerType || '').trim().toLowerCase();
+
+  return employerCategory === 'consultancy'
+    || employerCategory === 'consultant'
+    || employerType === 'consultant';
+};
+
+const validateEmployerProfileBeforeSave = (profile = {}, user = {}) => {
   const errors = [];
 
   employerProfileRequiredFields.forEach((field) => {
@@ -193,6 +216,41 @@ const validateEmployerProfileBeforeSave = (profile = {}) => {
       field: 'gallery',
       msg: 'Company Gallery must contain at least 5 images'
     });
+  }
+
+  if (isConsultancyEmployerProfile(profile, user)) {
+    const authorizationLetters = getValidAuthorizationLetters(profile.authorizationLetters);
+    const hiringCompanies = dedupeHiringCompanies([
+      ...(Array.isArray(profile.hiringCompanies) ? profile.hiringCompanies : []),
+      ...authorizationLetters.map((letter) => letter?.companyName)
+    ]);
+
+    if (hiringCompanies.length === 0) {
+      errors.push({
+        field: 'hiringCompanies',
+        msg: 'At least one hiring company is required for consultancy profiles'
+      });
+    }
+
+    if (authorizationLetters.length === 0) {
+      errors.push({
+        field: 'authorizationLetters',
+        msg: 'At least one authorization letter is required for consultancy profiles'
+      });
+    }
+
+    const missingAuthorizationLetters = hiringCompanies.filter((companyName) => (
+      !authorizationLetters.some((letter) => (
+        normalizeCompanyName(letter?.companyName) === normalizeCompanyName(companyName)
+      ))
+    ));
+
+    if (missingAuthorizationLetters.length > 0) {
+      errors.push({
+        field: 'authorizationLetters',
+        msg: `Upload an authorization letter for each hiring company before saving. Missing: ${missingAuthorizationLetters.join(', ')}`
+      });
+    }
   }
 
   return errors;
@@ -530,7 +588,7 @@ exports.updateProfile = async (req, res) => {
       ...(existingEmployerProfile || {}),
       ...updateData
     };
-    const requiredFieldErrors = validateEmployerProfileBeforeSave(mergedProfileForValidation);
+    const requiredFieldErrors = validateEmployerProfileBeforeSave(mergedProfileForValidation, req.user);
 
     if (requiredFieldErrors.length > 0) {
       return res.status(400).json({

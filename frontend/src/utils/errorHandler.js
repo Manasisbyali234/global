@@ -257,6 +257,8 @@ const fieldLabels = {
   cin: 'CIN Number',
   gstNumber: 'GST Number / Darpan ID',
   panNumber: 'PAN Number',
+  hiringCompanies: 'Hiring Companies',
+  authorizationLetters: 'Authorization Letters',
   
   // Primary Contact
   contactFullName: 'First Name',

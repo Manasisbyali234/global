@@ -592,7 +592,7 @@ function SectionCanEmployment({ profile, onUpdate }) {
             {/* Details Modal */}
             {showDetailsModal && selectedEmployment && ReactDOM.createPortal(
                 <div className="modal fade show employment-details-modal" style={{
-                    display: 'block', 
+                    display: 'flex',
                     backgroundColor: 'rgba(0,0,0,0.5)',
                     position: 'fixed',
                     top: 0,
@@ -600,11 +600,14 @@ function SectionCanEmployment({ profile, onUpdate }) {
                     width: '100%',
                     height: '100%',
                     zIndex: 99999,
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 }} onClick={() => setShowDetailsModal(false)}>
-                    <div className="modal-dialog modal-lg employment-details-dialog" onClick={(e) => e.stopPropagation()} style={{ 
+                    <div className="modal-dialog modal-lg modal-dialog-centered employment-details-dialog" onClick={(e) => e.stopPropagation()} style={{ 
                         zIndex: 99999,
-                        position: 'relative'
+                        position: 'relative',
+                        margin: '0 auto'
                     }}>
                         <div className="modal-content">
                             <div className="modal-header">

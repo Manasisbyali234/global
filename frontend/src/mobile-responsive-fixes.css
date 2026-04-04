@@ -554,8 +554,7 @@ html body div[style*="padding: 8px 12px"][style*="font-size: 13px"][style*="back
 
 @supports (padding: max(0px)) {
   body {
-    padding-left: max(10px, env(safe-area-inset-left));
-    padding-right: max(10px, env(safe-area-inset-right));
+    padding: 0 !important;
   }
 
   .container, .container-fluid {
