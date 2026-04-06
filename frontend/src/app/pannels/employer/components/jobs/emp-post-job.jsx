@@ -85,16 +85,21 @@ const formatCountLabel = (count, singular, plural = `${singular}s`) =>
 const formatAssessmentOptionLabel = (assessment = {}, employerType = 'company') => {
 	const companyName = String(assessment?.companyName || '').trim();
 	const assessmentName = formatAssessmentTitle(assessment?.title) || 'Untitled Assessment';
+	const designation = String(assessment?.designation || '').trim();
 	const duration = getAssessmentDuration(assessment);
 	const durationLabel = duration === 'N/A' ? 'Duration: N/A' : `${duration} min`;
 
+	const nameWithDesignation = designation 
+		? `${assessmentName} - ${designation}`
+		: assessmentName;
+
 	if (employerType === 'consultant') {
-		return `${companyName || 'N/A'} - ${assessmentName} - ${durationLabel}`;
+		return `${companyName || 'N/A'} - ${nameWithDesignation} - ${durationLabel}`;
 	}
 
 	return companyName
-		? `${assessmentName} (${durationLabel}) - ${companyName}`
-		: `${assessmentName} (${durationLabel})`;
+		? `${nameWithDesignation} (${durationLabel}) - ${companyName}`
+		: `${nameWithDesignation} (${durationLabel})`;
 };
 
 const PREDEFINED_JOB_TITLES = [
@@ -4299,7 +4304,7 @@ export default function EmpPostJob({ onNext }) {
 											/>
 											<small style={{color: '#10b981', fontSize: 11, marginTop: 4, display: 'block'}}>
 												<i className="fa fa-info-circle" style={{marginRight: 4}}></i>
-												Auto-calculated based on assessment duration
+												Auto-calculated based on assessment selection
 											</small>
 										</div>
 									</div>
@@ -4442,7 +4447,7 @@ export default function EmpPostJob({ onNext }) {
 														top: '50%',
 														transform: 'translateY(-50%)',
 														pointerEvents: 'none',
-														color: '#64748b'
+														color: '#c26213'
 													}}>
 														<i className="fa fa-chevron-down" style={{fontSize: 12}}></i>
 													</div>
@@ -4571,7 +4576,7 @@ export default function EmpPostJob({ onNext }) {
 														/>
 														<small style={{ color: '#10b981', fontSize: 11, marginTop: 4, display: 'block' }}>
 															<i className="fa fa-info-circle" style={{ marginRight: 4 }}></i>
-															Auto-calculated based on assessment duration
+															Auto-calculated based on assessment selection
 														</small>
 													</div>
 												</div>
@@ -5351,7 +5356,7 @@ export default function EmpPostJob({ onNext }) {
 													/>
 													<small style={{color: '#10b981', fontSize: 11, marginTop: 4, display: 'block'}}>
 														<i className="fa fa-info-circle" style={{marginRight: 4}}></i>
-														Auto-calculated based on assessment duration
+														Auto-calculated based on assessment selection
 													</small>
 												</div>
 											</div>
