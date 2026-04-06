@@ -660,7 +660,7 @@ function CanSupport() {
                                             )}
                                             <small className="form-text d-block mt-2" style={{ color: '#ff6b35' }}>
                                                 <i className="fa fa-info-circle me-1"></i>
-                                                Upload up to 3 files (max 50MB each, 150MB total). Large images will be automatically compressed.
+                                                 A maximum of 3 files can be uploaded (50 MB per file, 150 MB total).
                                             </small>
                                             {errors.files && (
                                                 <div className="invalid-feedback d-block">

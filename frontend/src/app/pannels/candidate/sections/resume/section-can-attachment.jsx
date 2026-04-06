@@ -243,7 +243,7 @@ function SectionCanAttachment({ profile }) {
             </div>
             <div className="panel-body wt-panel-body p-a20 ">
                 <div className="twm-panel-inner">
-                    <p>Resume is the most important document recruiters look for. Recruiters generally do not look at profiles without resumes.</p>
+                    <p>Resume upload is mandatory. May be downloaded by recruiters as per company policies</p>
                     <div className="dashboard-cover-pic">
                         <div className="mb-3">
                             <label className="form-label">
@@ -304,7 +304,7 @@ function SectionCanAttachment({ profile }) {
                             {resumeFile && (
                                 <p className="mb-0 text-warning">
                                     <i className></i>
-                                    To update your resume, first delete the current one, then upload a new file.
+                                  To replace your resume, first delete the current file, then upload a new file.
                                 </p>
                             )}
                         </div>

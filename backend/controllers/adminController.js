@@ -3950,7 +3950,7 @@ exports.updateSupportTicketStatus = async (req, res) => {
         let notificationMessage = `Your support ticket "${ticket.subject}" has been updated by admin.`;
         
         if (response && response.trim()) {
-          notificationTitle = 'Admin Response to Your Support Ticket';
+          notificationTitle = 'TaleGlobal: Support Desk';
           notificationMessage = `Subject: ${ticket.subject}\n\nStatus: ${status.toUpperCase()}\n\nAdmin Response:\n${response.trim()}`;
         } else if (status === 'resolved') {
           notificationTitle = 'Support Ticket Resolved';

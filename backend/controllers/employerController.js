@@ -4187,7 +4187,7 @@ exports.updateSupportTicketStatus = async (req, res) => {
         let notificationMessage = `Your support ticket "${ticket.subject}" has been updated by the employer.`;
         
         if (response && response.trim()) {
-          notificationTitle = 'Employer Response to Your Support Ticket';
+          notificationTitle = 'Hr Response to Your Support Ticket';
           notificationMessage = `Subject: ${ticket.subject}\n\nStatus: ${status.toUpperCase()}\n\nEmployer Response:\n${response.trim()}`;
         } else if (status === 'resolved') {
           notificationTitle = 'Support Ticket Resolved';
