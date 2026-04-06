@@ -214,7 +214,7 @@ export default function EmpPostedJobs() {
 							<input
 								type="text"
 								className="form-control ps-5"
-								placeholder="Search by title, location, or company name..."
+								placeholder="Search by Job title, location or company name..."
 								value={searchText}
 								onChange={(e) => setSearchText(e.target.value)}
 								list="job-title-suggestions"

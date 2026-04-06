@@ -144,7 +144,7 @@ function CreateAssessmentPage() {
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <i className="fa fa-user-secret" style={{ width: '16px', color: '#059669' }} />
-                                                    <span>* No one outside the platform can read, copy, or share your questions or answers.</span>
+                                                    <span>* No one outside the platform can read, copy or share your questions or answers.</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <i className="fa fa-check-square-o" style={{ width: '16px', color: '#059669' }} />

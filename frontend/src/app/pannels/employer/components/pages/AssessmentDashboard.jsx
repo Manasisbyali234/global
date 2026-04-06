@@ -58,7 +58,7 @@ export default function AssessmentDashboard() {
 					</div>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
 						<i className="fa fa-ban" style={{ width: '16px', color: '#f97316', marginTop: '3px' }} />
-						<span>No one outside the platform can read, copy, or share your questions or answers.</span>
+						<span>No one outside the platform can read, copy or share your questions or answers.</span>
 					</div>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
 						<i className="fa fa-lock" style={{ width: '16px', color: '#f97316', marginTop: '3px' }} />
