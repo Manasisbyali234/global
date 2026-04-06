@@ -2513,7 +2513,7 @@ export default function EmpPostJob({ onNext }) {
 							return (
 								<>
 									<select
-										style={{ ...input, cursor: 'pointer', width: '50%' }}
+										style={{ ...input, cursor: 'pointer' }}
 										value=""
 										onChange={(e) => {
 											const lang = e.target.value;
