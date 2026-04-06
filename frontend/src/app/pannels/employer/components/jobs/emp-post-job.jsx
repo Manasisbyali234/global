@@ -329,6 +329,7 @@ export default function EmpPostJob({ onNext }) {
 		education: [], // dropdown
 		backlogsAllowed: false,
 		requiredSkills: [],
+		preferredLanguages: [],
 		skillInput: "",
 		experienceLevel: "freshers", // 'freshers' | 'minimum'
 		minExperience: "",
@@ -820,6 +821,7 @@ export default function EmpPostJob({ onNext }) {
 					education: Array.isArray(job.education) ? job.education : (job.education ? [job.education] : []),
 					backlogsAllowed: job.backlogsAllowed || false,
 					requiredSkills: job.requiredSkills || [],
+					preferredLanguages: job.preferredLanguages || [],
 					experienceLevel: job.experienceLevel || 'freshers',
 					minExperience: job.minExperience || '',
 					maxExperience: job.maxExperience || '',
@@ -1714,6 +1716,7 @@ export default function EmpPostJob({ onNext }) {
 				description: formData.jobDescription || 'Job description to be updated',
 				rolesAndResponsibilities: formData.rolesAndResponsibilities || '',
 				requiredSkills: formData.requiredSkills,
+				preferredLanguages: formData.preferredLanguages,
 				experienceLevel: formData.experienceLevel,
 				minExperience: formData.minExperience ? parseInt(formData.minExperience) : 0,
 				maxExperience: formData.maxExperience ? parseInt(formData.maxExperience) : 0,
@@ -1813,6 +1816,7 @@ export default function EmpPostJob({ onNext }) {
 				description: formData.jobDescription || 'Job description to be updated',
 				rolesAndResponsibilities: formData.rolesAndResponsibilities || '',
 				requiredSkills: formData.requiredSkills,
+				preferredLanguages: formData.preferredLanguages,
 				experienceLevel: formData.experienceLevel,
 				minExperience: formData.minExperience ? parseInt(formData.minExperience) : 0,
 				maxExperience: formData.maxExperience ? parseInt(formData.maxExperience) : 0,
@@ -2488,6 +2492,93 @@ export default function EmpPostJob({ onNext }) {
 								{errors.category[0]}
 							</div>
 						)}
+					</div>
+
+					{/* Preferred Languages */}
+					<div style={fullRow}>
+						<label style={label}>
+							<i className="fa fa-language" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+							Preferred Languages
+							<span style={{fontSize: 12, color: '#6b7280', fontWeight: 'normal', marginLeft: 8}}>
+								({formData.preferredLanguages.length} selected)
+							</span>
+						</label>
+						{(() => {
+							const LANGUAGES = [
+								'English', 'Hindi', 'Tamil', 'Telugu', 'Kannada', 'Malayalam',
+								'Marathi', 'Bengali', 'Gujarati', 'Punjabi', 'Odia', 'Urdu',
+								'Assamese', 'Maithili', 'Sanskrit', 'Konkani', 'Sindhi',
+								'Nepali', 'Manipuri', 'Bodo', 'Dogri', 'Kashmiri', 'Santhali'
+							];
+							return (
+								<>
+									<select
+										style={{ ...input, cursor: 'pointer', width: '50%' }}
+										value=""
+										onChange={(e) => {
+											const lang = e.target.value;
+											if (lang === 'Other - Specify') {
+												update({ _langOtherMode: true });
+											} else if (lang && !formData.preferredLanguages.includes(lang)) {
+												update({ preferredLanguages: [...formData.preferredLanguages, lang] });
+											}
+										}}
+									>
+										<option value="">-- Select Language --</option>
+										{LANGUAGES.filter(l => !formData.preferredLanguages.includes(l)).map(lang => (
+											<option key={lang} value={lang}>{lang}</option>
+										))}
+										<option value="Other - Specify">Other - Specify</option>
+									</select>
+									{formData._langOtherMode && (
+										<div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+											<input
+												style={{ ...input, borderColor: '#ff6b35', background: '#fff5f2', flex: 1 }}
+												type="text"
+												placeholder="Enter custom language..."
+												value={formData._langOtherInput || ''}
+												onChange={(e) => update({ _langOtherInput: e.target.value })}
+												onKeyPress={(e) => {
+													if (e.key === 'Enter' && formData._langOtherInput?.trim()) {
+														e.preventDefault();
+														const custom = formData._langOtherInput.trim();
+														if (!formData.preferredLanguages.includes(custom)) {
+															update({ preferredLanguages: [...formData.preferredLanguages, custom], _langOtherInput: '', _langOtherMode: false });
+														}
+													}
+												}}
+											/>
+											<button
+												style={{ background: '#ff6b35', color: '#fff', border: 'none', padding: '0 16px', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
+												onClick={() => {
+													const custom = (formData._langOtherInput || '').trim();
+													if (custom && !formData.preferredLanguages.includes(custom)) {
+														update({ preferredLanguages: [...formData.preferredLanguages, custom], _langOtherInput: '', _langOtherMode: false });
+													}
+												}}
+											>Add</button>
+											<button
+												style={{ background: '#e5e7eb', color: '#374151', border: 'none', padding: '0 12px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}
+												onClick={() => update({ _langOtherMode: false, _langOtherInput: '' })}
+											>Cancel</button>
+										</div>
+									)}
+									{formData.preferredLanguages.length > 0 && (
+										<div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+											{formData.preferredLanguages.map((lang, i) => (
+												<div key={i} style={chip}>
+													<span>{lang}</span>
+													<span
+														style={chipX}
+														onClick={() => update({ preferredLanguages: formData.preferredLanguages.filter(l => l !== lang) })}
+													>×</span>
+												</div>
+											))}
+										</div>
+									)}
+								</>
+							);
+						})()}
 					</div>
 
 					<div style={fullRow}>

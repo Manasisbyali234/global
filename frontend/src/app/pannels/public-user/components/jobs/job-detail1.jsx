@@ -751,6 +751,34 @@ function JobDetail1Page() {
                                         </div>
                                     </div>
 
+                                    {job.preferredLanguages && job.preferredLanguages.length > 0 && (
+                                        <div style={{marginBottom: '20px'}}>
+                                            <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
+                                                <i className="feather-globe" style={{marginRight: '10px', color: '#16a085'}}></i>
+                                                Preferred Languages
+                                            </h4>
+                                            <div style={{display: 'flex', flexWrap: 'wrap', gap: '10px'}}>
+                                                {job.preferredLanguages.map((lang, index) => (
+                                                    <span
+                                                        key={index}
+                                                        style={{
+                                                            backgroundColor: '#e8f8f5',
+                                                            color: '#16a085',
+                                                            padding: '8px 16px',
+                                                            borderRadius: '20px',
+                                                            fontSize: '14px',
+                                                            fontWeight: '500',
+                                                            border: '1px solid #a9dfbf',
+                                                            display: 'inline-block'
+                                                        }}
+                                                    >
+                                                        {lang}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div style={{marginBottom: '20px'}}>
                                         <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
                                             <i className="feather-check-square" style={{marginRight: '10px', color: '#ff6b35'}}></i>
