@@ -3823,11 +3823,15 @@ const enrichSupportTicketRequester = (ticket) => {
   const actualUserName = populatedUser?.name || ticket.name || '';
   const requesterCompanyName = ticket.userType === 'employer'
     ? (populatedUser?.companyName || ticket.companyName || '')
+    : ticket.userType === 'placement'
+      ? (populatedUser?.collegeName || ticket.collegeName || '')
     : '';
   const associatedCompanyName = ticket.userType === 'candidate'
     ? (populatedReceiver?.brandName || populatedReceiver?.companyName || populatedReceiver?.name || '')
     : requesterCompanyName;
-  const requesterDisplayName = requesterCompanyName || actualUserName || ticket.name || 'N/A';
+  const requesterDisplayName = ticket.userType === 'employer'
+    ? (requesterCompanyName || actualUserName || ticket.name || 'N/A')
+    : (actualUserName || ticket.name || requesterCompanyName || 'N/A');
 
   return {
     ...ticket,
@@ -3850,7 +3854,7 @@ exports.getSupportTickets = async (req, res) => {
     if (priority) query.priority = priority;
 
     const tickets = await Support.find(query)
-      .populate('userId', 'name email companyName')
+      .populate('userId', 'name email companyName collegeName')
       .populate('receiverId', 'name companyName brandName')
       .populate('jobId', 'title companyName')
       .sort({ createdAt: -1 })
@@ -3882,7 +3886,7 @@ exports.getSupportTicketById = async (req, res) => {
       { isRead: true },
       { new: true }
     )
-      .populate('userId', 'name email companyName')
+      .populate('userId', 'name email companyName collegeName')
       .populate('receiverId', 'name companyName brandName')
       .populate('jobId', 'title companyName')
       .lean();
@@ -3930,7 +3934,7 @@ exports.updateSupportTicketStatus = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     )
-      .populate('userId', 'name email companyName')
+      .populate('userId', 'name email companyName collegeName')
       .populate('receiverId', 'name companyName brandName')
       .populate('jobId', 'title companyName')
       .populate('respondedBy', 'name email');
@@ -3959,15 +3963,15 @@ exports.updateSupportTicketStatus = async (req, res) => {
         // Find user by email if userId not available
         let targetUserId = ticket.userId;
         if (!targetUserId && ticket.email) {
-          const Employer = require('../models/Employer');
-          const Candidate = require('../models/Candidate');
-          
           if (ticket.userType === 'employer') {
             const employer = await Employer.findByEmail(ticket.email);
             targetUserId = employer?._id;
           } else if (ticket.userType === 'candidate') {
             const candidate = await Candidate.findByEmail(ticket.email);
             targetUserId = candidate?._id;
+          } else if (ticket.userType === 'placement') {
+            const placement = await Placement.findByEmail(ticket.email);
+            targetUserId = placement?._id;
           }
         }
         
@@ -3983,6 +3987,9 @@ exports.updateSupportTicketStatus = async (req, res) => {
           // Use candidateId for candidate notifications, relatedId for others
           if (ticket.userType === 'candidate' || ticket.userType === 'guest') {
             notificationData.candidateId = targetUserId;
+          } else if (ticket.userType === 'placement') {
+            notificationData.placementId = targetUserId;
+            notificationData.relatedId = targetUserId;
           } else {
             notificationData.relatedId = targetUserId;
           }

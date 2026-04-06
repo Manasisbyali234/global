@@ -46,6 +46,7 @@ function AdminSupportTickets() {
     const getResponseTargetLabel = (userType) => {
         if (userType === 'employer') return 'employer';
         if (userType === 'candidate') return 'candidate';
+        if (userType === 'placement') return 'placement officer';
         return 'guest user';
     };
 
@@ -55,6 +56,9 @@ function AdminSupportTickets() {
         }
         if (userType === 'candidate') {
             return 'Write a clear response for this candidate ticket. This message will be shared with the candidate.';
+        }
+        if (userType === 'placement') {
+            return 'Write a clear response for this placement ticket. This message will be shared with the placement officer.';
         }
         return 'Write a clear response for this guest user ticket. This message will be shared with the user.';
     };
@@ -346,11 +350,13 @@ function AdminSupportTickets() {
         const variants = {
             employer: 'badge-soft-user-employer',
             candidate: 'badge-soft-user-candidate',
+            placement: 'badge-soft-user-placement',
             guest: 'badge-soft-user-guest'
         };
         const displayText = {
             employer: 'Employer',
             candidate: 'Candidate',
+            placement: 'Placement',
             guest: 'Guest User'
         };
         return (
@@ -376,6 +382,9 @@ function AdminSupportTickets() {
         if (ticket.userType === 'candidate') {
             return ticket.associatedCompanyName || '';
         }
+        if (ticket.userType === 'placement') {
+            return ticket.actualCompanyName || '';
+        }
         return '';
     };
 
@@ -384,6 +393,7 @@ function AdminSupportTickets() {
     const getRequesterEmail = (ticket) => ticket?.actualUserEmail || ticket?.email || 'No email provided';
 
     const getRequesterLabel = (ticket) => ticket?.userType === 'employer' ? 'Company Name' : 'Name';
+    const getCompanyLabel = (ticket) => ticket?.userType === 'placement' ? 'College Name' : 'Company Name';
 
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
     const visibleTickets = tickets.filter((ticket) => {
@@ -391,7 +401,7 @@ function AdminSupportTickets() {
 
         const requesterName = getRequesterName(ticket).toLowerCase();
         const companyName = getCompanyName(ticket).toLowerCase();
-        const jobTitle = getJobTitle(ticket).toLowerCase();
+        const jobTitle = (getJobTitle(ticket) || '').toLowerCase();
         const requesterEmail = getRequesterEmail(ticket).toLowerCase();
 
         return requesterName.includes(normalizedSearchTerm)
@@ -522,6 +532,7 @@ function AdminSupportTickets() {
                                     <option value="">All User Types</option>
                                     <option value="employer">Employer</option>
                                     <option value="candidate">Candidate</option>
+                                    <option value="placement">Placement</option>
                                 </Form.Select>
                             </Col>
                             <Col md={12}>
@@ -597,8 +608,8 @@ function AdminSupportTickets() {
                                                             </div>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getUserTypeBadge(ticket.userType)}</td>
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getJobTitle(ticket) || (ticket.userType === 'employer' ? '-' : 'No job selected')}>
-                                                            <span className="category-badge">{getJobTitle(ticket) || (ticket.userType === 'employer' ? '-' : 'N/A')}</span>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getJobTitle(ticket) || (ticket.userType === 'candidate' ? 'No job selected' : '-')}>
+                                                            <span className="category-badge">{getJobTitle(ticket) || (ticket.userType === 'candidate' ? 'N/A' : '-')}</span>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.category || 'General'}>
                                                             <span className="category-badge">{ticket.category || 'General'}</span>
@@ -727,7 +738,7 @@ function AdminSupportTickets() {
                                         </div>
                                         {selectedTicket.userType !== 'employer' && getCompanyName(selectedTicket) && (
                                             <div className="ticket-detail-card">
-                                                <div className="detail-label">Company Name</div>
+                                                <div className="detail-label">{getCompanyLabel(selectedTicket)}</div>
                                                 <div className="detail-value">{getCompanyName(selectedTicket)}</div>
                                             </div>
                                         )}

@@ -579,6 +579,12 @@
   border-color: rgba(249, 115, 22, 0.25) !important;
 }
 
+.badge-soft-user-placement {
+  background: #ecfdf5 !important;
+  color: #059669 !important;
+  border-color: rgba(5, 150, 105, 0.25) !important;
+}
+
 .badge-soft-user-guest {
   background: #ede9fe !important;
   color: #6366f1 !important;

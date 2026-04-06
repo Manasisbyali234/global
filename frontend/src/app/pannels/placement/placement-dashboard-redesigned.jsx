@@ -4,6 +4,7 @@ import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { debugAuth, testAPIConnection, testPlacementAuth } from '../../../utils/authDebug';
 import PlacementNotificationsRedesigned from './sections/PlacementNotificationsRedesigned';
+import PlacementSupportSection from './sections/PlacementSupportSection';
 import UnifiedHeader from '../../../components/UnifiedHeader';
 import './placement-dashboard-redesigned.css';
 import '../../../placement-rejection-styles.css';
@@ -667,6 +668,16 @@ function PlacementDashboardRedesigned() {
                     >
                         <i className="fa fa-upload"></i>
                         <span>Batch Upload</span>
+                    </div>
+                    <div
+                        className={`nav-item ${activeTab === 'support' ? 'active' : ''}`}
+                        onClick={() => {
+                            setActiveTab('support');
+                            setIsSidebarOpen(false);
+                        }}
+                    >
+                        <i className="fa fa-headset"></i>
+                        <span>Support</span>
                     </div>
                     <div 
                         className="nav-item logout"
@@ -1415,6 +1426,12 @@ function PlacementDashboardRedesigned() {
                                             </table>
                                         </div>
                                     </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'support' && (
+                                <div className="support-section">
+                                    <PlacementSupportSection placementData={placementData} />
                                 </div>
                             )}
                         </>

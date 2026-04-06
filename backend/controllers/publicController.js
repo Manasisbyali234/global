@@ -1216,8 +1216,14 @@ exports.submitSupportTicket = async (req, res) => {
 
     // Add user reference if provided
     if (userId && userType !== 'guest') {
+      const userModelMap = {
+        employer: 'Employer',
+        candidate: 'Candidate',
+        placement: 'Placement'
+      };
+
       supportData.userId = userId;
-      supportData.userModel = userType === 'employer' ? 'Employer' : 'Candidate';
+      supportData.userModel = userModelMap[userType];
     }
 
     const support = await Support.create(supportData);
