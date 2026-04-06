@@ -69,6 +69,31 @@ function EmpCandidateReviewPage() {
         return stageStatusOptions;
     };
 
+    const normalizeStatusValue = (value) =>
+        String(value || '')
+            .trim()
+            .toLowerCase()
+            .replace(/[_-]+/g, ' ')
+            .replace(/\s+/g, ' ');
+
+    const isRejectedLikeStatus = (value) => {
+        const normalized = normalizeStatusValue(value);
+        if (!normalized) return false;
+
+        return [
+            'rejected',
+            'failed',
+            'fail',
+            'field',
+            'expired',
+            'suspended',
+            'session expired',
+            'no show',
+            'not eligibal for next round',
+            'not eligible for next round'
+        ].includes(normalized);
+    };
+
     const buildAssessmentSummary = ({
         score = null,
         totalMarks = null,
@@ -141,6 +166,25 @@ function EmpCandidateReviewPage() {
         }
 
         return normalizedStageStatus || 'pending';
+    };
+
+    const getApplicationDisplayStatus = (applicationData, processes = []) => {
+        const baseStatus = String(applicationData?.status || '').trim().toLowerCase() || 'pending';
+        if (['accepted', 'hired'].includes(baseStatus)) {
+            return baseStatus;
+        }
+
+        const processStatuses = (Array.isArray(processes) ? processes : []).map((process) => process?.status);
+        if (processStatuses.some(isRejectedLikeStatus)) {
+            return 'rejected';
+        }
+
+        const assessmentSummary = getAssessmentSummary(applicationData);
+        if (isRejectedLikeStatus(assessmentSummary?.status) || isRejectedLikeStatus(assessmentSummary?.resultDisplay)) {
+            return 'rejected';
+        }
+
+        return baseStatus;
     };
 
     useEffect(() => {
@@ -513,7 +557,7 @@ function EmpCandidateReviewPage() {
         if (!application || !application.jobId) return false;
         
         // If any stage is rejected, the whole process is considered terminal/completed
-        if (interviewProcesses.some(p => p.status === 'rejected')) {
+        if (interviewProcesses.some(p => isRejectedLikeStatus(p.status))) {
             return true;
         }
         
@@ -549,8 +593,23 @@ function EmpCandidateReviewPage() {
     };
 
     const hasNegativeStatus = () => {
-        const negativeStatuses = new Set(['rejected', 'no_show', 'pending_decision', 'on_hold', 'pending', 'suspended', 'expired']);
-        return interviewProcesses.some(p => negativeStatuses.has(p.status));
+        const negativeStatuses = new Set([
+            'rejected',
+            'no_show',
+            'pending_decision',
+            'on_hold',
+            'pending',
+            'suspended',
+            'expired',
+            'failed',
+            'fail',
+            'field',
+            'session_expired',
+            'session expired',
+            'not_eligibal_for_next_round',
+            'not_eligible_for_next_round'
+        ]);
+        return interviewProcesses.some(p => negativeStatuses.has(p.status) || isRejectedLikeStatus(p.status));
     };
 
     const isFinalStageShortlisted = () => {
@@ -711,6 +770,7 @@ function EmpCandidateReviewPage() {
     }
 
     const assessmentSummary = getAssessmentSummary(application);
+    const applicationDisplayStatus = getApplicationDisplayStatus(application, interviewProcesses);
 
     return (
         <div className="candidate-review-container emp-candidate-review-page">
@@ -735,7 +795,7 @@ function EmpCandidateReviewPage() {
                                 <i className="fas fa-user"></i>
                             </div>
                         )}
-                        <div className={`status-indicator ${application.status === 'hired' || application.status === 'accepted' ? 'active' : ''}`}></div>
+                        <div className={`status-indicator ${applicationDisplayStatus === 'hired' || applicationDisplayStatus === 'accepted' ? 'active' : ''}`}></div>
                     </div>
                     <div className="profile-info">
                         <h3>{candidate.name}</h3>
@@ -747,10 +807,10 @@ function EmpCandidateReviewPage() {
                             </div>
                             <div className="stat">
                                 <span className="label">Application Status</span>
-                                <span className={`value status ${application.status}`}>
-                                    {application.status === 'offer_sent' ? 'Offer Letter Sent' :
-                                     application.status === 'accepted' ? 'Offer Accepted' :
-                                     application.status.replace('_', ' ')}
+                                <span className={`value status ${applicationDisplayStatus}`}>
+                                    {applicationDisplayStatus === 'offer_sent' ? 'Offer Letter Sent' :
+                                     applicationDisplayStatus === 'accepted' ? 'Offer Accepted' :
+                                     applicationDisplayStatus.replace('_', ' ')}
                                 </span>
                             </div>
                         </div>
@@ -810,14 +870,14 @@ function EmpCandidateReviewPage() {
                                         <div className="section-body">
                                             <div className="processes-grid">
                                                 {interviewProcesses.map((process, index) => {
-                                                    const isPreviousRejected = interviewProcesses.slice(0, index).some(p => p.status === 'rejected');
+                                                    const isPreviousRejected = interviewProcesses.slice(0, index).some(p => isRejectedLikeStatus(p.status));
                                                     const isPreviousIncomplete = interviewProcesses.slice(0, index).some(p => 
                                                         !processRemarks[p.id]?.trim() || 
                                                         !p.status || 
                                                         p.status === 'pending' ||
                                                         p.status !== 'shortlisted_for_next_round'
                                                     );
-                                                    const isCurrentDisabled = isPreviousRejected || isPreviousIncomplete || (application.status === 'rejected' && process.status !== 'rejected');
+                                                    const isCurrentDisabled = isPreviousRejected || isPreviousIncomplete || (applicationDisplayStatus === 'rejected' && !isRejectedLikeStatus(process.status));
 
                                                     return (
                                                         <div key={process.id} className={`process-item ${process.isCompleted ? 'completed' : ''} ${isCurrentDisabled ? 'stage-disabled' : ''}`}>
@@ -1035,7 +1095,7 @@ function EmpCandidateReviewPage() {
                                             ) : hasNegativeStatus() ? (
                                                 <>
                                                     <button 
-                                                        className={`${application.status === 'rejected' ? 'active' : ''}`}
+                                                        className={`${applicationDisplayStatus === 'rejected' ? 'active' : ''}`}
                                                         onClick={() => updateApplicationStatus('rejected')}
                                                     >
                                                         <i className="fas fa-times"></i> Reject
@@ -1090,7 +1150,7 @@ function EmpCandidateReviewPage() {
                                                     )}
                                                     {application.status !== 'shortlisted' && application.status !== 'hired' && application.status !== 'accepted' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
                                                         <button 
-                                                            className={`${application.status === 'rejected' ? 'active' : ''}`}
+                                                            className={`${applicationDisplayStatus === 'rejected' ? 'active' : ''}`}
                                                             onClick={() => updateApplicationStatus('rejected')}
                                                         >
                                                             <i className="fas fa-times"></i> Reject

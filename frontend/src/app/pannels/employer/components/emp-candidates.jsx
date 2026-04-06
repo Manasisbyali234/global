@@ -18,7 +18,6 @@ function EmpCandidatesPage() {
   const [currentJob, setCurrentJob] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [genderFilter, setGenderFilter] = useState("");
   const [designationFilter, setDesignationFilter] = useState("");
 
   useEffect(() => {
@@ -108,14 +107,6 @@ function EmpCandidatesPage() {
     }
   };
 
-  const normalizeGender = (value) =>
-    String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/[_\s]+/g, " ");
-
-
-
   // Derived filtering
   const filteredCompanies = useMemo(() => {
     if (!searchText || searchText.trim().length < 3) return [];
@@ -137,15 +128,12 @@ function EmpCandidatesPage() {
       const matchesStatus = statusFilter
         ? application.status === statusFilter
         : true;
-      const matchesGender = genderFilter
-        ? normalizeGender(application.candidateId?.gender) === normalizeGender(genderFilter)
-        : true;
       const matchesDesignation = designationFilter
         ? String(application.jobId?.title || "").trim().toLowerCase() === designationFilter.toLowerCase()
         : true;
-      return matchesSearch && matchesStatus && matchesGender && matchesDesignation;
+      return matchesSearch && matchesStatus && matchesDesignation;
     });
-  }, [applications, searchText, statusFilter, genderFilter, designationFilter]);
+  }, [applications, searchText, statusFilter, designationFilter]);
 
   const jobTitleOptions = useMemo(() => {
     const titles = new Set();
@@ -274,21 +262,6 @@ function EmpCandidatesPage() {
                     <option value="offer_sent">Offer Letter Sent</option>
                     <option value="accepted">Offer Accepted</option>
                     <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-                <div className="page-toolbar__section" style={{ minWidth: '150px' }}>
-                  <label className="page-toolbar__label">
-                    <i className="fa fa-user"></i> Gender
-                  </label>
-                  <select
-                    className="form-select page-toolbar__select"
-                    value={genderFilter}
-                    onChange={(e) => setGenderFilter(e.target.value)}
-                  >
-                    <option value="">All Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="prefer_not_to_say">Prefer not to say</option>
                   </select>
                 </div>
               </div>

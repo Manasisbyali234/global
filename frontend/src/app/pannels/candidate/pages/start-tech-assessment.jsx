@@ -12,8 +12,8 @@ import PopupNotification from "../../../../components/PopupNotification";
 const ASSESSMENT_SESSION_KEY = 'candidateCurrentAssessment';
 const ASSESSMENT_ATTEMPT_KEY = 'candidateCurrentAssessmentAttempt';
 const ASSESSMENT_PROGRESS_KEY = 'candidateCurrentAssessmentProgress';
-const RESTRICTION_WARNING_LIMIT = 2;
-const RESTRICTION_SUSPEND_THRESHOLD = 3;
+const RESTRICTION_WARNING_LIMIT = 4;
+const RESTRICTION_SUSPEND_THRESHOLD = 5;
 
 const getStoredAttemptId = () => {
     if (typeof window === 'undefined' || !window.sessionStorage) {
@@ -415,13 +415,13 @@ const StartAssessment = () => {
         if (response?.suspended || nextWarningCount >= RESTRICTION_SUSPEND_THRESHOLD) {
             suspendAssessment(
                 violationType,
-                response?.message || `${userMessage} This was your 3rd mistake. Your assessment has been suspended.`
+                response?.message || `${userMessage} This was your 5th mistake. Your assessment has been suspended.`
             );
             return;
         }
 
         showWarning(`Warning: Unnecessary activity detected (screenshot, tab switch, or right-click). Mistake ${nextWarningCount}/${RESTRICTION_WARNING_LIMIT}.
-On the 3rd violation, your assessment will be terminated/suspended.`);
+On the 5th violation, your assessment will be terminated/suspended.`);
     }, [assessmentState, attemptId, logViolation, showWarning, suspendAssessment]);
 
     const requestAssessmentFullscreen = useCallback(async () => {
@@ -1673,7 +1673,7 @@ On the 3rd violation, your assessment will be terminated/suspended.`);
 									{restrictionWarningCount}/{RESTRICTION_WARNING_LIMIT}
 								</div>
 								<div style={{ fontSize: "12px", lineHeight: "1.4", marginTop: "4px" }}>
-									3rd mistake suspends the assessment
+									5th mistake suspends the assessment
 								</div>
 							</div>
 							<div style={{

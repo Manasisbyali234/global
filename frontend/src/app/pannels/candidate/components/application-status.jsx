@@ -38,6 +38,71 @@ function CanStatusPage() {
 		application?.employerId?.brandName ||
 		'Company Name Not Available';
 
+	const normalizeStatusValue = (value) =>
+		String(value || '')
+			.trim()
+			.toLowerCase()
+			.replace(/[_-]+/g, ' ')
+			.replace(/\s+/g, ' ');
+
+	const isRejectedInterviewProcessStatus = (value) => {
+		const normalized = normalizeStatusValue(value);
+		if (!normalized) return false;
+
+		return [
+			'rejected',
+			'failed',
+			'fail',
+			'field',
+			'expired',
+			'session expired',
+			'not eligibal for next round',
+			'not eligible for next round'
+		].includes(normalized);
+	};
+
+	const getApplicationDisplayStatus = (application = {}) => {
+		const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
+		if (['accepted', 'hired'].includes(baseStatus)) {
+			return baseStatus;
+		}
+
+		const processStatuses = [
+			...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []).map((process) => process?.status),
+			...(Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages : []).map((stage) => stage?.status)
+		];
+
+		if (processStatuses.some(isRejectedInterviewProcessStatus)) {
+			return 'rejected';
+		}
+
+		const hasAssessmentRound =
+			Boolean(application?.jobId?.assessmentId) ||
+			getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
+			(Array.isArray(application?.interviewProcess?.stages)
+				? application.interviewProcess.stages.some((stage) => stage?.stageType === 'assessment')
+				: false);
+
+		if (hasAssessmentRound) {
+			const assessmentRoundInfo = getAssessmentRoundInfo(application, 'Assessment');
+			const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId);
+			const completionInfo = assessmentRoundInfo?.completionInfo || getAssessmentCompletionInfo(application);
+			const assessmentExpired =
+				Boolean(completionInfo?.isExpired) ||
+				(Boolean(assessmentWindowInfo?.isAfterEnd) &&
+					!completionInfo?.isCompleted &&
+					!completionInfo?.isInProgress &&
+					!completionInfo?.isSuspended);
+			const assessmentFailed = Boolean(completionInfo?.isFailed);
+
+			if (assessmentExpired || assessmentFailed) {
+				return 'rejected';
+			}
+		}
+
+		return baseStatus;
+	};
+
 	const getAssessmentScheduleSource = (job, roundDetails = null) => ({
 		startDate: roundDetails?.fromDate || roundDetails?.date || job?.assessmentStartDate || null,
 		endDate: roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || job?.assessmentEndDate || null,
@@ -1647,7 +1712,8 @@ function CanStatusPage() {
 											) : (
 												applications.map((app, index) => {
 													const interviewRounds = getInterviewRounds(app.jobId, app);
-													const isShortlisted = app.status === 'shortlisted';
+													const applicationDisplayStatus = getApplicationDisplayStatus(app);
+													const isShortlisted = applicationDisplayStatus === 'shortlisted';
 													const shouldHighlightRow = highlightShortlisted && isShortlisted;
 													return (
 														<tr 
@@ -1866,20 +1932,20 @@ function CanStatusPage() {
 															</td>
 															<td className="px-4 py-3">
 																<span className={
-																	(app.status === 'pending' && app.isSelectedForProcess) ? 'badge bg-info bg-opacity-10 text-info border border-info' :
-																	app.status === 'pending' ? 'badge bg-warning bg-opacity-10 text-warning border border-warning' :
-																	app.status === 'shortlisted' ? 'badge bg-info bg-opacity-10 text-info border border-info' :
-																	app.status === 'interviewed' ? 'badge bg-primary bg-opacity-10 text-primary border border-primary' :
-																	app.status === 'hired' ? 'badge bg-success bg-opacity-10 text-success border border-success' :
-																	app.status === 'offer_sent' ? 'badge bg-info bg-opacity-10 text-info border border-info' :
-																	app.status === 'accepted' ? 'badge bg-success bg-opacity-10 text-success border border-success' :
-																	app.status === 'rejected' ? 'badge bg-danger bg-opacity-10 text-danger border border-danger' : 'badge bg-secondary bg-opacity-10 text-secondary border border-secondary'
+																	(applicationDisplayStatus === 'pending' && app.isSelectedForProcess) ? 'badge bg-info bg-opacity-10 text-info border border-info' :
+																	applicationDisplayStatus === 'pending' ? 'badge bg-warning bg-opacity-10 text-warning border border-warning' :
+																	applicationDisplayStatus === 'shortlisted' ? 'badge bg-info bg-opacity-10 text-info border border-info' :
+																	applicationDisplayStatus === 'interviewed' ? 'badge bg-primary bg-opacity-10 text-primary border border-primary' :
+																	applicationDisplayStatus === 'hired' ? 'badge bg-success bg-opacity-10 text-success border border-success' :
+																	applicationDisplayStatus === 'offer_sent' ? 'badge bg-info bg-opacity-10 text-info border border-info' :
+																	applicationDisplayStatus === 'accepted' ? 'badge bg-success bg-opacity-10 text-success border border-success' :
+																	applicationDisplayStatus === 'rejected' ? 'badge bg-danger bg-opacity-10 text-danger border border-danger' : 'badge bg-secondary bg-opacity-10 text-secondary border border-secondary'
 																} style={{fontSize: '12px', padding: '6px 12px'}}>
-																	{(app.status === 'pending' && app.isSelectedForProcess) ? 'Shortlisted' : 
-																	 app.status === 'hired' ? 'Hired' :
-																	 app.status === 'offer_sent' ? 'Offer Letter Sent' :
-																	 app.status === 'accepted' ? 'Accepted' :
-																	 app.status?.charAt(0).toUpperCase() + app.status?.slice(1) || 'Pending'}
+																	{(applicationDisplayStatus === 'pending' && app.isSelectedForProcess) ? 'Shortlisted' : 
+																	 applicationDisplayStatus === 'hired' ? 'Hired' :
+																	 applicationDisplayStatus === 'offer_sent' ? 'Offer Letter Sent' :
+																	 applicationDisplayStatus === 'accepted' ? 'Accepted' :
+																	 applicationDisplayStatus?.charAt(0).toUpperCase() + applicationDisplayStatus?.slice(1) || 'Pending'}
 																</span>
 															</td>
 															<td className="px-4 py-3 text-center" style={{ verticalAlign: 'middle', textAlign: 'center', minWidth: '92px', width: '92px' }}>
@@ -2042,16 +2108,23 @@ function CanStatusPage() {
 											<strong>Applied Date:</strong> {formatDate(selectedApplication.createdAt || selectedApplication.appliedAt)}
 										</div>
 										<div className="col-md-12 mb-2">
+											{(() => {
+												const selectedApplicationDisplayStatus = getApplicationDisplayStatus(selectedApplication);
+												return (
+													<>
 											<strong>Status:</strong> 
 											<span className={
-												selectedApplication.status === 'pending' ? 'badge bg-warning ms-2' :
-												selectedApplication.status === 'shortlisted' ? 'badge bg-info ms-2' :
-												selectedApplication.status === 'interviewed' ? 'badge bg-primary ms-2' :
-												selectedApplication.status === 'hired' ? 'badge bg-success ms-2' :
-												selectedApplication.status === 'rejected' ? 'badge bg-danger ms-2' : 'badge bg-secondary ms-2'
+												selectedApplicationDisplayStatus === 'pending' ? 'badge bg-warning ms-2' :
+												selectedApplicationDisplayStatus === 'shortlisted' ? 'badge bg-info ms-2' :
+												selectedApplicationDisplayStatus === 'interviewed' ? 'badge bg-primary ms-2' :
+												selectedApplicationDisplayStatus === 'hired' ? 'badge bg-success ms-2' :
+												selectedApplicationDisplayStatus === 'rejected' ? 'badge bg-danger ms-2' : 'badge bg-secondary ms-2'
 											}>
-												{selectedApplication.status?.charAt(0).toUpperCase() + selectedApplication.status?.slice(1) || 'Pending'}
+												{selectedApplicationDisplayStatus?.charAt(0).toUpperCase() + selectedApplicationDisplayStatus?.slice(1) || 'Pending'}
 											</span>
+													</>
+												);
+											})()}
 										</div>
 									</div>
 								</div>

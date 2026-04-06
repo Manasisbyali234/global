@@ -6,8 +6,8 @@ const Job = require('../models/Job');
 const InterviewProcess = require('../models/InterviewProcess');
 const { sendAssessmentResultPublishedEmail } = require('../utils/emailService');
 
-const RESTRICTION_WARNING_LIMIT = 2;
-const RESTRICTION_SUSPEND_THRESHOLD = 3;
+const RESTRICTION_WARNING_LIMIT = 4;
+const RESTRICTION_SUSPEND_THRESHOLD = 5;
 const RESTRICTED_WARNING_VIOLATIONS = new Set([
   'tab_switch',
   'window_minimize',
@@ -1367,7 +1367,7 @@ exports.recordViolation = async (req, res) => {
     res.json({ 
       success: true, 
       message: suspended
-        ? 'Third rule violation detected. Assessment suspended.'
+        ? 'Fifth rule violation detected. Assessment suspended.'
         : RESTRICTED_WARNING_VIOLATIONS.has(type)
           ? `Violation recorded. Warning ${warningCount}/${RESTRICTION_WARNING_LIMIT}.`
           : 'Violation recorded',

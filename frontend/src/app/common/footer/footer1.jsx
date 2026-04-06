@@ -15,11 +15,22 @@ function Footer1() {
             <footer className="site-footer-new" style={{
                 background: '#F9FAFB',
                 padding: '64px 0 0',
-                paddingLeft: '40px',
                 color: '#000000',
                 fontFamily: 'Poppins, sans-serif'
             }}>
                 <style>{`
+                .site-footer-new__container {
+                    width: 100% !important;
+                    max-width: 1200px !important;
+                    margin: 0 auto !important;
+                    padding-left: clamp(16px, 4vw, 28px) !important;
+                    padding-right: clamp(16px, 4vw, 28px) !important;
+                }
+                .site-footer-new {
+                    display: block;
+                    margin-bottom: 0 !important;
+                    padding-bottom: 0 !important;
+                }
                 .footer-col-title {
                     color: #0B1220;
                     font-size: 16px;
@@ -110,6 +121,7 @@ function Footer1() {
                     border-top: 1px solid #E5E7EB;
                     padding: 20px 0;
                     margin-top: 64px;
+                    margin-bottom: 0 !important;
                 }
                 .footer-brand-logo {
                     margin-top: -40px;
@@ -135,7 +147,10 @@ function Footer1() {
                 @media (max-width: 768px) {
                     .site-footer-new {
                         padding: 48px 0 0 !important;
-                        padding-left: 0 !important;
+                    }
+                    .site-footer-new__container {
+                        padding-left: 16px !important;
+                        padding-right: 16px !important;
                     }
                     .footer-brand-logo {
                         margin-top: 0;
@@ -149,7 +164,16 @@ function Footer1() {
                 }
             `}</style>
 
-                <Container>
+                <Container
+                    className="site-footer-new__container"
+                    style={{
+                        width: '100%',
+                        maxWidth: '1200px',
+                        margin: '0 auto',
+                        paddingLeft: 'clamp(16px, 4vw, 28px)',
+                        paddingRight: 'clamp(16px, 4vw, 28px)'
+                    }}
+                >
                     <Row className="g-4 gx-lg-5">
                         {/* Column 1: Brand & Contact */}
                         <Col lg={4} md={6}>

@@ -7,6 +7,7 @@ const HolidayDashboard = ({ country = 'IN', showUpcoming = true, maxUpcoming = 5
   const [upcomingHolidays, setUpcomingHolidays] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const yearOptions = Array.from({ length: 5 }, (_, index) => new Date().getFullYear() - 1 + index);
 
   useEffect(() => {
     fetchHolidays();
@@ -118,7 +119,7 @@ const HolidayDashboard = ({ country = 'IN', showUpcoming = true, maxUpcoming = 5
             cursor: 'pointer'
           }}
         >
-          {[2024, 2025, 2026].map(year => (
+          {yearOptions.map(year => (
             <option key={year} value={year}>{year}</option>
           ))}
         </select>

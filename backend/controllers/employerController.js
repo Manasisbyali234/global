@@ -3714,6 +3714,30 @@ exports.saveInterviewReview = async (req, res) => {
     if (typeof isSelected === 'boolean') updateData.isSelectedForProcess = isSelected;
     
     if (interviewProcesses && Array.isArray(interviewProcesses)) {
+      const normalizeInterviewProcessStatus = (value = '') =>
+        String(value || '')
+          .trim()
+          .toLowerCase()
+          .replace(/[_-]+/g, ' ')
+          .replace(/\s+/g, ' ');
+
+      const isRejectedInterviewProcessStatus = (value = '') => {
+        const normalized = normalizeInterviewProcessStatus(value);
+        if (!normalized) return false;
+
+        return [
+          'rejected',
+          'no show',
+          'failed',
+          'fail',
+          'field',
+          'expired',
+          'session expired',
+          'not eligibal for next round',
+          'not eligible for next round'
+        ].includes(normalized);
+      };
+
       updateData.interviewProcesses = interviewProcesses.map(p => ({
         id: String(p.id || ''),
         name: String(p.name || ''),
@@ -3724,7 +3748,7 @@ exports.saveInterviewReview = async (req, res) => {
       }));
 
       const shouldAutoRejectFromStageStatus = updateData.interviewProcesses.some((process) =>
-        ['rejected', 'no_show'].includes(String(process.status || '').trim().toLowerCase())
+        isRejectedInterviewProcessStatus(process.status)
       );
 
       if (shouldAutoRejectFromStageStatus) {
