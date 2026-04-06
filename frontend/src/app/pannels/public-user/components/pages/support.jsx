@@ -24,7 +24,6 @@ function SupportPage() {
         { value: 'general', label: 'General Inquiry' },
         { value: 'technical', label: 'Technical Issue' },
         { value: 'billing', label: 'Billing & Payment' },
-        { value: 'account', label: 'Account Management' },
         { value: 'job-posting', label: 'Job Posting' },
         { value: 'application', label: 'Job Application' }
     ];
