@@ -229,7 +229,7 @@ function PlacementSupportSection({ placementData }) {
             <div className="placement-support-hero">
                 <div>
                     <span className="placement-support-hero__eyebrow">Placement Support</span>
-                    <h2>Raise a support ticket for the TaleGlobal team</h2>
+                    <h2>Raise a Support Ticket to the TaleGlobal Team</h2>
                     <p>Use this when you need help with uploads, account access, or placement workflow issues.</p>
                 </div>
                 <div className="placement-support-hero__note">

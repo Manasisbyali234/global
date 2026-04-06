@@ -10,7 +10,6 @@
   gap: 20px;
   padding: 28px 30px;
   border-radius: 24px;
-  background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #38bdf8 100%);
   color: #f8fafc;
   box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
 }
@@ -232,7 +231,6 @@
 }
 
 .placement-support-btn--primary {
-  background: linear-gradient(135deg, #2563eb 0%, #0f766e 100%);
   color: #ffffff;
   box-shadow: 0 14px 28px rgba(37, 99, 235, 0.24);
 }

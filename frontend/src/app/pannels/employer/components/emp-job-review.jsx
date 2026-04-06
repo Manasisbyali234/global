@@ -101,6 +101,9 @@ function EmpJobReviewPage() {
             const matchedRound = roundsByTypeQueue[normalizedType]?.shift() || null;
             const details = interviewRoundDetails[key] || {};
             const isAssessment = normalizedType === 'assessment';
+            const assessmentId = isAssessment
+                ? (details.assessmentId || matchedRound?.assessmentId?._id || matchedRound?.assessmentId || jobDetails.assessmentId?._id || jobDetails.assessmentId || null)
+                : null;
 
             return {
                 key,
@@ -115,26 +118,32 @@ function EmpJobReviewPage() {
                 applicationLimit: details.applicationLimit || matchedRound?.applicationLimit,
                 roundId: matchedRound?._id || matchedRound?.id || details?._id || details?.id,
                 subStages: (details.subStages && details.subStages.length > 0) ? details.subStages : (matchedRound?.subStages || []),
-                isAssessment
+                isAssessment,
+                assessmentId
             };
         })
         : interviewRoundsArray.map((round, index) => {
             const roundType = getRoundTypeFromRound(round);
             const normalizedType = normalizeRoundType(roundType);
+            const isAssessment = normalizedType === 'assessment';
+            const assessmentId = isAssessment
+                ? (round?.assessmentId?._id || round?.assessmentId || jobDetails.assessmentId?._id || jobDetails.assessmentId || null)
+                : null;
             return {
                 key: round?._id || round?.id || `${normalizedType}-${index}`,
                 stageNumber: index + 1,
                 roundType,
                 displayName: getRoundDisplayName(roundType, ''),
                 description: round?.description || '',
-                fromDate: round?.fromDate || round?.fromdate || round?.date || (normalizedType === 'assessment' ? jobDetails.assessmentStartDate : null),
-                toDate: round?.toDate || round?.todate || (normalizedType === 'assessment' ? jobDetails.assessmentEndDate : null),
-                startTime: round?.startTime || (normalizedType === 'assessment' ? jobDetails.assessmentStartTime : null),
-                endTime: round?.endTime || (normalizedType === 'assessment' ? jobDetails.assessmentEndTime : null),
+                fromDate: round?.fromDate || round?.fromdate || round?.date || (isAssessment ? jobDetails.assessmentStartDate : null),
+                toDate: round?.toDate || round?.todate || (isAssessment ? jobDetails.assessmentEndDate : null),
+                startTime: round?.startTime || (isAssessment ? jobDetails.assessmentStartTime : null),
+                endTime: round?.endTime || (isAssessment ? jobDetails.assessmentEndTime : null),
                 applicationLimit: round?.applicationLimit,
                 roundId: round?._id || round?.id,
                 subStages: round?.subStages || [],
-                isAssessment: normalizedType === 'assessment'
+                isAssessment,
+                assessmentId
             };
         });
 
@@ -230,6 +239,16 @@ function EmpJobReviewPage() {
                                                             onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round.roundId}`, '_blank')}
                                                         >
                                                             Join Now
+                                                        </button>
+                                                    )}
+
+                                                    {round.isAssessment && round.assessmentId && (
+                                                        <button
+                                                            className="btn site-button btn-sm interview-open-btn"
+                                                            onClick={() => navigate(`/employer/assessment-results/${round.assessmentId}`)}
+                                                        >
+                                                            <i className="fa fa-chart-bar me-1"></i>
+                                                            Result
                                                         </button>
                                                     )}
 

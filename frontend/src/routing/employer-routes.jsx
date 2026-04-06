@@ -33,6 +33,10 @@ function EmployerRoutes() {
 					element={<AssessmentResults />}
 				/>
 				<Route
+					path="/assessment-results"
+					element={<AssessmentResults />}
+				/>
+				<Route
 					path="/view-answers/:attemptId"
 					element={<ViewAnswers />}
 				/>
