@@ -174,8 +174,7 @@ function SectionCanWorkLocation({ profile, onUpdate }) {
 
     const handleSave = async () => {
         if (!validateForm()) {
-            const errorMessages = Object.values(errors).filter(e => e);
-            showError(errorMessages.join(', '));
+            showError('Preferred work location is required');
             return;
         }
 
@@ -216,7 +215,7 @@ function SectionCanWorkLocation({ profile, onUpdate }) {
     return (
         <>
             <div className="panel-heading wt-panel-heading p-a20">
-                <h4 className="panel-tittle m-a0">Desired Work Location</h4>
+                <h4 className="panel-tittle m-a0">Desired Work Location <span style={{ color: '#dc3545', fontWeight: 'bold' }}>*</span></h4>
             </div>
             <div className="panel-body wt-panel-body p-a20">
                 <div className="twm-panel-inner">
@@ -318,13 +317,13 @@ function SectionCanWorkLocation({ profile, onUpdate }) {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="text-center py-5" style={{ backgroundColor: '#f8f9fa', borderRadius: '12px', border: '2px dashed #dee2e6' }}>
+                                <div className="text-center py-5" style={{ backgroundColor: '#fff3cd', borderRadius: '12px', border: '2px dashed #ffc107' }}>
                                     <div className="mb-4">
-                                        <i className="fa fa-map-marker-alt" style={{ fontSize: '3em', color: '#6c757d', opacity: 0.5 }}></i>
+                                        <i className="fa fa-map-marker-alt" style={{ fontSize: '3em', color: '#dc3545', opacity: 0.7 }}></i>
                                     </div>
-                                    <h5 className="text-muted mb-3">No work location preferences added yet</h5>
+                                    <h5 className="text-danger mb-3">Desired Work Location is required</h5>
                                     <p className="text-muted mb-4" style={{ maxWidth: '400px', margin: '0 auto' }}>
-                                        Add your preferred work locations to help employers find you more easily. You can select multiple cities to increase your job opportunities.
+                                        Please add at least one preferred work location. This is a mandatory field.
                                     </p>
                                     <div className="d-flex justify-content-center gap-3 text-muted" style={{ fontSize: '0.9em', flexWrap: 'nowrap', alignItems: 'center' }}>
                                         <div style={{ whiteSpace: 'nowrap' }}><i className="fa fa-star text-warning me-1"></i>Metro Cities</div>

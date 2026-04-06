@@ -35,7 +35,33 @@ function SectionCanKeySkills({ profile }) {
         'Cybersecurity', 'Data Science', 'Machine Learning', 'Artificial Intelligence', 'Deep Learning', 'NLP', 'Computer Vision', 'Reinforcement Learning',
         'API Development', 'Web Development', 'Mobile Development', 'Desktop Development', 'Game Development', 'IoT Development',
         'Version Control', 'Code Review', 'Debugging', 'Performance Optimization', 'Refactoring', 'Design Patterns', 'SOLID Principles',
-        'Accessibility', 'Responsive Design', 'Progressive Web Apps', 'Server-Side Rendering', 'Static Site Generation', 'Jamstack'
+        'Accessibility', 'Responsive Design', 'Progressive Web Apps', 'Server-Side Rendering', 'Static Site Generation', 'Jamstack',
+        // Healthcare & Medical
+        'Patient Care', 'Clinical Research', 'Medical Coding', 'Medical Billing', 'Nursing', 'Pharmacy', 'Radiology', 'Physiotherapy', 'Occupational Therapy', 'Healthcare Management', 'EMR/EHR Systems', 'HIPAA Compliance', 'Telemedicine', 'Pathology', 'Cardiology', 'Pediatrics', 'Oncology', 'Dermatology', 'Neurology', 'Orthopedics',
+        // Finance & Accounting
+        'Bookkeeping', 'Taxation', 'GST', 'Tally', 'QuickBooks', 'SAP FICO', 'Financial Reporting', 'Budgeting', 'Forecasting', 'Cost Accounting', 'Auditing', 'Internal Audit', 'Risk Management', 'Investment Banking', 'Equity Research', 'Portfolio Management', 'Insurance', 'Actuarial Science', 'Credit Analysis', 'Loan Processing',
+        // Human Resources
+        'Recruitment', 'Talent Acquisition', 'Onboarding', 'Payroll Management', 'Performance Management', 'Employee Relations', 'HR Policies', 'Labor Law', 'Training & Development', 'Compensation & Benefits', 'HRIS', 'Workforce Planning', 'Succession Planning', 'Diversity & Inclusion', 'Exit Management',
+        // Legal
+        'Contract Drafting', 'Legal Research', 'Litigation', 'Corporate Law', 'Intellectual Property', 'Mergers & Acquisitions', 'Compliance Management', 'Regulatory Affairs', 'Arbitration', 'Legal Documentation', 'Due Diligence', 'Employment Law', 'Real Estate Law', 'Criminal Law', 'Family Law',
+        // Education & Training
+        'Curriculum Development', 'Instructional Design', 'E-Learning', 'Classroom Management', 'Student Assessment', 'Special Education', 'Academic Counseling', 'Corporate Training', 'Workshop Facilitation', 'LMS Administration', 'STEM Education', 'Language Teaching', 'Tutoring',
+        // Operations & Supply Chain
+        'Supply Chain Management', 'Logistics', 'Inventory Management', 'Procurement', 'Vendor Management', 'Warehouse Management', 'Quality Control', 'Lean Manufacturing', 'Six Sigma', 'ERP Systems', 'Production Planning', 'Demand Forecasting', 'Import/Export', 'Fleet Management',
+        // Sales & Business Development
+        'B2B Sales', 'B2C Sales', 'Lead Generation', 'CRM', 'Salesforce CRM', 'HubSpot', 'Cold Calling', 'Negotiation', 'Client Relationship Management', 'Key Account Management', 'Channel Sales', 'Inside Sales', 'Field Sales', 'Retail Sales', 'Pre-Sales',
+        // Marketing & Communications
+        'Brand Management', 'Market Research', 'Product Marketing', 'Event Management', 'Public Relations', 'Media Planning', 'Influencer Marketing', 'Affiliate Marketing', 'Content Strategy', 'Graphic Design', 'Video Editing', 'Photography', 'Adobe Premiere', 'After Effects', 'Canva',
+        // Architecture & Civil Engineering
+        'AutoCAD', 'Revit', 'SketchUp', 'Civil 3D', 'Structural Design', 'Interior Design', 'Urban Planning', 'Construction Management', 'Project Estimation', 'HVAC', 'MEP Design', 'BIM', 'Site Supervision',
+        // Mechanical & Electrical Engineering
+        'SolidWorks', 'CATIA', 'ANSYS', 'PLC Programming', 'SCADA', 'Electrical Design', 'PCB Design', 'Embedded Systems', 'Robotics', 'CNC Machining', 'Welding', 'Hydraulics', 'Pneumatics', 'Instrumentation',
+        // Hospitality & Tourism
+        'Hotel Management', 'Front Office Operations', 'Food & Beverage', 'Housekeeping', 'Event Planning', 'Travel Planning', 'Tour Operations', 'Revenue Management', 'Guest Relations', 'Catering',
+        // Media & Journalism
+        'News Writing', 'Investigative Journalism', 'Broadcast Journalism', 'Editing', 'Proofreading', 'Scriptwriting', 'Podcast Production', 'Social Media Management', 'YouTube Content Creation', 'Blogging',
+        // Soft Skills
+        'Time Management', 'Adaptability', 'Emotional Intelligence', 'Conflict Resolution', 'Decision Making', 'Presentation Skills', 'Public Speaking', 'Negotiation Skills', 'Active Listening', 'Creativity', 'Attention to Detail', 'Multitasking', 'Work Ethic', 'Interpersonal Skills'
     ];
 
     const dropdownRef = useRef(null);
