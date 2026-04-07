@@ -131,15 +131,13 @@ function AdminIndividualCredit() {
                             <input 
                                 type="number"
                                 className="form-control"
-                                placeholder="Enter credits (positive or negative)"
+                                placeholder="Enter credits to add"
                                 value={credits}
                                 onChange={(e) => setCredits(e.target.value)}
                                 required
+                                min="0"
                                 style={{padding: '10px'}}
                             />
-                            <small style={{color: '#666', marginTop: '5px', display: 'block'}}>
-                                Enter positive number to add credits, negative to deduct
-                            </small>
                         </div>
 
                         <button 

@@ -386,7 +386,7 @@ function AdminOverviewPage() {
                       <th>Applications</th>
                       <th>Paid Applicants</th>
                       <th>Credit Applicants</th>
-                      <th>Status</th>
+                      <th>Application Status</th>
                       <th>Last Date of Application</th>
                       <th>Offer Letter Date</th>
                       <th>Action</th>
