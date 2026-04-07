@@ -1024,26 +1024,12 @@ export default function EmpPostJob({ onNext }) {
 				return;
 			}
 
-			if (currentRoundIndex > 0) {
-				const prevRoundKey = formData.interviewRoundOrder[currentRoundIndex - 1];
-				const prevRoundDetails = formData.interviewRoundDetails[prevRoundKey];
-				const prevEndDate = prevRoundDetails?.toDate || prevRoundDetails?.fromDate;
-
-				if (prevEndDate) {
-					const nextDay = getNextDayDateString(prevEndDate);
-					if (value !== nextDay) {
-						showWarning(`Next interview round must be on the next day of the previous round only. Please select ${formatDate(nextDay)}.`);
-						return;
-					}
-				}
-			}
-
 			for (let i = 0; i < formData.interviewRoundOrder.length; i++) {
 				if (i === currentRoundIndex) continue;
 				const otherRoundKey = formData.interviewRoundOrder[i];
 				const otherRoundDetails = formData.interviewRoundDetails[otherRoundKey];
 				if (otherRoundDetails?.fromDate === value) {
-					showWarning(`This date clashes with Stage ${i + 1}. Interview round should be scheduled on consecutive days.`);
+					showWarning(`This date clashes with Stage ${i + 1}. Please choose a different date.`);
 					return;
 				}
 			}
@@ -1101,28 +1087,13 @@ export default function EmpPostJob({ onNext }) {
 					return s;
 				}
 
-				// Enforce next day rule if it's not the first round
-				if (currentRoundIndex > 0) {
-					const prevRoundKey = s.interviewRoundOrder[currentRoundIndex - 1];
-					const prevRoundDetails = s.interviewRoundDetails[prevRoundKey];
-					const prevEndDate = prevRoundDetails?.toDate || prevRoundDetails?.fromDate;
-					
-					if (prevEndDate) {
-						const nextDay = getNextDayDateString(prevEndDate);
-						if (value !== nextDay) {
-							showWarning(`Next interview round must be on the next day of the previous round only. Please select ${formatDate(nextDay)}.`);
-							return s;
-						}
-					}
-				}
-				
 				// Check for overlapping dates with other rounds (sanity check)
 				for (let i = 0; i < s.interviewRoundOrder.length; i++) {
 					if (i === currentRoundIndex) continue;
 					const otherRoundKey = s.interviewRoundOrder[i];
 					const otherRoundDetails = s.interviewRoundDetails[otherRoundKey];
 					if (otherRoundDetails?.fromDate === value) {
-						showWarning(`This date clashes with Stage ${i + 1}. Interview round should be scheduled on consecutive days.`);
+						showWarning(`This date clashes with Stage ${i + 1}. Please choose a different date.`);
 						return s;
 					}
 				}
