@@ -4,6 +4,20 @@ import "./create-assessment.css";
 
 export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 	const navigate = useNavigate();
+
+	const stripHtml = (value = "") => String(value || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+	const truncateText = (value = "", maxLength = 120) => {
+		const text = stripHtml(value);
+		if (text.length <= maxLength) {
+			return text || "N/A";
+		}
+
+		return `${text.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+	};
+
+	const instructionText = data.instructions || data.description || "";
+
 	const formatDate = (dateString) => {
 		const date = new Date(dateString);
 		return date.toLocaleDateString('en-US', {
@@ -15,9 +29,30 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 
 	return (
 		<div className="card h-100 shadow-sm">
-			<div className="card-body">
+			<div className="card-body" style={{ position: 'relative' }}>
+				{String(data.status || '').toLowerCase() === 'draft' && (
+					<span
+						className="badge"
+						style={{
+							position: 'absolute',
+							top: '14px',
+							right: '14px',
+							backgroundColor: '#dc2626',
+							color: '#ffffff',
+							border: '1px solid #b91c1c',
+							fontSize: '13px',
+							fontWeight: '700',
+							letterSpacing: '0.04em',
+							textTransform: 'uppercase',
+							padding: '8px 14px',
+							borderRadius: '999px'
+						}}
+					>
+						Draft
+					</span>
+				)}
 				{/* Serial Number - First */}
-				<div className="mb-2">
+				<div className="mb-2 d-flex align-items-center gap-2 flex-wrap">
 					<h6 className="fw-bold mb-1" style={{fontSize: '14px'}}>
 						<span className="text-primary">#{data.serialNumber || (index + 1)}</span>
 					</h6>
@@ -50,21 +85,17 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					</div>
 				)}
 				
-				
-				{/* Created Date */}
-				<div className="mb-2">
-					<small className="text-muted">
-						<i className="fa fa-calendar me-1"></i>
-						{formatDate(data.createdAt)}
-					</small>
+				<div className="mb-3" style={{ fontSize: '13px' }}>
+					<div className="mb-2" style={{ color: '#374151', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+						<span style={{ color: '#8B7355', fontWeight: '600' }}>Created Date:</span>{' '}
+						<span>{formatDate(data.createdAt)}</span>
+					</div>
+					<div style={{ color: '#374151', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+						<span style={{ color: '#8B7355', fontWeight: '600' }}>Instructions:</span>{' '}
+						<span>{truncateText(instructionText, 140)}</span>
+					</div>
 				</div>
-				{data.description && (
-					<div
-						className="card-text text-muted small assessment-rich-text assessment-rich-text--compact"
-						style={{ maxWidth: '100%' }}
-						dangerouslySetInnerHTML={{ __html: data.description }}
-					/>
-				)}
+
 				<div className="d-flex flex-wrap gap-3 mb-3">
 					<small className="text-muted">
 						<i className="fa fa-clock me-1"></i>{data.timer} min

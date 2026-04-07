@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { api } from "../../../../../utils/api";
 import TermsModal from "../../../../../components/TermsModal";
 import PageLoader from "../../../../../components/PageLoader";
+import ImageResizer from "../../../../../components/ImageResizer";
+import { useImageResizer } from "../../../../../hooks/useImageResizer";
 import '../../../../../remove-profile-hover-effects.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 import { fetchLocationFromPincode } from '../../../../../utils/pincodeService';
@@ -17,6 +19,16 @@ const indianCities = [
 
 
 function SectionCandicateBasicInfo() {
+    const {
+        isResizerOpen,
+        currentImage,
+        resizeConfig,
+        closeResizer,
+        handleSave: handleResizerSave,
+        openProfileResizer,
+        handleFileWithResize
+    } = useImageResizer();
+
     const getImagePreviewSrc = (imageValue) => {
         const backendBaseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
         if (!imageValue || typeof imageValue !== 'string') return '';
@@ -27,6 +39,12 @@ function SectionCandicateBasicInfo() {
             return `${backendBaseUrl}${normalizedPath}`;
         }
         return imageValue;
+    };
+
+    const dataUrlToFile = async (dataUrl, fileName = 'profile-picture.jpg') => {
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+        return new File([blob], fileName, { type: blob.type || 'image/jpeg' });
     };
 
     const [formData, setFormData] = useState({
@@ -344,7 +362,23 @@ function SectionCandicateBasicInfo() {
         }
     };
 
-    const handleFileChange = (e) => {
+    const applyProcessedProfilePicture = async (processedImageDataUrl) => {
+        const processedFile = await dataUrlToFile(processedImageDataUrl);
+
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.profilePicture;
+            return newErrors;
+        });
+
+        setFormData(prev => ({
+            ...prev,
+            profilePicture: processedFile
+        }));
+        setImagePreview(processedImageDataUrl);
+    };
+
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
             // Validate file size (5MB max)
@@ -355,32 +389,24 @@ function SectionCandicateBasicInfo() {
                 return;
             }
             
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
             if (!allowedTypes.includes(file.type)) {
-                setErrors(prev => ({...prev, profilePicture: 'Please upload only JPG, PNG or GIF files'}));
-                setNotification({ type: 'error', message: 'Please upload only JPG, PNG or GIF files' });
+                setErrors(prev => ({...prev, profilePicture: 'Please upload only JPG, PNG or WEBP files'}));
+                setNotification({ type: 'error', message: 'Please upload only JPG, PNG or WEBP files' });
                 e.target.value = '';
                 return;
             }
-            
-            // Clear any previous errors
-            setErrors(prev => {
-                const newErrors = {...prev};
-                delete newErrors.profilePicture;
-                return newErrors;
-            });
-            
-            setFormData(prev => ({
-                ...prev,
-                profilePicture: file
-            }));
-            
-            // Create preview URL
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
+
+            try {
+                await handleFileWithResize(file, 'profile', (processedImage) => {
+                    applyProcessedProfilePicture(processedImage);
+                });
+            } catch (error) {
+                setErrors(prev => ({ ...prev, profilePicture: error.message || 'Unable to process image' }));
+                setNotification({ type: 'error', message: error.message || 'Unable to process image' });
+            } finally {
+                e.target.value = '';
+            }
         }
     };
 
@@ -565,16 +591,41 @@ function SectionCandicateBasicInfo() {
                                 <input 
                                     className={`form-control mx-auto ${errors.profilePicture ? 'is-invalid' : ''}`}
                                     type="file" 
-                                    accept="image/*"
+                                    accept=".jpg,.jpeg,.png,.webp"
                                     onChange={handleFileChange}
                                     style={{maxWidth: '300px'}}
                                 />
+                                {(imagePreview || currentProfilePicture) && (
+                                    <div className="mt-2">
+                                        <button
+                                            type="button"
+                                            className="btn btn-sm"
+                                            style={{
+                                                background: 'rgba(255, 107, 53, 0.9)',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                padding: '6px 12px',
+                                                fontSize: '12px'
+                                            }}
+                                            onClick={() => {
+                                                const imageSrc = imagePreview || getImagePreviewSrc(currentProfilePicture);
+                                                openProfileResizer(imageSrc, (processedImage) => {
+                                                    applyProcessedProfilePicture(processedImage);
+                                                });
+                                            }}
+                                            title="Resize & Crop Image"
+                                        >
+                                            <i className="fa fa-crop me-1"></i> Resize & Crop
+                                        </button>
+                                    </div>
+                                )}
                                 {errors.profilePicture && (
                                     <div className="invalid-feedback d-block" style={{maxWidth: '300px', margin: '0 auto'}}>
                                         {errors.profilePicture}
                                     </div>
                                 )}
-                                <small className="text-muted mt-2 d-block">Upload JPG, PNG or GIF (Max 5MB)</small>
+                                <small className="text-muted mt-2 d-block">Upload JPG, PNG or WEBP (Max 5MB)</small>
                             </div>
                         </div>
                     </div>
@@ -845,6 +896,16 @@ function SectionCandicateBasicInfo() {
                     }, 300); // Give modal more time to close on mobile
                 }}
                 role="candidateProfile"
+            />
+            <ImageResizer
+                src={currentImage}
+                isOpen={isResizerOpen}
+                onClose={closeResizer}
+                onSave={handleResizerSave}
+                aspectRatio={resizeConfig.aspectRatio}
+                maxWidth={resizeConfig.maxWidth}
+                maxHeight={resizeConfig.maxHeight}
+                quality={resizeConfig.quality}
             />
         </form>
         </>

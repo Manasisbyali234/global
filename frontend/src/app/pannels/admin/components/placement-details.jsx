@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../../../utils/api';
@@ -38,6 +38,7 @@ function PlacementDetails() {
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [rejectingFile, setRejectingFile] = useState(null);
     const [rejectionReason, setRejectionReason] = useState('');
+    const [selectedCourseName, setSelectedCourseName] = useState('all');
 
     useEffect(() => {
         fetchPlacementDetails();
@@ -45,6 +46,27 @@ function PlacementDetails() {
         // Join admin room for real-time updates
         joinAdminRoom();
     }, [id, joinAdminRoom]);
+
+    const courseNameOptions = useMemo(() => {
+        const courseNames = new Set();
+        (placement?.fileHistory || []).forEach((file) => {
+            const courseName = String(file?.customName || '').trim();
+            if (courseName) {
+                courseNames.add(courseName);
+            }
+        });
+
+        return Array.from(courseNames).sort((a, b) => a.localeCompare(b));
+    }, [placement]);
+
+    const filteredFileHistory = useMemo(() => {
+        const files = placement?.fileHistory || [];
+        if (selectedCourseName === 'all') {
+            return files;
+        }
+
+        return files.filter((file) => String(file?.customName || '').trim().toLowerCase() === selectedCourseName);
+    }, [placement, selectedCourseName]);
 
     const fetchPlacementDetails = async () => {
         try {
@@ -629,7 +651,7 @@ function PlacementDetails() {
                         boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
                         border: '1px solid #e9ecef'
                     }}>
-                        <div className="d-flex align-items-center justify-content-between mb-4">
+                        <div className="placement-file-history-toolbar mb-4">
                             <h5 className="mb-0" style={{
                                 color: '#2c3e50',
                                 fontWeight: '600',
@@ -638,19 +660,39 @@ function PlacementDetails() {
                                 <i className="fa fa-cloud-upload me-3" style={{fontSize: '1.2rem'}}></i>
                                 File Upload History
                             </h5>
-                            <div style={{
-                                background: '#f8f9fa',
-                                borderRadius: '20px',
-                                padding: '8px 16px',
-                                border: '1px solid #e9ecef'
-                            }}>
-                                <span style={{
-                                    color: '#495057',
-                                    fontWeight: '600',
-                                    fontSize: '0.9rem'
+                            <div className="placement-file-history-toolbar-controls">
+                                <div style={{
+                                    background: '#f8f9fa',
+                                    borderRadius: '20px',
+                                    padding: '8px 16px',
+                                    border: '1px solid #e9ecef'
                                 }}>
-                                    {placement.fileHistory.length} files
-                                </span>
+                                    <span style={{
+                                        color: '#495057',
+                                        fontWeight: '600',
+                                        fontSize: '0.9rem'
+                                    }}>
+                                        {filteredFileHistory.length} of {placement.fileHistory.length} files
+                                    </span>
+                                </div>
+                                <div className="placement-university-filter-wrap">
+                                    <label className="placement-university-filter-label" htmlFor="placement-university-filter">
+                                        Course Name
+                                    </label>
+                                    <select
+                                        id="placement-university-filter"
+                                        className="form-select placement-university-filter-select"
+                                        value={selectedCourseName}
+                                        onChange={(event) => setSelectedCourseName(event.target.value)}
+                                    >
+                                        <option value="all">All Course Name</option>
+                                        {courseNameOptions.map((courseName) => (
+                                            <option key={courseName} value={courseName.toLowerCase()}>
+                                                {courseName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div className="timeline" style={{
@@ -658,7 +700,12 @@ function PlacementDetails() {
                             overflowY: 'auto',
                             paddingRight: '8px'
                         }}>
-                            {placement.fileHistory.slice().reverse().map((file, index) => {
+                            {filteredFileHistory.length === 0 ? (
+                                <div className="placement-file-history-empty">
+                                    <i className="fa fa-filter"></i>
+                                    <span>No uploaded files match the selected university.</span>
+                                </div>
+                            ) : filteredFileHistory.slice().reverse().map((file, index) => {
                                 console.log('File object:', file); // Debug log
                                 return (
                                 <div key={file._id || index} className="timeline-item mb-4">

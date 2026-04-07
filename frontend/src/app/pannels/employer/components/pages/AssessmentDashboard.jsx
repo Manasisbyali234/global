@@ -7,6 +7,14 @@ import '../../../../../assessment-modal-fix.css';
 import '../../../../../assessment-title-hide.css';
 
 import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
+
+const STATUS_OPTIONS = [
+	{ value: "all", label: "All Status" },
+	{ value: "draft", label: "Draft" },
+	{ value: "published", label: "Published" },
+	{ value: "archived", label: "Archived" }
+];
+
 export default function AssessmentDashboard() {
 	const [assessments, setAssessments] = useState([]);
 	const [filteredAssessments, setFilteredAssessments] = useState([]);
@@ -14,6 +22,9 @@ export default function AssessmentDashboard() {
 	const [loading, setLoading] = useState(true);
 	const [editingAssessment, setEditingAssessment] = useState(null);
 	const [selectedAssessmentId, setSelectedAssessmentId] = useState("");
+	const [selectedStatus, setSelectedStatus] = useState("all");
+	const [companySearch, setCompanySearch] = useState("");
+	const [isConsultantEmployer, setIsConsultantEmployer] = useState(false);
 	const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 	const selectorRef = useRef(null);
 
@@ -39,6 +50,9 @@ export default function AssessmentDashboard() {
 
 	const getSelectedAssessment = () =>
 		assessments.find((assessment) => assessment._id === selectedAssessmentId) || null;
+
+	const getAssessmentStatus = (assessment) =>
+		String(assessment?.status || "published").trim().toLowerCase();
 
 	const handleCreateAssessmentClick = () => {
 		const securityMessage = (
@@ -98,26 +112,29 @@ export default function AssessmentDashboard() {
 
 	useEffect(() => {
 		fetchAssessments();
+		fetchEmployerType();
 	}, []);
 
 	useEffect(() => {
-		if (!selectedAssessmentId) {
-			setFilteredAssessments(assessments);
-			return;
-		}
-
-		const filtered = assessments.filter(
-			(assessment) => assessment._id === selectedAssessmentId
-		);
-
-		if (filtered.length === 0) {
+		if (selectedAssessmentId && !assessments.some((assessment) => assessment._id === selectedAssessmentId)) {
 			setSelectedAssessmentId("");
-			setFilteredAssessments(assessments);
-			return;
 		}
+	}, [assessments, selectedAssessmentId]);
+
+	useEffect(() => {
+		const normalizedCompanySearch = String(companySearch || '').trim().toLowerCase();
+		const filtered = assessments.filter((assessment) => {
+			const matchesAssessment = !selectedAssessmentId || assessment._id === selectedAssessmentId;
+			const matchesStatus = selectedStatus === "all" || getAssessmentStatus(assessment) === selectedStatus;
+			const matchesCompany =
+				!isConsultantEmployer ||
+				!normalizedCompanySearch ||
+				String(assessment.companyName || '').toLowerCase().includes(normalizedCompanySearch);
+			return matchesAssessment && matchesStatus && matchesCompany;
+		});
 
 		setFilteredAssessments(filtered);
-	}, [assessments, selectedAssessmentId]);
+	}, [assessments, selectedAssessmentId, selectedStatus, companySearch, isConsultantEmployer]);
 
 	useEffect(() => {
 		const handlePointerDown = (event) => {
@@ -140,6 +157,19 @@ export default function AssessmentDashboard() {
 			console.error('Error fetching assessments:', error);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const fetchEmployerType = async () => {
+		try {
+			const response = await api.getEmployerProfile();
+			if (response?.success && response.profile) {
+				const employerType = String(response.profile?.employerId?.employerType || '').toLowerCase();
+				const employerCategory = String(response.profile?.employerCategory || '').toLowerCase();
+				setIsConsultantEmployer(employerType === 'consultant' || employerCategory === 'consultancy');
+			}
+		} catch (error) {
+			console.error('Error fetching employer profile:', error);
 		}
 	};
 
@@ -303,6 +333,37 @@ export default function AssessmentDashboard() {
 							</div>
 						)}
 					</div>
+					<div className="assessment-status-filter-wrap">
+						<label className="form-label mb-0 fw-semibold assessment-selector-label assessment-status-filter-label">Status:</label>
+						<select
+							className="form-select assessment-status-filter-select"
+							value={selectedStatus}
+							onChange={(e) => setSelectedStatus(e.target.value)}
+						>
+							{STATUS_OPTIONS.map((option) => (
+								<option key={option.value} value={option.value}>
+									{option.label}
+								</option>
+							))}
+						</select>
+					</div>
+					{isConsultantEmployer && (
+						<div className="assessment-company-search-wrap">
+							<label className="form-label mb-0 fw-semibold assessment-selector-label assessment-status-filter-label">
+								Company:
+							</label>
+							<div className="assessment-search-input-wrap">
+								<i className="fa fa-search assessment-search-icon" aria-hidden="true"></i>
+								<input
+									type="text"
+									className="form-control assessment-company-search-input"
+									placeholder="Search company"
+									value={companySearch}
+									onChange={(event) => setCompanySearch(event.target.value)}
+								/>
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
 
@@ -313,6 +374,12 @@ export default function AssessmentDashboard() {
 						<div className="text-center py-5">
 							<i className="fa fa-clipboard-list" style={{fontSize: '64px', color: '#ccc'}}></i>
 							<p className="mt-3 text-muted">No assessments yet. Create one to get started.</p>
+						</div>
+					) : filteredAssessments.length === 0 ? (
+						<div className="text-center py-5">
+							<i className="fa fa-filter" style={{fontSize: '56px', color: '#cbd5e1'}}></i>
+							<p className="mt-3 text-muted mb-1">No assessments match the selected filters.</p>
+							<small className="text-muted">Try changing the selected assessment or status.</small>
 						</div>
 					) : (
 						<div className="row">

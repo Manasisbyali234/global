@@ -262,7 +262,10 @@ const updateInterviewProcessAssessmentStage = async (applicationId, assessmentId
 // Employer: Create Assessment
 exports.createAssessment = async (req, res) => {
   try {
-    const { title, type, designation, description, instructions, timer, questions, passingPercentage } = req.body;
+    const { title, type, designation, description, instructions, timer, questions, passingPercentage, status } = req.body;
+    const normalizedStatus = ['draft', 'published', 'archived'].includes(String(status || '').toLowerCase())
+      ? String(status).toLowerCase()
+      : 'published';
     
     console.log('Assessment creation request:', {
       title,
@@ -375,7 +378,7 @@ exports.createAssessment = async (req, res) => {
         imageUrl: q.imageUrl || ''
       })),
       passingPercentage: typeof passingPercentage === 'number' ? passingPercentage : (parseInt(passingPercentage) || 60),
-      status: 'published'
+      status: normalizedStatus
     });
 
     await assessment.save();
@@ -418,7 +421,10 @@ exports.getAssessmentDetails = async (req, res) => {
 // Employer: Update Assessment
 exports.updateAssessment = async (req, res) => {
   try {
-    const { title, type, designation, description, instructions, timer, questions, passingPercentage } = req.body;
+    const { title, type, designation, description, instructions, timer, questions, passingPercentage, status } = req.body;
+    const normalizedStatus = ['draft', 'published', 'archived'].includes(String(status || '').toLowerCase())
+      ? String(status).toLowerCase()
+      : undefined;
     
     // Additional server-side validation (same as create)
     if (!title || title.trim().length === 0) {
@@ -514,6 +520,10 @@ exports.updateAssessment = async (req, res) => {
       passingPercentage: typeof passingPercentage === 'number' ? passingPercentage : (parseInt(passingPercentage) || 60),
       updatedAt: Date.now()
     };
+
+    if (normalizedStatus) {
+      updateData.status = normalizedStatus;
+    }
     
     const assessment = await Assessment.findOneAndUpdate(
       { _id: req.params.id, employerId: req.user._id },

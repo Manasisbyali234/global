@@ -4,7 +4,7 @@ import { formatInterviewTime } from '../../../../utils/timeUtils';
 import { formatTimeToAMPM } from '../../../../utils/dateFormatter';
 // Route: /candidate/status
 
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
@@ -16,12 +16,32 @@ import PageLoader from "../../../../components/PageLoader";
 import "./status-styles.css";
 import "../../../../table-overflow-fix.css";
 
+const APPLICATION_STATUS_FILTER_OPTIONS = [
+	{ value: 'all', label: 'All Status' },
+	{ value: 'pending', label: 'Pending' },
+	{ value: 'shortlisted', label: 'Shortlisted' },
+	{ value: 'under_review', label: 'Under Review' },
+	{ value: 'interviewed', label: 'Interviewed' },
+	{ value: 'pending_decision', label: 'Pending Decision' },
+	{ value: 'offer_sent', label: 'Offer Letter Sent' },
+	{ value: 'accepted', label: 'Accepted' },
+	{ value: 'hired', label: 'Hired' },
+	{ value: 'selected', label: 'Selected' },
+	{ value: 'rejected', label: 'Rejected' },
+	{ value: 'on_hold', label: 'On Hold' },
+	{ value: 'no_show', label: 'No Show' },
+	{ value: 'completed', label: 'Completed' },
+	{ value: 'expired', label: 'Expired' },
+	{ value: 'suspended', label: 'Suspended' }
+];
+
 function CanStatusPage() {
 	const navigate = useNavigate();
 	const { applicationId } = useParams();
 	const isInterviewDetailsPage = !!applicationId;
 	const [applications, setApplications] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [selectedStatus, setSelectedStatus] = useState('all');
 	const [activeTab, setActiveTab] = useState('applications');
 	const [highlightShortlisted, setHighlightShortlisted] = useState(false);
 	const [highlightCompanyPosition, setHighlightCompanyPosition] = useState(false);
@@ -101,6 +121,22 @@ function CanStatusPage() {
 		}
 
 		return baseStatus;
+	};
+
+	const formatStatusLabel = (status) =>
+		String(status || 'pending')
+			.replace(/[_-]+/g, ' ')
+			.replace(/\s+/g, ' ')
+			.trim()
+			.replace(/\b\w/g, (char) => char.toUpperCase()) || 'Pending';
+
+	const getApplicationFilterStatus = (application = {}) => {
+		const applicationDisplayStatus = getApplicationDisplayStatus(application);
+		if (applicationDisplayStatus === 'pending' && application?.isSelectedForProcess) {
+			return 'shortlisted';
+		}
+
+		return applicationDisplayStatus;
 	};
 
 	const getAssessmentScheduleSource = (job, roundDetails = null) => ({
@@ -1601,6 +1637,34 @@ function CanStatusPage() {
 		return '';
 	};
 
+	const statusOptions = useMemo(() => {
+		const seen = new Set(APPLICATION_STATUS_FILTER_OPTIONS.map((option) => option.value));
+		const options = [...APPLICATION_STATUS_FILTER_OPTIONS];
+
+		applications.forEach((application) => {
+			const normalizedStatus = String(getApplicationFilterStatus(application) || 'pending').trim().toLowerCase();
+			if (!normalizedStatus || seen.has(normalizedStatus)) {
+				return;
+			}
+
+			seen.add(normalizedStatus);
+			options.push({
+				value: normalizedStatus,
+				label: formatStatusLabel(normalizedStatus)
+			});
+		});
+
+		return options;
+	}, [applications]);
+
+	const filteredApplications = useMemo(() => {
+		if (selectedStatus === 'all') {
+			return applications;
+		}
+
+		return applications.filter((application) => getApplicationFilterStatus(application) === selectedStatus);
+	}, [applications, selectedStatus]);
+
 	return (
 		<>
 			{!isInterviewDetailsPage && (
@@ -1643,7 +1707,24 @@ function CanStatusPage() {
 					)}
 
 					{/* Refresh Controls */}
-					<div className="d-flex justify-content-end align-items-center mb-3">
+					<div className="status-page-toolbar mb-3">
+						<div className="status-page-filter-group">
+							<label className="status-page-filter-label" htmlFor="candidate-status-filter">
+								Status
+							</label>
+							<select
+								id="candidate-status-filter"
+								className="status-page-filter-select"
+								value={selectedStatus}
+								onChange={(event) => setSelectedStatus(event.target.value)}
+							>
+								{statusOptions.map((option) => (
+									<option key={option.value} value={option.value}>
+										{option.label}
+									</option>
+								))}
+							</select>
+						</div>
 						<button 
 							className="btn btn-sm btn-outline-primary refresh-btn"
 							onClick={fetchApplications}
@@ -1709,8 +1790,18 @@ function CanStatusPage() {
 														</div>
 													</td>
 												</tr>
+											) : filteredApplications.length === 0 ? (
+												<tr>
+													<td colSpan="7" className="text-center py-5">
+														<div className="d-flex flex-column align-items-center">
+															<i className="fa fa-filter fa-3x mb-3" style={{color: '#ff6b35'}}></i>
+															<h5 style={{color: '#232323'}}>No Matching Applications</h5>
+															<p className="text-muted mb-0">No applications match the selected status filter.</p>
+														</div>
+													</td>
+												</tr>
 											) : (
-												applications.map((app, index) => {
+												filteredApplications.map((app, index) => {
 													const interviewRounds = getInterviewRounds(app.jobId, app);
 													const applicationDisplayStatus = getApplicationDisplayStatus(app);
 													const isShortlisted = applicationDisplayStatus === 'shortlisted';

@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { holidaysApi } from '../utils/holidaysApi';
-import { normalizeToYMD } from '../utils/holidayUtils';
+import { normalizeToYMD, parseLocalDate } from '../utils/holidayUtils';
+
+const getMonthStart = (value) => {
+  if (!value) return null;
+
+  const parsedDate =
+    value instanceof Date && !Number.isNaN(value.getTime())
+      ? value
+      : parseLocalDate(value);
+
+  if (!parsedDate) return null;
+
+  return new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+};
 
 const EnhancedCalendar = ({ 
   selectedDate, 
@@ -12,7 +25,7 @@ const EnhancedCalendar = ({
   disableHolidays = false,
   disableWeekends = false 
 }) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => getMonthStart(selectedDate) || new Date());
   const [holidays, setHolidays] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -21,6 +34,22 @@ const EnhancedCalendar = ({
       fetchHolidays();
     }
   }, [currentMonth, showHolidays]);
+
+  useEffect(() => {
+    const selectedMonth = getMonthStart(selectedDate);
+    if (!selectedMonth) return;
+
+    setCurrentMonth((prevMonth) => {
+      if (
+        prevMonth.getFullYear() === selectedMonth.getFullYear() &&
+        prevMonth.getMonth() === selectedMonth.getMonth()
+      ) {
+        return prevMonth;
+      }
+
+      return selectedMonth;
+    });
+  }, [selectedDate]);
 
   const fetchHolidays = async () => {
     setLoading(true);

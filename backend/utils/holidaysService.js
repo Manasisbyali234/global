@@ -32,7 +32,7 @@ class HolidaysService {
         { date: '2026-03-20', name: 'Eid ul-Fitr', localName: 'Eid ul-Fitr' },
         { date: '2026-04-02', name: 'Ram Navami', localName: 'Ram Navami' },
         { date: '2026-04-03', name: 'Good Friday', localName: 'Good Friday' },
-        { date: '2026-04-06', name: 'Mahavir Jayanti', localName: 'Mahavir Jayanti' },
+        { date: '2026-03-31', name: 'Mahavir Jayanti', localName: 'Mahavir Jayanti' },
         { date: '2026-04-14', name: 'Baisakhi', localName: 'Baisakhi' },
         { date: '2026-05-01', name: 'Labour Day', localName: 'Labour Day' },
         { date: '2026-05-11', name: 'Buddha Purnima', localName: 'Buddha Purnima' },

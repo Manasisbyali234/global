@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Row, Col } from "react-bootstrap";
 import { loadScript } from "../../../../globals/constants";
@@ -281,8 +281,11 @@ function CanInterviewsPage() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [employerLogos, setEmployerLogos] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [showInterviewInstructionsModal, setShowInterviewInstructionsModal] = useState(false);
   const [pendingInterviewApplicationId, setPendingInterviewApplicationId] = useState(null);
+  const deferredSearchTerm = useDeferredValue(searchTerm);
 
   useEffect(() => {
     loadScript("js/custom.js");
@@ -425,21 +428,99 @@ function CanInterviewsPage() {
     return cards;
   }, [applications, employerLogos]);
 
+  const statusOptions = useMemo(() => {
+    const seen = new Set();
+    const options = [{ value: "all", label: "All Status" }];
+
+    applicationCards.forEach((card) => {
+      const normalizedStatus = String(card.status || "pending").toLowerCase();
+      if (seen.has(normalizedStatus)) {
+        return;
+      }
+
+      seen.add(normalizedStatus);
+      const badge = getStatusBadge(normalizedStatus);
+      options.push({
+        value: normalizedStatus,
+        label: badge.text
+      });
+    });
+
+    return options;
+  }, [applicationCards]);
+
+  const filteredApplicationCards = useMemo(() => {
+    const normalizedSearch = String(deferredSearchTerm || "").trim().toLowerCase();
+    return applicationCards.filter((card) => {
+      const normalizedStatus = String(card.status || "pending").toLowerCase();
+      const companyName = String(card.companyName || "").toLowerCase();
+      const jobTitle = String(card.jobTitle || "").toLowerCase();
+      const matchesSearch =
+        !normalizedSearch ||
+        companyName.includes(normalizedSearch) ||
+        jobTitle.includes(normalizedSearch);
+      const matchesStatus = selectedStatus === "all" || normalizedStatus === selectedStatus;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [applicationCards, deferredSearchTerm, selectedStatus]);
+
   return (
     <div className="twm-right-section-panel site-bg-gray candidate-interviews">
         <div className="candidate-interviews-header-card">
-          <h2>Interviews</h2>
-          <p>All your interviews in one place.</p>
+          <div className="candidate-interviews-header-top">
+            <div>
+              <h2>Interviews</h2>
+              <p>All your interviews in one place.</p>
+            </div>
+          </div>
+          <div className="candidate-interviews-header-controls">
+            <div className="candidate-interviews-field-group candidate-interviews-search-group">
+              <label className="candidate-interviews-inline-label" htmlFor="candidate-interviews-search">
+                Search
+              </label>
+              <div className="candidate-interviews-search-input-wrap">
+                <i className="fa fa-search candidate-interviews-search-icon" aria-hidden="true" />
+                <input
+                  id="candidate-interviews-search"
+                  type="text"
+                  className="candidate-interviews-search-input"
+                  placeholder="Company or job title"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                />
+              </div>
+            </div>
+            <div className="candidate-interviews-field-group candidate-interviews-filter-wrap">
+              <label className="candidate-interviews-inline-label" htmlFor="candidate-interviews-status-filter">
+                Status
+              </label>
+              <select
+                id="candidate-interviews-status-filter"
+                className="candidate-interviews-filter-select"
+                value={selectedStatus}
+                onChange={(event) => setSelectedStatus(event.target.value)}
+              >
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
       {loading ? (
         <div className="candidate-interviews-empty">Loading interviews...</div>
       ) : applicationCards.length === 0 ? (
         <div className="candidate-interviews-empty">No interviews available yet.</div>
+      ) : filteredApplicationCards.length === 0 ? (
+        <div className="candidate-interviews-empty">No interviews match your search or status filter.</div>
       ) : (
         <div className="twm-employer-list-wrap">
           <Row className="justify-content-start">
-            {applicationCards.map((card) => {
+            {filteredApplicationCards.map((card) => {
               const badge = getStatusBadge(card.status);
               const companyInitial = (card.companyName || "C").charAt(0);
               const logoSrc = getLogoSrc(card.companyLogo);

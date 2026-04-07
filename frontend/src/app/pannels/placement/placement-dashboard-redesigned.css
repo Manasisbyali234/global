@@ -971,6 +971,33 @@
     margin-bottom: 20px;
 }
 
+.activity-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.activity-search {
+    min-width: 320px;
+}
+
+.activity-search input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    outline: none;
+    background-color: var(--primary-white);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.activity-search input::placeholder {
+    color: var(--text-muted);
+}
+
 .header-left h3 {
     font-size: 18px;
     font-weight: 600;
@@ -2041,6 +2068,32 @@
     font-weight: 600;
 }
 
+.upload-history-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.upload-history-search {
+    min-width: 320px;
+}
+
+.upload-history-search input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    outline: none;
+    background-color: var(--primary-white);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.upload-history-search input::placeholder {
+    color: var(--text-muted);
+}
+
 .upload-history-table {
     overflow-x: auto;
 }
@@ -2323,6 +2376,22 @@
     .dashboard-container .upload-history-table {
         overflow-x: auto !important;
     }
+
+    .activity-header {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .activity-header-actions {
+        width: 100% !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .activity-search {
+        min-width: 100% !important;
+        width: 100% !important;
+    }
 }
 
 /* Status indicators for overview activity */
@@ -2505,6 +2574,17 @@
         align-items: flex-start !important;
         gap: 8px !important;
         margin-bottom: 16px !important;
+    }
+
+    .upload-history-header-actions {
+        width: 100% !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .upload-history-search {
+        min-width: 100% !important;
+        width: 100% !important;
     }
     
     .upload-history-section .section-header h3 {

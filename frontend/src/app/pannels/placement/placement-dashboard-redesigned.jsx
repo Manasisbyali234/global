@@ -79,6 +79,8 @@ function PlacementDashboardRedesigned() {
     const [resubmitting, setResubmitting] = useState(false);
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [selectedRejectionReason, setSelectedRejectionReason] = useState('');
+    const [activitySearch, setActivitySearch] = useState('');
+    const [uploadHistorySearch, setUploadHistorySearch] = useState('');
     const [stats, setStats] = useState({
         totalStudents: 0,
         avgCredits: 0,
@@ -598,6 +600,33 @@ function PlacementDashboardRedesigned() {
         showSuccess('Statistics recalculated successfully!');
     };
 
+    const activitySearchTerm = activitySearch.trim().toLowerCase();
+    const filteredRecentActivity = (placementData?.fileHistory || [])
+        .filter((file) => {
+            if (!activitySearchTerm) return true;
+
+            return [
+                file.customName,
+                file.university,
+                file.batch
+            ].some((value) => String(value || '').toLowerCase().includes(activitySearchTerm));
+        })
+        .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))
+        .slice(0, 5);
+
+    const uploadHistorySearchTerm = uploadHistorySearch.trim().toLowerCase();
+    const filteredFileHistory = (placementData?.fileHistory || []).filter((file) => {
+        if (!uploadHistorySearchTerm) return true;
+
+        return [
+            file.fileName,
+            file.customName,
+            file.university,
+            file.batch,
+            file.status
+        ].some((value) => String(value || '').toLowerCase().includes(uploadHistorySearchTerm));
+    });
+
     if (authLoading) {
         return (
             <div className="dashboard-container">
@@ -868,14 +897,23 @@ function PlacementDashboardRedesigned() {
                                                 <h3>Recent Batch Activity</h3>
                                                 <p className="activity-subtitle">Track your latest batch uploads and processing status</p>
                                             </div>
-                                            <a href="#" className="manage-all-link">Manage All Batches</a>
+                                            <div className="activity-header-actions">
+                                                <div className="activity-search">
+                                                    <input
+                                                        type="text"
+                                                        value={activitySearch}
+                                                        onChange={(e) => setActivitySearch(e.target.value)}
+                                                        placeholder="Search by batch, university, course name"
+                                                        aria-label="Search recent batch activity"
+                                                    />
+                                                </div>
+                                                <a href="#" className="manage-all-link">Manage All Batches</a>
+                                            </div>
                                         </div>
                                         <div className="activity-list">
                                             {placementData?.fileHistory && placementData.fileHistory.length > 0 ? (
-                                                placementData.fileHistory
-                                                    .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)) // Sort by newest first
-                                                    .slice(0, 5)
-                                                    .map((file, index) => (
+                                                filteredRecentActivity.length > 0 ? (
+                                                    filteredRecentActivity.map((file, index) => (
                                                     <div key={file._id || index} className="activity-item">
                                                         <div className="activity-content">
                                                             <div className="batch-name">{file.customName || file.fileName}</div>
@@ -893,6 +931,12 @@ function PlacementDashboardRedesigned() {
                                                         </div>
                                                     </div>
                                                 ))
+                                                ) : (
+                                                    <div className="no-activity">
+                                                        <i className="fa fa-search"></i>
+                                                        <p>No recent batch activity matches your search</p>
+                                                    </div>
+                                                )
                                             ) : (
                                                 <div className="no-activity">
                                                     <i className="fa fa-history"></i>
@@ -1317,7 +1361,22 @@ function PlacementDashboardRedesigned() {
                                     <div className="upload-history-section">
                                         <div className="section-header">
                                             <h3>Upload History</h3>
-                                            <div className="history-count">{placementData?.fileHistory?.length || 0} Files</div>
+                                            <div className="upload-history-header-actions">
+                                                <div className="upload-history-search">
+                                                    <input
+                                                        type="text"
+                                                        value={uploadHistorySearch}
+                                                        onChange={(e) => setUploadHistorySearch(e.target.value)}
+                                                        placeholder="Search by file, course, university, batch"
+                                                        aria-label="Search upload history"
+                                                    />
+                                                </div>
+                                                <div className="history-count">
+                                                    {filteredFileHistory.length}
+                                                    {uploadHistorySearchTerm ? ` of ${placementData?.fileHistory?.length || 0}` : ''}
+                                                    {' '}Files
+                                                </div>
+                                            </div>
                                         </div>
                                         <div className="upload-history-table table-responsive">
                                             {console.log('File history data:', placementData?.fileHistory)}
@@ -1336,84 +1395,93 @@ function PlacementDashboardRedesigned() {
                                                 </thead>
                                                 <tbody>
                                                     {placementData?.fileHistory && placementData.fileHistory.length > 0 ? (
-                                                        placementData.fileHistory.map((file, index) => {
-                                                            console.log('Rendering file:', file);
-                                                            return (
-                                                            <tr key={file._id || index}>
-                                                                <td>{file.fileName}</td>
-                                                                <td>{file.customName || '-'}</td>
-                                                                <td>{file.university || '-'}</td>
-                                                                <td>{file.batch || '-'}</td>
-                                                                <td>{formatDate(file.uploadedAt)}</td>
-                                                                <td>
-                                                                    <span className={`status-badge ${
-                                                                        file.status === 'processed' ? 'status-success' : 
-                                                                        file.status === 'approved' ? 'status-info' : 
-                                                                        file.status === 'rejected' ? 'status-danger' : 'status-warning'
-                                                                    }`}>
-                                                                        {file.status === 'processed' ? 'Approved' : file.status || 'Pending'}
-                                                                    </span>
-                                                                </td>
-                                                                <td>
-                                                                    {file.status === 'rejected' && file.rejectionReason ? (
-                                                                        <button 
-                                                                            className="eye-btn"
-                                                                            onClick={() => {
-                                                                                setSelectedRejectionReason(file.rejectionReason);
-                                                                                setShowRejectionModal(true);
-                                                                            }}
-                                                                            title="View rejection reason"
-                                                                            style={{
-                                                                                background: 'none',
-                                                                                border: 'none',
-                                                                                color: '#dc3545',
-                                                                                fontSize: '16px',
-                                                                                cursor: 'pointer',
-                                                                                padding: '4px 8px',
-                                                                                borderRadius: '4px',
-                                                                                transition: 'background-color 0.2s'
-                                                                            }}
-                                                                            onMouseEnter={(e) => e.target.style.backgroundColor = '#fff5f5'}
-                                                                            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                                                                        >
-                                                                            <i className="fa fa-eye"></i>
-                                                                        </button>
-                                                                    ) : (
-                                                                        '-'
-                                                                    )}
-                                                                </td>
-                                                                <td>
-                                                                    <div className="d-flex gap-2">
-                                                                        <button 
-                                                                            className="view-btn"
-                                                                            onClick={() => handleViewFile(file._id, file.fileName)}
-                                                                            title="View file data"
-                                                                        >
-                                                                            <i className="fa fa-eye"></i>
-                                                                        </button>
-                                                                        {file.status === 'rejected' && (
+                                                        filteredFileHistory.length > 0 ? (
+                                                            filteredFileHistory.map((file, index) => {
+                                                                console.log('Rendering file:', file);
+                                                                return (
+                                                                <tr key={file._id || index}>
+                                                                    <td>{file.fileName}</td>
+                                                                    <td>{file.customName || '-'}</td>
+                                                                    <td>{file.university || '-'}</td>
+                                                                    <td>{file.batch || '-'}</td>
+                                                                    <td>{formatDate(file.uploadedAt)}</td>
+                                                                    <td>
+                                                                        <span className={`status-badge ${
+                                                                            file.status === 'processed' ? 'status-success' : 
+                                                                            file.status === 'approved' ? 'status-info' : 
+                                                                            file.status === 'rejected' ? 'status-danger' : 'status-warning'
+                                                                        }`}>
+                                                                            {file.status === 'processed' ? 'Approved' : file.status || 'Pending'}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td>
+                                                                        {file.status === 'rejected' && file.rejectionReason ? (
                                                                             <button 
-                                                                                className="reupload-btn"
-                                                                                onClick={() => handleResubmitFile(file)}
-                                                                                title="Reupload corrected file"
-                                                                                style={{
-                                                                                    backgroundColor: '#28a745',
-                                                                                    color: 'white',
-                                                                                    border: 'none',
-                                                                                    borderRadius: '4px',
-                                                                                    padding: '6px 10px',
-                                                                                    fontSize: '0.8rem',
-                                                                                    cursor: 'pointer'
+                                                                                className="eye-btn"
+                                                                                onClick={() => {
+                                                                                    setSelectedRejectionReason(file.rejectionReason);
+                                                                                    setShowRejectionModal(true);
                                                                                 }}
+                                                                                title="View rejection reason"
+                                                                                style={{
+                                                                                    background: 'none',
+                                                                                    border: 'none',
+                                                                                    color: '#dc3545',
+                                                                                    fontSize: '16px',
+                                                                                    cursor: 'pointer',
+                                                                                    padding: '4px 8px',
+                                                                                    borderRadius: '4px',
+                                                                                    transition: 'background-color 0.2s'
+                                                                                }}
+                                                                                onMouseEnter={(e) => e.target.style.backgroundColor = '#fff5f5'}
+                                                                                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                                                                             >
-                                                                                <i className="fa fa-upload"></i>
+                                                                                <i className="fa fa-eye"></i>
                                                                             </button>
+                                                                        ) : (
+                                                                            '-'
                                                                         )}
-                                                                    </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div className="d-flex gap-2">
+                                                                            <button 
+                                                                                className="view-btn"
+                                                                                onClick={() => handleViewFile(file._id, file.fileName)}
+                                                                                title="View file data"
+                                                                            >
+                                                                                <i className="fa fa-eye"></i>
+                                                                            </button>
+                                                                            {file.status === 'rejected' && (
+                                                                                <button 
+                                                                                    className="reupload-btn"
+                                                                                    onClick={() => handleResubmitFile(file)}
+                                                                                    title="Reupload corrected file"
+                                                                                    style={{
+                                                                                        backgroundColor: '#28a745',
+                                                                                        color: 'white',
+                                                                                        border: 'none',
+                                                                                        borderRadius: '4px',
+                                                                                        padding: '6px 10px',
+                                                                                        fontSize: '0.8rem',
+                                                                                        cursor: 'pointer'
+                                                                                    }}
+                                                                                >
+                                                                                    <i className="fa fa-upload"></i>
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                );
+                                                            })
+                                                        ) : (
+                                                            <tr>
+                                                                <td colSpan="8" style={{textAlign: 'center', padding: '40px'}}>
+                                                                    <i className="fa fa-search" style={{fontSize: '32px', marginBottom: '12px', opacity: '0.5'}}></i>
+                                                                    <p>No upload history matches your search</p>
                                                                 </td>
                                                             </tr>
-                                                            );
-                                                        })
+                                                        )
                                                     ) : (
                                                         <tr>
                                                             <td colSpan="8" style={{textAlign: 'center', padding: '40px'}}>

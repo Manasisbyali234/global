@@ -74,7 +74,7 @@ const LOCAL_IN_HOLIDAYS = {
   '2026-03-20': 'Eid ul-Fitr',
   '2026-04-02': 'Ram Navami',
   '2026-04-03': 'Good Friday',
-  '2026-04-06': 'Mahavir Jayanti',
+  '2026-03-31': 'Mahavir Jayanti',
   '2026-04-14': 'Baisakhi',
   '2026-05-01': 'Labour Day',
   '2026-05-11': 'Buddha Purnima',

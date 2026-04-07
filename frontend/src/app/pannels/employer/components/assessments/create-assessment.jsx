@@ -224,6 +224,22 @@ function CreateAssessmentPage() {
                                         <style>{`.assessment-card .card-body > *:first-child { display: none !important; }`}</style>
                                         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
                                             <div className="flex-grow-1 w-100">
+                                                {String(assessment.status || '').toLowerCase() === 'draft' && (
+                                                    <span
+                                                        className="badge mb-2"
+                                                        style={{
+                                                            backgroundColor: '#fff3cd',
+                                                            color: '#92400e',
+                                                            border: '1px solid #f59e0b',
+                                                            fontSize: '11px',
+                                                            fontWeight: '700',
+                                                            letterSpacing: '0.04em',
+                                                            textTransform: 'uppercase'
+                                                        }}
+                                                    >
+                                                        Draft
+                                                    </span>
+                                                )}
                                                 {assessment.companyName && (
                                                     <h6 className="mb-1" style={{fontSize: '14px', fontWeight: '600', wordWrap: 'break-word', overflowWrap: 'break-word'}}>
                                                         <span style={{color: '#8B7355'}}>Company:</span> <span className="text-primary">{assessment.companyName}</span>

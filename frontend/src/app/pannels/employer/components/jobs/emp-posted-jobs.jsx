@@ -13,6 +13,7 @@ export default function EmpPostedJobs() {
     const [filteredJobs, setFilteredJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
+    const [designationFilter, setDesignationFilter] = useState('all');
     const [searchText, setSearchText] = useState('');
     const [applicationCounts, setApplicationCounts] = useState({});
     
@@ -25,9 +26,12 @@ export default function EmpPostedJobs() {
         // Filter by status first
         let next = jobs;
         if (statusFilter === 'active') {
-            next = jobs.filter(job => job.status === 'active');
-        } else if (statusFilter === 'inactive') {
-            next = jobs.filter(job => job.status !== 'active');
+            next = jobs.filter(job => getDisplayStatus(job) === 'active');
+        } else if (statusFilter === 'closed') {
+            next = jobs.filter(job => getDisplayStatus(job) === 'closed');
+        }
+        if (designationFilter !== 'all') {
+            next = next.filter(job => String(job.title || '').trim().toLowerCase() === designationFilter);
         }
         // Then filter by search text (title, location, and company name)
         const query = (searchText || '').trim().toLowerCase();
@@ -42,7 +46,7 @@ export default function EmpPostedJobs() {
             });
         }
         setFilteredJobs(next);
-    }, [jobs, statusFilter, searchText]);
+    }, [jobs, statusFilter, designationFilter, searchText]);
 
     const jobSuggestions = useMemo(() => {
         const suggestions = new Set();
@@ -53,6 +57,17 @@ export default function EmpPostedJobs() {
             }
         });
         return Array.from(suggestions).sort((a, b) => a.localeCompare(b));
+    }, [jobs]);
+
+    const designationOptions = useMemo(() => {
+        const titles = new Set();
+        jobs.forEach((job) => {
+            const title = String(job.title || '').trim();
+            if (title) {
+                titles.add(title);
+            }
+        });
+        return Array.from(titles).sort((a, b) => a.localeCompare(b));
     }, [jobs]);
 
 
@@ -114,6 +129,30 @@ export default function EmpPostedJobs() {
 
     const formatDate = (dateString) => {
         return formatDateUtil(dateString);
+    };
+
+    const isOfferLetterDatePassed = (job) => {
+        if (!job?.offerLetterDate) return false;
+
+        const offerDate = new Date(job.offerLetterDate);
+        if (Number.isNaN(offerDate.getTime())) return false;
+
+        // Keep the job open through the full offer-letter date and close it the day after.
+        const offerDateEnd = new Date(
+            offerDate.getFullYear(),
+            offerDate.getMonth(),
+            offerDate.getDate(),
+            23, 59, 59, 999
+        );
+
+        return Date.now() > offerDateEnd.getTime();
+    };
+
+    const getDisplayStatus = (job) => {
+        const normalizedStatus = String(job?.status || '').trim().toLowerCase();
+        if (normalizedStatus === 'closed') return 'closed';
+        if (isOfferLetterDatePassed(job)) return 'closed';
+        return normalizedStatus || 'active';
     };
 
     const getStatusBadge = (status) => {
@@ -226,6 +265,20 @@ export default function EmpPostedJobs() {
 								))}
 							</datalist>
 						</div>
+                        <div style={{minWidth: '220px', flex: '0 1 240px'}}>
+                            <select
+                                className="form-select"
+                                value={designationFilter}
+                                onChange={(e) => setDesignationFilter(e.target.value)}
+                            >
+                                <option value="all">All Designation</option>
+                                {designationOptions.map((designation) => (
+                                    <option key={designation} value={designation.toLowerCase()}>
+                                        {designation}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 						<div className="d-flex gap-2">
 							<button 
 								type="button" 
@@ -243,10 +296,10 @@ export default function EmpPostedJobs() {
 							</button>
 							<button 
 								type="button" 
-								className={`btn ${statusFilter === 'inactive' ? 'btn-secondary' : 'btn-outline-secondary'}`}
-								onClick={() => setStatusFilter('inactive')}
+								className={`btn ${statusFilter === 'closed' ? 'btn-secondary' : 'btn-outline-secondary'}`}
+								onClick={() => setStatusFilter('closed')}
 							>
-								Inactive
+								Closed
 							</button>
 						</div>
 					</div>
@@ -264,15 +317,17 @@ export default function EmpPostedJobs() {
                                     <p className="text-muted">No jobs posted yet.</p>
                                 </div>
                             ) : (
-								filteredJobs.map((job) => (
+								filteredJobs.map((job) => {
+									const displayStatus = getDisplayStatus(job);
+									return (
 									<div className="col-lg-6 col-12" key={job._id}>
 										<div className="manage-jobs-card p-4 border rounded-3 mb-4 shadow-sm bg-white position-relative" style={{cursor: 'pointer', transition: 'all 0.3s ease'}} onClick={() => handleJobClick(job._id)}>
 											{/* Top Section: Title and Status */}
 											<div className="d-flex justify-content-between align-items-start mb-3 manage-jobs-card__header">
 												<h5 className="mb-0 fw-bold text-dark manage-jobs-card__title" style={{fontSize: '1.2rem'}}>{job.title}</h5>
-												{job.status !== 'closed' && (
-													<span className={`badge ${getStatusBadge(job.status)} text-capitalize px-3 py-2 rounded-pill`}>
-														{job.status}
+												{displayStatus !== 'closed' && (
+													<span className={`badge ${getStatusBadge(displayStatus)} text-capitalize px-3 py-2 rounded-pill`}>
+														{displayStatus}
 													</span>
 												)}
 											</div>
@@ -314,10 +369,10 @@ export default function EmpPostedJobs() {
 														<Calendar size={14} className="me-2" />
 														<span>Posted: {formatDate(job.createdAt)}</span>
 													</div>
-													{job.status === 'closed' && (
+													{displayStatus === 'closed' && (
 														<div className="d-flex align-items-center mt-1 text-danger fw-bold manage-jobs-card__date-row">
 															<AlertCircle size={14} className="me-2" />
-															<span style={{ whiteSpace: 'nowrap' }}>Status: Application Closed</span>
+															<span style={{ whiteSpace: 'nowrap' }}>Status: Closed</span>
 														</div>
 													)}
 													{job.offerLetterDate && (
@@ -340,7 +395,8 @@ export default function EmpPostedJobs() {
 											</div>
 										</div>
 									</div>
-								))
+								);
+								})
 							)}
 						</div>
 					)}

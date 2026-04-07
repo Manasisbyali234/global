@@ -34,6 +34,28 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 		return temp.textContent || temp.innerText || "";
 	};
 
+	const autoCapitalizeText = (value = "") =>
+		String(value).replace(/(^|[\s([{'"`/\\-]+)([a-z])/g, (match, prefix, character) => `${prefix}${character.toUpperCase()}`);
+
+	const autoCapitalizeRichText = (value = "") => {
+		if (!value || typeof document === "undefined") return value;
+
+		const temp = document.createElement("div");
+		temp.innerHTML = value;
+
+		const transformNode = (node) => {
+			if (node.nodeType === Node.TEXT_NODE) {
+				node.textContent = autoCapitalizeText(node.textContent || "");
+				return;
+			}
+
+			node.childNodes.forEach(transformNode);
+		};
+
+		transformNode(temp);
+		return temp.innerHTML;
+	};
+
 	useEffect(() => {
 		disableBodyScroll();
 		
@@ -84,7 +106,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 
 	const handleQuestionChange = (index, field, value) => {
 		const updated = [...questions];
-		if (field === "question") updated[index].question = value;
+		if (field === "question") updated[index].question = autoCapitalizeRichText(value);
 		if (field === "marks") updated[index].marks = value;
 		if (field === "type") {
 			updated[index].type = value;
@@ -104,7 +126,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 
 	const handleOptionChange = (qIndex, optIndex, value) => {
 		const updated = [...questions];
-		updated[qIndex].options[optIndex] = value;
+		updated[qIndex].options[optIndex] = autoCapitalizeText(value);
 		setQuestions(updated);
 		
 		// Clear error for this option when user starts typing
@@ -477,7 +499,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							className="form-control"
 							placeholder="Enter designation (e.g., Software Engineer)"
 							value={designation}
-							onChange={(e) => setDesignation(e.target.value)}
+							onChange={(e) => setDesignation(autoCapitalizeText(e.target.value))}
 							list="designations"
 							required
 							style={{
@@ -531,7 +553,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							<select
 								className="form-select"
 								value={companyName}
-								onChange={(e) => setCompanyName(e.target.value)}
+								onChange={(e) => setCompanyName(autoCapitalizeText(e.target.value))}
 								required
 								disabled={approvedCompaniesLoading || approvedCompanies.length === 0}
 								style={{
@@ -582,7 +604,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 							className="form-control"
 							placeholder="Enter assessment title (e.g., Aptitude Test)"
 							value={title}
-							onChange={(e) => setTitle(e.target.value)}
+							onChange={(e) => setTitle(autoCapitalizeText(e.target.value))}
 							required
 							style={{
 								borderColor: title ? '#10b981' : '#dc2626',
@@ -662,7 +684,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 						</label>
 						<RichTextEditor
 							value={description}
-							onChange={setDescription}
+							onChange={(value) => setDescription(autoCapitalizeRichText(value))}
 							placeholder="Provide instructions for this assessment..."
 							className="form-control-editor"
 						/>
