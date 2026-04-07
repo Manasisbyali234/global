@@ -427,44 +427,6 @@ function SectionCanPersonalDetail({ profile }) {
                             </div>
 
                             <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-map-pin me-1"></i> Pincode <span style={{color: 'red'}}>*</span></label>
-                                <input
-                                    className="form-control"
-                                    type="text"
-                                    placeholder="Pincode fetched from profile"
-                                    value={formData.pincode}
-                                    readOnly
-                                    style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
-                                />
-                                <small className="text-muted">Pincode is fetched from your profile page</small>
-                            </div>
-
-                            <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-map-marker me-1"></i> Location <span style={{color: 'red'}}>*</span></label>
-                                <input
-                                    className="form-control"
-                                    type="text"
-                                    placeholder="Location fetched from profile"
-                                    value={formData.location}
-                                    readOnly
-                                    style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
-                                />
-                                <small className="text-muted">Location is fetched from your profile page</small>
-                            </div>
-
-                            <div className="col-12 col-md-6 mb-3">
-                                <label><i className="fa fa-map me-1"></i> State Code <span style={{color: 'red'}}>*</span></label>
-                                <input
-                                    className="form-control"
-                                    type="text"
-                                    placeholder="State code fetched from profile"
-                                    value={formData.stateCode ? `${formData.stateCode} - ${indianStateCodes.find(state => state.code === formData.stateCode)?.name || ''}` : ''}
-                                    readOnly
-                                    style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
-                                />
-                                <small className="text-muted">State code is fetched from your profile page</small>
-                            </div>
-                            <div className="col-12 col-md-6 mb-3">
                                 <label className="required-field"><i className="fa fa-calendar me-1"></i> Date of Birth</label>
                                 <input
                                     className={`form-control ${errors.dateOfBirth ? 'is-invalid' : ''}`}
@@ -530,6 +492,45 @@ function SectionCanPersonalDetail({ profile }) {
                                     required
                                 />
                                 {errors.motherName && <div className="text-danger mt-1"><small>{errors.motherName}</small></div>}
+                            </div>
+
+                            <div className="col-12 col-md-6 mb-3">
+                                <label><i className="fa fa-map-pin me-1"></i> Pincode <span style={{color: 'red'}}>*</span></label>
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="Pincode fetched from profile"
+                                    value={formData.pincode}
+                                    readOnly
+                                    style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
+                                />
+                                <small className="text-muted">Pincode is fetched from your profile page</small>
+                            </div>
+
+                            <div className="col-12 col-md-6 mb-3">
+                                <label><i className="fa fa-map-marker me-1"></i> Location <span style={{color: 'red'}}>*</span></label>
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="Location fetched from profile"
+                                    value={formData.location}
+                                    readOnly
+                                    style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
+                                />
+                                <small className="text-muted">Location is fetched from your profile page</small>
+                            </div>
+
+                            <div className="col-12 col-md-6 mb-3">
+                                <label><i className="fa fa-map me-1"></i> State Code <span style={{color: 'red'}}>*</span></label>
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="State code fetched from profile"
+                                    value={formData.stateCode ? `${formData.stateCode} - ${indianStateCodes.find(state => state.code === formData.stateCode)?.name || ''}` : ''}
+                                    readOnly
+                                    style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
+                                />
+                                <small className="text-muted">State code is fetched from your profile page</small>
                             </div>
 
                             <div className="col-12 mb-3">

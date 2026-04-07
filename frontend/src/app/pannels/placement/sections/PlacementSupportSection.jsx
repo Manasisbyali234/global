@@ -10,7 +10,6 @@ const MAX_TOTAL_SIZE_BYTES = 30 * 1024 * 1024;
 const categories = [
     { value: 'general', label: 'General Inquiry' },
     { value: 'technical', label: 'Technical Issue' },
-    { value: 'account', label: 'Account Management' },
     { value: 'application', label: 'Student/Application Query' }
 ];
 

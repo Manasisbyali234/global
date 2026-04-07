@@ -43,7 +43,7 @@ const showToast = (message, type = 'info', duration = 3000) => {
             icon: ''
         },
         info: {
-            bg: '#3b82f6',
+            bg: '#d8892e',
             icon: '👍'
         }
     };

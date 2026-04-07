@@ -13,7 +13,7 @@ function SectionCanAttachment() {
             </div>
             <div className="panel-body wt-panel-body p-a20 ">
                 <div className="twm-panel-inner">
-                    <p>Resume is the most important document recruiters look for. Recruiters generally do not look at profiles without resumes.</p>
+                    <p>Resume upload is mandatory. May be downloaded by recruiters as per company policies</p>
                     <div className="dashboard-cover-pic">
                         <DropzoneComponent config={componentConfig} />
                         <p>Upload Resume File size is 3 MB</p>

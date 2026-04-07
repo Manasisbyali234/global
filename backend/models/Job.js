@@ -28,6 +28,7 @@ const jobSchema = new mongoose.Schema({
   education: [String],
   backlogsAllowed: { type: Boolean, default: false },
   requiredSkills: [String],
+  preferredLanguages: [String],
   experienceLevel: { type: String, enum: ['freshers', 'minimum', 'both', 'entry', 'mid', 'senior', 'executive'] },
   minExperience: { type: Number, default: 0 },
   maxExperience: { type: Number, default: 0 },

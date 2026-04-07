@@ -2363,14 +2363,6 @@ function CanStatusPage() {
 															</div>
 														)}
 
-														{/* Assessment Process Description */}
-														{roundDetails && roundDetails.description && (
-															<div className="mb-3 p-2" style={{backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef'}}>
-																<small className="text-muted d-block mb-1"><i className="fa fa-clipboard-check me-1" style={{color: '#ff6b35'}}></i><strong>Assessment Process Description:</strong></small>
-																<div style={{fontSize: '14px', lineHeight: '1.5', color: '#495057'}}>{roundDetails.description}</div>
-															</div>
-														)}
-
 														{/* Assessment Employer Remarks */}
 														{(() => {
 															const assessmentProcess =

@@ -316,7 +316,7 @@ function AdminOverviewPage() {
                       <th>Employer Name</th>
                       <th>Employer Type</th>
                       <th>Number of Jobs</th>
-                      <th>Number Applicants</th>
+                      <th>Number of Applicants</th>
                       <th>Action</th>
                     </tr>
                   </thead>
