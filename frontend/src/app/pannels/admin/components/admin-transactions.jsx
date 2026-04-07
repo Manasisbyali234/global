@@ -11,6 +11,7 @@ function AdminTransactionsPage() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
+    const [dateFilter, setDateFilter] = useState("");
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [paymentDetails, setPaymentDetails] = useState(null);
@@ -119,8 +120,21 @@ function AdminTransactionsPage() {
         printWindow.document.close();
     };
 
+    const getDateRange = (filter) => {
+        const now = new Date();
+        const start = new Date();
+        if (filter === 'today') { start.setHours(0,0,0,0); }
+        else if (filter === 'week') { start.setDate(now.getDate() - now.getDay()); start.setHours(0,0,0,0); }
+        else if (filter === 'month') { start.setDate(1); start.setHours(0,0,0,0); }
+        else if (filter === 'last30') { start.setDate(now.getDate() - 30); start.setHours(0,0,0,0); }
+        else if (filter === 'last90') { start.setDate(now.getDate() - 90); start.setHours(0,0,0,0); }
+        else return null;
+        return { from: start, to: now };
+    };
+
     const filteredTransactions = useMemo(() => {
         const q = searchText.trim().toLowerCase();
+        const range = getDateRange(dateFilter);
         return transactions.filter((t) => {
             const candidateName = t.candidateId?.name?.toLowerCase() || "";
             const candidateEmail = t.candidateId?.email?.toLowerCase() || "";
@@ -129,9 +143,13 @@ function AdminTransactionsPage() {
             const jobTitle = t.jobId?.title?.toLowerCase() || "";
             const paymentId = t.paymentId?.toLowerCase() || "";
             const date = t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toLowerCase() : "";
+            if (range) {
+                const txDate = t.createdAt ? new Date(t.createdAt) : null;
+                if (!txDate || txDate < range.from || txDate > range.to) return false;
+            }
             return candidateName.includes(q) || candidateEmail.includes(q) || employerName.includes(q) || employerEmail.includes(q) || jobTitle.includes(q) || paymentId.includes(q) || date.includes(q);
         });
-    }, [transactions, searchText]);
+    }, [transactions, searchText, dateFilter]);
 
     const getReceiptAmountBreakdown = (amount) => {
         const totalPaid = Number(amount ?? 129);
@@ -185,6 +203,24 @@ function AdminTransactionsPage() {
                             />
                         </div>
                         </div>
+                        </div>
+                        <div className="page-toolbar__section">
+                            <label className="page-toolbar__label">Filter by Date</label>
+                            <div className="page-toolbar__control-wrap">
+                                <select
+                                    className="form-select form-select-sm"
+                                    value={dateFilter}
+                                    onChange={(e) => setDateFilter(e.target.value)}
+                                    style={{ width: '160px' }}
+                                >
+                                    <option value="">All Time</option>
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                    <option value="last30">Last 30 Days</option>
+                                    <option value="last90">Last 90 Days</option>
+                                </select>
+                            </div>
                         </div>
                         <div className="text-muted">
                             Total Platform Revenue: <strong>{currencySymbol}{(transactions.reduce((acc, t) => acc + (t.paymentAmount || 129), 0)).toLocaleString()}</strong> | Count: <strong>{filteredTransactions.length}</strong>
