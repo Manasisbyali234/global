@@ -133,6 +133,15 @@ function AdminTransactionsPage() {
         });
     }, [transactions, searchText]);
 
+    const getReceiptAmountBreakdown = (amount) => {
+        const totalPaid = Number(amount ?? 129);
+        const roundTo2 = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+        const taxableValue = roundTo2(totalPaid / 1.18);
+        const cgst = roundTo2(taxableValue * 0.09);
+        const sgst = roundTo2(totalPaid - taxableValue - cgst);
+        return { totalPaid, taxableValue, cgst, sgst };
+    };
+
     return (
         <div className="twm-right-section-panel site-bg-gray" style={{
             width: '100%',
@@ -369,9 +378,8 @@ function AdminTransactionsPage() {
                                                 <thead className="table-light text-uppercase small">
                                                     <tr>
                                                         <th style={{ width: '60%' }}>Service Description</th>
-                                                        <th className="text-center">Applied</th>
-                                                        <th className="text-end">Unit Price</th>
-                                                        <th className="text-end">Amount</th>
+                                                        <th className="text-end">Rate</th>
+                                                        <th className="text-end">Subtotal</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -386,23 +394,22 @@ function AdminTransactionsPage() {
                                                                 )}
                                                             </div>
                                                         </td>
-                                                        <td className="text-center">1</td>
-                                                        <td className="text-end">{currencySymbol}{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</td>
-                                                        <td className="text-end fw-bold">{currencySymbol}{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</td>
+                                                        <td className="text-end">Application Fee</td>
+                                                        <td className="text-end fw-bold">{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount).taxableValue.toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot className="table-light">
                                                     <tr>
-                                                        <th colSpan="3" className="text-end small text-uppercase">Subtotal</th>
-                                                        <th className="text-end">{currencySymbol}{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</th>
+                                                        <th colSpan="2" className="text-end small text-uppercase">CGST (9%)</th>
+                                                        <th className="text-end">{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount).cgst.toFixed(2)}</th>
                                                     </tr>
                                                     <tr>
-                                                        <th colSpan="3" className="text-end small text-uppercase">Tax (GST 0%)</th>
-                                                        <th className="text-end">{currencySymbol}0.00</th>
+                                                        <th colSpan="2" className="text-end small text-uppercase">SGST (9%)</th>
+                                                        <th className="text-end">{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount).sgst.toFixed(2)}</th>
                                                     </tr>
                                                     <tr className="border-top border-primary border-2">
-                                                        <th colSpan="3" className="text-end text-primary fw-bold text-uppercase">Grand Total</th>
-                                                        <th className="text-end text-primary fw-bold fs-5">{currencySymbol}{((selectedTransaction?.paymentAmount || 129) * 1).toFixed(2)}</th>
+                                                        <th colSpan="2" className="text-end text-primary fw-bold text-uppercase">Grand Total</th>
+                                                        <th className="text-end text-primary fw-bold fs-5">{currencySymbol}{getReceiptAmountBreakdown(selectedTransaction?.paymentAmount).totalPaid.toFixed(2)}</th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
