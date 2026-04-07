@@ -415,7 +415,7 @@ function AdminTransactionsPage() {
                                                     <ul className="list-unstyled small text-muted mb-0" style={{ fontSize: '11px' }}>
                                                         <li>• This is a computer-generated document and does not require a physical signature.</li>
                                                         <li>• Application fee is non-refundable once the application is processed.</li>
-                                                        <li>• For support, please contact help@taleglobal.com with your Transaction ID.</li>
+                                                        <li>• For support, please contact help@taleglobal.net with your Transaction ID.</li>
                                                     </ul>
                                                 </div>
                                             </div>

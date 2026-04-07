@@ -255,7 +255,7 @@ function EmpTransactionsPage() {
                                                     <p className="mb-1 fw-bold text-dark">TALEGLOBAL PLATFORM</p>
                                                     <p className="mb-1">Whitefield, Bengaluru, Karnataka 560066</p>
                                                     <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1Z</p>
-                                                    <p className="mb-0"><strong>Email:</strong> help@taleglobal.com</p>
+                                                    <p className="mb-0"><strong>Email:</strong> help@taleglobal.net</p>
                                                 </div>
                                             </div>
                                             <div className="text-end">
@@ -335,7 +335,7 @@ function EmpTransactionsPage() {
                                             <div className="col-6">
                                                 <div className="p-3 rounded border bg-light">
                                                     <p className="mb-0 small text-muted">
-                                                        <strong>Note:</strong> This is a computer-generated document and does not require a physical signature. For any queries, please reach out to our support team at help@taleglobal.com.
+                                                        <strong>Note:</strong> This is a computer-generated document and does not require a physical signature. For any queries, please reach out to our support team at help@taleglobal.net.
                                                     </p>
                                                 </div>
                                             </div>
