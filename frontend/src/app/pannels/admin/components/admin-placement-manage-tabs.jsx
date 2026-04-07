@@ -162,7 +162,8 @@ function AdminPlacementOfficersTabs() {
                         <table className="table emp-table">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
+                                    {statusFilter === 'approved' && <th>University/College Name</th>}
+                                    <th>Placement Officer</th>
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Date</th>
@@ -172,10 +173,11 @@ function AdminPlacementOfficersTabs() {
                             </thead>
                             <tbody>
                                 {filteredPlacements.length === 0 ? (
-                                    <tr><td colSpan="6" className="text-center" style={{padding: '40px'}}>No records found</td></tr>
+                                    <tr><td colSpan={statusFilter === 'approved' ? 7 : 6} className="text-center" style={{padding: '40px'}}>No records found</td></tr>
                                 ) : (
                                     filteredPlacements.map((placement) => (
                                         <tr key={placement._id}>
+                                            {statusFilter === 'approved' && <td style={{textAlign: 'center'}}>{placement.collegeName || 'N/A'}</td>}
                                             <td style={{textAlign: 'center'}}>{placement.name}</td>
                                             <td style={{textAlign: 'center', fontFamily: 'monospace'}}>{placement.email}</td>
                                             <td style={{textAlign: 'center', fontFamily: 'monospace'}}>{placement.phone || 'N/A'}</td>

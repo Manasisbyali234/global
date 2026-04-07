@@ -105,11 +105,10 @@ function AdminBatchUploads() {
                         <table className="table emp-table">
                             <thead>
                                 <tr>
-                                    <th style={{textAlign: 'center'}}>College Name</th>
+                                    <th style={{textAlign: 'center'}}>University/College Name</th>
                                     <th style={{textAlign: 'center'}}>Placement Officer</th>
                                     <th style={{textAlign: 'center'}}>Total Files</th>
                                     <th style={{textAlign: 'center'}}>Approved</th>
-                                    <th style={{textAlign: 'center'}}>Rejected</th>
                                     <th style={{textAlign: 'center'}}>Pending</th>
                                     <th style={{textAlign: 'center'}}>Actions</th>
                                 </tr>
@@ -118,7 +117,7 @@ function AdminBatchUploads() {
                             <tbody>
                                 {filteredPlacements.length === 0 ? (
                                     <tr>
-                                        <td colSpan="7" className="text-center" style={{padding: '40px', fontSize: '1rem', color: '#6c757d'}}>
+                                        <td colSpan="6" className="text-center" style={{padding: '40px', fontSize: '1rem', color: '#6c757d'}}>
                                             <i className="fa fa-file-excel" style={{fontSize: '2rem', marginBottom: '10px', display: 'block', color: '#dee2e6'}}></i>
                                             No batch uploads found
                                         </td>
@@ -137,11 +136,6 @@ function AdminBatchUploads() {
                                             <td style={{textAlign: 'center'}}>
                                                 <span className="status-badge" style={{backgroundColor: '#e6f4ea', color: '#1e7e34', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: '600'}}>
                                                     {placement.approvedFiles}
-                                                </span>
-                                            </td>
-                                            <td style={{textAlign: 'center'}}>
-                                                <span className="status-badge" style={{backgroundColor: '#fce8e6', color: '#d93025', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: '600'}}>
-                                                    {placement.rejectedFiles}
                                                 </span>
                                             </td>
                                             <td style={{textAlign: 'center'}}>

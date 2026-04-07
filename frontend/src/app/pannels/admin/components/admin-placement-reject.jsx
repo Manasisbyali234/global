@@ -94,7 +94,8 @@ function AdminPlacementOfficersRejected() {
                         <table className="table emp-table">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
+                                    <th>University/College Name</th>
+                                    <th>Placement Officer</th>
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Join Date</th>
@@ -106,7 +107,7 @@ function AdminPlacementOfficersRejected() {
                             <tbody>
                                 {filteredPlacements.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="text-center" style={{padding: '40px', fontSize: '1rem', color: '#6c757d'}}>
+                                        <td colSpan="7" className="text-center" style={{padding: '40px', fontSize: '1rem', color: '#6c757d'}}>
                                             <i className="fa fa-times-circle" style={{fontSize: '2rem', marginBottom: '10px', display: 'block', color: '#dee2e6'}}></i>
                                             No rejected placement officers found
                                         </td>
@@ -114,6 +115,7 @@ function AdminPlacementOfficersRejected() {
                                 ) : (
                                     filteredPlacements.map((placement) => (
                                         <tr key={placement._id}>
+                                            <td style={{textAlign: 'center', fontSize: '0.85rem'}}>{placement.collegeName || 'N/A'}</td>
                                             <td style={{textAlign: 'center'}}>
                                                 <span className="company-name">
                                                     {placement.name}
