@@ -42,6 +42,7 @@ function CanStatusPage() {
 	const [applications, setApplications] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [selectedStatus, setSelectedStatus] = useState('all');
+	const [searchQuery, setSearchQuery] = useState('');
 	const [activeTab, setActiveTab] = useState('applications');
 	const [highlightShortlisted, setHighlightShortlisted] = useState(false);
 	const [highlightCompanyPosition, setHighlightCompanyPosition] = useState(false);
@@ -1658,12 +1659,21 @@ function CanStatusPage() {
 	}, [applications]);
 
 	const filteredApplications = useMemo(() => {
-		if (selectedStatus === 'all') {
-			return applications;
+		let result = selectedStatus === 'all'
+			? applications
+			: applications.filter((application) => getApplicationFilterStatus(application) === selectedStatus);
+
+		if (searchQuery.trim()) {
+			const query = searchQuery.trim().toLowerCase();
+			result = result.filter((application) => {
+				const company = (getEmployerDisplayCompanyName(application) || '').toLowerCase();
+				const position = (application.jobId?.title || '').toLowerCase();
+				return company.includes(query) || position.includes(query);
+			});
 		}
 
-		return applications.filter((application) => getApplicationFilterStatus(application) === selectedStatus);
-	}, [applications, selectedStatus]);
+		return result;
+	}, [applications, selectedStatus, searchQuery]);
 
 	return (
 		<>
@@ -1708,6 +1718,23 @@ function CanStatusPage() {
 
 					{/* Refresh Controls */}
 					<div className="status-page-toolbar mb-3">
+						<div className="status-page-filter-group">
+							<label className="status-page-filter-label" htmlFor="candidate-search-filter">
+								Search
+							</label>
+							<div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+								<i className="fa fa-search" style={{ position: 'absolute', left: '10px', color: '#adb5bd', fontSize: '13px' }}></i>
+								<input
+									id="candidate-search-filter"
+									type="text"
+									className="status-page-filter-select"
+									placeholder="Search company or position..."
+									value={searchQuery}
+									onChange={(e) => setSearchQuery(e.target.value)}
+									style={{ paddingLeft: '30px', minWidth: '220px' }}
+								/>
+							</div>
+						</div>
 						<div className="status-page-filter-group">
 							<label className="status-page-filter-label" htmlFor="candidate-status-filter">
 								Status

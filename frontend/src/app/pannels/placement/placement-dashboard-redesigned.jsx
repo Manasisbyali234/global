@@ -898,17 +898,18 @@ function PlacementDashboardRedesigned() {
                                                 <p className="activity-subtitle">Track your latest batch uploads and processing status</p>
                                             </div>
                                             <div className="activity-header-actions">
-                                                <div className="activity-search">
-                                                    <input
-                                                        type="text"
-                                                        value={activitySearch}
-                                                        onChange={(e) => setActivitySearch(e.target.value)}
-                                                        placeholder="Search by batch, university, course name"
-                                                        aria-label="Search recent batch activity"
-                                                    />
-                                                </div>
                                                 <a href="#" className="manage-all-link">Manage All Batches</a>
                                             </div>
+                                        </div>
+                                        <div className="activity-search">
+                                            <label className="activity-search-label">Search :</label>
+                                            <input
+                                                type="text"
+                                                value={activitySearch}
+                                                onChange={(e) => setActivitySearch(e.target.value)}
+                                                placeholder="Search by batch, university, course name"
+                                                aria-label="Search recent batch activity"
+                                            />
                                         </div>
                                         <div className="activity-list">
                                             {placementData?.fileHistory && placementData.fileHistory.length > 0 ? (

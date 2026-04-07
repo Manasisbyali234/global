@@ -477,7 +477,7 @@ function CanInterviewsPage() {
           <div className="candidate-interviews-header-controls">
             <div className="candidate-interviews-field-group candidate-interviews-search-group">
               <label className="candidate-interviews-inline-label" htmlFor="candidate-interviews-search">
-                Search
+                Search :
               </label>
               <div className="candidate-interviews-search-input-wrap">
                 <i className="fa fa-search candidate-interviews-search-icon" aria-hidden="true" />
@@ -493,7 +493,7 @@ function CanInterviewsPage() {
             </div>
             <div className="candidate-interviews-field-group candidate-interviews-filter-wrap">
               <label className="candidate-interviews-inline-label" htmlFor="candidate-interviews-status-filter">
-                Status
+                Status :
               </label>
               <select
                 id="candidate-interviews-status-filter"
