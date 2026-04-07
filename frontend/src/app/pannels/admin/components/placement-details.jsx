@@ -545,7 +545,7 @@ function PlacementDetails() {
                             <div style={{flex: 1}}>
                         <div className="row">
                             <div className="col-md-6 mb-3">
-                                <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>College Name</h4>
+                                <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>University/College Name</h4>
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
                                     <i className="fa fa-university me-2" style={{color: '#fd7e14'}}></i>
                                     {placement.collegeName || 'Not Available'}
@@ -750,15 +750,7 @@ function PlacementDetails() {
                                                             <i className="fa fa-file-excel-o me-2" style={{color: '#1e7e34'}}></i>
                                                             {file.customName || file.fileName}
                                                         </h6>
-                                                        {file.customName && (
-                                                            <p className="mb-2" style={{
-                                                                fontSize: '0.85rem',
-                                                                color: '#6c757d',
-                                                                fontStyle: 'italic'
-                                                            }}>
-                                                                Original: {file.fileName}
-                                                            </p>
-                                                        )}
+                                            
                                                         {file.isResubmitted && (
                                                             <div style={{marginBottom: '8px'}}>
                                                                 <span style={{
@@ -921,20 +913,7 @@ function PlacementDetails() {
                                                                     <i className="fa fa-check-circle me-2" style={{color: '#000'}}></i>
                                                                     Processed - Login Ready
                                                                 </span>
-                                                                {file.candidatesCreated > 0 && (
-                                                                    <span style={{
-                                                                        background: '#f8f9fa',
-                                                                        color: '#000',
-                                                                        padding: '6px 12px',
-                                                                        borderRadius: '20px',
-                                                                        fontSize: '0.8rem',
-                                                                        fontWeight: '500',
-                                                                        border: '1px solid #dee2e6'
-                                                                    }}>
-                                                                        <i className="fa fa-users me-2" style={{color: '#000'}}></i>
-                                                                        {file.candidatesCreated} candidates can login
-                                                                    </span>
-                                                                )}
+
                                                             </>
                                                         ) : file.status === 'approved' ? (
                                                             <>
@@ -1035,20 +1014,7 @@ function PlacementDetails() {
                                                                 Credits: {file.credits || 0}
                                                             </span>
                                                         )}
-                                                        {file.status === 'processed' && (
-                                                            <span style={{
-                                                                background: 'rgba(253, 126, 20, 0.1)',
-                                                                color: '#fd7e14',
-                                                                padding: '6px 12px',
-                                                                borderRadius: '20px',
-                                                                fontSize: '0.8rem',
-                                                                fontWeight: '500',
-                                                                border: '1px solid rgba(253, 126, 20, 0.2)'
-                                                            }}>
-                                                                <i className="fa fa-sign-in me-2"></i>
-                                                                Ready for Login
-                                                            </span>
-                                                        )}
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -1105,32 +1071,7 @@ function PlacementDetails() {
                                     Bulk Credits ({placement.fileHistory.filter(f => f.status === 'processed').length} files)
                                 </button>
                             )}
-                            {placement.fileHistory && placement.fileHistory.length > 0 && (
-                                <button
-                                    className="btn btn-info"
-                                    onClick={handleStoreExcelData}
-                                    disabled={processing}
-                                    style={{borderRadius: '8px'}}
-                                    title="Store complete Excel data in MongoDB"
-                                >
-                                    {processing ? (
-                                        <><i className="fa fa-spinner fa-spin me-2"></i>Storing...</>
-                                    ) : (
-                                        <><i className="fa fa-database me-2"></i>Store Excel Data</>
-                                    )}
-                                </button>
-                            )}
-                            {placement.fileHistory && placement.fileHistory.some(f => f.structuredData && f.structuredData.length > 0) && (
-                                <button
-                                    className="btn btn-secondary"
-                                    onClick={handleViewStoredData}
-                                    style={{borderRadius: '8px'}}
-                                    title="View stored Excel data from MongoDB"
-                                >
-                                    <i className="fa fa-eye me-2"></i>
-                                    View Stored Data
-                                </button>
-                            )}
+
                         </div>
                         <div className="alert alert-info mb-3" style={{borderRadius: '8px', fontSize: '0.9rem'}}>
                             <i className="fa fa-info-circle me-2"></i>

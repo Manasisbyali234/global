@@ -121,8 +121,8 @@ function AdminPlacementOfficersApproved() {
                         <table className="table emp-table">
                             <thead>
                                 <tr>
-                                    <th>College Name</th>
-                                    <th>Name</th>
+                                    <th>University/College Name</th>
+                                    <th>Placement Officer</th>
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Join Date</th>

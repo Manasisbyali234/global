@@ -123,11 +123,13 @@ function AdminTransactionsPage() {
         const q = searchText.trim().toLowerCase();
         return transactions.filter((t) => {
             const candidateName = t.candidateId?.name?.toLowerCase() || "";
+            const candidateEmail = t.candidateId?.email?.toLowerCase() || "";
             const employerName = t.employerId?.companyName?.toLowerCase() || "";
+            const employerEmail = t.employerId?.email?.toLowerCase() || "";
             const jobTitle = t.jobId?.title?.toLowerCase() || "";
             const paymentId = t.paymentId?.toLowerCase() || "";
             const date = t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toLowerCase() : "";
-            return candidateName.includes(q) || employerName.includes(q) || jobTitle.includes(q) || paymentId.includes(q) || date.includes(q);
+            return candidateName.includes(q) || candidateEmail.includes(q) || employerName.includes(q) || employerEmail.includes(q) || jobTitle.includes(q) || paymentId.includes(q) || date.includes(q);
         });
     }, [transactions, searchText]);
 
@@ -161,7 +163,7 @@ function AdminTransactionsPage() {
                             <input
                                 type="text"
                                 className="form-control page-toolbar__input"
-                                placeholder="Search by candidate, company, job, payment ID or date..."
+                                placeholder="Search by candidate, company, email, job, payment ID or date..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 style={{
