@@ -481,37 +481,6 @@ function AdminCandidateReviewPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="info-row">
-                                    <div className="info-field">
-                                        <div className="field-icon">
-                                            <i className="fas fa-map-marker-alt"></i>
-                                        </div>
-                                        <div className="field-content">
-                                            <label>Location</label>
-                                            <span>{candidate.location || 'Not provided'}</span>
-                                        </div>
-                                    </div>
-                                    <div className="info-field">
-                                        <div className="field-icon">
-                                            <i className="fas fa-map-pin"></i>
-                                        </div>
-                                        <div className="field-content">
-                                            <label>Pincode</label>
-                                            <span>{candidate.pincode || 'Not provided'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="info-row">
-                                    <div className="info-field">
-                                        <div className="field-icon">
-                                            <i className="fas fa-map"></i>
-                                        </div>
-                                        <div className="field-content">
-                                            <label>State Code</label>
-                                            <span>{candidate.stateCode || 'Not provided'}</span>
-                                        </div>
-                                    </div>
-                                </div>
                                 <div className="info-row single-field">
                                     <div className="info-field full-width">
                                         <div className="field-icon">
@@ -531,6 +500,37 @@ function AdminCandidateReviewPage() {
                                         <div className="field-content">
                                             <label>Permanent Address</label>
                                             <span>{candidate.permanentAddress || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="info-row">
+                                    <div className="info-field">
+                                        <div className="field-icon">
+                                            <i className="fas fa-map-pin"></i>
+                                        </div>
+                                        <div className="field-content">
+                                            <label>Pincode</label>
+                                            <span>{candidate.pincode || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="info-field">
+                                        <div className="field-icon">
+                                            <i className="fas fa-map-marker-alt"></i>
+                                        </div>
+                                        <div className="field-content">
+                                            <label>Location</label>
+                                            <span>{candidate.location || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="info-row">
+                                    <div className="info-field">
+                                        <div className="field-icon">
+                                            <i className="fas fa-map"></i>
+                                        </div>
+                                        <div className="field-content">
+                                            <label>State Code</label>
+                                            <span>{candidate.stateCode || 'Not provided'}</span>
                                         </div>
                                     </div>
                                 </div>

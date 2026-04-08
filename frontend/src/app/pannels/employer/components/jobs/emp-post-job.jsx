@@ -5755,24 +5755,6 @@ export default function EmpPostJob({ onNext }) {
 						</div>
 						<div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
 							<button
-								onClick={() => setShowSubStageConfirm(null)}
-								style={{
-									background: '#e5e7eb',
-									color: '#374151',
-									border: 'none',
-									padding: '12px 24px',
-									borderRadius: 8,
-									cursor: 'pointer',
-									fontSize: 15,
-									fontWeight: 600,
-									transition: 'all 0.2s'
-								}}
-								onMouseEnter={(e) => e.currentTarget.style.background = '#d1d5db'}
-								onMouseLeave={(e) => e.currentTarget.style.background = '#e5e7eb'}
-							>
-								No
-							</button>
-							<button
 								onClick={() => {
 									const { uniqueKey, subStage, subIndex, selectedDate } = showSubStageConfirm;
 									applySubStageDateChange(uniqueKey, subStage.id, selectedDate);
@@ -5794,6 +5776,24 @@ export default function EmpPostJob({ onNext }) {
 								onMouseLeave={(e) => e.currentTarget.style.background = '#3b82f6'}
 							>
 								Yes
+							</button>
+							<button
+								onClick={() => setShowSubStageConfirm(null)}
+								style={{
+									background: '#e5e7eb',
+									color: '#374151',
+									border: 'none',
+									padding: '12px 24px',
+									borderRadius: 8,
+									cursor: 'pointer',
+									fontSize: 15,
+									fontWeight: 600,
+									transition: 'all 0.2s'
+								}}
+								onMouseEnter={(e) => e.currentTarget.style.background = '#d1d5db'}
+								onMouseLeave={(e) => e.currentTarget.style.background = '#e5e7eb'}
+							>
+								No
 							</button>
 						</div>
 					</div>
