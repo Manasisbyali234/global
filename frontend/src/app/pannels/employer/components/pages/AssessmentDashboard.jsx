@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import AssessmentCard from "../assessments/AssessmnetCard";
 import CreateAssessmentModal from "../assessments/CreateassessmentModal";
 import { api } from '../../../../../utils/api';
@@ -6,7 +7,7 @@ import './assessment-dashboard.css';
 import '../../../../../assessment-modal-fix.css';
 import '../../../../../assessment-title-hide.css';
 
-import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
+import { showSuccess, showError, showWarning, showConfirmation } from '../../../../../utils/popupNotification';
 
 const STATUS_OPTIONS = [
 	{ value: "all", label: "All Status" },
@@ -19,6 +20,7 @@ export default function AssessmentDashboard() {
 	const [assessments, setAssessments] = useState([]);
 	const [filteredAssessments, setFilteredAssessments] = useState([]);
 	const [showModal, setShowModal] = useState(false);
+	const [showInstructionsModal, setShowInstructionsModal] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [editingAssessment, setEditingAssessment] = useState(null);
 	const [selectedAssessmentId, setSelectedAssessmentId] = useState("");
@@ -261,6 +263,78 @@ export default function AssessmentDashboard() {
 
 	const selectedAssessment = getSelectedAssessment();
 
+	const instructionsModal = showInstructionsModal && typeof document !== "undefined"
+		? createPortal(
+			<div
+				className="assessment-instructions-modal-overlay"
+				onClick={(event) => {
+					if (event.target === event.currentTarget) {
+						setShowInstructionsModal(false);
+					}
+				}}
+				role="presentation"
+			>
+				<div
+					className="assessment-instructions-modal"
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="assessment-instructions-title"
+				>
+					<div className="assessment-instructions-header">
+						<div className="assessment-instructions-heading">
+							<div className="assessment-instructions-icon">
+								<i className="fa fa-info-circle" aria-hidden="true"></i>
+							</div>
+							<div>
+								<h3 id="assessment-instructions-title">Instructions for Assessment & Interview Process</h3>
+								<p className="mb-0">Review these guidelines before managing candidate assessments and interview rounds.</p>
+							</div>
+						</div>
+						<button
+							type="button"
+							className="btn btn-dark assessment-instructions-header-close"
+							onClick={() => setShowInstructionsModal(false)}
+						>
+							Close
+						</button>
+					</div>
+
+					<div className="assessment-instructions-body">
+						<div className="assessment-instructions-item">
+							<h4>For MCQ Assessments</h4>
+							<p>Results are evaluated automatically and candidates can view their results immediately after completion.</p>
+						</div>
+						<div className="assessment-instructions-item">
+							<h4>For Subjective / Descriptive / Written Tests</h4>
+							<p>Evaluation must be done manually by the employer. Candidates become eligible for the next round only after marks or stages are updated.</p>
+						</div>
+						<div className="assessment-instructions-item">
+							<h4>Progression to Next Round (MCQ)</h4>
+							<p>If a candidate meets the qualifying criteria, the next interview stage, including slot booking, is enabled instantly.</p>
+						</div>
+						<div className="assessment-instructions-item">
+							<h4>Mandatory Status Updates</h4>
+							<p>Updating candidate status at every stage is mandatory. Without status updates, candidates cannot access or book slots for the next round.</p>
+						</div>
+						<div className="assessment-instructions-item">
+							<h4>Candidate Monitoring & Integrity</h4>
+							<p>During assessments, the candidate&apos;s webcam remains active and images are captured throughout the test. All captured images are available inside the respective candidate application for review.</p>
+						</div>
+						<div className="assessment-instructions-item">
+							<h4>Right to Reject</h4>
+							<p>Employers have full authority to reject candidates at any stage, even after passing the assessment, if malpractice such as copying or external assistance is detected.</p>
+						</div>
+						<div className="assessment-instructions-item">
+							<h4>Timely Updates</h4>
+							<p>Employers must update the status of each stage within 24 hours to ensure a smooth hiring process.</p>
+						</div>
+					</div>
+				</div>
+			</div>,
+			document.body
+		)
+		: null;
+
 	return (
 		<div className="twm-right-section-panel site-bg-gray emp-assessment-page" style={{
 			width: '100%',
@@ -281,6 +355,13 @@ export default function AssessmentDashboard() {
 								<span className="badge bg-light text-dark px-3 py-2" style={{fontSize: '14px'}}>
 									Showing: {filteredAssessments.length} of {assessments.length}
 								</span>
+								<button
+									type="button"
+									className="btn btn-outline-secondary assessment-instructions-button"
+									onClick={() => setShowInstructionsModal(true)}
+								>
+									<i className="fa fa-info-circle me-2"></i>Instructions
+								</button>
 								<button className="btn btn-dark" onClick={handleCreateAssessmentClick}>
 									<i className="fa fa-plus me-2"></i>Create Assessment
 								</button>
@@ -418,6 +499,7 @@ export default function AssessmentDashboard() {
 					editData={editingAssessment}
 				/>
 			)}
+			{instructionsModal}
 		</div>
 	);
 }

@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { formatAssessmentContent } from "../../../../../utils/assessmentContent";
 import "./create-assessment.css";
 
 export default function AssessmentCard({ data, onDelete, onEdit, index }) {
@@ -9,20 +10,6 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 	const assignmentSummary = assignmentCount === 1
 		? 'Assigned to 1 job'
 		: `Assigned to ${assignmentCount} jobs`;
-	const lockedActionTitle = isAssigned
-		? `${assignmentSummary}. Assigned assessments cannot be edited or deleted.`
-		: '';
-
-	const stripHtml = (value = "") => String(value || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-
-	const truncateText = (value = "", maxLength = 120) => {
-		const text = stripHtml(value);
-		if (text.length <= maxLength) {
-			return text || "N/A";
-		}
-
-		return `${text.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
-	};
 
 	const instructionText = data.instructions || data.description || "";
 
@@ -105,8 +92,15 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 						</div>
 					)}
 					<div style={{ color: '#374151', whiteSpace: 'normal', wordBreak: 'break-word' }}>
-						<span style={{ color: '#8B7355', fontWeight: '600' }}>Instructions:</span>{' '}
-						<span>{truncateText(instructionText, 140)}</span>
+						<div style={{ color: '#8B7355', fontWeight: '600', marginBottom: '6px' }}>Instructions:</div>
+						{instructionText ? (
+							<div
+								className="assessment-rich-text assessment-rich-text--compact"
+								dangerouslySetInnerHTML={{ __html: formatAssessmentContent(instructionText) }}
+							/>
+						) : (
+							<span>N/A</span>
+						)}
 					</div>
 				</div>
 
@@ -122,22 +116,24 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					<button className="btn btn-sm btn-outline-primary" onClick={() => navigate(`/employer/assessment-results/${data._id}`)}>
 						<i className="fa fa-chart-bar"></i> Results
 					</button>
-					<button
-						className="btn btn-sm btn-outline-secondary"
-						onClick={() => onEdit(data)}
-						title={lockedActionTitle || "Edit Assessment"}
-						disabled={isAssigned}
-					>
-						<i className="fa fa-edit"></i>
-					</button>
-					<button
-						className="btn btn-sm btn-outline-danger"
-						onClick={() => onDelete(data)}
-						title={lockedActionTitle || "Delete Assessment"}
-						disabled={isAssigned}
-					>
-						<i className="fa fa-trash"></i>
-					</button>
+					{!isAssigned && (
+						<>
+							<button
+								className="btn btn-sm btn-outline-secondary"
+								onClick={() => onEdit(data)}
+								title="Edit Assessment"
+							>
+								<i className="fa fa-edit"></i>
+							</button>
+							<button
+								className="btn btn-sm btn-outline-danger"
+								onClick={() => onDelete(data)}
+								title="Delete Assessment"
+							>
+								<i className="fa fa-trash"></i>
+							</button>
+						</>
+					)}
 				</div>
 				</div>
 		</div>
