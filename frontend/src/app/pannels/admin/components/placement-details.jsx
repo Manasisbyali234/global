@@ -284,7 +284,7 @@ function PlacementDetails() {
             
             const data = await response.json();
             if (data.success) {
-                const message = `${fileCredits} credit assigned .Once,approved credits will be processed successfully`;
+                const message = `${fileCredits} credit assigned .Credits will be processed successfully upon approval.`;
                 showSuccess(message);
                 setShowCreditsModal(false);
                 fetchPlacementDetails();

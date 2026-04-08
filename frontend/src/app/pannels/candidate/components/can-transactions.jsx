@@ -490,7 +490,7 @@ function CanTransactionsPage() {
                                                         <td>
                                                             <div className="fw-bold text-dark">Job Application Fee</div>
                                                             <div className="text-muted mt-1" style={{ fontSize: '0.76rem', lineHeight: 1.35 }}>
-                                                                <strong>Description:</strong> Payment for submitting this job application.<br />
+                                                                <strong>Description:</strong> Payment for this application was successfully processed..<br />
                                                                 <strong>Position:</strong> {selectedTransaction?.jobId?.title}<br />
                                                                 <strong>Employer:</strong> {selectedTransaction?.employerId?.brandName || selectedTransaction?.employerId?.companyName}<br />
                                                                 {selectedTransaction?.jobId?.jobCategory && (
