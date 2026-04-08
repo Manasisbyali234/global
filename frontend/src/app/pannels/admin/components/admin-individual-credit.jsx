@@ -94,26 +94,29 @@ function AdminIndividualCredit() {
 
             {showUpdateForm && (
             <div className="panel panel-default site-bg-white" style={{marginBottom: '20px'}}>
-                <div className="panel-heading wt-panel-heading p-a20">
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <h4 className="panel-tittle m-a0">Update Credits</h4>
-                        <button
-                            onClick={() => {
-                                setShowUpdateForm(false);
-                                setSelectedCandidate('');
-                                setCredits('');
-                            }}
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                fontSize: '1.5rem',
-                                cursor: 'pointer',
-                                color: '#6c757d'
-                            }}
-                        >
-                            ×
-                        </button>
-                    </div>
+                <div className="panel-heading wt-panel-heading p-a20" style={{position: 'relative'}}>
+                    <h4 className="panel-tittle m-a0">Update Credits</h4>
+                    <button
+                        onClick={() => {
+                            setShowUpdateForm(false);
+                            setSelectedCandidate('');
+                            setCredits('');
+                        }}
+                        style={{
+                            position: 'absolute',
+                            top: '50%',
+                            right: '20px',
+                            transform: 'translateY(-50%)',
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '1.5rem',
+                            cursor: 'pointer',
+                            color: '#6c757d',
+                            lineHeight: 1
+                        }}
+                    >
+                        ×
+                    </button>
                 </div>
                 <div className="panel-body wt-panel-body p-a20">
                     <form onSubmit={handleSubmit} style={{maxWidth: '600px', margin: '0 auto'}}>
