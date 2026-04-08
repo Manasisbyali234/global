@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
+import { getPlacementFileStudents, normalizePlacementStudents } from '../../../utils/placementStudentData';
 import './student-directory.css';
 
 function StudentDirectory() {
@@ -36,19 +37,9 @@ function StudentDirectory() {
             
             if (response.ok) {
                 const data = await response.json();
-                if (data.success && data.fileData) {
-                    console.log('File data received:', data.fileData[0]);
-                    const cleanedStudents = data.fileData.map(row => {
-                        console.log('Processing row:', row);
-                        return {
-                            name: row['Candidate Name'] || row['candidate name'] || row.Name || row.name || '',
-                            email: row.Email || row.email || '',
-                            phone: row.Phone || row.phone || '',
-                            course: row.Course || row.course || 'Not Specified',
-                            credits: row['Credits Assigned'] || row.Credits || row.credits || '0',
-                            collegeName: row['College Name'] || row['college name'] || row.College || row.college || 'Not Available'
-                        };
-                    });
+                if (data.success) {
+                    console.log('File data received:', (data.students || data.fileData || [])[0]);
+                    const cleanedStudents = getPlacementFileStudents(data);
                     setStudents(cleanedStudents);
                 }
             }
@@ -66,17 +57,7 @@ function StudentDirectory() {
             console.log('Student directory data:', data);
             
             if (data.success) {
-                const cleanedStudents = (data.students || []).map(student => {
-                    console.log('Full student data:', JSON.stringify(student, null, 2));
-                    return {
-                        name: student.name || student['Candidate Name'] || student['candidate name'] || '',
-                        email: student.email || student.Email || '',
-                        phone: student.phone || student.Phone || '',
-                        course: student.course || student.Course || student['Course'] || 'Not Specified',
-                        credits: student.credits || student['Credits Assigned'] || '0',
-                        collegeName: student.collegeName || student['College Name'] || 'Not Available'
-                    };
-                });
+                const cleanedStudents = normalizePlacementStudents(data.students || []);
                 setStudents(cleanedStudents);
                 console.log('Cleaned students:', cleanedStudents);
             }
@@ -210,7 +191,7 @@ function StudentDirectory() {
                                             </td>
                                             <td className="credits-cell">
                                                 <span className="credits-badge">
-                                                    {student.credits || '0'}
+                                                    {student.credits !== undefined && student.credits !== null ? student.credits : 0}
                                                 </span>
                                             </td>
                                             <td className="status-cell">

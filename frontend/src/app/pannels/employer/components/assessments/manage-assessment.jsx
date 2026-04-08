@@ -3,6 +3,7 @@ import { formatDate } from '../../../../../utils/dateFormatter';
 import { usePopupNotification } from '../../../../../hooks/usePopupNotification';
 import PopupNotification from '../../../../../components/PopupNotification';
 import ConfirmationDialog from '../../../../../components/ConfirmationDialog';
+import { formatAssessmentContent } from '../../../../../utils/assessmentContent';
 import './create-assessment.css';
 
 function ManageAssessmentPage() {
@@ -109,7 +110,7 @@ function ManageAssessmentPage() {
                                                 <h5 className="text-primary">{assessment.title}</h5>
                                                 <div
                                                     className="text-muted small assessment-rich-text assessment-rich-text--compact"
-                                                    dangerouslySetInnerHTML={{ __html: assessment.description }}
+                                                    dangerouslySetInnerHTML={{ __html: formatAssessmentContent(assessment.instructions || assessment.description) }}
                                                 />
                                                 <p className="text-muted"><i className="fa fa-clock text-warning m-r10" />Duration: {assessment.timeLimit} mins</p>
                                             </div>

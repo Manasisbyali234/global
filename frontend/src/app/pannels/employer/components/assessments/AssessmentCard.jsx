@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { formatAssessmentContent } from "../../../../../utils/assessmentContent";
 import './create-assessment.css';
 
 export default function AssessmentCard({ data, onDelete, onEdit, index }) {
@@ -66,7 +67,7 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 						{formatDate(data.createdAt)}
 					</small>
 				</div>
-				{data.description && (
+				{(data.instructions || data.description) && (
 					<div
 						className="card-text text-muted small assessment-rich-text assessment-rich-text--compact"
 						style={{
@@ -74,7 +75,7 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 							overflowWrap: 'break-word',
 							whiteSpace: 'normal'
 						}}
-						dangerouslySetInnerHTML={{ __html: data.description }}
+						dangerouslySetInnerHTML={{ __html: formatAssessmentContent(data.instructions || data.description) }}
 					/>
 				)}
 				<div className="d-flex flex-wrap gap-3 mb-3">

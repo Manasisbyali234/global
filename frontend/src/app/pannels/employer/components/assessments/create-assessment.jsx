@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CreateAssessmentModal from './CreateAssessmentModal';
 import { showPopup, showSuccess, showError, showConfirmation } from '../../../../../utils/popupNotification';
+import { formatAssessmentContent } from '../../../../../utils/assessmentContent';
 import './create-assessment.css';
 import './mobile-text-fix.css';
 import '../../../../../assessment-title-hide.css';
@@ -258,7 +259,7 @@ function CreateAssessmentPage() {
                                                 <div
                                                     className="card-text mb-2 text-muted assessment-rich-text assessment-rich-text--compact"
                                                     style={{fontSize: '0.9rem', wordWrap: 'break-word', overflowWrap: 'break-word'}}
-                                                    dangerouslySetInnerHTML={{ __html: assessment.description || stripHtml(assessment.description) }}
+                                                    dangerouslySetInnerHTML={{ __html: formatAssessmentContent(assessment.instructions || assessment.description || stripHtml(assessment.description)) }}
                                                 />
                                                 <div className="d-flex gap-3">
                                                     <small className="text-muted"><i className="fa fa-question-circle me-1"></i>Questions: {assessment.questions?.length || 0}</small>

@@ -1,4 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Crop, RotateCcw, ZoomIn, ZoomOut, Download, X, Move } from 'lucide-react';
 import './ImageResizer.css';
 
@@ -178,9 +179,19 @@ const ImageResizer = ({
     }
   }, [cropArea, quality, onSave]);
 
+  useEffect(() => {
+    if (!isOpen || typeof document === 'undefined') return undefined;
+
+    document.body.classList.add('image-resizer-open');
+
+    return () => {
+      document.body.classList.remove('image-resizer-open');
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div className="image-resizer-overlay">
       <div className="image-resizer-modal">
         <div className="image-resizer-header">
@@ -272,6 +283,12 @@ const ImageResizer = ({
       </div>
     </div>
   );
+
+  if (typeof document === 'undefined') {
+    return modalContent;
+  }
+
+  return createPortal(modalContent, document.body);
 };
 
 export default ImageResizer;

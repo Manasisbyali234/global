@@ -3,6 +3,7 @@ const Assessment = require('../models/Assessment');
 const AssessmentAttempt = require('../models/AssessmentAttempt');
 const Application = require('../models/Application');
 const Job = require('../models/Job');
+const InterviewRound = require('../models/InterviewRound');
 const InterviewProcess = require('../models/InterviewProcess');
 const { sendAssessmentResultPublishedEmail } = require('../utils/emailService');
 
@@ -35,6 +36,98 @@ const isObjectiveQuestionType = (questionType = '') =>
 
 const isManualQuestionType = (questionType = '') =>
   MANUAL_QUESTION_TYPES.has(String(questionType || '').trim());
+
+const getDefaultAssignmentState = () => ({
+  isAssigned: false,
+  assignedJobsCount: 0,
+  assignedJobTitles: []
+});
+
+const buildAssessmentAssignmentMap = async (employerId, assessmentIds = []) => {
+  const normalizedAssessmentIds = Array.from(
+    new Set(
+      assessmentIds
+        .map((assessmentId) => String(assessmentId || '').trim())
+        .filter(Boolean)
+    )
+  );
+
+  const assignmentMap = new Map(
+    normalizedAssessmentIds.map((assessmentId) => [assessmentId, getDefaultAssignmentState()])
+  );
+
+  if (!employerId || normalizedAssessmentIds.length === 0) {
+    return assignmentMap;
+  }
+
+  const employerJobs = await Job.find(
+    { employerId },
+    '_id title assessmentId interviewRoundDetails'
+  ).lean();
+  const employerJobIds = employerJobs.map((job) => job._id);
+  const employerJobTitlesById = new Map(
+    employerJobs.map((job) => [String(job._id), job.title || 'Untitled Job'])
+  );
+  const assignedJobIdsByAssessment = new Map();
+
+  const addJobAssignment = (assessmentId, jobId) => {
+    const normalizedAssessmentId = String(assessmentId || '').trim();
+    const normalizedJobId = String(jobId || '').trim();
+
+    if (!normalizedAssessmentId || !normalizedJobId || !assignmentMap.has(normalizedAssessmentId)) {
+      return;
+    }
+
+    if (!assignedJobIdsByAssessment.has(normalizedAssessmentId)) {
+      assignedJobIdsByAssessment.set(normalizedAssessmentId, new Set());
+    }
+
+    assignedJobIdsByAssessment.get(normalizedAssessmentId).add(normalizedJobId);
+  };
+
+  employerJobs.forEach((job) => {
+    if (job.assessmentId) {
+      addJobAssignment(job.assessmentId, job._id);
+    }
+
+    Object.values(job.interviewRoundDetails || {}).forEach((roundDetails) => {
+      if (roundDetails?.assessmentId) {
+        addJobAssignment(roundDetails.assessmentId, job._id);
+      }
+    });
+  });
+
+  if (employerJobIds.length > 0) {
+    const roundAssignments = await InterviewRound.find(
+      {
+        assessmentId: { $in: normalizedAssessmentIds },
+        jobId: { $in: employerJobIds }
+      },
+      'assessmentId jobId'
+    ).lean();
+
+    roundAssignments.forEach((round) => addJobAssignment(round.assessmentId, round.jobId));
+  }
+
+  assignedJobIdsByAssessment.forEach((jobIds, assessmentId) => {
+    const assignedJobTitles = Array.from(jobIds)
+      .map((jobId) => employerJobTitlesById.get(jobId))
+      .filter(Boolean);
+
+    assignmentMap.set(assessmentId, {
+      isAssigned: jobIds.size > 0,
+      assignedJobsCount: jobIds.size,
+      assignedJobTitles
+    });
+  });
+
+  return assignmentMap;
+};
+
+const getAssessmentAssignmentState = async (employerId, assessmentId) => {
+  const assignmentMap = await buildAssessmentAssignmentMap(employerId, [assessmentId]);
+  return assignmentMap.get(String(assessmentId || '').trim()) || getDefaultAssignmentState();
+};
 
 const hasCandidateResponse = (answer = {}) =>
   Boolean(
@@ -394,7 +487,18 @@ exports.getAssessments = async (req, res) => {
   try {
     const assessments = await Assessment.find({ employerId: req.user._id })
       .sort({ serialNumber: 1 });
-    res.json({ success: true, assessments });
+    const assignmentMap = await buildAssessmentAssignmentMap(
+      req.user._id,
+      assessments.map((assessment) => assessment._id)
+    );
+
+    res.json({
+      success: true,
+      assessments: assessments.map((assessment) => ({
+        ...assessment.toObject(),
+        ...(assignmentMap.get(String(assessment._id)) || getDefaultAssignmentState())
+      }))
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -421,6 +525,24 @@ exports.getAssessmentDetails = async (req, res) => {
 // Employer: Update Assessment
 exports.updateAssessment = async (req, res) => {
   try {
+    const existingAssessment = await Assessment.findOne({
+      _id: req.params.id,
+      employerId: req.user._id
+    }).select('_id');
+
+    if (!existingAssessment) {
+      return res.status(404).json({ success: false, message: 'Assessment not found' });
+    }
+
+    const assignmentState = await getAssessmentAssignmentState(req.user._id, req.params.id);
+    if (assignmentState.isAssigned) {
+      return res.status(409).json({
+        success: false,
+        message: 'Assigned assessments cannot be edited.',
+        ...assignmentState
+      });
+    }
+
     const { title, type, designation, description, instructions, timer, questions, passingPercentage, status } = req.body;
     const normalizedStatus = ['draft', 'published', 'archived'].includes(String(status || '').toLowerCase())
       ? String(status).toLowerCase()
@@ -530,11 +652,7 @@ exports.updateAssessment = async (req, res) => {
       updateData,
       { new: true }
     );
-    
-    if (!assessment) {
-      return res.status(404).json({ success: false, message: 'Assessment not found' });
-    }
-    
+
     res.json({ success: true, assessment });
   } catch (error) {
     console.error('Assessment update error:', error);
@@ -545,15 +663,26 @@ exports.updateAssessment = async (req, res) => {
 // Employer: Delete Assessment
 exports.deleteAssessment = async (req, res) => {
   try {
-    const assessment = await Assessment.findOneAndDelete({
+    const assessment = await Assessment.findOne({
       _id: req.params.id,
       employerId: req.user._id
     });
-    
+
     if (!assessment) {
       return res.status(404).json({ success: false, message: 'Assessment not found' });
     }
-    
+
+    const assignmentState = await getAssessmentAssignmentState(req.user._id, req.params.id);
+    if (assignmentState.isAssigned) {
+      return res.status(409).json({
+        success: false,
+        message: 'Assigned assessments cannot be deleted.',
+        ...assignmentState
+      });
+    }
+
+    await Assessment.deleteOne({ _id: assessment._id });
+
     res.json({ success: true, message: 'Assessment deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

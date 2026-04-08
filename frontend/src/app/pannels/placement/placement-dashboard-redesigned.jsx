@@ -3,6 +3,7 @@ import { formatDate } from '../../../utils/dateFormatter';
 import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { debugAuth, testAPIConnection, testPlacementAuth } from '../../../utils/authDebug';
+import { getPlacementFileStudents, normalizePlacementStudents } from '../../../utils/placementStudentData';
 import PlacementNotificationsRedesigned from './sections/PlacementNotificationsRedesigned';
 import PlacementSupportSection from './sections/PlacementSupportSection';
 import UnifiedHeader from '../../../components/UnifiedHeader';
@@ -160,20 +161,14 @@ function PlacementDashboardRedesigned() {
             console.log('Student data received:', data);
             
             if (data.success) {
-                const students = data.students || [];
+                const students = normalizePlacementStudents(data.students || []);
                 console.log('Total students:', students.length);
                 console.log('Sample student data:', students[0]);
                 console.log('All course values from backend:', students.map(s => ({ name: s.name, course: s.course })));
                 console.log('Credits distribution:', students.map(s => ({ name: s.name, credits: s.credits })));
-                
-                // Fix course display issue - change "Not Specified" to "Not Provided"
-                const fixedStudents = students.map(student => ({
-                    ...student,
-                    course: student.course === 'Not Specified' ? 'Not Provided' : student.course
-                }));
-                
-                setStudentData(fixedStudents);
-                calculateStats(fixedStudents);
+
+                setStudentData(students);
+                calculateStats(students);
             }
         } catch (error) {
             console.error('Error fetching student data:', error);
@@ -477,25 +472,13 @@ function PlacementDashboardRedesigned() {
             
             if (response.ok) {
                 const data = await response.json();
-                if (data.success && data.fileData) {
-                    console.log('Raw file data sample:', data.fileData[0]); // Debug: see actual column names
-                    console.log('Available columns:', Object.keys(data.fileData[0] || {})); // Debug: list all columns
-                    
-                    const cleanedData = data.fileData.map(row => {
-                        const courseValue = row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || row['Course Name'] || row['course name'] || row['COURSE NAME'] || row.Program || row.program || row.PROGRAM || row.Department || row.department || row.DEPARTMENT || row.Stream || row.stream || row.STREAM || 'Not Provided';
-                        console.log('Course mapping for row:', { originalRow: row, mappedCourse: courseValue }); // Debug course mapping
-                        
-                        return {
-                            name: row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['Student Name'] || '',
-                            email: row.Email || row.email || row.EMAIL || '',
-                            phone: row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
-                            course: courseValue,
-                            credits: row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || '0'
-                        };
-                    });
-                    console.log('Cleaned data sample:', cleanedData[0]); // Debug: see final mapped data
-                    console.log('Course distribution:', cleanedData.map(s => s.course)); // Debug: see all course values
-                    
+                const cleanedData = getPlacementFileStudents(data);
+
+                if (data.success) {
+                    console.log('Raw file data sample:', (data.students || data.fileData || [])[0]);
+                    console.log('Cleaned data sample:', cleanedData[0]);
+                    console.log('Course distribution:', cleanedData.map(s => s.course));
+
                     setStudentData(cleanedData);
                     setViewingFileId(fileId);
                     setViewingFileName(fileName);

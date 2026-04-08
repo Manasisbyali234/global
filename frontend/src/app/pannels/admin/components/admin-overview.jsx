@@ -1,10 +1,94 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
 import SearchBar from "../../../../components/SearchBar";
 import "./admin-search-styles.css";
 import "./admin-overview.css";
+
+const INTERVIEW_STATUS_FILTER_OPTIONS = [
+  { value: "all", label: "All Interview Statuses" },
+  { value: "pending", label: "Pending" },
+  { value: "shortlisted_for_next_round", label: "Shortlisted for Next Round" },
+  { value: "on_hold", label: "On Hold" },
+  { value: "no_show", label: "No Show" },
+  { value: "rejected", label: "Not Advanced to Next Step" }
+];
+
+const normalizeInterviewStatus = (value) =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ");
+
+const mapInterviewStatusToFilterValue = (value) => {
+  const normalizedValue = normalizeInterviewStatus(value);
+
+  if (!normalizedValue || normalizedValue === "pending") {
+    return "pending";
+  }
+
+  if (normalizedValue === "shortlisted for next round") {
+    return "shortlisted_for_next_round";
+  }
+
+  if (normalizedValue === "on hold") {
+    return "on_hold";
+  }
+
+  if (normalizedValue === "no show") {
+    return "no_show";
+  }
+
+  if (
+    [
+      "rejected",
+      "not advanced to next stage",
+      "not advanced to next step",
+      "not eligible for next round",
+      "not eligibal for next round"
+    ].includes(normalizedValue)
+  ) {
+    return "rejected";
+  }
+
+  return normalizedValue.replace(/\s+/g, "_");
+};
+
+const getApplicantInterviewStatus = (applicant = {}) => {
+  const interviewRounds = Array.isArray(applicant?.interviewRounds) ? applicant.interviewRounds : [];
+  let fallbackStatus = "";
+
+  for (let index = interviewRounds.length - 1; index >= 0; index -= 1) {
+    const mappedStatus = mapInterviewStatusToFilterValue(interviewRounds[index]?.status);
+
+    if (!mappedStatus || mappedStatus === "pending") {
+      continue;
+    }
+
+    if (INTERVIEW_STATUS_FILTER_OPTIONS.some((option) => option.value === mappedStatus)) {
+      return mappedStatus;
+    }
+
+    if (!fallbackStatus) {
+      fallbackStatus = mappedStatus;
+    }
+  }
+
+  return fallbackStatus || "pending";
+};
+
+const getInterviewStatusLabel = (status) => {
+  const matchingOption = INTERVIEW_STATUS_FILTER_OPTIONS.find((option) => option.value === status);
+  if (matchingOption) {
+    return matchingOption.label;
+  }
+
+  return String(status || "Pending")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
 
 function AdminOverviewPage() {
   const [searchParams] = useSearchParams();
@@ -25,6 +109,7 @@ function AdminOverviewPage() {
   const [employerSearch, setEmployerSearch] = useState("");
   const [jobSearch, setJobSearch] = useState("");
   const [applicantSearch, setApplicantSearch] = useState("");
+  const [applicantInterviewStatusFilter, setApplicantInterviewStatusFilter] = useState("all");
   const autoOpenedEmployerIdRef = useRef(null);
   const visibleEmployerJobs = employerJobs.filter(
     (job) => job.status !== "draft" && job.title.toLowerCase().includes(jobSearch.toLowerCase())
@@ -32,9 +117,21 @@ function AdminOverviewPage() {
   const showJobCompanyColumn =
     selectedEmployer?.employerType === "consultant" ||
     visibleEmployerJobs.some((job) => String(job.companyName || "").trim());
-  const visibleJobApplicants = jobApplicants.filter((applicant) =>
-    String(applicant?.applicantEmail || "").toLowerCase().includes(applicantSearch.toLowerCase())
-  );
+  const visibleJobApplicants = jobApplicants.filter((applicant) => {
+    const matchesSearch = String(applicant?.applicantEmail || "")
+      .toLowerCase()
+      .includes(applicantSearch.toLowerCase());
+
+    if (!matchesSearch) {
+      return false;
+    }
+
+    if (applicantInterviewStatusFilter === "all") {
+      return true;
+    }
+
+    return getApplicantInterviewStatus(applicant) === applicantInterviewStatusFilter;
+  });
 
   const headerTitle =
     viewMode === "applicants" && selectedJob
@@ -171,6 +268,56 @@ function AdminOverviewPage() {
     }
   }, [selectedJob]);
 
+  const fetchOverview = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await api.getAdminEmployerOverview();
+      if (response.success) {
+        setEmployers(response.data || []);
+      } else {
+        setError(response.message || "Failed to load overview data");
+      }
+    } catch (err) {
+      setError(err.message || "Failed to load overview data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewEmployerJobs = useCallback(async (employer) => {
+    if (selectedEmployer?.employerId === employer.employerId) {
+      setSelectedEmployer(null);
+      setEmployerJobs([]);
+      setJobsError("");
+      setApplicantInterviewStatusFilter("all");
+      setViewMode("employers");
+      return;
+    }
+
+    try {
+      setJobsLoading(true);
+      setJobsError("");
+      setSelectedJob(null);
+      setJobApplicants([]);
+      setApplicantsError("");
+      setJobSearch("");
+      setApplicantInterviewStatusFilter("all");
+      const response = await api.getAdminEmployerOverviewJobs(employer.employerId);
+      if (response.success) {
+        setSelectedEmployer(response.employer);
+        setEmployerJobs(response.data || []);
+        setViewMode("jobs");
+      } else {
+        setJobsError(response.message || "Failed to load employer jobs");
+      }
+    } catch (err) {
+      setJobsError(err.message || "Failed to load employer jobs");
+    } finally {
+      setJobsLoading(false);
+    }
+  }, [selectedEmployer?.employerId]);
+
   useEffect(() => {
     const employerId = searchParams.get("employerId");
 
@@ -189,55 +336,7 @@ function AdminOverviewPage() {
 
     autoOpenedEmployerIdRef.current = employerId;
     handleViewEmployerJobs(employer);
-  }, [loading, error, employers, searchParams]);
-
-  const fetchOverview = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const response = await api.getAdminEmployerOverview();
-      if (response.success) {
-        setEmployers(response.data || []);
-      } else {
-        setError(response.message || "Failed to load overview data");
-      }
-    } catch (err) {
-      setError(err.message || "Failed to load overview data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleViewEmployerJobs = async (employer) => {
-    if (selectedEmployer?.employerId === employer.employerId) {
-      setSelectedEmployer(null);
-      setEmployerJobs([]);
-      setJobsError("");
-      setViewMode("employers");
-      return;
-    }
-
-    try {
-      setJobsLoading(true);
-      setJobsError("");
-      setSelectedJob(null);
-      setJobApplicants([]);
-      setApplicantsError("");
-      setJobSearch("");
-      const response = await api.getAdminEmployerOverviewJobs(employer.employerId);
-      if (response.success) {
-        setSelectedEmployer(response.employer);
-        setEmployerJobs(response.data || []);
-        setViewMode("jobs");
-      } else {
-        setJobsError(response.message || "Failed to load employer jobs");
-      }
-    } catch (err) {
-      setJobsError(err.message || "Failed to load employer jobs");
-    } finally {
-      setJobsLoading(false);
-    }
-  };
+  }, [loading, error, employers, searchParams, handleViewEmployerJobs]);
 
   const handleViewApplicants = async (job) => {
     if (selectedJob?.jobId === job.jobId) {
@@ -245,6 +344,7 @@ function AdminOverviewPage() {
       setJobApplicants([]);
       setApplicantsError("");
       setApplicantSearch("");
+      setApplicantInterviewStatusFilter("all");
       setViewMode("jobs");
       return;
     }
@@ -253,6 +353,7 @@ function AdminOverviewPage() {
       setApplicantsLoading(true);
       setApplicantsError("");
       setApplicantSearch("");
+      setApplicantInterviewStatusFilter("all");
       const response = await api.getAdminJobApplicants(job.jobId);
       if (response.success) {
         setSelectedJob(response.job);
@@ -435,16 +536,35 @@ function AdminOverviewPage() {
       {viewMode === "applicants" && selectedJob && (
         <div ref={applicantsSectionRef} className="panel panel-default site-bg-white m-t20">
           <div className="panel-body wt-panel-body p-a20">
-            <div className="m-b20">
-              <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
-                <i className="fa fa-filter me-2 text-primary" />
-                Search by Applicant Email
-              </label>
-              <SearchBar
-                onSearch={setApplicantSearch}
-                placeholder="Search Applicant Email..."
-                className="employer-search"
-              />
+            <div className="admin-overview-filter-grid m-b20">
+              <div className="admin-overview-filter-control">
+                <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                  <i className="fa fa-filter me-2 text-primary" />
+                  Search by Applicant Email
+                </label>
+                <SearchBar
+                  onSearch={setApplicantSearch}
+                  placeholder="Search Applicant Email..."
+                  className="employer-search"
+                />
+              </div>
+              <div className="admin-overview-filter-control">
+                <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                  <i className="fa fa-list-alt me-2 text-primary" />
+                  Filter by Interview Status
+                </label>
+                <select
+                  className="form-control admin-overview-filter-select"
+                  value={applicantInterviewStatusFilter}
+                  onChange={(event) => setApplicantInterviewStatusFilter(event.target.value)}
+                >
+                  {INTERVIEW_STATUS_FILTER_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             {applicantsLoading && <div className="text-center">Loading applicants...</div>}
             {!applicantsLoading && applicantsError && <div className="alert alert-danger m-b0">{applicantsError}</div>}
@@ -460,46 +580,55 @@ function AdminOverviewPage() {
                       <th>Status</th>
                       <th>Applied Date</th>
                       <th>Interviews</th>
+                      <th>Interview Status</th>
                       <th>Round Status, Schedule & Remarks</th>
                     </tr>
                   </thead>
                   <tbody>
                     {visibleJobApplicants.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="text-center">
-                          {applicantSearch ? "No applicants match that email." : "No applicants found for this job."}
+                        <td colSpan="8" className="text-center">
+                          {applicantSearch || applicantInterviewStatusFilter !== "all"
+                            ? "No applicants match the selected filters."
+                            : "No applicants found for this job."}
                         </td>
                       </tr>
                     ) : (
-                      visibleJobApplicants.map((applicant) => (
-                        <tr key={applicant.applicationId}>
-                          <td>{applicant.applicantName}</td>
-                          <td>{applicant.applicantEmail}</td>
-                          <td>
-                            {(() => {
-                              const badge = getApplicationTypeBadge(applicant.applicationType);
-                              return <span style={badge.style}>{badge.label}</span>;
-                            })()}
-                          </td>
-                          <td>{applicant.status}</td>
-                          <td>{formatDate(applicant.appliedAt)}</td>
-                          <td>{applicant.interviewRoundsCount ?? 0}</td>
-                          <td>
-                            {Array.isArray(applicant.interviewRounds) && applicant.interviewRounds.length > 0 ? (
-                              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                {applicant.interviewRounds.map((round, index) => (
-                                  <div
-                                    key={`${applicant.applicationId}-${round.id || round.type || index}`}
-                                    style={{
-                                      border: "1px solid #e9ecef",
-                                      borderRadius: "6px",
-                                      padding: "6px 8px",
-                                      background: "#f8f9fa"
-                                    }}
-                                  >
-                                    <div style={{ fontWeight: 600, fontSize: "12px", color: "#232323" }}>
-                                      {round.name || round.type || `Round ${index + 1}`}
-                                    </div>
+                      visibleJobApplicants.map((applicant) => {
+                        const badge = getApplicationTypeBadge(applicant.applicationType);
+                        const interviewStatus = getApplicantInterviewStatus(applicant);
+
+                        return (
+                          <tr key={applicant.applicationId}>
+                            <td>{applicant.applicantName}</td>
+                            <td>{applicant.applicantEmail}</td>
+                            <td>
+                              <span style={badge.style}>{badge.label}</span>
+                            </td>
+                            <td>{applicant.status}</td>
+                            <td>{formatDate(applicant.appliedAt)}</td>
+                            <td>{applicant.interviewRoundsCount ?? 0}</td>
+                            <td>
+                              <span className={`admin-overview-status-badge admin-overview-status-${interviewStatus}`}>
+                                {getInterviewStatusLabel(interviewStatus)}
+                              </span>
+                            </td>
+                            <td>
+                              {Array.isArray(applicant.interviewRounds) && applicant.interviewRounds.length > 0 ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                  {applicant.interviewRounds.map((round, index) => (
+                                    <div
+                                      key={`${applicant.applicationId}-${round.id || round.type || index}`}
+                                      style={{
+                                        border: "1px solid #e9ecef",
+                                        borderRadius: "6px",
+                                        padding: "6px 8px",
+                                        background: "#f8f9fa"
+                                      }}
+                                    >
+                                      <div style={{ fontWeight: 600, fontSize: "12px", color: "#232323" }}>
+                                        {round.name || round.type || `Round ${index + 1}`}
+                                      </div>
                                       <div className="admin-overview-round-detail">
                                         <strong>Status:</strong> {round.status || "pending"}
                                       </div>
@@ -538,15 +667,16 @@ function AdminOverviewPage() {
                                       <div className="admin-overview-round-detail admin-overview-round-remarks">
                                         <strong>Remarks:</strong> {round.remark || "No remarks"}
                                       </div>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <span className="text-muted">No interview rounds</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-muted">No interview rounds</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>

@@ -4,6 +4,14 @@ import "./create-assessment.css";
 
 export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 	const navigate = useNavigate();
+	const isAssigned = Boolean(data?.isAssigned);
+	const assignmentCount = Number(data?.assignedJobsCount) || 0;
+	const assignmentSummary = assignmentCount === 1
+		? 'Assigned to 1 job'
+		: `Assigned to ${assignmentCount} jobs`;
+	const lockedActionTitle = isAssigned
+		? `${assignmentSummary}. Assigned assessments cannot be edited or deleted.`
+		: '';
 
 	const stripHtml = (value = "") => String(value || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
@@ -90,6 +98,12 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 						<span style={{ color: '#8B7355', fontWeight: '600' }}>Created Date:</span>{' '}
 						<span>{formatDate(data.createdAt)}</span>
 					</div>
+					{isAssigned && (
+						<div style={{ color: '#92400e', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+							<span style={{ color: '#b45309', fontWeight: '600' }}>Assignment:</span>{' '}
+							<span>{assignmentSummary}</span>
+						</div>
+					)}
 					<div style={{ color: '#374151', whiteSpace: 'normal', wordBreak: 'break-word' }}>
 						<span style={{ color: '#8B7355', fontWeight: '600' }}>Instructions:</span>{' '}
 						<span>{truncateText(instructionText, 140)}</span>
@@ -108,10 +122,20 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 					<button className="btn btn-sm btn-outline-primary" onClick={() => navigate(`/employer/assessment-results/${data._id}`)}>
 						<i className="fa fa-chart-bar"></i> Results
 					</button>
-					<button className="btn btn-sm btn-outline-secondary" onClick={() => onEdit(data)} title="Edit Assessment">
+					<button
+						className="btn btn-sm btn-outline-secondary"
+						onClick={() => onEdit(data)}
+						title={lockedActionTitle || "Edit Assessment"}
+						disabled={isAssigned}
+					>
 						<i className="fa fa-edit"></i>
 					</button>
-					<button className="btn btn-sm btn-outline-danger" onClick={() => onDelete(data._id)}>
+					<button
+						className="btn btn-sm btn-outline-danger"
+						onClick={() => onDelete(data)}
+						title={lockedActionTitle || "Delete Assessment"}
+						disabled={isAssigned}
+					>
 						<i className="fa fa-trash"></i>
 					</button>
 				</div>

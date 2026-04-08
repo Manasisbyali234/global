@@ -208,22 +208,32 @@ export default function AssessmentDashboard() {
 	};
 
 	const handleEditAssessment = (assessment) => {
+		if (assessment?.isAssigned) {
+			showWarning('Assigned assessments cannot be edited.');
+			return;
+		}
+
 		setEditingAssessment(assessment);
 		setShowModal(true);
 	};
 
-	const handleDeleteAssessment = async (id) => {
+	const handleDeleteAssessment = async (assessment) => {
+		if (assessment?.isAssigned) {
+			showWarning('Assigned assessments cannot be deleted.');
+			return;
+		}
+
 		showConfirmation(
 			'Are you sure you want to delete this assessment?',
 			async () => {
 				try {
-					await api.deleteEmployerAssessment(id);
-					const updatedAssessments = assessments.filter(a => a._id !== id);
+					await api.deleteEmployerAssessment(assessment._id);
+					const updatedAssessments = assessments.filter(a => a._id !== assessment._id);
 					setAssessments(updatedAssessments);
 					showSuccess('Assessment deleted successfully');
 				} catch (error) {
 					console.error('Error deleting assessment:', error);
-					showError('Failed to delete assessment');
+					showError(error.message || 'Failed to delete assessment');
 				}
 			},
 			() => {},

@@ -143,6 +143,8 @@ exports.getDashboardStats = async (req, res) => {
     const pendingPlacements = await Placement.countDocuments({ status: 'pending' });
     const approvedPlacements = await Placement.countDocuments({ isApproved: true, status: 'active' });
     const totalPlacements = await Placement.countDocuments();
+    const hiredCandidates = await Application.countDocuments({ status: 'hired' });
+    const rejectedCandidates = await Application.countDocuments({ status: 'rejected' });
 
     const stats = {
       totalCandidates,
@@ -154,7 +156,9 @@ exports.getDashboardStats = async (req, res) => {
       pendingJobs,
       pendingPlacements,
       approvedPlacements,
-      totalPlacements
+      totalPlacements,
+      hiredCandidates,
+      rejectedCandidates
     };
 
     res.json({ success: true, stats });

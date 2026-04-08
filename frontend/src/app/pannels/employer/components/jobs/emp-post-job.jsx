@@ -765,7 +765,11 @@ export default function EmpPostJob({ onNext }) {
 				headers: { 'Authorization': `Bearer ${token}` }
 			});
 			if (data.success) {
-				setAvailableAssessments(data.assessments || []);
+				const selectableAssessments = (data.assessments || []).filter((assessment) => {
+					const normalizedStatus = String(assessment?.status || 'published').toLowerCase();
+					return normalizedStatus !== 'draft';
+				});
+				setAvailableAssessments(selectableAssessments);
 			}
 		} catch (error) {
 			if (error.name === 'AuthError') {

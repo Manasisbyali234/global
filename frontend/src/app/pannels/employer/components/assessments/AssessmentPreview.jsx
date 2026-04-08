@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaClock } from "react-icons/fa";
+import { formatAssessmentContent } from "../../../../../utils/assessmentContent";
 
 const AssessmentPreview = ({ assessment, onBack }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -86,6 +87,24 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                         }}></div>
                     </div>
                 </div>
+
+                {(assessment.instructions || assessment.description) && (
+                    <div style={{
+                        background: "#fff",
+                        padding: "20px",
+                        borderRadius: "8px",
+                        boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
+                        marginBottom: "15px",
+                    }}>
+                        <div style={{ marginBottom: "10px", fontSize: "15px", fontWeight: "bold", color: "#1f2937" }}>
+                            Instructions
+                        </div>
+                        <div
+                            style={{ fontSize: "14px", color: "#4b5563", lineHeight: "1.7" }}
+                            dangerouslySetInnerHTML={{ __html: formatAssessmentContent(assessment.instructions || assessment.description) }}
+                        />
+                    </div>
+                )}
 
                 {/* Question Card */}
                 {questions.length > 0 ? (

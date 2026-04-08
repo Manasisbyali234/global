@@ -14,7 +14,9 @@ function AdminDashboardPage() {
         approvedEmployers: 0,
         activeJobs: 0,
         approvedPlacements: 0,
-        totalPlacements: 0
+        totalPlacements: 0,
+        hiredCandidates: 0,
+        rejectedCandidates: 0
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -189,7 +191,7 @@ function AdminDashboardPage() {
 
                 {!isSubAdmin && (
                 <div className="row" style={{marginBottom: '2rem'}}>
-                    <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                    <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
                         <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/registered-candidates')}>
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
@@ -203,7 +205,7 @@ function AdminDashboardPage() {
                         </div>
                     </div>
 
-                    <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                    <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
                         <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/admin-emp-approved')}>
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
@@ -217,7 +219,7 @@ function AdminDashboardPage() {
                         </div>
                     </div>
 
-                    <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                    <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
                         <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/overview')}>
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
@@ -230,8 +232,36 @@ function AdminDashboardPage() {
                             </div>
                         </div>
                     </div>
+
+                    <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', height: '140px', border: '1px solid #eef2f7'}}>
+                            <div className="admin-stat-card__body">
+                                <div className="admin-stat-card__top">
+                                    <i className="fa fa-user-check text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
+                                    <div className="counter text-orange admin-stat-card__value" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
+                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.hiredCandidates || 0} duration={2} />}
+                                    </div>
+                                </div>
+                                <h5 className="admin-stat-card__label" style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Hired Candidates</h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
+                        <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', height: '140px', border: '1px solid #eef2f7'}}>
+                            <div className="admin-stat-card__body">
+                                <div className="admin-stat-card__top">
+                                    <i className="fa fa-user-times text-orange admin-stat-card__icon" style={{fontSize: '2rem'}} />
+                                    <div className="counter text-orange admin-stat-card__value" style={{fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center'}}>
+                                        {loading ? <div className="loading-spinner"></div> : <CountUp end={stats.rejectedCandidates || 0} duration={2} />}
+                                    </div>
+                                </div>
+                                <h5 className="admin-stat-card__label" style={{fontSize: '0.95rem', fontWeight: '600', margin: 0}}>Rejected Candidates</h5>
+                            </div>
+                        </div>
+                    </div>
                     
-                    <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                    <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
                         <div className="dashboard-card-2 admin-stat-card" style={{backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', cursor: 'pointer', height: '140px', border: '1px solid #eef2f7'}} onClick={() => navigate('/admin/admin-placement-approved')}>
                             <div className="admin-stat-card__body">
                                 <div className="admin-stat-card__top">
@@ -270,3 +300,4 @@ function AdminDashboardPage() {
 }
 
 export default AdminDashboardPage;
+

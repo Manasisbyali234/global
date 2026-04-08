@@ -481,7 +481,7 @@ export default function CreateAssessmentModal({ onClose, onCreate, editData = nu
 					showPreview ? (
 						<div className="p-0 overflow-auto" style={{ flex: "1 1 auto", minHeight: 0 }}>
 							<AssessmentPreview 
-								assessment={{ title, timer: timeLimit, questions, passingPercentage }} 
+								assessment={{ title, timer: timeLimit, questions, passingPercentage, description }} 
 								onBack={() => setShowPreview(false)} 
 							/>
 						</div>
