@@ -10,11 +10,13 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
     const location = useLocation();
     const currentpath = location.pathname;
     const currentSearch = location.search;
+    const ADMIN_API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
     const [userPermissions, setUserPermissions] = useState([]);
     const [isSubAdmin, setIsSubAdmin] = useState(false);
     const [openMenus, setOpenMenus] = useState({});
     const [hasNewEmployers, setHasNewEmployers] = useState(false);
     const [hasNewPlacements, setHasNewPlacements] = useState(false);
+    const [hasPendingBatchUploads, setHasPendingBatchUploads] = useState(false);
     const [hasNewTickets, setHasNewTickets] = useState(false);
     const [hasProfileUpdates, setHasProfileUpdates] = useState(false);
     const employersLinkRef = useRef(null);
@@ -28,7 +30,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             
             if (!token || !subAdminData) return;
             
-            const response = await fetch('http://localhost:5000/api/admin/sub-admin/profile', {
+            const response = await fetch(`${ADMIN_API_BASE_URL}/admin/sub-admin/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -64,7 +66,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
             
-            const res = await fetch('http://localhost:5000/api/admin/employers?approvalStatus=pending&limit=1', {
+            const res = await fetch(`${ADMIN_API_BASE_URL}/admin/employers?approvalStatus=pending&limit=1`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -83,7 +85,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
 
-            const res = await fetch('http://localhost:5000/api/admin/employers', {
+            const res = await fetch(`${ADMIN_API_BASE_URL}/admin/employers`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -107,7 +109,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
             
-            const res = await fetch('http://localhost:5000/api/admin/placements?status=pending&limit=1', {
+            const res = await fetch(`${ADMIN_API_BASE_URL}/admin/placements?status=pending&limit=1`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -120,13 +122,35 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         }
     };
 
+    const checkPendingBatchUploads = async () => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            if (!token) return;
+
+            const res = await fetch(`${ADMIN_API_BASE_URL}/admin/placements`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                const placements = data.data || [];
+                const hasPendingUploads = placements.some((placement) =>
+                    (placement.fileHistory || []).some((file) => file.status === 'pending')
+                );
+                setHasPendingBatchUploads(hasPendingUploads);
+            }
+        } catch (error) {
+            console.error('Error checking pending batch uploads:', error);
+        }
+    };
+
     // Check for new support tickets
     const checkNewTickets = async () => {
         try {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
             
-            const res = await fetch('http://localhost:5000/api/admin/support-tickets?status=new&limit=1', {
+            const res = await fetch(`${ADMIN_API_BASE_URL}/admin/support-tickets?status=new&limit=1`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -144,12 +168,14 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         loadScript("js/admin-sidebar.js");
         checkNewEmployers();
         checkNewPlacements();
+        checkPendingBatchUploads();
         checkNewTickets();
         checkProfileUpdates();
 
         const interval = setInterval(() => {
             checkNewEmployers();
             checkNewPlacements();
+            checkPendingBatchUploads();
             checkNewTickets();
             checkProfileUpdates();
         }, 45000);
@@ -382,6 +408,16 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     <li className={currentpath === adminRoute(admin.PLACEMENT_BATCH_UPLOAD) ? 'active' : ''}>
                                         <NavLink to={adminRoute(admin.PLACEMENT_BATCH_UPLOAD)}>
                                             <span className="admin-nav-text">Batch Uploads</span>
+                                            {hasPendingBatchUploads && (
+                                                <span style={{
+                                                    display: 'inline-block',
+                                                    width: '8px',
+                                                    height: '8px',
+                                                    backgroundColor: '#ff4444',
+                                                    borderRadius: '50%',
+                                                    marginLeft: '8px'
+                                                }}></span>
+                                            )}
                                         </NavLink>
                                     </li>
                                     {!isSubAdmin && (

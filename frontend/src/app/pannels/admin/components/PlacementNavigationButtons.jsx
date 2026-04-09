@@ -1,9 +1,31 @@
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { api } from '../../../../utils/api';
 import './placement-navigation-buttons.css';
 
 function PlacementNavigationButtons() {
     const navigate = useNavigate();
     const location = useLocation();
+    const [hasPendingBatchUploads, setHasPendingBatchUploads] = useState(false);
+
+    useEffect(() => {
+        const fetchPendingBatchUploads = async () => {
+            try {
+                const response = await api.getAllPlacements();
+                if (response.success) {
+                    const placements = response.data || [];
+                    const hasPendingUploads = placements.some((placement) =>
+                        (placement.fileHistory || []).some((file) => file.status === 'pending')
+                    );
+                    setHasPendingBatchUploads(hasPendingUploads);
+                }
+            } catch (error) {
+                console.error('Error checking pending batch uploads:', error);
+            }
+        };
+
+        fetchPendingBatchUploads();
+    }, []);
 
     const buttons = [
         {
@@ -40,6 +62,9 @@ function PlacementNavigationButtons() {
                 >
                     <i className={`fa ${button.icon}`}></i>
                     <span>{button.label}</span>
+                    {button.id === 'batch-uploads' && hasPendingBatchUploads && (
+                        <span className="placement-nav-btn__dot" title="New batch uploads pending approval"></span>
+                    )}
                 </button>
             ))}
         </div>

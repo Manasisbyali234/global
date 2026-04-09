@@ -2207,6 +2207,23 @@ exports.deleteJob = async (req, res) => {
 
 exports.getEmployerJobs = async (req, res) => {
   try {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    await Job.updateMany(
+      {
+        employerId: req.user._id,
+        status: 'active',
+        $or: [
+          { lastDateOfApplication: { $lt: today } },
+          { offerLetterDate: { $lt: today } }
+        ]
+      },
+      {
+        $set: { status: 'closed' }
+      }
+    );
+
     const jobs = await Job.find({
       employerId: req.user._id,
       status: { $ne: 'draft' }
