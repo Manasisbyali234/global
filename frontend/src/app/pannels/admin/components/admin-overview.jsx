@@ -107,13 +107,19 @@ function AdminOverviewPage() {
   const [applicantsError, setApplicantsError] = useState("");
   const [viewMode, setViewMode] = useState("employers"); // employers | jobs | applicants
   const [employerSearch, setEmployerSearch] = useState("");
+  const [employerTypeFilter, setEmployerTypeFilter] = useState("all");
   const [jobSearch, setJobSearch] = useState("");
   const [applicantSearch, setApplicantSearch] = useState("");
   const [applicantInterviewStatusFilter, setApplicantInterviewStatusFilter] = useState("all");
+  const [jobStatusFilter, setJobStatusFilter] = useState("all");
   const autoOpenedEmployerIdRef = useRef(null);
-  const visibleEmployerJobs = employerJobs.filter(
-    (job) => job.status !== "draft" && job.title.toLowerCase().includes(jobSearch.toLowerCase())
-  );
+  const visibleEmployerJobs = employerJobs.filter((job) => {
+    if (job.status === "draft") return false;
+    if (!job.title.toLowerCase().includes(jobSearch.toLowerCase())) return false;
+    if (jobStatusFilter === "active") return job.status === "active";
+    if (jobStatusFilter === "closed") return job.status === "closed";
+    return true;
+  });
   const showJobCompanyColumn =
     selectedEmployer?.employerType === "consultant" ||
     visibleEmployerJobs.some((job) => String(job.companyName || "").trim());
@@ -290,6 +296,7 @@ function AdminOverviewPage() {
       setSelectedEmployer(null);
       setEmployerJobs([]);
       setJobsError("");
+      setJobStatusFilter("all");
       setApplicantInterviewStatusFilter("all");
       setViewMode("employers");
       return;
@@ -302,6 +309,7 @@ function AdminOverviewPage() {
       setJobApplicants([]);
       setApplicantsError("");
       setJobSearch("");
+      setJobStatusFilter("all");
       setApplicantInterviewStatusFilter("all");
       const response = await api.getAdminEmployerOverviewJobs(employer.employerId);
       if (response.success) {
@@ -394,16 +402,33 @@ function AdminOverviewPage() {
       {viewMode === "employers" && (
         <div className="panel panel-default site-bg-white">
           <div className="panel-body wt-panel-body p-a20">
-            <div className="m-b20">
-              <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
-                <i className="fa fa-filter me-2 text-primary" />
-                Search by Company Name
-              </label>
-              <SearchBar
-                onSearch={setEmployerSearch}
-                placeholder="Search Company Name..."
-                className="employer-search"
-              />
+            <div className="admin-overview-filter-grid m-b20">
+              <div className="admin-overview-filter-control">
+                <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                  <i className="fa fa-filter me-2 text-primary" />
+                  Search by Company Name
+                </label>
+                <SearchBar
+                  onSearch={setEmployerSearch}
+                  placeholder="Search Company Name..."
+                  className="employer-search"
+                />
+              </div>
+              <div className="admin-overview-filter-control">
+                <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                  <i className="fa fa-building me-2 text-primary" />
+                  Filter by Type
+                </label>
+                <select
+                  className="form-control admin-overview-filter-select"
+                  value={employerTypeFilter}
+                  onChange={(e) => setEmployerTypeFilter(e.target.value)}
+                >
+                  <option value="all">All Types</option>
+                  <option value="company">Company</option>
+                  <option value="consultant">Consultant</option>
+                </select>
+              </div>
             </div>
 
             {loading && <div className="text-center">Loading overview...</div>}
@@ -422,15 +447,21 @@ function AdminOverviewPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {employers.filter(emp => emp.employerName.toLowerCase().includes(employerSearch.toLowerCase())).length === 0 ? (
+                    {employers.filter(emp =>
+                        emp.employerName.toLowerCase().includes(employerSearch.toLowerCase()) &&
+                        (employerTypeFilter === "all" || String(emp.employerType || "").toLowerCase() === employerTypeFilter)
+                      ).length === 0 ? (
                       <tr>
                         <td colSpan="5" className="text-center">
-                          {employerSearch ? "No matching company records found." : "No employer records found."}
+                          {employerSearch || employerTypeFilter !== "all" ? "No matching employer records found." : "No employer records found."}
                         </td>
                       </tr>
                     ) : (
                       employers
-                        .filter(emp => emp.employerName.toLowerCase().includes(employerSearch.toLowerCase()))
+                        .filter(emp =>
+                          emp.employerName.toLowerCase().includes(employerSearch.toLowerCase()) &&
+                          (employerTypeFilter === "all" || String(emp.employerType || "").toLowerCase() === employerTypeFilter)
+                        )
                         .map((employer) => (
                           <tr key={employer.employerId}>
                             <td>{employer.employerName}</td>
@@ -462,16 +493,33 @@ function AdminOverviewPage() {
       {viewMode === "jobs" && selectedEmployer && (
         <div ref={jobsSectionRef} className="panel panel-default site-bg-white m-t20">
           <div className="panel-body wt-panel-body p-a20">
-            <div className="m-b20">
-              <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
-                <i className="fa fa-filter me-2 text-primary" />
-                Search by Job Name
-              </label>
-              <SearchBar
-                onSearch={setJobSearch}
-                placeholder="Search Job Name..."
-                className="employer-search"
-              />
+            <div className="admin-overview-filter-grid m-b20">
+              <div className="admin-overview-filter-control">
+                <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                  <i className="fa fa-filter me-2 text-primary" />
+                  Search by Job Name
+                </label>
+                <SearchBar
+                  onSearch={setJobSearch}
+                  placeholder="Search Job Name..."
+                  className="employer-search"
+                />
+              </div>
+              <div className="admin-overview-filter-control">
+                <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                  <i className="fa fa-list-alt me-2 text-primary" />
+                  Filter by Application Status
+                </label>
+                <select
+                  className="form-control admin-overview-filter-select"
+                  value={jobStatusFilter}
+                  onChange={(e) => setJobStatusFilter(e.target.value)}
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="active">Active</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
             </div>
 
             {jobsLoading && <div className="text-center">Loading jobs...</div>}
@@ -482,9 +530,9 @@ function AdminOverviewPage() {
                 <table className="table table-bordered">
                   <thead>
                     <tr>
+                      <th>Posted Date</th>
                       {showJobCompanyColumn && <th>Company Name</th>}
                       <th>Job Title</th>
-                      <th>Posted Date</th>
                       <th>Applications</th>
                       <th>Paid Applicants</th>
                       <th>Credit Applicants</th>
@@ -504,9 +552,9 @@ function AdminOverviewPage() {
                     ) : (
                       visibleEmployerJobs.map((job) => (
                           <tr key={job.jobId}>
+                            <td>{job.createdAt ? formatDate(job.createdAt) : "N/A"}</td>
                             {showJobCompanyColumn && <td>{job.companyName || selectedEmployer?.employerName || "N/A"}</td>}
                             <td>{job.title}</td>
-                            <td>{job.createdAt ? formatDate(job.createdAt) : "N/A"}</td>
                             <td>{job.applicationsCount}</td>
                             <td>{job.paidApplicationsCount ?? 0}</td>
                             <td>{job.creditApplicationsCount ?? 0}</td>

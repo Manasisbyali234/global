@@ -13,6 +13,7 @@ function CanTransactionsPage() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
+    const [dateFilter, setDateFilter] = useState("");
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [paymentDetails, setPaymentDetails] = useState(null);
@@ -160,16 +161,24 @@ function CanTransactionsPage() {
                 String(t?.paymentCurrency || '').toUpperCase() === 'CREDITS' ||
                 Number(t?.paymentAmount) === 0;
         return transactions.filter((t) => {
-            if (isCreditTransaction(t)) {
-                return false;
-            }
+            if (isCreditTransaction(t)) return false;
             const jobTitle = t.jobId?.title?.toLowerCase() || "";
-            const employerName = (t.employerId?.brandName || t.employerId?.companyName || '').toLowerCase();
-            const paymentId = t.paymentId?.toLowerCase() || "";
-            const dateStr = t.createdAt ? formatDate(t.createdAt) : "";
-            return jobTitle.includes(q) || employerName.includes(q) || paymentId.includes(q) || dateStr.includes(q);
+            const company = (t.employerId?.brandName || t.employerId?.companyName || "").toLowerCase();
+            if (!(jobTitle.includes(q) || company.includes(q))) return false;
+            if (dateFilter.trim()) {
+                const [dd, mm, yyyy] = dateFilter.trim().split('/');
+                if (dd && mm && yyyy && yyyy.length === 4) {
+                    const d = new Date(t.createdAt);
+                    if (
+                        d.getDate() !== Number(dd) ||
+                        d.getMonth() + 1 !== Number(mm) ||
+                        d.getFullYear() !== Number(yyyy)
+                    ) return false;
+                }
+            }
+            return true;
         });
-    }, [transactions, searchText]);
+    }, [transactions, searchText, dateFilter]);
 
     const getReceiptAmountBreakdown = (amount) => {
         const totalPaid = Number(amount || 129);
@@ -231,13 +240,13 @@ function CanTransactionsPage() {
                         <div className="page-toolbar__controls page-toolbar__controls--single" style={{ width: '100%', maxWidth: '420px' }}>
                         <div className="page-toolbar__section">
                             <label className="page-toolbar__label">
-                                <i className="fa fa-search"></i> Search Transactions
+                                <i className="fa fa-search"></i> Search by Job Role or Company
                             </label>
                         <div style={{ position: 'relative', width: '100%' }}>
                             <input
                                 type="text"
                                 className="form-control page-toolbar__input"
-                                placeholder="Search by job, company, payment ID, or date (e.g. Jan 2025)..."
+                                placeholder="Search by job role or company..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 style={{
@@ -251,6 +260,20 @@ function CanTransactionsPage() {
                             />
                         </div>
                         </div>
+                        </div>
+                        <div className="page-toolbar__section" style={{ marginLeft: '1rem' }}>
+                            <label className="page-toolbar__label">
+                                <i className="fa fa-calendar"></i> Filter by Date
+                            </label>
+                            <input
+                                type="text"
+                                className="form-control page-toolbar__input"
+                                placeholder="DD/MM/YYYY"
+                                value={dateFilter}
+                                onChange={(e) => setDateFilter(e.target.value)}
+                                maxLength={10}
+                                style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '140px', maxWidth: '160px' }}
+                            />
                         </div>
                         <div className="text-muted" style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
                             Total: <strong>{filteredTransactions.length}</strong>

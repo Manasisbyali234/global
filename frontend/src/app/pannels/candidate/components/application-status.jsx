@@ -18,21 +18,17 @@ import "../../../../table-overflow-fix.css";
 
 const APPLICATION_STATUS_FILTER_OPTIONS = [
 	{ value: 'all', label: 'All Status' },
-	{ value: 'pending', label: 'Pending' },
-	{ value: 'shortlisted', label: 'Shortlisted' },
-	{ value: 'under_review', label: 'Under Review' },
-	{ value: 'interviewed', label: 'Interviewed' },
-	{ value: 'pending_decision', label: 'Pending Decision' },
-	{ value: 'offer_sent', label: 'Offer Letter Sent' },
-	{ value: 'accepted', label: 'Accepted' },
-	{ value: 'hired', label: 'Hired' },
-	{ value: 'selected', label: 'Selected' },
-	{ value: 'rejected', label: 'Rejected' },
-	{ value: 'on_hold', label: 'On Hold' },
-	{ value: 'no_show', label: 'No Show' },
+	{ value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
 	{ value: 'completed', label: 'Completed' },
-	{ value: 'expired', label: 'Expired' },
-	{ value: 'suspended', label: 'Suspended' }
+	{ value: 'rejected', label: 'Rejected' },
+	{ value: 'selected', label: 'Selected' },
+	{ value: 'pending', label: 'Pending' },
+	{ value: 'suspended', label: 'Suspended' },
+	{ value: 'pending_decision', label: 'Pending Decision' },
+	{ value: 'no_show', label: 'No Show' },
+	{ value: 'on_hold', label: 'On Hold' },
+	{ value: 'under_review', label: 'Under Review' },
+	{ value: 'not_advanced_to_next_stage', label: 'Not Adavanced To Next Stage' },
 ];
 
 function CanStatusPage() {
@@ -43,6 +39,7 @@ function CanStatusPage() {
 	const [loading, setLoading] = useState(true);
 	const [selectedStatus, setSelectedStatus] = useState('all');
 	const [searchQuery, setSearchQuery] = useState('');
+	const [positionQuery, setPositionQuery] = useState('');
 	const [activeTab, setActiveTab] = useState('applications');
 	const [highlightShortlisted, setHighlightShortlisted] = useState(false);
 	const [highlightCompanyPosition, setHighlightCompanyPosition] = useState(false);
@@ -1667,13 +1664,20 @@ function CanStatusPage() {
 			const query = searchQuery.trim().toLowerCase();
 			result = result.filter((application) => {
 				const company = (getEmployerDisplayCompanyName(application) || '').toLowerCase();
+				return company.includes(query);
+			});
+		}
+
+		if (positionQuery.trim()) {
+			const query = positionQuery.trim().toLowerCase();
+			result = result.filter((application) => {
 				const position = (application.jobId?.title || '').toLowerCase();
-				return company.includes(query) || position.includes(query);
+				return position.includes(query);
 			});
 		}
 
 		return result;
-	}, [applications, selectedStatus, searchQuery]);
+	}, [applications, selectedStatus, searchQuery, positionQuery]);
 
 	return (
 		<>
@@ -1717,7 +1721,7 @@ function CanStatusPage() {
 					)}
 
 					{/* Refresh Controls */}
-					<div className="status-page-toolbar mb-3">
+					<div className="status-page-toolbar mb-3" style={{ justifyContent: 'flex-start' }}>
 						<div className="status-page-filter-group">
 							<label className="status-page-filter-label" htmlFor="candidate-search-filter">
 								Search
@@ -1728,9 +1732,26 @@ function CanStatusPage() {
 									id="candidate-search-filter"
 									type="text"
 									className="status-page-filter-select"
-									placeholder="Search company or position..."
+									placeholder="Search by company name..."
 									value={searchQuery}
 									onChange={(e) => setSearchQuery(e.target.value)}
+									style={{ paddingLeft: '30px', minWidth: '220px' }}
+								/>
+							</div>
+						</div>
+						<div className="status-page-filter-group">
+							<label className="status-page-filter-label" htmlFor="candidate-position-search">
+								Position
+							</label>
+							<div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+								<i className="fa fa-briefcase" style={{ position: 'absolute', left: '10px', color: '#adb5bd', fontSize: '13px' }}></i>
+								<input
+									id="candidate-position-search"
+									type="text"
+									className="status-page-filter-select"
+									placeholder="Search by position..."
+									value={positionQuery}
+									onChange={(e) => setPositionQuery(e.target.value)}
 									style={{ paddingLeft: '30px', minWidth: '220px' }}
 								/>
 							</div>
@@ -1752,15 +1773,7 @@ function CanStatusPage() {
 								))}
 							</select>
 						</div>
-						<button 
-							className="btn btn-sm btn-outline-primary refresh-btn"
-							onClick={fetchApplications}
-							disabled={loading}
-							style={{backgroundColor: 'transparent'}}
-						>
-							<i className="fa fa-refresh me-1" />
-							{loading ? 'Refreshing...' : 'Refresh Now'}
-						</button>
+
 					</div>
 			
 					<div className="twm-pro-view-chart-wrap">
