@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../../../../utils/api";
-import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
+import { showError, showWarning } from '../../../../../utils/popupNotification';
+import { candidateResumeSkillOptions } from "../../../../../utils/candidateResumeSkillOptions";
 function SectionCanKeySkills({ profile }) {
     const [skills, setSkills] = useState([]);
     const [selectedSkills, setSelectedSkills] = useState([]);
@@ -10,59 +11,7 @@ function SectionCanKeySkills({ profile }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
 
-    const predefinedSkills = [
-        'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Swift', 'Kotlin', 'TypeScript', 'Rust', 'Scala', 'Perl', 'R', 'MATLAB', 'Groovy', 'Clojure', 'Elixir', 'Haskell',
-        'HTML', 'CSS', 'React', 'Angular', 'Vue.js', 'Node.js', 'Express.js', 'Bootstrap', 'jQuery', 'Next.js', 'Nuxt.js', 'Tailwind CSS', 'Material UI', 'Redux', 'Svelte', 'Ember.js', 'Backbone.js', 'Preact', 'Lit', 'Astro',
-        'MySQL', 'PostgreSQL', 'MongoDB', 'SQLite', 'Oracle', 'Redis', 'Firebase', 'Cassandra', 'DynamoDB', 'MariaDB', 'CouchDB', 'Elasticsearch', 'Neo4j', 'InfluxDB', 'Memcached',
-        'AWS', 'Azure', 'Google Cloud', 'Docker', 'Kubernetes', 'Jenkins', 'Git', 'Terraform', 'Ansible', 'CI/CD', 'GitLab', 'GitHub Actions', 'CircleCI', 'Travis CI', 'Heroku', 'DigitalOcean',
-        'Django', 'Flask', 'Spring Boot', 'Laravel', 'Ruby on Rails', 'ASP.NET', 'FastAPI', 'Pyramid', 'Tornado', 'Bottle', 'Falcon', 'Gin', 'Echo', 'Fiber',
-        'React Native', 'Flutter', 'Ionic', 'Xamarin', 'Android', 'iOS', 'SwiftUI', 'Jetpack Compose', 'NativeScript', 'Cordova',
-        'GraphQL', 'REST API', 'Microservices', 'WebSockets', 'gRPC', 'SOAP', 'Protocol Buffers', 'Message Queues', 'RabbitMQ', 'Apache Kafka',
-        'Selenium', 'Cypress', 'Jest', 'Mocha', 'Pytest', 'JUnit', 'Postman', 'TestNG', 'Cucumber', 'Appium', 'Playwright', 'Puppeteer',
-        'Linux', 'Unix', 'Windows Server', 'Shell Scripting', 'PowerShell', 'Bash', 'Zsh', 'Fish', 'macOS',
-        'Agile', 'Scrum', 'Kanban', 'Jira', 'Confluence', 'Trello', 'Asana', 'Monday.com', 'Notion', 'Azure DevOps',
-        'Figma', 'Adobe XD', 'Sketch', 'Photoshop', 'Illustrator', 'InDesign', 'Affinity Designer', 'Protopie', 'Framer',
-        'Salesforce', 'SAP', 'ServiceNow', 'Workday', 'Oracle ERP', 'NetSuite', 'Dynamics 365',
-        'Power BI', 'Tableau', 'Excel', 'Google Analytics', 'Looker', 'Qlik', 'Sisense', 'Metabase', 'Superset',
-        'Hadoop', 'Spark', 'Kafka', 'Airflow', 'ETL', 'Talend', 'Informatica', 'Apache Beam', 'Flink',
-        'TensorFlow', 'PyTorch', 'Keras', 'Scikit-learn', 'Pandas', 'NumPy', 'OpenCV', 'NLTK', 'Spacy', 'XGBoost', 'LightGBM',
-        'Blockchain', 'Ethereum', 'Solidity', 'Web3', 'Bitcoin', 'Hyperledger', 'Truffle', 'Hardhat', 'Foundry',
-        'Penetration Testing', 'Ethical Hacking', 'OWASP', 'Security Auditing', 'Burp Suite', 'Metasploit', 'Wireshark', 'Nmap',
-        'Project Management', 'Team Leadership', 'Communication', 'Problem Solving', 'Critical Thinking', 'Mentoring', 'Coaching',
-        'Data Analysis', 'Business Analysis', 'Financial Analysis', 'Marketing', 'Sales', 'Accounting', 'Audit', 'Compliance',
-        'Digital Marketing', 'Content Writing', 'SEO', 'Social Media Marketing', 'Email Marketing', 'PPC', 'SEM', 'Copywriting',
-        'Software Testing', 'Quality Assurance', 'System Administration', 'Network Administration', 'Database Administration', 'Cloud Administration',
-        'Cybersecurity', 'Data Science', 'Machine Learning', 'Artificial Intelligence', 'Deep Learning', 'NLP', 'Computer Vision', 'Reinforcement Learning',
-        'API Development', 'Web Development', 'Mobile Development', 'Desktop Development', 'Game Development', 'IoT Development',
-        'Version Control', 'Code Review', 'Debugging', 'Performance Optimization', 'Refactoring', 'Design Patterns', 'SOLID Principles',
-        'Accessibility', 'Responsive Design', 'Progressive Web Apps', 'Server-Side Rendering', 'Static Site Generation', 'Jamstack',
-        // Healthcare & Medical
-        'Patient Care', 'Clinical Research', 'Medical Coding', 'Medical Billing', 'Nursing', 'Pharmacy', 'Radiology', 'Physiotherapy', 'Occupational Therapy', 'Healthcare Management', 'EMR/EHR Systems', 'HIPAA Compliance', 'Telemedicine', 'Pathology', 'Cardiology', 'Pediatrics', 'Oncology', 'Dermatology', 'Neurology', 'Orthopedics',
-        // Finance & Accounting
-        'Bookkeeping', 'Taxation', 'GST', 'Tally', 'QuickBooks', 'SAP FICO', 'Financial Reporting', 'Budgeting', 'Forecasting', 'Cost Accounting', 'Auditing', 'Internal Audit', 'Risk Management', 'Investment Banking', 'Equity Research', 'Portfolio Management', 'Insurance', 'Actuarial Science', 'Credit Analysis', 'Loan Processing',
-        // Human Resources
-        'Recruitment', 'Talent Acquisition', 'Onboarding', 'Payroll Management', 'Performance Management', 'Employee Relations', 'HR Policies', 'Labor Law', 'Training & Development', 'Compensation & Benefits', 'HRIS', 'Workforce Planning', 'Succession Planning', 'Diversity & Inclusion', 'Exit Management',
-        // Legal
-        'Contract Drafting', 'Legal Research', 'Litigation', 'Corporate Law', 'Intellectual Property', 'Mergers & Acquisitions', 'Compliance Management', 'Regulatory Affairs', 'Arbitration', 'Legal Documentation', 'Due Diligence', 'Employment Law', 'Real Estate Law', 'Criminal Law', 'Family Law',
-        // Education & Training
-        'Curriculum Development', 'Instructional Design', 'E-Learning', 'Classroom Management', 'Student Assessment', 'Special Education', 'Academic Counseling', 'Corporate Training', 'Workshop Facilitation', 'LMS Administration', 'STEM Education', 'Language Teaching', 'Tutoring',
-        // Operations & Supply Chain
-        'Supply Chain Management', 'Logistics', 'Inventory Management', 'Procurement', 'Vendor Management', 'Warehouse Management', 'Quality Control', 'Lean Manufacturing', 'Six Sigma', 'ERP Systems', 'Production Planning', 'Demand Forecasting', 'Import/Export', 'Fleet Management',
-        // Sales & Business Development
-        'B2B Sales', 'B2C Sales', 'Lead Generation', 'CRM', 'Salesforce CRM', 'HubSpot', 'Cold Calling', 'Negotiation', 'Client Relationship Management', 'Key Account Management', 'Channel Sales', 'Inside Sales', 'Field Sales', 'Retail Sales', 'Pre-Sales',
-        // Marketing & Communications
-        'Brand Management', 'Market Research', 'Product Marketing', 'Event Management', 'Public Relations', 'Media Planning', 'Influencer Marketing', 'Affiliate Marketing', 'Content Strategy', 'Graphic Design', 'Video Editing', 'Photography', 'Adobe Premiere', 'After Effects', 'Canva',
-        // Architecture & Civil Engineering
-        'AutoCAD', 'Revit', 'SketchUp', 'Civil 3D', 'Structural Design', 'Interior Design', 'Urban Planning', 'Construction Management', 'Project Estimation', 'HVAC', 'MEP Design', 'BIM', 'Site Supervision',
-        // Mechanical & Electrical Engineering
-        'SolidWorks', 'CATIA', 'ANSYS', 'PLC Programming', 'SCADA', 'Electrical Design', 'PCB Design', 'Embedded Systems', 'Robotics', 'CNC Machining', 'Welding', 'Hydraulics', 'Pneumatics', 'Instrumentation',
-        // Hospitality & Tourism
-        'Hotel Management', 'Front Office Operations', 'Food & Beverage', 'Housekeeping', 'Event Planning', 'Travel Planning', 'Tour Operations', 'Revenue Management', 'Guest Relations', 'Catering',
-        // Media & Journalism
-        'News Writing', 'Investigative Journalism', 'Broadcast Journalism', 'Editing', 'Proofreading', 'Scriptwriting', 'Podcast Production', 'Social Media Management', 'YouTube Content Creation', 'Blogging',
-        // Soft Skills
-        'Time Management', 'Adaptability', 'Emotional Intelligence', 'Conflict Resolution', 'Decision Making', 'Presentation Skills', 'Public Speaking', 'Negotiation Skills', 'Active Listening', 'Creativity', 'Attention to Detail', 'Multitasking', 'Work Ethic', 'Interpersonal Skills'
-    ];
+    const predefinedSkills = candidateResumeSkillOptions;
 
     const dropdownRef = useRef(null);
 
@@ -186,8 +135,9 @@ function SectionCanKeySkills({ profile }) {
         }
     };
 
+    const normalizedExistingSkills = new Set(skills.map((skill) => skill.toLowerCase()));
     const availableSkills = predefinedSkills.filter(
-        (skill) => !skills.includes(skill) && skill.toLowerCase().includes(searchTerm.toLowerCase())
+        (skill) => !normalizedExistingSkills.has(skill.toLowerCase()) && skill.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (

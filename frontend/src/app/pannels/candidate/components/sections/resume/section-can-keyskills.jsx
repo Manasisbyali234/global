@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../../../../../../../utils/api";
-import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../../../utils/popupNotification';
+import { showSuccess, showError, showWarning } from '../../../../../../../utils/popupNotification';
+import { candidateResumeSkillOptions } from "../../../../../../../utils/candidateResumeSkillOptions";
 
 function SectionCanKeySkills({ profile }) {
     const [skills, setSkills] = useState([]);
@@ -9,17 +10,7 @@ function SectionCanKeySkills({ profile }) {
     const [loading, setLoading] = useState(false);
     const [showCustomInput, setShowCustomInput] = useState(false);
 
-    const predefinedSkills = [
-        'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Swift', 'Kotlin',
-        'HTML', 'CSS', 'React', 'Angular', 'Vue.js', 'Node.js', 'Express.js', 'Bootstrap', 'jQuery',
-        'MySQL', 'PostgreSQL', 'MongoDB', 'SQLite', 'Oracle', 'Redis',
-        'AWS', 'Azure', 'Google Cloud', 'Docker', 'Kubernetes', 'Jenkins', 'Git',
-        'Project Management', 'Team Leadership', 'Communication', 'Problem Solving', 'Critical Thinking',
-        'Data Analysis', 'Business Analysis', 'Financial Analysis', 'Marketing', 'Sales', 'Accounting',
-        'Digital Marketing', 'Content Writing', 'SEO', 'Social Media Marketing',
-        'Software Testing', 'Quality Assurance', 'System Administration', 'Network Administration',
-        'Cybersecurity', 'Data Science', 'Machine Learning', 'Artificial Intelligence'
-    ];
+    const predefinedSkills = candidateResumeSkillOptions;
 
     useEffect(() => {
         setSkills(profile?.skills || []);

@@ -64,17 +64,40 @@
 
 .emp-assessment-page .assessment-selector-row {
   min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end !important;
 }
 
 .emp-assessment-page .assessment-selector-label {
-  min-width: 140px;
+  min-width: 0;
+  width: 100%;
   flex: 0 0 auto;
 }
 
+.emp-assessment-page .assessment-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.emp-assessment-page .assessment-filter-group--assessment {
+  flex: 1.6 1 360px;
+}
+
+.emp-assessment-page .assessment-selector-row--consultant .assessment-filter-group,
+.emp-assessment-page .assessment-selector-row--consultant .assessment-filter-group--assessment,
+.emp-assessment-page .assessment-selector-row--consultant .assessment-status-filter-wrap,
+.emp-assessment-page .assessment-selector-row--consultant .assessment-company-search-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
 .emp-assessment-page .assessment-selector-control-wrap {
-  flex: 1 1 320px !important;
+  flex: 1 1 auto !important;
   width: 100% !important;
-  max-width: 320px !important;
+  max-width: none !important;
   min-width: 0 !important;
   overflow: visible !important;
   position: relative;
@@ -82,17 +105,18 @@
 
 .emp-assessment-page .assessment-status-filter-wrap {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 0 1 auto;
+  align-items: stretch;
+  gap: 8px;
+  flex: 0.8 1 200px;
+  min-width: 180px;
 }
 
 .emp-assessment-page .assessment-company-search-wrap {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1 1 280px;
-  min-width: 240px;
+  align-items: stretch;
+  gap: 8px;
+  flex: 1 1 260px;
+  min-width: 220px;
 }
 
 .emp-assessment-page .assessment-status-filter-label {
@@ -100,6 +124,7 @@
 }
 
 .emp-assessment-page .assessment-status-filter-select {
+  width: 100%;
   min-width: 180px;
   min-height: 50px;
   padding: 12px 44px 12px 16px !important;
@@ -113,6 +138,7 @@
 }
 
 .emp-assessment-page .assessment-company-search-input {
+  width: 100%;
   min-height: 50px;
   padding: 12px 16px 12px 42px !important;
   border: 1px solid #d1d5db !important;
@@ -152,6 +178,10 @@
   overflow: hidden !important;
   white-space: nowrap !important;
   word-break: normal !important;
+}
+
+.emp-assessment-page .assessment-search-input-wrap {
+  width: 100%;
 }
 
 .emp-assessment-page .assessment-selector-trigger:hover,
@@ -387,6 +417,12 @@
   .emp-assessment-page .assessment-selector-label {
     min-width: 0;
     width: 100%;
+  }
+
+  .emp-assessment-page .assessment-filter-group,
+  .emp-assessment-page .assessment-filter-group--assessment {
+    width: 100%;
+    flex: 1 1 100%;
   }
 
   .emp-assessment-page .assessment-selector-control-wrap {

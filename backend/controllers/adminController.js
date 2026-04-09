@@ -77,6 +77,11 @@ const resolveApplicationType = (application = {}) => {
   return 'unknown';
 };
 
+const isOfferNotAccepted = (application = {}) =>
+  application?.status === 'rejected' &&
+  Array.isArray(application?.statusHistory) &&
+  application.statusHistory.some((entry) => entry?.status === 'offer_sent');
+
 // Authentication Controller
 exports.loginAdmin = async (req, res) => {
   try {
@@ -249,7 +254,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
     const jobIds = jobs.map(job => job._id);
     const applications = jobIds.length
       ? await Application.find({ jobId: { $in: jobIds } })
-          .select('jobId paymentStatus paymentId orderId paymentAmount paymentCurrency')
+          .select('jobId status statusHistory paymentStatus paymentId orderId paymentAmount paymentCurrency')
           .lean()
       : [];
 
@@ -258,7 +263,10 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       const currentCounts = acc.get(jobKey) || {
         applicationsCount: 0,
         paidApplicationsCount: 0,
-        creditApplicationsCount: 0
+        creditApplicationsCount: 0,
+        acceptedOfferCount: 0,
+        notAcceptedOfferCount: 0,
+        rejectedApplicationsCount: 0
       };
 
       currentCounts.applicationsCount += 1;
@@ -268,6 +276,14 @@ exports.getEmployerOverviewJobs = async (req, res) => {
         currentCounts.paidApplicationsCount += 1;
       } else if (applicationType === 'credit') {
         currentCounts.creditApplicationsCount += 1;
+      }
+
+      if (application.status === 'accepted') {
+        currentCounts.acceptedOfferCount += 1;
+      } else if (isOfferNotAccepted(application)) {
+        currentCounts.notAcceptedOfferCount += 1;
+      } else if (application.status === 'rejected') {
+        currentCounts.rejectedApplicationsCount += 1;
       }
 
       acc.set(jobKey, currentCounts);
@@ -284,7 +300,10 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       offerLetterDate: job.offerLetterDate,
       applicationsCount: applicationsByJobMap.get(String(job._id))?.applicationsCount || 0,
       paidApplicationsCount: applicationsByJobMap.get(String(job._id))?.paidApplicationsCount || 0,
-      creditApplicationsCount: applicationsByJobMap.get(String(job._id))?.creditApplicationsCount || 0
+      creditApplicationsCount: applicationsByJobMap.get(String(job._id))?.creditApplicationsCount || 0,
+      acceptedOfferCount: applicationsByJobMap.get(String(job._id))?.acceptedOfferCount || 0,
+      notAcceptedOfferCount: applicationsByJobMap.get(String(job._id))?.notAcceptedOfferCount || 0,
+      rejectedApplicationsCount: applicationsByJobMap.get(String(job._id))?.rejectedApplicationsCount || 0
     }));
 
     res.json({

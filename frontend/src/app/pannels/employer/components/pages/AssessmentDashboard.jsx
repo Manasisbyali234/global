@@ -372,60 +372,62 @@ export default function AssessmentDashboard() {
 
 			{/* Assessment Selector */}
 			<div className="employer-page-shell">
-				<div className="d-flex flex-wrap gap-3 align-items-center employer-page-content-card assessment-selector-row" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-					<label className="form-label mb-0 fw-semibold assessment-selector-label">Select Assessment:</label>
-					<div className="assessment-selector-control-wrap" ref={selectorRef}>
-						<button
-							type="button"
-							className="assessment-selector-trigger"
-							onClick={() => setIsSelectorOpen((current) => !current)}
-							aria-expanded={isSelectorOpen}
-							aria-haspopup="listbox"
-							title={selectedAssessment ? getAssessmentOptionTitle(selectedAssessment) : "Select Assessment"}
-						>
-							<span className={`assessment-selector-trigger-text${selectedAssessment ? "" : " is-placeholder"}`}>
-								{selectedAssessment ? getAssessmentOptionLabel(selectedAssessment) : "Select Assessment"}
-							</span>
-							<i className={`fa ${isSelectorOpen ? "fa-chevron-up" : "fa-chevron-down"} assessment-selector-trigger-icon`} aria-hidden="true"></i>
-						</button>
-						{isSelectorOpen && (
-							<div className="assessment-selector-menu" role="listbox" aria-label="Select Assessment">
-								<button
-									type="button"
-									className={`assessment-selector-option${selectedAssessmentId ? "" : " is-active"}`}
-									onClick={() => {
-										setSelectedAssessmentId("");
-										setIsSelectorOpen(false);
-									}}
-									title="Select Assessment"
-								>
-									<span className="assessment-selector-option-title">Select Assessment</span>
-									<span className="assessment-selector-option-meta">Show all assessments</span>
-								</button>
-								{assessments.map((assessment) => (
+				<div className={`d-flex flex-wrap gap-3 align-items-end employer-page-content-card assessment-selector-row${isConsultantEmployer ? ' assessment-selector-row--consultant' : ''}`} style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+					<div className="assessment-filter-group assessment-filter-group--assessment">
+						<label className="form-label mb-0 fw-semibold assessment-selector-label">Select Assessment</label>
+						<div className="assessment-selector-control-wrap" ref={selectorRef}>
+							<button
+								type="button"
+								className="assessment-selector-trigger"
+								onClick={() => setIsSelectorOpen((current) => !current)}
+								aria-expanded={isSelectorOpen}
+								aria-haspopup="listbox"
+								title={selectedAssessment ? getAssessmentOptionTitle(selectedAssessment) : "Select Assessment"}
+							>
+								<span className={`assessment-selector-trigger-text${selectedAssessment ? "" : " is-placeholder"}`}>
+									{selectedAssessment ? getAssessmentOptionLabel(selectedAssessment) : "Select Assessment"}
+								</span>
+								<i className={`fa ${isSelectorOpen ? "fa-chevron-up" : "fa-chevron-down"} assessment-selector-trigger-icon`} aria-hidden="true"></i>
+							</button>
+							{isSelectorOpen && (
+								<div className="assessment-selector-menu" role="listbox" aria-label="Select Assessment">
 									<button
-										key={assessment._id}
 										type="button"
-										className={`assessment-selector-option${selectedAssessmentId === assessment._id ? " is-active" : ""}`}
+										className={`assessment-selector-option${selectedAssessmentId ? "" : " is-active"}`}
 										onClick={() => {
-											setSelectedAssessmentId(assessment._id);
+											setSelectedAssessmentId("");
 											setIsSelectorOpen(false);
 										}}
-										title={getAssessmentOptionTitle(assessment)}
+										title="Select Assessment"
 									>
-										<span className="assessment-selector-option-title">
-											{assessment.title || 'Untitled Assessment'}
-										</span>
-										<span className="assessment-selector-option-meta">
-											{assessment.designation || 'N/A'} | {assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min
-										</span>
+										<span className="assessment-selector-option-title">Select Assessment</span>
+										<span className="assessment-selector-option-meta">Show all assessments</span>
 									</button>
-								))}
-							</div>
-						)}
+									{assessments.map((assessment) => (
+										<button
+											key={assessment._id}
+											type="button"
+											className={`assessment-selector-option${selectedAssessmentId === assessment._id ? " is-active" : ""}`}
+											onClick={() => {
+												setSelectedAssessmentId(assessment._id);
+												setIsSelectorOpen(false);
+											}}
+											title={getAssessmentOptionTitle(assessment)}
+										>
+											<span className="assessment-selector-option-title">
+												{assessment.title || 'Untitled Assessment'}
+											</span>
+											<span className="assessment-selector-option-meta">
+												{assessment.designation || 'N/A'} | {assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min
+											</span>
+										</button>
+									))}
+								</div>
+							)}
+						</div>
 					</div>
-					<div className="assessment-status-filter-wrap">
-						<label className="form-label mb-0 fw-semibold assessment-selector-label assessment-status-filter-label">Status:</label>
+					<div className="assessment-filter-group assessment-status-filter-wrap">
+						<label className="form-label mb-0 fw-semibold assessment-selector-label assessment-status-filter-label">Status</label>
 						<select
 							className="form-select assessment-status-filter-select"
 							value={selectedStatus}
@@ -439,9 +441,9 @@ export default function AssessmentDashboard() {
 						</select>
 					</div>
 					{isConsultantEmployer && (
-						<div className="assessment-company-search-wrap">
+						<div className="assessment-filter-group assessment-company-search-wrap">
 							<label className="form-label mb-0 fw-semibold assessment-selector-label assessment-status-filter-label">
-								Company:
+								Company
 							</label>
 							<div className="assessment-search-input-wrap">
 								<i className="fa fa-search assessment-search-icon" aria-hidden="true"></i>

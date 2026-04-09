@@ -4200,18 +4200,24 @@ exports.updateSupportTicketStatus = async (req, res) => {
     // Create notification for user if responded or status changed
     if ((response && response.trim()) || status === 'resolved' || status === 'closed') {
       try {
-        let notificationTitle = 'Support Ticket Updated';
-        let notificationMessage = `Your support ticket "${ticket.subject}" has been updated by the employer.`;
+        const notificationTicket = applyEmployerSupportTicketFallbacks(ticket.toObject ? ticket.toObject() : ticket);
+        const replyingCompanyName =
+          notificationTicket?.supportCompanyName && notificationTicket.supportCompanyName !== 'N/A'
+            ? notificationTicket.supportCompanyName
+            : 'the company';
+
+        let notificationTitle = `${replyingCompanyName} updated your support ticket`;
+        let notificationMessage = `Company: ${replyingCompanyName}\nSubject: ${ticket.subject}\n\nYour support ticket has been updated.`;
         
         if (response && response.trim()) {
-          notificationTitle = 'Hr Response to Your Support Ticket';
-          notificationMessage = `Subject: ${ticket.subject}\n\nStatus: ${status.toUpperCase()}\n\nEmployer Response:\n${response.trim()}`;
+          notificationTitle = `${replyingCompanyName} replied to your support ticket`;
+          notificationMessage = `Company: ${replyingCompanyName}\nSubject: ${ticket.subject}\n\nStatus: ${status.toUpperCase()}\n\nEmployer Response:\n${response.trim()}`;
         } else if (status === 'resolved') {
-          notificationTitle = 'Support Ticket Resolved';
-          notificationMessage = `Subject: ${ticket.subject}\n\nYour support ticket has been resolved by the employer.\n\nStatus: RESOLVED`;
+          notificationTitle = `${replyingCompanyName} resolved your support ticket`;
+          notificationMessage = `Company: ${replyingCompanyName}\nSubject: ${ticket.subject}\n\nYour support ticket has been resolved.\n\nStatus: RESOLVED`;
         } else if (status === 'closed') {
-          notificationTitle = 'Support Ticket Closed';
-          notificationMessage = `Subject: ${ticket.subject}\n\nYour support ticket has been closed by the employer.\n\nStatus: CLOSED`;
+          notificationTitle = `${replyingCompanyName} closed your support ticket`;
+          notificationMessage = `Company: ${replyingCompanyName}\nSubject: ${ticket.subject}\n\nYour support ticket has been closed.\n\nStatus: CLOSED`;
         }
         
         let targetUserId = ticket.userId;

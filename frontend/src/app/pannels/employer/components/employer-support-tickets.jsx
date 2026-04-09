@@ -290,6 +290,31 @@ function EmployerSupportTickets() {
         );
     };
 
+    const getUserTypeBadge = (userType) => {
+        const variants = {
+            candidate: 'badge-soft-user-candidate',
+            employer: 'badge-soft-user-employer',
+            placement: 'badge-soft-user-placement',
+            guest: 'badge-soft-user-guest'
+        };
+        const displayText = {
+            candidate: 'Candidate',
+            employer: 'Employer',
+            placement: 'Placement',
+            guest: 'Guest User'
+        };
+        return (
+            <Badge bg="light" className={`badge-soft ${variants[userType] || ''}`}>
+                {displayText[userType] || 'Candidate'}
+            </Badge>
+        );
+    };
+
+    const getRequesterName = (ticket) => ticket?.name || ticket?.requesterDisplayName || 'N/A';
+    const getRequesterEmail = (ticket) => ticket?.email || 'No email provided';
+    const getRequesterType = (ticket) => ticket?.userType || 'candidate';
+    const getResponsePlaceholder = () => 'Write a clear response for this candidate ticket. This message will be shared with the candidate.';
+
     const handleCloseModal = () => {
         setShowModal(false);
         setIsTicketModalMinimized(false);
@@ -532,6 +557,13 @@ function EmployerSupportTickets() {
                 className={`support-ticket-modal${isTicketModalMinimized ? ' support-ticket-modal--minimized' : ''}`}
                 show={showModal} 
                 onHide={handleCloseModal}
+                onEntered={() => {
+                    const textarea = document.querySelector('#support-ticket-modal .response-textarea');
+                    if (textarea) {
+                        textarea.style.height = 'auto';
+                        textarea.style.height = `${textarea.scrollHeight}px`;
+                    }
+                }}
                 size={isTicketModalMaximized ? undefined : 'lg'}
                 fullscreen={isTicketModalMaximized}
                 centered={!isTicketModalMinimized && !isTicketModalMaximized}
@@ -551,7 +583,7 @@ function EmployerSupportTickets() {
                 <div className="support-ticket-modal-shell">
                     <div className="support-ticket-modal-topbar">
                         <h5 className="support-ticket-modal-title">
-                            {isTicketModalMinimized ? (selectedTicket?.subject || 'Ticket details') : 'Ticket details'}
+                            {isTicketModalMinimized ? (selectedTicket?.subject || 'Ticket Details') : 'Ticket Details'}
                         </h5>
                         <div className="support-ticket-window-controls">
                             <button
@@ -586,139 +618,108 @@ function EmployerSupportTickets() {
                     {!isTicketModalMinimized && selectedTicket && (
                         <>
                             <div className="support-ticket-modal-body">
-                                <Row className="mb-3">
-                                    <Col md={6}>
-                                        <div className="detail-label">Company Name</div>
-                                        <AutoExpandTextarea
-                                            value={getCompanyName(selectedTicket)}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
-                                        />
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="detail-label">Designation</div>
-                                        <AutoExpandTextarea
-                                            value={getJobTitle(selectedTicket) || 'N/A'}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
-                                        />
-                                    </Col>
-                                </Row>
-                                <Row className="mb-3">
-                                    <Col md={6}>
-                                        <div className="detail-label">Name / Email</div>
-                                        <AutoExpandTextarea
-                                            value={selectedTicket.name || 'N/A'}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
-                                        />
-                                        <AutoExpandTextarea
-                                            value={selectedTicket.email || 'No email'}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea ticket-detail-textarea--secondary detail-value--break mt-2"
-                                        />
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="detail-label">Subject</div>
-                                        <AutoExpandTextarea
-                                            value={selectedTicket.subject || ''}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
-                                        />
-                                    </Col>
-                                </Row>
-                                <Row className="mb-3">
-                                    <Col md={6}>
-                                        <div className="detail-label">Category</div>
-                                        <AutoExpandTextarea
-                                            value={selectedTicket.category || 'General'}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
-                                        />
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="detail-label">Priority</div>
-                                        <div>{getPriorityBadge(selectedTicket.priority)}</div>
-                                    </Col>
-                                </Row>
-                                <Row className="mb-3">
-                                    <Col md={6}>
-                                        <div className="detail-label">Status</div>
-                                        <div>{getStatusBadge(selectedTicket.status)}</div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="detail-label">Created</div>
-                                        <AutoExpandTextarea
-                                            value={formatDate(selectedTicket.createdAt)}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea"
-                                        />
-                                    </Col>
-                                </Row>
-                                <Row className="mb-3">
-                                    <Col>
+                                <div className="ticket-details-shell">
+                                    <div className="ticket-details-hero">
+                                        <div className="ticket-details-hero__content">
+                                            <span className="ticket-details-hero__eyebrow">Support Ticket</span>
+                                            <h4 className="ticket-details-hero__title">{selectedTicket.subject || 'Untitled Ticket'}</h4>
+                                            <div className="ticket-details-hero__meta">
+                                                <span>Ticket ID: {selectedTicket._id?.slice(-8)?.toUpperCase() || 'N/A'}</span>
+                                                <span>Created: {formatDate(selectedTicket.createdAt)}</span>
+                                            </div>
+                                        </div>
+                                        <div className="ticket-details-hero__badges">
+                                            <div className="ticket-details-badge-group">
+                                                <span className="ticket-details-badge-label">Priority</span>
+                                                {getPriorityBadge(selectedTicket.priority)}
+                                            </div>
+                                            <div className="ticket-details-badge-group">
+                                                <span className="ticket-details-badge-label">Status</span>
+                                                {getStatusBadge(selectedTicket.status)}
+                                            </div>
+                                            <div className="ticket-details-badge-group">
+                                                <span className="ticket-details-badge-label">User Type</span>
+                                                {getUserTypeBadge(getRequesterType(selectedTicket))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="ticket-details-grid">
+                                        <div className="ticket-detail-card">
+                                            <div className="detail-label">Candidate Name</div>
+                                            <div className="detail-value detail-value--break">{getRequesterName(selectedTicket)}</div>
+                                        </div>
+                                        <div className="ticket-detail-card">
+                                            <div className="detail-label">Company Name</div>
+                                            <div className="detail-value detail-value--break">{getCompanyName(selectedTicket)}</div>
+                                        </div>
+                                        <div className="ticket-detail-card">
+                                            <div className="detail-label">Designation</div>
+                                            <div className="detail-value detail-value--break">{getJobTitle(selectedTicket) || 'N/A'}</div>
+                                        </div>
+                                        <div className="ticket-detail-card">
+                                            <div className="detail-label">Email</div>
+                                            <div className="detail-value detail-value--break">{getRequesterEmail(selectedTicket)}</div>
+                                        </div>
+                                        <div className="ticket-detail-card">
+                                            <div className="detail-label">Category</div>
+                                            <div className="detail-value detail-value--break">{selectedTicket.category || 'General'}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="ticket-detail-section mb-3">
                                         <div className="detail-label">Message</div>
-                                        <AutoExpandTextarea
-                                            value={selectedTicket.message || ''}
-                                            readOnly
-                                            minRows={4}
-                                            className="auto-expand-textarea ticket-detail-textarea ticket-detail-textarea--message detail-value--break"
-                                        />
-                                    </Col>
-                                </Row>
+                                        <div className="message-box">
+                                            {selectedTicket.message || 'No message provided.'}
+                                        </div>
+                                    </div>
+                                </div>
                                 {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
+                                    <div className="ticket-detail-section mb-3">
+                                        <div className="detail-label">Attachments</div>
+                                        <ul className="attachment-list">
+                                            {selectedTicket.attachments.map((attachment, index) => (
+                                                <li key={index} className="attachment-item">
+                                                    <button
+                                                        className="attachment-link"
+                                                        onClick={(event) => handleAttachmentClick(event, selectedTicket._id, index, attachment.originalName)}
+                                                    >
+                                                        {attachment.originalName}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                                <div className="ticket-admin-panel">
                                     <Row className="mb-3">
-                                        <Col>
-                                            <div className="detail-label">Attachments</div>
-                                            <ul className="attachment-list">
-                                                {selectedTicket.attachments.map((attachment, index) => (
-                                                    <li key={index} className="attachment-item">
-                                                        <button
-                                                            className="attachment-link"
-                                                            onClick={(event) => handleAttachmentClick(event, selectedTicket._id, index, attachment.originalName)}
-                                                        >
-                                                            {attachment.originalName}
-                                                        </button>
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                        <Col md={6}>
+                                            <Form.Group>
+                                                <Form.Label className="detail-label">Status</Form.Label>
+                                                <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                                                    <option value="new">New</option>
+                                                    <option value="in-progress">In Progress</option>
+                                                    <option value="resolved">Resolved</option>
+                                                    <option value="closed">Closed</option>
+                                                </Form.Select>
+                                            </Form.Group>
                                         </Col>
                                     </Row>
-                                )}
-                                <Row className="mb-3">
-                                    <Col md={6}>
-                                        <Form.Group>
-                                            <Form.Label className="detail-label">Status</Form.Label>
-                                            <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                                                <option value="new">New</option>
-                                                <option value="in-progress">In progress</option>
-                                                <option value="resolved">Resolved</option>
-                                                <option value="closed">Closed</option>
-                                            </Form.Select>
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
-                                <Row className="mb-3">
-                                    <Col md={12}>
-                                        <Form.Group>
-                                            <Form.Label className="detail-label">Your Response<span style={{ color: 'red' }}>*</span></Form.Label>
-                                            <AutoExpandTextarea
-                                                className="response-textarea"
-                                                placeholder="Type your response here..."
-                                                value={response}
-                                                onChange={(e) => setResponse(e.target.value)}
-                                            />
-                                            <small className="text-muted">Your response will be sent as a notification to the candidate.</small>
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
+                                    <Row className="mb-0">
+                                        <Col md={12}>
+                                            <Form.Group>
+                                                <Form.Label className="detail-label">Your Response<span style={{ color: 'red' }}>*</span></Form.Label>
+                                                <AutoExpandTextarea
+                                                    className="response-textarea"
+                                                    placeholder={getResponsePlaceholder()}
+                                                    value={response}
+                                                    onChange={(e) => setResponse(e.target.value)}
+                                                />
+                                                <small className="text-muted">Enter a clear update or resolution note. Your response will be sent to the candidate as a notification.</small>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
                             </div>
                             <div className="support-ticket-modal-footer">
                                 {response.trim() && <Button

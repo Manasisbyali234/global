@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Crop, RotateCcw, ZoomIn, ZoomOut, Download, X, Move } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Download, X, Move } from 'lucide-react';
 import './ImageResizer.css';
 
 const ImageResizer = ({ 
@@ -25,6 +25,55 @@ const ImageResizer = ({
   const [isDraggingCrop, setIsDraggingCrop] = useState(false);
   const [isResizingCrop, setIsResizingCrop] = useState(false);
   const [resizeHandle, setResizeHandle] = useState(null);
+
+  const getInitialCropArea = useCallback(() => {
+    const container = containerRef.current;
+    const image = imageRef.current;
+
+    if (!container || !image) {
+      return { x: 100, y: 100, width: 200, height: 200 };
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const imageRect = image.getBoundingClientRect();
+    const imageBounds = {
+      x: Math.max(0, imageRect.left - containerRect.left),
+      y: Math.max(0, imageRect.top - containerRect.top),
+      width: Math.max(50, Math.min(imageRect.width, containerRect.width)),
+      height: Math.max(50, Math.min(imageRect.height, containerRect.height))
+    };
+
+    if (!aspectRatio) {
+      const width = Math.max(50, imageBounds.width * 0.8);
+      const height = Math.max(50, imageBounds.height * 0.8);
+
+      return {
+        x: imageBounds.x + (imageBounds.width - width) / 2,
+        y: imageBounds.y + (imageBounds.height - height) / 2,
+        width,
+        height
+      };
+    }
+
+    let width = imageBounds.width;
+    let height = width / aspectRatio;
+
+    if (height > imageBounds.height) {
+      height = imageBounds.height;
+      width = height * aspectRatio;
+    }
+
+    return {
+      x: imageBounds.x + (imageBounds.width - width) / 2,
+      y: imageBounds.y + (imageBounds.height - height) / 2,
+      width: Math.max(50, width),
+      height: Math.max(50, height)
+    };
+  }, [aspectRatio]);
+
+  const syncCropAreaToImage = useCallback(() => {
+    setCropArea(getInitialCropArea());
+  }, [getInitialCropArea]);
 
   const handleMouseDown = useCallback((e) => {
     if (e.target.classList.contains('crop-area') || e.target.classList.contains('resize-handle')) return;
@@ -64,33 +113,86 @@ const ImageResizer = ({
       const mouseY = e.clientY - rect.top;
       
       setCropArea(prev => {
-        let newArea = { ...prev };
-        
-        if (resizeHandle.includes('right')) {
-          newArea.width = Math.max(50, Math.min(mouseX - prev.x, rect.width - prev.x));
-        }
-        if (resizeHandle.includes('bottom')) {
-          newArea.height = Math.max(50, Math.min(mouseY - prev.y, rect.height - prev.y));
-        }
-        if (resizeHandle.includes('left')) {
-          const newWidth = prev.width + (prev.x - mouseX);
-          if (newWidth >= 50 && mouseX >= 0) {
-            newArea.x = mouseX;
-            newArea.width = newWidth;
+        if (!aspectRatio) {
+          const newArea = { ...prev };
+          
+          if (resizeHandle.includes('right')) {
+            newArea.width = Math.max(50, Math.min(mouseX - prev.x, rect.width - prev.x));
           }
-        }
-        if (resizeHandle.includes('top')) {
-          const newHeight = prev.height + (prev.y - mouseY);
-          if (newHeight >= 50 && mouseY >= 0) {
-            newArea.y = mouseY;
-            newArea.height = newHeight;
+          if (resizeHandle.includes('bottom')) {
+            newArea.height = Math.max(50, Math.min(mouseY - prev.y, rect.height - prev.y));
           }
+          if (resizeHandle.includes('left')) {
+            const newWidth = prev.width + (prev.x - mouseX);
+            if (newWidth >= 50 && mouseX >= 0) {
+              newArea.x = mouseX;
+              newArea.width = newWidth;
+            }
+          }
+          if (resizeHandle.includes('top')) {
+            const newHeight = prev.height + (prev.y - mouseY);
+            if (newHeight >= 50 && mouseY >= 0) {
+              newArea.y = mouseY;
+              newArea.height = newHeight;
+            }
+          }
+          
+          return newArea;
         }
-        
-        return newArea;
+
+        const minWidth = 50;
+        const minHeight = minWidth / aspectRatio;
+        const right = prev.x + prev.width;
+        const bottom = prev.y + prev.height;
+        let nextArea = { ...prev };
+
+        if (resizeHandle === 'top-left') {
+          const maxWidth = Math.max(0, right);
+          const maxHeight = Math.max(0, bottom);
+          const rawWidth = Math.max(minWidth, right - mouseX);
+          const rawHeight = Math.max(minHeight, bottom - mouseY);
+          const width = Math.min(rawWidth, rawHeight * aspectRatio, maxWidth, maxHeight * aspectRatio);
+          const height = width / aspectRatio;
+          nextArea = { x: right - width, y: bottom - height, width, height };
+        }
+
+        if (resizeHandle === 'top-right') {
+          const maxWidth = Math.max(0, rect.width - prev.x);
+          const maxHeight = Math.max(0, bottom);
+          const rawWidth = Math.max(minWidth, mouseX - prev.x);
+          const rawHeight = Math.max(minHeight, bottom - mouseY);
+          const width = Math.min(rawWidth, rawHeight * aspectRatio, maxWidth, maxHeight * aspectRatio);
+          const height = width / aspectRatio;
+          nextArea = { x: prev.x, y: bottom - height, width, height };
+        }
+
+        if (resizeHandle === 'bottom-left') {
+          const maxWidth = Math.max(0, right);
+          const maxHeight = Math.max(0, rect.height - prev.y);
+          const rawWidth = Math.max(minWidth, right - mouseX);
+          const rawHeight = Math.max(minHeight, mouseY - prev.y);
+          const width = Math.min(rawWidth, rawHeight * aspectRatio, maxWidth, maxHeight * aspectRatio);
+          const height = width / aspectRatio;
+          nextArea = { x: right - width, y: prev.y, width, height };
+        }
+
+        if (resizeHandle === 'bottom-right') {
+          const maxWidth = Math.max(0, rect.width - prev.x);
+          const maxHeight = Math.max(0, rect.height - prev.y);
+          const rawWidth = Math.max(minWidth, mouseX - prev.x);
+          const rawHeight = Math.max(minHeight, mouseY - prev.y);
+          const width = Math.min(rawWidth, rawHeight * aspectRatio, maxWidth, maxHeight * aspectRatio);
+          const height = width / aspectRatio;
+          nextArea = { x: prev.x, y: prev.y, width, height };
+        }
+
+        nextArea.x = Math.max(0, Math.min(nextArea.x, rect.width - nextArea.width));
+        nextArea.y = Math.max(0, Math.min(nextArea.y, rect.height - nextArea.height));
+
+        return nextArea;
       });
     }
-  }, [isDragging, isDraggingCrop, isResizingCrop, dragStart, cropArea, resizeHandle]);
+  }, [isDragging, isDraggingCrop, isResizingCrop, dragStart, cropArea, resizeHandle, aspectRatio]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -122,7 +224,9 @@ const ImageResizer = ({
     setScale(1);
     setRotation(0);
     setPosition({ x: 0, y: 0 });
-    setCropArea({ x: 100, y: 100, width: 200, height: 200 });
+    requestAnimationFrame(() => {
+      syncCropAreaToImage();
+    });
   };
 
   const handleSave = useCallback(() => {
@@ -148,23 +252,23 @@ const ImageResizer = ({
     const cropWidth = cropArea.width * scaleX;
     const cropHeight = cropArea.height * scaleY;
     
-    // Set output canvas size
-    canvas.width = cropArea.width;
-    canvas.height = cropArea.height;
+    // Export at the requested fixed dimensions.
+    canvas.width = maxWidth;
+    canvas.height = maxHeight;
     
     try {
       // Draw the cropped portion
-      ctx.drawImage(
-        image,
-        Math.max(0, cropX),
-        Math.max(0, cropY),
-        Math.min(cropWidth, image.naturalWidth),
-        Math.min(cropHeight, image.naturalHeight),
-        0,
-        0,
-        cropArea.width,
-        cropArea.height
-      );
+        ctx.drawImage(
+          image,
+          Math.max(0, cropX),
+          Math.max(0, cropY),
+          Math.min(cropWidth, image.naturalWidth),
+          Math.min(cropHeight, image.naturalHeight),
+          0,
+          0,
+          maxWidth,
+          maxHeight
+        );
       
       canvas.toBlob((blob) => {
         if (blob) {
@@ -177,7 +281,21 @@ const ImageResizer = ({
       console.error('Image crop export failed:', error);
       window.alert('Unable to crop this image. Please re-upload the image and try again.');
     }
-  }, [cropArea, quality, onSave]);
+  }, [cropArea, quality, onSave, maxWidth, maxHeight]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    setScale(1);
+    setRotation(0);
+    setPosition({ x: 0, y: 0 });
+
+    const frameId = requestAnimationFrame(() => {
+      syncCropAreaToImage();
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [isOpen, src, aspectRatio, syncCropAreaToImage]);
 
   useEffect(() => {
     if (!isOpen || typeof document === 'undefined') return undefined;
@@ -215,6 +333,7 @@ const ImageResizer = ({
               src={src}
               alt="Preview"
               crossOrigin="anonymous"
+              onLoad={syncCropAreaToImage}
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`,
                 cursor: isDragging ? 'grabbing' : 'grab'

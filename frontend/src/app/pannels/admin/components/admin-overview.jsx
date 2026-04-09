@@ -488,6 +488,9 @@ function AdminOverviewPage() {
                       <th>Applications</th>
                       <th>Paid Applicants</th>
                       <th>Credit Applicants</th>
+                      <th>Offer Accepted</th>
+                      <th>Offer Not Accepted</th>
+                      <th>Rejected</th>
                       <th>Application Status</th>
                       <th>Last Date of Application</th>
                       <th>Offer Letter Date</th>
@@ -497,7 +500,7 @@ function AdminOverviewPage() {
                   <tbody>
                     {visibleEmployerJobs.length === 0 ? (
                       <tr>
-                        <td colSpan={showJobCompanyColumn ? 10 : 9} className="text-center">
+                        <td colSpan={showJobCompanyColumn ? 13 : 12} className="text-center">
                           {jobSearch ? "No matching jobs found." : "No jobs found for this employer."}
                         </td>
                       </tr>
@@ -510,6 +513,9 @@ function AdminOverviewPage() {
                             <td>{job.applicationsCount}</td>
                             <td>{job.paidApplicationsCount ?? 0}</td>
                             <td>{job.creditApplicationsCount ?? 0}</td>
+                            <td>{job.acceptedOfferCount ?? 0}</td>
+                            <td>{job.notAcceptedOfferCount ?? 0}</td>
+                            <td>{job.rejectedApplicationsCount ?? 0}</td>
                             <td>{job.status}</td>
                             <td>{job.lastDateOfApplication ? formatDate(job.lastDateOfApplication) : 'N/A'}</td>
                             <td>{job.offerLetterDate ? formatDate(job.offerLetterDate) : 'N/A'}</td>
