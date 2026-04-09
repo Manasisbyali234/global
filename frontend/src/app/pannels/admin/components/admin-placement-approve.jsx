@@ -148,21 +148,9 @@ function AdminPlacementOfficersApproved() {
                                         >
                                             <td style={{textAlign: 'center', fontSize: '0.9rem'}}>
                                                 <div className={`company-name-wrap ${placement.hasNewBatchUploads ? 'company-name-wrap--new' : ''}`}>
-                                                    <span className={`company-name ${placement.hasNewBatchUploads ? 'company-name--new' : ''}`}>
-                                                        {placement.hasNewBatchUploads && (
-                                                            <span className="company-name-dot" aria-hidden="true"></span>
-                                                        )}
+                                                    <span className="company-name">
                                                         {placement.collegeName || 'N/A'}
                                                     </span>
-                                                    {placement.hasNewBatchUploads && placement.newBatchUploads?.length > 0 && (
-                                                        <span className="company-name-subnote">
-                                                            {getUniqueCourseLabels(placement.newBatchUploads).map((courseName) => (
-                                                                <span key={courseName} className="company-name-subnote-line">
-                                                                    {courseName}
-                                                                </span>
-                                                            ))}
-                                                        </span>
-                                                    )}
                                                 </div>
                                             </td>
                                             <td style={{textAlign: 'center'}}>

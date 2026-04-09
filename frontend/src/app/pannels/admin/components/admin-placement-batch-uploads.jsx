@@ -125,7 +125,12 @@ function AdminBatchUploads() {
                                 ) : (
                                     filteredPlacements.map((placement) => (
                                         <tr key={placement._id}>
-                                            <td style={{textAlign: 'center', fontSize: '0.9rem'}}>{placement.collegeName || 'N/A'}</td>
+                                            <td style={{textAlign: 'center', fontSize: '0.9rem'}}>
+                                                {placement.pendingFiles > 0 && (
+                                                    <span style={{display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FF7A00', marginRight: '6px', verticalAlign: 'middle'}} title="Files uploaded"></span>
+                                                )}
+                                                {placement.collegeName || 'N/A'}
+                                            </td>
                                             <td style={{textAlign: 'center'}}>
                                                 <span className="company-name">
                                                     {placement.name}
