@@ -283,6 +283,7 @@ function CanInterviewsPage() {
   const [employerLogos, setEmployerLogos] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedDesignation, setSelectedDesignation] = useState("all");
   const [showInterviewInstructionsModal, setShowInterviewInstructionsModal] = useState(false);
   const [pendingInterviewApplicationId, setPendingInterviewApplicationId] = useState(null);
   const deferredSearchTerm = useDeferredValue(searchTerm);
@@ -428,6 +429,19 @@ function CanInterviewsPage() {
     return cards;
   }, [applications, employerLogos]);
 
+  const designationOptions = useMemo(() => {
+    const seen = new Set();
+    const options = [{ value: "all", label: "All Designations" }];
+    applicationCards.forEach((card) => {
+      const title = card.jobTitle || "";
+      if (title && title !== "Job Title" && !seen.has(title)) {
+        seen.add(title);
+        options.push({ value: title, label: title });
+      }
+    });
+    return options;
+  }, [applicationCards]);
+
   const statusOptions = useMemo(() => {
     const seen = new Set();
     const options = [{ value: "all", label: "All Status" }];
@@ -457,13 +471,13 @@ function CanInterviewsPage() {
       const jobTitle = String(card.jobTitle || "").toLowerCase();
       const matchesSearch =
         !normalizedSearch ||
-        companyName.includes(normalizedSearch) ||
-        jobTitle.includes(normalizedSearch);
+        companyName.includes(normalizedSearch);
       const matchesStatus = selectedStatus === "all" || normalizedStatus === selectedStatus;
+      const matchesDesignation = selectedDesignation === "all" || card.jobTitle === selectedDesignation;
 
-      return matchesSearch && matchesStatus;
+      return matchesSearch && matchesStatus && matchesDesignation;
     });
-  }, [applicationCards, deferredSearchTerm, selectedStatus]);
+  }, [applicationCards, deferredSearchTerm, selectedStatus, selectedDesignation]);
 
   return (
     <div className="twm-right-section-panel site-bg-gray candidate-interviews">
@@ -485,11 +499,28 @@ function CanInterviewsPage() {
                   id="candidate-interviews-search"
                   type="text"
                   className="candidate-interviews-search-input"
-                  placeholder="Company or job title"
+                  placeholder="Search by company name"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                 />
               </div>
+            </div>
+            <div className="candidate-interviews-field-group candidate-interviews-filter-wrap">
+              <label className="candidate-interviews-inline-label" htmlFor="candidate-interviews-designation-filter">
+                Designation :
+              </label>
+              <select
+                id="candidate-interviews-designation-filter"
+                className="candidate-interviews-filter-select"
+                value={selectedDesignation}
+                onChange={(event) => setSelectedDesignation(event.target.value)}
+              >
+                {designationOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="candidate-interviews-field-group candidate-interviews-filter-wrap">
               <label className="candidate-interviews-inline-label" htmlFor="candidate-interviews-status-filter">

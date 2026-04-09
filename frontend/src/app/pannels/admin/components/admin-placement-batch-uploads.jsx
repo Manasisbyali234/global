@@ -82,7 +82,7 @@ function AdminBatchUploads() {
             <div className="panel panel-default site-bg-white">
                 <div className="panel-heading wt-panel-heading p-a20">
                     <div className="page-toolbar">
-                        <h4 className="panel-tittle m-a0 page-toolbar__title">Batch Uploads Summary ({filteredPlacements.length})</h4>
+                        <h4 className="panel-tittle m-a0 page-toolbar__title">Batch Uploads({filteredPlacements.length})</h4>
                         <div className="page-toolbar__controls page-toolbar__controls--single">
                         <div className="search-section page-toolbar__section">
                             <div className="page-toolbar__control-wrap">
@@ -125,7 +125,12 @@ function AdminBatchUploads() {
                                 ) : (
                                     filteredPlacements.map((placement) => (
                                         <tr key={placement._id}>
-                                            <td style={{textAlign: 'center', fontSize: '0.9rem'}}>{placement.collegeName || 'N/A'}</td>
+                                            <td style={{textAlign: 'center', fontSize: '0.9rem'}}>
+                                                {placement.pendingFiles > 0 && (
+                                                    <span style={{display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FF7A00', marginRight: '6px', verticalAlign: 'middle'}} title="Files uploaded"></span>
+                                                )}
+                                                {placement.collegeName || 'N/A'}
+                                            </td>
                                             <td style={{textAlign: 'center'}}>
                                                 <span className="company-name">
                                                     {placement.name}

@@ -81,8 +81,12 @@ function PlacementDashboardRedesigned() {
     const [resubmitting, setResubmitting] = useState(false);
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [selectedRejectionReason, setSelectedRejectionReason] = useState('');
+    const [studentSearch, setStudentSearch] = useState('');
     const [activitySearch, setActivitySearch] = useState('');
+    const [activityBatchFilter, setActivityBatchFilter] = useState('');
     const [uploadHistorySearch, setUploadHistorySearch] = useState('');
+    const [uploadHistoryBatchFilter, setUploadHistoryBatchFilter] = useState('');
+    const [uploadHistoryUniversitySearch, setUploadHistoryUniversitySearch] = useState('');
     const [stats, setStats] = useState({
         totalStudents: 0,
         avgCredits: 0,
@@ -585,30 +589,24 @@ function PlacementDashboardRedesigned() {
     };
 
     const activitySearchTerm = activitySearch.trim().toLowerCase();
+    const activityBatchOptions = [...new Set((placementData?.fileHistory || []).map(f => f.batch).filter(Boolean))];
     const filteredRecentActivity = (placementData?.fileHistory || [])
         .filter((file) => {
-            if (!activitySearchTerm) return true;
-
-            return [
-                file.customName,
-                file.university,
-                file.batch
-            ].some((value) => String(value || '').toLowerCase().includes(activitySearchTerm));
+            const matchesSearch = !activitySearchTerm || String(file.customName || '').toLowerCase().includes(activitySearchTerm);
+            const matchesBatch = !activityBatchFilter || file.batch === activityBatchFilter;
+            return matchesSearch && matchesBatch;
         })
         .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))
         .slice(0, 5);
 
     const uploadHistorySearchTerm = uploadHistorySearch.trim().toLowerCase();
+    const uploadHistoryUniversitySearchTerm = uploadHistoryUniversitySearch.trim().toLowerCase();
+    const uploadHistoryBatchOptions = [...new Set((placementData?.fileHistory || []).map(f => f.batch).filter(Boolean))];
     const filteredFileHistory = (placementData?.fileHistory || []).filter((file) => {
-        if (!uploadHistorySearchTerm) return true;
-
-        return [
-            file.fileName,
-            file.customName,
-            file.university,
-            file.batch,
-            file.status
-        ].some((value) => String(value || '').toLowerCase().includes(uploadHistorySearchTerm));
+        const matchesFile = !uploadHistorySearchTerm || String(file.fileName || '').toLowerCase().includes(uploadHistorySearchTerm);
+        const matchesBatch = !uploadHistoryBatchFilter || file.batch === uploadHistoryBatchFilter;
+        const matchesUniversity = !uploadHistoryUniversitySearchTerm || String(file.university || '').toLowerCase().includes(uploadHistoryUniversitySearchTerm);
+        return matchesFile && matchesBatch && matchesUniversity;
     });
 
     if (authLoading) {
@@ -666,6 +664,7 @@ function PlacementDashboardRedesigned() {
                             setActiveTab('students');
                             setViewingFileId(null);
                             setViewingFileName(null);
+                            setStudentSearch('');
                             setIsSidebarOpen(false);
                         }}
                     >
@@ -891,9 +890,20 @@ function PlacementDashboardRedesigned() {
                                                 type="text"
                                                 value={activitySearch}
                                                 onChange={(e) => setActivitySearch(e.target.value)}
-                                                placeholder="Search by batch, university, course name"
+                                                placeholder="Search by course name"
                                                 aria-label="Search recent batch activity"
                                             />
+                                            <select
+                                                value={activityBatchFilter}
+                                                onChange={(e) => setActivityBatchFilter(e.target.value)}
+                                                aria-label="Filter by batch"
+                                                style={{marginLeft: '8px', padding: '6px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '14px'}}
+                                            >
+                                                <option value="">All Batches</option>
+                                                {activityBatchOptions.map(b => (
+                                                    <option key={b} value={b}>{b}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                         <div className="activity-list">
                                             {placementData?.fileHistory && placementData.fileHistory.length > 0 ? (
@@ -947,6 +957,18 @@ function PlacementDashboardRedesigned() {
                                         </div>
                                         <div className="student-count">{studentData.length} Students</div>
                                     </div>
+                                    {studentData.length > 0 && (
+                                        <div className="activity-search" style={{marginBottom: '16px'}}>
+                                            <label className="activity-search-label">Search :</label>
+                                            <input
+                                                type="text"
+                                                value={studentSearch}
+                                                onChange={(e) => setStudentSearch(e.target.value)}
+                                                placeholder="Search by name or email"
+                                                aria-label="Search students by name or email"
+                                            />
+                                        </div>
+                                    )}
                                     {studentData.length > 0 ? (
                                         <div className="table-responsive">
                                             <table>
@@ -959,7 +981,13 @@ function PlacementDashboardRedesigned() {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {studentData.map((student, index) => (
+                                                    {(studentSearch.trim()
+                                                        ? studentData.filter(s =>
+                                                            (s.name || '').toLowerCase().includes(studentSearch.toLowerCase()) ||
+                                                            (s.email || '').toLowerCase().includes(studentSearch.toLowerCase())
+                                                          )
+                                                        : studentData
+                                                    ).map((student, index) => (
                                                         <tr key={index}>
                                                             <td>{student.name || '-'}</td>
                                                             <td>{student.email || '-'}</td>
@@ -971,6 +999,17 @@ function PlacementDashboardRedesigned() {
                                                             </td>
                                                         </tr>
                                                     ))}
+                                                    {studentSearch.trim() && studentData.filter(s =>
+                                                        (s.name || '').toLowerCase().includes(studentSearch.toLowerCase()) ||
+                                                        (s.email || '').toLowerCase().includes(studentSearch.toLowerCase())
+                                                    ).length === 0 && (
+                                                        <tr>
+                                                            <td colSpan="4" style={{textAlign: 'center', padding: '30px', color: '#888'}}>
+                                                                <i className="fa fa-search" style={{marginRight: '8px'}}></i>
+                                                                No students match your search
+                                                            </td>
+                                                        </tr>
+                                                    )}
                                                 </tbody>
                                             </table>
                                         </div>
@@ -1171,14 +1210,41 @@ function PlacementDashboardRedesigned() {
                                         <div className="section-header">
                                             <h3>Upload History</h3>
                                             <div className="upload-history-header-actions">
-                                                <div className="upload-history-search">
-                                                    <input
-                                                        type="text"
-                                                        value={uploadHistorySearch}
-                                                        onChange={(e) => setUploadHistorySearch(e.target.value)}
-                                                        placeholder="Search by file, course, university, batch"
-                                                        aria-label="Search upload history"
-                                                    />
+                                                <div className="upload-history-search" style={{display: 'flex', gap: '16px', alignItems: 'flex-end', flexWrap: 'wrap'}}>
+                                                    <div style={{flex: 1, minWidth: '150px'}}>
+                                                        <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block'}}>File Name</label>
+                                                        <input
+                                                            type="text"
+                                                            value={uploadHistorySearch}
+                                                            onChange={(e) => setUploadHistorySearch(e.target.value)}
+                                                            placeholder="Search by file name"
+                                                            aria-label="Search upload history"
+                                                        />
+                                                    </div>
+                                                    <div style={{flex: 1, minWidth: '150px'}}>
+                                                        <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block'}}>University</label>
+                                                        <input
+                                                            type="text"
+                                                            value={uploadHistoryUniversitySearch}
+                                                            onChange={(e) => setUploadHistoryUniversitySearch(e.target.value)}
+                                                            placeholder="Search by university"
+                                                            aria-label="Search by university"
+                                                        />
+                                                    </div>
+                                                    <div style={{flex: 1, minWidth: '150px'}}>
+                                                        <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block'}}>Batch</label>
+                                                        <select
+                                                            value={uploadHistoryBatchFilter}
+                                                            onChange={(e) => setUploadHistoryBatchFilter(e.target.value)}
+                                                            aria-label="Filter by batch"
+                                                            style={{width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '14px'}}
+                                                        >
+                                                            <option value="">All Batches</option>
+                                                            {uploadHistoryBatchOptions.map(b => (
+                                                                <option key={b} value={b}>{b}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
                                                 </div>
                                                 <div className="history-count">
                                                     {filteredFileHistory.length}

@@ -13,7 +13,6 @@ const STATUS_OPTIONS = [
 	{ value: "all", label: "All Status" },
 	{ value: "draft", label: "Draft" },
 	{ value: "published", label: "Published" },
-	{ value: "archived", label: "Archived" }
 ];
 
 export default function AssessmentDashboard() {

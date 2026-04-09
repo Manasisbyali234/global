@@ -4460,11 +4460,15 @@ export default function EmpPostJob({ onNext }) {
 														value={selectedAssessmentForRound}
 														onChange={(e) => {
 															const newAssessmentId = e.target.value;
-															setSelectedAssessment(newAssessmentId);
-															updateRoundDetails(uniqueKey, 'assessmentId', newAssessmentId);
+															if (!newAssessmentId) return;
+															showConfirmation(
+																'Once this assessment is selected, you will not be able to edit or delete it from Create Assessment. Do you want to proceed?',
+																() => {
+																	setSelectedAssessment(newAssessmentId);
+																	updateRoundDetails(uniqueKey, 'assessmentId', newAssessmentId);
 															
-															// Auto-calculate endTime for this assessment round
-															if (newAssessmentId) {
+																	// Auto-calculate endTime for this assessment round
+																	if (newAssessmentId) {
 																const assessment = availableAssessments.find(a => (a._id === newAssessmentId || a.id === newAssessmentId));
 																const duration = assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime;
 																
@@ -4489,15 +4493,20 @@ export default function EmpPostJob({ onNext }) {
 																	});
 																}
 
-																// Show assessment info when selecting an assessment
-																const currentDetails = formData.interviewRoundDetails[uniqueKey];
-																
-																if (currentDetails?.fromDate && currentDetails?.startTime && currentDetails?.endTime) {
-																	showInfo(`Assessment scheduled on ${formatDate(currentDetails.fromDate)} from ${formatTimeToAMPM(currentDetails.startTime)} to ${formatTimeToAMPM(currentDetails.endTime)}`, 4000);
-																} else {
-																	showInfo('Please set assessment date and time below to complete the schedule.', 3000);
+																	// Show assessment info when selecting an assessment
+																	const currentDetails = formData.interviewRoundDetails[uniqueKey];
+																	
+																	if (currentDetails?.fromDate && currentDetails?.startTime && currentDetails?.endTime) {
+																		showInfo(`Assessment scheduled on ${formatDate(currentDetails.fromDate)} from ${formatTimeToAMPM(currentDetails.startTime)} to ${formatTimeToAMPM(currentDetails.endTime)}`, 4000);
+																	} else {
+																		showInfo('Please set assessment date and time below to complete the schedule.', 3000);
+																	}
 																}
-															}
+																},
+																null,
+																'warning',
+																{ confirmText: 'Yes', cancelText: 'No' }
+															);
 														}}
 													>
 														<option value="">-- Choose an Assessment --</option>

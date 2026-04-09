@@ -11,6 +11,7 @@ function AdminTransactionsPage() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
+    const [companySearch, setCompanySearch] = useState("");
     const [dateFilter, setDateFilter] = useState("");
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -120,36 +121,42 @@ function AdminTransactionsPage() {
         printWindow.document.close();
     };
 
-    const getDateRange = (filter) => {
-        const now = new Date();
-        const start = new Date();
-        if (filter === 'today') { start.setHours(0,0,0,0); }
-        else if (filter === 'week') { start.setDate(now.getDate() - now.getDay()); start.setHours(0,0,0,0); }
-        else if (filter === 'month') { start.setDate(1); start.setHours(0,0,0,0); }
-        else if (filter === 'last30') { start.setDate(now.getDate() - 30); start.setHours(0,0,0,0); }
-        else if (filter === 'last90') { start.setDate(now.getDate() - 90); start.setHours(0,0,0,0); }
-        else return null;
-        return { from: start, to: now };
-    };
-
     const filteredTransactions = useMemo(() => {
         const q = searchText.trim().toLowerCase();
-        const range = getDateRange(dateFilter);
+        const cq = companySearch.trim().toLowerCase();
         return transactions.filter((t) => {
             const candidateName = t.candidateId?.name?.toLowerCase() || "";
-            const candidateEmail = t.candidateId?.email?.toLowerCase() || "";
-            const employerName = t.employerId?.companyName?.toLowerCase() || "";
-            const employerEmail = t.employerId?.email?.toLowerCase() || "";
-            const jobTitle = t.jobId?.title?.toLowerCase() || "";
-            const paymentId = t.paymentId?.toLowerCase() || "";
-            const date = t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toLowerCase() : "";
-            if (range) {
-                const txDate = t.createdAt ? new Date(t.createdAt) : null;
-                if (!txDate || txDate < range.from || txDate > range.to) return false;
+            const companyName = t.employerId?.companyName?.toLowerCase() || "";
+            if (dateFilter) {
+                const txDate = t.createdAt ? new Date(t.createdAt).toISOString().slice(0, 10) : null;
+                if (txDate !== dateFilter) return false;
             }
-            return candidateName.includes(q) || candidateEmail.includes(q) || employerName.includes(q) || employerEmail.includes(q) || jobTitle.includes(q) || paymentId.includes(q) || date.includes(q);
+            return candidateName.includes(q) && companyName.includes(cq);
         });
-    }, [transactions, searchText, dateFilter]);
+    }, [transactions, searchText, companySearch, dateFilter]);
+
+    const exportToExcel = () => {
+        const headers = ['Date', 'Time', 'Candidate Name', 'Candidate Email', 'Company', 'Company Email', 'Job Role', 'Payment ID', 'Amount (INR)'];
+        const rows = filteredTransactions.map((t) => [
+            formatDate(t.createdAt),
+            new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            t.candidateId?.name || 'N/A',
+            t.candidateId?.email || 'N/A',
+            t.employerId?.companyName || 'N/A',
+            t.employerId?.email || 'N/A',
+            t.jobId?.title || 'N/A',
+            t.paymentId || 'N/A',
+            t.paymentAmount || 129
+        ]);
+        const csvContent = [headers, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `transactions_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
 
     const getReceiptAmountBreakdown = (amount) => {
         const totalPaid = Number(amount ?? 129);
@@ -170,9 +177,18 @@ function AdminTransactionsPage() {
         }}>
             {/* Header */}
             <div style={{ padding: '2rem 2rem 1rem 2rem' }}>
-                <div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem 2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                    <h2 className="m-0">All Transactions</h2>
-                    <p className="text-muted m-0 mt-1">Monitor all platform payments from candidates</p>
+                <div className="wt-admin-right-page-header clearfix d-flex justify-content-between align-items-center" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem 2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                    <div>
+                        <h2 className="m-0">All Transactions</h2>
+                        <p className="text-muted m-0 mt-1">Monitor all platform payments from candidates</p>
+                    </div>
+                    <button
+                        className="btn btn-success d-flex align-items-center gap-2"
+                        onClick={exportToExcel}
+                        title="Export to Excel"
+                    >
+                        <Download size={16} /> Export to Excel
+                    </button>
                 </div>
             </div>
 
@@ -190,7 +206,7 @@ function AdminTransactionsPage() {
                             <input
                                 type="text"
                                 className="form-control page-toolbar__input"
-                                placeholder="Search by candidate, company, email, job, payment ID or date..."
+                                placeholder="Search by candidate name..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 style={{
@@ -205,25 +221,38 @@ function AdminTransactionsPage() {
                         </div>
                         </div>
                         <div className="page-toolbar__section">
+                            <label className="page-toolbar__label">Search by Company</label>
+                            <div className="page-toolbar__control-wrap">
+                                <input
+                                    type="text"
+                                    className="form-control page-toolbar__input"
+                                    placeholder="Search by company name..."
+                                    value={companySearch}
+                                    onChange={(e) => setCompanySearch(e.target.value)}
+                                    style={{
+                                        paddingLeft: '42px',
+                                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f97316' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='7' width='20' height='14' rx='2'/%3E%3Cpath d='M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2'/%3E%3C/svg%3E")`,
+                                        backgroundRepeat: 'no-repeat',
+                                        backgroundPosition: '14px center',
+                                        backgroundSize: '16px 16px'
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <div className="page-toolbar__section">
                             <label className="page-toolbar__label">Filter by Date</label>
                             <div className="page-toolbar__control-wrap">
-                                <select
-                                    className="form-select form-select-sm"
+                                <input
+                                    type="date"
+                                    className="form-control form-control-sm"
                                     value={dateFilter}
                                     onChange={(e) => setDateFilter(e.target.value)}
                                     style={{ width: '160px' }}
-                                >
-                                    <option value="">All Time</option>
-                                    <option value="today">Today</option>
-                                    <option value="week">This Week</option>
-                                    <option value="month">This Month</option>
-                                    <option value="last30">Last 30 Days</option>
-                                    <option value="last90">Last 90 Days</option>
-                                </select>
+                                />
                             </div>
                         </div>
                         <div className="text-muted">
-                            Total Platform Revenue: <strong>{currencySymbol}{(transactions.reduce((acc, t) => acc + (t.paymentAmount || 129), 0)).toLocaleString()}</strong> | Count: <strong>{filteredTransactions.length}</strong>
+                            Total Platform Revenue: <strong>{currencySymbol}{(transactions.reduce((acc, t) => acc + (t.paymentAmount || 129), 0)).toLocaleString()}</strong>
                         </div>
                     </div>
 

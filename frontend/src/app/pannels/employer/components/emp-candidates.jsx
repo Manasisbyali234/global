@@ -3,7 +3,7 @@ import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import JobZImage from "../../../common/jobz-img";
-import { ArrowLeft, ListChecks, Search } from "lucide-react";
+import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
 import './emp-candidates.css';
 
@@ -26,12 +26,7 @@ function EmpCandidatesPage() {
     fetchApplications();
   }, []);
 
-  useEffect(() => {
-    if (!jobId) {
-      // Only fetch companies when not viewing specific job
-      fetchConsultantCompanies();
-    }
-  }, [employerType, jobId]);
+
 
   useEffect(() => {
     fetchApplications();
@@ -41,7 +36,11 @@ function EmpCandidatesPage() {
     try {
       const data = await api.getEmployerProfile();
       if (data.success && data.profile?.employerId) {
-        setEmployerType(data.profile.employerId.employerType || "company");
+        const type = data.profile.employerId.employerType || "company";
+        setEmployerType(type);
+        if (type === "consultant" && !jobId) {
+          fetchConsultantCompanies();
+        }
       }
     } catch (error) {
       console.error("Error fetching employer type:", error);
@@ -119,12 +118,8 @@ function EmpCandidatesPage() {
   const filteredApplications = useMemo(() => {
     const q = searchText.trim().toLowerCase();
     return applications.filter((application) => {
-      const name = application.candidateId?.name?.toLowerCase() || "";
       const email = application.candidateId?.email?.toLowerCase() || "";
-      const title = application.jobId?.title?.toLowerCase() || "";
-      const matchesSearch = q
-        ? name.includes(q) || email.includes(q) || title.includes(q)
-        : true;
+      const matchesSearch = q ? email.includes(q) : true;
       const matchesStatus = statusFilter
         ? application.status === statusFilter
         : true;
@@ -207,28 +202,36 @@ function EmpCandidatesPage() {
                   <i className="fa fa-search"></i> Search Applicants
                 </label>
                 <div className="emp-candidates-search-control">
-                  <div className="emp-candidates-search-icon">
-                    <Search size={18} style={{ color: '#e66814' }} />
-                  </div>
                   <input
                     type="text"
                     className="form-control page-toolbar__input emp-candidates-search-input"
-                    placeholder="Search applicants by name, email, or job"
+                    placeholder="Search by email"
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
-                    list="candidate-job-title-suggestions"
                     style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', width: '100%' }}
                     onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                     onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                   />
-                  <datalist id="candidate-job-title-suggestions">
-                    {jobTitleOptions.map((title) => (
-                      <option key={title} value={title} />
-                    ))}
-                  </datalist>
                 </div>
               </div>
                 <div className="emp-candidates-toolbar__filters">
+                  {employerType === "consultant" && !jobId && (
+                    <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
+                      <label className="page-toolbar__label">
+                        <i className="fa fa-building"></i> Company
+                      </label>
+                      <select
+                        className="form-select page-toolbar__select"
+                        value={selectedCompany}
+                        onChange={(e) => setSelectedCompany(e.target.value)}
+                      >
+                        <option value="">All Companies</option>
+                        {companies.map((company) => (
+                          <option key={company} value={company}>{company}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
                     <label className="page-toolbar__label">
                       <i className="fa fa-briefcase"></i> Designation
@@ -258,7 +261,6 @@ function EmpCandidatesPage() {
                     <option value="">All Status (Show All)</option>
                     <option value="pending">Pending</option>
                     <option value="shortlisted">Shortlisted</option>
-                    <option value="interviewed">Interviewed</option>
                     <option value="offer_sent">Offer Letter Sent</option>
                     <option value="accepted">Offer Accepted</option>
                     <option value="rejected">Rejected</option>

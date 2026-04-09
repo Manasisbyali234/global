@@ -45,19 +45,7 @@
     font-size: 16px;
 }
 
-.placement-nav-btn__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #ef4444;
-    flex-shrink: 0;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
-}
 
-.placement-nav-btn.active .placement-nav-btn__dot {
-    background: #ffd166;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.28);
-}
 
 @media (max-width: 768px) {
     .placement-nav-buttons {

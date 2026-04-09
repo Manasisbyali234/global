@@ -35,6 +35,7 @@ function EmpCandidateReviewPage() {
     const autoSaveTimeoutRef = useRef(null);
     const [showStatusTermsModal, setShowStatusTermsModal] = useState(false);
     const [statusUpdateUnlocked, setStatusUpdateUnlocked] = useState(false);
+    const [showRejectConfirm, setShowRejectConfirm] = useState(false);
     const stageStatusOptions = [
         { value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
         { value: 'on_hold', label: 'On Hold' },
@@ -855,7 +856,7 @@ function EmpCandidateReviewPage() {
                                          <div className="section-header">
                                               <div style={{ display: "flex", flexDirection: "column" }}>
                                                <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4>
-                                               <h6 style={{ color: "red" }}><i className="fas fa-exclamation-triangle" style={{ marginRight: "5px" }}></i>Please check all required boxes and enter remark.</h6>
+                                               <h6></h6>
                                           </div>
                                           <button
                                             type="button"
@@ -882,12 +883,6 @@ function EmpCandidateReviewPage() {
                                                     return (
                                                         <div key={process.id} className={`process-item ${process.isCompleted ? 'completed' : ''} ${isCurrentDisabled ? 'stage-disabled' : ''}`}>
                                                             <div className="process-header">
-                                                                <input 
-                                                                    type="checkbox" 
-                                                                    checked={process.isCompleted}
-                                                                    onChange={(e) => updateProcessCompletion(process.id, e.target.checked)}
-                                                                    disabled={isCurrentDisabled}
-                                                                />
                                                                 <div className="process-title-group">
                                                                     <span className="stage-number">Stage {index + 1}</span>
                                                                     <h6>{cleanProcessName(process.name)}</h6>
@@ -1095,11 +1090,11 @@ function EmpCandidateReviewPage() {
                                             ) : hasNegativeStatus() ? (
                                                 <>
                                                     <button 
-                                                        className={`${applicationDisplayStatus === 'rejected' ? 'active' : ''}`}
-                                                        onClick={() => updateApplicationStatus('rejected')}
-                                                    >
-                                                        <i className="fas fa-times"></i> Reject
-                                                    </button>
+                                                            className={`${applicationDisplayStatus === 'rejected' ? 'active' : ''}`}
+                                                            onClick={() => setShowRejectConfirm(true)}
+                                                        >
+                                                            <i className="fas fa-times"></i> Reject
+                                                        </button>
                                                 </>
                                             ) : isFinalStageShortlisted() ? (
                                                 <>
@@ -1150,11 +1145,11 @@ function EmpCandidateReviewPage() {
                                                     )}
                                                     {application.status !== 'shortlisted' && application.status !== 'hired' && application.status !== 'accepted' && hasAnyStageTracked() && allStagesHaveRemarks() && hasShortlistedForNextRound() && (
                                                         <button 
-                                                            className={`${applicationDisplayStatus === 'rejected' ? 'active' : ''}`}
-                                                            onClick={() => updateApplicationStatus('rejected')}
-                                                        >
-                                                            <i className="fas fa-times"></i> Reject
-                                                        </button>
+                                                                className={`${applicationDisplayStatus === 'rejected' ? 'active' : ''}`}
+                                                                onClick={() => setShowRejectConfirm(true)}
+                                                            >
+                                                                <i className="fas fa-times"></i> Reject
+                                                            </button>
                                                     )}
                                                 </>
                                             )}
@@ -1686,6 +1681,39 @@ function EmpCandidateReviewPage() {
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showRejectConfirm && (
+                <div className="document-modal-overlay" onClick={() => setShowRejectConfirm(false)}>
+                    <div className="document-modal-container" style={{ height: 'auto', maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
+                        <div className="document-modal-header">
+                            <h3>Confirm Rejection</h3>
+                            <button className="modal-btn close" onClick={() => setShowRejectConfirm(false)}>
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="document-modal-body" style={{ padding: '24px', textAlign: 'center' }}>
+                            <i className="fas fa-exclamation-triangle" style={{ fontSize: '40px', color: '#f59e0b', marginBottom: '16px' }}></i>
+                            <p style={{ fontSize: '16px', color: '#374151', marginBottom: '24px' }}>
+                                Are you sure you want to reject this candidate?
+                            </p>
+                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                                <button
+                                    onClick={() => { updateApplicationStatus('rejected'); setShowRejectConfirm(false); }}
+                                    style={{ padding: '8px 24px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+                                >
+                                    <i className=""></i> Yes
+                                </button>
+                                <button
+                                    onClick={() => setShowRejectConfirm(false)}
+                                    style={{ padding: '8px 24px', background: '#6b7280', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+                                >
+                                    <i className=""></i> No
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

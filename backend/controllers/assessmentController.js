@@ -356,7 +356,7 @@ const updateInterviewProcessAssessmentStage = async (applicationId, assessmentId
 exports.createAssessment = async (req, res) => {
   try {
     const { title, type, designation, description, instructions, timer, questions, passingPercentage, status } = req.body;
-    const normalizedStatus = ['draft', 'published', 'archived'].includes(String(status || '').toLowerCase())
+    const normalizedStatus = ['draft', 'published'].includes(String(status || '').toLowerCase())
       ? String(status).toLowerCase()
       : 'published';
     
@@ -544,7 +544,7 @@ exports.updateAssessment = async (req, res) => {
     }
 
     const { title, type, designation, description, instructions, timer, questions, passingPercentage, status } = req.body;
-    const normalizedStatus = ['draft', 'published', 'archived'].includes(String(status || '').toLowerCase())
+    const normalizedStatus = ['draft', 'published'].includes(String(status || '').toLowerCase())
       ? String(status).toLowerCase()
       : undefined;
     

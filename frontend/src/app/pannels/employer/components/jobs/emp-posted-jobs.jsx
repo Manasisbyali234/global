@@ -33,17 +33,10 @@ export default function EmpPostedJobs() {
         if (designationFilter !== 'all') {
             next = next.filter(job => String(job.title || '').trim().toLowerCase() === designationFilter);
         }
-        // Then filter by search text (title, location, and company name)
+        // Then filter by search text (company name only)
         const query = (searchText || '').trim().toLowerCase();
         if (query) {
-            next = next.filter(job => {
-                const title = (job.title || '').toLowerCase();
-                const location = Array.isArray(job.location) ? job.location.join(' ').toLowerCase() : (typeof job.location === 'string' ? job.location : '').toLowerCase();
-                const companyName = (job.companyName || '').toLowerCase();
-                
-                // Search in title, location, and company name for all employer types
-                return title.includes(query) || location.includes(query) || companyName.includes(query);
-            });
+            next = next.filter(job => (job.companyName || '').toLowerCase().includes(query));
         }
         setFilteredJobs(next);
     }, [jobs, statusFilter, designationFilter, searchText]);
@@ -51,9 +44,9 @@ export default function EmpPostedJobs() {
     const jobSuggestions = useMemo(() => {
         const suggestions = new Set();
         jobs.forEach((job) => {
-            const title = job.title;
-            if (title && String(title).trim() !== "") {
-                suggestions.add(String(title).trim());
+            const name = job.companyName;
+            if (name && String(name).trim() !== "") {
+                suggestions.add(String(name).trim());
             }
         });
         return Array.from(suggestions).sort((a, b) => a.localeCompare(b));
@@ -253,7 +246,7 @@ export default function EmpPostedJobs() {
 							<input
 								type="text"
 								className="form-control ps-5"
-								placeholder="Search by Job title, location or company name..."
+								placeholder="Search by company name..."
 								value={searchText}
 								onChange={(e) => setSearchText(e.target.value)}
 								list="job-title-suggestions"
@@ -371,8 +364,8 @@ export default function EmpPostedJobs() {
 													</div>
 													{displayStatus === 'closed' && (
 														<div className="d-flex align-items-center mt-1 text-danger fw-bold manage-jobs-card__date-row">
-															<AlertCircle size={14} className="me-2" />
-															<span style={{ whiteSpace: 'nowrap' }}>Status: Closed</span>
+															<AlertCircle size={14} className="" />
+															<span style={{ whiteSpace: 'nowrap' }}>Application Status: Closed</span>
 														</div>
 													)}
 													{job.offerLetterDate && (

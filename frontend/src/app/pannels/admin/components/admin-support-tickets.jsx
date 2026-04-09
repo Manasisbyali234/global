@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { formatDate } from '../../../../utils/dateFormatter';
+import { formatDate, formatDateTime } from '../../../../utils/dateFormatter';
 import { Container, Row, Col, Card, Badge, Button, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import './admin-support-tickets.css';
 import './admin-emp-manage-styles.css';
@@ -15,6 +15,9 @@ function AdminSupportTickets() {
     const [response, setResponse] = useState('');
     const [status, setStatus] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [jobSearch, setJobSearch] = useState('');
+    const [universitySearch, setUniversitySearch] = useState('');
+    const [companySearch, setCompanySearch] = useState('');
     const [filters, setFilters] = useState({
         status: '',
         userType: '',
@@ -396,18 +399,28 @@ function AdminSupportTickets() {
     const getCompanyLabel = (ticket) => ticket?.userType === 'placement' ? 'College Name' : 'Company Name';
 
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+    const normalizedJobSearch = jobSearch.trim().toLowerCase();
+    const normalizedUniversitySearch = universitySearch.trim().toLowerCase();
+    const normalizedCompanySearch = companySearch.trim().toLowerCase();
     const visibleTickets = tickets.filter((ticket) => {
-        if (!normalizedSearchTerm) return true;
-
-        const requesterName = getRequesterName(ticket).toLowerCase();
-        const companyName = getCompanyName(ticket).toLowerCase();
-        const jobTitle = (getJobTitle(ticket) || '').toLowerCase();
-        const requesterEmail = getRequesterEmail(ticket).toLowerCase();
-
-        return requesterName.includes(normalizedSearchTerm)
-            || companyName.includes(normalizedSearchTerm)
-            || jobTitle.includes(normalizedSearchTerm)
-            || requesterEmail.includes(normalizedSearchTerm);
+        if (normalizedSearchTerm) {
+            const requesterName = getRequesterName(ticket).toLowerCase();
+            const requesterEmail = getRequesterEmail(ticket).toLowerCase();
+            if (!requesterName.includes(normalizedSearchTerm) && !requesterEmail.includes(normalizedSearchTerm)) return false;
+        }
+        if (normalizedJobSearch) {
+            const jobTitle = (getJobTitle(ticket) || '').toLowerCase();
+            if (!jobTitle.includes(normalizedJobSearch)) return false;
+        }
+        if (normalizedUniversitySearch) {
+            const universityName = ticket.userType === 'placement' ? (getCompanyName(ticket) || '').toLowerCase() : '';
+            if (!universityName.includes(normalizedUniversitySearch)) return false;
+        }
+        if (normalizedCompanySearch) {
+            const companyName = (ticket.userType === 'employer' || ticket.userType === 'candidate') ? (getCompanyName(ticket) || '').toLowerCase() : '';
+            if (!companyName.includes(normalizedCompanySearch)) return false;
+        }
+        return true;
     });
 
     const handleCloseModal = () => {
@@ -487,6 +500,9 @@ function AdminSupportTickets() {
                                 onClick={() => {
                                     setFilters({ status: '', userType: '', priority: '' });
                                     setSearchTerm('');
+                                    setJobSearch('');
+                                    setUniversitySearch('');
+                                    setCompanySearch('');
                                 }}
                             >
                                 Reset Filters
@@ -504,49 +520,121 @@ function AdminSupportTickets() {
                                         <Form.Control
                                             type="search"
                                             className="search-input"
-                                            placeholder="Search By Requester, Company, Job, Or Email"
+                                            placeholder="Search by requester name or email"
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                         />
                                 </div>
                             </Col>
                             <Col md={4}>
-                                <Form.Select
-                                    className="filter-select"
-                                    value={filters.status}
-                                    onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                                >
-                                    <option value="">All Status</option>
-                                    <option value="new">New</option>
-                                    <option value="in-progress">In Progress</option>
-                                    <option value="resolved">Resolved</option>
-                                    <option value="closed">Closed</option>
-                                </Form.Select>
+                                <div className="filter-select-wrapper">
+                                    <Form.Select
+                                        className="filter-select"
+                                        value={filters.status}
+                                        onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                                    >
+                                        <option value="">All Status</option>
+                                        <option value="new">New</option>
+                                        <option value="in-progress">In Progress</option>
+                                        <option value="resolved">Resolved</option>
+                                        <option value="closed">Closed</option>
+                                    </Form.Select>
+                                    <span className="filter-select-icon" aria-hidden="true">
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </span>
+                                </div>
                             </Col>
                             <Col md={4}>
-                                <Form.Select
-                                    className="filter-select"
-                                    value={filters.userType}
-                                    onChange={(e) => setFilters({ ...filters, userType: e.target.value })}
-                                >
-                                    <option value="">All User Types</option>
-                                    <option value="employer">Employer</option>
-                                    <option value="candidate">Candidate</option>
-                                    <option value="placement">Placement</option>
-                                </Form.Select>
+                                <div className="filter-select-wrapper">
+                                    <Form.Select
+                                        className="filter-select"
+                                        value={filters.userType}
+                                        onChange={(e) => setFilters({ ...filters, userType: e.target.value })}
+                                    >
+                                        <option value="">All User Types</option>
+                                        <option value="employer">Employer</option>
+                                        <option value="candidate">Candidate</option>
+                                        <option value="placement">Placement</option>
+                                    </Form.Select>
+                                    <span className="filter-select-icon" aria-hidden="true">
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </span>
+                                </div>
                             </Col>
-                            <Col md={12}>
-                                <Form.Select
-                                    className="filter-select"
-                                    value={filters.priority}
-                                    onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                                >
-                                    <option value="">All Priorities</option>
-                                    <option value="low">Low</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="high">High</option>
-                                    <option value="urgent">Urgent</option>
-                                </Form.Select>
+                            <Col md={3}>
+                                <div className="search-input-wrapper">
+                                    <span className="search-input-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false">
+                                            <circle cx="11" cy="11" r="7"></circle>
+                                            <path d="m20 20-3.5-3.5"></path>
+                                        </svg>
+                                    </span>
+                                    <Form.Control
+                                        type="search"
+                                        className="search-input"
+                                        placeholder="Search by job title"
+                                        value={jobSearch}
+                                        onChange={(e) => setJobSearch(e.target.value)}
+                                    />
+                                </div>
+                            </Col>
+                            <Col md={3}>
+                                <div className="search-input-wrapper">
+                                    <span className="search-input-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false">
+                                            <circle cx="11" cy="11" r="7"></circle>
+                                            <path d="m20 20-3.5-3.5"></path>
+                                        </svg>
+                                    </span>
+                                    <Form.Control
+                                        type="search"
+                                        className="search-input"
+                                        placeholder="Search by university name"
+                                        value={universitySearch}
+                                        onChange={(e) => setUniversitySearch(e.target.value)}
+                                    />
+                                </div>
+                            </Col>
+                            <Col md={3}>
+                                <div className="search-input-wrapper">
+                                    <span className="search-input-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false">
+                                            <circle cx="11" cy="11" r="7"></circle>
+                                            <path d="m20 20-3.5-3.5"></path>
+                                        </svg>
+                                    </span>
+                                    <Form.Control
+                                        type="search"
+                                        className="search-input"
+                                        placeholder="Search by company name"
+                                        value={companySearch}
+                                        onChange={(e) => setCompanySearch(e.target.value)}
+                                    />
+                                </div>
+                            </Col>
+                            <Col md={3}>
+                                <div className="filter-select-wrapper">
+                                    <Form.Select
+                                        className="filter-select"
+                                        value={filters.priority}
+                                        onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
+                                    >
+                                        <option value="">All Priorities</option>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                        <option value="urgent">Urgent</option>
+                                    </Form.Select>
+                                    <span className="filter-select-icon" aria-hidden="true">
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </span>
+                                </div>
                             </Col>
                         </Row>
                     </div>
@@ -568,7 +656,7 @@ function AdminSupportTickets() {
                                         <p>
                                             {tickets.length === 0
                                                 ? 'Customer support requests will appear here as soon as they are submitted.'
-                                                : 'Try a different requester, company, job, or email, or clear the active filters.'}
+                                                : 'Try a different requester name or email, or clear the active filters.'}
                                         </p>
                                     </div>
                                 ) : (
@@ -579,7 +667,9 @@ function AdminSupportTickets() {
                                                     <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Subject</th>
                                                     <th style={{width: '24%', whiteSpace: 'nowrap'}}>Requester</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>User Type</th>
-                                                    <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Job</th>
+                                                    <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Company Name</th>
+                                                    <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>University  Name</th>
+                                                    <th style={{width: '25%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Job</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
                                                     <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
@@ -608,6 +698,12 @@ function AdminSupportTickets() {
                                                             </div>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getUserTypeBadge(ticket.userType)}</td>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={(ticket.userType === 'employer' || ticket.userType === 'candidate') ? (getCompanyName(ticket) || '-') : '-'}>
+                                                            <span className="category-badge">{(ticket.userType === 'employer' || ticket.userType === 'candidate') ? (getCompanyName(ticket) || '-') : '-'}</span>
+                                                        </td>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.userType === 'placement' ? (getCompanyName(ticket) || '-') : '-'}>
+                                                            <span className="category-badge">{ticket.userType === 'placement' ? (getCompanyName(ticket) || '-') : '-'}</span>
+                                                        </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getJobTitle(ticket) || (ticket.userType === 'candidate' ? 'No job selected' : '-')}>
                                                             <span className="category-badge">{getJobTitle(ticket) || (ticket.userType === 'candidate' ? 'N/A' : '-')}</span>
                                                         </td>
@@ -616,8 +712,9 @@ function AdminSupportTickets() {
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getPriorityBadge(ticket.priority)}</td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getStatusBadge(ticket.status)}</td>
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={formatDate(ticket.createdAt)}>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={formatDateTime(ticket.createdAt)}>
                                                             <div className="ticket-date">{formatDate(ticket.createdAt)}</div>
+                                                            <div className="user-email">{new Date(ticket.createdAt).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true})}</div>
                                                         </td>
                                                         <td style={{overflow: 'visible', textAlign: 'center'}}>
                                                             <div className="action-buttons">
@@ -787,12 +884,19 @@ function AdminSupportTickets() {
                                     <Col md={6}>
                                         <Form.Group>
                                             <Form.Label className="detail-label">Status</Form.Label>
-                                            <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                                                <option value="new">New</option>
-                                                <option value="in-progress">In Progress</option>
-                                                <option value="resolved">Resolved</option>
-                                                <option value="closed">Closed</option>
-                                            </Form.Select>
+                                            <div className="filter-select-wrapper">
+                                                <Form.Select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                                                    <option value="new">New</option>
+                                                    <option value="in-progress">In Progress</option>
+                                                    <option value="resolved">Resolved</option>
+                                                    <option value="closed">Closed</option>
+                                                </Form.Select>
+                                                <span className="filter-select-icon" aria-hidden="true">
+                                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                    </svg>
+                                                </span>
+                                            </div>
                                         </Form.Group>
                                     </Col>
                                 </Row>

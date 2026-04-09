@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { formatDate as formatDateUtil } from '../../../../utils/dateFormatter';
+import { formatDate as formatDateUtil, formatDateTime as formatDateTimeUtil } from '../../../../utils/dateFormatter';
 import { Container, Row, Col, Card, Badge, Button, Modal, Form, Spinner } from 'react-bootstrap';
 import '../../admin/components/admin-support-tickets.css';
 import '../../admin/components/admin-emp-manage-styles.css';
@@ -53,6 +53,8 @@ function EmployerSupportTickets() {
     const [filters, setFilters] = useState({
         status: '',
         priority: '',
+        category: '',
+        companySearch: '',
         receiver: 'employer',
         search: ''
     });
@@ -67,6 +69,22 @@ function EmployerSupportTickets() {
     const formatDate = (value) => {
         if (!value) return '--';
         return formatDateUtil(value);
+    };
+
+    const formatDateTime = (value) => {
+        if (!value) return '--';
+        return formatDateTimeUtil(value);
+    };
+
+    const formatTime = (value) => {
+        if (!value) return '--';
+        const date = new Date(value);
+        if (isNaN(date.getTime())) return '--';
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        return `${hours}:${minutes} ${ampm}`;
     };
 
     useEffect(() => {
@@ -347,13 +365,19 @@ function EmployerSupportTickets() {
     const getJobTitle = (ticket) => ticket?.supportDesignation || ticket?.relatedJobTitle || ticket?.jobId?.title || '';
     const getCompanyName = (ticket) => ticket?.supportCompanyName || ticket?.relatedCompanyName || ticket?.jobId?.companyName || 'N/A';
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-    const filteredTickets = normalizedSearchTerm
-        ? tickets.filter((ticket) => {
+    const filteredTickets = tickets.filter((ticket) => {
+        if (normalizedSearchTerm) {
             const candidateName = String(ticket?.name || '').toLowerCase();
             const candidateEmail = String(ticket?.email || '').toLowerCase();
-            return candidateName.includes(normalizedSearchTerm) || candidateEmail.includes(normalizedSearchTerm);
-        })
-        : tickets;
+            if (!candidateName.includes(normalizedSearchTerm) && !candidateEmail.includes(normalizedSearchTerm)) return false;
+        }
+        if (filters.companySearch) {
+            const companyName = String(getCompanyName(ticket)).toLowerCase();
+            if (!companyName.includes(filters.companySearch.trim().toLowerCase())) return false;
+        }
+        if (filters.category && ticket.category !== filters.category) return false;
+        return true;
+    });
 
     if (loading) {
         return (
@@ -396,7 +420,7 @@ function EmployerSupportTickets() {
                             variant="link"
                             className="clear-filters-btn"
                             onClick={() => {
-                                setFilters({ status: '', priority: '', receiver: 'employer', search: '' });
+                                setFilters({ status: '', priority: '', category: '', companySearch: '', receiver: 'employer', search: '' });
                                 setSearchTerm('');
                             }}
                         >
@@ -404,7 +428,7 @@ function EmployerSupportTickets() {
                         </Button>
                     </div>
                     <Row className="g-3">
-                        <Col md={6}>
+                        <Col md={3}>
                             <div className="search-input-wrapper">
                                 <span className="search-input-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" focusable="false">
@@ -418,6 +442,23 @@ function EmployerSupportTickets() {
                                     placeholder="Search by candidate name or email"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </Col>
+                        <Col md={3}>
+                            <div className="search-input-wrapper">
+                                <span className="search-input-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" focusable="false">
+                                        <circle cx="11" cy="11" r="7"></circle>
+                                        <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+                                    </svg>
+                                </span>
+                                <Form.Control
+                                    type="text"
+                                    className="search-input"
+                                    placeholder="Search by company name"
+                                    value={filters.companySearch}
+                                    onChange={(e) => setFilters({ ...filters, companySearch: e.target.value })}
                                 />
                             </div>
                         </Col>
@@ -449,6 +490,22 @@ function EmployerSupportTickets() {
                                     <option value="medium">Medium</option>
                                     <option value="high">High</option>
                                     <option value="urgent">Urgent</option>
+                                </Form.Select>
+                                <i className="fa fa-chevron-down filter-select-icon" aria-hidden="true"></i>
+                            </div>
+                        </Col>
+                        <Col md={3}>
+                            <div className="filter-select-wrapper">
+                                <Form.Select
+                                    className="filter-select"
+                                    value={filters.category}
+                                    onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                                >
+                                    <option value="">All categories</option>
+                                    <option value="General Inquiry">General Inquiry</option>
+                                    <option value="Technical Issue">Technical Issue</option>
+                                    <option value="Account Management">Account Management</option>
+                                    <option value="Job Application">Job Application</option>
                                 </Form.Select>
                                 <i className="fa fa-chevron-down filter-select-icon" aria-hidden="true"></i>
                             </div>
@@ -487,7 +544,8 @@ function EmployerSupportTickets() {
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
                                                     <th style={{width: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
-                                                    <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Created</th>
+                                                    <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Date</th>
+                                                    <th style={{width: '7%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Time</th>
                                                     <th className="text-center" style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Actions</th>
                                                 </tr>
                                             </thead>
@@ -524,6 +582,9 @@ function EmployerSupportTickets() {
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getStatusBadge(ticket.status)}</td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={formatDate(ticket.createdAt)}>
                                                             <div className="ticket-date">{formatDate(ticket.createdAt)}</div>
+                                                        </td>
+                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={formatTime(ticket.createdAt)}>
+                                                            <div className="ticket-date">{formatTime(ticket.createdAt)}</div>
                                                         </td>
                                                         <td className="text-center" style={{overflow: 'visible'}}>
                                                             <div className="action-buttons">
@@ -618,6 +679,7 @@ function EmployerSupportTickets() {
                     {!isTicketModalMinimized && selectedTicket && (
                         <>
                             <div className="support-ticket-modal-body">
+<<<<<<< HEAD
                                 <div className="ticket-details-shell">
                                     <div className="ticket-details-hero">
                                         <div className="ticket-details-hero__content">
@@ -668,6 +730,86 @@ function EmployerSupportTickets() {
                                     </div>
 
                                     <div className="ticket-detail-section mb-3">
+=======
+                                <Row className="mb-3">
+                                    <Col md={6}>
+                                        <div className="detail-label">Company Name</div>
+                                        <AutoExpandTextarea
+                                            value={getCompanyName(selectedTicket)}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
+                                        />
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="detail-label">Designation</div>
+                                        <AutoExpandTextarea
+                                            value={getJobTitle(selectedTicket) || 'N/A'}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Col md={6}>
+                                        <div className="detail-label">Name / Email</div>
+                                        <AutoExpandTextarea
+                                            value={selectedTicket.name || 'N/A'}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
+                                        />
+                                        <AutoExpandTextarea
+                                            value={selectedTicket.email || 'No email'}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea ticket-detail-textarea--secondary detail-value--break mt-2"
+                                        />
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="detail-label">Subject</div>
+                                        <AutoExpandTextarea
+                                            value={selectedTicket.subject || ''}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Col md={6}>
+                                        <div className="detail-label">Category</div>
+                                        <AutoExpandTextarea
+                                            value={selectedTicket.category || 'General'}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
+                                        />
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="detail-label">Priority</div>
+                                        <div>{getPriorityBadge(selectedTicket.priority)}</div>
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Col md={6}>
+                                        <div className="detail-label">Status</div>
+                                        <div>{getStatusBadge(selectedTicket.status)}</div>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="detail-label">Created</div>
+                                        <AutoExpandTextarea
+                                            value={formatDateTime(selectedTicket.createdAt)}
+                                            readOnly
+                                            minRows={1}
+                                            className="auto-expand-textarea ticket-detail-textarea"
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Col>
+>>>>>>> 385dbbd49c122a6fe67289bb9a941f8445ebf5ad
                                         <div className="detail-label">Message</div>
                                         <div className="message-box">
                                             {selectedTicket.message || 'No message provided.'}

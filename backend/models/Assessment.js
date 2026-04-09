@@ -22,7 +22,7 @@ const AssessmentSchema = new mongoose.Schema({
     explanation: { type: String },
     imageUrl: { type: String }
   }],
-  status: { type: String, enum: ['draft', 'published', 'archived'], default: 'published' },
+  status: { type: String, enum: ['draft', 'published'], default: 'published' },
   passingPercentage: { type: Number, default: 60 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
