@@ -328,8 +328,7 @@ function AdminSubAdmin() {
         } else {
             const filtered = subAdmins.filter(admin => 
                 admin.name.toLowerCase().includes(term.toLowerCase()) ||
-                admin.email.toLowerCase().includes(term.toLowerCase()) ||
-                admin.employerCode.toLowerCase().includes(term.toLowerCase())
+                admin.email.toLowerCase().includes(term.toLowerCase())
             );
             setFilteredSubAdmins(filtered);
         }
@@ -370,7 +369,7 @@ function AdminSubAdmin() {
                                 
                                 <SearchBar 
                                     onSearch={handleSearch}
-                                    placeholder="Search by name, email, or employer code..."
+                                    placeholder="Search by name or email..."
                                     className="mb-3"
                                 />
                                 

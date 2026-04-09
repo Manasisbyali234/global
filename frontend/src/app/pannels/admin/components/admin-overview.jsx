@@ -112,12 +112,17 @@ function AdminOverviewPage() {
   const [applicantSearch, setApplicantSearch] = useState("");
   const [applicantInterviewStatusFilter, setApplicantInterviewStatusFilter] = useState("all");
   const [jobStatusFilter, setJobStatusFilter] = useState("all");
+  const [jobDateFilter, setJobDateFilter] = useState("");
   const autoOpenedEmployerIdRef = useRef(null);
   const visibleEmployerJobs = employerJobs.filter((job) => {
     if (job.status === "draft") return false;
     if (!job.title.toLowerCase().includes(jobSearch.toLowerCase())) return false;
-    if (jobStatusFilter === "active") return job.status === "active";
-    if (jobStatusFilter === "closed") return job.status === "closed";
+    if (jobStatusFilter === "active" && job.status !== "active") return false;
+    if (jobStatusFilter === "closed" && job.status !== "closed") return false;
+    if (jobDateFilter && job.createdAt) {
+      const jobDate = new Date(job.createdAt).toISOString().slice(0, 10);
+      if (jobDate !== jobDateFilter) return false;
+    }
     return true;
   });
   const showJobCompanyColumn =
@@ -310,6 +315,7 @@ function AdminOverviewPage() {
       setApplicantsError("");
       setJobSearch("");
       setJobStatusFilter("all");
+      setJobDateFilter("");
       setApplicantInterviewStatusFilter("all");
       const response = await api.getAdminEmployerOverviewJobs(employer.employerId);
       if (response.success) {
@@ -519,6 +525,35 @@ function AdminOverviewPage() {
                   <option value="active">Active</option>
                   <option value="closed">Closed</option>
                 </select>
+              </div>
+              <div className="admin-overview-filter-control">
+                <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                  <i className="fa fa-calendar me-2 text-primary" />
+                  Filter by Posted Date
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="date"
+                    className="form-control admin-overview-filter-select"
+                    value={jobDateFilter}
+                    onChange={(e) => setJobDateFilter(e.target.value)}
+                    style={{ paddingRight: "2rem" }}
+                  />
+                  {jobDateFilter && (
+                    <button
+                      type="button"
+                      onClick={() => setJobDateFilter("")}
+                      style={{
+                        position: "absolute", right: "8px", top: "50%",
+                        transform: "translateY(-50%)", background: "none",
+                        border: "none", cursor: "pointer", color: "#888", fontSize: "14px", padding: 0
+                      }}
+                      title="Clear date filter"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 

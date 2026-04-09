@@ -135,6 +135,29 @@ function AdminTransactionsPage() {
         });
     }, [transactions, searchText, companySearch, dateFilter]);
 
+    const exportToExcel = () => {
+        const headers = ['Date', 'Time', 'Candidate Name', 'Candidate Email', 'Company', 'Company Email', 'Job Role', 'Payment ID', 'Amount (INR)'];
+        const rows = filteredTransactions.map((t) => [
+            formatDate(t.createdAt),
+            new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            t.candidateId?.name || 'N/A',
+            t.candidateId?.email || 'N/A',
+            t.employerId?.companyName || 'N/A',
+            t.employerId?.email || 'N/A',
+            t.jobId?.title || 'N/A',
+            t.paymentId || 'N/A',
+            t.paymentAmount || 129
+        ]);
+        const csvContent = [headers, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `transactions_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     const getReceiptAmountBreakdown = (amount) => {
         const totalPaid = Number(amount ?? 129);
         const roundTo2 = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
@@ -154,9 +177,18 @@ function AdminTransactionsPage() {
         }}>
             {/* Header */}
             <div style={{ padding: '2rem 2rem 1rem 2rem' }}>
-                <div className="wt-admin-right-page-header clearfix" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem 2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                    <h2 className="m-0">All Transactions</h2>
-                    <p className="text-muted m-0 mt-1">Monitor all platform payments from candidates</p>
+                <div className="wt-admin-right-page-header clearfix d-flex justify-content-between align-items-center" style={{ background: 'white', borderRadius: '12px', padding: '1.5rem 2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                    <div>
+                        <h2 className="m-0">All Transactions</h2>
+                        <p className="text-muted m-0 mt-1">Monitor all platform payments from candidates</p>
+                    </div>
+                    <button
+                        className="btn btn-success d-flex align-items-center gap-2"
+                        onClick={exportToExcel}
+                        title="Export to Excel"
+                    >
+                        <Download size={16} /> Export to Excel
+                    </button>
                 </div>
             </div>
 
