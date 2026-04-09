@@ -12,6 +12,7 @@ export default function AssessmentResults() {
   const [assessment, setAssessment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     fetchResults();
@@ -132,6 +133,29 @@ export default function AssessmentResults() {
                 {results.length} candidate{results.length !== 1 ? 's' : ''} attempted this assessment
               </p>
             </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Filter by:</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem 0.75rem',
+                  fontSize: '0.875rem',
+                  color: '#374151',
+                  background: 'white',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <option value="all">All</option>
+                <option value="pass">Pass</option>
+                <option value="fail">Fail</option>
+                <option value="expired">Expired</option>
+                <option value="suspended">Suspended</option>
+              </select>
+            </div>
             <button
               onClick={() => navigate('/employer/create-assessment')}
               style={{
@@ -225,7 +249,14 @@ export default function AssessmentResults() {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.map((result, index) => (
+                  {results.filter(result => {
+                    if (statusFilter === 'all') return true;
+                    if (statusFilter === 'suspended') return result.status === 'suspended';
+                    if (statusFilter === 'expired') return result.status === 'expired';
+                    if (statusFilter === 'pass') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'pass';
+                    if (statusFilter === 'fail') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'fail';
+                    return true;
+                  }).map((result, index) => (
                     <tr key={result._id} style={{ 
                       borderBottom: index < results.length - 1 ? '1px solid #f3f4f6' : 'none',
                       transition: 'background-color 0.2s ease',
@@ -394,6 +425,20 @@ export default function AssessmentResults() {
                       </td>
                     </tr>
                   ))}
+                  {results.filter(result => {
+                    if (statusFilter === 'all') return true;
+                    if (statusFilter === 'suspended') return result.status === 'suspended';
+                    if (statusFilter === 'expired') return result.status === 'expired';
+                    if (statusFilter === 'pass') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'pass';
+                    if (statusFilter === 'fail') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'fail';
+                    return true;
+                  }).length === 0 && (
+                    <tr>
+                      <td colSpan="9" style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+                        No results found for the selected filter.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
             </ResponsiveTable>
           )}
