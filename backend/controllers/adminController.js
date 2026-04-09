@@ -143,7 +143,7 @@ exports.getDashboardStats = async (req, res) => {
     const pendingPlacements = await Placement.countDocuments({ status: 'pending' });
     const approvedPlacements = await Placement.countDocuments({ isApproved: true, status: 'active' });
     const totalPlacements = await Placement.countDocuments();
-    const hiredCandidates = await Application.countDocuments({ status: 'hired' });
+    const hiredCandidates = await Application.countDocuments({ status: 'accepted' });
     const rejectedCandidates = await Application.countDocuments({ status: 'rejected' });
 
     const stats = {
@@ -242,7 +242,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       employerId,
       status: { $ne: 'draft' }
     })
-      .select('_id title status createdAt offerLetterDate companyName')
+      .select('_id title status createdAt lastDateOfApplication offerLetterDate companyName')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -280,6 +280,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
       companyName: job.companyName || employer.companyName || employer.name || 'N/A',
       status: job.status,
       createdAt: job.createdAt,
+      lastDateOfApplication: job.lastDateOfApplication,
       offerLetterDate: job.offerLetterDate,
       applicationsCount: applicationsByJobMap.get(String(job._id))?.applicationsCount || 0,
       paidApplicationsCount: applicationsByJobMap.get(String(job._id))?.paidApplicationsCount || 0,

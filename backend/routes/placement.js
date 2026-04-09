@@ -154,6 +154,14 @@ router.get('/data', auth(['placement']), async (req, res) => {
 
     let students = [];
     const studentMap = new Map();
+    const liveCandidates = await Candidate.find({ placementId })
+      .select('email credits')
+      .lean();
+    const liveCandidateMap = new Map(
+      liveCandidates
+        .filter(candidate => candidate.email)
+        .map(candidate => [String(candidate.email).toLowerCase(), candidate])
+    );
 
     // Get students from ALL uploaded files in file history
     if (placement.fileHistory && placement.fileHistory.length > 0) {
@@ -179,6 +187,8 @@ router.get('/data', auth(['placement']), async (req, res) => {
             jsonData.forEach(row => {
               const email = row.Email || row.email || row.EMAIL || '';
               if (email && !studentMap.has(email.toLowerCase())) {
+                const liveCandidate = liveCandidateMap.get(email.toLowerCase());
+
                 // Extract credits from multiple possible column names
                 let credits = 0;
                 const creditsValue = row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || 
@@ -193,6 +203,10 @@ router.get('/data', auth(['placement']), async (req, res) => {
                 } else if (typeof creditsValue === 'string') {
                   const parsed = parseInt(creditsValue.replace(/[^0-9]/g, ''));
                   credits = isNaN(parsed) ? 0 : parsed;
+                }
+
+                if (liveCandidate && liveCandidate.credits !== undefined && liveCandidate.credits !== null) {
+                  credits = Number(liveCandidate.credits) || 0;
                 }
                 
                 studentMap.set(email.toLowerCase(), {

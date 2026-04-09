@@ -1369,17 +1369,40 @@ exports.viewFileData = async (req, res) => {
         status: file.status
       });
     }
+
+    const fileEmails = jsonData
+      .map(row => String(row.Email || row.email || row.EMAIL || '').toLowerCase())
+      .filter(Boolean);
+    const liveCandidates = await Candidate.find({
+      placementId,
+      email: { $in: fileEmails }
+    })
+      .select('email credits')
+      .lean();
+    const liveCandidateMap = new Map(
+      liveCandidates
+        .filter(candidate => candidate.email)
+        .map(candidate => [String(candidate.email).toLowerCase(), candidate])
+    );
     
     // Format the data to show only required fields
-    const formattedData = jsonData.map(row => ({
-      'ID': row.ID || row.id || row.Id || '',
-      'Candidate Name': row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['Student Name'] || '',
-      'Email': row.Email || row.email || row.EMAIL || '',
-      'Phone': row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
-      'Course': row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || 'Not Specified',
-      'Password': row.Password || row.password || row.PASSWORD || '',
-      'Credits Assigned': row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || '0'
-    }));
+    const formattedData = jsonData.map(row => {
+      const email = String(row.Email || row.email || row.EMAIL || '').toLowerCase();
+      const liveCandidate = liveCandidateMap.get(email);
+      const rowCredits = row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || '0';
+
+      return {
+        'ID': row.ID || row.id || row.Id || '',
+        'Candidate Name': row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['Student Name'] || '',
+        'Email': row.Email || row.email || row.EMAIL || '',
+        'Phone': row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
+        'Course': row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || 'Not Specified',
+        'Password': row.Password || row.password || row.PASSWORD || '',
+        'Credits Assigned': liveCandidate && liveCandidate.credits !== undefined && liveCandidate.credits !== null
+          ? liveCandidate.credits
+          : rowCredits
+      };
+    });
     
     res.json({
       success: true,

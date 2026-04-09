@@ -484,6 +484,7 @@ function AdminOverviewPage() {
                     <tr>
                       {showJobCompanyColumn && <th>Company Name</th>}
                       <th>Job Title</th>
+                      <th>Posted Date</th>
                       <th>Applications</th>
                       <th>Paid Applicants</th>
                       <th>Credit Applicants</th>
@@ -496,7 +497,7 @@ function AdminOverviewPage() {
                   <tbody>
                     {visibleEmployerJobs.length === 0 ? (
                       <tr>
-                        <td colSpan={showJobCompanyColumn ? 9 : 8} className="text-center">
+                        <td colSpan={showJobCompanyColumn ? 10 : 9} className="text-center">
                           {jobSearch ? "No matching jobs found." : "No jobs found for this employer."}
                         </td>
                       </tr>
@@ -505,11 +506,12 @@ function AdminOverviewPage() {
                           <tr key={job.jobId}>
                             {showJobCompanyColumn && <td>{job.companyName || selectedEmployer?.employerName || "N/A"}</td>}
                             <td>{job.title}</td>
+                            <td>{job.createdAt ? formatDate(job.createdAt) : "N/A"}</td>
                             <td>{job.applicationsCount}</td>
                             <td>{job.paidApplicationsCount ?? 0}</td>
                             <td>{job.creditApplicationsCount ?? 0}</td>
                             <td>{job.status}</td>
-                            <td>{formatDate(job.createdAt)}</td>
+                            <td>{job.lastDateOfApplication ? formatDate(job.lastDateOfApplication) : 'N/A'}</td>
                             <td>{job.offerLetterDate ? formatDate(job.offerLetterDate) : 'N/A'}</td>
                             <td>
                               <button
