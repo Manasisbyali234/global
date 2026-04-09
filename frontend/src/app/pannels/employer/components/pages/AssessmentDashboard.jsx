@@ -19,7 +19,7 @@ export default function AssessmentDashboard() {
 	const [assessments, setAssessments] = useState([]);
 	const [filteredAssessments, setFilteredAssessments] = useState([]);
 	const [showModal, setShowModal] = useState(false);
-	const [showInstructionsModal, setShowInstructionsModal] = useState(false);
+	const [instructionsModalMode, setInstructionsModalMode] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [editingAssessment, setEditingAssessment] = useState(null);
 	const [selectedAssessmentId, setSelectedAssessmentId] = useState("");
@@ -28,6 +28,8 @@ export default function AssessmentDashboard() {
 	const [isConsultantEmployer, setIsConsultantEmployer] = useState(false);
 	const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 	const selectorRef = useRef(null);
+	const isInstructionsModalOpen = Boolean(instructionsModalMode);
+	const isCreateInstructionsFlow = instructionsModalMode === "create";
 
 	const truncateText = (value, maxLength) => {
 		const text = String(value || '').trim();
@@ -55,7 +57,7 @@ export default function AssessmentDashboard() {
 	const getAssessmentStatus = (assessment) =>
 		String(assessment?.status || "published").trim().toLowerCase();
 
-	const handleCreateAssessmentClick = () => {
+	const openCreateAssessmentConfirmation = () => {
 		const securityMessage = (
 			<div style={{ textAlign: 'left', lineHeight: '1.6', padding: '4px 6px' }}>
 				<div style={{ marginBottom: '14px', color: '#1e293b', fontSize: '15px', fontWeight: '600' }}>
@@ -109,6 +111,24 @@ export default function AssessmentDashboard() {
 				cancelText: 'Cancel'
 			}
 		);
+	};
+
+	const handleCreateAssessmentClick = () => {
+		setInstructionsModalMode("create");
+	};
+
+	const handleInstructionsModalClose = () => {
+		setInstructionsModalMode(null);
+	};
+
+	const handleInstructionsModalPrimaryAction = () => {
+		const shouldOpenCreateConfirmation = isCreateInstructionsFlow;
+		setInstructionsModalMode(null);
+		if (shouldOpenCreateConfirmation) {
+			setTimeout(() => {
+				openCreateAssessmentConfirmation();
+			}, 0);
+		}
 	};
 
 	useEffect(() => {
@@ -262,13 +282,13 @@ export default function AssessmentDashboard() {
 
 	const selectedAssessment = getSelectedAssessment();
 
-	const instructionsModal = showInstructionsModal && typeof document !== "undefined"
+	const instructionsModal = isInstructionsModalOpen && typeof document !== "undefined"
 		? createPortal(
 			<div
 				className="assessment-instructions-modal-overlay"
 				onClick={(event) => {
 					if (event.target === event.currentTarget) {
-						setShowInstructionsModal(false);
+						handleInstructionsModalClose();
 					}
 				}}
 				role="presentation"
@@ -292,9 +312,9 @@ export default function AssessmentDashboard() {
 						<button
 							type="button"
 							className="btn btn-dark assessment-instructions-header-close"
-							onClick={() => setShowInstructionsModal(false)}
+							onClick={handleInstructionsModalClose}
 						>
-							Close
+							{isCreateInstructionsFlow ? 'Cancel' : 'Close'}
 						</button>
 					</div>
 
@@ -328,6 +348,15 @@ export default function AssessmentDashboard() {
 							<p>Employers must update the status of each stage within 24 hours to ensure a smooth hiring process.</p>
 						</div>
 					</div>
+					<div className="assessment-instructions-footer">
+						<button
+							type="button"
+							className="btn btn-dark assessment-instructions-footer-button"
+							onClick={handleInstructionsModalPrimaryAction}
+						>
+							{isCreateInstructionsFlow ? 'OK' : 'Close'}
+						</button>
+					</div>
 				</div>
 			</div>,
 			document.body
@@ -357,7 +386,7 @@ export default function AssessmentDashboard() {
 								<button
 									type="button"
 									className="btn btn-outline-secondary assessment-instructions-button"
-									onClick={() => setShowInstructionsModal(true)}
+									onClick={() => setInstructionsModalMode("manual")}
 								>
 									<i className="fa fa-info-circle me-2"></i>Instructions
 								</button>

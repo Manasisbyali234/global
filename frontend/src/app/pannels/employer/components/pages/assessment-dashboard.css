@@ -371,6 +371,16 @@
   padding: 24px 32px 8px;
 }
 
+.assessment-instructions-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 32px 28px;
+}
+
+.assessment-instructions-footer-button {
+  min-width: 120px;
+}
+
 .assessment-instructions-item {
   padding: 0 0 18px 22px;
   margin-bottom: 18px;
@@ -573,6 +583,14 @@
   .assessment-instructions-body {
     max-height: calc(100vh - 220px);
     padding: 18px 18px 6px;
+  }
+
+  .assessment-instructions-footer {
+    padding: 0 18px 18px;
+  }
+
+  .assessment-instructions-footer-button {
+    width: 100% !important;
   }
 
   .assessment-instructions-header-close {

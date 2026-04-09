@@ -679,7 +679,6 @@ function EmployerSupportTickets() {
                     {!isTicketModalMinimized && selectedTicket && (
                         <>
                             <div className="support-ticket-modal-body">
-<<<<<<< HEAD
                                 <div className="ticket-details-shell">
                                     <div className="ticket-details-hero">
                                         <div className="ticket-details-hero__content">
@@ -730,86 +729,6 @@ function EmployerSupportTickets() {
                                     </div>
 
                                     <div className="ticket-detail-section mb-3">
-=======
-                                <Row className="mb-3">
-                                    <Col md={6}>
-                                        <div className="detail-label">Company Name</div>
-                                        <AutoExpandTextarea
-                                            value={getCompanyName(selectedTicket)}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
-                                        />
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="detail-label">Designation</div>
-                                        <AutoExpandTextarea
-                                            value={getJobTitle(selectedTicket) || 'N/A'}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
-                                        />
-                                    </Col>
-                                </Row>
-                                <Row className="mb-3">
-                                    <Col md={6}>
-                                        <div className="detail-label">Name / Email</div>
-                                        <AutoExpandTextarea
-                                            value={selectedTicket.name || 'N/A'}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
-                                        />
-                                        <AutoExpandTextarea
-                                            value={selectedTicket.email || 'No email'}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea ticket-detail-textarea--secondary detail-value--break mt-2"
-                                        />
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="detail-label">Subject</div>
-                                        <AutoExpandTextarea
-                                            value={selectedTicket.subject || ''}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
-                                        />
-                                    </Col>
-                                </Row>
-                                <Row className="mb-3">
-                                    <Col md={6}>
-                                        <div className="detail-label">Category</div>
-                                        <AutoExpandTextarea
-                                            value={selectedTicket.category || 'General'}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea detail-value--break"
-                                        />
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="detail-label">Priority</div>
-                                        <div>{getPriorityBadge(selectedTicket.priority)}</div>
-                                    </Col>
-                                </Row>
-                                <Row className="mb-3">
-                                    <Col md={6}>
-                                        <div className="detail-label">Status</div>
-                                        <div>{getStatusBadge(selectedTicket.status)}</div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="detail-label">Created</div>
-                                        <AutoExpandTextarea
-                                            value={formatDateTime(selectedTicket.createdAt)}
-                                            readOnly
-                                            minRows={1}
-                                            className="auto-expand-textarea ticket-detail-textarea"
-                                        />
-                                    </Col>
-                                </Row>
-                                <Row className="mb-3">
-                                    <Col>
->>>>>>> 385dbbd49c122a6fe67289bb9a941f8445ebf5ad
                                         <div className="detail-label">Message</div>
                                         <div className="message-box">
                                             {selectedTicket.message || 'No message provided.'}
