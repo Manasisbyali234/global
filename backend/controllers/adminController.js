@@ -208,24 +208,59 @@ exports.getEmployerOverview = async (req, res) => {
         {
           $group: {
             _id: '$job.employerId',
-            applicationsCount: { $sum: 1 }
+            applicationsCount: { $sum: 1 },
+            acceptedOfferCount: {
+              $sum: { $cond: [{ $eq: ['$status', 'accepted'] }, 1, 0] }
+            },
+            rejectedOfferCount: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $eq: ['$status', 'rejected'] },
+                      {
+                        $gt: [
+                          {
+                            $size: {
+                              $filter: {
+                                input: { $ifNull: ['$statusHistory', []] },
+                                as: 'h',
+                                cond: { $eq: ['$$h.status', 'offer_sent'] }
+                              }
+                            }
+                          },
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  1,
+                  0
+                ]
+              }
+            }
           }
         }
       ])
     ]);
 
     const jobsCountMap = new Map(jobsByEmployer.map(item => [String(item._id), item.jobsCount]));
-    const applicationsCountMap = new Map(applicationsByEmployer.map(item => [String(item._id), item.applicationsCount]));
+    const applicationsCountMap = new Map(applicationsByEmployer.map(item => [String(item._id), item]));
 
     const data = employers
-      .map((employer) => ({
-        employerId: employer._id,
-        employerName: employer.companyName || employer.name || 'N/A',
-        employerType: employer.employerType || 'company',
-        createdAt: employer.createdAt,
-        jobsCount: jobsCountMap.get(String(employer._id)) || 0,
-        applicationsCount: applicationsCountMap.get(String(employer._id)) || 0
-      }))
+      .map((employer) => {
+        const appData = applicationsCountMap.get(String(employer._id)) || {};
+        return {
+          employerId: employer._id,
+          employerName: employer.companyName || employer.name || 'N/A',
+          employerType: employer.employerType || 'company',
+          createdAt: employer.createdAt,
+          jobsCount: jobsCountMap.get(String(employer._id)) || 0,
+          applicationsCount: appData.applicationsCount || 0,
+          acceptedOfferCount: appData.acceptedOfferCount || 0,
+          rejectedOfferCount: appData.rejectedOfferCount || 0
+        };
+      })
       .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
     res.json({ success: true, data });
