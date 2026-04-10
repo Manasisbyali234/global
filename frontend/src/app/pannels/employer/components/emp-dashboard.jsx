@@ -27,6 +27,7 @@ function EmpDashboardPage() {
     const [notifications, setNotifications] = useState([]);
     const [isMobile, setIsMobile] = useState(false);
     const [hoveredId, setHoveredId] = useState(null);
+    const [showAllNotifications, setShowAllNotifications] = useState(false);
 
     useEffect(() => {
         fetchDashboardData();
@@ -97,6 +98,24 @@ function EmpDashboardPage() {
                 message: 'Failed to load profile completion status'
             }));
         }
+    };
+
+    const getEmployerNotificationIcon = (notification) => {
+        const title = notification.title?.toLowerCase() || '';
+
+        if (notification.type === 'document_approved' || title.includes('approved')) {
+            return { icon: 'feather-check-circle', color: '#22c55e' };
+        }
+
+        if (notification.type === 'document_rejected' || title.includes('rejected')) {
+            return { icon: 'feather-x-circle', color: '#ef4444' };
+        }
+
+        if (title.includes('job') || title.includes('application')) {
+            return { icon: 'feather-briefcase', color: '#3b82f6' };
+        }
+
+        return { icon: 'feather-file-text', color: '#6b7280' };
     };
 
     return (
@@ -379,8 +398,107 @@ function EmpDashboardPage() {
                                 display: 'flex',
                                 flexDirection: 'column'
                             }}>
-                                <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#111827', marginBottom: '1.5rem' }}>Notifications</h3>
+                                <div style={{ padding: '0 0 12px 0', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <h5 style={{ fontSize: '14px', fontWeight: 'bold', color: '#374151', margin: 0 }}>
+                                        <i className="feather-bell" style={{ marginRight: '8px' }}></i>Notifications
+                                    </h5>
+                                    <span style={{ background: '#f3f4f6', color: '#374151', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                                        {notifications.length}
+                                    </span>
+                                </div>
+
+                                <div style={{ maxHeight: '320px', overflowY: 'auto', marginTop: '12px', flex: '1' }}>
+                                    {notifications.length > 0 ? (
+                                        <>
+                                            {(showAllNotifications ? notifications : notifications.slice(0, 3)).map((notification, index, list) => {
+                                                const { icon, color } = getEmployerNotificationIcon(notification);
+
+                                                return (
+                                                    <div
+                                                        key={notification._id || index}
+                                                        onMouseEnter={() => setHoveredId(notification._id)}
+                                                        onMouseLeave={() => setHoveredId(null)}
+                                                        onClick={() => isMobile && setHoveredId(hoveredId === notification._id ? null : notification._id)}
+                                                        style={{
+                                                            padding: '10px 12px',
+                                                            borderBottom: index < list.length - 1 ? '1px solid #f1f5f9' : 'none',
+                                                            display: 'flex',
+                                                            gap: '8px',
+                                                            alignItems: 'flex-start'
+                                                        }}
+                                                    >
+                                                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                            <i className={icon} style={{ color, fontSize: '14px' }}></i>
+                                                        </div>
+                                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                                            <h6 style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', margin: '0 0 4px 0', wordWrap: 'break-word' }}>
+                                                                {notification.title}
+                                                            </h6>
+                                                            <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', lineHeight: '1.4' }}>
+                                                                {notification.message}
+                                                            </p>
+                                                            <small style={{ fontSize: '10px', color: '#9ca3af' }}>
+                                                                {formatDate(notification.createdAt)}
+                                                            </small>
+                                                        </div>
+                                                        {(hoveredId === notification._id || isMobile) && (
+                                                            <button
+                                                                onClick={async (e) => {
+                                                                    e.stopPropagation();
+
+                                                                    try {
+                                                                        const token = localStorage.getItem('employerToken');
+                                                                        await fetch(`http://localhost:5000/api/notifications/${notification._id}/dismiss`, {
+                                                                            method: 'PUT',
+                                                                            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                                                                        });
+                                                                        setNotifications(prev => prev.filter(n => n._id !== notification._id));
+                                                                    } catch (error) {}
+                                                                }}
+                                                                style={{
+                                                                    background: '#fed7aa',
+                                                                    border: 'none',
+                                                                    color: 'black',
+                                                                    fontSize: '12px',
+                                                                    cursor: 'pointer',
+                                                                    borderRadius: '2px',
+                                                                    padding: '2px 6px',
+                                                                    flexShrink: 0,
+                                                                    width: '20px',
+                                                                    height: '20px',
+                                                                    display: hoveredId === notification._id || isMobile ? 'flex' : 'none',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center',
+                                                                    transition: 'none'
+                                                                }}
+                                                            >
+                                                                <i className="fa fa-times"></i>
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                            {notifications.length > 3 && (
+                                                <div style={{ padding: '8px', textAlign: 'center', borderTop: '1px solid #f1f5f9' }}>
+                                                    <button
+                                                        onClick={() => setShowAllNotifications(!showAllNotifications)}
+                                                        style={{ background: 'rgba(0,0,0,0.8)', color: 'white', border: 'none', borderRadius: '12px', padding: '4px 12px', fontSize: '10px', cursor: 'pointer' }}
+                                                    >
+                                                        {showAllNotifications ? 'Show Less' : 'View All'}
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div style={{ padding: '24px', textAlign: 'center' }}>
+                                            <i className="feather-bell" style={{ fontSize: '32px', color: '#d1d5db', opacity: 0.5 }}></i>
+                                            <h6 style={{ color: '#6b7280', fontSize: '12px', margin: '8px 0 0 0' }}>No notifications</h6>
+                                            <p style={{ color: '#9ca3af', fontSize: '10px', margin: '2px 0 0 0' }}>Updates will appear here</p>
+                                        </div>
+                                    )}
+                                </div>
                                 
+                                {false && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: '1' }}>
                                     {notifications.length > 0 ? notifications.slice(0, 3).map((notification, index) => {
                                         const isDocumentNotification = notification.type === 'document_approved' || notification.type === 'document_rejected';
@@ -476,7 +594,9 @@ function EmpDashboardPage() {
                                         </div>
                                     )}
                                 </div>
+                                )}
 
+                                {false && (
                                 <button 
                                     onClick={() => window.location.href = '/employer/manage-jobs'}
                                     style={{
@@ -493,6 +613,7 @@ function EmpDashboardPage() {
                                 >
                                     View All Activity
                                 </button>
+                                )}
                             </div>
                         </div>
                     </div>

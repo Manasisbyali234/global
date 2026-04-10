@@ -6,21 +6,12 @@ function SectionNotifications() {
 	const [notifications, setNotifications] = useState([]);
 	const [showAll, setShowAll] = useState(false);
 	const [hoveredId, setHoveredId] = useState(null);
-	const [isMobile, setIsMobile] = useState(false);
 
 	useEffect(() => {
 		fetchNotifications();
 		const handleRefresh = () => fetchNotifications();
-		const handleResize = () => setIsMobile(window.innerWidth <= 767);
-
-		handleResize();
 		window.addEventListener('refreshNotifications', handleRefresh);
-		window.addEventListener('resize', handleResize);
-
-		return () => {
-			window.removeEventListener('refreshNotifications', handleRefresh);
-			window.removeEventListener('resize', handleResize);
-		};
+		return () => window.removeEventListener('refreshNotifications', handleRefresh);
 	}, []);
 
 	const fetchNotifications = async () => {
@@ -50,159 +41,52 @@ function SectionNotifications() {
 		} catch (error) {}
 	};
 
-	const getNotificationTone = (notification) => {
-		const title = notification.title || '';
-		const type = notification.type || '';
-		const lowerTitle = title.toLowerCase();
-
-		const isApproved = type === 'profile_approved' ||
-			lowerTitle.includes('approved') ||
-			lowerTitle.includes('selected') ||
-			lowerTitle.includes('shortlisted');
-		const isRejected = lowerTitle.includes('rejected') ||
-			lowerTitle.includes('declined') ||
-			type === 'file_validation_error';
-
-		if (isApproved) {
-			return {
-				background: notification.isRead ? '#f9fafb' : '#f0fdf4',
-				border: '#22c55e',
-				iconBackground: '#dcfce7',
-				icon: 'OK'
-			};
-		}
-
-		if (isRejected) {
-			return {
-				background: notification.isRead ? '#f9fafb' : '#fef2f2',
-				border: '#ef4444',
-				iconBackground: '#fecaca',
-				icon: '!'
-			};
-		}
-
-		return {
-			background: notification.isRead ? '#f9fafb' : '#fef3c7',
-			border: '#f59e0b',
-			iconBackground: '#fde68a',
-			icon: type === 'interview_scheduled' ? '>>' : 'i'
+	const getIcon = (type) => {
+		const icons = {
+			profile_approved: { icon: 'feather-user', color: '#3b82f6' },
+			profile_submitted: { icon: 'feather-user', color: '#8b5cf6' },
+			application_status: { icon: 'feather-briefcase', color: '#3b82f6' },
+			interview_scheduled: { icon: 'feather-calendar', color: '#f59e0b' },
+			file_validation_error: { icon: 'feather-info', color: '#6b7280' }
 		};
+		return icons[type] || { icon: 'feather-info', color: '#6b7280' };
 	};
 
 	const displayedNotifications = showAll ? notifications : notifications.slice(0, 3);
 
 	return (
-		<div
-			className="notification-container"
-			style={{
-				background: 'white',
-				borderRadius: '0.75rem',
-				border: '1px solid #e5e7eb',
-				padding: isMobile ? '1rem' : '1.5rem',
-				display: 'flex',
-				flexDirection: 'column',
-				height: '100%'
-			}}
-		>
-			<h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#111827', marginBottom: '1.5rem' }}>
-				Notifications
-			</h3>
+		<div className="notification-container" style={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', background: 'white', maxHeight: '400px' }}>
+			<div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+				<h5 style={{ fontSize: '14px', fontWeight: 'bold', color: '#374151', margin: 0 }}>
+					<i className="feather-bell" style={{ marginRight: '8px' }}></i>Notifications
+				</h5>
+				<span style={{ background: '#f3f4f6', color: '#374151', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+					{notifications.length}
+				</span>
+			</div>
 
-			<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
+			<div style={{ maxHeight: '320px', overflowY: 'auto' }}>
 				{notifications.length > 0 ? (
 					<>
-						{displayedNotifications.map((notif) => {
-							const tone = getNotificationTone(notif);
-							const showDetails = hoveredId === notif._id || isMobile;
-
+						{displayedNotifications.map((notif, idx) => {
+							const { icon, color } = getIcon(notif.type);
+							const isMobile = window.innerWidth <= 767;
 							return (
-								<div
-									key={notif._id}
-									className="notification-item"
-									onMouseEnter={() => setHoveredId(notif._id)}
-									onMouseLeave={() => setHoveredId(null)}
-									style={{
-										display: 'flex',
-										alignItems: 'flex-start',
-										gap: '0.75rem',
-										padding: '0.75rem',
-										background: tone.background,
-										borderRadius: '0.5rem',
-										position: 'relative',
-										borderLeft: `3px solid ${tone.border}`
-									}}
-								>
-									<div
-										className="notification-icon"
-										style={{
-											width: '2rem',
-											height: '2rem',
-											background: tone.iconBackground,
-											borderRadius: '50%',
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											flexShrink: 0,
-											color: '#111827',
-											fontSize: '1rem',
-											fontWeight: '700'
-										}}
-									>
-										<span>{tone.icon}</span>
+								<div key={notif._id} className="notification-item" onMouseEnter={() => setHoveredId(notif._id)} onMouseLeave={() => setHoveredId(null)} onClick={() => isMobile && setHoveredId(hoveredId === notif._id ? null : notif._id)} style={{ padding: '10px 12px', borderBottom: idx < displayedNotifications.length - 1 ? '1px solid #f1f5f9' : 'none', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+									<div className="notification-icon" style={{ width: '28px', height: '28px', borderRadius: '50%', background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+										<i className={icon} style={{ color, fontSize: '14px' }}></i>
 									</div>
 									<div className="notification-content" style={{ flex: 1, minWidth: 0 }}>
-										<p
-											className="notification-title"
-											style={{
-												fontSize: '0.875rem',
-												fontWeight: '600',
-												color: '#111827',
-												margin: '0 0 0.25rem 0',
-												lineHeight: '1.3'
-											}}
-										>
-											{notif.title}
-										</p>
-										<p
-											className="notification-message"
-											style={{
-												fontSize: '0.75rem',
-												color: '#6b7280',
-												margin: '0 0 0.25rem 0',
-												lineHeight: '1.4',
-												wordBreak: 'break-word',
-												display: showDetails ? 'block' : 'none'
-											}}
-										>
+										<h6 className="notification-title" style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', margin: '0 0 4px 0', wordWrap: 'break-word' }}>{notif.title}</h6>
+										<p className="notification-message" style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', lineHeight: '1.4' }}>
 											{notif.message}
 										</p>
-										<p style={{ fontSize: '0.75rem', color: '#9ca3af', margin: 0 }}>
+										<small style={{ fontSize: '10px', color: '#9ca3af' }}>
 											{formatDate(notif.createdAt)}
-										</p>
+										</small>
 									</div>
-									{showDetails && (
-										<button
-											className="notification-dismiss"
-											onClick={(e) => {
-												e.stopPropagation();
-												dismissNotification(notif._id);
-											}}
-											style={{
-												background: '#fed7aa',
-												border: 'none',
-												color: 'black',
-												fontSize: '10px',
-												cursor: 'pointer',
-												borderRadius: '2px',
-												padding: '2px',
-												width: '18px',
-												height: '18px',
-												display: 'flex',
-												alignItems: 'center',
-												justifyContent: 'center',
-												flexShrink: 0
-											}}
-										>
+									{(hoveredId === notif._id || isMobile) && (
+										<button className="notification-dismiss" onClick={(e) => { e.stopPropagation(); dismissNotification(notif._id); }} style={{ background: '#fed7aa', border: 'none', color: 'black', fontSize: '12px', cursor: 'pointer', borderRadius: '2px', padding: '2px 6px', height: 'fit-content', flexShrink: 0, width: '20px', height: '20px', display: hoveredId === notif._id || isMobile ? 'flex' : 'none', alignItems: 'center', justifyContent: 'center', transition: 'none' }} onMouseEnter={(e) => {e.target.style.setProperty('background', '#fed7aa', 'important'); e.target.style.setProperty('color', 'black', 'important');}} onMouseLeave={(e) => {e.target.style.setProperty('background', '#fed7aa', 'important'); e.target.style.setProperty('color', 'black', 'important');}}>
 											<i className="fa fa-times"></i>
 										</button>
 									)}
@@ -210,27 +94,18 @@ function SectionNotifications() {
 							);
 						})}
 						{notifications.length > 3 && (
-							<button
-								onClick={() => setShowAll(!showAll)}
-								style={{
-									width: '100%',
-									marginTop: 'auto',
-									padding: '0.5rem',
-									background: 'transparent',
-									color: '#f97316',
-									border: '1px solid #f97316',
-									borderRadius: '0.5rem',
-									fontWeight: '500',
-									cursor: 'pointer'
-								}}
-							>
+							<div style={{ padding: '8px', textAlign: 'center', borderTop: '1px solid #f1f5f9' }}>
+								<button onClick={() => setShowAll(!showAll)} style={{ background: 'rgba(0,0,0,0.8)', color: 'white', border: 'none', borderRadius: '12px', padding: '4px 12px', fontSize: '10px', cursor: 'pointer' }}>
 									{showAll ? 'Show Less' : 'View All'}
-							</button>
+								</button>
+							</div>
 						)}
 					</>
 				) : (
-					<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-						<p style={{ margin: 0 }}>No notifications</p>
+					<div style={{ padding: '24px', textAlign: 'center' }}>
+						<i className="feather-bell" style={{ fontSize: '32px', color: '#d1d5db', opacity: 0.5 }}></i>
+						<h6 style={{ color: '#6b7280', fontSize: '12px', margin: '8px 0 0 0' }}>No notifications</h6>
+						<p style={{ color: '#9ca3af', fontSize: '10px', margin: '2px 0 0 0' }}>Updates will appear here</p>
 					</div>
 				)}
 			</div>
