@@ -4,6 +4,7 @@ const Application = require('../models/Application');
 const Blog = require('../models/Blog');
 const Contact = require('../models/Contact');
 const Support = require('../models/Support');
+const Notification = require('../models/Notification');
 const Testimonial = require('../models/Testimonial');
 const Partner = require('../models/Partner');
 const FAQ = require('../models/FAQ');
@@ -1228,8 +1229,23 @@ exports.submitSupportTicket = async (req, res) => {
 
     const support = await Support.create(supportData);
 
-    // Skip notification creation for now to avoid validation errors
-    console.log('Support ticket created successfully, skipping notification');
+    // Send notification to employer when receiverRole is 'employer'
+    if (normalizedReceiverRole === 'employer' && normalizedReceiverId && mongoose.Types.ObjectId.isValid(normalizedReceiverId)) {
+      try {
+        await Notification.create({
+          title: 'New Support Ticket',
+          message: `${name} submitted a support ticket: "${subject}"${relatedJobTitle ? ` regarding the job "${relatedJobTitle}"` : ''}.`,
+          type: 'support_response',
+          role: 'employer',
+          relatedId: new mongoose.Types.ObjectId(normalizedReceiverId),
+          createdBy: userId && mongoose.Types.ObjectId.isValid(userId)
+            ? new mongoose.Types.ObjectId(userId)
+            : support._id
+        });
+      } catch (notifError) {
+        console.error('Failed to create employer notification for support ticket:', notifError);
+      }
+    }
 
     res.status(201).json({ 
       success: true, 
