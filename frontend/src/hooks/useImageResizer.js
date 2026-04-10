@@ -88,7 +88,7 @@ export const useImageResizer = () => {
       aspectRatio: 1, // Square
       maxWidth: 400,
       maxHeight: 400,
-      lockCropArea: false,
+      lockCropArea: true,
       quality: 0.9
     },
     gallery: {

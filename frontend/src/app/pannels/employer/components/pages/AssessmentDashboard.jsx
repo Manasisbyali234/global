@@ -383,13 +383,6 @@ export default function AssessmentDashboard() {
 								<span className="badge bg-light text-dark px-3 py-2" style={{fontSize: '14px'}}>
 									Showing: {filteredAssessments.length} of {assessments.length}
 								</span>
-								<button
-									type="button"
-									className="btn btn-outline-secondary assessment-instructions-button"
-									onClick={() => setInstructionsModalMode("manual")}
-								>
-									<i className="fa fa-info-circle me-2"></i>Instructions
-								</button>
 								<button className="btn btn-dark" onClick={handleCreateAssessmentClick}>
 									<i className="fa fa-plus me-2"></i>Create Assessment
 								</button>
