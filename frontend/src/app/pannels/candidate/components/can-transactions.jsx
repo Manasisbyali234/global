@@ -13,7 +13,8 @@ function CanTransactionsPage() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
-    const [dateFilter, setDateFilter] = useState("");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [paymentDetails, setPaymentDetails] = useState(null);
@@ -165,20 +166,21 @@ function CanTransactionsPage() {
             const jobTitle = t.jobId?.title?.toLowerCase() || "";
             const company = (t.employerId?.brandName || t.employerId?.companyName || "").toLowerCase();
             if (!(jobTitle.includes(q) || company.includes(q))) return false;
-            if (dateFilter.trim()) {
-                const [dd, mm, yyyy] = dateFilter.trim().split('/');
-                if (dd && mm && yyyy && yyyy.length === 4) {
-                    const d = new Date(t.createdAt);
-                    if (
-                        d.getDate() !== Number(dd) ||
-                        d.getMonth() + 1 !== Number(mm) ||
-                        d.getFullYear() !== Number(yyyy)
-                    ) return false;
-                }
-            }
+            const parseDate = (str) => {
+                const [dd, mm, yyyy] = (str || '').trim().split('/');
+                if (dd && mm && yyyy && yyyy.length === 4)
+                    return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+                return null;
+            };
+            const txDate = new Date(t.createdAt);
+            txDate.setHours(0, 0, 0, 0);
+            const from = parseDate(fromDate);
+            const to = parseDate(toDate);
+            if (from && txDate < from) return false;
+            if (to && txDate > to) return false;
             return true;
         });
-    }, [transactions, searchText, dateFilter]);
+    }, [transactions, searchText, fromDate, toDate]);
 
     const getReceiptAmountBreakdown = (amount) => {
         const totalPaid = Number(amount || 129);
@@ -263,14 +265,28 @@ function CanTransactionsPage() {
                         </div>
                         <div className="page-toolbar__section" style={{ marginLeft: '1rem' }}>
                             <label className="page-toolbar__label">
-                                <i className="fa fa-calendar"></i> Filter by Date
+                                <i className="fa fa-calendar"></i> From Date
                             </label>
                             <input
                                 type="text"
                                 className="form-control page-toolbar__input"
                                 placeholder="DD/MM/YYYY"
-                                value={dateFilter}
-                                onChange={(e) => setDateFilter(e.target.value)}
+                                value={fromDate}
+                                onChange={(e) => setFromDate(e.target.value)}
+                                maxLength={10}
+                                style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '140px', maxWidth: '160px' }}
+                            />
+                        </div>
+                        <div className="page-toolbar__section" style={{ marginLeft: '1rem' }}>
+                            <label className="page-toolbar__label">
+                                <i className="fa fa-calendar"></i> To Date
+                            </label>
+                            <input
+                                type="text"
+                                className="form-control page-toolbar__input"
+                                placeholder="DD/MM/YYYY"
+                                value={toDate}
+                                onChange={(e) => setToDate(e.target.value)}
                                 maxLength={10}
                                 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '140px', maxWidth: '160px' }}
                             />

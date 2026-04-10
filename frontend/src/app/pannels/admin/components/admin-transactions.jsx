@@ -12,7 +12,8 @@ function AdminTransactionsPage() {
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
     const [companySearch, setCompanySearch] = useState("");
-    const [dateFilter, setDateFilter] = useState("");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [paymentDetails, setPaymentDetails] = useState(null);
@@ -121,19 +122,31 @@ function AdminTransactionsPage() {
         printWindow.document.close();
     };
 
+    const parseDate = (ddmmyyyy) => {
+        const [d, m, y] = ddmmyyyy.split('/');
+        if (!d || !m || !y || y.length !== 4) return null;
+        const date = new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+        return isNaN(date) ? null : date;
+    };
+
     const filteredTransactions = useMemo(() => {
         const q = searchText.trim().toLowerCase();
         const cq = companySearch.trim().toLowerCase();
+        const from = fromDate.trim() ? parseDate(fromDate.trim()) : null;
+        const to = toDate.trim() ? parseDate(toDate.trim()) : null;
         return transactions.filter((t) => {
+            if (t.paymentCurrency === 'CREDITS' || t.paymentId?.startsWith('credit_')) return false;
             const candidateName = t.candidateId?.name?.toLowerCase() || "";
             const companyName = t.employerId?.companyName?.toLowerCase() || "";
-            if (dateFilter) {
-                const txDate = t.createdAt ? new Date(t.createdAt).toISOString().slice(0, 10) : null;
-                if (txDate !== dateFilter) return false;
+            if (from || to) {
+                const txDate = t.createdAt ? new Date(new Date(t.createdAt).toDateString()) : null;
+                if (!txDate) return false;
+                if (from && txDate < from) return false;
+                if (to && txDate > to) return false;
             }
             return candidateName.includes(q) && companyName.includes(cq);
         });
-    }, [transactions, searchText, companySearch, dateFilter]);
+    }, [transactions, searchText, companySearch, fromDate, toDate]);
 
     const exportToExcel = () => {
         const headers = ['Date', 'Time', 'Candidate Name', 'Candidate Email', 'Company', 'Company Email', 'Job Role', 'Payment ID', 'Amount (INR)'];
@@ -240,20 +253,36 @@ function AdminTransactionsPage() {
                             </div>
                         </div>
                         <div className="page-toolbar__section">
-                            <label className="page-toolbar__label">Filter by Date</label>
+                            <label className="page-toolbar__label">From Date</label>
                             <div className="page-toolbar__control-wrap">
                                 <input
-                                    type="date"
-                                    className="form-control form-control-sm"
-                                    value={dateFilter}
-                                    onChange={(e) => setDateFilter(e.target.value)}
-                                    style={{ width: '160px' }}
+                                    type="text"
+                                    className="form-control page-toolbar__input"
+                                    placeholder="dd/mm/yyyy"
+                                    maxLength={10}
+                                    value={fromDate}
+                                    onChange={(e) => setFromDate(e.target.value)}
+                                    style={{ width: '130px' }}
                                 />
                             </div>
                         </div>
-                        <div className="text-muted">
-                            Total Platform Revenue: <strong>{currencySymbol}{(transactions.reduce((acc, t) => acc + (t.paymentAmount || 129), 0)).toLocaleString()}</strong>
+                        <div className="page-toolbar__section">
+                            <label className="page-toolbar__label">To Date</label>
+                            <div className="page-toolbar__control-wrap">
+                                <input
+                                    type="text"
+                                    className="form-control page-toolbar__input"
+                                    placeholder="dd/mm/yyyy"
+                                    maxLength={10}
+                                    value={toDate}
+                                    onChange={(e) => setToDate(e.target.value)}
+                                    style={{ width: '130px' }}
+                                />
+                            </div>
                         </div>
+                    </div>
+                    <div className="text-muted mt-2">
+                        Total Platform Revenue: <strong>{currencySymbol}{(transactions.filter(t => t.paymentCurrency !== 'CREDITS' && !t.paymentId?.startsWith('credit_')).reduce((acc, t) => acc + (t.paymentAmount || 129), 0)).toLocaleString()}</strong>
                     </div>
 
                     {loading ? (

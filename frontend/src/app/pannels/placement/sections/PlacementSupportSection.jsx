@@ -319,7 +319,10 @@ function PlacementSupportSection({ placementData }) {
                                 rows={6}
                                 value={formData.message}
                                 onChange={handleChange}
-                                placeholder="Describe the problem, the file or workflow involved, and what you already tried."
+                                placeholder="Please Provide Issue Details Use the box below to enter your information To help us resolve your query quickly, please include:
+                                               1.Batch Number (e.g., 2024)
+                                               2.Course Name
+                                               3.A brief description of the issue"
                                 className={errors.message ? 'is-invalid' : ''}
                             />
                             {errors.message && <span className="placement-support-form__error">{errors.message}</span>}
