@@ -11,6 +11,7 @@ const ImageResizer = ({
   aspectRatio = null, 
   maxWidth = 800, 
   maxHeight = 600,
+  lockCropArea = false,
   quality = 0.9 
 }) => {
   const canvasRef = useRef(null);
@@ -76,14 +77,18 @@ const ImageResizer = ({
   }, [getInitialCropArea]);
 
   const handleMouseDown = useCallback((e) => {
-    if (e.target.classList.contains('crop-area') || e.target.classList.contains('resize-handle')) return;
+    const clickedResizeHandle = e.target.classList.contains('resize-handle');
+    const clickedCropArea = e.target.closest('.crop-area');
+
+    if (clickedResizeHandle) return;
+    if (!lockCropArea && clickedCropArea) return;
     
     setIsDragging(true);
     setDragStart({
       x: e.clientX - position.x,
       y: e.clientY - position.y
     });
-  }, [position]);
+  }, [position, lockCropArea]);
 
   const handleMouseMove = useCallback((e) => {
     if (isDragging) {
@@ -93,7 +98,7 @@ const ImageResizer = ({
       });
     }
     
-    if (isDraggingCrop) {
+    if (!lockCropArea && isDraggingCrop) {
       const container = containerRef.current;
       if (!container) return;
       
@@ -104,7 +109,7 @@ const ImageResizer = ({
       setCropArea(prev => ({ ...prev, x: newX, y: newY }));
     }
     
-    if (isResizingCrop && resizeHandle) {
+    if (!lockCropArea && isResizingCrop && resizeHandle) {
       const container = containerRef.current;
       if (!container) return;
       
@@ -192,7 +197,7 @@ const ImageResizer = ({
         return nextArea;
       });
     }
-  }, [isDragging, isDraggingCrop, isResizingCrop, dragStart, cropArea, resizeHandle, aspectRatio]);
+  }, [isDragging, isDraggingCrop, isResizingCrop, dragStart, cropArea, resizeHandle, aspectRatio, lockCropArea]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -202,6 +207,7 @@ const ImageResizer = ({
   }, []);
 
   const handleCropMouseDown = useCallback((e) => {
+    if (lockCropArea) return;
     e.stopPropagation();
     setIsDraggingCrop(true);
     const rect = e.currentTarget.getBoundingClientRect();
@@ -209,13 +215,14 @@ const ImageResizer = ({
       cropX: e.clientX - rect.left,
       cropY: e.clientY - rect.top
     });
-  }, []);
+  }, [lockCropArea]);
 
   const handleResizeMouseDown = useCallback((e, handle) => {
+    if (lockCropArea) return;
     e.stopPropagation();
     setIsResizingCrop(true);
     setResizeHandle(handle);
-  }, []);
+  }, [lockCropArea]);
 
   const handleZoomIn = () => setScale(prev => Math.min(prev + 0.1, 3));
   const handleZoomOut = () => setScale(prev => Math.max(prev - 0.1, 0.1));
@@ -348,21 +355,25 @@ const ImageResizer = ({
                 left: cropArea.x,
                 top: cropArea.y,
                 width: cropArea.width,
-                height: cropArea.height
+                height: cropArea.height,
+                cursor: lockCropArea ? 'default' : 'move'
               }}
-              onMouseDown={handleCropMouseDown}
+              onMouseDown={lockCropArea ? undefined : handleCropMouseDown}
             >
               <div className="crop-overlay"></div>
-              
-              {/* Resize Handles */}
-              <div className="resize-handle top-left" onMouseDown={(e) => handleResizeMouseDown(e, 'top-left')}></div>
-              <div className="resize-handle top-right" onMouseDown={(e) => handleResizeMouseDown(e, 'top-right')}></div>
-              <div className="resize-handle bottom-left" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-left')}></div>
-              <div className="resize-handle bottom-right" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-right')}></div>
-              
-              <div className="crop-center">
-                <Move size={16} />
-              </div>
+               
+              {!lockCropArea && (
+                <>
+                  <div className="resize-handle top-left" onMouseDown={(e) => handleResizeMouseDown(e, 'top-left')}></div>
+                  <div className="resize-handle top-right" onMouseDown={(e) => handleResizeMouseDown(e, 'top-right')}></div>
+                  <div className="resize-handle bottom-left" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-left')}></div>
+                  <div className="resize-handle bottom-right" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-right')}></div>
+                  
+                  <div className="crop-center">
+                    <Move size={16} />
+                  </div>
+                </>
+              )}
             </div>
             
             <canvas ref={canvasRef} style={{ display: 'none' }} />

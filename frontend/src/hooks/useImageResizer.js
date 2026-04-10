@@ -46,6 +46,7 @@ export const useImageResizer = () => {
       aspectRatio: null,
       maxWidth: 800,
       maxHeight: 600,
+      lockCropArea: false,
       quality: 0.9,
       ...config
     });
@@ -73,30 +74,35 @@ export const useImageResizer = () => {
       aspectRatio: 1, // Square
       maxWidth: 300,
       maxHeight: 300,
+      lockCropArea: true,
       quality: 0.95
     },
     banner: {
       aspectRatio: 16/9, // Widescreen
       maxWidth: 1200,
       maxHeight: 675,
+      lockCropArea: true,
       quality: 0.9
     },
     profile: {
       aspectRatio: 1, // Square
       maxWidth: 400,
       maxHeight: 400,
+      lockCropArea: false,
       quality: 0.9
     },
     gallery: {
       aspectRatio: null, // Free aspect ratio
       maxWidth: 800,
       maxHeight: 600,
+      lockCropArea: false,
       quality: 0.85
     },
     document: {
       aspectRatio: null, // Free aspect ratio
       maxWidth: 1000,
       maxHeight: 1400,
+      lockCropArea: false,
       quality: 0.9
     }
   };

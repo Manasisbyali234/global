@@ -905,6 +905,7 @@ function SectionCandicateBasicInfo() {
                 aspectRatio={resizeConfig.aspectRatio}
                 maxWidth={resizeConfig.maxWidth}
                 maxHeight={resizeConfig.maxHeight}
+                lockCropArea={resizeConfig.lockCropArea}
                 quality={resizeConfig.quality}
             />
         </form>
