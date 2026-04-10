@@ -191,6 +191,29 @@ function CanTransactionsPage() {
         return { totalPaid, taxableValue, cgst, sgst };
     };
 
+    const exportTransactions = (type) => {
+        const rows = filteredTransactions.map((t) => ({
+            Date: formatDate(t.createdAt),
+            'Job Role': t.jobId?.title || 'N/A',
+            Company: t.employerId?.brandName || t.employerId?.companyName || 'N/A',
+            'Payment ID': t.paymentId || '',
+            'Amount (INR)': t.paymentAmount ?? 129,
+            Status: t.paymentStatus || 'Paid',
+        }));
+        const headers = Object.keys(rows[0] || {});
+        if (type === 'csv') {
+            const csv = [headers.join(','), ...rows.map(r => headers.map(h => `"${String(r[h]).replace(/"/g, '""')}"`).join(','))].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'transactions.csv'; a.click(); URL.revokeObjectURL(url);
+        } else {
+            const tsv = [headers.join('\t'), ...rows.map(r => headers.map(h => r[h]).join('\t'))].join('\n');
+            const blob = new Blob([tsv], { type: 'application/vnd.ms-excel' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'transactions.xls'; a.click(); URL.revokeObjectURL(url);
+        }
+    };
+
     const getTransactionStatusDisplay = (transaction) => {
         const isCreditTransaction =
             String(transaction?.paymentId || '').startsWith('credit_') ||
@@ -291,8 +314,26 @@ function CanTransactionsPage() {
                                 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '140px', maxWidth: '160px' }}
                             />
                         </div>
-                        <div className="text-muted" style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
-                            Total: <strong>{filteredTransactions.length}</strong>
+                        <div className="d-flex align-items-center gap-3" style={{ marginLeft: 'auto' }}>
+                            <div className="text-muted" style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
+                                Total: <strong>{filteredTransactions.length}</strong>
+                            </div>
+                            <div className="dropdown">
+                                <button
+                                    className="btn btn-outline-secondary btn-sm dropdown-toggle d-flex align-items-center gap-1"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    disabled={filteredTransactions.length === 0}
+                                    style={{ fontSize: 'clamp(0.8rem, 2vw, 0.9rem)' }}
+                                >
+                                    <Download size={14} /> Export
+                                </button>
+                                <ul className="dropdown-menu dropdown-menu-end">
+                                    <li><button className="dropdown-item" onClick={() => exportTransactions('csv')}>Export as CSV</button></li>
+                                    <li><button className="dropdown-item" onClick={() => exportTransactions('excel')}>Export as Excel</button></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
 
