@@ -2488,6 +2488,14 @@ exports.updateApplicationStatus = async (req, res) => {
       const trimmedNotes = typeof notes === 'string' ? notes.trim() : '';
       const jobTitle = application.jobId?.title || 'the position';
       const candidateName = application.candidateId?.name || 'Candidate';
+      const frontendBaseUrl = process.env.FRONTEND_URL || 'https://taleglobal.net';
+      const applicationStatusUrl = `${frontendBaseUrl}/candidate/status/interview-details/${application._id}`;
+      const escapeHtml = (value = '') => String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 
       if (application.candidateId?._id) {
         let candidateMessage = `Your application for ${jobTitle} is now ${statusLabel}.`;
@@ -2540,6 +2548,44 @@ exports.updateApplicationStatus = async (req, res) => {
             console.log('âœ“ Shortlist email sent successfully:', emailResult.messageId);
           } catch (emailError) {
             console.error('âœ— Shortlist email failed:', emailError.message);
+          }
+        }
+
+        if (status === 'offer_sent' && application.candidateId?.email) {
+          try {
+            const nodemailer = require('nodemailer');
+            const transporter = nodemailer.createTransport({
+              service: 'gmail',
+              auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+              tls: { rejectUnauthorized: false }
+            });
+
+            const safeCandidateName = escapeHtml(candidateName);
+            const safeJobTitle = escapeHtml(jobTitle);
+            const safeNotes = escapeHtml(trimmedNotes);
+
+            await sendMailWithGreeting(transporter, {
+              from: process.env.EMAIL_USER,
+              to: application.candidateId.email,
+              subject: `Offer Letter Sent for ${jobTitle}`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f7f9fc; padding: 24px;">
+                  <div style="background-color: #ffffff; border-radius: 12px; padding: 32px; border: 1px solid #e5e7eb;">
+                    <h2 style="margin: 0 0 16px; color: #111827;">Offer Letter Sent</h2>
+                    <p style="margin: 0 0 14px; color: #374151; font-size: 15px; line-height: 1.6;">Dear ${safeCandidateName},</p>
+                    <p style="margin: 0 0 14px; color: #374151; font-size: 15px; line-height: 1.6;">Your offer for <strong>${safeJobTitle}</strong> has been sent by the employer.</p>
+                    <p style="margin: 0 0 20px; color: #374151; font-size: 15px; line-height: 1.6;">Open your application status page to review the update and choose whether to accept or reject the offer.</p>
+                    ${safeNotes ? `<div style="margin: 0 0 20px; padding: 14px 16px; border-radius: 8px; background-color: #fff7ed; color: #9a3412; font-size: 14px; line-height: 1.5;"><strong>Employer Note:</strong> ${safeNotes}</div>` : ''}
+                    <div style="text-align: center; margin: 28px 0;">
+                      <a href="${applicationStatusUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 8px; font-weight: 600;">Go to Application Status</a>
+                    </div>
+                    <p style="margin: 0; color: #6b7280; font-size: 13px; line-height: 1.5;">If the button does not open, use this link: <a href="${applicationStatusUrl}" style="color: #2563eb;">${applicationStatusUrl}</a></p>
+                  </div>
+                </div>
+              `
+            });
+          } catch (emailError) {
+            console.error('Offer email failed:', emailError.message);
           }
         }
       }

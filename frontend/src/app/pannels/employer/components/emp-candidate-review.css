@@ -389,8 +389,8 @@
 }
 
 .assessment-process-summary {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
     margin-bottom: 18px;
     padding: 14px 16px;
@@ -403,7 +403,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    min-width: 120px;
+    min-width: 0;
 }
 
 .assessment-process-label {
@@ -420,11 +420,13 @@
     color: #212529;
 }
 
-.assessment-process-value.result.pass {
+.assessment-process-value.result.pass,
+.assessment-process-value.result.passed {
     color: #198754;
 }
 
-.assessment-process-value.result.fail {
+.assessment-process-value.result.fail,
+.assessment-process-value.result.failed {
     color: #dc3545;
 }
 
@@ -442,6 +444,13 @@
 
 .assessment-process-value.result.in_progress {
     color: #fd7e14;
+}
+
+.assessment-actions.assessment-process-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    margin-top: 4px;
+    gap: 10px;
 }
 
 /* Ensure long status labels wrap inside the badge in this page */
