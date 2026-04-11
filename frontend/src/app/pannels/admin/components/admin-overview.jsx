@@ -434,6 +434,8 @@ function AdminOverviewPage() {
                       <th>Employer Type</th>
                       <th>Number of Jobs</th>
                       <th>Number of Applicants</th>
+                      <th>Hired </th>
+                      <th>Offer Letter Rejected</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -443,7 +445,7 @@ function AdminOverviewPage() {
                         (employerTypeFilter === "all" || String(emp.employerType || "").toLowerCase() === employerTypeFilter)
                       ).length === 0 ? (
                       <tr>
-                        <td colSpan="5" className="text-center">
+                        <td colSpan="7" className="text-center">
                           {employerSearch || employerTypeFilter !== "all" ? "No matching employer records found." : "No employer records found."}
                         </td>
                       </tr>
@@ -459,12 +461,13 @@ function AdminOverviewPage() {
                             <td>{formatEmployerType(employer.employerType)}</td>
                             <td>{employer.jobsCount}</td>
                             <td>{employer.applicationsCount}</td>
+                            <td>{employer.acceptedOfferCount ?? 0}</td>
+                            <td>{employer.rejectedOfferCount ?? 0}</td>
                             <td>
                               <button
                                 type="button"
                                 className="btn btn-sm btn-outline-primary d-inline-flex align-items-center"
                                 onClick={() => handleViewEmployerJobs(employer)}
-                                
                               >
                                 <i className="fa fa-eye me-1" />
                                 <span>View</span>
@@ -636,19 +639,29 @@ function AdminOverviewPage() {
                       <th>Applicant Name</th>
                       <th>Email</th>
                       <th>Payment Method</th>
+<<<<<<< HEAD
                       <th>Offer Letter Status</th>
+=======
+>>>>>>> cc82f0d502bab2c29e5bf0510c256a3a57051994
                       <th>Applied Date</th>
                       <th>Interviews</th>
                       <th>Interview Status</th>
                       <th>Round Status, Schedule & Remarks</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {visibleJobApplicants.length === 0 ? (
                       <tr>
+<<<<<<< HEAD
                         <td colSpan="8" className="text-center">
                           {applicantSearch
                             ? "No applicants match the search."
+=======
+                        <td colSpan="9" className="text-center">
+                          {applicantSearch || applicantInterviewStatusFilter !== "all"
+                            ? "No applicants match the selected filters."
+>>>>>>> cc82f0d502bab2c29e5bf0510c256a3a57051994
                             : "No applicants found for this job."}
                         </td>
                       </tr>
@@ -664,7 +677,10 @@ function AdminOverviewPage() {
                             <td>
                               <span style={badge.style}>{badge.label}</span>
                             </td>
+<<<<<<< HEAD
                             <td>Offer letter sent</td>
+=======
+>>>>>>> cc82f0d502bab2c29e5bf0510c256a3a57051994
                             <td>{formatDate(applicant.appliedAt)}</td>
                             <td>{applicant.interviewRoundsCount ?? 0}</td>
                             <td>
@@ -733,6 +749,7 @@ function AdminOverviewPage() {
                                 <span className="text-muted">No interview rounds</span>
                               )}
                             </td>
+                            <td>{applicant.status}</td>
                           </tr>
                         );
                       })
