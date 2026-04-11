@@ -639,29 +639,19 @@ function AdminOverviewPage() {
                       <th>Applicant Name</th>
                       <th>Email</th>
                       <th>Payment Method</th>
-<<<<<<< HEAD
                       <th>Offer Letter Status</th>
-=======
->>>>>>> cc82f0d502bab2c29e5bf0510c256a3a57051994
                       <th>Applied Date</th>
                       <th>Interviews</th>
                       <th>Interview Status</th>
                       <th>Round Status, Schedule & Remarks</th>
-                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {visibleJobApplicants.length === 0 ? (
                       <tr>
-<<<<<<< HEAD
                         <td colSpan="8" className="text-center">
                           {applicantSearch
                             ? "No applicants match the search."
-=======
-                        <td colSpan="9" className="text-center">
-                          {applicantSearch || applicantInterviewStatusFilter !== "all"
-                            ? "No applicants match the selected filters."
->>>>>>> cc82f0d502bab2c29e5bf0510c256a3a57051994
                             : "No applicants found for this job."}
                         </td>
                       </tr>
@@ -677,10 +667,7 @@ function AdminOverviewPage() {
                             <td>
                               <span style={badge.style}>{badge.label}</span>
                             </td>
-<<<<<<< HEAD
                             <td>Offer letter sent</td>
-=======
->>>>>>> cc82f0d502bab2c29e5bf0510c256a3a57051994
                             <td>{formatDate(applicant.appliedAt)}</td>
                             <td>{applicant.interviewRoundsCount ?? 0}</td>
                             <td>
@@ -749,7 +736,6 @@ function AdminOverviewPage() {
                                 <span className="text-muted">No interview rounds</span>
                               )}
                             </td>
-                            <td>{applicant.status}</td>
                           </tr>
                         );
                       })
