@@ -6,90 +6,6 @@ import SearchBar from "../../../../components/SearchBar";
 import "./admin-search-styles.css";
 import "./admin-overview.css";
 
-const INTERVIEW_STATUS_FILTER_OPTIONS = [
-  { value: "all", label: "All Interview Statuses" },
-  { value: "pending", label: "Pending" },
-  { value: "shortlisted_for_next_round", label: "Shortlisted for Next Round" },
-  { value: "on_hold", label: "On Hold" },
-  { value: "no_show", label: "No Show" },
-  { value: "rejected", label: "Not Advanced to Next Step" }
-];
-
-const normalizeInterviewStatus = (value) =>
-  String(value || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ");
-
-const mapInterviewStatusToFilterValue = (value) => {
-  const normalizedValue = normalizeInterviewStatus(value);
-
-  if (!normalizedValue || normalizedValue === "pending") {
-    return "pending";
-  }
-
-  if (normalizedValue === "shortlisted for next round") {
-    return "shortlisted_for_next_round";
-  }
-
-  if (normalizedValue === "on hold") {
-    return "on_hold";
-  }
-
-  if (normalizedValue === "no show") {
-    return "no_show";
-  }
-
-  if (
-    [
-      "rejected",
-      "not advanced to next stage",
-      "not advanced to next step",
-      "not eligible for next round",
-      "not eligibal for next round"
-    ].includes(normalizedValue)
-  ) {
-    return "rejected";
-  }
-
-  return normalizedValue.replace(/\s+/g, "_");
-};
-
-const getApplicantInterviewStatus = (applicant = {}) => {
-  const interviewRounds = Array.isArray(applicant?.interviewRounds) ? applicant.interviewRounds : [];
-  let fallbackStatus = "";
-
-  for (let index = interviewRounds.length - 1; index >= 0; index -= 1) {
-    const mappedStatus = mapInterviewStatusToFilterValue(interviewRounds[index]?.status);
-
-    if (!mappedStatus || mappedStatus === "pending") {
-      continue;
-    }
-
-    if (INTERVIEW_STATUS_FILTER_OPTIONS.some((option) => option.value === mappedStatus)) {
-      return mappedStatus;
-    }
-
-    if (!fallbackStatus) {
-      fallbackStatus = mappedStatus;
-    }
-  }
-
-  return fallbackStatus || "pending";
-};
-
-const getInterviewStatusLabel = (status) => {
-  const matchingOption = INTERVIEW_STATUS_FILTER_OPTIONS.find((option) => option.value === status);
-  if (matchingOption) {
-    return matchingOption.label;
-  }
-
-  return String(status || "Pending")
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-};
-
 function AdminOverviewPage() {
   const [searchParams] = useSearchParams();
   const [employers, setEmployers] = useState([]);
@@ -639,10 +555,10 @@ function AdminOverviewPage() {
                       <th>Applicant Name</th>
                       <th>Email</th>
                       <th>Payment Method</th>
+                      <th>Status</th>
                       <th>Offer Letter Status</th>
                       <th>Applied Date</th>
                       <th>Interviews</th>
-                      <th>Interview Status</th>
                       <th>Round Status, Schedule & Remarks</th>
                     </tr>
                   </thead>
@@ -658,7 +574,6 @@ function AdminOverviewPage() {
                     ) : (
                       visibleJobApplicants.map((applicant) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
-                        const interviewStatus = getApplicantInterviewStatus(applicant);
 
                         return (
                           <tr key={applicant.applicationId}>
@@ -667,14 +582,10 @@ function AdminOverviewPage() {
                             <td>
                               <span style={badge.style}>{badge.label}</span>
                             </td>
+                            <td>{applicant.status}</td>
                             <td>Offer letter sent</td>
                             <td>{formatDate(applicant.appliedAt)}</td>
                             <td>{applicant.interviewRoundsCount ?? 0}</td>
-                            <td>
-                              <span className={`admin-overview-status-badge admin-overview-status-${interviewStatus}`}>
-                                {getInterviewStatusLabel(interviewStatus)}
-                              </span>
-                            </td>
                             <td>
                               {Array.isArray(applicant.interviewRounds) && applicant.interviewRounds.length > 0 ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>

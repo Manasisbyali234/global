@@ -68,10 +68,6 @@ function PlacementDetails() {
         return files.filter((file) => String(file?.customName || '').trim().toLowerCase() === selectedCourseName);
     }, [placement, selectedCourseName]);
 
-    const viewFileIdFromQuery = useMemo(() => {
-        return new URLSearchParams(location.search).get('viewFile');
-    }, [location.search]);
-
     const fetchPlacementDetails = async () => {
         try {
             setLoading(true);
@@ -263,23 +259,8 @@ function PlacementDetails() {
         }
     }, [id]);
 
-    useEffect(() => {
-        if (!placement || !viewFileIdFromQuery || currentViewingFileId === viewFileIdFromQuery) {
-            return;
-        }
-
-        const fileToView = placement.fileHistory?.find(file => file._id === viewFileIdFromQuery);
-        if (fileToView) {
-            handleViewFileData(fileToView._id, fileToView.fileName);
-        }
-    }, [placement, viewFileIdFromQuery, currentViewingFileId, handleViewFileData]);
-
     const handleOpenFileRecordsPage = (fileId) => {
-        window.open(
-            `/admin/placement-details/${id}?viewFile=${encodeURIComponent(fileId)}`,
-            '_blank',
-            'noopener,noreferrer'
-        );
+        navigate(`/admin/placement-details/${id}/files/${fileId}`);
     };
 
     const handleFileCreditsManagement = (file) => {
@@ -346,7 +327,14 @@ function PlacementDetails() {
             const data = await response.json();
             
             if (data.success) {
-                showPopup(`File processed successfully! Created: ${data.stats.created}, Skipped: ${data.stats.skipped}. Candidates can now login.`, 'success', 5000);
+                const skippedEmails = data.skippedEmails || data.stats?.skippedEmails || [];
+                const skippedEmailList = skippedEmails.slice(0, 5).join(', ');
+                const remainingSkippedCount = skippedEmails.length - 5;
+                const skippedEmailText = skippedEmails.length > 0
+                    ? ` Skipped emails: ${skippedEmailList}${remainingSkippedCount > 0 ? ` and ${remainingSkippedCount} more` : ''}.`
+                    : '';
+                const fallbackMessage = `File processed successfully! Created: ${data.stats.created}, Skipped: ${data.stats.skipped}.${skippedEmailText} Candidates can now login.`;
+                showPopup(data.message || fallbackMessage, 'success', skippedEmails.length > 0 ? 8000 : 5000);
                 
                 fetchPlacementDetails();
                 if (currentViewingFileId === fileId) {
@@ -1114,9 +1102,6 @@ function PlacementDetails() {
                                 setShowingStudentRecords(false);
                                 setCurrentViewingFileId(null);
                                 setStudentData([]);
-                                if (viewFileIdFromQuery) {
-                                    navigate(`/admin/placement-details/${id}`, { replace: true });
-                                }
                             }}
                             style={{borderRadius: '6px'}}
                         >

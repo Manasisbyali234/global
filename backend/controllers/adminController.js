@@ -51,6 +51,15 @@ const getWorkbookFromStoredFile = (fileData, fileType) => {
   return XLSX.read(buffer, { type: 'buffer' });
 };
 
+const formatEmailListForNotification = (emails = [], limit = 5) => {
+  const uniqueEmails = [...new Set(emails.filter(Boolean))];
+  if (uniqueEmails.length === 0) return '';
+
+  const visibleEmails = uniqueEmails.slice(0, limit).join(', ');
+  const remainingCount = uniqueEmails.length - limit;
+  return remainingCount > 0 ? `${visibleEmails} and ${remainingCount} more` : visibleEmails;
+};
+
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 };
@@ -2952,15 +2961,31 @@ exports.approveIndividualFile = async (req, res) => {
         }
       );
 
+      const skippedEmails = [...new Set(skippedCandidates.map(candidate => candidate.email).filter(Boolean))];
+      const skippedEmailList = formatEmailListForNotification(skippedEmails);
+      const skippedEmailMessage = skippedEmailList
+        ? ` Skipped emails: ${skippedEmailList}.`
+        : '';
+
       // Create comprehensive notification
       try {
         const displayName = file.customName || file.fileName;
         await createNotification({
           title: 'Students Approved - Welcome Emails Sent',
-          message: `File "${displayName}" approved! ${createdCount} students can now create their passwords. ${emailsSent} welcome emails sent successfully.`,
+          message: `File "${displayName}" approved! ${createdCount} students can now create their passwords. ${emailsSent} welcome emails sent successfully.${skippedEmailMessage}`,
           type: 'file_processed',
           role: 'admin',
           relatedId: placementId,
+          createdBy: req.user.id
+        });
+
+        await createNotification({
+          title: 'Student File Processed',
+          message: `File "${displayName}" processed. Created: ${createdCount}, skipped: ${skippedCount}.${skippedEmailMessage}`,
+          type: 'file_processed',
+          role: 'placement',
+          placementId: new mongoose.Types.ObjectId(placementId),
+          relatedId: new mongoose.Types.ObjectId(placementId),
           createdBy: req.user.id
         });
       } catch (notifError) {
@@ -2970,9 +2995,9 @@ exports.approveIndividualFile = async (req, res) => {
       const displayName = file.customName || file.fileName;
       let message;
       if (createdCount === 0 && skippedCount > 0) {
-        message = `File "${displayName}" processed! ${skippedCount} students already exist in the system. Use "Resend Welcome Emails" to send emails to existing students.`;
+        message = `File "${displayName}" processed! ${skippedCount} students were skipped.${skippedEmailMessage} Use "Resend Welcome Emails" to send emails to existing students.`;
       } else {
-        message = `File "${displayName}" approved! All students can now create their passwords and access their accounts.`;
+        message = `File "${displayName}" approved! All non-skipped students can now create their passwords and access their accounts.${skippedEmailMessage}`;
       }
       
       res.json({
@@ -2983,10 +3008,12 @@ exports.approveIndividualFile = async (req, res) => {
           skipped: skippedCount, 
           errors: errors.length,
           emailsSent: emailsSent,
-          emailsFailed: emailsFailed
+          emailsFailed: emailsFailed,
+          skippedEmails: skippedEmails
         },
         createdCandidates: createdCandidates.slice(0, 10),
         skippedCandidates: skippedCandidates.slice(0, 10),
+        skippedEmails,
         errors: errors.slice(0, 10),
         loginInstructions: {
           url: 'http://localhost:3000/',

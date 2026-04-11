@@ -60,7 +60,10 @@ const appendDuplicateEmailNotice = (message, duplicateEmails = []) => {
   }
 
   const noun = duplicateEmails.length === 1 ? 'email' : 'emails';
-  return `${message} ${duplicateEmails.length} repeated ${noun} detected; extra rows with the same email will be skipped during processing.`;
+  const emailList = duplicateEmails.slice(0, 5).join(', ');
+  const remainingCount = duplicateEmails.length - 5;
+  const remainingText = remainingCount > 0 ? ` and ${remainingCount} more` : '';
+  return `${message} ${duplicateEmails.length} repeated ${noun} detected and will be skipped during processing: ${emailList}${remainingText}.`;
 };
 
 const generateToken = (id, role) => {
@@ -385,7 +388,8 @@ exports.uploadStudentData = async (req, res) => {
       fileName: req.file.originalname,
       customName: customFileName && customFileName.trim() ? customFileName.trim() : null,
       university: university && university.trim() ? university.trim() : null,
-      batch: batch && batch.trim() ? batch.trim() : null
+      batch: batch && batch.trim() ? batch.trim() : null,
+      skippedEmails: duplicateEmails
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -1286,7 +1290,8 @@ exports.resubmitFile = async (req, res) => {
     res.json({
       success: true,
       message: appendDuplicateEmailNotice('File resubmitted successfully. Waiting for admin approval.', duplicateEmails),
-      fileName: req.file.originalname
+      fileName: req.file.originalname,
+      skippedEmails: duplicateEmails
     });
   } catch (error) {
     console.error('Error resubmitting file:', error);

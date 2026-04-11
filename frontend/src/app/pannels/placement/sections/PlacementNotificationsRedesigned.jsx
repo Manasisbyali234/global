@@ -113,10 +113,7 @@ function PlacementNotificationsRedesigned() {
                                     <div className="notification-content">
                                         <div className="notification-title">{notif.title}</div>
                                         <div className="notification-message">
-                                            {notif.message.length > 60 ? 
-                                                notif.message.substring(0, 60) + '...' : 
-                                                notif.message
-                                            }
+                                            {notif.message}
                                         </div>
                                         <div className="notification-time">
                                             {formatDate(notif.createdAt)}
