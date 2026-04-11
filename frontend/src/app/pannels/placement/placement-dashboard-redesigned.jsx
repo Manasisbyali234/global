@@ -250,7 +250,7 @@ function PlacementDashboardRedesigned() {
             console.log('Upload response:', data);
             
             if (data.success) {
-                showSuccess('Student data uploaded successfully! Waiting for admin approval.');
+                showSuccess(data.message || 'Student data uploaded successfully! Waiting for admin approval.');
                 setSelectedFile(null);
                 setSelectedFileName('');
                 setCourseName('');
@@ -551,7 +551,7 @@ function PlacementDashboardRedesigned() {
             const data = await response.json();
             
             if (data.success) {
-                showSuccess('File resubmitted successfully! Waiting for admin approval.');
+                showSuccess(data.message || 'File resubmitted successfully! Waiting for admin approval.');
                 setShowResubmitModal(false);
                 setResubmittingFile(null);
                 setResubmitFile(null);

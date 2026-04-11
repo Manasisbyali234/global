@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../../../utils/api';
@@ -67,6 +67,10 @@ function PlacementDetails() {
 
         return files.filter((file) => String(file?.customName || '').trim().toLowerCase() === selectedCourseName);
     }, [placement, selectedCourseName]);
+
+    const viewFileIdFromQuery = useMemo(() => {
+        return new URLSearchParams(location.search).get('viewFile');
+    }, [location.search]);
 
     const fetchPlacementDetails = async () => {
         try {
@@ -222,7 +226,7 @@ function PlacementDetails() {
 
     // Global credits assignment removed - now using file-specific credits
 
-    const handleViewFileData = async (fileId, fileName) => {
+    const handleViewFileData = useCallback(async (fileId, fileName) => {
         try {
             setLoadingData(true);
             setShowingStudentRecords(true);
@@ -257,6 +261,25 @@ function PlacementDetails() {
         } finally {
             setLoadingData(false);
         }
+    }, [id]);
+
+    useEffect(() => {
+        if (!placement || !viewFileIdFromQuery || currentViewingFileId === viewFileIdFromQuery) {
+            return;
+        }
+
+        const fileToView = placement.fileHistory?.find(file => file._id === viewFileIdFromQuery);
+        if (fileToView) {
+            handleViewFileData(fileToView._id, fileToView.fileName);
+        }
+    }, [placement, viewFileIdFromQuery, currentViewingFileId, handleViewFileData]);
+
+    const handleOpenFileRecordsPage = (fileId) => {
+        window.open(
+            `/admin/placement-details/${id}?viewFile=${encodeURIComponent(fileId)}`,
+            '_blank',
+            'noopener,noreferrer'
+        );
     };
 
     const handleFileCreditsManagement = (file) => {
@@ -799,7 +822,7 @@ function PlacementDetails() {
                                                     <div className="placement-file-history-actions d-flex flex-wrap gap-2 ms-3">
                                                         <button
                                                             className="btn btn-sm"
-                                                            onClick={() => handleViewFileData(file._id, file.fileName)}
+                                                            onClick={() => handleOpenFileRecordsPage(file._id)}
                                                             style={{
                                                                 fontSize: '0.8rem',
                                                                 padding: '6px 12px',
@@ -810,7 +833,7 @@ function PlacementDetails() {
                                                                 border: '1px solid #FDC360',
                                                                 color: '#000'
                                                             }}
-                                                            title="View file data in Student Records section"
+                                                            title="View file data on a new page"
                                                         >
                                                             <i className="fa fa-eye me-2" style={{color: '#000'}}></i>View
                                                         </button>
@@ -1091,6 +1114,9 @@ function PlacementDetails() {
                                 setShowingStudentRecords(false);
                                 setCurrentViewingFileId(null);
                                 setStudentData([]);
+                                if (viewFileIdFromQuery) {
+                                    navigate(`/admin/placement-details/${id}`, { replace: true });
+                                }
                             }}
                             style={{borderRadius: '6px'}}
                         >

@@ -1952,7 +1952,17 @@ exports.getFileData = async (req, res) => {
 
     // If file is approved or processed, show only candidates who were actually processed for this file
     if (file.status === 'approved' || file.status === 'processed') {
-      students = students.filter(student => student.isProcessed);
+      const processedEmails = new Set();
+      students = students.filter(student => {
+        if (!student.isProcessed) return false;
+
+        const email = (student.email || '').toString().trim().toLowerCase();
+        if (!email) return true;
+        if (processedEmails.has(email)) return false;
+
+        processedEmails.add(email);
+        return true;
+      });
     }
     
     res.json({ success: true, students });
@@ -2673,6 +2683,7 @@ exports.approveIndividualFile = async (req, res) => {
       const errors = [];
       const createdCandidates = [];
       const skippedCandidates = [];
+      const emailsProcessedInFile = new Set();
       
       // Process each row from Excel
       for (let index = 0; index < jsonData.length; index++) {
@@ -2701,9 +2712,21 @@ exports.approveIndividualFile = async (req, res) => {
             errors.push(`Row ${index + 1}: Missing required fields (email, password, or name)`);
             continue;
           }
+
+          const normalizedEmail = email.trim().toLowerCase();
+          if (emailsProcessedInFile.has(normalizedEmail)) {
+            skippedCount++;
+            skippedCandidates.push({
+              name: name.trim(),
+              email: normalizedEmail,
+              reason: 'Duplicate email in uploaded file'
+            });
+            continue;
+          }
+          emailsProcessedInFile.add(normalizedEmail);
           
           // Check if user already exists in any role
-          const existingUser = await checkEmailExists(email);
+          const existingUser = await checkEmailExists(normalizedEmail);
           let candidate;
           
           if (existingUser) {

@@ -110,7 +110,6 @@ function AdminOverviewPage() {
   const [employerTypeFilter, setEmployerTypeFilter] = useState("all");
   const [jobSearch, setJobSearch] = useState("");
   const [applicantSearch, setApplicantSearch] = useState("");
-  const [applicantInterviewStatusFilter, setApplicantInterviewStatusFilter] = useState("all");
   const [jobStatusFilter, setJobStatusFilter] = useState("all");
   const [jobDateFilter, setJobDateFilter] = useState("");
   const autoOpenedEmployerIdRef = useRef(null);
@@ -128,21 +127,11 @@ function AdminOverviewPage() {
   const showJobCompanyColumn =
     selectedEmployer?.employerType === "consultant" ||
     visibleEmployerJobs.some((job) => String(job.companyName || "").trim());
-  const visibleJobApplicants = jobApplicants.filter((applicant) => {
-    const matchesSearch = String(applicant?.applicantEmail || "")
+  const visibleJobApplicants = jobApplicants.filter((applicant) =>
+    String(applicant?.applicantEmail || "")
       .toLowerCase()
-      .includes(applicantSearch.toLowerCase());
-
-    if (!matchesSearch) {
-      return false;
-    }
-
-    if (applicantInterviewStatusFilter === "all") {
-      return true;
-    }
-
-    return getApplicantInterviewStatus(applicant) === applicantInterviewStatusFilter;
-  });
+      .includes(applicantSearch.toLowerCase())
+  );
 
   const headerTitle =
     viewMode === "applicants" && selectedJob
@@ -302,7 +291,6 @@ function AdminOverviewPage() {
       setEmployerJobs([]);
       setJobsError("");
       setJobStatusFilter("all");
-      setApplicantInterviewStatusFilter("all");
       setViewMode("employers");
       return;
     }
@@ -316,7 +304,6 @@ function AdminOverviewPage() {
       setJobSearch("");
       setJobStatusFilter("all");
       setJobDateFilter("");
-      setApplicantInterviewStatusFilter("all");
       const response = await api.getAdminEmployerOverviewJobs(employer.employerId);
       if (response.success) {
         setSelectedEmployer(response.employer);
@@ -358,7 +345,6 @@ function AdminOverviewPage() {
       setJobApplicants([]);
       setApplicantsError("");
       setApplicantSearch("");
-      setApplicantInterviewStatusFilter("all");
       setViewMode("jobs");
       return;
     }
@@ -367,7 +353,6 @@ function AdminOverviewPage() {
       setApplicantsLoading(true);
       setApplicantsError("");
       setApplicantSearch("");
-      setApplicantInterviewStatusFilter("all");
       const response = await api.getAdminJobApplicants(job.jobId);
       if (response.success) {
         setSelectedJob(response.job);
@@ -639,23 +624,6 @@ function AdminOverviewPage() {
                   className="employer-search"
                 />
               </div>
-              <div className="admin-overview-filter-control">
-                <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
-                  <i className="fa fa-list-alt me-2 text-primary" />
-                  Filter by Interview Status
-                </label>
-                <select
-                  className="form-control admin-overview-filter-select"
-                  value={applicantInterviewStatusFilter}
-                  onChange={(event) => setApplicantInterviewStatusFilter(event.target.value)}
-                >
-                  {INTERVIEW_STATUS_FILTER_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
             {applicantsLoading && <div className="text-center">Loading applicants...</div>}
             {!applicantsLoading && applicantsError && <div className="alert alert-danger m-b0">{applicantsError}</div>}
@@ -668,7 +636,7 @@ function AdminOverviewPage() {
                       <th>Applicant Name</th>
                       <th>Email</th>
                       <th>Payment Method</th>
-                      <th>Status</th>
+                      <th>Offer Letter Status</th>
                       <th>Applied Date</th>
                       <th>Interviews</th>
                       <th>Interview Status</th>
@@ -679,8 +647,8 @@ function AdminOverviewPage() {
                     {visibleJobApplicants.length === 0 ? (
                       <tr>
                         <td colSpan="8" className="text-center">
-                          {applicantSearch || applicantInterviewStatusFilter !== "all"
-                            ? "No applicants match the selected filters."
+                          {applicantSearch
+                            ? "No applicants match the search."
                             : "No applicants found for this job."}
                         </td>
                       </tr>
@@ -696,7 +664,7 @@ function AdminOverviewPage() {
                             <td>
                               <span style={badge.style}>{badge.label}</span>
                             </td>
-                            <td>{applicant.status}</td>
+                            <td>Offer letter sent</td>
                             <td>{formatDate(applicant.appliedAt)}</td>
                             <td>{applicant.interviewRoundsCount ?? 0}</td>
                             <td>

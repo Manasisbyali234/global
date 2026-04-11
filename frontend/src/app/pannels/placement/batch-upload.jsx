@@ -117,7 +117,7 @@ function BatchUpload() {
             const data = await api.uploadStudentData(formData);
             
             if (data.success) {
-                showSuccess('Student data uploaded successfully! Waiting for admin approval.');
+                showSuccess(data.message || 'Student data uploaded successfully! Waiting for admin approval.');
                 resetForm();
                 fetchUploadHistory();
             } else {
@@ -183,7 +183,7 @@ function BatchUpload() {
             const data = await response.json();
             
             if (data.success) {
-                showSuccess('File resubmitted successfully! Waiting for admin approval.');
+                showSuccess(data.message || 'File resubmitted successfully! Waiting for admin approval.');
                 resetForm();
                 setShowResubmitModal(false);
                 setResubmitFileId(null);

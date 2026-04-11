@@ -2101,30 +2101,30 @@ function CanStatusPage() {
 																</div>
 															</td>
 															<td className="px-4 py-3 text-center">
-																{app.status === 'offer_sent' ? (
+																{applicationDisplayStatus === 'offer_sent' ? (
 																	<div className="d-flex gap-2 justify-content-center">
 																		<button 
 																			className="btn btn-sm btn-success" 
 																			onClick={() => handleOfferResponse(app._id, 'accepted')}
 																			title="Accept Offer"
 																		>
-																			<i className="fa fa-check"></i>
+																			Accept
 																		</button>
 																		<button 
 																			className="btn btn-sm btn-danger" 
 																			onClick={() => handleOfferResponse(app._id, 'rejected')}
 																			title="Reject Offer"
 																		>
-																			<i className="fa fa-times"></i>
+																			Reject
 																		</button>
 																	</div>
-																) : app.status === 'accepted' ? (
-																	<span className="text-success fw-bold" title="Accepted">
-																		<i className="fa fa-check-circle"></i>
+																) : applicationDisplayStatus === 'accepted' ? (
+																	<span className="btn btn-sm btn-outline-success disabled" title="Accepted">
+																		Accepted
 																	</span>
-																) : app.status === 'rejected' && app.statusHistory?.some(h => h.status === 'offer_sent') ? (
-																	<span className="text-danger fw-bold" title="Offer Rejected">
-																		<i className="fa fa-times-circle"></i>
+																) : applicationDisplayStatus === 'rejected' && app.statusHistory?.some(h => h.status === 'offer_sent') ? (
+																	<span className="btn btn-sm btn-outline-danger disabled" title="Offer Rejected">
+																		Rejected
 																	</span>
 																) : (
 																	<span className="text-muted small">-</span>
@@ -2319,17 +2319,45 @@ function CanStatusPage() {
 										let roundDetails = resolveRoundDetails(selectedApplication, round, roundIndex, roundsList);
 										// Merge with processRemarks if available
 										if (selectedApplication.interviewProcesses?.[roundIndex]) {
-											const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
 											const remarks = resolveProcessRemarks(
 												selectedApplication.interviewProcesses[roundIndex],
 												roundName,
-												roundTypeRaw,
+												typeof round === 'object' ? round.roundType : round.toLowerCase(),
 												selectedApplication.processRemarks
 											);
 											if (remarks) {
 												roundDetails = { ...roundDetails, employerRemarks: remarks };
 											}
 										}
+										const roundTypeRaw = typeof round === 'object' ? round.roundType : round.toLowerCase();
+										const roundId = selectedApplication.interviewRoundIds?.[roundTypeRaw] || uniqueKey;
+										const candidateId = (() => {
+											const directCandidateId = selectedApplication.candidateId?._id || selectedApplication.candidateId;
+											if (directCandidateId) return directCandidateId;
+											try {
+												const storedCandidateUser = JSON.parse(localStorage.getItem('candidateUser') || '{}');
+												return storedCandidateUser?._id || localStorage.getItem('candidateId');
+											} catch (error) {
+												return localStorage.getItem('candidateId');
+											}
+										})();
+										const candidateSlotIdentity = selectedApplication?.candidateId || {
+											_id: candidateId,
+											candidateEmail: selectedApplication?.candidateEmail || selectedApplication?.applicantEmail,
+											candidateName: selectedApplication?.candidateName || selectedApplication?.applicantName
+										};
+										const bookedRoundContext = roundName !== 'Assessment'
+											? resolveBookedRoundContext(
+												selectedApplication,
+												roundDetails,
+												uniqueKey,
+												roundTypeRaw,
+												roundId,
+												candidateSlotIdentity
+											)
+											: null;
+										const activeRoundDetails = bookedRoundContext?.roundDetails || roundDetails;
+										const bookedSlot = bookedRoundContext?.bookedSlot || null;
 										const assessmentRoundInfo = roundName === 'Assessment'
 											? getAssessmentRoundInfo(selectedApplication, roundName, roundDetails)
 											: null;
@@ -2530,7 +2558,7 @@ function CanStatusPage() {
 													<div className="mt-2">
 														{roundDetails && (
 															<>
-																{(roundDetails.fromDate || roundDetails.toDate) && (
+																{!bookedSlot && (roundDetails.fromDate || roundDetails.toDate) && (
 																	<div className="mb-2">
 																		{(() => {
 																			const interviewStartDate = roundDetails.fromDate || roundDetails.date;
@@ -2645,20 +2673,8 @@ function CanStatusPage() {
 												
 												{/* Schedule Button - Below the card */}
 												{roundName !== 'Assessment' && (() => {
-													const roundType = typeof round === 'object' ? round.roundType : round.toLowerCase();
-													const roundId = selectedApplication.interviewRoundIds?.[roundType] || uniqueKey;
-													const candidateId = (() => {
-														const directCandidateId = selectedApplication.candidateId?._id || selectedApplication.candidateId;
-														if (directCandidateId) return directCandidateId;
-														try {
-															const storedCandidateUser = JSON.parse(localStorage.getItem('candidateUser') || '{}');
-															return storedCandidateUser?._id || localStorage.getItem('candidateId');
-														} catch (error) {
-															return localStorage.getItem('candidateId');
-														}
-													})();
 													const roundWindowInfo = getInterviewRoundWindowInfo(roundDetails);
-													const normalizedRoundType = (roundType || '').toString().split('_')[0];
+													const normalizedRoundType = (roundTypeRaw || '').toString().split('_')[0];
 													const bookSlotUrl = `https://schedule.taleglobal.net/scheduler/book/${roundId}/${candidateId}`;
 													const candidateSearchTokens = [
 														candidateId,
@@ -2701,21 +2717,6 @@ function CanStatusPage() {
 														currentRoundCompletedStates.includes(processStatus) ||
 														currentRoundCompletedStates.includes(stageStatus) ||
 														currentRoundCompletedStates.includes(currentRoundStatusText);
-													const candidateSlotIdentity = selectedApplication?.candidateId || {
-														_id: candidateId,
-														candidateEmail: selectedApplication?.candidateEmail || selectedApplication?.applicantEmail,
-														candidateName: selectedApplication?.candidateName || selectedApplication?.applicantName
-													};
-													const bookedRoundContext = resolveBookedRoundContext(
-														selectedApplication,
-														roundDetails,
-														uniqueKey,
-														roundType,
-														roundId,
-														candidateSlotIdentity
-													);
-													const activeRoundDetails = bookedRoundContext?.roundDetails || roundDetails;
-													const bookedSlot = bookedRoundContext?.bookedSlot || null;
 													const bookedSlotDate = bookedSlot?.date;
 													const bookedSlotStart = bookedSlot?.startTime;
 													const bookedSlotEnd = bookedSlot?.endTime;
