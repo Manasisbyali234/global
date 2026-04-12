@@ -210,6 +210,10 @@ export default function AssessmentResults() {
                 <thead>
                   <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
                     <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                      <i className="fa fa-calendar me-2" style={{color: '#ff6b35'}}></i>
+                      Completed
+                    </th>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                       <i className="fa fa-user me-2" style={{color: '#ff6b35'}}></i>
                       Candidate
                     </th>
@@ -232,10 +236,6 @@ export default function AssessmentResults() {
                     <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                       <i className="fa fa-flag me-2" style={{color: '#ff6b35'}}></i>
                       Result
-                    </th>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
-                      <i className="fa fa-calendar me-2" style={{color: '#ff6b35'}}></i>
-                      Completed
                     </th>
                     <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                       <i className="fa fa-exclamation-triangle me-2" style={{color: '#ff6b35'}}></i>
@@ -265,6 +265,9 @@ export default function AssessmentResults() {
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
+                      <td style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+                        {formatDate(result.endTime || result.suspendedAt || result.updatedAt)}
+                      </td>
                       <td style={{ padding: '1rem', color: '#111827', fontWeight: '500' }}>
                         {result.candidateId?.name || result.candidateId || 'N/A'}
                       </td>
@@ -336,9 +339,6 @@ export default function AssessmentResults() {
                               ? 'Pending Review'
                               : (result.result || 'N/A')}
                         </span>
-                      </td>
-                      <td style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
-                        {formatDate(result.endTime || result.suspendedAt || result.updatedAt)}
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxWidth: '150px' }}>

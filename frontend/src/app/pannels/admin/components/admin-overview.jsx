@@ -26,28 +26,39 @@ function AdminOverviewPage() {
   const [employerTypeFilter, setEmployerTypeFilter] = useState("all");
   const [jobSearch, setJobSearch] = useState("");
   const [applicantSearch, setApplicantSearch] = useState("");
+  const [applicantStatusFilter, setApplicantStatusFilter] = useState("all");
   const [jobStatusFilter, setJobStatusFilter] = useState("all");
-  const [jobDateFilter, setJobDateFilter] = useState("");
+  const [jobFromDate, setJobFromDate] = useState("");
+  const [jobToDate, setJobToDate] = useState("");
   const autoOpenedEmployerIdRef = useRef(null);
   const visibleEmployerJobs = employerJobs.filter((job) => {
     if (job.status === "draft") return false;
     if (!job.title.toLowerCase().includes(jobSearch.toLowerCase())) return false;
     if (jobStatusFilter === "active" && job.status !== "active") return false;
     if (jobStatusFilter === "closed" && job.status !== "closed") return false;
-    if (jobDateFilter && job.createdAt) {
-      const jobDate = new Date(job.createdAt).toISOString().slice(0, 10);
-      if (jobDate !== jobDateFilter) return false;
+    if ((jobFromDate || jobToDate) && job.createdAt) {
+      const jobDate = new Date(job.createdAt);
+      if (jobFromDate) {
+        const [fd, fm, fy] = jobFromDate.split("/");
+        if (jobDate < new Date(`${fy}-${fm}-${fd}`)) return false;
+      }
+      if (jobToDate) {
+        const [td, tm, ty] = jobToDate.split("/");
+        const toEnd = new Date(`${ty}-${tm}-${td}`);
+        toEnd.setHours(23, 59, 59, 999);
+        if (jobDate > toEnd) return false;
+      }
     }
     return true;
   });
   const showJobCompanyColumn =
     selectedEmployer?.employerType === "consultant" ||
     visibleEmployerJobs.some((job) => String(job.companyName || "").trim());
-  const visibleJobApplicants = jobApplicants.filter((applicant) =>
-    String(applicant?.applicantEmail || "")
-      .toLowerCase()
-      .includes(applicantSearch.toLowerCase())
-  );
+  const visibleJobApplicants = jobApplicants.filter((applicant) => {
+    if (!String(applicant?.applicantEmail || "").toLowerCase().includes(applicantSearch.toLowerCase())) return false;
+    if (applicantStatusFilter !== "all" && String(applicant?.status || "").toLowerCase() !== applicantStatusFilter) return false;
+    return true;
+  });
 
   const headerTitle =
     viewMode === "applicants" && selectedJob
@@ -219,7 +230,8 @@ function AdminOverviewPage() {
       setApplicantsError("");
       setJobSearch("");
       setJobStatusFilter("all");
-      setJobDateFilter("");
+      setJobFromDate("");
+      setJobToDate("");
       const response = await api.getAdminEmployerOverviewJobs(employer.employerId);
       if (response.success) {
         setSelectedEmployer(response.employer);
@@ -261,6 +273,7 @@ function AdminOverviewPage() {
       setJobApplicants([]);
       setApplicantsError("");
       setApplicantSearch("");
+      setApplicantStatusFilter("all");
       setViewMode("jobs");
       return;
     }
@@ -269,6 +282,7 @@ function AdminOverviewPage() {
       setApplicantsLoading(true);
       setApplicantsError("");
       setApplicantSearch("");
+      setApplicantStatusFilter("all");
       const response = await api.getAdminJobApplicants(job.jobId);
       if (response.success) {
         setSelectedJob(response.job);
@@ -433,31 +447,40 @@ function AdminOverviewPage() {
               <div className="admin-overview-filter-control">
                 <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
                   <i className="fa fa-calendar me-2 text-primary" />
-                  Filter by Posted Date
+                  From Date
                 </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type="date"
-                    className="form-control admin-overview-filter-select"
-                    value={jobDateFilter}
-                    onChange={(e) => setJobDateFilter(e.target.value)}
-                    style={{ paddingRight: "2rem" }}
-                  />
-                  {jobDateFilter && (
-                    <button
-                      type="button"
-                      onClick={() => setJobDateFilter("")}
-                      style={{
-                        position: "absolute", right: "8px", top: "50%",
-                        transform: "translateY(-50%)", background: "none",
-                        border: "none", cursor: "pointer", color: "#888", fontSize: "14px", padding: 0
-                      }}
-                      title="Clear date filter"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
+                <input
+                  type="text"
+                  className="form-control admin-overview-filter-select"
+                  placeholder="dd/mm/yyyy"
+                  value={jobFromDate}
+                  maxLength={10}
+                  onChange={(e) => {
+                    let v = e.target.value.replace(/[^\d/]/g, "");
+                    if (v.length === 2 && jobFromDate.length === 1) v += "/";
+                    if (v.length === 5 && jobFromDate.length === 4) v += "/";
+                    setJobFromDate(v);
+                  }}
+                />
+              </div>
+              <div className="admin-overview-filter-control">
+                <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                  <i className="fa fa-calendar me-2 text-primary" />
+                  To Date
+                </label>
+                <input
+                  type="text"
+                  className="form-control admin-overview-filter-select"
+                  placeholder="dd/mm/yyyy"
+                  value={jobToDate}
+                  maxLength={10}
+                  onChange={(e) => {
+                    let v = e.target.value.replace(/[^\d/]/g, "");
+                    if (v.length === 2 && jobToDate.length === 1) v += "/";
+                    if (v.length === 5 && jobToDate.length === 4) v += "/";
+                    setJobToDate(v);
+                  }}
+                />
               </div>
             </div>
 
@@ -543,6 +566,22 @@ function AdminOverviewPage() {
                   className="employer-search"
                 />
               </div>
+              <div className="admin-overview-filter-control">
+                <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
+                  <i className="fa fa-list-alt me-2 text-primary" />
+                  Filter by Status
+                </label>
+                <select
+                  className="form-control admin-overview-filter-select"
+                  value={applicantStatusFilter}
+                  onChange={(e) => setApplicantStatusFilter(e.target.value)}
+                >
+                  <option value="all">All</option>
+                  <option value="pending">Pending</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
             </div>
             {applicantsLoading && <div className="text-center">Loading applicants...</div>}
             {!applicantsLoading && applicantsError && <div className="alert alert-danger m-b0">{applicantsError}</div>}
@@ -555,11 +594,11 @@ function AdminOverviewPage() {
                       <th>Applicant Name</th>
                       <th>Email</th>
                       <th>Payment Method</th>
-                      <th>Status</th>
-                      <th>Offer Letter Status</th>
                       <th>Applied Date</th>
                       <th>Interviews</th>
                       <th>Round Status, Schedule & Remarks</th>
+                      <th>Offer Letter Status</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -582,8 +621,6 @@ function AdminOverviewPage() {
                             <td>
                               <span style={badge.style}>{badge.label}</span>
                             </td>
-                            <td>{applicant.status}</td>
-                            <td>Offer letter sent</td>
                             <td>{formatDate(applicant.appliedAt)}</td>
                             <td>{applicant.interviewRoundsCount ?? 0}</td>
                             <td>
@@ -647,6 +684,8 @@ function AdminOverviewPage() {
                                 <span className="text-muted">No interview rounds</span>
                               )}
                             </td>
+                            <td>Offer letter sent</td>
+                            <td>{applicant.status}</td>
                           </tr>
                         );
                       })

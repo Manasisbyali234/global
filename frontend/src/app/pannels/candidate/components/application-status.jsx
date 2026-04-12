@@ -1810,7 +1810,7 @@ function CanStatusPage() {
 												</th>
 												<th className="border-0 px-4 py-3 fw-semibold text-center" style={{color: '#232323'}}>
 													<i className="fa fa-handshake me-2" style={{color: '#ff6b35'}}></i>
-													Offer Action
+													Offer Letter
 												</th>
 											</tr>
 										</thead>
