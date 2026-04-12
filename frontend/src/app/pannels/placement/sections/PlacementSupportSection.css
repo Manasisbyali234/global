@@ -150,6 +150,10 @@
   min-height: 48px;
 }
 
+.placement-support-form__group textarea::placeholder {
+  white-space: pre-line;
+}
+
 .placement-support-form__group input:focus,
 .placement-support-form__group select:focus,
 .placement-support-form__group textarea:focus {

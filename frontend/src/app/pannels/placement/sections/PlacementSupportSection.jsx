@@ -20,6 +20,14 @@ const priorities = [
     { value: 'urgent', label: 'Urgent' }
 ];
 
+const messagePlaceholder = [
+    'Please Provide Issue Details. Use the box below to enter your information. To help us resolve your query quickly, please include:',
+    '',
+    '1. Batch Number (e.g., 2024)',
+    '2. Course Name',
+    '3. A brief description of the issue'
+].join('\n');
+
 function formatFileSize(sizeInBytes) {
     if (sizeInBytes >= 1024 * 1024) {
         return `${(sizeInBytes / (1024 * 1024)).toFixed(2)} MB`;
@@ -319,10 +327,7 @@ function PlacementSupportSection({ placementData }) {
                                 rows={6}
                                 value={formData.message}
                                 onChange={handleChange}
-                                placeholder="Please Provide Issue Details Use the box below to enter your information To help us resolve your query quickly, please include:
-                                               1.Batch Number (e.g., 2024)
-                                               2.Course Name
-                                               3.A brief description of the issue"
+                                placeholder={messagePlaceholder}
                                 className={errors.message ? 'is-invalid' : ''}
                             />
                             {errors.message && <span className="placement-support-form__error">{errors.message}</span>}
