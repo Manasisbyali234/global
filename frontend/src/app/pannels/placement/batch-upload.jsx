@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { showSuccess, showError, showWarning } from '../../../utils/popupNotification';
+import { buildPlacementUploadPopup } from '../../../utils/placementUploadPopup';
 import './batch-upload.css';
 
 function BatchUpload() {
@@ -115,9 +116,14 @@ function BatchUpload() {
             }
 
             const data = await api.uploadStudentData(formData);
-            
+             
             if (data.success) {
-                showSuccess(data.message || 'Student data uploaded successfully! Waiting for admin approval.');
+                const popup = buildPlacementUploadPopup(
+                    data.message,
+                    data.skippedEmails,
+                    'Student data uploaded successfully! Waiting for admin approval.'
+                );
+                showSuccess(popup.message, popup.duration);
                 resetForm();
                 fetchUploadHistory();
             } else {
@@ -181,9 +187,14 @@ function BatchUpload() {
             });
 
             const data = await response.json();
-            
+             
             if (data.success) {
-                showSuccess(data.message || 'File resubmitted successfully! Waiting for admin approval.');
+                const popup = buildPlacementUploadPopup(
+                    data.message,
+                    data.skippedEmails,
+                    'File resubmitted successfully! Waiting for admin approval.'
+                );
+                showSuccess(popup.message, popup.duration);
                 resetForm();
                 setShowResubmitModal(false);
                 setResubmitFileId(null);

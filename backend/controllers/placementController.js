@@ -10,7 +10,7 @@ const { sendSMS } = require('../utils/smsProvider');
 const XLSX = require('xlsx');
 const { base64ToBuffer } = require('../utils/base64Helper');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
-const { checkEmailExists } = require('../utils/authUtils');
+const { checkEmailExists, findExistingEmails } = require('../utils/authUtils');
 
 const getWorkbook = (fileData, fileType) => {
   const XLSX = require('xlsx');
@@ -54,16 +54,20 @@ const collectDuplicateValues = (rows = [], getValue) => {
   return duplicates;
 };
 
-const appendDuplicateEmailNotice = (message, duplicateEmails = []) => {
-  if (duplicateEmails.length === 0) {
-    return message;
+const buildSkippedEmailNotice = (emails = [], notice) => {
+  if (emails.length === 0) {
+    return '';
   }
 
-  const noun = duplicateEmails.length === 1 ? 'email' : 'emails';
-  const emailList = duplicateEmails.slice(0, 5).join(', ');
-  const remainingCount = duplicateEmails.length - 5;
+  const noun = emails.length === 1 ? 'email' : 'emails';
+  const emailList = emails.slice(0, 5).join(', ');
+  const remainingCount = emails.length - 5;
   const remainingText = remainingCount > 0 ? ` and ${remainingCount} more` : '';
-  return `${message} ${duplicateEmails.length} repeated ${noun} detected and will be skipped during processing: ${emailList}${remainingText}.`;
+  return ` ${emails.length} ${noun} ${notice}: ${emailList}${remainingText}.`;
+};
+
+const appendSkippedEmailNotice = (message, { repeatedEmails = [], existingEmails = [] } = {}) => {
+  return `${message}${buildSkippedEmailNotice(repeatedEmails, 'are repeated in this file and will be skipped during processing')}${buildSkippedEmailNotice(existingEmails, 'already exist in the system and will be skipped during processing')}`;
 };
 
 const generateToken = (id, role) => {
@@ -317,6 +321,9 @@ exports.uploadStudentData = async (req, res) => {
     // Duplicate emails are allowed; repeated email rows will be skipped during processing.
     const duplicateEmails = collectDuplicateValues(jsonData, getRowEmail);
     const duplicateIds = collectDuplicateValues(jsonData, getRowId);
+    const existingEmails = (await findExistingEmails(jsonData.map(getRowEmail)))
+      .filter(email => !duplicateEmails.includes(email));
+    const skippedEmails = [...new Set([...duplicateEmails, ...existingEmails])];
     
     // Only block duplicate IDs here. Existing/duplicate emails are skipped during approval.
     if (duplicateIds.length > 0) {
@@ -384,12 +391,17 @@ exports.uploadStudentData = async (req, res) => {
 
     res.json({
       success: true,
-      message: appendDuplicateEmailNotice('Student data uploaded and validated successfully. Waiting for admin approval.', duplicateEmails),
+      message: appendSkippedEmailNotice('Student data uploaded and validated successfully. Waiting for admin approval.', {
+        repeatedEmails: duplicateEmails,
+        existingEmails
+      }),
       fileName: req.file.originalname,
       customName: customFileName && customFileName.trim() ? customFileName.trim() : null,
       university: university && university.trim() ? university.trim() : null,
       batch: batch && batch.trim() ? batch.trim() : null,
-      skippedEmails: duplicateEmails
+      skippedEmails,
+      repeatedEmails: duplicateEmails,
+      existingEmails
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -1238,6 +1250,9 @@ exports.resubmitFile = async (req, res) => {
     
     const duplicateEmails = collectDuplicateValues(jsonData, getRowEmail);
     const duplicateIds = collectDuplicateValues(jsonData, getRowId);
+    const existingEmails = (await findExistingEmails(jsonData.map(getRowEmail)))
+      .filter(email => !duplicateEmails.includes(email));
+    const skippedEmails = [...new Set([...duplicateEmails, ...existingEmails])];
     
     if (duplicateIds.length > 0) {
       let message = '';
@@ -1289,9 +1304,14 @@ exports.resubmitFile = async (req, res) => {
 
     res.json({
       success: true,
-      message: appendDuplicateEmailNotice('File resubmitted successfully. Waiting for admin approval.', duplicateEmails),
+      message: appendSkippedEmailNotice('File resubmitted successfully. Waiting for admin approval.', {
+        repeatedEmails: duplicateEmails,
+        existingEmails
+      }),
       fileName: req.file.originalname,
-      skippedEmails: duplicateEmails
+      skippedEmails,
+      repeatedEmails: duplicateEmails,
+      existingEmails
     });
   } catch (error) {
     console.error('Error resubmitting file:', error);

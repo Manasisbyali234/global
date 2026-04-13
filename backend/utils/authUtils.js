@@ -4,6 +4,20 @@ const Placement = require('../models/Placement');
 const Admin = require('../models/Admin');
 const SubAdmin = require('../models/SubAdmin');
 
+const normalizeEmailList = (emails = []) => (
+  [...new Set(
+    emails
+      .map(email => String(email || '').trim().toLowerCase())
+      .filter(Boolean)
+  )]
+);
+
+const buildEmailLookupQueries = (emails = []) => (
+  emails.map(email => ({
+    email: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')
+  }))
+);
+
 /**
  * Checks if an email exists in any user role
  * @param {string} email - The email to check
@@ -37,6 +51,21 @@ const checkEmailExists = async (email) => {
   return null;
 };
 
+const findExistingEmails = async (emails = []) => {
+  const normalizedEmails = normalizeEmailList(emails);
+  if (normalizedEmails.length === 0) return [];
+
+  const emailQueries = buildEmailLookupQueries(normalizedEmails);
+  const models = [Candidate, Employer, Placement, Admin, SubAdmin];
+
+  const matches = await Promise.all(
+    models.map(Model => Model.find({ $or: emailQueries }).select('email').lean())
+  );
+
+  return normalizeEmailList(matches.flat().map(record => record?.email));
+};
+
 module.exports = {
-  checkEmailExists
+  checkEmailExists,
+  findExistingEmails
 };

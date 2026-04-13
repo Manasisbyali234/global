@@ -15,6 +15,7 @@ import JobZImage from '../../common/jobz-img';
 import YesNoPopup from '../../common/popups/popup-yes-no';
 import { popupType } from '../../../globals/constants';
 import { privateUniversityOptions } from '../../../utils/privateUniversityOptions';
+import { buildPlacementUploadPopup } from '../../../utils/placementUploadPopup';
 
 function PlacementDashboardRedesigned() {
     const MAX_PROFILE_IMAGE_SIZE_MB = 20;
@@ -248,9 +249,14 @@ function PlacementDashboardRedesigned() {
             console.log('Uploading file...');
             const data = await api.uploadStudentData(formData);
             console.log('Upload response:', data);
-            
+             
             if (data.success) {
-                showSuccess(data.message || 'Student data uploaded successfully! Waiting for admin approval.');
+                const popup = buildPlacementUploadPopup(
+                    data.message,
+                    data.skippedEmails,
+                    'Student data uploaded successfully! Waiting for admin approval.'
+                );
+                showSuccess(popup.message, popup.duration);
                 setSelectedFile(null);
                 setSelectedFileName('');
                 setCourseName('');
@@ -549,9 +555,14 @@ function PlacementDashboardRedesigned() {
             });
             
             const data = await response.json();
-            
+             
             if (data.success) {
-                showSuccess(data.message || 'File resubmitted successfully! Waiting for admin approval.');
+                const popup = buildPlacementUploadPopup(
+                    data.message,
+                    data.skippedEmails,
+                    'File resubmitted successfully! Waiting for admin approval.'
+                );
+                showSuccess(popup.message, popup.duration);
                 setShowResubmitModal(false);
                 setResubmittingFile(null);
                 setResubmitFile(null);
