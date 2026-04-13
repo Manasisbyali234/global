@@ -318,22 +318,7 @@ function CanTransactionsPage() {
                             <div className="text-muted" style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
                                 Total: <strong>{filteredTransactions.length}</strong>
                             </div>
-                            <div className="dropdown">
-                                <button
-                                    className="btn btn-outline-secondary btn-sm dropdown-toggle d-flex align-items-center gap-1"
-                                    type="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                    disabled={filteredTransactions.length === 0}
-                                    style={{ fontSize: 'clamp(0.8rem, 2vw, 0.9rem)' }}
-                                >
-                                    <Download size={14} /> Export
-                                </button>
-                                <ul className="dropdown-menu dropdown-menu-end">
-                                    <li><button className="dropdown-item" onClick={() => exportTransactions('csv')}>Export as CSV</button></li>
-                                    <li><button className="dropdown-item" onClick={() => exportTransactions('excel')}>Export as Excel</button></li>
-                                </ul>
-                            </div>
+
                         </div>
                     </div>
 
