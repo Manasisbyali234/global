@@ -73,7 +73,7 @@ function LoginPlacement() {
                         </NavLink>
 
                         <h2>Login</h2>
-                        <p className="sub-text">Placement Officer Portal</p>
+                        <p className="sub-text">Placement Dean Portal</p>
 
                         <form onSubmit={handleLogin}>
                             {error && (

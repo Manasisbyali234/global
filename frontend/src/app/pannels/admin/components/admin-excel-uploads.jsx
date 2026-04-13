@@ -95,7 +95,7 @@ function AdminExcelUploads() {
         <div className="dashboard-content">
             <div className="wt-admin-right-page-header">
                 <h2>Excel Uploads</h2>
-                <p>View and manage all Excel file uploads from placement officers</p>
+                <p>View and manage all Excel file uploads from Placement Deans</p>
             </div>
             
             <PlacementNavigationButtons />
@@ -145,7 +145,7 @@ function AdminExcelUploads() {
                                     <tr>
                                         <td colSpan="8" className="text-center" style={{padding: '40px', fontSize: '1rem', color: '#6c757d'}}>
                                             <i className="fa fa-file-excel-o" style={{fontSize: '2rem', marginBottom: '10px', display: 'block', color: '#dee2e6'}}></i>
-                                            No placement officers found
+                                            No Placement Deans found
                                         </td>
                                     </tr>
                                 ) : (

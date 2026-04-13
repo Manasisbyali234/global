@@ -409,7 +409,7 @@ function SignUpPopup() {
 												type="button"
 											>
 												<i className="fas fa-graduation-cap" />
-												Placement Officer
+												Placement Dean
 											</button>
 										</li>
 									</ul>

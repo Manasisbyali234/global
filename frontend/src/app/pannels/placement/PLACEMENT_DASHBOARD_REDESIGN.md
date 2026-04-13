@@ -1,8 +1,8 @@
-# Placement Officer Dashboard - Redesigned
+# Placement Dean Dashboard - Redesigned
 
 ## Overview
 
-This is a complete redesign of the Placement Officer Dashboard following modern UI/UX principles and best practices. The new design emphasizes clean aesthetics, professional appearance, and enhanced user experience.
+This is a complete redesign of the Placement Dean Dashboard following modern UI/UX principles and best practices. The new design emphasizes clean aesthetics, professional appearance, and enhanced user experience.
 
 ## Design Language
 
@@ -36,7 +36,7 @@ This is a complete redesign of the Placement Officer Dashboard following modern 
 ### 2. Top Header Bar
 - **Search Bar**: Rounded, centered-left with search icon
 - **Notifications**: Bell icon (top-right)
-- **User Profile**: Avatar + "Placement Officer" label
+- **User Profile**: Avatar + "Placement Dean" label
 
 ### 3. Main Content Area
 

@@ -626,7 +626,7 @@ function PlacementDashboardRedesigned() {
                 <div className="access-denied">
                     <i className="fa fa-lock"></i>
                     <h3>Access Denied</h3>
-                    <p>Please login with valid placement officer credentials.</p>
+                    <p>Please login with valid Placement Dean credentials.</p>
                 </div>
             </div>
         );
@@ -777,7 +777,7 @@ function PlacementDashboardRedesigned() {
                                                 </div>
                                             </div>
                                             <div className="profile-center">
-                                                <div className="role-label">PLACEMENT OFFICER</div>
+                                                <div className="role-label">Placement Dean</div>
                                                 <h2 className="officer-name">
                                                     {placementData?.name || user?.name || 'Name not available'}
                                                 </h2>

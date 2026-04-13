@@ -4,7 +4,7 @@ A reusable, role-based Terms & Conditions modal that appears before signup and r
 
 ## Features
 
-- **Role-Based Content**: Different terms for Candidate, Employer, and Placement Officer roles
+- **Role-Based Content**: Different terms for Candidate, Employer, and Placement Dean roles
 - **Scroll Detection**: Users must scroll to the bottom before accepting
 - **Accept Checkbox**: Requires explicit acceptance via checkbox
 - **Responsive Design**: Works on desktop and mobile devices

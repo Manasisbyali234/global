@@ -104,13 +104,13 @@ function PlacementDetails() {
             });
             const data = await response.json();
             if (data.success) {
-                showSuccess('Placement officer approved successfully!');
+                showSuccess('Placement Dean approved successfully!');
                 fetchPlacementDetails();
             } else {
-                showError('Failed to approve placement officer');
+                showError('Failed to approve Placement Dean');
             }
         } catch (error) {
-            showError('Error approving placement officer');
+            showError('Error approving Placement Dean');
             
         }
     };
@@ -209,13 +209,13 @@ function PlacementDetails() {
             });
             const data = await response.json();
             if (data.success) {
-                showSuccess('Placement officer rejected successfully!');
+                showSuccess('Placement Dean rejected successfully!');
                 fetchPlacementDetails();
             } else {
-                showError('Failed to reject placement officer');
+                showError('Failed to reject Placement Dean');
             }
         } catch (error) {
-            showError('Error rejecting placement officer');
+            showError('Error rejecting Placement Dean');
             
         }
     };
@@ -460,7 +460,7 @@ function PlacementDetails() {
                 <div className="d-flex justify-content-between align-items-center">
                     <h2 className="mb-0" style={{color: '#2c3e50', fontWeight: '600'}}>
                         <i className="fa fa-user-circle me-2"></i>
-                        Placement Officer Details
+                        Placement Dean Details
                     </h2>
                     <button 
                         className="btn btn-outline-secondary"
@@ -563,7 +563,7 @@ function PlacementDetails() {
                                 </p>
                             </div>
                             <div className="col-md-6 mb-3">
-                                <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>Placement Officer Name</h4>
+                                <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>Placement Dean Name</h4>
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
                                     <i className="fa fa-user me-2" style={{color: '#fd7e14'}}></i>
                                     {placement.name}
@@ -577,7 +577,7 @@ function PlacementDetails() {
                                 </p>
                             </div>
                             <div className="col-md-6 mb-3">
-                                <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>Official Placement Officer Email</h4>
+                                <h4 className="mb-1" style={{color: '#2c3e50', fontWeight: '600', fontSize: '0.95rem'}}>Official Placement Dean Email</h4>
                                 <p className="mb-0" style={{color: '#6c757d', fontSize: '1rem'}}>
                                     <i className="fa fa-envelope me-2" style={{color: '#fd7e14'}}></i>
                                     {placement.email}
@@ -1459,7 +1459,7 @@ function PlacementDetails() {
                             <div className="modal-body">
                                 <div className="alert alert-warning">
                                     <i className="fa fa-exclamation-triangle me-2"></i>
-                                    Please provide a clear reason for rejecting this file. The placement officer will see this reason and can resubmit a corrected version.
+                                    Please provide a clear reason for rejecting this file. The Placement Dean will see this reason and can resubmit a corrected version.
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="rejectionReason">Rejection Reason *</label>

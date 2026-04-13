@@ -32,10 +32,10 @@ function AdminPlacementOfficersAllRequest() {
                 setPlacements(allPlacements);
                 applyFilters(allPlacements, statusFilter);
             } else {
-                setError(response.message || 'Failed to fetch placement officers');
+                setError(response.message || 'Failed to fetch Placement Deans');
             }
         } catch (error) {
-            setError('Error fetching placement officers: ' + error.message);
+            setError('Error fetching Placement Deans: ' + error.message);
         } finally {
             setLoading(false);
         }
@@ -98,12 +98,12 @@ function AdminPlacementOfficersAllRequest() {
                 const updatedPlacements = placements.filter(placement => placement._id !== placementId);
                 setPlacements(updatedPlacements);
                 applyFilters(updatedPlacements, statusFilter);
-                showSuccess('Placement officer approved successfully! Approval email sent. Once approved, you cannot reject or retake this action.');
+                showSuccess('Placement Dean approved successfully! Approval email sent. Once approved, you cannot reject or retake this action.');
             } else {
-                showError('Failed to approve placement officer');
+                showError('Failed to approve Placement Dean');
             }
         } catch (error) {
-            showError('Error approving placement officer');
+            showError('Error approving Placement Dean');
         } finally {
             setProcessingId(null);
         }
@@ -119,12 +119,12 @@ function AdminPlacementOfficersAllRequest() {
                 const updatedPlacements = placements.filter(placement => placement._id !== placementId);
                 setPlacements(updatedPlacements);
                 applyFilters(updatedPlacements, statusFilter);
-                showSuccess('Placement officer rejected successfully! Once rejected, you cannot approve or retake this action.');
+                showSuccess('Placement Dean rejected successfully! Once rejected, you cannot approve or retake this action.');
             } else {
-                showError('Failed to reject placement officer');
+                showError('Failed to reject Placement Dean');
             }
         } catch (error) {
-            showError('Error rejecting placement officer');
+            showError('Error rejecting Placement Dean');
         } finally {
             setProcessingId(null);
         }
@@ -137,7 +137,7 @@ function AdminPlacementOfficersAllRequest() {
     if (loading) {
         return (
             <div className="dashboard-content">
-                <PageLoader pageName="Placement Officers" />
+                <PageLoader pageName="Placement Deans" />
             </div>
         );
     }
@@ -145,8 +145,8 @@ function AdminPlacementOfficersAllRequest() {
     return (
         <div className="dashboard-content">
             <div className="wt-admin-right-page-header">
-                <h2>Placement Officers Management</h2>
-                <p>Manage and review placement officer applications</p>
+                <h2>Placement Deans Management</h2>
+                <p>Manage and review Placement Dean applications</p>
             </div>
             
             <PlacementNavigationButtons />
@@ -154,7 +154,7 @@ function AdminPlacementOfficersAllRequest() {
             <div className="panel panel-default site-bg-white">
                 <div className="panel-heading wt-panel-heading p-a20">
                     <div className="page-toolbar">
-                        <h4 className="panel-tittle m-a0 page-toolbar__title">Placement Officers ({filteredPlacements.length})</h4>
+                        <h4 className="panel-tittle m-a0 page-toolbar__title">Placement Deans ({filteredPlacements.length})</h4>
                         <div className="page-toolbar__controls page-toolbar__controls--dual">
                         <div className="search-section page-toolbar__section">
                             <label className="page-toolbar__label"><i className="fa fa-filter"></i> Filter by Status</label>
@@ -178,7 +178,7 @@ function AdminPlacementOfficersAllRequest() {
                             <div className="page-toolbar__control-wrap">
                                 <SearchBar 
                                     onSearch={handleSearch}
-                                    placeholder="Search placement officers..."
+                                    placeholder="Search Placement Deans..."
                                     className="placement-search"
                                 />
                             </div>
@@ -210,7 +210,7 @@ function AdminPlacementOfficersAllRequest() {
                                     <tr>
                                         <td colSpan="7" className="text-center" style={{padding: '40px', fontSize: '1rem', color: '#6c757d'}}>
                                             <i className="fa fa-graduation-cap" style={{fontSize: '2rem', marginBottom: '10px', display: 'block', color: '#dee2e6'}}></i>
-                                            No placement officers found
+                                            No Placement Deans found
                                         </td>
                                     </tr>
                                 ) : (

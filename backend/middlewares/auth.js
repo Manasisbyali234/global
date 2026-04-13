@@ -43,7 +43,7 @@ const auth = (roles = []) => {
         return res.status(401).json({ message: 'User not found or account deactivated' });
       }
 
-      // Check if placement officer is active
+      // Check if Placement Dean is active
       if (decoded.role === 'placement' && user.status !== 'active') {
         // Removed auth debug line for security
         return res.status(403).json({ 

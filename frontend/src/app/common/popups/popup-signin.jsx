@@ -220,7 +220,7 @@ function SignInPopup() {
 							{/* <form> */}
 							<div className="modal-header">
 								<h2 className="modal-title" id="sign_up_popupLabel2">
-									Login - {activeTab === 'candidate' ? 'Candidate' : activeTab === 'employer' ? 'Employer' : 'Placement Officer'}
+									Login - {activeTab === 'candidate' ? 'Candidate' : activeTab === 'employer' ? 'Employer' : 'Placement Dean'}
 								</h2>
 								<p>Login and get access to all the features of TaleGlobal</p>
 								<button

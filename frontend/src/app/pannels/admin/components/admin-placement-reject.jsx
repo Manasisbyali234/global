@@ -27,10 +27,10 @@ function AdminPlacementOfficersRejected() {
                 setPlacements(rejectedPlacements);
                 setFilteredPlacements(rejectedPlacements);
             } else {
-                setError(response.message || 'Failed to fetch placement officers');
+                setError(response.message || 'Failed to fetch Placement Deans');
             }
         } catch (error) {
-            setError('Error fetching placement officers');
+            setError('Error fetching Placement Deans');
         } finally {
             setLoading(false);
         }
@@ -53,7 +53,7 @@ function AdminPlacementOfficersRejected() {
     if (loading) {
         return (
             <div className="dashboard-content">
-                <PageLoader pageName="Rejected Placement Officers" />
+                <PageLoader pageName="Rejected Placement Deans" />
             </div>
         );
     }
@@ -61,14 +61,14 @@ function AdminPlacementOfficersRejected() {
     return (
         <div className="dashboard-content">
             <div className="wt-admin-right-page-header">
-                <h2>Rejected Placement Officers</h2>
-                <p>View and manage rejected placement officer accounts</p>
+                <h2>Rejected Placement Deans</h2>
+                <p>View and manage rejected Placement Dean accounts</p>
             </div>
 
             <div className="panel panel-default site-bg-white" style={{marginTop: '20px'}}>
                 <div className="panel-heading wt-panel-heading p-a20">
                     <div className="page-toolbar">
-                        <h4 className="panel-tittle m-a0 page-toolbar__title">Rejected Placement Officers ({filteredPlacements.length})</h4>
+                        <h4 className="panel-tittle m-a0 page-toolbar__title">Rejected Placement Deans ({filteredPlacements.length})</h4>
                         <div className="page-toolbar__controls page-toolbar__controls--single">
                         <div className="search-section page-toolbar__section">
                             <label className="search-label page-toolbar__label">
@@ -77,7 +77,7 @@ function AdminPlacementOfficersRejected() {
                             <div className="page-toolbar__control-wrap">
                             <SearchBar 
                                 onSearch={handleSearch}
-                                placeholder="Search rejected placement officers..."
+                                placeholder="Search rejected Placement Deans..."
                                 className="placement-search"
                             />
                             </div>
@@ -95,7 +95,7 @@ function AdminPlacementOfficersRejected() {
                             <thead>
                                 <tr>
                                     <th>University/College Name</th>
-                                    <th>Placement Officer</th>
+                                    <th>Placement Dean</th>
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Join Date</th>
@@ -109,7 +109,7 @@ function AdminPlacementOfficersRejected() {
                                     <tr>
                                         <td colSpan="7" className="text-center" style={{padding: '40px', fontSize: '1rem', color: '#6c757d'}}>
                                             <i className="fa fa-times-circle" style={{fontSize: '2rem', marginBottom: '10px', display: 'block', color: '#dee2e6'}}></i>
-                                            No rejected placement officers found
+                                            No rejected Placement Deans found
                                         </td>
                                     </tr>
                                 ) : (

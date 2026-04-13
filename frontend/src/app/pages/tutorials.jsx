@@ -32,8 +32,8 @@ function TutorialsPage() {
         {
             id: 4,
             module: "Placement Module",
-            title: "Placement Officer Signup and Login Tutorial",
-            description: "Complete guide for placement officer registration and login.",
+            title: "Placement Dean Signup and Login Tutorial",
+            description: "Complete guide for Placement Dean registration and login.",
             videoUrl: "https://www.youtube.com/embed/R5bk-6wFDr0",
             thumbnail: "https://img.youtube.com/vi/R5bk-6wFDr0/maxresdefault.jpg"
         }

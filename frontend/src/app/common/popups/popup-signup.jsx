@@ -523,7 +523,7 @@ function SignUpPopup() {
 						<div className="modal-content">
 							<div className="modal-header">
 								<h2 className="modal-title" id="sign_up_popupLabel">
-									Sign Up - {currentRole === 'candidate' ? 'Candidate' : currentRole === 'employer' ? 'Employer' : 'Placement Officer'}
+									Sign Up - {currentRole === 'candidate' ? 'Candidate' : currentRole === 'employer' ? 'Employer' : 'Placement Dean'}
 								</h2>
 								<p>
 									Sign Up and get access to all the features of TaleGlobal

@@ -74,7 +74,7 @@ function AdminBatchUploads() {
         <div className="dashboard-content">
             <div className="wt-admin-right-page-header">
                 <h2>Batch Uploads Management</h2>
-                <p>Monitor student data files submitted by Placement Officers</p>
+                <p>Monitor student data files submitted by Placement Deans</p>
             </div>
             
             <PlacementNavigationButtons />
@@ -106,7 +106,7 @@ function AdminBatchUploads() {
                             <thead>
                                 <tr>
                                     <th style={{textAlign: 'center'}}>University/College Name</th>
-                                    <th style={{textAlign: 'center'}}>Placement Officer</th>
+                                    <th style={{textAlign: 'center'}}>Placement Dean</th>
                                     <th style={{textAlign: 'center'}}>Total Files</th>
                                     <th style={{textAlign: 'center'}}>Approved</th>
                                     <th style={{textAlign: 'center'}}>Pending</th>

@@ -106,7 +106,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null, offic
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear Placement Officer,</p>
+          <p>Dear Placement Dean,</p>
           
           <p>Thank you for registering on the TaleGlobal platform.</p>
           
@@ -199,7 +199,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null, offic
           
           <p>Greetings from <strong>TaleGlobal</strong>.</p>
           
-          <p>We would like to inform you that your basic details have been updated by your Placement Officer on the TaleGlobal platform and approved by the TaleGlobal Admin.</p>
+          <p>We would like to inform you that your basic details have been updated by your Placement Dean on the TaleGlobal platform and approved by the TaleGlobal Admin.</p>
           
           <p>Your TaleGlobal account is now active.</p>
 
@@ -226,7 +226,7 @@ const sendWelcomeEmail = async (email, name, userType, collegeName = null, offic
           <div style="background-color: #e7f5ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <h4 style="margin-top: 0; color: #1971c2;">ℹ️ Important Information:</h4>
             <ul style="margin-bottom: 0; padding-left: 20px;">
-              <li>No payment or fees have been collected from your college or Placement Officer</li>
+              <li>No payment or fees have been collected from your college or Placement Dean</li>
               <li>TaleGlobal does not assure or guarantee 100% placement</li>
               <li>Placement opportunities depend on your skills, eligibility, and performance</li>
             </ul>
@@ -518,7 +518,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <p>Dear ${name || 'Candidate'},</p>
         
-        <p>Your details have been successfully updated on the TaleGlobal platform by your placement officer.</p>
+        <p>Your details have been successfully updated on the TaleGlobal platform by your Placement Dean.</p>
         
         <p>To proceed, please reset your password and log in to your account to complete your profile. After logging in, you can update your personal, educational, and skill-related information.</p>
         
@@ -527,7 +527,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
         <p>Take the next step and explore opportunities through completely online interviews.</p>
         <p><strong>Important Information:</strong></p>
         <p>
-          * No payment or fees have been collected from your college or Placement Officer<br>
+          * No payment or fees have been collected from your college or Placement Dean<br>
           * TaleGlobal does not assure or guarantee 100% placement<br>
           * Placement opportunities depend on your skills, eligibility, and performance
         </p>
@@ -588,13 +588,13 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null, offi
   let subject;
 
   if (userType === 'placement') {
-    subject = 'Your TaleGlobal Placement Officer Account Has Been Approved';
+    subject = 'Your TaleGlobal Placement Dean Account Has Been Approved';
     template = `
       <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <p>Dear ${name || 'Placement Officer'},</p>
+          <p>Dear ${name || 'Placement Dean'},</p>
           
-          <p>We are happy to inform you that your TaleGlobal Placement Officer account has been approved.</p>
+          <p>We are happy to inform you that your TaleGlobal Placement Dean account has been approved.</p>
           
           <p>You may now log in to your dashboard and begin updating final-year candidate details on behalf of your college. Please ensure that the information entered is accurate, as candidates will later complete their profiles independently.</p>
           
@@ -626,7 +626,7 @@ const sendApprovalEmail = async (email, name, userType, collegeName = null, offi
           
           <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 100%); padding: 25px; border-radius: 10px; margin: 25px 0; border-left: 5px solid #28a745;">
             <p style="color: #155724; margin: 0; font-size: 18px; line-height: 1.6; font-weight: 600;">
-              ✅ Congratulations! Your ${userType === 'employer' || userType === 'company' ? 'employer' : userType === 'consultant' ? 'consultant' : 'placement officer'} profile has been successfully approved by our admin team.
+              ✅ Congratulations! Your ${userType === 'employer' || userType === 'company' ? 'employer' : userType === 'consultant' ? 'consultant' : 'Placement Dean'} profile has been successfully approved by our admin team.
             </p>
           </div>
           
@@ -953,7 +953,7 @@ const sendCandidateActiveProfileEmail = async (email, name, password) => {
         
         <p>Greetings from <strong>TaleGlobal</strong>.</p>
         
-        <p>We would like to inform you that your basic details have been updated by your Placement Officer on the TaleGlobal platform and approved by the TaleGlobal Admin.</p>
+        <p>We would like to inform you that your basic details have been updated by your Placement Dean on the TaleGlobal platform and approved by the TaleGlobal Admin.</p>
         
         <p>Your TaleGlobal account is now active.</p>
 
@@ -980,7 +980,7 @@ const sendCandidateActiveProfileEmail = async (email, name, password) => {
         <div style="background-color: #e7f5ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <h4 style="margin-top: 0; color: #1971c2;">ℹ️ Important Information:</h4>
           <ul style="margin-bottom: 0; padding-left: 20px;">
-            <li>No payment or fees have been collected from your college or Placement Officer</li>
+            <li>No payment or fees have been collected from your college or Placement Dean</li>
             <li>TaleGlobal does not assure or guarantee 100% placement</li>
             <li>Placement opportunities depend on your skills, eligibility, and performance</li>
           </ul>
@@ -1040,7 +1040,7 @@ const sendPlacementAccessEnabledEmail = async (email, name, collegeName, officia
         
         <p>As discussed and agreed, we are pleased to confirm the collaboration between <strong>TaleGlobal and ${collegeName}</strong> to support final-year students in their career and placement readiness journey.</p>
         
-        <p>Placement Officer access has been <strong>successfully enabled</strong> on the TaleGlobal platform, allowing you to upload and update <strong>final-year student data</strong> directly.</p>
+        <p>Placement Dean access has been <strong>successfully enabled</strong> on the TaleGlobal platform, allowing you to upload and update <strong>final-year student data</strong> directly.</p>
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0; color: #2c3e50;">🔹 Scope of Collaboration:</h3>
@@ -1068,7 +1068,7 @@ const sendPlacementAccessEnabledEmail = async (email, name, collegeName, officia
         <div style="background-color: #fff4e6; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0; color: #d9480f;">🔹 Student Account Process:</h3>
           <ul style="line-height: 1.6; margin-bottom: 0;">
-            <li>Student data submitted by the Placement Officer will be <strong>reviewed and approved by the TaleGlobal Admin</strong></li>
+            <li>Student data submitted by the Placement Dean will be <strong>reviewed and approved by the TaleGlobal Admin</strong></li>
             <li>Upon approval, students will receive:
               <ul>
                 <li>Platform access</li>
@@ -1121,7 +1121,7 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
         
         <p>Dear <strong>${name}</strong>,</p>
         
-        <p>Your details have been successfully updated on the TaleGlobal platform by your placement officer.</p>
+        <p>Your details have been successfully updated on the TaleGlobal platform by your Placement Dean.</p>
         
         <p>To proceed, please reset your password and log in to your account to complete your profile. After logging in, you can update your personal, educational, and skill-related information.</p>
         
@@ -1130,14 +1130,14 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
         <p>Take the next step and explore opportunities through completely online interviews.</p>
         <p><strong>Important Information:</strong></p>
         <p>
-          * No payment or fees have been collected from your college or Placement Officer<br>
+          * No payment or fees have been collected from your college or Placement Dean<br>
           * TaleGlobal does not assure or guarantee 100% placement<br>
           * Placement opportunities depend on your skills, eligibility, and performance
         </p>
         
         <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
           <p style="color: #1565c0; margin: 0; font-size: 14px;">
-            <strong>📝 Note:</strong> Use the login credentials provided by your placement officer. If you don't have them or want to set a new password, use the "Create Password" option below.
+            <strong>📝 Note:</strong> Use the login credentials provided by your Placement Dean. If you don't have them or want to set a new password, use the "Create Password" option below.
           </p>
         </div>
         
@@ -1172,9 +1172,9 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear ${name || 'Placement Officer'},</p>
+        <p>Dear ${name || 'Placement Dean'},</p>
         
-        <p>We are happy to inform you that your TaleGlobal Placement Officer account has been approved.</p>
+        <p>We are happy to inform you that your TaleGlobal Placement Dean account has been approved.</p>
         
         <p>You may now log in to your dashboard and begin updating final-year candidate details on behalf of your college. Please ensure that the information entered is accurate, as candidates will later complete their profiles independently.</p>
         
@@ -1193,7 +1193,7 @@ const sendPlacementOfficerApprovalEmail = async (email, name) => {
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Your TaleGlobal Placement Officer Account Has Been Approved',
+    subject: 'Your TaleGlobal Placement Dean Account Has Been Approved',
     html: template
   };
 
@@ -1300,7 +1300,7 @@ const sendPlacementRejectionEmail = async (email, officialEmail = null) => {
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p>Dear Placement Officer,</p>
+        <p>Dear Placement Dean,</p>
         <p>Thank you for submitting your placement account application to TaleGlobal.</p>
         <p>After reviewing the details, we regret to inform you that your placement account application has been rejected by admin due to not meeting the required verification criteria.</p>
         <p>You may review the submitted details and reapply after making the necessary corrections or providing the required documents.</p>
@@ -1314,7 +1314,7 @@ const sendPlacementRejectionEmail = async (email, officialEmail = null) => {
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: officialEmail ? `${email}, ${officialEmail}` : email,
-    subject: 'Placement Officer Application Rejection Notification',
+    subject: 'Placement Dean Application Rejection Notification',
     html: template
   };
 

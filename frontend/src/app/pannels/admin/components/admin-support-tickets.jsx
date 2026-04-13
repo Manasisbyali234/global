@@ -49,7 +49,7 @@ function AdminSupportTickets() {
     const getResponseTargetLabel = (userType) => {
         if (userType === 'employer') return 'employer';
         if (userType === 'candidate') return 'candidate';
-        if (userType === 'placement') return 'placement officer';
+        if (userType === 'placement') return 'Placement Dean';
         return 'guest user';
     };
 
@@ -61,7 +61,7 @@ function AdminSupportTickets() {
             return 'Write a clear response for this candidate ticket. This message will be shared with the candidate.';
         }
         if (userType === 'placement') {
-            return 'Write a clear response for this placement ticket. This message will be shared with the placement officer.';
+            return 'Write a clear response for this placement ticket. This message will be shared with the Placement Dean.';
         }
         return 'Write a clear response for this guest user ticket. This message will be shared with the user.';
     };

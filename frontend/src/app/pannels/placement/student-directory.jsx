@@ -118,7 +118,7 @@ function StudentDirectory() {
                             <i className="fa fa-bell"></i>
                         </div>
                         <div className="user-profile">
-                            <span>Placement Officer</span>
+                            <span>Placement Dean</span>
                             <div className="user-avatar">
                                 <i className="fa fa-user"></i>
                             </div>

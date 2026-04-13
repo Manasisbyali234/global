@@ -192,7 +192,7 @@ function PlacementDashboard() {
                 <div className="card p-5 text-center">
                     <i className="fa fa-lock fa-3x text-danger mb-3"></i>
                     <h3>Access Denied</h3>
-                    <p className="text-muted">Please login with valid placement officer credentials.</p>
+                    <p className="text-muted">Please login with valid Placement Dean credentials.</p>
                 </div>
             </div>
         );

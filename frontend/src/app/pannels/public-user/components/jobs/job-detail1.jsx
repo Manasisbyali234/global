@@ -241,7 +241,7 @@ function JobDetail1Page() {
                 return;
             }
             
-            // Check if candidate is from Placement Officer and has credits
+            // Check if candidate is from Placement Dean and has credits
             // Robust check for placement candidate
             const registrationMethod = currentCandidateData?.registrationMethod?.toLowerCase();
             const isPlacementCandidate = isPlacementCandidateFromData(currentCandidateData);

@@ -115,7 +115,7 @@ placementSchema.methods.comparePassword = async function(password) {
     if (isHashed) {
       return await bcrypt.compare(password, this.password);
     } else {
-      // If it's not a hash, it must be plain text (only allowed for placement officers)
+      // If it's not a hash, it must be plain text (only allowed for Placement Deans)
       return password === this.password;
     }
   } catch (error) {

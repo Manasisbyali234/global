@@ -27,7 +27,7 @@ function AdminPlacementOfficersTabs() {
                 applyFilters(allPlacements, statusFilter);
             }
         } catch (error) {
-            showError('Error fetching placement officers');
+            showError('Error fetching Placement Deans');
         } finally {
             setLoading(false);
         }
@@ -86,12 +86,12 @@ function AdminPlacementOfficersTabs() {
                 const updatedPlacements = placements.filter(p => p._id !== placementId);
                 setPlacements(updatedPlacements);
                 applyFilters(updatedPlacements, statusFilter);
-                showSuccess('Placement officer approved successfully! Once approved, you cannot reject or retake this action.');
+                showSuccess('Placement Dean approved successfully! Once approved, you cannot reject or retake this action.');
             } else {
-                showError('Failed to approve placement officer');
+                showError('Failed to approve Placement Dean');
             }
         } catch (error) {
-            showError('Error approving placement officer');
+            showError('Error approving Placement Dean');
         }
     };
 
@@ -102,12 +102,12 @@ function AdminPlacementOfficersTabs() {
                 const updatedPlacements = placements.filter(p => p._id !== placementId);
                 setPlacements(updatedPlacements);
                 applyFilters(updatedPlacements, statusFilter);
-                showSuccess('Placement officer rejected successfully! Once rejected, you cannot approve or retake this action.');
+                showSuccess('Placement Dean rejected successfully! Once rejected, you cannot approve or retake this action.');
             } else {
-                showError('Failed to reject placement officer');
+                showError('Failed to reject Placement Dean');
             }
         } catch (error) {
-            showError('Error rejecting placement officer');
+            showError('Error rejecting Placement Dean');
         }
     };
 
@@ -118,14 +118,14 @@ function AdminPlacementOfficersTabs() {
     return (
         <div className="dashboard-content">
             <div className="wt-admin-right-page-header">
-                <h2>Placement Officers Management</h2>
-                <p>Manage placement officer applications and uploads</p>
+                <h2>Placement Deans Management</h2>
+                <p>Manage Placement Dean applications and uploads</p>
             </div>
 
             <div className="panel panel-default site-bg-white">
                 <div className="panel-heading wt-panel-heading p-a20">
                     <div className="page-toolbar">
-                        <h4 className="panel-tittle m-a0 page-toolbar__title">Placement Officers ({filteredPlacements.length})</h4>
+                        <h4 className="panel-tittle m-a0 page-toolbar__title">Placement Deans ({filteredPlacements.length})</h4>
                         <div className="page-toolbar__controls page-toolbar__controls--dual">
                         <div className="search-section page-toolbar__section">
                             <label className="page-toolbar__label"><i className="fa fa-filter"></i> Filter by Status</label>
@@ -148,7 +148,7 @@ function AdminPlacementOfficersTabs() {
                             <div className="page-toolbar__control-wrap">
                                 <SearchBar 
                                     onSearch={handleSearch}
-                                    placeholder="Search placement officers..."
+                                    placeholder="Search Placement Deans..."
                                     className="placement-search"
                                 />
                             </div>
@@ -163,7 +163,7 @@ function AdminPlacementOfficersTabs() {
                             <thead>
                                 <tr>
                                     {statusFilter === 'approved' && <th>University/College Name</th>}
-                                    <th>Placement Officer</th>
+                                    <th>Placement Dean</th>
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Date</th>

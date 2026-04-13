@@ -271,7 +271,7 @@
         margin-bottom: 1rem;
     }
     
-    /* Placement Officer Details - Logo and ID Card in 2 columns, text fields below */
+    /* Placement Dean Details - Logo and ID Card in 2 columns, text fields below */
     .modern-card .d-flex.align-items-start.gap-4 {
         display: flex !important;
         flex-wrap: wrap !important;

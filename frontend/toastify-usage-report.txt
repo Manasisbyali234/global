@@ -34,22 +34,22 @@ Line 31: showToast('Error fetching jobs and skills', 'error');
 
 File: app\pannels\admin\components\admin-placement-manage-tabs.jsx
 ────────────────────────────────────────────────────────────
-Line 38: showToast('Error fetching placement officers', 'error');
-Line 62: showToast('Placement officer approved successfully!', 'success');
-Line 64: showToast('Failed to approve placement officer', 'error');
-Line 67: showToast('Error approving placement officer', 'error');
-Line 76: showToast('Placement officer rejected successfully!', 'success');
-Line 78: showToast('Failed to reject placement officer', 'error');
-Line 81: showToast('Error rejecting placement officer', 'error');
+Line 38: showToast('Error fetching Placement Deans', 'error');
+Line 62: showToast('Placement Dean approved successfully!', 'success');
+Line 64: showToast('Failed to approve Placement Dean', 'error');
+Line 67: showToast('Error approving Placement Dean', 'error');
+Line 76: showToast('Placement Dean rejected successfully!', 'success');
+Line 78: showToast('Failed to reject Placement Dean', 'error');
+Line 81: showToast('Error rejecting Placement Dean', 'error');
 
 File: app\pannels\admin\components\admin-placement-manage.jsx
 ────────────────────────────────────────────────────────────
-Line 62: showToast('Placement officer approved successfully!', 'success');
-Line 64: showToast('Failed to approve placement officer', 'error');
-Line 67: showToast('Error approving placement officer', 'error');
-Line 78: showToast('Placement officer rejected successfully!', 'success');
-Line 80: showToast('Failed to reject placement officer', 'error');
-Line 83: showToast('Error rejecting placement officer', 'error');
+Line 62: showToast('Placement Dean approved successfully!', 'success');
+Line 64: showToast('Failed to approve Placement Dean', 'error');
+Line 67: showToast('Error approving Placement Dean', 'error');
+Line 78: showToast('Placement Dean rejected successfully!', 'success');
+Line 80: showToast('Failed to reject Placement Dean', 'error');
+Line 83: showToast('Error rejecting Placement Dean', 'error');
 
 File: app\pannels\admin\components\admin-sub-admin.jsx
 ────────────────────────────────────────────────────────────
@@ -83,18 +83,18 @@ File: app\pannels\admin\components\placement-details.jsx
 ────────────────────────────────────────────────────────────
 Line 84: showToast('Failed to download file', 'error');
 Line 87: showToast('Error downloading file', 'error');
-Line 106: showToast('Placement officer approved successfully!', 'success');
-Line 109: showToast('Failed to approve placement officer', 'error');
-Line 112: showToast('Error approving placement officer', 'error');
+Line 106: showToast('Placement Dean approved successfully!', 'success');
+Line 109: showToast('Failed to approve Placement Dean', 'error');
+Line 112: showToast('Error approving Placement Dean', 'error');
 Line 139: showToast(`File "${displayName}" approved and processed successfully! ${data.message}`, 'success', 5000);
 Line 151: showToast(`Failed to approve file: ${data.message}`, 'error');
 Line 154: showToast(`Error approving file: ${error.message}`, 'error');
 Line 179: showToast(`File "${displayName}" rejected successfully!`, 'success');
 Line 185: showToast(`Failed to reject file: ${data.message}`, 'error');
 Line 188: showToast(`Error rejecting file: ${error.message}`, 'error');
-Line 206: showToast('Placement officer rejected successfully!', 'success');
-Line 209: showToast('Failed to reject placement officer', 'error');
-Line 212: showToast('Error rejecting placement officer', 'error');
+Line 206: showToast('Placement Dean rejected successfully!', 'success');
+Line 209: showToast('Failed to reject Placement Dean', 'error');
+Line 212: showToast('Error rejecting Placement Dean', 'error');
 Line 265: showToast('Cannot update credits for rejected files', 'warning');
 Line 281: showToast(`File credits updated successfully! ${data.message}. All candidates will see updated credits immediately.`, 'success', 5000);
 Line 291: showToast(`Failed to update credits: ${data.message}`, 'error');

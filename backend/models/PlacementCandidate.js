@@ -13,7 +13,7 @@ const placementCandidateSchema = new mongoose.Schema({
   course: { type: String },
   collegeName: { type: String },
   
-  // Placement Officer Information
+  // Placement Dean Information
   placementId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Placement',

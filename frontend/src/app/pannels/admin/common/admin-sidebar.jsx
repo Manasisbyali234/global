@@ -377,7 +377,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     }, 0);
                                 }}>
                                     <i className="fa fa-graduation-cap" />
-                                    <span className="admin-nav-text">Placement Officers</span>
+                                    <span className="admin-nav-text">Placement Deans</span>
                                 </a>
                                 <ul className={`sub-menu ${openMenus.placement ? 'open' : ''}`}>
                                     <li className={currentpath === adminRoute(admin.PLACEMENT_MANAGE) ? 'active' : ''}>

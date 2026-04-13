@@ -120,8 +120,8 @@ exports.registerPlacement = async (req, res) => {
       // Create notification for admin
       try {
         await createNotification({
-          title: 'New Placement Officer Registration',
-          message: `${placement.name} from ${placement.collegeName} has registered as a placement officer.`,
+          title: 'New Placement Dean Registration',
+          message: `${placement.name} from ${placement.collegeName} has registered as a Placement Dean.`,
           type: 'placement_registered',
           role: 'admin',
           relatedId: placement._id,
@@ -192,8 +192,8 @@ exports.registerPlacement = async (req, res) => {
     // Create notification for admin
     try {
       await createNotification({
-        title: 'New Placement Officer Registration',
-        message: `${placement.name} from ${placement.collegeName} has registered as a placement officer.`,
+        title: 'New Placement Dean Registration',
+        message: `${placement.name} from ${placement.collegeName} has registered as a Placement Dean.`,
         type: 'placement_registered',
         role: 'admin',
         relatedId: placement._id,
@@ -270,7 +270,7 @@ exports.uploadStudentData = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    // Check if placement officer has uploaded college logo
+    // Check if Placement Dean has uploaded college logo
     const placement = await Placement.findById(placementId);
     if (!placement) {
       return res.status(404).json({ success: false, message: 'no account found with this email address' });
@@ -651,12 +651,12 @@ exports.processPlacementApproval = async (req, res) => {
   }
 };
 
-// Get placement officer's students
+// Get Placement Dean's students
 exports.getMyStudents = async (req, res) => {
   try {
     const placementId = req.user.id;
     
-    // Find candidates created by this placement officer
+    // Find candidates created by this Placement Dean
     const candidates = await Candidate.find({ placementId }).select('name email password phone credits');
     
     const students = candidates.map(candidate => ({
@@ -851,7 +851,7 @@ exports.updateFileCredits = async (req, res) => {
     
     await placement.save();
     
-    // Update all candidates linked to this placement officer
+    // Update all candidates linked to this Placement Dean
     // Since fileId tracking may not be consistent, update all candidates from this placement
     const updateResult = await Candidate.updateMany(
       { placementId: actualPlacementId },
@@ -1164,7 +1164,7 @@ exports.rejectFile = async (req, res) => {
       }
     );
     
-    // Create notification for placement officer
+    // Create notification for Placement Dean
     try {
       const displayName = file.customName || file.fileName;
       await createNotification({
@@ -1299,7 +1299,7 @@ exports.resubmitFile = async (req, res) => {
   }
 };
 
-// View file data for placement officer
+// View file data for Placement Dean
 exports.viewFileData = async (req, res) => {
   try {
     const placementId = req.user.id; // Get from authenticated user

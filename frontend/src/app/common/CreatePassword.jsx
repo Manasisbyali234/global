@@ -42,7 +42,7 @@ function CreatePassword() {
     const endpoint = endpointMap[userType];
     
     // Display role logic
-    const displayRole = rawType === 'placement' ? 'placement officer' : 
+    const displayRole = rawType === 'placement' ? 'Placement Dean' : 
                         rawType === 'placement_candidate' ? 'candidate' :
                         rawType === 'company' ? 'employer' : rawType;
     const displayRoleLabel = displayRole.charAt(0).toUpperCase() + displayRole.slice(1);

@@ -263,7 +263,7 @@ function SignupPlacement() {
                     </NavLink>
                     
                     <h2>Sign Up</h2>
-                    <p className="sub-text">Create placement officer account</p>
+                    <p className="sub-text">Create Placement Dean account</p>
 
                     <form onSubmit={handleSubmit}>
                         <div className="auth-form-group">

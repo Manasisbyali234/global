@@ -69,10 +69,10 @@ router.post('/password/update-reset', [
     .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
 ], handleValidationErrors, placementController.updatePasswordReset);
 
-// Get placement officer's student data
+// Get Placement Dean's student data
 router.get('/students', auth(['placement']), placementController.getMyStudents);
 
-// Get placement officer profile
+// Get Placement Dean profile
 router.get('/profile', auth(['placement']), async (req, res) => {
   try {
     const Placement = require('../models/Placement');
@@ -88,7 +88,7 @@ router.get('/profile', auth(['placement']), async (req, res) => {
     
     if (!placement) {
       console.log('Placement not found:', placementId);
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
     
     // Ensure firstName and lastName are populated from name if they don't exist
@@ -136,7 +136,7 @@ router.get('/files/:fileId/view', auth(['placement']), placementController.viewF
 // Resubmit rejected file
 router.post('/files/:fileId/resubmit', auth(['placement']), upload.single('studentData'), placementController.resubmitFile);
 
-// Get placement data (for placement officers to view their own data)
+// Get placement data (for Placement Deans to view their own data)
 router.get('/data', auth(['placement']), async (req, res) => {
   try {
     const Placement = require('../models/Placement');
@@ -149,7 +149,7 @@ router.get('/data', auth(['placement']), async (req, res) => {
     // Get placement record with file history
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     let students = [];
@@ -294,7 +294,7 @@ router.get('/notifications', auth(['placement']), async (req, res) => {
       role: 'placement',
       $or: [
         { placementId: { $exists: false } }, // General placement notifications (no specific placementId)
-        { placementId: placementId } // Specific to this placement officer only
+        { placementId: placementId } // Specific to this Placement Dean only
       ]
     })
     .sort({ createdAt: -1 })
@@ -308,7 +308,7 @@ router.get('/notifications', auth(['placement']), async (req, res) => {
       ]
     });
     
-    console.log(`Retrieved ${notifications.length} notifications for placement officer`);
+    console.log(`Retrieved ${notifications.length} notifications for Placement Dean`);
     res.json({ success: true, notifications, unreadCount });
   } catch (error) {
     console.error('Notifications error:', error);
@@ -373,20 +373,20 @@ router.put('/notifications/:id/dismiss', auth(['placement']), async (req, res) =
     const mongoose = require('mongoose');
     const placementId = new mongoose.Types.ObjectId(req.user._id || req.user.id);
     
-    // Verify the notification belongs to this placement officer or is a general notification
+    // Verify the notification belongs to this Placement Dean or is a general notification
     const notification = await Notification.findById(req.params.id);
     
     if (!notification) {
       return res.status(404).json({ success: false, message: 'Notification not found' });
     }
     
-    // Check authorization: notification must be either general or belong to this placement officer
+    // Check authorization: notification must be either general or belong to this Placement Dean
     const isAuthorized = 
       notification.role === 'placement' && 
       (!notification.placementId || notification.placementId.equals(placementId));
     
     if (!isAuthorized) {
-      console.warn(`Unauthorized attempt to dismiss notification ${req.params.id} by placement officer ${placementId}`);
+      console.warn(`Unauthorized attempt to dismiss notification ${req.params.id} by Placement Dean ${placementId}`);
       return res.status(403).json({ success: false, message: 'Unauthorized to dismiss this notification' });
     }
     

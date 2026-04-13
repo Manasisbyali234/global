@@ -219,14 +219,14 @@ exports.applyWithCredits = async (req, res) => {
     if (candidate.registrationMethod !== 'placement' && !candidate.placementId) {
       return res.status(403).json({ 
         success: false, 
-        message: 'Credit-based applications are only available for candidates registered through Placement Officers' 
+        message: 'Credit-based applications are only available for candidates registered through Placement Deans' 
       });
     }
 
     if (candidate.credits <= 0) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Insufficient credits. Please contact your Placement Officer or pay using Razorpay.' 
+        message: 'Insufficient credits. Please contact your Placement Dean or pay using Razorpay.' 
       });
     }
 

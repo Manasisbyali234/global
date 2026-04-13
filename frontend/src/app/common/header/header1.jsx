@@ -138,7 +138,7 @@ const Header1 = memo(function Header1({ _config }) {
                                                             className="dropdown-item" 
                                                             to={publicUser.pages.SIGNUP_PLACEMENT}
                                                         >
-                                                            Placement Officer
+                                                            Placement Dean
                                                         </NavLink>
                                                     </li>
                                                 </ul>
@@ -176,7 +176,7 @@ const Header1 = memo(function Header1({ _config }) {
                                                             className="dropdown-item" 
                                                             to={publicUser.pages.LOGIN_PLACEMENT}
                                                         >
-                                                            Placement Officer
+                                                            Placement Dean
                                                         </NavLink>
                                                     </li>
                                                 </ul>

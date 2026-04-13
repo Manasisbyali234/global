@@ -600,8 +600,8 @@ function AdminSubAdmin() {
                                                             />
                                                             <label className="form-check-label w-100 h-100 d-flex flex-column align-items-center justify-content-center" htmlFor="placement_officers" style={{ cursor: 'pointer' }}>
                                                                 <i className="fa fa-graduation-cap fa-2x mb-2" style={{ color: formData.permissions.includes('placement_officers') ? '#fd7e14' : '#6c757d' }}></i>
-                                                                <span className="fw-medium">Placement Officers</span>
-                                                                <small className="text-muted">Manage placement officers</small>
+                                                                <span className="fw-medium">Placement Deans</span>
+                                                                <small className="text-muted">Manage Placement Deans</small>
                                                             </label>
                                                         </div>
                                                     </div>

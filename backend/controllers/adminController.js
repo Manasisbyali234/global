@@ -1829,7 +1829,7 @@ exports.updatePlacementStatus = async (req, res) => {
     // First, fetch the current placement to check its state
     const currentPlacement = await Placement.findById(req.params.id);
     if (!currentPlacement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     const updateData = {};
@@ -1879,19 +1879,19 @@ exports.updatePlacementStatus = async (req, res) => {
     ).select('-password');
 
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     // Send approval email and create notification only if it hasn't been sent before
     if (shouldSendEmail) {
       try {
         const { sendApprovalEmail } = require('../utils/emailService');
-        const placementName = placement.name || placement.firstName || 'Placement Officer';
+        const placementName = placement.name || placement.firstName || 'Placement Dean';
         await sendApprovalEmail(placement.email, placementName, 'placement', placement.collegeName, placement.collegeOfficialEmail);
         
         await createNotification({
           title: 'Account Approved',
-          message: 'Your placement officer account has been approved by admin. You can now sign in.',
+          message: 'Your Placement Dean account has been approved by admin. You can now sign in.',
           type: 'placement_approved',
           role: 'placement',
           placementId: new mongoose.Types.ObjectId(placement._id),
@@ -1915,7 +1915,7 @@ exports.getPlacementDetails = async (req, res) => {
     const placement = await Placement.findById(req.params.id).select('-password');
     
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     res.json({ success: true, placement });
@@ -1945,7 +1945,7 @@ exports.getFileData = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     const file = placement.fileHistory.id(fileId);
@@ -2041,7 +2041,7 @@ exports.assignPlacementCredits = async (req, res) => {
     
     const placement = await Placement.findById(req.params.id);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     // Update all non-rejected files in fileHistory with the new credits
@@ -2533,18 +2533,18 @@ exports.getEmployersPendingApproval = async (req, res) => {
   }
 };
 
-// Generate login token for placement officer
+// Generate login token for Placement Dean
 exports.generatePlacementLoginToken = async (req, res) => {
   try {
     const { placementId } = req.body;
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
     
     if (placement.status !== 'active') {
-      return res.status(400).json({ success: false, message: 'Placement officer is not active' });
+      return res.status(400).json({ success: false, message: 'Placement Dean is not active' });
     }
     
     const token = generateToken(placement._id, 'placement');
@@ -2897,7 +2897,7 @@ exports.approveIndividualFile = async (req, res) => {
             console.log(`=== SENDING WELCOME EMAIL ===`);
             console.log(`To: ${email.trim().toLowerCase()}`);
             console.log(`Name: ${name.trim()}`);
-            console.log(`Placement Officer: ${placement.name}`);
+            console.log(`Placement Dean: ${placement.name}`);
             console.log(`College: ${collegeName || placement.collegeName}`);
             console.log(`Credits: ${finalCredits}`);
             
@@ -3067,7 +3067,7 @@ exports.rejectIndividualFile = async (req, res) => {
     const updatedFile = verifyPlacement.fileHistory.find(f => f._id.toString() === fileId);
     console.log(`Verified file status: ${updatedFile?.status}`);
 
-    // Create notification for placement officer
+    // Create notification for Placement Dean
     try {
       const notification = await createNotification({
         title: 'File Rejected',
@@ -3101,7 +3101,7 @@ exports.updateFileCredits = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     const file = placement.fileHistory.id(fileId);
@@ -3233,7 +3233,7 @@ exports.assignBulkFileCredits = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     let updatedFiles = 0;
@@ -3335,7 +3335,7 @@ exports.storeExcelDataInMongoDB = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     let totalRecordsStored = 0;
@@ -3422,7 +3422,7 @@ exports.getStoredExcelData = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     if (fileId) {
@@ -3513,7 +3513,7 @@ exports.getAllPlacementCandidates = async (req, res) => {
       collegeName: pc.collegeName,
       creditsAssigned: pc.creditsAssigned,
       
-      // Placement Officer Details
+      // Placement Dean Details
       placementOfficer: {
         id: pc.placementId?._id,
         name: pc.placementOfficerName,
@@ -3817,7 +3817,7 @@ exports.syncExcelCreditsWithCandidates = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     let syncedCandidates = 0;
@@ -3905,7 +3905,7 @@ exports.downloadPlacementIdCard = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     if (!placement.idCard) {
@@ -4232,7 +4232,7 @@ exports.getPlacementCandidateStats = async (req, res) => {
       welcomeEmailSent: { $ne: true }
     });
     
-    // Get placement officers with candidate counts
+    // Get Placement Deans with candidate counts
     const placementOfficerStats = await PlacementCandidate.aggregate([
       {
         $group: {
@@ -4286,7 +4286,7 @@ exports.approveAllStudentsInPlacement = async (req, res) => {
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
-      return res.status(404).json({ success: false, message: 'Placement officer not found' });
+      return res.status(404).json({ success: false, message: 'Placement Dean not found' });
     }
 
     let totalProcessed = 0;
