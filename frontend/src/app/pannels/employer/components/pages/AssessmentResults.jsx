@@ -13,6 +13,8 @@ export default function AssessmentResults() {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   useEffect(() => {
     fetchResults();
@@ -133,28 +135,80 @@ export default function AssessmentResults() {
                 {results.length} candidate{results.length !== 1 ? 's' : ''} attempted this assessment
               </p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Filter by:</label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                style={{
-                  border: '1px solid #d1d5db',
-                  borderRadius: '0.5rem',
-                  padding: '0.5rem 0.75rem',
-                  fontSize: '0.875rem',
-                  color: '#374151',
-                  background: 'white',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                <option value="all">All</option>
-                <option value="pass">Pass</option>
-                <option value="fail">Fail</option>
-                <option value="expired">Expired</option>
-                <option value="suspended">Suspended</option>
-              </select>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Filter by:</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  style={{
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    fontSize: '0.875rem',
+                    color: '#374151',
+                    background: 'white',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="all">All</option>
+                  <option value="pass">Pass</option>
+                  <option value="fail">Fail</option>
+                  <option value="expired">Expired</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>From:</label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  style={{
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    fontSize: '0.875rem',
+                    color: '#374151',
+                    background: 'white',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>To:</label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  style={{
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    fontSize: '0.875rem',
+                    color: '#374151',
+                    background: 'white',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+              {(fromDate || toDate) && (
+                <button
+                  onClick={() => { setFromDate(''); setToDate(''); }}
+                  style={{
+                    background: 'none',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    fontSize: '0.875rem',
+                    color: '#6b7280',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Clear Dates
+                </button>
+              )}
             </div>
             <button
               onClick={() => navigate('/employer/create-assessment')}
@@ -250,6 +304,9 @@ export default function AssessmentResults() {
                 </thead>
                 <tbody>
                   {results.filter(result => {
+                    const resultDate = new Date(result.endTime || result.suspendedAt || result.updatedAt);
+                    if (fromDate && resultDate < new Date(fromDate)) return false;
+                    if (toDate && resultDate > new Date(toDate + 'T23:59:59')) return false;
                     if (statusFilter === 'all') return true;
                     if (statusFilter === 'suspended') return result.status === 'suspended';
                     if (statusFilter === 'expired') return result.status === 'expired';
@@ -426,6 +483,9 @@ export default function AssessmentResults() {
                     </tr>
                   ))}
                   {results.filter(result => {
+                    const resultDate = new Date(result.endTime || result.suspendedAt || result.updatedAt);
+                    if (fromDate && resultDate < new Date(fromDate)) return false;
+                    if (toDate && resultDate > new Date(toDate + 'T23:59:59')) return false;
                     if (statusFilter === 'all') return true;
                     if (statusFilter === 'suspended') return result.status === 'suspended';
                     if (statusFilter === 'expired') return result.status === 'expired';

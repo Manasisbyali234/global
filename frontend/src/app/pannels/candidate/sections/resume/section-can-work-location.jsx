@@ -307,12 +307,6 @@ function SectionCanWorkLocation({ profile, onUpdate }) {
                                                     </span>
                                                 ))}
                                             </div>
-                                            <div className="mt-3 p-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #e9ecef' }}>
-                                                <small className="text-muted">
-                                                    <i className="fa fa-info-circle me-1"></i>
-                                                    These locations will be visible to employers when they search for candidates. Having multiple preferred locations increases your job opportunities.
-                                                </small>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -321,7 +315,6 @@ function SectionCanWorkLocation({ profile, onUpdate }) {
                                     <div className="mb-4">
                                         <i className="fa fa-map-marker-alt" style={{ fontSize: '3em', color: '#dc3545', opacity: 0.7 }}></i>
                                     </div>
-                                    <h5 className="text-danger mb-3">Desired Work Location is required</h5>
                                     <p className="text-muted mb-4" style={{ maxWidth: '400px', margin: '0 auto' }}>
                                         Please add at least one preferred work location. This is a mandatory field.
                                     </p>
