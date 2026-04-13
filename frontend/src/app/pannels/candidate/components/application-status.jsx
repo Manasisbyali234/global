@@ -1655,10 +1655,24 @@ function CanStatusPage() {
 		return options;
 	}, [applications]);
 
+	const getInterviewRoundStatuses = (application) => {
+		const rounds = getInterviewRounds(application.jobId, application);
+		return rounds.map((round, roundIndex) => {
+			const roundName = typeof round === 'string' ? round : round.name;
+			const roundDetails = resolveRoundDetails(application, round, roundIndex, rounds);
+			const roundStatus = getRoundStatus(application, roundIndex, roundName, false, roundDetails);
+			return normalizeStatusValue(roundStatus?.text || '');
+		});
+	};
+
 	const filteredApplications = useMemo(() => {
 		let result = selectedStatus === 'all'
 			? applications
-			: applications.filter((application) => getApplicationFilterStatus(application) === selectedStatus);
+			: applications.filter((application) => {
+				if (getApplicationFilterStatus(application) === selectedStatus) return true;
+				const roundStatuses = getInterviewRoundStatuses(application);
+				return roundStatuses.some((s) => s === normalizeStatusValue(selectedStatus));
+			});
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.trim().toLowerCase();
