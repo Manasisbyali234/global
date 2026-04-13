@@ -24,7 +24,7 @@ function AdminBatchUploads() {
             setLoading(true);
             const response = await api.getAllPlacements();
             if (response.success) {
-                const allPlacements = response.data || [];
+                const allPlacements = (response.data || []).filter(p => p.status !== 'rejected');
                 // Process placements to get upload stats
                 const processedPlacements = allPlacements.map(p => {
                     const fileHistory = p.fileHistory || [];

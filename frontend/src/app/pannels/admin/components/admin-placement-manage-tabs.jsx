@@ -99,10 +99,8 @@ function AdminPlacementOfficersTabs() {
         try {
             const response = await api.updatePlacementStatus(placementId, 'rejected');
             if (response.success) {
-                const updatedPlacements = placements.filter(p => p._id !== placementId);
-                setPlacements(updatedPlacements);
-                applyFilters(updatedPlacements, statusFilter);
                 showSuccess('Placement Dean rejected successfully! Once rejected, you cannot approve or retake this action.');
+                navigate('/admin/admin-placement-rejected');
             } else {
                 showError('Failed to reject Placement Dean');
             }
