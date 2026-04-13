@@ -136,7 +136,7 @@ router.get('/files/:fileId/view', auth(['placement']), placementController.viewF
 // Resubmit rejected file
 router.post('/files/:fileId/resubmit', auth(['placement']), upload.single('studentData'), placementController.resubmitFile);
 
-// Get placement data (for Placement Deans to view their own data)
+// Get placement data (for Placement Dean to view their own data)
 router.get('/data', auth(['placement']), async (req, res) => {
   try {
     const Placement = require('../models/Placement');

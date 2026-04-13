@@ -4232,7 +4232,7 @@ exports.getPlacementCandidateStats = async (req, res) => {
       welcomeEmailSent: { $ne: true }
     });
     
-    // Get Placement Deans with candidate counts
+    // Get Placement Dean with candidate counts
     const placementOfficerStats = await PlacementCandidate.aggregate([
       {
         $group: {

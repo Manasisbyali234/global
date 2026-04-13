@@ -32,10 +32,10 @@ function AdminPlacementOfficersAllRequest() {
                 setPlacements(allPlacements);
                 applyFilters(allPlacements, statusFilter);
             } else {
-                setError(response.message || 'Failed to fetch Placement Deans');
+                setError(response.message || 'Failed to fetch Placement Dean');
             }
         } catch (error) {
-            setError('Error fetching Placement Deans: ' + error.message);
+            setError('Error fetching Placement Dean: ' + error.message);
         } finally {
             setLoading(false);
         }
@@ -137,7 +137,7 @@ function AdminPlacementOfficersAllRequest() {
     if (loading) {
         return (
             <div className="dashboard-content">
-                <PageLoader pageName="Placement Deans" />
+                <PageLoader pageName="Placement Dean" />
             </div>
         );
     }
@@ -145,7 +145,7 @@ function AdminPlacementOfficersAllRequest() {
     return (
         <div className="dashboard-content">
             <div className="wt-admin-right-page-header">
-                <h2>Placement Deans Management</h2>
+                <h2>Placement Dean Management</h2>
                 <p>Manage and review Placement Dean applications</p>
             </div>
             
@@ -154,7 +154,7 @@ function AdminPlacementOfficersAllRequest() {
             <div className="panel panel-default site-bg-white">
                 <div className="panel-heading wt-panel-heading p-a20">
                     <div className="page-toolbar">
-                        <h4 className="panel-tittle m-a0 page-toolbar__title">Placement Deans ({filteredPlacements.length})</h4>
+                        <h4 className="panel-tittle m-a0 page-toolbar__title">Placement Dean ({filteredPlacements.length})</h4>
                         <div className="page-toolbar__controls page-toolbar__controls--dual">
                         <div className="search-section page-toolbar__section">
                             <label className="page-toolbar__label"><i className="fa fa-filter"></i> Filter by Status</label>
@@ -178,7 +178,7 @@ function AdminPlacementOfficersAllRequest() {
                             <div className="page-toolbar__control-wrap">
                                 <SearchBar 
                                     onSearch={handleSearch}
-                                    placeholder="Search Placement Deans..."
+                                    placeholder="Search Placement Dean..."
                                     className="placement-search"
                                 />
                             </div>
@@ -210,7 +210,7 @@ function AdminPlacementOfficersAllRequest() {
                                     <tr>
                                         <td colSpan="7" className="text-center" style={{padding: '40px', fontSize: '1rem', color: '#6c757d'}}>
                                             <i className="fa fa-graduation-cap" style={{fontSize: '2rem', marginBottom: '10px', display: 'block', color: '#dee2e6'}}></i>
-                                            No Placement Deans found
+                                            No Placement Dean found
                                         </td>
                                     </tr>
                                 ) : (

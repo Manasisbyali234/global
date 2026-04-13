@@ -184,7 +184,7 @@ function TermsConditionsPage() {
                                         <h4 className="subsection-title">Liability</h4>
                                         <ul>
                                             <li>TaleGlobal acts solely as an online intermediary connecting candidates with verified employers and does not guarantee interviews, employment, or offer letters.</li>
-                                            <li>TaleGlobal shall not be liable for any act, omission, or representation made by employers, consultancies, or Placement Deans, nor for any loss financial, professional, or reputational arising from platform usage.</li>
+                                            <li>TaleGlobal shall not be liable for any act, omission, or representation made by employers, consultancies, or Placement Dean, nor for any loss financial, professional, or reputational arising from platform usage.</li>
                                             <li>In no event shall TaleGlobal's aggregate liability exceed the total fee paid by the candidate for the specific application that gave rise to such claim.</li>
                                             <li>Nothing in this clause shall limit liability arising from willful misconduct, fraud, or statutory violations.</li>
                                         </ul>
@@ -280,7 +280,7 @@ function TermsConditionsPage() {
                                 </div>
                                 <div className="accordion-content">
                                     <div className="accordion-body">
-                                        <p>All users of TaleGlobal including employers, candidates, consultancies, and Placement Deans agree to comply with all applicable laws, regulations, and guidelines in force in India, including but not limited to:</p>
+                                        <p>All users of TaleGlobal including employers, candidates, consultancies, and Placement Dean agree to comply with all applicable laws, regulations, and guidelines in force in India, including but not limited to:</p>
                                         <ul>
                                             <li><em>Information Technology Act, 2000</em> and the <em>Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021</em></li>
                                             <li><em>Digital Personal Data Protection Act, 2023</em></li>
@@ -327,7 +327,7 @@ function TermsConditionsPage() {
                                 </div>
                                 <div className="accordion-content">
                                     <div className="accordion-body">
-                                        <p>TaleGlobal is committed to protecting the privacy, security, and lawful use of personal information entrusted to it by all individuals using its website and services including employers, candidates, consultancies, and Placement Deans. This Privacy Policy outlines how TaleGlobal collects, processes, uses, stores, discloses, and protects personal information in accordance with the <em>Digital Personal Data Protection Act, 2023</em>, the <em>Information Technology Act, 2000</em>, and other applicable laws of India.</p>
+                                        <p>TaleGlobal is committed to protecting the privacy, security, and lawful use of personal information entrusted to it by all individuals using its website and services including employers, candidates, consultancies, and Placement Dean. This Privacy Policy outlines how TaleGlobal collects, processes, uses, stores, discloses, and protects personal information in accordance with the <em>Digital Personal Data Protection Act, 2023</em>, the <em>Information Technology Act, 2000</em>, and other applicable laws of India.</p>
                                         
                                         <p>By creating an account, accessing, or using the TaleGlobal platform, you expressly acknowledge that you have read, understood, and agree to be bound by this Privacy Policy and consent to the collection and use of your personal data as set out herein. Your consent constitutes a valid and enforceable electronic consent under the <em>Information Technology Act, 2000</em>.</p>
                                     </div>
@@ -341,12 +341,12 @@ function TermsConditionsPage() {
                                 </div>
                                 <div className="accordion-content">
                                     <div className="accordion-body">
-                                        <p>TaleGlobal functions solely as a <strong>digital recruitment intermediary</strong> connecting verified employers, consultancies, Placement Deans, and candidates. The platform facilitates lawful interaction and communication among registered users but does not participate in, influence, or guarantee the outcome of any recruitment or employment process. TaleGlobal operates in compliance with the <em>Information Technology Act, 2000</em> and qualifies as an <strong>intermediary</strong> under Section 2(1)(w) thereof.</p>
+                                        <p>TaleGlobal functions solely as a <strong>digital recruitment intermediary</strong> connecting verified employers, consultancies, Placement Dean, and candidates. The platform facilitates lawful interaction and communication among registered users but does not participate in, influence, or guarantee the outcome of any recruitment or employment process. TaleGlobal operates in compliance with the <em>Information Technology Act, 2000</em> and qualifies as an <strong>intermediary</strong> under Section 2(1)(w) thereof.</p>
                                         
                                         <h4 className="subsection-title">No Employment Guarantee</h4>
                                         <ul>
                                             <li>TaleGlobal does not guarantee employment, selection, job placement, or any hiring outcome.</li>
-                                            <li>The platform only provides digital infrastructure that enables interaction between candidates, employers, consultancies, and Placement Deans based on information voluntarily provided by such users.</li>
+                                            <li>The platform only provides digital infrastructure that enables interaction between candidates, employers, consultancies, and Placement Dean based on information voluntarily provided by such users.</li>
                                             <li>All employment-related decisions, including interviews, assessments, and offers, are made independently by employers or their authorized representatives.</li>
                                             <li>TaleGlobal shall not be responsible for the non-selection of candidates, cancellation of job openings, or modification of recruitment schedules by employers.</li>
                                         </ul>
@@ -363,7 +363,7 @@ function TermsConditionsPage() {
                                         <ul>
                                             <li><strong>Employers</strong> are solely responsible for conducting interviews, verifying candidate credentials, making selection decisions, and issuing offer letters in compliance with applicable labour and employment laws.</li>
                                             <li><strong>Candidates</strong> are responsible for ensuring the accuracy and completeness of their personal data, resumes, and other submitted information, as well as maintaining proper internet connectivity and device readiness during online interactions.</li>
-                                            <li><strong>Consultancies</strong> and <strong>Placement Deans</strong> are accountable for ensuring the authenticity of data uploaded to the platform, including verification of employer authorization and student consent.</li>
+                                            <li><strong>Consultancies</strong> and <strong>Placement Dean</strong> are accountable for ensuring the authenticity of data uploaded to the platform, including verification of employer authorization and student consent.</li>
                                             <li>Users agree to use the platform only for lawful purposes and shall indemnify TaleGlobal against any claim, loss, or damage resulting from misuse, negligence, or breach of these obligations.</li>
                                         </ul>
                                     </div>
@@ -377,7 +377,7 @@ function TermsConditionsPage() {
                                 </div>
                                 <div className="accordion-content">
                                     <div className="accordion-body">
-                                        <p>TaleGlobal functions solely as a technology-based intermediary facilitating communication between verified employers, candidates, consultancies, and Placement Deans. Under no circumstance shall TaleGlobal be deemed to have participated in or influenced any hiring decision, employment contract, or commercial arrangement between users.</p>
+                                        <p>TaleGlobal functions solely as a technology-based intermediary facilitating communication between verified employers, candidates, consultancies, and Placement Dean. Under no circumstance shall TaleGlobal be deemed to have participated in or influenced any hiring decision, employment contract, or commercial arrangement between users.</p>
                                         
                                         <p><strong>TaleGlobal shall not be held liable for:</strong></p>
                                         <ul>

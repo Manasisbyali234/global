@@ -267,7 +267,7 @@ function TermsConditionsPage() {
                                         <h4 className="subsection-title">Liability</h4>
                                         <ul>
                                             <li>TaleGlobal acts solely as an online intermediary and does not guarantee interviews, employment, or offer letters.</li>
-                                            <li>TaleGlobal shall not be liable for any act, omission, or representation made by employers, consultancies, or Placement Deans.</li>
+                                            <li>TaleGlobal shall not be liable for any act, omission, or representation made by employers, consultancies, or Placement Dean.</li>
                                             <li>TaleGlobal's aggregate liability shall not exceed the total fee paid by the candidate for the specific application.</li>
                                         </ul>
                                     </div>
@@ -357,14 +357,14 @@ function TermsConditionsPage() {
                             
                             <div className={`accordion-section ${activeSection === 'placement' ? 'active' : ''}`}>
                                 <div className="accordion-header" onClick={() => toggleSection('placement')}>
-                                    <h3>Terms & Conditions for Placement Deans</h3>
+                                    <h3>Terms & Conditions for Placement Dean</h3>
                                     <span className="accordion-icon">▼</span>
                                 </div>
                                 <div className="accordion-content">
                                     <div className="accordion-body">
                                         <h4 className="subsection-title">Registration and Verification</h4>
                                         <ul>
-                                            <li>Placement Deans must provide valid institutional credentials and official contact information.</li>
+                                            <li>Placement Dean must provide valid institutional credentials and official contact information.</li>
                                             <li>Your account will be verified before activation to ensure authenticity.</li>
                                             <li>Registration constitutes a legally binding electronic agreement under applicable laws.</li>
                                         </ul>

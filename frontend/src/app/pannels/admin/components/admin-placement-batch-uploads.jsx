@@ -74,7 +74,7 @@ function AdminBatchUploads() {
         <div className="dashboard-content">
             <div className="wt-admin-right-page-header">
                 <h2>Batch Uploads Management</h2>
-                <p>Monitor student data files submitted by Placement Deans</p>
+                <p>Monitor student data files submitted by Placement Dean</p>
             </div>
             
             <PlacementNavigationButtons />

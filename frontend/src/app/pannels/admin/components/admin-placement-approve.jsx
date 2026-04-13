@@ -30,10 +30,10 @@ function AdminPlacementOfficersApproved() {
                 setPlacements(approvedPlacements);
                 setFilteredPlacements(approvedPlacements);
             } else {
-                setError(response.message || 'Failed to fetch Placement Deans');
+                setError(response.message || 'Failed to fetch Placement Dean');
             }
         } catch (error) {
-            setError('Error fetching Placement Deans');
+            setError('Error fetching Placement Dean');
         } finally {
             setLoading(false);
         }
@@ -78,7 +78,7 @@ function AdminPlacementOfficersApproved() {
     if (loading) {
         return (
             <div className="dashboard-content">
-                <PageLoader pageName="Approved Placement Deans" />
+                <PageLoader pageName="Approved Placement Dean" />
             </div>
         );
     }
@@ -86,7 +86,7 @@ function AdminPlacementOfficersApproved() {
     return (
         <div className="dashboard-content">
             <div className="wt-admin-right-page-header">
-                <h2>Approved Placement Deans</h2>
+                <h2>Approved Placement Dean</h2>
                 <p>View and manage approved Placement Dean accounts</p>
             </div>
             
@@ -95,7 +95,7 @@ function AdminPlacementOfficersApproved() {
             <div className="panel panel-default site-bg-white" style={{marginTop: '20px'}}>
                 <div className="panel-heading wt-panel-heading p-a20">
                     <div className="page-toolbar">
-                        <h4 className="panel-tittle m-a0 page-toolbar__title">Approved Placement Deans ({filteredPlacements.length})</h4>
+                        <h4 className="panel-tittle m-a0 page-toolbar__title">Approved Placement Dean ({filteredPlacements.length})</h4>
                         <div className="page-toolbar__controls page-toolbar__controls--single">
                         <div className="search-section page-toolbar__section">
                             <label className="search-label page-toolbar__label">
@@ -104,7 +104,7 @@ function AdminPlacementOfficersApproved() {
                             <div className="page-toolbar__control-wrap">
                             <SearchBar 
                                 onSearch={handleSearch}
-                                placeholder="Search approved Placement Deans..."
+                                placeholder="Search approved Placement Dean..."
                                 className="placement-search"
                             />
                             </div>
@@ -137,7 +137,7 @@ function AdminPlacementOfficersApproved() {
                                     <tr>
                                         <td colSpan="8" className="text-center" style={{padding: '40px', fontSize: '1rem', color: '#6c757d'}}>
                                             <i className="fa fa-check-circle" style={{fontSize: '2rem', marginBottom: '10px', display: 'block', color: '#dee2e6'}}></i>
-                                            No approved Placement Deans found
+                                            No approved Placement Dean found
                                         </td>
                                     </tr>
                                 ) : (

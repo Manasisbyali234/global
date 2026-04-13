@@ -34,7 +34,7 @@ Line 31: showToast('Error fetching jobs and skills', 'error');
 
 File: app\pannels\admin\components\admin-placement-manage-tabs.jsx
 ────────────────────────────────────────────────────────────
-Line 38: showToast('Error fetching Placement Deans', 'error');
+Line 38: showToast('Error fetching Placement Dean', 'error');
 Line 62: showToast('Placement Dean approved successfully!', 'success');
 Line 64: showToast('Failed to approve Placement Dean', 'error');
 Line 67: showToast('Error approving Placement Dean', 'error');
