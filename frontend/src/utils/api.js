@@ -519,16 +519,8 @@ export const api = {
     }).then((res) => res.json());
   },
 
-  adminSendOTP: (email) => {
-    return safeFetch(`${API_BASE_URL}/admin/password/send-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    }).then(handleApiResponse);
-  },
-
-  adminVerifyOTPReset: (data) => {
-    return safeFetch(`${API_BASE_URL}/admin/password/verify-otp`, {
+  adminResetPasswordDirect: (data) => {
+    return safeFetch(`${API_BASE_URL}/admin/password/reset-direct`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

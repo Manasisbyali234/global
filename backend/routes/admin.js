@@ -10,19 +10,22 @@ router.post('/login', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required')
 ], handleValidationErrors, adminController.loginAdmin);
-const adminResetPasswordValidation = [
+router.post('/send-otp', adminController.sendOTP);
+router.post('/verify-otp-reset', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('otp').notEmpty().withMessage('OTP is required'),
   body('newPassword')
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
     .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
     .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
-];
-
-router.post('/send-otp', adminController.sendOTP);
-router.post('/password/send-otp', adminController.sendOTP);
-router.post('/verify-otp-reset', adminResetPasswordValidation, handleValidationErrors, adminController.verifyOTPAndResetPassword);
-router.post('/password/verify-otp', adminResetPasswordValidation, handleValidationErrors, adminController.verifyOTPAndResetPassword);
+], handleValidationErrors, adminController.verifyOTPAndResetPassword);
+router.post('/password/reset-direct', [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('newPassword')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
+], handleValidationErrors, adminController.resetPasswordDirect);
 
 // Sub Admin Profile Route (must be before auth middleware)
 router.get('/sub-admin/profile', auth(['sub-admin']), adminController.getSubAdminProfile);

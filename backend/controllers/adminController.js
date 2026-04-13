@@ -4648,3 +4648,29 @@ exports.verifyOTPAndResetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.resetPasswordDirect = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    const normalizedEmail = email.trim();
+
+    let user = await Admin.findByEmail(normalizedEmail);
+
+    if (!user) {
+      user = await SubAdmin.findByEmail(normalizedEmail);
+    }
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.password = newPassword;
+    user.resetPasswordOTP = undefined;
+    user.resetPasswordOTPExpires = undefined;
+    await user.save();
+
+    res.json({ success: true, message: 'Password reset successful' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

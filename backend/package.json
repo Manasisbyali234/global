@@ -7,7 +7,6 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "create-admin": "node scripts/createAdmin.js",
-    "update-admin-email": "node scripts/updateAdminEmail.js",
     "add-sample-data": "node scripts/addSampleData.js"
   },
   "dependencies": {
