@@ -520,7 +520,7 @@ export const api = {
   },
 
   adminSendOTP: (email) => {
-    return safeFetch(`${API_BASE_URL}/admin/send-otp`, {
+    return safeFetch(`${API_BASE_URL}/admin/password/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -528,7 +528,7 @@ export const api = {
   },
 
   adminVerifyOTPReset: (data) => {
-    return safeFetch(`${API_BASE_URL}/admin/verify-otp-reset`, {
+    return safeFetch(`${API_BASE_URL}/admin/password/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

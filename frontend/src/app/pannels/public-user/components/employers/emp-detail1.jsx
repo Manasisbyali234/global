@@ -290,7 +290,10 @@ function EmployersDetail1Page() {
 										</div>
 
 										{/* Tabs Navigation */}
-										<ul className="nav nav-tabs mt-4" role="tablist" style={{justifyContent: 'flex-start', alignItems: 'center', width: '100%'}}>
+										<ul
+											className={`nav nav-tabs mt-4 emp-detail-tabs ${isLoggedIn ? 'emp-detail-tabs--five' : 'emp-detail-tabs--four'}`}
+											role="tablist"
+										>
 											<li className="nav-item">
 												<a
 													className="nav-link active"

@@ -10,15 +10,19 @@ router.post('/login', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required')
 ], handleValidationErrors, adminController.loginAdmin);
-router.post('/send-otp', adminController.sendOTP);
-router.post('/verify-otp-reset', [
+const adminResetPasswordValidation = [
   body('email').isEmail().withMessage('Valid email is required'),
   body('otp').notEmpty().withMessage('OTP is required'),
   body('newPassword')
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
     .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
     .matches(/[@#!%$*?]/).withMessage('Password must contain at least one special character (@#!%$*?)')
-], handleValidationErrors, adminController.verifyOTPAndResetPassword);
+];
+
+router.post('/send-otp', adminController.sendOTP);
+router.post('/password/send-otp', adminController.sendOTP);
+router.post('/verify-otp-reset', adminResetPasswordValidation, handleValidationErrors, adminController.verifyOTPAndResetPassword);
+router.post('/password/verify-otp', adminResetPasswordValidation, handleValidationErrors, adminController.verifyOTPAndResetPassword);
 
 // Sub Admin Profile Route (must be before auth middleware)
 router.get('/sub-admin/profile', auth(['sub-admin']), adminController.getSubAdminProfile);

@@ -5,11 +5,75 @@
   padding: 8px 16px !important;
 }
 
+.emp-detail .emp-detail-tabs {
+  display: grid !important;
+  width: 100% !important;
+  margin: 24px 0 0 !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  gap: 0 !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  flex-wrap: nowrap !important;
+  overflow: hidden !important;
+}
+
+.emp-detail .emp-detail-tabs.emp-detail-tabs--four {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.emp-detail .emp-detail-tabs.emp-detail-tabs--five {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+}
+
+.emp-detail .emp-detail-tabs .nav-item {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.emp-detail .emp-detail-tabs .nav-link {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-height: 52px !important;
+  padding: 10px 8px !important;
+  white-space: normal !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+  border: 1px solid transparent !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+}
+
+.emp-detail .emp-detail-tabs .nav-link.active {
+  color: #fd7e14 !important;
+  background: transparent !important;
+  border-bottom-color: #fd7e14 !important;
+}
+
 /* Mobile responsive - basic sizing */
 @media (max-width: 768px) {
   .nav-tabs .nav-link {
     font-size: 13px !important;
     padding: 6px 12px !important;
+  }
+
+  .emp-detail .emp-detail-tabs {
+    margin-top: 20px !important;
+  }
+
+  .emp-detail .emp-detail-tabs .nav-link {
+    min-height: 48px !important;
+    padding: 8px 6px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .emp-detail .emp-detail-tabs .nav-link {
+    min-height: 44px !important;
+    padding: 6px 4px !important;
+    font-size: 11px !important;
   }
 }
 
