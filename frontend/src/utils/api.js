@@ -519,6 +519,22 @@ export const api = {
     }).then((res) => res.json());
   },
 
+  adminSendOTP: (email) => {
+    return safeFetch(`${API_BASE_URL}/admin/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    }).then(handleApiResponse);
+  },
+
+  adminVerifyOTPReset: (data) => {
+    return safeFetch(`${API_BASE_URL}/admin/verify-otp-reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }).then(handleApiResponse);
+  },
+
   subAdminLogin: (data) => {
     return fetch(`${API_BASE_URL}/admin/login`, {
       method: 'POST',
