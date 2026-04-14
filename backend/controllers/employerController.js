@@ -2590,7 +2590,7 @@ exports.updateApplicationStatus = async (req, res) => {
         }
       }
 
-      let employerMessage = `${candidateName}'s application for ${jobTitle} is now ${statusLabel}.`;
+      let employerMessage = `${candidateName}'s application for the ${jobTitle} position has been marked as "${statusLabel}".`;
       if (trimmedNotes) {
         employerMessage += ` Notes: ${trimmedNotes}`;
       }
