@@ -364,11 +364,11 @@ html, body {
   display: flex !important;
   gap: 1.5rem !important;
   padding: 1rem 0 !important;
-  width: 100% !important;
-  justify-content: center !important;
-  flex-wrap: wrap !important;
-  animation: none !important;
-  transform: none !important;
+  width: max-content !important;
+  justify-content: flex-start !important;
+  flex-wrap: nowrap !important;
+  animation: hero-categories-scroll 22s linear infinite !important;
+  will-change: transform;
 }
 
 .hero-body .category-card {
@@ -460,6 +460,21 @@ html, body {
   line-height: 1.2 !important;
 }
 
+@keyframes hero-categories-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(-50% - 0.75rem), 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .categories-track {
+    animation: none !important;
+  }
+}
+
 @media (max-width: 992px) {
   :root { --navbar-height: 64px; }
 
@@ -522,8 +537,8 @@ html, body {
   }
 
   .categories-track {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .hero-image {
@@ -602,10 +617,11 @@ html, body {
   }
 
   .categories-track {
-    width: 100%;
+    width: max-content;
     padding: 1rem 0;
     gap: 1.5rem;
-    justify-content: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
   }
 
   .category-card {
@@ -637,10 +653,11 @@ html, body {
   }
 
   .categories-track {
-    width: 100%;
+    width: max-content;
     padding: 1rem 0;
     gap: 1.5rem;
-    justify-content: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
   }
 
   .category-card {
@@ -824,10 +841,11 @@ html, body {
   }
 
   .categories-track {
-    width: 100%;
+    width: max-content;
     padding: 1rem 0;
     gap: 1.5rem;
-    justify-content: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
   }
 
   .category-card {
@@ -1000,10 +1018,11 @@ html, body {
   }
 
   .categories-track {
-    width: 100%;
+    width: max-content;
     padding: 1rem 0;
     gap: 1.5rem;
-    justify-content: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
   }
 
   .category-card {
