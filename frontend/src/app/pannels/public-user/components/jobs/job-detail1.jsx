@@ -652,7 +652,9 @@ function JobDetail1Page() {
                                                         <span className={`badge ${job.employerId?.employerType === 'consultant' ? 'badge-warning' : 'badge-success'}`} 
                                                             style={{fontSize: '14px', padding: '8px 16px', fontWeight: '600'}}>
                                                             <i className={`feather-${job.employerId?.employerType === 'consultant' ? 'users' : 'building'}`} style={{marginRight: '6px'}}></i>
-                                                            {job.employerId?.employerType === 'consultant' ? 'Hiring through Consultancy' : 'Direct Company Hiring'}
+                                                            {job.employerId?.employerType === 'consultant' 
+                                                                ? `Hiring through Consultancy - ${job.employerId?.brandName || job.employerId?.companyName || job.companyName || ''}` 
+                                                                : 'Direct Company Hiring'}
                                                         </span>
                                                     </div>
                                                     
