@@ -43,6 +43,7 @@ const HeroBody = ({ onSearch }) => {
   const industryInputRef = useRef(null);
   const designationInputRef = useRef(null);
   const locationInputRef = useRef(null);
+  const categoriesTrackRef = useRef(null);
   const [errors, setErrors] = useState({
     what: '',
     category: '',
@@ -115,6 +116,25 @@ const HeroBody = ({ onSearch }) => {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    const track = categoriesTrackRef.current;
+    if (!track) return;
+
+    // Force the marquee animation on the live node because global CSS resets
+    // elsewhere in the app disable animations with !important.
+    track.style.setProperty('display', 'flex', 'important');
+    track.style.setProperty('width', 'max-content', 'important');
+    track.style.setProperty('flex-wrap', 'nowrap', 'important');
+    track.style.setProperty('justify-content', 'flex-start', 'important');
+    track.style.setProperty('animation-name', 'hero-categories-scroll', 'important');
+    track.style.setProperty('animation-duration', '22s', 'important');
+    track.style.setProperty('animation-timing-function', 'linear', 'important');
+    track.style.setProperty('animation-iteration-count', 'infinite', 'important');
+    track.style.setProperty('animation-play-state', 'running', 'important');
+    track.style.setProperty('animation-fill-mode', 'forwards', 'important');
+    track.style.removeProperty('transform');
   }, []);
 
   // Validation functions
@@ -338,6 +358,7 @@ const HeroBody = ({ onSearch }) => {
     { icon: Terminal, name: 'IT', filterValue: 'IT', count: '2.4k', iconColor: '#4F46E5', bgColor: '#EEF2FF' },
     { icon: TrendingUp, name: 'Sales', filterValue: 'Sales', count: '1.5k', iconColor: '#D97706', bgColor: '#FFFBEB' }
   ];
+  const carouselCategories = [...jobCategories, ...jobCategories];
 
   const handleCategoryClick = (category) => {
     const queryString = new URLSearchParams({
@@ -602,10 +623,10 @@ const HeroBody = ({ onSearch }) => {
             width: '100%',
             overflow: 'hidden'
           }}>
-            <div className="categories-track">
-              {jobCategories.map((category, index) => (
+            <div ref={categoriesTrackRef} className="categories-track">
+              {carouselCategories.map((category, index) => (
                 <button
-                  key={index}
+                  key={`${category.name}-${index}`}
                   type="button"
                   className="category-card"
                   onClick={() => handleCategoryClick(category)}
