@@ -4796,7 +4796,7 @@ export default function EmpPostJob({ onNext }) {
 													flexDirection: 'column',
 													gap: '8px'
 												}}>
-													<label style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+													<label style={{ fontSize: '12px', color: '#9ca3af', letterSpacing: '0.5px' }}>
 														Description <span style={redAsterisk}>*</span>
 													</label>
 													<textarea
