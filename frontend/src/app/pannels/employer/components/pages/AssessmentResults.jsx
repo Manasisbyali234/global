@@ -16,6 +16,18 @@ export default function AssessmentResults() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
 
+  const getResultCompanyName = (result) =>
+    result?.jobId?.companyName ||
+    result?.jobId?.employerId?.companyName ||
+    result?.jobId?.employerId?.name ||
+    assessment?.companyName ||
+    'N/A';
+
+  const getResultDesignation = (result) =>
+    result?.jobId?.title ||
+    assessment?.designation ||
+    'N/A';
+
   useEffect(() => {
     fetchResults();
     
@@ -276,6 +288,14 @@ export default function AssessmentResults() {
                       Email
                     </th>
                     <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                      <i className="fa fa-building me-2" style={{color: '#ff6b35'}}></i>
+                      Company
+                    </th>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                      <i className="fa fa-briefcase me-2" style={{color: '#ff6b35'}}></i>
+                      Designation
+                    </th>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                       <i className="fa fa-trophy me-2" style={{color: '#ff6b35'}}></i>
                       Score
                     </th>
@@ -330,6 +350,12 @@ export default function AssessmentResults() {
                       </td>
                       <td style={{ padding: '1rem', color: '#6b7280' }}>
                         {result.candidateId?.email || 'N/A'}
+                      </td>
+                      <td style={{ padding: '1rem', color: '#6b7280' }}>
+                        {getResultCompanyName(result)}
+                      </td>
+                      <td style={{ padding: '1rem', color: '#6b7280' }}>
+                        {getResultDesignation(result)}
                       </td>
                       <td style={{ padding: '1rem', color: '#111827', fontWeight: '600' }}>
                         <div>{result.score}/{result.totalMarks}</div>
@@ -494,7 +520,7 @@ export default function AssessmentResults() {
                     return true;
                   }).length === 0 && (
                     <tr>
-                      <td colSpan="9" style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+                      <td colSpan="11" style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
                         No results found for the selected filter.
                       </td>
                     </tr>

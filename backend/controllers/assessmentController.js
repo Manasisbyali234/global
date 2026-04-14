@@ -1541,6 +1541,14 @@ exports.getAssessmentResults = async (req, res) => {
       status: { $in: ['completed', 'expired', 'suspended'] }
     }).populate('candidateId', 'name email phone')
       .populate('applicationId')
+      .populate({
+        path: 'jobId',
+        select: 'title companyName employerId',
+        populate: {
+          path: 'employerId',
+          select: 'companyName name'
+        }
+      })
       .sort({ endTime: -1 });
     
     console.log('Raw assessment results:', results.length);
@@ -1591,8 +1599,23 @@ exports.getAssessmentResults = async (req, res) => {
     
     console.log('Sending response with', resultsWithViolations.length, 'results');
     console.log('Sample result structure:', JSON.stringify(resultsWithViolations[0], null, 2));
-    
-    res.json({ success: true, assessment, results: resultsWithViolations });
+
+    const fallbackJob = results.find((result) => result?.jobId)?.jobId || null;
+    const normalizedAssessment = {
+      ...assessment.toObject(),
+      companyName:
+        assessment.companyName ||
+        fallbackJob?.companyName ||
+        fallbackJob?.employerId?.companyName ||
+        fallbackJob?.employerId?.name ||
+        '',
+      designation:
+        assessment.designation ||
+        fallbackJob?.title ||
+        ''
+    };
+
+    res.json({ success: true, assessment: normalizedAssessment, results: resultsWithViolations });
   } catch (error) {
     console.error('Error fetching assessment results:', error);
     res.status(500).json({ success: false, message: error.message });

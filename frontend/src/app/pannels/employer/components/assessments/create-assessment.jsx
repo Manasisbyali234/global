@@ -8,6 +8,20 @@ import '../../../../../assessment-title-hide.css';
 
 function CreateAssessmentPage() {
     const stripHtml = (value = '') => String(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const sortAssessmentsByRecency = (items = []) => [...items].sort((left, right) => {
+        const leftTimestampValue = new Date(left?.createdAt || left?.updatedAt || 0).getTime();
+        const rightTimestampValue = new Date(right?.createdAt || right?.updatedAt || 0).getTime();
+        const leftTimestamp = Number.isFinite(leftTimestampValue) ? leftTimestampValue : 0;
+        const rightTimestamp = Number.isFinite(rightTimestampValue) ? rightTimestampValue : 0;
+
+        if (leftTimestamp !== rightTimestamp) {
+            return rightTimestamp - leftTimestamp;
+        }
+
+        const leftSerial = Number(left?.serialNumber) || 0;
+        const rightSerial = Number(right?.serialNumber) || 0;
+        return rightSerial - leftSerial;
+    });
     const [assessments, setAssessments] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingAssessment, setEditingAssessment] = useState(null);
@@ -26,7 +40,7 @@ function CreateAssessmentPage() {
             });
             const data = await response.json();
             if (data.success) {
-                setAssessments(data.assessments || []);
+                setAssessments(sortAssessmentsByRecency(data.assessments || []));
             }
         } catch (error) {
             console.error('Error fetching assessments:', error);
@@ -48,7 +62,7 @@ function CreateAssessmentPage() {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (response.ok) {
-                        setAssessments(assessments.filter(a => a._id !== id));
+                        setAssessments((currentAssessments) => currentAssessments.filter((assessment) => assessment._id !== id));
                         showSuccess('Assessment deleted successfully');
                     } else {
                         showError('Failed to delete assessment');

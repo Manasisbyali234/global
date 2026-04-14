@@ -39,6 +39,21 @@ export default function AssessmentDashboard() {
 		return `${text.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
 	};
 
+	const sortAssessmentsByRecency = (items = []) => [...items].sort((left, right) => {
+		const leftTimestampValue = new Date(left?.createdAt || left?.updatedAt || 0).getTime();
+		const rightTimestampValue = new Date(right?.createdAt || right?.updatedAt || 0).getTime();
+		const leftTimestamp = Number.isFinite(leftTimestampValue) ? leftTimestampValue : 0;
+		const rightTimestamp = Number.isFinite(rightTimestampValue) ? rightTimestampValue : 0;
+
+		if (leftTimestamp !== rightTimestamp) {
+			return rightTimestamp - leftTimestamp;
+		}
+
+		const leftSerial = Number(left?.serialNumber) || 0;
+		const rightSerial = Number(right?.serialNumber) || 0;
+		return rightSerial - leftSerial;
+	});
+
 	const getAssessmentOptionLabel = (assessment) => {
 		const title = truncateText(assessment.title || 'Untitled Assessment', 32);
 		const designation = truncateText(assessment.designation || 'N/A', 18);
@@ -172,7 +187,7 @@ export default function AssessmentDashboard() {
 		try {
 			const response = await api.getEmployerAssessments();
 			if (response.success) {
-				setAssessments(response.assessments);
+				setAssessments(sortAssessmentsByRecency(response.assessments || []));
 			}
 		} catch (error) {
 			console.error('Error fetching assessments:', error);
@@ -202,7 +217,7 @@ export default function AssessmentDashboard() {
 				response = await api.updateEmployerAssessment(assessmentData.id, assessmentData);
 				if (response.success) {
 					const updatedAssessments = assessments.map(a => a._id === assessmentData.id ? response.assessment : a);
-					setAssessments(updatedAssessments);
+					setAssessments(sortAssessmentsByRecency(updatedAssessments));
 					setShowModal(false);
 					setEditingAssessment(null);
 					const successMessage = assessmentData.status === 'draft' ? 'Assessment Draft updated successfully!' : 'Assessment updated successfully!';
@@ -213,7 +228,7 @@ export default function AssessmentDashboard() {
 				response = await api.createEmployerAssessment(assessmentData);
 				if (response.success) {
 					const newAssessments = [response.assessment, ...assessments];
-					setAssessments(newAssessments);
+					setAssessments(sortAssessmentsByRecency(newAssessments));
 					setShowModal(false);
 					showSuccess('Assessment created successfully!');
 				}
@@ -250,7 +265,7 @@ export default function AssessmentDashboard() {
 				try {
 					await api.deleteEmployerAssessment(assessment._id);
 					const updatedAssessments = assessments.filter(a => a._id !== assessment._id);
-					setAssessments(updatedAssessments);
+					setAssessments(sortAssessmentsByRecency(updatedAssessments));
 					showSuccess('Assessment deleted successfully');
 				} catch (error) {
 					console.error('Error deleting assessment:', error);
