@@ -21,7 +21,8 @@ function AdminSupportTickets() {
     const [filters, setFilters] = useState({
         status: '',
         userType: '',
-        priority: ''
+        priority: '',
+        category: ''
     });
     const [stats, setStats] = useState({
         total: 0,
@@ -498,7 +499,7 @@ function AdminSupportTickets() {
                                 variant="link"
                                 className="clear-filters-btn"
                                 onClick={() => {
-                                    setFilters({ status: '', userType: '', priority: '' });
+                                    setFilters({ status: '', userType: '', priority: '', category: '' });
                                     setSearchTerm('');
                                     setJobSearch('');
                                     setUniversitySearch('');
@@ -628,6 +629,26 @@ function AdminSupportTickets() {
                                         <option value="medium">Medium</option>
                                         <option value="high">High</option>
                                         <option value="urgent">Urgent</option>
+                                    </Form.Select>
+                                    <span className="filter-select-icon" aria-hidden="true">
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </Col>
+                            <Col md={3}>
+                                <div className="filter-select-wrapper">
+                                    <Form.Select
+                                        className="filter-select"
+                                        value={filters.category}
+                                        onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                                    >
+                                        <option value="">All Categories</option>
+                                        <option value="General Inquiry">General Inquiry</option>
+                                        <option value="Technical Issue">Technical Issue</option>
+                                        <option value="Account Management">Account Management</option>
+                                        <option value="Job Posting">Job Posting</option>
                                     </Form.Select>
                                     <span className="filter-select-icon" aria-hidden="true">
                                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">

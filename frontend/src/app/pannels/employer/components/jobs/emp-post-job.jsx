@@ -327,7 +327,7 @@ export default function EmpPostJob({ onNext }) {
 		ctc: "",
 		vacancies: "",
 		applicationLimit: "",
-		jobDescription: "We are looking for a talented professional to join our dynamic team. The ideal candidate will be responsible for key tasks and contribute to our company's growth and success.",
+		jobDescription: "",
 		rolesAndResponsibilities: "",
 		education: [], // dropdown
 		backlogsAllowed: false,

@@ -122,18 +122,11 @@ function AdminTransactionsPage() {
         printWindow.document.close();
     };
 
-    const parseDate = (ddmmyyyy) => {
-        const [d, m, y] = ddmmyyyy.split('/');
-        if (!d || !m || !y || y.length !== 4) return null;
-        const date = new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
-        return isNaN(date) ? null : date;
-    };
-
     const filteredTransactions = useMemo(() => {
         const q = searchText.trim().toLowerCase();
         const cq = companySearch.trim().toLowerCase();
-        const from = fromDate.trim() ? parseDate(fromDate.trim()) : null;
-        const to = toDate.trim() ? parseDate(toDate.trim()) : null;
+        const from = fromDate ? new Date(new Date(fromDate).toDateString()) : null;
+        const to = toDate ? new Date(new Date(toDate).toDateString()) : null;
         return transactions.filter((t) => {
             if (t.paymentCurrency === 'CREDITS' || t.paymentId?.startsWith('credit_')) return false;
             const candidateName = t.candidateId?.name?.toLowerCase() || "";
@@ -256,13 +249,11 @@ function AdminTransactionsPage() {
                             <label className="page-toolbar__label">From Date</label>
                             <div className="page-toolbar__control-wrap">
                                 <input
-                                    type="text"
+                                    type="date"
                                     className="form-control page-toolbar__input"
-                                    placeholder="dd/mm/yyyy"
-                                    maxLength={10}
                                     value={fromDate}
                                     onChange={(e) => setFromDate(e.target.value)}
-                                    style={{ width: '130px' }}
+                                    style={{ width: '150px' }}
                                 />
                             </div>
                         </div>
@@ -270,13 +261,11 @@ function AdminTransactionsPage() {
                             <label className="page-toolbar__label">To Date</label>
                             <div className="page-toolbar__control-wrap">
                                 <input
-                                    type="text"
+                                    type="date"
                                     className="form-control page-toolbar__input"
-                                    placeholder="dd/mm/yyyy"
-                                    maxLength={10}
                                     value={toDate}
                                     onChange={(e) => setToDate(e.target.value)}
-                                    style={{ width: '130px' }}
+                                    style={{ width: '150px' }}
                                 />
                             </div>
                         </div>

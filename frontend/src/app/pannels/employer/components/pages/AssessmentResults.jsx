@@ -13,6 +13,8 @@ export default function AssessmentResults() {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [designationFilter, setDesignationFilter] = useState('all');
+  const [companyFilter, setCompanyFilter] = useState('all');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
 
@@ -81,6 +83,20 @@ export default function AssessmentResults() {
     }
   };
 
+  const filterResults = (list) => list.filter(result => {
+    const rawDate = result.endTime || result.suspendedAt || result.updatedAt;
+    const resultDateStr = rawDate ? new Date(rawDate).toISOString().slice(0, 10) : '';
+    if (fromDate && resultDateStr && resultDateStr < fromDate) return false;
+    if (toDate && resultDateStr && resultDateStr > toDate) return false;
+    if (companyFilter !== 'all' && getResultCompanyName(result) !== companyFilter) return false;
+    if (designationFilter !== 'all' && getResultDesignation(result) !== designationFilter) return false;
+    if (statusFilter === 'suspended') return result.status === 'suspended';
+    if (statusFilter === 'expired') return result.status === 'expired';
+    if (statusFilter === 'pass') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'pass';
+    if (statusFilter === 'fail') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'fail';
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="twm-right-section-panel site-bg-gray emp-dashboard" style={{
@@ -113,8 +129,9 @@ export default function AssessmentResults() {
           padding: isMobile ? '1rem' : '2rem', 
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' 
         }}>
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div style={{ flex: '1 1 300px' }}>
+          {/* Top row: title left, button right */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div>
               <h2 style={{ 
                 fontSize: isMobile ? '1.5rem' : '1.875rem', 
                 fontWeight: 'bold', 
@@ -147,81 +164,6 @@ export default function AssessmentResults() {
                 {results.length} candidate{results.length !== 1 ? 's' : ''} attempted this assessment
               </p>
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Filter by:</label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  style={{
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    padding: '0.5rem 0.75rem',
-                    fontSize: '0.875rem',
-                    color: '#374151',
-                    background: 'white',
-                    cursor: 'pointer',
-                    outline: 'none'
-                  }}
-                >
-                  <option value="all">All</option>
-                  <option value="pass">Pass</option>
-                  <option value="fail">Fail</option>
-                  <option value="expired">Expired</option>
-                  <option value="suspended">Suspended</option>
-                </select>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>From:</label>
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                  style={{
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    padding: '0.5rem 0.75rem',
-                    fontSize: '0.875rem',
-                    color: '#374151',
-                    background: 'white',
-                    outline: 'none'
-                  }}
-                />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>To:</label>
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                  style={{
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    padding: '0.5rem 0.75rem',
-                    fontSize: '0.875rem',
-                    color: '#374151',
-                    background: 'white',
-                    outline: 'none'
-                  }}
-                />
-              </div>
-              {(fromDate || toDate) && (
-                <button
-                  onClick={() => { setFromDate(''); setToDate(''); }}
-                  style={{
-                    background: 'none',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    padding: '0.5rem 0.75rem',
-                    fontSize: '0.875rem',
-                    color: '#6b7280',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Clear Dates
-                </button>
-              )}
-            </div>
             <button
               onClick={() => navigate('/employer/create-assessment')}
               style={{
@@ -237,7 +179,8 @@ export default function AssessmentResults() {
                 fontSize: '0.875rem',
                 fontWeight: '500',
                 transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                alignSelf: 'flex-start'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = '#ea580c';
@@ -251,6 +194,127 @@ export default function AssessmentResults() {
               <i className="fa fa-arrow-left" style={{ fontSize: '0.875rem' }}></i>
               Back to Assessment
             </button>
+          </div>
+
+          {/* Filters row */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Filter by:</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem 0.75rem',
+                  fontSize: '0.875rem',
+                  color: '#374151',
+                  background: 'white',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <option value="all">All</option>
+                <option value="pass">Pass</option>
+                <option value="fail">Fail</option>
+                <option value="expired">Expired</option>
+                <option value="suspended">Suspended</option>
+              </select>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Company:</label>
+              <select
+                value={companyFilter}
+                onChange={(e) => setCompanyFilter(e.target.value)}
+                style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem 0.75rem',
+                  fontSize: '0.875rem',
+                  color: '#374151',
+                  background: 'white',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <option value="all">All Companies</option>
+                {[...new Set(results.map(r => getResultCompanyName(r)).filter(c => c && c !== 'N/A'))].map(company => (
+                  <option key={company} value={company}>{company}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Designation:</label>
+              <select
+                value={designationFilter}
+                onChange={(e) => setDesignationFilter(e.target.value)}
+                style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem 0.75rem',
+                  fontSize: '0.875rem',
+                  color: '#374151',
+                  background: 'white',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <option value="all">All Designations</option>
+                {[...new Set(results.map(r => getResultDesignation(r)).filter(d => d && d !== 'N/A'))].map(designation => (
+                  <option key={designation} value={designation}>{designation}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>From:</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem 0.75rem',
+                  fontSize: '0.875rem',
+                  color: '#374151',
+                  background: 'white',
+                  outline: 'none'
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>To:</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem 0.75rem',
+                  fontSize: '0.875rem',
+                  color: '#374151',
+                  background: 'white',
+                  outline: 'none'
+                }}
+              />
+            </div>
+            {(fromDate || toDate) && (
+              <button
+                onClick={() => { setFromDate(''); setToDate(''); }}
+                style={{
+                  background: 'none',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem 0.75rem',
+                  fontSize: '0.875rem',
+                  color: '#6b7280',
+                  cursor: 'pointer'
+                }}
+              >
+                Clear Dates
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -315,7 +379,6 @@ export default function AssessmentResults() {
                       <i className="fa fa-exclamation-triangle me-2" style={{color: '#ff6b35'}}></i>
                       Violations
                     </th>
-
                     <th style={{ padding: '16px 12px', textAlign: 'center', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                       <i className="fa fa-eye me-2" style={{color: '#ff6b35'}}></i>
                       Actions
@@ -323,17 +386,7 @@ export default function AssessmentResults() {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.filter(result => {
-                    const resultDate = new Date(result.endTime || result.suspendedAt || result.updatedAt);
-                    if (fromDate && resultDate < new Date(fromDate)) return false;
-                    if (toDate && resultDate > new Date(toDate + 'T23:59:59')) return false;
-                    if (statusFilter === 'all') return true;
-                    if (statusFilter === 'suspended') return result.status === 'suspended';
-                    if (statusFilter === 'expired') return result.status === 'expired';
-                    if (statusFilter === 'pass') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'pass';
-                    if (statusFilter === 'fail') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'fail';
-                    return true;
-                  }).map((result, index) => (
+                  {filterResults(results).map((result, index) => (
                     <tr key={result._id} style={{ 
                       borderBottom: index < results.length - 1 ? '1px solid #f3f4f6' : 'none',
                       transition: 'background-color 0.2s ease',
@@ -437,10 +490,8 @@ export default function AssessmentResults() {
                           }}>
                             {result.violations ? result.violations.length : 0}
                           </span>
-
                         </div>
                       </td>
-
                       <td style={{ padding: '1rem' }}>
                         {result.applicationId || (result.candidateId && result.jobId) ? (
                           <button 
@@ -458,7 +509,6 @@ export default function AssessmentResults() {
                             onClick={async () => {
                               let appId = typeof result.applicationId === 'object' ? result.applicationId._id : result.applicationId;
                               
-                              // If no applicationId, try to find it using candidate and job info
                               if (!appId && result.candidateId && result.jobId) {
                                 try {
                                   const token = localStorage.getItem('employerToken');
@@ -508,17 +558,7 @@ export default function AssessmentResults() {
                       </td>
                     </tr>
                   ))}
-                  {results.filter(result => {
-                    const resultDate = new Date(result.endTime || result.suspendedAt || result.updatedAt);
-                    if (fromDate && resultDate < new Date(fromDate)) return false;
-                    if (toDate && resultDate > new Date(toDate + 'T23:59:59')) return false;
-                    if (statusFilter === 'all') return true;
-                    if (statusFilter === 'suspended') return result.status === 'suspended';
-                    if (statusFilter === 'expired') return result.status === 'expired';
-                    if (statusFilter === 'pass') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'pass';
-                    if (statusFilter === 'fail') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'fail';
-                    return true;
-                  }).length === 0 && (
+                  {filterResults(results).length === 0 && (
                     <tr>
                       <td colSpan="11" style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
                         No results found for the selected filter.
