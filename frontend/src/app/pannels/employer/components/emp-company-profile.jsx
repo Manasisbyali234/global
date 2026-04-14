@@ -1465,7 +1465,7 @@ function EmpCompanyProfilePage() {
             });
 
             if (data.success) {
-                showSuccess('Profile updated successfully!');
+                showSuccess('Profile picture  updated successfully!');
                 // Refresh profile data to get latest state
                 fetchProfile();
                 // Trigger event to update header

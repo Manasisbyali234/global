@@ -125,7 +125,7 @@ Line 45: showToast('Error sending response. Please try again.', 'error');
 
 File: app\pannels\candidate\sections\profile\section-can-basic-info.jsx
 ────────────────────────────────────────────────────────────
-Line 339: showToast('Profile updated successfully!', 'success', 4000);
+Line 339: showToast('Profile picture  updated successfully!', 'success', 4000);
 
 File: app\pannels\candidate\sections\resume\section-can-attachment.jsx
 ────────────────────────────────────────────────────────────
@@ -392,7 +392,7 @@ Line 447: showToast('ID card uploaded successfully!', 'success');
 Line 450: showToast('Failed to upload ID card', 'error');
 Line 453: showToast('Error uploading ID card', 'error');
 Line 488: showToast('All fields are required', 'warning');
-Line 501: showToast('Profile updated successfully!', 'success');
+Line 501: showToast('Profile picture  updated successfully!', 'success');
 Line 508: showToast(errorMessage, 'error');
 Line 513: showToast(errorMessage, 'error');
 

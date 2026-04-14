@@ -368,7 +368,7 @@ function PlacementDashboardRedesigned() {
             const response = await api.updatePlacementProfile(editFormData);
             
             if (response && response.success) {
-                showSuccess('Profile updated successfully!');
+                showSuccess('Profile picture  updated successfully!');
                 setShowEditModal(false);
                 setLogoPreview(null);
                 setIdCardPreview(null);

@@ -178,7 +178,7 @@ function EmpJobReviewPage() {
                                         <h5 className="mb-1">Interview Schedule Details</h5>
                                         <p className="mb-0">Stage-wise schedule summary for interview operations.</p>
                                     </div>
-                                    <span className="interview-total-pill">{orderedInterviewRounds.length} Stages</span>
+                                    <span className="interview-total-pill">{orderedInterviewRounds.length} {orderedInterviewRounds.length === 1 ? 'Stage' : 'Stages'}</span>
                                 </div>
                                 <div className="interview-rounds-strip">
                                     {orderedInterviewRounds.map((round) => {
@@ -454,7 +454,7 @@ function EmpJobReviewPage() {
 
                                 <div className="mt-2">
                                     <h5 className="mb-1">Interview Round Types</h5>
-                                    <p className="mb-0 text-muted">
+                                    <div className="mb-0 text-muted">
                                         {jobDetails.interviewRoundOrder && jobDetails.interviewRoundOrder.length > 0 ? (
                                             jobDetails.interviewRoundOrder.map((key, index) => {
                                                 const roundType = jobDetails.interviewRoundTypes?.[key];
@@ -468,10 +468,10 @@ function EmpJobReviewPage() {
                                                     assessment: 'Assessment',
                                                     oneOnOnePanel: 'One-on-One / Panel'
                                                 };
-                                                return `${index + 1}. ${roundNames[roundType] || roundType}`;
-                                            }).join(' ')
+                                                return <div key={key}>{index + 1}. {roundNames[roundType] || roundType}</div>;
+                                            })
                                         ) : (normalizeCommaList(jobDetails.roundTypes) || 'N/A')}
-                                    </p>
+                                    </div>
                                 </div>
 
 

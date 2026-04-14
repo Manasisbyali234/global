@@ -730,13 +730,13 @@ exports.updateProfile = async (req, res) => {
       return value && (typeof value !== 'string' || value.trim() !== '');
     });
     
-    let message = 'Profile updated successfully!';
+    let message = 'Profile picture  updated successfully!';
     if (isProfileComplete && !employer.isApproved && !employer.profileSubmittedForReview) {
       message = 'Profile completed successfully! Your profile has been submitted for admin review. You will be able to post jobs once approved.';
     } else if (isProfileComplete && employer.profileSubmittedForReview && !employer.isApproved) {
-      message = 'Profile updated successfully! Your profile is currently under admin review.';
+      message = 'Profile picture  updated successfully! Your profile is currently under admin review.';
     } else if (isProfileComplete && employer.isApproved) {
-      message = 'Profile updated successfully! You can now post jobs.';
+      message = 'Profile picture  updated successfully! You can now post jobs.';
     }
     
     res.json({ 
@@ -2498,7 +2498,7 @@ exports.updateApplicationStatus = async (req, res) => {
         .replace(/'/g, '&#39;');
 
       if (application.candidateId?._id) {
-        let candidateMessage = `Your application for ${jobTitle} is now ${statusLabel}.`;
+        let candidateMessage = `Your application for ${jobTitle} has been ${statusLabel}.`;
         if (trimmedNotes) {
           candidateMessage += ` Employer note: ${trimmedNotes}`;
         }

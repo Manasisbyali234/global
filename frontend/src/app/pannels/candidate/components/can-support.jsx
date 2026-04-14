@@ -142,7 +142,6 @@ function CanSupport() {
     const categories = [
         { value: 'general', label: 'General Inquiry' },
         { value: 'technical', label: 'Technical Issue' },
-        { value: 'account', label: 'Account Management' },
         { value: 'application', label: 'Job Application' }
     ];
 

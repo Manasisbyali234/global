@@ -492,7 +492,7 @@ function SectionCandicateBasicInfo() {
                     if (overlay) overlay.classList.remove('active');
                 }
                 
-                showSuccess('Profile updated successfully!');
+                showSuccess('Profile picture  updated successfully!');
                 
                 // Scroll to top after a brief delay to ensure content is rendered
                 setTimeout(() => {

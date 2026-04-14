@@ -19,7 +19,6 @@ import "../../../../table-overflow-fix.css";
 const APPLICATION_STATUS_FILTER_OPTIONS = [
 	{ value: 'all', label: 'All Status' },
 	{ value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
-	{ value: 'completed', label: 'Completed' },
 	{ value: 'rejected', label: 'Rejected' },
 	{ value: 'selected', label: 'Selected' },
 	{ value: 'pending', label: 'Pending' },

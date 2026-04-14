@@ -367,7 +367,7 @@ function JobDetail1Page() {
                             pendingPaymentManager.clearPendingPayment();
                             setShowPendingPaymentBanner(false);
                             setPendingPayment(null);
-                            showSuccess('Payment successful and application submitted!');
+                            showSuccess('Payment successful and application submitted. Please login to your dashboard to book your interview');
                             setHasApplied(true);
                             await fetchJobDetails();
                             await checkApplicationStatus();
@@ -434,7 +434,7 @@ function JobDetail1Page() {
                             pendingPaymentManager.clearPendingPayment();
                             setShowPendingPaymentBanner(false);
                             setPendingPayment(null);
-                            showSuccess('Payment successful and application submitted!');
+                            showSuccess('Payment successful and application submitted. Please login to your dashboard to book your interview');
                             setHasApplied(true);
                             await fetchJobDetails();
                             await checkApplicationStatus();

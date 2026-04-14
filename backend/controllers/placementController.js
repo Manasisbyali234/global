@@ -1662,7 +1662,7 @@ exports.updateProfile = async (req, res) => {
       { new: true, runValidators: true }
     ).select('-password');
     
-    console.log('Profile updated successfully:', {
+    console.log('Profile picture  updated successfully:', {
       id: placement._id,
       name: placement.name,
       firstName: placement.firstName,
@@ -1673,7 +1673,7 @@ exports.updateProfile = async (req, res) => {
     
     res.json({ 
       success: true, 
-      message: 'Profile updated successfully',
+      message: 'Profile picture  updated successfully',
       placement: {
         _id: placement._id,
         name: placement.name,

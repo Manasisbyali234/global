@@ -114,8 +114,11 @@ const PREDEFINED_JOB_TITLES = [
 ];
 
 const PREDEFINED_CATEGORIES = [
-	"IT", "Sales & Marketing", "Finance", "HR", "Operations", 
-	"Design", "Content", "Healthcare", "Education"
+	"Agriculture", "Arts and Design", "Business and Management", "Construction",
+	"Customer Service", "Education", "Engineering", "Finance and Accounting",
+	"Health Care", "Hospitality and Tourism", "Human Resources", "Information Technology",
+	"Legal", "Manufacturing", "Marketing and Sales", "Media and Communications",
+	"Writing and Editing", "Science and Research", "Skilled Trades", "Transportation and Logistics"
 ];
 
 const POST_JOB_TICKET_LIMIT = 10;
@@ -5093,6 +5096,30 @@ export default function EmpPostJob({ onNext }) {
 																		}}
 																	/>
 																</div>
+															</div>
+															<div style={{ flex: 1, minWidth: isMobile ? '100%' : '150px' }}>
+																<label style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+																	<i className="fa fa-coffee"></i> BREAK TIME (min)
+																</label>
+																<input
+																	type="number"
+																	min="0"
+																	placeholder="e.g., 30"
+																	style={{
+																		background: '#f9fafb',
+																		border: '1px solid #e5e7eb',
+																		borderRadius: '10px',
+																		padding: '10px 14px',
+																		width: '100%',
+																		fontSize: '14px'
+																	}}
+																	value={subStage.breakTime || ''}
+																	onChange={(e) => {
+																		const breakTime = parseInt(e.target.value) || 0;
+																		const updatedSubStages = subStages.map(s => s.id === subStage.id ? { ...s, breakTime } : s);
+																		setFormData(prev => ({ ...prev, interviewRoundDetails: { ...prev.interviewRoundDetails, [uniqueKey]: { ...prev.interviewRoundDetails[uniqueKey], subStages: updatedSubStages } } }));
+																	}}
+																/>
 															</div>
 														</div>
 													</div>

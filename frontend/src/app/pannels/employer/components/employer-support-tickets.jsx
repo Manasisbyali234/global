@@ -504,7 +504,6 @@ function EmployerSupportTickets() {
                                     <option value="">All categories</option>
                                     <option value="General Inquiry">General Inquiry</option>
                                     <option value="Technical Issue">Technical Issue</option>
-                                    <option value="Account Management">Account Management</option>
                                     <option value="Job Application">Job Application</option>
                                 </Form.Select>
                                 <i className="fa fa-chevron-down filter-select-icon" aria-hidden="true"></i>

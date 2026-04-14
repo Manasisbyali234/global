@@ -124,7 +124,7 @@ function SectionCandicateBasicInfo() {
             
             const response = await api.updateCandidateProfile(updateData);
             if (response.success) {
-                alert('Profile updated successfully!');
+                alert('Profile picture  updated successfully!');
                 window.dispatchEvent(new CustomEvent('profileUpdated'));
             } else {
                 alert('Failed to update profile');
