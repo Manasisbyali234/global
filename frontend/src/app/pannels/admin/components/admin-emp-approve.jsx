@@ -15,6 +15,7 @@ function AdminEmployersApproved() {
     const [filteredEmployers, setFilteredEmployers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [typeFilter, setTypeFilter] = useState('all');
 
     useEffect(() => {
         AOS.init({
@@ -63,60 +64,97 @@ function AdminEmployersApproved() {
         }
     };
 
-    const handleSearch = (searchTerm) => {
-        if (!searchTerm.trim()) {
-            setFilteredEmployers(employers);
-            return;
+    const applyFilters = (searchTerm, type, list) => {
+        let filtered = list;
+        if (type !== 'all') {
+            filtered = filtered.filter(emp => emp.employerType === type);
         }
-        
-        const filtered = employers.filter(employer => 
-            employer.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            employer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            employer.phone?.includes(searchTerm) ||
-            employer.employerType?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        if (searchTerm && searchTerm.trim()) {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(employer =>
+                employer.companyName?.toLowerCase().includes(term) ||
+                employer.email?.toLowerCase().includes(term) ||
+                employer.phone?.includes(searchTerm) ||
+                employer.employerType?.toLowerCase().includes(term)
+            );
+        }
         setFilteredEmployers(filtered);
     };
 
+    const [searchTerm, setSearchTerm] = useState('');
 
+    const handleSearch = (term) => {
+        setSearchTerm(term);
+        applyFilters(term, typeFilter, employers);
+    };
+
+    const handleTypeFilter = (type) => {
+        setTypeFilter(type);
+        applyFilters(searchTerm, type, employers);
+    };
+
+
+
+    const companyCount = employers.filter(emp => emp.employerType !== 'consultant').length;
+    const consultantCount = employers.filter(emp => emp.employerType === 'consultant').length;
 
     if (loading) {
         return <PageLoader pageName="Approved Employers" />;
     }
 
     return (
-        <>
+        <div className="admin-emp-manage-container">
             <div className="wt-admin-right-page-header clearfix">
                 <h2>Approved Employers</h2>
-                <button 
-                    className="btn btn-primary" 
-                    onClick={() => {
-                        console.log('Manual refresh clicked');
-                        fetchApprovedEmployers();
-                    }}
-                    style={{float: 'right'}}
-                >
-                    <i className="fa fa-refresh"></i> Refresh
-                </button>
+
+            </div>
+
+            <div className="approved-stats-row">
+                <div className="approved-stat-card approved-stat-card--company">
+                    <div className="approved-stat-icon-wrap">
+                        <i className="fa fa-building"></i>
+                    </div>
+                    <div className="approved-stat-info">
+                        <div className="approved-stat-number">{companyCount}</div>
+                        <div className="approved-stat-label">Total Companies</div>
+                    </div>
+                </div>
+                <div className="approved-stat-card approved-stat-card--consultant">
+                    <div className="approved-stat-icon-wrap">
+                        <i className="fa fa-users"></i>
+                    </div>
+                    <div className="approved-stat-info">
+                        <div className="approved-stat-number">{consultantCount}</div>
+                        <div className="approved-stat-label">Total Consultants</div>
+                    </div>
+                </div>
             </div>
 
             <div className="panel panel-default site-bg-white">
                     <div className="panel-heading wt-panel-heading p-a20">
-                        <div className="page-toolbar">
-                            <h4 className="panel-tittle m-a0 page-toolbar__title">Approved Employers ({filteredEmployers.length})</h4>
-                            <div className="page-toolbar__controls page-toolbar__controls--single">
-                            <div className="search-section page-toolbar__section">
-                                <label className="search-label page-toolbar__label">
-                                    <i className="fa fa-filter"></i> Search by Name or Email
-                                </label>
-                                <div className="page-toolbar__control-wrap">
-                                <SearchBar 
-                                    onSearch={handleSearch}
-                                    placeholder="Search approved employers..."
-                                    className="employer-search"
-                                />
+                        <div className="approved-toolbar">
+                            <h4 className="panel-tittle m-a0">Approved Employers ({filteredEmployers.length})</h4>
+                            <div className="approved-toolbar__controls">
+                                <div className="approved-ctrl-group">
+                                    <span className="approved-ctrl-label"><i className="fa fa-filter"></i> Filter by Type</span>
+                                    <select
+                                        className="status-filter-select"
+                                        value={typeFilter}
+                                        onChange={(e) => handleTypeFilter(e.target.value)}
+                                    >
+                                        <option value="all">All Types</option>
+                                        <option value="company">Company</option>
+                                        <option value="consultant">Consultant</option>
+                                    </select>
                                 </div>
-                            </div>
+                                <div className="approved-ctrl-group">
+                                    <span className="approved-ctrl-label"><i className="fa fa-search"></i> Search by Name or Email</span>
+                                    <SearchBar
+                                        onSearch={handleSearch}
+                                        placeholder="Search by name or email..."
+                                        className="employer-search"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -232,7 +270,7 @@ function AdminEmployersApproved() {
                         </div>
                     </div>
                 </div>
-        </>
+        </div>
     );
 }
 

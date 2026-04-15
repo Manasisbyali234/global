@@ -64,14 +64,14 @@ function AdminBatchUploads() {
 
     if (loading) {
         return (
-            <div className="dashboard-content">
+            <div className="admin-emp-manage-container">
                 <PageLoader pageName="Batch Uploads" />
             </div>
         );
     }
 
     return (
-        <div className="dashboard-content">
+        <div className="admin-emp-manage-container">
             <div className="wt-admin-right-page-header">
                 <h2>Batch Uploads Management</h2>
                 <p>Monitor student data files submitted by Placement Dean</p>

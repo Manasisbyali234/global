@@ -223,8 +223,7 @@
   border: 1px solid #d1d5db !important;
   border-radius: 12px !important;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15) !important;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .emp-assessment-page .assessment-selector-option {

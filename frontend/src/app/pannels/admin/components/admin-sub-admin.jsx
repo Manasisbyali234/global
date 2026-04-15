@@ -343,7 +343,7 @@ function AdminSubAdmin() {
     return (
         <>
         <style>{passwordInputStyle}</style>
-        <div className="dashboard-content admin-sub-admin-page">
+        <div className="admin-emp-manage-container admin-sub-admin-page">
             <div className="wt-admin-right-page-header">
                 <h2>Sub Admin Management</h2>
             </div>

@@ -460,14 +460,14 @@ function AdminSupportTickets() {
 
     if (loading) {
         return (
-            <div className="dashboard-content">
+            <div className="admin-emp-manage-container">
                 <PageLoader pageName="Support Tickets" />
             </div>
         );
     }
 
     return (
-        <div className="dashboard-content">
+        <div className="admin-emp-manage-container">
             <div className="wt-admin-right-page-header">
                 <h2>Support Tickets</h2>
                 <p>Monitor and respond to customer support requests</p>

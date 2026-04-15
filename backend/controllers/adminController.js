@@ -195,7 +195,8 @@ exports.getEmployerOverview = async (req, res) => {
         {
           $group: {
             _id: '$employerId',
-            jobsCount: { $sum: 1 }
+            jobsCount: { $sum: 1 },
+            activeJobsCount: { $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] } }
           }
         }
       ]),
@@ -253,18 +254,19 @@ exports.getEmployerOverview = async (req, res) => {
       ])
     ]);
 
-    const jobsCountMap = new Map(jobsByEmployer.map(item => [String(item._id), item.jobsCount]));
     const applicationsCountMap = new Map(applicationsByEmployer.map(item => [String(item._id), item]));
 
     const data = employers
       .map((employer) => {
         const appData = applicationsCountMap.get(String(employer._id)) || {};
+        const jobData = jobsByEmployer.find(j => String(j._id) === String(employer._id)) || {};
         return {
           employerId: employer._id,
           employerName: employer.companyName || employer.name || 'N/A',
           employerType: employer.employerType || 'company',
           createdAt: employer.createdAt,
-          jobsCount: jobsCountMap.get(String(employer._id)) || 0,
+          jobsCount: jobData.jobsCount || 0,
+          activeJobsCount: jobData.activeJobsCount || 0,
           applicationsCount: appData.applicationsCount || 0,
           acceptedOfferCount: appData.acceptedOfferCount || 0,
           rejectedOfferCount: appData.rejectedOfferCount || 0
@@ -2976,7 +2978,7 @@ exports.approveIndividualFile = async (req, res) => {
         const displayName = file.customName || file.fileName;
         await createNotification({
           title: 'Students Approved - Welcome Emails Sent',
-          message: `File "${displayName}" approved! ${createdCount} students can now create their passwords. ${emailsSent} welcome emails sent successfully.${skippedEmailMessage}`,
+          message: `File "${displayName}" approved! Welcome emails sent successfully to students.`,
           type: 'file_processed',
           role: 'admin',
           relatedId: placementId,

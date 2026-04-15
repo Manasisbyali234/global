@@ -136,14 +136,14 @@ function AdminPlacementOfficersAllRequest() {
 
     if (loading) {
         return (
-            <div className="dashboard-content">
+            <div className="admin-emp-manage-container">
                 <PageLoader pageName="Placement Dean" />
             </div>
         );
     }
 
     return (
-        <div className="dashboard-content">
+        <div className="admin-emp-manage-container">
             <div className="wt-admin-right-page-header">
                 <h2>Placement Dean Management</h2>
                 <p>Manage and review Placement Dean applications</p>

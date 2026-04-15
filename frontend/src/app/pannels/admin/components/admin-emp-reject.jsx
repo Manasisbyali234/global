@@ -66,7 +66,7 @@ function AdminEmployersRejected() {
     }
 
     return (
-        <>
+        <div className="admin-emp-manage-container">
             <div className="wt-admin-right-page-header clearfix">
                 <h2>Rejected Employers</h2>
             </div>
@@ -157,7 +157,7 @@ function AdminEmployersRejected() {
                         </div>
                     </div>
                 </div>
-        </>
+        </div>
     );
 }
 

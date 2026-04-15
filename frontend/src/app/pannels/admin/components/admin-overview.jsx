@@ -361,6 +361,7 @@ function AdminOverviewPage() {
                       <th>Employer Name</th>
                       <th>Employer Type</th>
                       <th>Number of Jobs</th>
+                      <th>Active Jobs</th>
                       <th>Number of Applicants</th>
                       <th>Hired </th>
                       <th>Offer Letter Rejected</th>
@@ -373,7 +374,7 @@ function AdminOverviewPage() {
                         (employerTypeFilter === "all" || String(emp.employerType || "").toLowerCase() === employerTypeFilter)
                       ).length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="text-center">
+                        <td colSpan="8" className="text-center">
                           {employerSearch || employerTypeFilter !== "all" ? "No matching employer records found." : "No employer records found."}
                         </td>
                       </tr>
@@ -388,6 +389,7 @@ function AdminOverviewPage() {
                             <td>{employer.employerName}</td>
                             <td>{formatEmployerType(employer.employerType)}</td>
                             <td>{employer.jobsCount}</td>
+                            <td>{employer.activeJobsCount ?? 0}</td>
                             <td>{employer.applicationsCount}</td>
                             <td>{employer.acceptedOfferCount ?? 0}</td>
                             <td>{employer.rejectedOfferCount ?? 0}</td>
