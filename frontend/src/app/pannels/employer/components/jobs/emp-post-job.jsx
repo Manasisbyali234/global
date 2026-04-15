@@ -482,6 +482,12 @@ export default function EmpPostJob({ onNext }) {
 	const [postJobAccess, setPostJobAccess] = useState({
 		loading: true,
 		isApproved: true,
+		canPostJobs: true,
+		hasMinimumApprovedDocuments: true,
+		approvedDocumentCount: 0,
+		minimumApprovedDocuments: 2,
+		message: '',
+		profileSubmittedForReview: false,
 		candidateSupportTicketsCount: 0,
 		error: ''
 	});
@@ -714,25 +720,21 @@ export default function EmpPostJob({ onNext }) {
 				setPostJobAccess({
 					loading: false,
 					isApproved: false,
+					canPostJobs: false,
+					hasMinimumApprovedDocuments: false,
+					approvedDocumentCount: 0,
+					minimumApprovedDocuments: 2,
+					message: '',
+					profileSubmittedForReview: false,
 					candidateSupportTicketsCount: 0,
 					error: 'Please log in to post a job.'
 				});
 				return;
 			}
 
-			let isApproved = false;
-			const profileData = await safeApiCall('http://localhost:5000/api/employer/profile', {
+			const completionData = await safeApiCall('http://localhost:5000/api/employer/profile/completion', {
 				headers: { 'Authorization': `Bearer ${token}` }
 			});
-
-			if (profileData?.success && profileData.profile?.employerId) {
-				isApproved = Boolean(profileData.profile.employerId.isApproved);
-			} else {
-				const completionData = await safeApiCall('http://localhost:5000/api/employer/profile/completion', {
-					headers: { 'Authorization': `Bearer ${token}` }
-				});
-				isApproved = Boolean(completionData?.isApproved);
-			}
 
 			const ticketsData = await safeApiCall('http://localhost:5000/api/employer/support-tickets', {
 				headers: { 'Authorization': `Bearer ${token}` }
@@ -742,7 +744,13 @@ export default function EmpPostJob({ onNext }) {
 
 			setPostJobAccess({
 				loading: false,
-				isApproved,
+				isApproved: Boolean(completionData?.isApproved),
+				canPostJobs: Boolean(completionData?.canPostJobs),
+				hasMinimumApprovedDocuments: Boolean(completionData?.hasMinimumApprovedDocuments),
+				approvedDocumentCount: Number(completionData?.approvedDocumentCount || 0),
+				minimumApprovedDocuments: Number(completionData?.minimumApprovedDocuments || 2),
+				message: completionData?.message || '',
+				profileSubmittedForReview: Boolean(completionData?.profileSubmittedForReview),
 				candidateSupportTicketsCount,
 				error: ''
 			});
@@ -757,6 +765,7 @@ export default function EmpPostJob({ onNext }) {
 			setPostJobAccess((prev) => ({
 				...prev,
 				loading: false,
+				canPostJobs: false,
 				error: 'Unable to verify account status. Please refresh or contact support.'
 			}));
 		}
@@ -2019,13 +2028,13 @@ export default function EmpPostJob({ onNext }) {
 
 	const gatePostJob = !isEditMode;
 	const overTicketLimit = postJobAccess.candidateSupportTicketsCount > POST_JOB_TICKET_LIMIT;
-	const needsApproval = !postJobAccess.isApproved;
+	const needsPostingAccess = !postJobAccess.canPostJobs;
 	const hasAccessError = Boolean(postJobAccess.error);
 	const accessMessage = hasAccessError
 		? postJobAccess.error
 		: overTicketLimit
 			? `Cannot post job: You have ${postJobAccess.candidateSupportTicketsCount} candidate support tickets. Please resolve them to below ${POST_JOB_TICKET_LIMIT}.`
-			: 'Account verification in progress. Job posting will be available after admin approval.';
+			: postJobAccess.message || 'Account verification is in progress. Job posting will be available after approval requirements are complete.';
 
 	if (gatePostJob && postJobAccess.loading) {
 		return (
@@ -2039,7 +2048,7 @@ export default function EmpPostJob({ onNext }) {
 		);
 	}
 
-	if (gatePostJob && (hasAccessError || overTicketLimit || needsApproval)) {
+	if (gatePostJob && (hasAccessError || overTicketLimit || needsPostingAccess)) {
 		return (
 			<div style={page}>
 				<div style={{ maxWidth: 720, margin: "100px auto", background: "#fff", padding: "32px", borderRadius: 12, boxShadow: "0 6px 20px rgba(0,0,0,0.08)" }}>
@@ -2052,7 +2061,16 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					<div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-						{!needsApproval && (
+						{needsPostingAccess && (
+							<button
+								type="button"
+								className="site-button"
+								onClick={() => navigate(empRoute(employer.PROFILE))}
+							>
+								Go to Company Profile
+							</button>
+						)}
+						{!needsPostingAccess && (
 							<button
 								type="button"
 								className="site-button"

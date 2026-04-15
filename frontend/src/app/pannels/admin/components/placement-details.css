@@ -187,14 +187,21 @@
 }
 
 .placement-file-history-actions {
-    flex-wrap: nowrap !important;
+    display: flex;
+    flex-wrap: wrap !important;
     align-items: center !important;
+    gap: 0.5rem;
 }
 
 .placement-file-history-actions > .btn {
-    flex: 0 0 auto !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 calc(50% - 0.25rem) !important;
+    min-width: 110px;
     white-space: nowrap !important;
     margin-bottom: 0 !important;
+    text-align: center;
 }
 
 .modal {
@@ -382,7 +389,25 @@
         flex-direction: row !important;
         gap: 0.5rem !important;
     }
-    
+
+    .placement-file-history-table {
+        min-width: 960px;
+    }
+
+    .placement-file-history-table thead th,
+    .placement-file-history-table tbody td {
+        padding: 0.75rem;
+    }
+
+    .placement-file-history-actions-cell {
+        min-width: 200px;
+    }
+
+    .placement-file-history-actions > .btn {
+        font-size: 0.75rem;
+        padding: 0.45rem 0.7rem;
+    }
+     
     .d-flex.gap-1 {
         flex-direction: column;
     }
@@ -408,7 +433,11 @@
         font-size: 0.7rem !important;
         padding: 4px 8px !important;
     }
-    
+
+    .placement-file-history-table {
+        min-width: 900px;
+    }
+     
     .timeline-item h6 {
         font-size: 0.9rem !important;
     }
@@ -509,4 +538,173 @@
 .placement-file-history-empty i {
     color: #fd7e14;
     font-size: 1.1rem;
+}
+
+.placement-file-history-table-scroll {
+    max-height: 450px;
+    overflow: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.placement-file-history-table {
+    min-width: 1180px;
+}
+
+.placement-file-history-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #f8f9fa;
+    color: #495057;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.9rem 1rem;
+}
+
+.placement-file-history-table tbody td {
+    padding: 1rem;
+    vertical-align: top;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.placement-file-history-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.placement-file-history-table tbody tr:hover {
+    background: #fffaf1;
+}
+
+.placement-file-history-index-cell {
+    width: 56px;
+    color: #6c757d;
+    font-weight: 700;
+    text-align: center;
+}
+
+.placement-file-history-primary-cell {
+    min-width: 240px;
+}
+
+.placement-file-history-file-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1.4;
+    margin-bottom: 0.35rem;
+}
+
+.placement-file-history-secondary-text {
+    display: inline-block;
+    font-size: 0.84rem;
+    color: #6c757d;
+    line-height: 1.45;
+}
+
+.placement-file-history-inline-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: #fff;
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.placement-file-history-date {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+}
+
+.placement-file-history-status-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+    min-width: 190px;
+}
+
+.placement-file-history-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.42rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.placement-file-history-status-badge.is-processed {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #212529;
+}
+
+.placement-file-history-status-badge.is-approved {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.18);
+}
+
+.placement-file-history-status-badge.is-rejected {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.18);
+}
+
+.placement-file-history-status-badge.is-resubmitted {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.18);
+}
+
+.placement-file-history-status-badge.is-pending {
+    background: #fdc360;
+    border: 1px solid #fdc360;
+    color: #000;
+}
+
+.placement-file-history-status-meta {
+    font-size: 0.78rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.placement-file-history-status-note {
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid #ffc107;
+    background: #fff3cd;
+    color: #856404;
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+
+.placement-file-history-credit-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.42rem 0.8rem;
+    border-radius: 999px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #212529;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.placement-file-history-actions-cell {
+    min-width: 220px;
 }

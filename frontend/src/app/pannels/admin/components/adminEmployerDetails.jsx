@@ -18,6 +18,7 @@ function EmployerDetails() {
     const [showImageModal, setShowImageModal] = useState(false);
     const [currentImage, setCurrentImage] = useState('');
     const [currentImageType, setCurrentImageType] = useState('');
+    const [currentPreviewName, setCurrentPreviewName] = useState('');
     const [isMinimized, setIsMinimized] = useState(false);
     const [isMaximized, setIsMaximized] = useState(false);
     const [activeJobCount, setActiveJobCount] = useState(0);
@@ -87,6 +88,52 @@ function EmployerDetails() {
             return `${API_ORIGIN}${normalizedPath}`;
         }
         return `data:image/jpeg;base64,${trimmed}`;
+    };
+
+    const getPreviewType = (documentValue, fileName = '') => {
+        const normalizedValue = String(documentValue || '').trim().toLowerCase();
+        const normalizedFileName = String(fileName || '').trim().toLowerCase();
+
+        if (normalizedValue.startsWith('data:application/pdf')) return 'application/pdf';
+        if (normalizedValue.startsWith('data:image/')) return 'image';
+        if (/\.(pdf)(\?|#|$)/.test(normalizedValue) || normalizedFileName.endsWith('.pdf')) {
+            return 'application/pdf';
+        }
+        if (/\.(png|jpe?g|gif|webp|bmp|svg)(\?|#|$)/.test(normalizedValue) || /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(normalizedFileName)) {
+            return 'image';
+        }
+
+        return '';
+    };
+
+    const openDocumentPreview = (documentValue, fileName = 'Document Preview') => {
+        const resolvedSrc = resolveMediaSrc(documentValue);
+        const previewType = getPreviewType(documentValue, fileName);
+
+        if (!resolvedSrc || !previewType) {
+            showError('This document format cannot be previewed.');
+            return;
+        }
+
+        setCurrentImage(resolvedSrc);
+        setCurrentImageType(previewType);
+        setCurrentPreviewName(fileName);
+        setShowImageModal(true);
+        setIsMinimized(false);
+        setIsMaximized(false);
+    };
+
+    const closeImageModal = () => {
+        if (currentImage && currentImage.startsWith('blob:')) {
+            window.URL.revokeObjectURL(currentImage);
+        }
+
+        setShowImageModal(false);
+        setCurrentImage('');
+        setCurrentImageType('');
+        setCurrentPreviewName('');
+        setIsMinimized(false);
+        setIsMaximized(false);
     };
 
     const normalizeCompanyName = (value) => String(value || '').trim().toLowerCase();
@@ -188,14 +235,8 @@ function EmployerDetails() {
                 setCurrentImageType('image');
                 console.log('Document detected as image');
             }
+            setCurrentPreviewName(documentType);
             setShowImageModal(true);
-            
-            // Clean up the URL after modal is closed
-            setTimeout(() => {
-                window.URL.revokeObjectURL(imageUrl);
-                console.log('Object URL revoked');
-            }, 60000);
-            
         } catch (error) {
             console.error('Error loading document image:', error);
             
@@ -1184,22 +1225,7 @@ function EmployerDetails() {
                                             <div className="action-buttons-container">
                                                 <button 
                                                     className="btn btn-outline-primary btn-sm"
-                                                    onClick={() => {
-                                                        if (doc.fileData.startsWith('data:image')) {
-                                                            setCurrentImage(doc.fileData);
-                                                            setCurrentImageType('image');
-                                                            setShowImageModal(true);
-                                                        } else if (doc.fileData.startsWith('data:application/pdf')) {
-                                                            setCurrentImage(doc.fileData);
-                                                            setCurrentImageType('application/pdf');
-                                                            setShowImageModal(true);
-                                                        } else {
-                                                            const link = document.createElement('a');
-                                                            link.href = doc.fileData;
-                                                            link.download = doc.fileName;
-                                                            link.click();
-                                                        }
-                                                    }}
+                                                    onClick={() => openDocumentPreview(doc.fileData, doc.fileName)}
                                                     style={{ backgroundColor: 'transparent', borderColor: '#ff6b35', color: '#ff6b35', marginRight: '5px' }}
                                                     title="View Document"
                                                 >
@@ -1266,6 +1292,7 @@ function EmployerDetails() {
                                         onClick={() => {
                                             setCurrentImage(image.url);
                                             setCurrentImageType('image');
+                                            setCurrentPreviewName(image.fileName || `Gallery ${index + 1}`);
                                             setShowImageModal(true);
                                         }}
                                     />
@@ -1307,12 +1334,12 @@ function EmployerDetails() {
 
             {/* Image Modal */}
             {showImageModal && (
-                <div className="image-modal" onClick={() => setShowImageModal(false)}>
+                <div className="image-modal" onClick={closeImageModal}>
                     <div className={`image-modal-content ${isMaximized ? 'maximized' : ''} ${isMinimized ? 'minimized' : ''}`} onClick={(e) => e.stopPropagation()}>
                         <div className="image-modal-header">
                             <h5 className="image-modal-title">
                                 <i className={`fa ${currentImageType === 'application/pdf' ? 'fa-file-pdf' : 'fa-image'} me-2`}></i>
-                                {currentImageType === 'application/pdf' ? 'Document Preview' : 'Image Preview'}
+                                {currentPreviewName || (currentImageType === 'application/pdf' ? 'Document Preview' : 'Image Preview')}
                             </h5>
                             <div className="image-modal-controls">
                                 <button className="modal-control-btn minimize-btn" onClick={() => setIsMinimized(!isMinimized)} title={isMinimized ? "Restore" : "Minimize"}>
@@ -1321,7 +1348,7 @@ function EmployerDetails() {
                                 <button className="modal-control-btn maximize-btn" onClick={() => setIsMaximized(!isMaximized)} title={isMaximized ? "Restore" : "Maximize"}>
                                     {isMaximized ? '❐' : '□'}
                                 </button>
-                                <button className="modal-close-btn" onClick={() => setShowImageModal(false)}>
+                                <button className="modal-close-btn" onClick={closeImageModal}>
                                     <i className="fa fa-times"></i>
                                 </button>
                             </div>

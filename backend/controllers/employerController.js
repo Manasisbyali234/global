@@ -65,6 +65,23 @@ const dedupeHiringCompanies = (companies = []) => (
   )
 );
 
+const EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS = 2;
+const EMPLOYER_VERIFICATION_STATUS_FIELDS = [
+  'panCardVerified',
+  'cinVerified',
+  'gstVerified',
+  'incorporationVerified',
+  'authorizationVerified',
+  'companyIdCardVerified'
+];
+
+const getApprovedEmployerDocumentCount = (profile = {}) => (
+  EMPLOYER_VERIFICATION_STATUS_FIELDS.reduce(
+    (count, field) => count + (profile?.[field] === 'approved' ? 1 : 0),
+    0
+  )
+);
+
 const normalizeEmailValue = (value) => (
   typeof value === 'string' ? value.trim().toLowerCase() : ''
 );
@@ -1339,6 +1356,17 @@ exports.createJob = async (req, res) => {
         success: false, 
         message: 'Your company profile is under admin review. You can post jobs once approved by admin.',
         requiresApproval: true
+      });
+    }
+
+    const approvedDocumentCount = getApprovedEmployerDocumentCount(profile);
+    if (approvedDocumentCount < EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS) {
+      return res.status(403).json({
+        success: false,
+        message: `Your company profile is approved, but job posting will be enabled only after admin approves at least ${EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS} documents in the Document Verification section. Currently approved: ${approvedDocumentCount}.`,
+        requiresDocumentApproval: true,
+        approvedDocumentCount,
+        minimumApprovedDocuments: EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS
       });
     }
 
@@ -3142,7 +3170,9 @@ exports.getProfileCompletion = async (req, res) => {
     const isProfileComplete = missingRequiredFields.length === 0;
     const isApproved = employer?.isApproved || false;
     const profileSubmittedForReview = employer?.profileSubmittedForReview || false;
-    const canPostJobs = isProfileComplete && isApproved;
+    const approvedDocumentCount = getApprovedEmployerDocumentCount(profile);
+    const hasMinimumApprovedDocuments = approvedDocumentCount >= EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS;
+    const canPostJobs = isProfileComplete && isApproved && hasMinimumApprovedDocuments;
     
     let message = '';
     if (missingRequiredFields.length > 0) {
@@ -3161,6 +3191,8 @@ exports.getProfileCompletion = async (req, res) => {
       message = 'Your profile is complete. Save your profile to submit it for admin review.';
     } else if (profileSubmittedForReview && !isApproved) {
       message = 'Thank you for completing your profile! Your profile has been submitted for admin review.';
+    } else if (!hasMinimumApprovedDocuments) {
+      message = `Your company profile is approved. Admin must approve at least ${EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS} documents in the Document Verification section before you can post jobs. Currently approved: ${approvedDocumentCount}.`;
     } else {
       message = 'Thank you for completing your profile! Your profile is approved and you can now post jobs.';
     }
@@ -3173,6 +3205,9 @@ exports.getProfileCompletion = async (req, res) => {
       isProfileComplete,
       isApproved,
       profileSubmittedForReview,
+      approvedDocumentCount,
+      minimumApprovedDocuments: EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS,
+      hasMinimumApprovedDocuments,
       canPostJobs,
       message
     });
@@ -3184,6 +3219,9 @@ exports.getProfileCompletion = async (req, res) => {
       missingFields: ['Profile data'],
       isApproved: false,
       profileSubmittedForReview: false,
+      approvedDocumentCount: 0,
+      minimumApprovedDocuments: EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS,
+      hasMinimumApprovedDocuments: false,
       canPostJobs: false,
       message: 'Error loading profile status.'
     });

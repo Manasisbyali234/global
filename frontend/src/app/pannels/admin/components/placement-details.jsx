@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from 'react';
+﻿import { useCallback, useMemo, useState, useEffect } from 'react';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../../../utils/api';
@@ -67,6 +67,10 @@ function PlacementDetails() {
 
         return files.filter((file) => String(file?.customName || '').trim().toLowerCase() === selectedCourseName);
     }, [placement, selectedCourseName]);
+
+    const displayedFileHistory = useMemo(() => (
+        filteredFileHistory.slice().reverse()
+    ), [filteredFileHistory]);
 
     const fetchPlacementDetails = async () => {
         try {
@@ -265,7 +269,7 @@ function PlacementDetails() {
 
     const handleFileCreditsManagement = (file) => {
         setSelectedFile(file);
-        setFileCredits(file.credits || 0);
+        setFileCredits(Math.max(file.credits || 0, 1));
         setShowCreditsModal(true);
     };
 
@@ -273,6 +277,11 @@ function PlacementDetails() {
         // Check if file is rejected
         if (selectedFile.status === 'rejected') {
             showWarning('Cannot update credits for rejected files');
+            return;
+        }
+
+        if (fileCredits <= 0) {
+            showWarning('Credits must be greater than 0');
             return;
         }
         
@@ -327,14 +336,10 @@ function PlacementDetails() {
             const data = await response.json();
             
             if (data.success) {
-                const skippedEmails = data.skippedEmails || data.stats?.skippedEmails || [];
-                const skippedEmailList = skippedEmails.slice(0, 5).join(', ');
-                const remainingSkippedCount = skippedEmails.length - 5;
-                const skippedEmailText = skippedEmails.length > 0
-                    ? ` Skipped emails: ${skippedEmailList}${remainingSkippedCount > 0 ? ` and ${remainingSkippedCount} more` : ''}.`
-                    : '';
-                const fallbackMessage = `File processed successfully! Created: ${data.stats.created}, Skipped: ${data.stats.skipped}.${skippedEmailText} Candidates can now login.`;
-                showPopup(data.message || fallbackMessage, 'success', skippedEmails.length > 0 ? 8000 : 5000);
+                const createdCount = data.stats?.created ?? 0;
+                const skippedCount = data.stats?.skipped ?? 0;
+                const successMessage = `${displayName} processed successfully. Created: ${createdCount}, Skipped: ${skippedCount}. Candidates can now login.`;
+                showPopup(successMessage, 'success', 5000);
                 
                 fetchPlacementDetails();
                 if (currentViewingFileId === fileId) {
@@ -353,6 +358,11 @@ function PlacementDetails() {
     };
 
     const handleBulkCreditsUpdate = async () => {
+        if (bulkCredits <= 0) {
+            showWarning('Credits must be greater than 0');
+            return;
+        }
+
         try {
             const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/bulk-credits`, {
                 method: 'PUT',
@@ -440,6 +450,149 @@ function PlacementDetails() {
             setLoadingStoredData(false);
         }
     };
+
+    const formatFileTime = (value) => {
+        if (!value) {
+            return '-';
+        }
+
+        return new Date(value).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const renderFileStatus = (file) => {
+        let badgeClass = 'is-pending';
+        let iconClass = 'fa-clock-o';
+        let label = 'Waiting for Admin Approval';
+
+        if (file.status === 'processed') {
+            badgeClass = 'is-processed';
+            iconClass = 'fa-check-circle';
+            label = 'Processed - Login Ready';
+        } else if (file.status === 'approved') {
+            badgeClass = 'is-approved';
+            iconClass = 'fa-check';
+            label = 'Approved';
+        } else if (file.status === 'rejected') {
+            badgeClass = 'is-rejected';
+            iconClass = 'fa-times';
+            label = 'Rejected';
+        } else if (file.status === 'resubmitted' || file.resubmitted === true || file.isResubmitted === true) {
+            badgeClass = 'is-resubmitted';
+            iconClass = 'fa-refresh';
+            label = 'Resubmitted';
+        }
+
+        return (
+            <div className="placement-file-history-status-stack">
+                <span className={`placement-file-history-status-badge ${badgeClass}`}>
+                    <i className={`fa ${iconClass} me-2`}></i>
+                    {label}
+                </span>
+                {file.status === 'approved' && file.candidatesCreated > 0 && (
+                    <span className="placement-file-history-status-meta">
+                        {file.candidatesCreated} candidate{file.candidatesCreated === 1 ? '' : 's'} created
+                    </span>
+                )}
+                {file.status === 'rejected' && file.rejectionReason && (
+                    <div className="placement-file-history-status-note">
+                        <strong>Reason:</strong> {file.rejectionReason}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    const renderFileActions = (file) => (
+        <div className="placement-file-history-actions">
+            <button
+                className="btn btn-sm"
+                onClick={() => handleOpenFileRecordsPage(file._id)}
+                style={{
+                    fontSize: '0.8rem',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease',
+                    backgroundColor: '#FDC360',
+                    border: '1px solid #FDC360',
+                    color: '#000'
+                }}
+                title="View file data on a new page"
+            >
+                <i className="fa fa-eye me-2" style={{color: '#000'}}></i>View
+            </button>
+            {file.status !== 'rejected' && (
+                <button
+                    className="btn btn-sm"
+                    onClick={() => handleFileCreditsManagement(file)}
+                    style={{
+                        fontSize: '0.8rem',
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        fontWeight: '500',
+                        transition: 'all 0.2s ease',
+                        backgroundColor: '#FDC360',
+                        border: '1px solid #FDC360',
+                        color: '#000'
+                    }}
+                    title="Manage credits for this file"
+                >
+                    <i className="fa fa-credit-card me-2" style={{color: '#000'}}></i>Credits
+                </button>
+            )}
+            {file.status === 'pending' && (
+                <>
+                    <button
+                        className="btn btn-sm"
+                        onClick={() => handleFileApprove(file._id, file.fileName)}
+                        disabled={processingFiles[file._id]}
+                        style={{
+                            fontSize: '0.8rem',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            fontWeight: '500',
+                            transition: 'all 0.2s ease',
+                            backgroundColor: '#FDC360',
+                            border: '1px solid #FDC360',
+                            color: '#000'
+                        }}
+                        title="Approve and process this file"
+                    >
+                        {processingFiles[file._id] === 'approving' ? (
+                            <i className="fa fa-spinner fa-spin"></i>
+                        ) : (
+                            <><i className="fa fa-check me-2"></i>Approve</>
+                        )}
+                    </button>
+                    <button
+                        className="btn btn-sm"
+                        onClick={() => handleFileReject(file._id, file.fileName)}
+                        disabled={processingFiles[file._id]}
+                        style={{
+                            fontSize: '0.8rem',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            fontWeight: '500',
+                            transition: 'all 0.2s ease',
+                            backgroundColor: '#FDC360',
+                            border: '1px solid #FDC360',
+                            color: '#000'
+                        }}
+                        title="Reject this file"
+                    >
+                        {processingFiles[file._id] === 'rejecting' ? (
+                            <i className="fa fa-spinner fa-spin"></i>
+                        ) : (
+                            <><i className="fa fa-times me-2"></i>Reject</>
+                        )}
+                    </button>
+                </>
+            )}
+        </div>
+    );
 
     if (loading) {
         return <PageLoader pageName="Placement Details" />;
@@ -693,333 +846,93 @@ function PlacementDetails() {
                                 </div>
                             </div>
                         </div>
-                        <div className="timeline" style={{
-                            maxHeight: '450px',
-                            overflowY: 'auto',
-                            paddingRight: '8px'
-                        }}>
+                        <div className="placement-file-history-table-scroll">
                             {filteredFileHistory.length === 0 ? (
                                 <div className="placement-file-history-empty">
                                     <i className="fa fa-filter"></i>
                                     <span>No uploaded files match the selected university.</span>
                                 </div>
-                            ) : filteredFileHistory.slice().reverse().map((file, index) => {
-                                console.log('File object:', file); // Debug log
-                                return (
-                                <div key={file._id || index} className="timeline-item mb-4">
-                                    <div style={{
-                                        background: 'rgba(255,255,255,0.95)',
-                                        borderRadius: '12px',
-                                        padding: '20px',
-                                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-                                        border: '1px solid rgba(255,255,255,0.2)',
-                                        backdropFilter: 'blur(10px)',
-                                        transition: 'all 0.3s ease',
-                                        position: 'relative',
-                                        overflow: 'hidden'
-                                    }}>
-                                        <div className="d-flex align-items-start">
-                                            <div style={{
-                                                width: '48px',
-                                                height: '48px',
-                                                borderRadius: '12px',
-                                                background: '#f8f9fa',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                flexShrink: 0,
-                                                border: '1px solid #dee2e6'
-                                            }}>
-                                                <i className={`fa ${
-                                                    file.status === 'processed' ? 'fa-check-circle' : 
-                                                    file.status === 'approved' ? 'fa-check' : 
-                                                    file.status === 'rejected' ? 'fa-times' : 'fa-clock-o'
-                                                }`} style={{fontSize: '18px', color: '#000'}}></i>
-                                            </div>
-                                            <div className="ms-4 flex-grow-1">
-                                                <div className="d-flex justify-content-between align-items-start">
-                                                    <div className="flex-grow-1">
-                                                        <h6 className="mb-2" style={{
-                                                            color: '#2c3e50',
-                                                            fontWeight: '600',
-                                                            fontSize: '1.1rem',
-                                                            lineHeight: '1.3'
-                                                        }}>
-                                                            <i className="fa fa-file-excel-o me-2" style={{color: '#1e7e34'}}></i>
-                                                            {file.customName || file.fileName}
-                                                        </h6>
-                                            
-                                                        {file.isResubmitted && (
-                                                            <div style={{marginBottom: '8px'}}>
-                                                                <span style={{
-                                                                    background: 'linear-gradient(135deg, #17a2b8, #138496)',
-                                                                    color: 'white',
-                                                                    padding: '4px 10px',
-                                                                    borderRadius: '12px',
-                                                                    fontSize: '0.75rem',
-                                                                    fontWeight: '600',
-                                                                    boxShadow: '0 2px 8px rgba(23, 162, 184, 0.3)',
-                                                                    display: 'inline-block'
-                                                                }}>
-                                                                    <i className="fa fa-refresh me-1"></i>
-                                                                    RESUBMITTED
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                        {file.university && (
-                                                            <p className="mb-1" style={{
-                                                                fontSize: '0.85rem',
-                                                                color: '#6c757d'
-                                                            }}>
-                                                                <i className="fa fa-university me-2" style={{color: '#007bff'}}></i>
-                                                                {file.university}
-                                                            </p>
-                                                        )}
-                                                        {file.batch && (
-                                                            <p className="mb-2" style={{
-                                                                fontSize: '0.85rem',
-                                                                color: '#6c757d'
-                                                            }}>
-                                                                <i className="fa fa-users me-2" style={{color: '#6f42c1'}}></i>
-                                                                Batch: {file.batch}
-                                                            </p>
-                                                        )}
-                                                        <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
-                                                            <div className="d-flex align-items-center">
-                                                                <i className="fa fa-calendar me-2" style={{color: '#007bff'}}></i>
-                                                                <span style={{fontSize: '0.85rem', color: '#495057'}}>
-                                                                    {formatDate(file.uploadedAt)}
-                                                                </span>
-                                                            </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <i className="fa fa-clock-o me-2" style={{color: '#6f42c1'}}></i>
-                                                                <span style={{fontSize: '0.85rem', color: '#495057'}}>
-                                                                    {new Date(file.uploadedAt).toLocaleTimeString()}
-                                                                </span>
-                                                            </div>
-                                                            {file.processedAt && (
-                                                                <div className="d-flex align-items-center">
-                                                                    <i className="fa fa-check-circle me-2" style={{color: '#28a745'}}></i>
-                                                                    <span style={{fontSize: '0.85rem', color: '#495057'}}>
-                                                                        Processed: {formatDate(file.processedAt)}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    <div className="placement-file-history-actions d-flex flex-wrap gap-2 ms-3">
-                                                        <button
-                                                            className="btn btn-sm"
-                                                            onClick={() => handleOpenFileRecordsPage(file._id)}
-                                                            style={{
-                                                                fontSize: '0.8rem',
-                                                                padding: '6px 12px',
-                                                                borderRadius: '8px',
-                                                                fontWeight: '500',
-                                                                transition: 'all 0.2s ease',
-                                                                backgroundColor: '#FDC360',
-                                                                border: '1px solid #FDC360',
-                                                                color: '#000'
-                                                            }}
-                                                            title="View file data on a new page"
-                                                        >
-                                                            <i className="fa fa-eye me-2" style={{color: '#000'}}></i>View
-                                                        </button>
-                                                        {file.status !== 'rejected' && (
-                                                            <button
-                                                                className="btn btn-sm"
-                                                                onClick={() => handleFileCreditsManagement(file)}
-                                                                style={{
-                                                                    fontSize: '0.8rem',
-                                                                    padding: '6px 12px',
-                                                                    borderRadius: '8px',
-                                                                    fontWeight: '500',
-                                                                    transition: 'all 0.2s ease',
-                                                                    backgroundColor: '#FDC360',
-                                                                    border: '1px solid #FDC360',
-                                                                    color: '#000'
-                                                                }}
-                                                                title="Manage credits for this file"
-                                                            >
-                                                                <i className="fa fa-credit-card me-2" style={{color: '#000'}}></i>Credits
-                                                            </button>
-                                                        )}
-
-                                                        {file.status === 'pending' && (
-                                                            <>
-                                                                <button
-                                                                    className="btn btn-sm"
-                                                                    onClick={() => handleFileApprove(file._id, file.fileName)}
-                                                                    disabled={processingFiles[file._id]}
-                                                                    style={{
-                                                                        fontSize: '0.8rem',
-                                                                        padding: '6px 12px',
-                                                                        borderRadius: '8px',
-                                                                        fontWeight: '500',
-                                                                        transition: 'all 0.2s ease',
-                                                                        backgroundColor: '#FDC360',
-                                                                        border: '1px solid #FDC360',
-                                                                        color: '#000'
-                                                                    }}
-                                                                    title="Approve and process this file"
-                                                                >
-                                                                    {processingFiles[file._id] === 'approving' ? (
-                                                                        <i className="fa fa-spinner fa-spin"></i>
-                                                                    ) : (
-                                                                        <><i className="fa fa-check me-2"></i>Approve</>
-                                                                    )}
-                                                                </button>
-                                                                <button
-                                                                    className="btn btn-sm"
-                                                                    onClick={() => handleFileReject(file._id, file.fileName)}
-                                                                    disabled={processingFiles[file._id]}
-                                                                    style={{
-                                                                        fontSize: '0.8rem',
-                                                                        padding: '6px 12px',
-                                                                        borderRadius: '8px',
-                                                                        fontWeight: '500',
-                                                                        transition: 'all 0.2s ease',
-                                                                        backgroundColor: '#FDC360',
-                                                                        border: '1px solid #FDC360',
-                                                                        color: '#000'
-                                                                    }}
-                                                                    title="Reject this file"
-                                                                >
-                                                                    {processingFiles[file._id] === 'rejecting' ? (
-                                                                        <i className="fa fa-spinner fa-spin"></i>
-                                                                    ) : (
-                                                                        <><i className="fa fa-times me-2"></i>Reject</>
-                                                                    )}
-                                                                </button>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <div className="mt-3">
-                                                    <div className="d-flex flex-wrap align-items-center gap-2">
-                                                        {file.status === 'processed' ? (
-                                                            <>
-                                                                <span style={{
-                                                                    background: '#f8f9fa',
-                                                                    color: '#000',
-                                                                    padding: '6px 12px',
-                                                                    borderRadius: '20px',
-                                                                    fontSize: '0.8rem',
-                                                                    fontWeight: '500',
-                                                                    border: '1px solid #dee2e6'
-                                                                }}>
-                                                                    <i className="fa fa-check-circle me-2" style={{color: '#000'}}></i>
-                                                                    Processed - Login Ready
-                                                                </span>
-
-                                                            </>
-                                                        ) : file.status === 'approved' ? (
-                                                            <>
-                                                                <span style={{
-                                                                    background: 'linear-gradient(135deg, #007bff, #0056b3)',
-                                                                    color: 'white',
-                                                                    padding: '6px 12px',
-                                                                    borderRadius: '20px',
-                                                                    fontSize: '0.8rem',
-                                                                    fontWeight: '500',
-                                                                    boxShadow: '0 2px 8px rgba(0, 123, 255, 0.3)'
-                                                                }}>
-                                                                    <i className="fa fa-check me-2"></i>
-                                                                    Approved
-                                                                </span>
-                                                                {file.candidatesCreated > 0 && (
-                                                                    <span style={{
-                                                                        background: 'linear-gradient(135deg, #6c757d, #545b62)',
-                                                                        color: 'white',
-                                                                        padding: '6px 12px',
-                                                                        borderRadius: '20px',
-                                                                        fontSize: '0.8rem',
-                                                                        fontWeight: '500',
-                                                                        boxShadow: '0 2px 8px rgba(108, 117, 125, 0.3)'
-                                                                    }}>
-                                                                        <i className="fa fa-user-plus me-2"></i>
-                                                                        {file.candidatesCreated} candidates created
-                                                                    </span>
-                                                                )}
-                                                            </>
-                                                        ) : file.status === 'rejected' ? (
-                                                            <>
-                                                                <span style={{
-                                                                    background: 'linear-gradient(135deg, #dc3545, #c82333)',
-                                                                    color: 'white',
-                                                                    padding: '6px 12px',
-                                                                    borderRadius: '20px',
-                                                                    fontSize: '0.8rem',
-                                                                    fontWeight: '500',
-                                                                    boxShadow: '0 2px 8px rgba(220, 53, 69, 0.3)'
-                                                                }}>
-                                                                    <i className="fa fa-times me-2"></i>
-                                                                    Rejected
-                                                                </span>
-                                                                {file.rejectionReason && (
-                                                                    <div style={{
-                                                                        marginTop: '8px',
-                                                                        padding: '8px 12px',
-                                                                        background: '#fff3cd',
-                                                                        border: '1px solid #ffc107',
-                                                                        borderRadius: '8px',
-                                                                        fontSize: '0.85rem',
-                                                                        color: '#856404'
-                                                                    }}>
-                                                                        <i className="fa fa-info-circle me-2"></i>
-                                                                        <strong>Reason:</strong> {file.rejectionReason}
-                                                                    </div>
-                                                                )}
-                                                            </>
-                                                        ) : file.status === 'resubmitted' || file.resubmitted === true || file.isResubmitted === true ? (
-                                                            <span style={{
-                                                                background: 'linear-gradient(135deg, #17a2b8, #138496)',
-                                                                color: 'white',
-                                                                padding: '6px 12px',
-                                                                borderRadius: '20px',
-                                                                fontSize: '0.8rem',
-                                                                fontWeight: '500',
-                                                                boxShadow: '0 2px 8px rgba(23, 162, 184, 0.3)'
-                                                            }}>
-                                                                <i className="fa fa-refresh me-2"></i>
-                                                                Resubmitted
-                                                            </span>
                                                         ) : (
-                                                            <span style={{
-                                                                background: '#FDC360',
-                                                                color: '#000',
-                                                                padding: '6px 12px',
-                                                                borderRadius: '20px',
-                                                                fontSize: '0.8rem',
-                                                                fontWeight: '500',
-                                                                border: '1px solid #FDC360'
-                                                            }}>
-                                                                <i className="fa fa-clock-o me-2" style={{color: '#000'}}></i>
-                                                                Waiting for Admin Approval
-                                                            </span>
-                                                        )}
-                                                        {file.status !== 'rejected' && (
-                                                            <span style={{
-                                                                background: '#f8f9fa',
-                                                                color: '#000',
-                                                                padding: '6px 12px',
-                                                                borderRadius: '20px',
-                                                                fontSize: '0.8rem',
-                                                                fontWeight: '500',
-                                                                border: '1px solid #dee2e6'
-                                                            }}>
-                                                                <i className="fa fa-credit-card me-2" style={{color: '#000'}}></i>
-                                                                Credits: {file.credits || 0}
-                                                            </span>
-                                                        )}
-
+                                <table className="table placement-file-history-table align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Course / File</th>
+                                            <th scope="col">University</th>
+                                            <th scope="col">Batch</th>
+                                            <th scope="col">Uploaded</th>
+                                            <th scope="col">Processed</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Credits</th>
+                                            <th scope="col">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {displayedFileHistory.map((file, index) => (
+                                            <tr key={file._id || index}>
+                                                <td className="placement-file-history-index-cell">{index + 1}</td>
+                                                <td className="placement-file-history-primary-cell">
+                                                    <div className="placement-file-history-file-name">
+                                                        <i className="fa fa-file-excel-o me-2" style={{color: '#1e7e34'}}></i>
+                                                        {file.customName || file.fileName}
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )})}
+                                                    {file.customName && file.fileName && file.customName !== file.fileName && (
+                                                        <div className="placement-file-history-secondary-text">
+                                                            Source file: {file.fileName}
+                                                        </div>
+                                                    )}
+                                                    {file.isResubmitted && (
+                                                        <span className="placement-file-history-inline-badge">
+                                                            <i className="fa fa-refresh me-1"></i>
+                                                            Resubmitted
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    <span className="placement-file-history-secondary-text">
+                                                        {file.university || '-'}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className="placement-file-history-secondary-text">
+                                                        {file.batch || '-'}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div className="placement-file-history-date">
+                                                        {file.uploadedAt ? formatDate(file.uploadedAt) : '-'}
+                                                    </div>
+                                                    <div className="placement-file-history-secondary-text">
+                                                        {formatFileTime(file.uploadedAt)}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="placement-file-history-date">
+                                                        {file.processedAt ? formatDate(file.processedAt) : '-'}
+                                                    </div>
+                                                    <div className="placement-file-history-secondary-text">
+                                                        {formatFileTime(file.processedAt)}
+                                                    </div>
+                                                </td>
+                                                <td>{renderFileStatus(file)}</td>
+                                                <td>
+                                                    {file.status !== 'rejected' ? (
+                                                        <span className="placement-file-history-credit-badge">
+                                                            <i className="fa fa-credit-card me-2"></i>
+                                                            {file.credits || 0}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="placement-file-history-secondary-text">-</span>
+                                                    )}
+                                                </td>
+                                                <td className="placement-file-history-actions-cell">
+                                                    {renderFileActions(file)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
                         </div>
                     </div>
                 ) : null}
@@ -1061,7 +974,10 @@ function PlacementDetails() {
                             {placement.fileHistory && placement.fileHistory.filter(f => f.status === 'processed').length > 1 && (
                                 <button
                                     className="btn btn-warning"
-                                    onClick={() => setShowBulkCreditsModal(true)}
+                                    onClick={() => {
+                                        setBulkCredits((current) => Math.max(current || 0, 1));
+                                        setShowBulkCreditsModal(true);
+                                    }}
                                     style={{borderRadius: '8px'}}
                                     title="Assign credits to all processed files at once"
                                 >
@@ -1278,17 +1194,17 @@ function PlacementDetails() {
                                         type="number"
                                         className="form-control mt-2"
                                         value={fileCredits}
-                                        onChange={(e) => setFileCredits(Math.min(10000, Math.max(0, parseInt(e.target.value) || 0)))}
-                                        min="0"
+                                        onChange={(e) => setFileCredits(Math.min(10000, Math.max(1, parseInt(e.target.value, 10) || 1)))}
+                                        min="1"
                                         max="10000"
-                                        placeholder="Enter new credits"
+                                        placeholder="Enter credits greater than 0"
                                     />
-                                    <small className="text-muted">Credits will be applied to all students in this file and updated in their candidate dashboard</small>
+                                    <small className="text-muted">Credits must be greater than 0 and will be applied to all students in this file</small>
                                 </div>
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowCreditsModal(false)}>Cancel</button>
-                                <button type="button" className="btn" onClick={handleUpdateFileCredits} style={{backgroundColor: '#FDC360', border: '1px solid #FDC360', color: '#000'}}>
+                                <button type="button" className="btn" onClick={handleUpdateFileCredits} disabled={fileCredits <= 0} style={{backgroundColor: '#FDC360', border: '1px solid #FDC360', color: '#000'}}>
                                     <i className="fa fa-save me-2" style={{color: '#000'}}></i>Update File Credits
                                 </button>
                             </div>
@@ -1322,12 +1238,12 @@ function PlacementDetails() {
                                         type="number"
                                         className="form-control mt-2"
                                         value={bulkCredits}
-                                        onChange={(e) => setBulkCredits(Math.min(10000, Math.max(0, parseInt(e.target.value) || 0)))}
-                                        min="0"
+                                        onChange={(e) => setBulkCredits(Math.min(10000, Math.max(1, parseInt(e.target.value, 10) || 1)))}
+                                        min="1"
                                         max="10000"
-                                        placeholder="Enter credits for all files"
+                                        placeholder="Enter credits greater than 0"
                                     />
-                                    <small className="text-muted">Credits will be applied to all students in all uploaded files and updated in their candidate dashboards</small>
+                                    <small className="text-muted">Credits must be greater than 0 and will be applied to all students in processed files</small>
                                 </div>
                                 <div className="mt-3">
                                     <strong>Files that will be updated:</strong>
@@ -1350,7 +1266,7 @@ function PlacementDetails() {
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowBulkCreditsModal(false)}>Cancel</button>
-                                <button type="button" className="btn btn-warning" onClick={handleBulkCreditsUpdate}>
+                                <button type="button" className="btn btn-warning" onClick={handleBulkCreditsUpdate} disabled={bulkCredits <= 0}>
                                     <i className="fa fa-save me-2"></i>Update All Files Credits
                                 </button>
                             </div>
@@ -1512,3 +1428,4 @@ function PlacementDetails() {
 }
 
 export default PlacementDetails;
+

@@ -2037,7 +2037,11 @@ exports.downloadPlacementFile = async (req, res) => {
 exports.assignPlacementCredits = async (req, res) => {
   try {
     const { credits } = req.body;
-    const creditsNum = Math.min(10000, Math.max(0, parseInt(credits) || 0));
+    const creditsNum = Math.min(10000, Math.max(0, parseInt(credits, 10) || 0));
+
+    if (creditsNum <= 0) {
+      return res.status(400).json({ success: false, message: 'Credits must be greater than 0' });
+    }
     
     const placement = await Placement.findById(req.params.id);
     if (!placement) {
@@ -3095,8 +3099,8 @@ exports.updateFileCredits = async (req, res) => {
     const { id: placementId, fileId } = req.params;
     const { credits } = req.body;
     
-    if (typeof credits !== 'number' || credits < 0 || credits > 10000) {
-      return res.status(400).json({ success: false, message: 'Credits must be between 0 and 10000' });
+    if (typeof credits !== 'number' || credits <= 0 || credits > 10000) {
+      return res.status(400).json({ success: false, message: 'Credits must be greater than 0 and up to 10000' });
     }
     
     const placement = await Placement.findById(placementId);
@@ -3229,7 +3233,11 @@ exports.assignBulkFileCredits = async (req, res) => {
   try {
     const { id: placementId } = req.params;
     const { credits } = req.body;
-    const creditsNum = Math.min(10000, Math.max(0, parseInt(credits) || 0));
+    const creditsNum = Math.min(10000, Math.max(0, parseInt(credits, 10) || 0));
+
+    if (creditsNum <= 0) {
+      return res.status(400).json({ success: false, message: 'Credits must be greater than 0' });
+    }
     
     const placement = await Placement.findById(placementId);
     if (!placement) {
