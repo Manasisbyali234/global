@@ -2972,7 +2972,7 @@ exports.approveIndividualFile = async (req, res) => {
         const displayName = file.customName || file.fileName;
         await createNotification({
           title: 'Students Approved - Welcome Emails Sent',
-          message: `The file "${displayName}" has been approved successfully. ${createdCount} students can now create their passwords, and ${emailsSent} welcome emails have been sent successfully.`,
+          message: `File "${displayName}" approved! Welcome emails sent successfully to students.`,
           type: 'file_processed',
           role: 'admin',
           relatedId: placementId,
