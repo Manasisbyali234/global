@@ -2237,65 +2237,71 @@ export default function EmpPostJob({ onNext }) {
 									</button>
 								</div>
 							</div>
-							<div>
-								<label style={label}>
-									<i className="fa fa-image" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-									Company Logo
-								</label>
-								<input
-									style={{...input, padding: '10px'}}
-									type="file"
-									accept="image/*"
-									onChange={handleLogoUpload}
-								/>
-								{formData.companyLogo && (
-									<div style={{marginTop: 12}}>
-										<img 
-											src={formData.companyLogo} 
-											alt="Company Logo" 
-											style={{
-												width: '80px', 
-												height: '80px', 
-												borderRadius: 8,
-												objectFit: 'cover',
-												border: '2px solid #e5e7eb',
-												boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-											}} 
-										/>
-									</div>
-								)}
-							</div>
 							<div style={fullRow}>
-								<label style={label}>
-									<i className="fa fa-picture-o" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-									Company Banner
-								</label>
-								<input
-									style={{...input, padding: '10px'}}
-									type="file"
-									accept="image/*"
-									onChange={handleBannerUpload}
-								/>
-								{formData.companyBanner && (
-									<div style={{marginTop: 12}}>
-										<img
-											src={formData.companyBanner}
-											alt="Company Banner"
-											style={{
-												width: '100%',
-												maxWidth: '420px',
-												height: '160px',
-												borderRadius: 10,
-												objectFit: 'cover',
-												border: '2px solid #e5e7eb',
-												boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
-											}}
+								<div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+									{/* Company Logo */}
+									<div style={{ flex: 1, minWidth: 200 }}>
+										<label style={label}>
+											<i className="fa fa-image" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+											Company Logo
+										</label>
+										<input
+											style={{...input, padding: '10px'}}
+											type="file"
+											accept="image/*"
+											onChange={handleLogoUpload}
 										/>
+										{formData.companyLogo && (
+											<div style={{marginTop: 12}}>
+												<img
+													src={formData.companyLogo}
+													alt="Company Logo"
+													style={{
+														width: '80px',
+														height: '80px',
+														borderRadius: 8,
+														objectFit: 'cover',
+														border: '2px solid #e5e7eb',
+														boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+													}}
+												/>
+											</div>
+										)}
 									</div>
-								)}
-								<p style={{color: '#64748b', fontSize: 12, margin: '6px 0 0 0'}}>
-									Optional. This banner will be shown on the public job detail page for this consultant-posted job.
-								</p>
+									{/* Company Banner */}
+									<div style={{ flex: 1, minWidth: 200 }}>
+										<label style={label}>
+											<i className="fa fa-picture-o" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+											Company Banner
+										</label>
+										<input
+											style={{...input, padding: '10px'}}
+											type="file"
+											accept="image/*"
+											onChange={handleBannerUpload}
+										/>
+										{formData.companyBanner && (
+											<div style={{marginTop: 12}}>
+												<img
+													src={formData.companyBanner}
+													alt="Company Banner"
+													style={{
+														width: '100%',
+														maxWidth: '420px',
+														height: '160px',
+														borderRadius: 10,
+														objectFit: 'cover',
+														border: '2px solid #e5e7eb',
+														boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
+													}}
+												/>
+											</div>
+										)}
+										<p style={{color: '#64748b', fontSize: 12, margin: '6px 0 0 0'}}>
+											Optional. This banner will be shown on the public job detail page for this consultant-posted job.
+										</p>
+									</div>
+								</div>
 							</div>
 							<div>
 								<label style={{...label, color: '#dc2626'}}>

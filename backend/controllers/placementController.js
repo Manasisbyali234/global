@@ -391,10 +391,7 @@ exports.uploadStudentData = async (req, res) => {
 
     res.json({
       success: true,
-      message: appendSkippedEmailNotice('Student data uploaded and validated successfully. Waiting for admin approval.', {
-        repeatedEmails: duplicateEmails,
-        existingEmails
-      }),
+      message: 'Student data uploaded and validated successfully. Waiting for admin approval.',
       fileName: req.file.originalname,
       customName: customFileName && customFileName.trim() ? customFileName.trim() : null,
       university: university && university.trim() ? university.trim() : null,
@@ -1304,10 +1301,7 @@ exports.resubmitFile = async (req, res) => {
 
     res.json({
       success: true,
-      message: appendSkippedEmailNotice('File resubmitted successfully. Waiting for admin approval.', {
-        repeatedEmails: duplicateEmails,
-        existingEmails
-      }),
+      message: 'File resubmitted successfully. Waiting for admin approval.',
       fileName: req.file.originalname,
       skippedEmails,
       repeatedEmails: duplicateEmails,
