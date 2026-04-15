@@ -374,6 +374,7 @@ export default function EmpPostJob({ onNext }) {
 		},
 		// Consultant-specific fields
 		companyLogo: "",
+		companyBanner: "",
 		companyName: "",
 		companyDescription: "",
 		aboutCompany: "",
@@ -889,6 +890,7 @@ export default function EmpPostJob({ onNext }) {
 						documentVerification: false,
 					},
 					companyLogo: job.companyLogo || '',
+					companyBanner: job.companyBanner || '',
 					companyName: job.companyName || '',
 					companyDescription: job.companyDescription || '',
 					aboutCompany: job.aboutCompany || '',
@@ -952,6 +954,7 @@ export default function EmpPostJob({ onNext }) {
 				if (empType === 'consultant' && data.profile.consultantCompanyName) {
 					update({
 						companyLogo: data.profile.consultantCompanyLogo || '',
+						companyBanner: data.profile.consultantCompanyBanner || '',
 						companyName: data.profile.consultantCompanyName || '',
 						companyDescription: data.profile.consultantCompanyDescription || '',
 						aboutCompany: data.profile.consultantAboutCompany || ''
@@ -1237,6 +1240,17 @@ export default function EmpPostJob({ onNext }) {
 		}
 	};
 
+	const handleBannerUpload = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = (event) => {
+				update({ companyBanner: event.target.result });
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
 	const fieldLabelMap = {
 		jobTitle: 'Job Title',
 		category: 'Job Category',
@@ -1260,7 +1274,8 @@ export default function EmpPostJob({ onNext }) {
 		transportation: 'Transportation',
 		companyName: 'Company Name',
 		aboutCompany: 'About Company',
-		companyDescription: 'Company Description'
+		companyDescription: 'Company Description',
+		companyBanner: 'Company Banner'
 	};
 
 	const scrollToField = (fieldName) => {
@@ -1712,6 +1727,7 @@ export default function EmpPostJob({ onNext }) {
 
 			if (employerType === 'consultant') {
 				jobData.companyLogo = formData.companyLogo;
+				jobData.companyBanner = formData.companyBanner;
 				jobData.companyName = formData.companyName;
 				jobData.companyDescription = formData.companyDescription;
 				jobData.aboutCompany = formData.aboutCompany;
@@ -1817,6 +1833,7 @@ export default function EmpPostJob({ onNext }) {
 				shift: formData.shift,
 				workMode: formData.workMode,
 				companyLogo: formData.companyLogo,
+				companyBanner: formData.companyBanner,
 				companyName: formData.companyName,
 				companyDescription: formData.companyDescription,
 				status: 'active' // Set to active when posting job on Step 2
@@ -1826,11 +1843,13 @@ export default function EmpPostJob({ onNext }) {
 			if (employerType === 'consultant') {
 				console.log('Adding consultant fields:', {
 					companyLogo: formData.companyLogo,
+					companyBanner: formData.companyBanner,
 					companyName: formData.companyName,
 					companyDescription: formData.companyDescription,
 					aboutCompany: formData.aboutCompany
 				});
 				jobData.companyLogo = formData.companyLogo;
+				jobData.companyBanner = formData.companyBanner;
 				jobData.companyName = formData.companyName;
 				jobData.companyDescription = formData.companyDescription;
 				jobData.aboutCompany = formData.aboutCompany;
@@ -2245,6 +2264,38 @@ export default function EmpPostJob({ onNext }) {
 										/>
 									</div>
 								)}
+							</div>
+							<div style={fullRow}>
+								<label style={label}>
+									<i className="fa fa-picture-o" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+									Company Banner
+								</label>
+								<input
+									style={{...input, padding: '10px'}}
+									type="file"
+									accept="image/*"
+									onChange={handleBannerUpload}
+								/>
+								{formData.companyBanner && (
+									<div style={{marginTop: 12}}>
+										<img
+											src={formData.companyBanner}
+											alt="Company Banner"
+											style={{
+												width: '100%',
+												maxWidth: '420px',
+												height: '160px',
+												borderRadius: 10,
+												objectFit: 'cover',
+												border: '2px solid #e5e7eb',
+												boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
+											}}
+										/>
+									</div>
+								)}
+								<p style={{color: '#64748b', fontSize: 12, margin: '6px 0 0 0'}}>
+									Optional. This banner will be shown on the public job detail page for this consultant-posted job.
+								</p>
 							</div>
 							<div>
 								<label style={{...label, color: '#dc2626'}}>

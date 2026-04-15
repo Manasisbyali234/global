@@ -530,13 +530,6 @@ function CanTransactionsPage() {
                                                             <span className="receipt-info-value payment-info-value">{selectedTransaction?.candidateId?.phone || candidateInfo?.phone}</span>
                                                         </div>
                                                     )}
-                                                    {selectedTransaction?.candidateId?.name || candidateInfo?.name ? (
-                                                        <div className="receipt-info-row payment-info-row">
-                                                            <span className="receipt-info-label payment-info-label">Payer Name</span>
-                                                            <span className="receipt-info-separator">:</span>
-                                                            <span className="receipt-info-value payment-info-value">{selectedTransaction?.candidateId?.name || candidateInfo?.name}</span>
-                                                        </div>
-                                                    ) : null}
                                                 </div>
                                             </div>
                                         </div>

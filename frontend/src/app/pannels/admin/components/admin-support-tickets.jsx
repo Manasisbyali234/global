@@ -664,13 +664,13 @@ function AdminSupportTickets() {
                                         <table className="table tickets-table" style={{tableLayout: 'auto', width: '100%'}}>
                                             <thead>
                                                 <tr>
-                                                    <th style={{width: '14%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Subject</th>
+                                                    <th style={{width: '20%', minWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Subject</th>
                                                     <th style={{width: '24%', whiteSpace: 'nowrap'}}>Requester</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>User Type</th>
                                                     <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Company Name</th>
                                                     <th style={{width: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>University  Name</th>
-                                                    <th style={{width: '25%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Job</th>
-                                                    <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
+                                                    <th style={{width: '17%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Job</th>
+                                                    <th style={{width: '12%', minWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Category</th>
                                                     <th style={{width: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Priority</th>
                                                     <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Status</th>
                                                     <th style={{width: '11%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>Created</th>
@@ -707,7 +707,7 @@ function AdminSupportTickets() {
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={getJobTitle(ticket) || (ticket.userType === 'candidate' ? 'No job selected' : '-')}>
                                                             <span className="category-badge">{getJobTitle(ticket) || (ticket.userType === 'candidate' ? 'N/A' : '-')}</span>
                                                         </td>
-                                                        <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.category || 'General'}>
+                                                        <td style={{minWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={ticket.category || 'General'}>
                                                             <span className="category-badge">{ticket.category || 'General'}</span>
                                                         </td>
                                                         <td style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{getPriorityBadge(ticket.priority)}</td>

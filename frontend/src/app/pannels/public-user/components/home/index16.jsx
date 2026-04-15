@@ -1335,8 +1335,17 @@ function Home16Page() {
                     </div>
 
                     <Row className="g-4">
-                        <Col lg={4} md={6}>
-                            <div className="process-card-light">
+                        <Col lg={3} md={6}>
+                            <div className="process-card-light process-card-light--employer">
+                                <div className="process-icon-circle" style={{background: 'rgba(168, 85, 247, 0.1)'}}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A855F7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"></path><path d="M5 21V7l8-4 6 4v14"></path><path d="M9 9h.01"></path><path d="M9 12h.01"></path><path d="M9 15h.01"></path><path d="M13 9h.01"></path><path d="M13 12h.01"></path><path d="M13 15h.01"></path><path d="M17 9h.01"></path><path d="M17 12h.01"></path></svg>
+                                </div>
+                                <h4>Register Your Company</h4>
+                                <p>Create your employer account and set up your company profile to start hiring.</p>
+                            </div>
+                        </Col>
+                        <Col lg={3} md={6}>
+                            <div className="process-card-light process-card-light--employer">
                                 <div className="process-icon-circle" style={{background: 'rgba(255, 106, 61, 0.1)'}}>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6A3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                 </div>
@@ -1344,8 +1353,8 @@ function Home16Page() {
                                 <p>Create account and post job openings with details and requirements.</p>
                             </div>
                         </Col>
-                        <Col lg={4} md={6}>
-                            <div className="process-card-light">
+                        <Col lg={3} md={6}>
+                            <div className="process-card-light process-card-light--employer">
                                 <div className="process-icon-circle" style={{background: 'rgba(59, 130, 246, 0.1)'}}>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                                 </div>
@@ -1353,8 +1362,8 @@ function Home16Page() {
                                 <p>Review profiles, shortlist candidates and schedule interviews.</p>
                             </div>
                         </Col>
-                        <Col lg={4} md={6}>
-                            <div className="process-card-light">
+                        <Col lg={3} md={6}>
+                            <div className="process-card-light process-card-light--employer">
                                 <div className="process-icon-circle" style={{background: 'rgba(16, 185, 129, 0.1)'}}>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                                 </div>
@@ -1626,6 +1635,22 @@ navbarStyle.textContent = `
         font-size: 14px !important;
         line-height: 1.6 !important;
         margin-bottom: 0 !important;
+    }
+    .process-card-light--employer {
+        padding: 24px 18px !important;
+    }
+    .process-card-light--employer .process-icon-circle {
+        width: 48px !important;
+        height: 48px !important;
+        margin: 0 auto 14px !important;
+    }
+    .process-card-light--employer h4 {
+        font-size: 16px !important;
+        margin-bottom: 8px !important;
+    }
+    .process-card-light--employer p {
+        font-size: 13px !important;
+        line-height: 1.45 !important;
     }
     /* Workflow Section */
     .workflow-section {

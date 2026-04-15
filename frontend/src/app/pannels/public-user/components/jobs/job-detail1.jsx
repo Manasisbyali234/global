@@ -211,6 +211,10 @@ function JobDetail1Page() {
         );
     }
 
+    const isConsultantPostedJob =
+        job?.employerId?.employerType?.toLowerCase?.() === 'consultant' ||
+        job?.postedBy?.toLowerCase?.() === 'consultant';
+
     const submitJobApplication = async () => {
         try {
             const token = localStorage.getItem('candidateToken');
@@ -592,8 +596,8 @@ function JobDetail1Page() {
                                         <div className="twm-job-self-info">
                                             <div className="twm-job-self-top">
                                                 <div className="twm-media-bg">
-                                                    {job.employerProfile?.coverImage ? (
-                                                        <img src={job.employerProfile.coverImage} alt="Company Cover" />
+                                                    {(job.companyBanner || job.employerProfile?.coverImage) ? (
+                                                        <img src={job.companyBanner || job.employerProfile.coverImage} alt="Company Cover" />
                                                     ) : (
                                                         <JobZImage src="images/employer-bg.jpg" alt="#" />
                                                     )}
@@ -617,7 +621,7 @@ function JobDetail1Page() {
                                                     <p className="twm-job-company">
                                                         <i className="feather-briefcase" style={{marginRight: '8px', color: '#ff9c00'}}></i>
                                                         <strong>Company: </strong>
-                                                        {job.employerId?._id ? (
+                                                        {job.employerId?._id && !isConsultantPostedJob ? (
                                                             <span 
                                                                 style={{color: '#007bff', cursor: 'pointer'}}
                                                                 onClick={() => navigate(`/emp-detail/${job.employerId._id}`)}
@@ -625,7 +629,9 @@ function JobDetail1Page() {
                                                                 {job.companyName || job.employerId?.companyName || 'Not specified'}
                                                             </span>
                                                         ) : (
-                                                            <span>{job.companyName || job.employerId?.companyName || 'Not specified'}</span>
+                                                            <span style={isConsultantPostedJob ? { color: '#495057', cursor: 'default' } : undefined}>
+                                                                {job.companyName || job.employerId?.companyName || 'Not specified'}
+                                                            </span>
                                                         )}
                                                     </p>
                                                     {job.shift && (

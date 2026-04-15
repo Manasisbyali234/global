@@ -236,6 +236,26 @@
     text-decoration: none;
 }
 
+.admin-auth-button {
+    width: 100% !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-secondary-button {
+    background: #fff !important;
+    color: #0d6efd !important;
+    border: 1px solid #0d6efd !important;
+}
+
+.admin-secondary-button:hover,
+.admin-secondary-button:focus {
+    background: #f8fbff !important;
+    color: #0b5ed7 !important;
+    border-color: #0b5ed7 !important;
+}
+
 .password-requirements {
     margin-bottom: 16px;
     padding: 12px;

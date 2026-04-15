@@ -456,13 +456,6 @@ function AdminTransactionsPage() {
                                                         <span className="receipt-info-separator">:</span>
                                                         <span className="receipt-info-value payment-info-value">{selectedTransaction?.paymentId}</span>
                                                     </div>
-                                                    {paymentDetails?.email && (
-                                                        <div className="receipt-info-row payment-info-row">
-                                                            <span className="receipt-info-label payment-info-label">Payer Email</span>
-                                                            <span className="receipt-info-separator">:</span>
-                                                            <span className="receipt-info-value payment-info-value">{paymentDetails.email}</span>
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </div>
                                         </div>

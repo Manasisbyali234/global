@@ -8,6 +8,7 @@ const jobSchema = new mongoose.Schema({
   location: { type: [String], required: true },
   // Consultant-specific fields
   companyLogo: { type: String }, // Base64 encoded image (only for consultants)
+  companyBanner: { type: String }, // Banner image for consultant-posted jobs
   companyName: { type: String }, // Company name (only for consultants)
   companyDescription: { type: String }, // Company description (only for consultants)
   aboutCompany: { type: String }, // About company information

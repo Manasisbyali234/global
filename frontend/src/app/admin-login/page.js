@@ -252,10 +252,10 @@ export default function AdminLogin() {
                                                                     />
                                                                 </div>
 
-                                                                <div className="auth-alt-action">
+                                                                <div className="form-group">
                                                                     <button
                                                                         type="button"
-                                                                        className="auth-link-button"
+                                                                        className="site-button admin-auth-button admin-secondary-button"
                                                                         onClick={handleToggleResetMode}
                                                                     >
                                                                         Reset password
@@ -265,7 +265,7 @@ export default function AdminLogin() {
                                                                 <div className="form-group">
                                                                     <button
                                                                         type="submit"
-                                                                        className="site-button"
+                                                                        className="site-button admin-auth-button"
                                                                         disabled={loading}
                                                                         style={{ transition: "none" }}
                                                                         onMouseEnter={(event) => {
@@ -363,10 +363,10 @@ export default function AdminLogin() {
                                                                     </div>
                                                                 </div>
 
-                                                                <div className="auth-alt-action">
+                                                                <div className="form-group">
                                                                     <button
                                                                         type="button"
-                                                                        className="auth-link-button"
+                                                                        className="site-button admin-auth-button admin-secondary-button"
                                                                         onClick={handleToggleResetMode}
                                                                     >
                                                                         Back to login
@@ -376,7 +376,7 @@ export default function AdminLogin() {
                                                                 <div className="form-group">
                                                                     <button
                                                                         type="submit"
-                                                                        className="site-button"
+                                                                        className="site-button admin-auth-button"
                                                                         disabled={resetLoading}
                                                                     >
                                                                         {resetLoading ? "Resetting..." : "Reset Password"}

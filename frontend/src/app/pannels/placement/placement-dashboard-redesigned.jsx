@@ -1248,7 +1248,6 @@ function PlacementDashboardRedesigned() {
                                                             value={uploadHistoryBatchFilter}
                                                             onChange={(e) => setUploadHistoryBatchFilter(e.target.value)}
                                                             aria-label="Filter by batch"
-                                                            style={{width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '14px'}}
                                                         >
                                                             <option value="">All Batches</option>
                                                             {uploadHistoryBatchOptions.map(b => (
@@ -1267,12 +1266,22 @@ function PlacementDashboardRedesigned() {
                                         <div className="upload-history-table table-responsive">
                                             {console.log('File history data:', placementData?.fileHistory)}
                                             <table>
+                                                <colgroup>
+                                                    <col className="upload-history-col-file" />
+                                                    <col className="upload-history-col-balanced" />
+                                                    <col className="upload-history-col-balanced" />
+                                                    <col className="upload-history-col-balanced" />
+                                                    <col className="upload-history-col-date" />
+                                                    <col className="upload-history-col-status" />
+                                                    <col className="upload-history-col-rejection" />
+                                                    <col className="upload-history-col-actions" />
+                                                </colgroup>
                                                 <thead>
                                                     <tr>
                                                         <th>File Name</th>
-                                                        <th>Course Name</th>
-                                                        <th>University</th>
-                                                        <th>Batch</th>
+                                                        <th className="upload-history-balanced-cell">Course Name</th>
+                                                        <th className="upload-history-balanced-cell">University</th>
+                                                        <th className="upload-history-balanced-cell">Batch</th>
                                                         <th>Upload Date</th>
                                                         <th>Status</th>
                                                         <th>Rejection Reason</th>
@@ -1287,9 +1296,9 @@ function PlacementDashboardRedesigned() {
                                                                 return (
                                                                 <tr key={file._id || index}>
                                                                     <td>{file.fileName}</td>
-                                                                    <td>{file.customName || '-'}</td>
-                                                                    <td>{file.university || '-'}</td>
-                                                                    <td>{file.batch || '-'}</td>
+                                                                    <td className="upload-history-balanced-cell">{file.customName || '-'}</td>
+                                                                    <td className="upload-history-balanced-cell">{file.university || '-'}</td>
+                                                                    <td className="upload-history-balanced-cell">{file.batch || '-'}</td>
                                                                     <td>{formatDate(file.uploadedAt)}</td>
                                                                     <td>
                                                                         <span className={`status-badge ${
@@ -1329,7 +1338,7 @@ function PlacementDashboardRedesigned() {
                                                                         )}
                                                                     </td>
                                                                     <td>
-                                                                        <div className="d-flex gap-2">
+                                                                        <div className="d-flex gap-2 upload-history-actions">
                                                                             <button 
                                                                                 className="view-btn"
                                                                                 onClick={() => handleViewFile(file._id, file.fileName)}
