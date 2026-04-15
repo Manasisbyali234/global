@@ -614,7 +614,7 @@ function PlacementDashboardRedesigned() {
     const uploadHistoryUniversitySearchTerm = uploadHistoryUniversitySearch.trim().toLowerCase();
     const uploadHistoryBatchOptions = [...new Set((placementData?.fileHistory || []).map(f => f.batch).filter(Boolean))];
     const filteredFileHistory = (placementData?.fileHistory || []).filter((file) => {
-        const matchesFile = !uploadHistorySearchTerm || String(file.fileName || '').toLowerCase().includes(uploadHistorySearchTerm);
+        const matchesFile = !uploadHistorySearchTerm || String(file.customName || '').toLowerCase().includes(uploadHistorySearchTerm);
         const matchesBatch = !uploadHistoryBatchFilter || file.batch === uploadHistoryBatchFilter;
         const matchesUniversity = !uploadHistoryUniversitySearchTerm || String(file.university || '').toLowerCase().includes(uploadHistoryUniversitySearchTerm);
         return matchesFile && matchesBatch && matchesUniversity;
@@ -1223,13 +1223,13 @@ function PlacementDashboardRedesigned() {
                                             <div className="upload-history-header-actions">
                                                 <div className="upload-history-search" style={{display: 'flex', gap: '16px', alignItems: 'flex-end', flexWrap: 'wrap'}}>
                                                     <div style={{flex: 1, minWidth: '150px'}}>
-                                                        <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block'}}>File Name</label>
+                                                        <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block'}}>Course Name</label>
                                                         <input
                                                             type="text"
                                                             value={uploadHistorySearch}
                                                             onChange={(e) => setUploadHistorySearch(e.target.value)}
-                                                            placeholder="Search by file name"
-                                                            aria-label="Search upload history"
+                                                            placeholder="Search by course name"
+                                                            aria-label="Search upload history by course name"
                                                         />
                                                     </div>
                                                     <div style={{flex: 1, minWidth: '150px'}}>

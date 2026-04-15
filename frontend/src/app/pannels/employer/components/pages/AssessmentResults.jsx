@@ -281,8 +281,6 @@ export default function AssessmentResults() {
                   outline: 'none'
                 }}
               />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>To:</label>
               <input
                 type="date"

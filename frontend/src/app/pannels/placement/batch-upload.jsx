@@ -12,7 +12,7 @@ function BatchUpload() {
     const location = useLocation();
     const { user, userType, isAuthenticated } = useAuth();
     const [selectedFile, setSelectedFile] = useState(null);
-    const [customFileName, setCustomFileName] = useState('');
+    const [courseName, setCourseName] = useState('');
     const [university, setUniversity] = useState('');
     const [batch, setBatch] = useState('');
     const [uploading, setUploading] = useState(false);
@@ -80,8 +80,8 @@ function BatchUpload() {
             return;
         }
 
-        if (!customFileName.trim()) {
-            showWarning('Custom Display Name is required.');
+        if (!courseName.trim()) {
+            showWarning('Course Name is required.');
             return;
         }
 
@@ -105,8 +105,8 @@ function BatchUpload() {
         try {
             const formData = new FormData();
             formData.append('studentData', selectedFile);
-            if (customFileName.trim()) {
-                formData.append('customFileName', customFileName.trim());
+            if (courseName.trim()) {
+                formData.append('customFileName', courseName.trim());
             }
             if (university.trim()) {
                 formData.append('university', university.trim());
@@ -138,7 +138,7 @@ function BatchUpload() {
 
     const handleResubmit = (fileId, fileName, customName) => {
         setResubmitFileId(fileId);
-        setCustomFileName(customName || fileName);
+        setCourseName(customName || fileName);
         setShowResubmitModal(true);
     };
 
@@ -148,8 +148,8 @@ function BatchUpload() {
             return;
         }
 
-        if (!customFileName.trim()) {
-            showWarning('Custom Display Name is required.');
+        if (!courseName.trim()) {
+            showWarning('Course Name is required.');
             return;
         }
 
@@ -173,7 +173,7 @@ function BatchUpload() {
         try {
             const formData = new FormData();
             formData.append('studentData', selectedFile);
-            formData.append('customFileName', customFileName.trim());
+            formData.append('customFileName', courseName.trim());
             formData.append('university', university.trim());
             formData.append('batch', batch.trim());
 
@@ -243,7 +243,7 @@ function BatchUpload() {
 
     const resetForm = () => {
         setSelectedFile(null);
-        setCustomFileName('');
+        setCourseName('');
         setUniversity('');
         setBatch('');
         const fileInput = document.getElementById('fileInput');
@@ -350,12 +350,12 @@ function BatchUpload() {
                                 {/* Configuration Fields */}
                                 <div className="config-fields">
                                     <div className="field-group">
-                                        <label>Custom Display Name *</label>
+                                        <label>Course Name *</label>
                                         <input
                                             type="text"
-                                            value={customFileName}
-                                            onChange={(e) => setCustomFileName(e.target.value)}
-                                            placeholder="Enter a custom name for this batch"
+                                            value={courseName}
+                                            onChange={(e) => setCourseName(e.target.value)}
+                                            placeholder="Enter course name (e.g., 'B.Tech CSE', 'MBA')"
                                             maxLength="100"
                                             required
                                         />
@@ -442,7 +442,7 @@ function BatchUpload() {
                                 <button 
                                     className="btn-upload"
                                     onClick={handleUpload}
-                                    disabled={uploading || !selectedFile || !customFileName.trim() || !university.trim() || !batch.trim()}
+                                    disabled={uploading || !selectedFile || !courseName.trim() || !university.trim() || !batch.trim()}
                                 >
                                     {uploading ? (
                                         <>
@@ -564,12 +564,12 @@ function BatchUpload() {
 
                             <div className="config-fields">
                                 <div className="field-group">
-                                    <label>Custom Display Name *</label>
+                                    <label>Course Name *</label>
                                     <input
                                         type="text"
-                                        value={customFileName}
-                                        onChange={(e) => setCustomFileName(e.target.value)}
-                                        placeholder="Enter a custom name for this batch"
+                                        value={courseName}
+                                        onChange={(e) => setCourseName(e.target.value)}
+                                        placeholder="Enter course name (e.g., 'B.Tech CSE', 'MBA')"
                                         maxLength="100"
                                         required
                                     />
@@ -644,7 +644,7 @@ function BatchUpload() {
                             <button 
                                 className="btn-upload"
                                 onClick={handleResubmitUpload}
-                                disabled={uploading || !selectedFile || !customFileName.trim() || !university.trim() || !batch.trim()}
+                                disabled={uploading || !selectedFile || !courseName.trim() || !university.trim() || !batch.trim()}
                             >
                                 {uploading ? (
                                     <>

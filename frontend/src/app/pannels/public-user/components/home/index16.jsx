@@ -1341,7 +1341,7 @@ function Home16Page() {
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A855F7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"></path><path d="M5 21V7l8-4 6 4v14"></path><path d="M9 9h.01"></path><path d="M9 12h.01"></path><path d="M9 15h.01"></path><path d="M13 9h.01"></path><path d="M13 12h.01"></path><path d="M13 15h.01"></path><path d="M17 9h.01"></path><path d="M17 12h.01"></path></svg>
                                 </div>
                                 <h4>Register Your Company</h4>
-                                <p>Create your employer account and set up your company profile to start hiring.</p>
+                                <p>Create your employer account and set up your company profile to start hiring for free.</p>
                             </div>
                         </Col>
                         <Col lg={3} md={6}>
