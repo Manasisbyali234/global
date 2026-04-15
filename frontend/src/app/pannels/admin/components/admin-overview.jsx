@@ -39,12 +39,10 @@ function AdminOverviewPage() {
     if ((jobFromDate || jobToDate) && job.createdAt) {
       const jobDate = new Date(job.createdAt);
       if (jobFromDate) {
-        const [fd, fm, fy] = jobFromDate.split("/");
-        if (jobDate < new Date(`${fy}-${fm}-${fd}`)) return false;
+        if (jobDate < new Date(jobFromDate)) return false;
       }
       if (jobToDate) {
-        const [td, tm, ty] = jobToDate.split("/");
-        const toEnd = new Date(`${ty}-${tm}-${td}`);
+        const toEnd = new Date(jobToDate);
         toEnd.setHours(23, 59, 59, 999);
         if (jobDate > toEnd) return false;
       }
@@ -450,17 +448,11 @@ function AdminOverviewPage() {
                   From Date
                 </label>
                 <input
-                  type="text"
+                  type="date"
                   className="form-control admin-overview-filter-select"
-                  placeholder="dd/mm/yyyy"
                   value={jobFromDate}
-                  maxLength={10}
-                  onChange={(e) => {
-                    let v = e.target.value.replace(/[^\d/]/g, "");
-                    if (v.length === 2 && jobFromDate.length === 1) v += "/";
-                    if (v.length === 5 && jobFromDate.length === 4) v += "/";
-                    setJobFromDate(v);
-                  }}
+                  max={jobToDate || undefined}
+                  onChange={(e) => setJobFromDate(e.target.value)}
                 />
               </div>
               <div className="admin-overview-filter-control">
@@ -469,17 +461,11 @@ function AdminOverviewPage() {
                   To Date
                 </label>
                 <input
-                  type="text"
+                  type="date"
                   className="form-control admin-overview-filter-select"
-                  placeholder="dd/mm/yyyy"
                   value={jobToDate}
-                  maxLength={10}
-                  onChange={(e) => {
-                    let v = e.target.value.replace(/[^\d/]/g, "");
-                    if (v.length === 2 && jobToDate.length === 1) v += "/";
-                    if (v.length === 5 && jobToDate.length === 4) v += "/";
-                    setJobToDate(v);
-                  }}
+                  min={jobFromDate || undefined}
+                  onChange={(e) => setJobToDate(e.target.value)}
                 />
               </div>
             </div>

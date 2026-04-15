@@ -1450,7 +1450,7 @@ function PlacementDashboardRedesigned() {
                                 )}
                             </div>
                             <div className="form-group">
-                                <label>Email <span style={{color: 'red'}}>*</span></label>
+                                <label>Placement Dean Email <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="email"
                                     value={editFormData.email || ''}

@@ -346,7 +346,7 @@ function EmpSupport() {
                 <div className="employer-page-shell employer-page-shell--header">
                     <div className="wt-admin-right-page-header clearfix employer-page-header-card emp-support-success-header">
                         <h2 className="employer-page-title">Support Ticket Submitted</h2>
-                        <p className="employer-page-subtitle">We have received your ticket and will respond within 2 to 3 working days.</p>
+                        <p className="employer-page-subtitle">We have received your ticket and will respond within 5 working days.</p>
                     </div>
                 </div>
                 <div className="employer-page-shell employer-page-shell--content d-flex align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
@@ -356,7 +356,7 @@ function EmpSupport() {
                         </div>
                          <p className="mb-4">
                             Thank you for contacting our support team.<br />
-                            We have received your ticket and will respond within 2 to  3 Working Days.
+                            We have received your ticket and will respond within 5 Working Days.
                         </p>
                         <button
                             onClick={() => setIsSubmitted(false)} 

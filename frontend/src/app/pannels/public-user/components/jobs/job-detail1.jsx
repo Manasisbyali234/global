@@ -811,7 +811,7 @@ function JobDetail1Page() {
                                         <div style={{marginBottom: '20px'}}>
                                             <h4 className="twm-s-title" style={{color: '#2c3e50', marginBottom: '20px', fontSize: '24px', fontWeight: '600'}}>
                                                 <i className="feather-check-circle" style={{marginRight: '10px', color: '#28a745'}}></i>
-                                                Responsibilities
+                                                Roles and Responsibilities
                                             </h4>
                                             <div style={{lineHeight: '1.2', fontSize: '16px', color: '#495057'}}>
                                                 <ul style={{margin: 0, paddingLeft: '2rem'}}>

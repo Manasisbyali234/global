@@ -51,6 +51,11 @@
   box-shadow: none;
 }
 
+input[type="date"].admin-overview-filter-select {
+  cursor: pointer;
+  padding-right: 8px;
+}
+
 .admin-overview-status-badge {
   display: inline-flex;
   align-items: center;

@@ -264,10 +264,6 @@ function EmpJobReviewPage() {
                                                                             <strong>{subStage.fromDate ? formatDate(subStage.fromDate) : 'N/A'}</strong>
                                                                         </div>
                                                                         <div className="substage-field">
-                                                                            <small><i className="fa fa-hourglass-half"></i> Break</small>
-                                                                            <strong>{subStage.breakTime > 0 ? `${subStage.breakTime} min` : 'No Break'}</strong>
-                                                                        </div>
-                                                                        <div className="substage-field">
                                                                             <small><i className="fa fa-clock"></i> Start</small>
                                                                             <strong>{subStage.startTime ? formatTimeToAMPM(subStage.startTime) : 'N/A'}</strong>
                                                                         </div>
