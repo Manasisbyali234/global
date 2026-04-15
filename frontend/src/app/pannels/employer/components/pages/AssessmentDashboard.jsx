@@ -25,6 +25,7 @@ export default function AssessmentDashboard() {
 	const [selectedAssessmentId, setSelectedAssessmentId] = useState("");
 	const [selectedStatus, setSelectedStatus] = useState("all");
 	const [companySearch, setCompanySearch] = useState("");
+	const [assessmentSearch, setAssessmentSearch] = useState("");
 	const [isConsultantEmployer, setIsConsultantEmployer] = useState(false);
 	const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 	const selectorRef = useRef(null);
@@ -427,37 +428,71 @@ export default function AssessmentDashboard() {
 							</button>
 							{isSelectorOpen && (
 								<div className="assessment-selector-menu" role="listbox" aria-label="Select Assessment">
-									<button
-										type="button"
-										className={`assessment-selector-option${selectedAssessmentId ? "" : " is-active"}`}
-										onClick={() => {
-											setSelectedAssessmentId("");
-											setIsSelectorOpen(false);
-										}}
-										title="Select Assessment"
-									>
-										<span className="assessment-selector-option-title">Select Assessment</span>
-										<span className="assessment-selector-option-meta">Show all assessments</span>
-									</button>
-									{assessments.map((assessment) => (
+									<div className="assessment-selector-search-wrap p-2 border-bottom bg-white" onClick={(e) => e.stopPropagation()}>
+										<div className="position-relative">
+											<i className="fa fa-search position-absolute" style={{ left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '13px' }}></i>
+											<input
+												type="text"
+												className="form-control form-control-sm"
+												placeholder="Search by title or designation..."
+												value={assessmentSearch}
+												onChange={(e) => setAssessmentSearch(e.target.value)}
+												autoFocus
+												onClick={(e) => e.stopPropagation()}
+												style={{ paddingLeft: '30px', fontSize: '13px', borderRadius: '8px', height: '36px' }}
+											/>
+										</div>
+									</div>
+									<div className="assessment-selector-options-list" style={{ overflowY: 'auto', flex: 1 }}>
 										<button
-											key={assessment._id}
 											type="button"
-											className={`assessment-selector-option${selectedAssessmentId === assessment._id ? " is-active" : ""}`}
+											className={`assessment-selector-option${selectedAssessmentId ? "" : " is-active"}`}
 											onClick={() => {
-												setSelectedAssessmentId(assessment._id);
+												setSelectedAssessmentId("");
+												setAssessmentSearch("");
 												setIsSelectorOpen(false);
 											}}
-											title={getAssessmentOptionTitle(assessment)}
+											title="Select Assessment"
 										>
-											<span className="assessment-selector-option-title">
-												{assessment.title || 'Untitled Assessment'}
-											</span>
-											<span className="assessment-selector-option-meta">
-												{assessment.designation || 'N/A'} | {assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min
-											</span>
+											<span className="assessment-selector-option-title">Select Assessment</span>
+											<span className="assessment-selector-option-meta">Show all assessments</span>
 										</button>
-									))}
+										{assessments
+											.filter(a => 
+												!assessmentSearch || 
+												(a.title || '').toLowerCase().includes(assessmentSearch.toLowerCase()) || 
+												(a.designation || '').toLowerCase().includes(assessmentSearch.toLowerCase())
+											)
+											.map((assessment) => (
+											<button
+												key={assessment._id}
+												type="button"
+												className={`assessment-selector-option${selectedAssessmentId === assessment._id ? " is-active" : ""}`}
+												onClick={() => {
+													setSelectedAssessmentId(assessment._id);
+													setAssessmentSearch("");
+													setIsSelectorOpen(false);
+												}}
+												title={getAssessmentOptionTitle(assessment)}
+											>
+												<span className="assessment-selector-option-title">
+													{assessment.title || 'Untitled Assessment'}
+												</span>
+												<span className="assessment-selector-option-meta">
+													{assessment.designation || 'N/A'} | {assessment.timer || assessment.timeLimit || assessment.duration || assessment.totalTime || 'N/A'} min
+												</span>
+											</button>
+										))}
+										{assessments.filter(a => 
+											!assessmentSearch || 
+											(a.title || '').toLowerCase().includes(assessmentSearch.toLowerCase()) || 
+											(a.designation || '').toLowerCase().includes(assessmentSearch.toLowerCase())
+										).length === 0 && (
+											<div className="p-3 text-center text-muted small">
+												No assessments found
+											</div>
+										)}
+									</div>
 								</div>
 							)}
 						</div>

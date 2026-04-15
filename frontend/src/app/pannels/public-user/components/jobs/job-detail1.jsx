@@ -655,13 +655,21 @@ function JobDetail1Page() {
                                                     </p>
                                                     
                                                     <div className="hiring-type-badge" style={{marginTop: '15px', marginBottom: '10px'}}>
-                                                        <span className={`badge ${job.employerId?.employerType === 'consultant' ? 'badge-warning' : 'badge-success'}`} 
-                                                            style={{fontSize: '14px', padding: '8px 16px', fontWeight: '600'}}>
-                                                            <i className={`feather-${job.employerId?.employerType === 'consultant' ? 'users' : 'building'}`} style={{marginRight: '6px'}}></i>
-                                                            {job.employerId?.employerType === 'consultant' 
-                                                                ? `Hiring through Consultancy - ${job.employerId?.brandName || job.employerId?.companyName || job.companyName || ''}` 
-                                                                : 'Direct Company Hiring'}
-                                                        </span>
+                                                        {job.employerId?.employerType === 'consultant' ? (
+                                                            <span
+                                                                className="badge badge-warning"
+                                                                style={{fontSize: '14px', padding: '8px 16px', fontWeight: '600', cursor: 'pointer'}}
+                                                                onClick={() => navigate(`/emp-detail/${job.employerId._id}`)}
+                                                            >
+                                                                <i className="feather-users" style={{marginRight: '6px'}}></i>
+                                                                {`Hiring through Consultancy - ${job.employerId?.brandName || job.employerId?.companyName || job.companyName || ''}`}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="badge badge-success" style={{fontSize: '14px', padding: '8px 16px', fontWeight: '600'}}>
+                                                                <i className="feather-building" style={{marginRight: '6px'}}></i>
+                                                                Direct Company Hiring
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     
 
