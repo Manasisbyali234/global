@@ -77,14 +77,14 @@ function AdminPlacementOfficersApproved() {
 
     if (loading) {
         return (
-            <div className="dashboard-content">
+            <div className="admin-emp-manage-container">
                 <PageLoader pageName="Approved Placement Dean" />
             </div>
         );
     }
 
     return (
-        <div className="dashboard-content">
+        <div className="admin-emp-manage-container">
             <div className="wt-admin-right-page-header">
                 <h2>Approved Placement Dean</h2>
                 <p>View and manage approved Placement Dean accounts</p>

@@ -152,6 +152,56 @@
     margin: 0;
 }
 
+.approved-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.approved-toolbar__controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.approved-toolbar__controls .search-bar-container {
+    margin-bottom: 0;
+}
+
+.approved-toolbar__controls .employer-search .search-input-wrapper {
+    max-width: 260px;
+    width: 260px;
+}
+
+.approved-toolbar__controls .employer-search .search-input {
+    height: 42px;
+}
+
+.approved-toolbar__controls .status-filter-select {
+    width: 160px;
+    height: 42px;
+}
+
+.approved-ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.approved-ctrl-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #232323;
+    white-space: nowrap;
+}
+
+.approved-ctrl-label i {
+    color: #ff6b35;
+}
+
 .search-section {
     display: flex;
     flex-direction: column;
@@ -897,4 +947,79 @@
 
 [data-aos="zoom-in"] {
     animation-duration: 0.5s;
+}
+
+/* Approved Employers — Stats Row */
+.approved-stats-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.approved-stat-card {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 22px 28px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border-left: 5px solid transparent;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.approved-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.13);
+}
+
+.approved-stat-card--company {
+    border-left-color: #ff6b35;
+}
+
+.approved-stat-card--consultant {
+    border-left-color: #FDC360;
+}
+
+.approved-stat-icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.approved-stat-card--company .approved-stat-icon-wrap {
+    background: rgba(255, 107, 53, 0.12);
+    color: #ff6b35;
+}
+
+.approved-stat-card--consultant .approved-stat-icon-wrap {
+    background: rgba(253, 195, 96, 0.18);
+    color: #e6a800;
+}
+
+.approved-stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #232323;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.approved-stat-label {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .approved-stats-row {
+        flex-direction: column;
+    }
 }

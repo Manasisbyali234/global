@@ -184,14 +184,14 @@ function AdminCreditsPage() {
 
 	if (loading) {
 		return (
-			<div className="container py-4">
+			<div className="admin-emp-manage-container">
 				<PageLoader pageName="Candidate Credits" />
 			</div>
 		);
 	}
 
 	return (
-		<div className="container py-4">
+		<div className="admin-emp-manage-container">
 			<div className="card shadow-sm border-0 mb-4">
 				<div className="card-body">
 					<h4 className="fw-bold mb-2">Credit Management</h4>

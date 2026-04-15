@@ -130,6 +130,7 @@ function AdminTransactionsPage() {
         return transactions.filter((t) => {
             if (t.paymentCurrency === 'CREDITS' || t.paymentId?.startsWith('credit_')) return false;
             const candidateName = t.candidateId?.name?.toLowerCase() || "";
+            const candidateEmail = t.candidateId?.email?.toLowerCase() || "";
             const companyName = t.employerId?.companyName?.toLowerCase() || "";
             if (from || to) {
                 const txDate = t.createdAt ? new Date(new Date(t.createdAt).toDateString()) : null;
@@ -137,7 +138,7 @@ function AdminTransactionsPage() {
                 if (from && txDate < from) return false;
                 if (to && txDate > to) return false;
             }
-            return candidateName.includes(q) && companyName.includes(cq);
+            return (candidateName.includes(q) || candidateEmail.includes(q)) && companyName.includes(cq);
         });
     }, [transactions, searchText, companySearch, fromDate, toDate]);
 
@@ -212,7 +213,7 @@ function AdminTransactionsPage() {
                             <input
                                 type="text"
                                 className="form-control page-toolbar__input"
-                                placeholder="Search by candidate name..."
+                                placeholder="Search by candidate name or email..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 style={{
