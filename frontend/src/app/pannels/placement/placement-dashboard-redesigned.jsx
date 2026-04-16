@@ -684,7 +684,7 @@ function PlacementDashboardRedesigned() {
                         }}
                     >
                         <i className="fa fa-dashboard"></i>
-                        <span>Overview</span>
+                        <span>Dashboard</span>
                     </div>
                     <div 
                         className={`nav-item ${activeTab === 'students' ? 'active' : ''}`}
