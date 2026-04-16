@@ -72,6 +72,7 @@ function SectionCandicateBasicInfo() {
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [fetchingLocation, setFetchingLocation] = useState(false);
+    const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
     const locationDropdownRef = useRef(null);
 
     useEffect(() => {
@@ -94,6 +95,25 @@ function SectionCandicateBasicInfo() {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (!isImagePreviewOpen) return undefined;
+
+        const originalOverflow = document.body.style.overflow;
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                setIsImagePreviewOpen(false);
+            }
+        };
+
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isImagePreviewOpen]);
 
     const fetchProfile = async () => {
         try {
@@ -410,6 +430,14 @@ function SectionCandicateBasicInfo() {
         }
     };
 
+    const previewImageSrc = imagePreview || (currentProfilePicture ? getImagePreviewSrc(currentProfilePicture) : '');
+
+    const openImagePreview = () => {
+        if (previewImageSrc) {
+            setIsImagePreviewOpen(true);
+        }
+    };
+
 
 
     const validateForm = () => {
@@ -568,19 +596,33 @@ function SectionCandicateBasicInfo() {
                                 </label>
                                 <div className="mb-3" style={{display: 'flex', justifyContent: 'center'}}>
                                     {imagePreview ? (
-                                        <img 
-                                            src={imagePreview} 
-                                            alt="Preview" 
-                                            className="profile-image-preview rounded-circle"
-                                            style={{width: '120px', height: '120px', objectFit: 'cover', border: '3px solid #ff6b35'}}
-                                        />
+                                        <button
+                                            type="button"
+                                            className="profile-image-preview-trigger"
+                                            onClick={openImagePreview}
+                                            aria-label="Preview profile picture"
+                                        >
+                                            <img
+                                                src={imagePreview}
+                                                alt="Preview"
+                                                className="profile-image-preview rounded-circle"
+                                                style={{width: '120px', height: '120px', objectFit: 'cover', border: '3px solid #ff6b35'}}
+                                            />
+                                        </button>
                                     ) : currentProfilePicture ? (
-                                        <img 
-                                            src={getImagePreviewSrc(currentProfilePicture)} 
-                                            alt="Current Profile" 
-                                            className="profile-image-preview rounded-circle"
-                                            style={{width: '120px', height: '120px', objectFit: 'cover', border: '3px solid #ff6b35'}}
-                                        />
+                                        <button
+                                            type="button"
+                                            className="profile-image-preview-trigger"
+                                            onClick={openImagePreview}
+                                            aria-label="Preview profile picture"
+                                        >
+                                            <img
+                                                src={getImagePreviewSrc(currentProfilePicture)}
+                                                alt="Current Profile"
+                                                className="profile-image-preview rounded-circle"
+                                                style={{width: '120px', height: '120px', objectFit: 'cover', border: '3px solid #ff6b35'}}
+                                            />
+                                        </button>
                                     ) : (
                                         <div className="profile-placeholder rounded-circle" 
                                              style={{width: '120px', height: '120px', backgroundColor: '#f8f9fa', border: '3px dashed #dee2e6', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -624,6 +666,9 @@ function SectionCandicateBasicInfo() {
                                     <div className="invalid-feedback d-block" style={{maxWidth: '300px', margin: '0 auto'}}>
                                         {errors.profilePicture}
                                     </div>
+                                )}
+                                {previewImageSrc && (
+                                    <small className="profile-image-preview-copy">Click the profile image to preview it</small>
                                 )}
                                 <small className="text-muted mt-2 d-block">Upload JPG, PNG or WEBP (Max 5MB)</small>
                             </div>
@@ -908,6 +953,35 @@ function SectionCandicateBasicInfo() {
                 lockCropArea={resizeConfig.lockCropArea}
                 quality={resizeConfig.quality}
             />
+            {isImagePreviewOpen && previewImageSrc && (
+                <div
+                    className="profile-image-modal-backdrop"
+                    onClick={() => setIsImagePreviewOpen(false)}
+                    role="presentation"
+                >
+                    <div
+                        className="profile-image-modal"
+                        onClick={(event) => event.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Profile image preview"
+                    >
+                        <button
+                            type="button"
+                            className="profile-image-modal-close"
+                            onClick={() => setIsImagePreviewOpen(false)}
+                            aria-label="Close image preview"
+                        >
+                            <i className="fa fa-times" />
+                        </button>
+                        <img
+                            src={previewImageSrc}
+                            alt="Profile preview"
+                            className="profile-image-modal-image"
+                        />
+                    </div>
+                </div>
+            )}
         </form>
         </>
     );

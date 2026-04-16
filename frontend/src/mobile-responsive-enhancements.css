@@ -679,8 +679,8 @@
 
   /* Link styling for touch */
   a {
-    -webkit-user-select: none !important;
-    user-select: none !important;
+    -webkit-user-select: text !important;
+    user-select: text !important;
   }
 }
 

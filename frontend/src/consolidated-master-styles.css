@@ -419,8 +419,6 @@ button,
   letter-spacing: 0.2px !important;
   text-transform: none !important;
   transition: all 0.3s ease;
-  user-select: none;
-  -webkit-user-select: none;
   position: relative;
   display: inline-flex !important;
   align-items: center !important;
