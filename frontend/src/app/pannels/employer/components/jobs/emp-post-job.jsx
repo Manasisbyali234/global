@@ -3853,7 +3853,7 @@ export default function EmpPostJob({ onNext }) {
 							<option value="situational">Situational / Behavioral</option>
 							<option value="others">Others – Specify.</option>
 						</select>
-						
+
 						{/* Others Specify Text Input */}
 						{formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'others') && (
 							<div style={{marginTop: 12}}>
@@ -4992,6 +4992,24 @@ export default function EmpPostJob({ onNext }) {
 												</div>
 
 
+											</div>
+
+											{/* Note for slot-based scheduling */}
+											<div style={{
+												marginTop: 16,
+												padding: '12px 16px',
+												background: '#fffbeb',
+												border: '1px solid #fde68a',
+												borderRadius: 10,
+												display: 'flex',
+												alignItems: 'flex-start',
+												gap: 10
+											}}>
+												<i className="fa fa-info-circle" style={{ color: '#d97706', fontSize: 15, marginTop: 2, flexShrink: 0 }}></i>
+												<div style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>
+													<span style={{ fontWeight: 700, color: '#92400e' }}>Note: </span>
+													Please select the interview date based on the available slots. Use the <strong>Start Date</strong> and <strong>End Date</strong> fields above to set the schedule, and adjust the number of days as needed.
+												</div>
 											</div>
 
 											{/* Divider Line */}
