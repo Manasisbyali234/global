@@ -442,7 +442,7 @@ function AdminOverviewPage() {
                   value={jobStatusFilter}
                   onChange={(e) => setJobStatusFilter(e.target.value)}
                 >
-                  <option value="all">All Statuses</option>
+                  <option value="all">All Status</option>
                   <option value="active">Active</option>
                   <option value="closed">Closed</option>
                 </select>

@@ -41,7 +41,6 @@ const FILE_STATUS_CONFIG = {
 const FILE_STATUS_FILTER_OPTIONS = [
     { value: 'all', label: 'All Status' },
     { value: 'pending', label: 'Pending' },
-    { value: 'approved', label: 'Approved' },
     { value: 'processed', label: 'Processed' },
     { value: 'rejected', label: 'Rejected' },
     { value: 'resubmitted', label: 'Resubmitted' }
@@ -95,11 +94,10 @@ function PlacementDetails() {
     const [rejectingFile, setRejectingFile] = useState(null);
     const [rejectionReason, setRejectionReason] = useState('');
     const [selectedCourseName, setSelectedCourseName] = useState('all');
-<<<<<<< HEAD
+
     const [viewImageModal, setViewImageModal] = useState(null); // { src, title }
-=======
+
     const [selectedFileStatus, setSelectedFileStatus] = useState('all');
->>>>>>> ea4b3c8e7358da39cf249e241eddaf5974872ad2
 
     useEffect(() => {
         fetchPlacementDetails();
