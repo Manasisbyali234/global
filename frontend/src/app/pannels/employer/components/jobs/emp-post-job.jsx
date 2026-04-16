@@ -102,6 +102,19 @@ const formatAssessmentOptionLabel = (assessment = {}, employerType = 'company') 
 		: `${nameWithDesignation} (${durationLabel})`;
 };
 
+const getAssessmentOptionId = (assessment = {}) => assessment?._id || assessment?.id || '';
+
+const getAssessmentOptionSearchText = (assessment = {}, employerType = 'company') =>
+	[
+		formatAssessmentOptionLabel(assessment, employerType),
+		assessment?.title,
+		assessment?.designation,
+		assessment?.companyName
+	]
+		.filter(Boolean)
+		.join(' ')
+		.toLowerCase();
+
 const PREDEFINED_JOB_TITLES = [
 	"Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", 
 	"Full Stack Developer", "Data Scientist", "Data Analyst", "Product Manager", 
@@ -304,6 +317,198 @@ function LocationSearchInput({ value, onChange, error, style }) {
 					{filteredLocations.length === 0 && searchTerm.trim() === '' && (
 						<div style={{ padding: '12px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
 							All locations selected or none found.
+						</div>
+					)}
+				</div>
+			)}
+		</div>
+	);
+}
+
+function AssessmentSearchSelect({
+	assessments = [],
+	value = '',
+	onSelect,
+	employerType = 'company',
+	inputStyle = {},
+	minWidth = '320px',
+	placeholder = 'Search or choose an assessment...'
+}) {
+	const selectedAssessment = assessments.find(
+		(assessment) => getAssessmentOptionId(assessment) === value
+	);
+	const selectedLabel = selectedAssessment
+		? formatAssessmentOptionLabel(selectedAssessment, employerType)
+		: '';
+	const [searchTerm, setSearchTerm] = useState('');
+	const [showDropdown, setShowDropdown] = useState(false);
+
+	const filteredAssessments = assessments.filter((assessment) =>
+		getAssessmentOptionSearchText(assessment, employerType).includes(searchTerm.trim().toLowerCase())
+	);
+
+	const handleSelect = (assessmentId) => {
+		if (!assessmentId) return;
+		setShowDropdown(false);
+		setSearchTerm('');
+		onSelect(assessmentId);
+	};
+
+	const handleKeyDown = (event) => {
+		if (event.key === 'Enter' && filteredAssessments.length > 0) {
+			event.preventDefault();
+			handleSelect(getAssessmentOptionId(filteredAssessments[0]));
+		}
+
+		if (event.key === 'Escape') {
+			setShowDropdown(false);
+			setSearchTerm('');
+		}
+	};
+
+	return (
+		<div style={{ position: 'relative', minWidth }}>
+			<div style={{ position: 'relative' }}>
+				<button
+					type="button"
+					onClick={() => {
+						setShowDropdown((prev) => !prev);
+						setSearchTerm('');
+					}}
+					style={{
+						...inputStyle,
+						width: '100%',
+						paddingLeft: '14px',
+						paddingRight: '40px',
+						cursor: 'pointer',
+						textAlign: 'left',
+						display: 'flex',
+						alignItems: 'center'
+					}}
+				>
+					<span style={{
+						color: selectedLabel ? '#0f172a' : '#94a3b8',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+						whiteSpace: 'nowrap',
+						display: 'block',
+						width: '100%'
+					}}>
+						{selectedLabel || '-- Choose an Assessment --'}
+					</span>
+				</button>
+				<div style={{
+					position: 'absolute',
+					right: '12px',
+					top: '50%',
+					transform: 'translateY(-50%)',
+					pointerEvents: 'none',
+					color: '#c26213'
+				}}>
+					<i className={`fa ${showDropdown ? 'fa-chevron-up' : 'fa-chevron-down'}`} style={{ fontSize: 12 }}></i>
+				</div>
+			</div>
+
+			{showDropdown && (
+				<div style={{
+					position: 'absolute',
+					top: 'calc(100% + 6px)',
+					left: 0,
+					right: 0,
+					background: '#fff',
+					border: '1px solid #d1d5db',
+					borderRadius: '12px',
+					maxHeight: '280px',
+					overflowY: 'auto',
+					zIndex: 1000,
+					boxShadow: '0 10px 25px rgba(15, 23, 42, 0.12)'
+				}}>
+					<div style={{
+						padding: '10px 12px',
+						borderBottom: '1px solid #e2e8f0',
+						background: '#f8fafc'
+					}}>
+						<div style={{ position: 'relative' }}>
+							<input
+								type="text"
+								value={searchTerm}
+								onChange={(event) => setSearchTerm(event.target.value)}
+								onBlur={() => {
+									setTimeout(() => {
+										setShowDropdown(false);
+										setSearchTerm('');
+									}, 180);
+								}}
+								onKeyDown={handleKeyDown}
+								placeholder={placeholder}
+								autoComplete="off"
+								autoFocus
+								style={{
+									...inputStyle,
+									minWidth: '100%',
+									width: '100%',
+									paddingLeft: '36px',
+									paddingRight: '12px',
+									borderRadius: '8px',
+									borderColor: '#cbd5e1',
+									boxShadow: 'none'
+								}}
+							/>
+							<div style={{
+								position: 'absolute',
+								left: '12px',
+								top: '50%',
+								transform: 'translateY(-50%)',
+								pointerEvents: 'none',
+								color: '#9ca3af'
+							}}>
+								<i className="fa fa-search" style={{ fontSize: 13 }}></i>
+							</div>
+						</div>
+					</div>
+					{filteredAssessments.length > 0 ? (
+						filteredAssessments.map((assessment) => {
+							const assessmentId = getAssessmentOptionId(assessment);
+							const isSelected = assessmentId === value;
+
+							return (
+								<div
+									key={assessmentId}
+									style={{
+										padding: '10px 12px',
+										cursor: 'pointer',
+										borderBottom: '1px solid #f1f5f9',
+										background: isSelected ? '#f0fdf4' : '#fff'
+									}}
+									onMouseDown={(event) => {
+										event.preventDefault();
+										handleSelect(assessmentId);
+									}}
+									onMouseEnter={(event) => {
+										if (!isSelected) {
+											event.currentTarget.style.backgroundColor = '#f8fafc';
+										}
+									}}
+									onMouseLeave={(event) => {
+										event.currentTarget.style.backgroundColor = isSelected ? '#f0fdf4' : '#fff';
+									}}
+								>
+									<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+										<div style={{ minWidth: 0 }}>
+											<div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', lineHeight: 1.4 }}>
+												{formatAssessmentOptionLabel(assessment, employerType)}
+											</div>
+										</div>
+										{isSelected && (
+											<i className="fa fa-check-circle" style={{ color: '#059669', fontSize: 14, flexShrink: 0 }}></i>
+										)}
+									</div>
+								</div>
+							);
+						})
+					) : (
+						<div style={{ padding: '12px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
+							{assessments.length === 0 ? 'No assessments available.' : 'No matching assessments found.'}
 						</div>
 					)}
 				</div>
@@ -1194,6 +1399,56 @@ export default function EmpPostJob({ onNext }) {
 			};
 		});
 
+	};
+
+	const handleAssessmentRoundSelection = (roundKey, newAssessmentId) => {
+		if (!newAssessmentId) return;
+
+		showConfirmation(
+			'Once this assessment is selected, you will not be able to edit or delete it from Create Assessment. Do you want to proceed?',
+			() => {
+				setSelectedAssessment(newAssessmentId);
+				updateRoundDetails(roundKey, 'assessmentId', newAssessmentId);
+
+				const assessment = availableAssessments.find(
+					(item) => getAssessmentOptionId(item) === newAssessmentId
+				);
+				const duration = assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime;
+
+				if (duration) {
+					setFormData((prev) => {
+						const newDetails = { ...prev.interviewRoundDetails };
+						const startTime = newDetails[roundKey]?.startTime;
+						if (!startTime) {
+							return prev;
+						}
+
+						const [hours, mins] = startTime.split(':').map(Number);
+						if (isNaN(hours) || isNaN(mins)) {
+							return prev;
+						}
+
+						const date = new Date();
+						date.setHours(hours);
+						date.setMinutes(mins + parseInt(duration, 10));
+						const endTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+						newDetails[roundKey] = { ...newDetails[roundKey], endTime };
+
+						return { ...prev, interviewRoundDetails: newDetails };
+					});
+				}
+
+				const currentDetails = formData.interviewRoundDetails[roundKey];
+				if (currentDetails?.fromDate && currentDetails?.startTime && currentDetails?.endTime) {
+					showInfo(`Assessment scheduled on ${formatDate(currentDetails.fromDate)} from ${formatTimeToAMPM(currentDetails.startTime)} to ${formatTimeToAMPM(currentDetails.endTime)}`, 4000);
+				} else {
+					showInfo('Please set assessment date and time below to complete the schedule.', 3000);
+				}
+			},
+			null,
+			'warning',
+			{ confirmText: 'Yes', cancelText: 'No' }
+		);
 	};
 
 	const generateSubStagesForDays = (uniqueKey, dayCount) => {
@@ -4522,89 +4777,22 @@ export default function EmpPostJob({ onNext }) {
 												</div>
 											</div>
 											<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-												<div style={{ position: 'relative', minWidth: isMobile ? '220px' : '320px' }}>
-													<select
-														style={{ 
-															...input, 
-															cursor: 'pointer', 
-															borderColor: selectedAssessmentForRound ? '#10b981' : '#cbd5e1', 
-															paddingRight: '40px',
-															borderRadius: '10px',
-															background: '#fff',
-															appearance: 'none',
-															fontSize: 14,
-															minWidth: isMobile ? '220px' : '320px'
-														}}
-														value={selectedAssessmentForRound}
-														onChange={(e) => {
-															const newAssessmentId = e.target.value;
-															if (!newAssessmentId) return;
-															showConfirmation(
-																'Once this assessment is selected, you will not be able to edit or delete it from Create Assessment. Do you want to proceed?',
-																() => {
-																	setSelectedAssessment(newAssessmentId);
-																	updateRoundDetails(uniqueKey, 'assessmentId', newAssessmentId);
-															
-																	// Auto-calculate endTime for this assessment round
-																	if (newAssessmentId) {
-																const assessment = availableAssessments.find(a => (a._id === newAssessmentId || a.id === newAssessmentId));
-																const duration = assessment?.timer || assessment?.timeLimit || assessment?.duration || assessment?.totalTime;
-																
-																if (duration) {
-																	setFormData(prev => {
-																		const newDetails = { ...prev.interviewRoundDetails };
-																		const startTime = newDetails[uniqueKey]?.startTime;
-																		if (!startTime) {
-																			return prev;
-																		}
-																		const [hours, mins] = startTime.split(':').map(Number);
-																		if (isNaN(hours) || isNaN(mins)) {
-																			return prev;
-																		}
-																		const date = new Date();
-																		date.setHours(hours);
-																		date.setMinutes(mins + parseInt(duration));
-																		const endTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-																		newDetails[uniqueKey] = { ...newDetails[uniqueKey], endTime };
-																		
-																		return { ...prev, interviewRoundDetails: newDetails };
-																	});
-																}
-
-																	// Show assessment info when selecting an assessment
-																	const currentDetails = formData.interviewRoundDetails[uniqueKey];
-																	
-																	if (currentDetails?.fromDate && currentDetails?.startTime && currentDetails?.endTime) {
-																		showInfo(`Assessment scheduled on ${formatDate(currentDetails.fromDate)} from ${formatTimeToAMPM(currentDetails.startTime)} to ${formatTimeToAMPM(currentDetails.endTime)}`, 4000);
-																	} else {
-																		showInfo('Please set assessment date and time below to complete the schedule.', 3000);
-																	}
-																}
-																},
-																null,
-																'warning',
-																{ confirmText: 'Yes', cancelText: 'No' }
-															);
-														}}
-													>
-														<option value="">-- Choose an Assessment --</option>
-														{availableAssessments.map((assessment) => (
-															<option key={assessment._id} value={assessment._id}>
-																{formatAssessmentOptionLabel(assessment, employerType)}
-															</option>
-														))}
-													</select>
-													<div style={{
-														position: 'absolute',
-														right: '12px',
-														top: '50%',
-														transform: 'translateY(-50%)',
-														pointerEvents: 'none',
-														color: '#c26213'
-													}}>
-														<i className="fa fa-chevron-down" style={{fontSize: 12}}></i>
-													</div>
-												</div>
+												<AssessmentSearchSelect
+													assessments={availableAssessments}
+													value={selectedAssessmentForRound}
+													onSelect={(newAssessmentId) => handleAssessmentRoundSelection(uniqueKey, newAssessmentId)}
+													employerType={employerType}
+													minWidth={isMobile ? '220px' : '320px'}
+													inputStyle={{
+														...input,
+														cursor: 'text',
+														borderColor: selectedAssessmentForRound ? '#10b981' : '#cbd5e1',
+														borderRadius: '10px',
+														background: '#fff',
+														fontSize: 14,
+														minWidth: isMobile ? '220px' : '320px'
+													}}
+												/>
 												{selectedAssessmentForRound && (
 													<div style={{
 														display: 'flex', 

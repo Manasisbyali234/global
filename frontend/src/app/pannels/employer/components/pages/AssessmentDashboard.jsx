@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import AssessmentCard from "../assessments/AssessmnetCard";
 import CreateAssessmentModal from "../assessments/CreateassessmentModal";
 import { api } from '../../../../../utils/api';
@@ -15,11 +14,21 @@ const STATUS_OPTIONS = [
 	{ value: "published", label: "Published" },
 ];
 
+const ASSESSMENT_INSTRUCTION_LINES = [
+	"MCQ Assessments: Auto-evaluated results are shown instantly.",
+	"Descriptive Tests: Require manual evaluation by the employer.",
+	"Next Round Eligibility: Only qualified candidates can proceed.",
+	"Status Updates: Mandatory at every stage.",
+	"Slot Booking: Enabled only after status updates.",
+	"Candidate Monitoring: Webcam remains active during assessments.",
+	"Right to Reject: Employers can reject candidates at any stage.",
+	"Timely Updates: All stages must be updated within 24 hours."
+];
+
 export default function AssessmentDashboard() {
 	const [assessments, setAssessments] = useState([]);
 	const [filteredAssessments, setFilteredAssessments] = useState([]);
 	const [showModal, setShowModal] = useState(false);
-	const [instructionsModalMode, setInstructionsModalMode] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [editingAssessment, setEditingAssessment] = useState(null);
 	const [selectedAssessmentId, setSelectedAssessmentId] = useState("");
@@ -29,8 +38,6 @@ export default function AssessmentDashboard() {
 	const [isConsultantEmployer, setIsConsultantEmployer] = useState(false);
 	const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 	const selectorRef = useRef(null);
-	const isInstructionsModalOpen = Boolean(instructionsModalMode);
-	const isCreateInstructionsFlow = instructionsModalMode === "create";
 
 	const truncateText = (value, maxLength) => {
 		const text = String(value || '').trim();
@@ -130,21 +137,7 @@ export default function AssessmentDashboard() {
 	};
 
 	const handleCreateAssessmentClick = () => {
-		setInstructionsModalMode("create");
-	};
-
-	const handleInstructionsModalClose = () => {
-		setInstructionsModalMode(null);
-	};
-
-	const handleInstructionsModalPrimaryAction = () => {
-		const shouldOpenCreateConfirmation = isCreateInstructionsFlow;
-		setInstructionsModalMode(null);
-		if (shouldOpenCreateConfirmation) {
-			setTimeout(() => {
-				openCreateAssessmentConfirmation();
-			}, 0);
-		}
+		openCreateAssessmentConfirmation();
 	};
 
 	useEffect(() => {
@@ -298,87 +291,6 @@ export default function AssessmentDashboard() {
 
 	const selectedAssessment = getSelectedAssessment();
 
-	const instructionsModal = isInstructionsModalOpen && typeof document !== "undefined"
-		? createPortal(
-			<div
-				className="assessment-instructions-modal-overlay"
-				onClick={(event) => {
-					if (event.target === event.currentTarget) {
-						handleInstructionsModalClose();
-					}
-				}}
-				role="presentation"
-			>
-				<div
-					className="assessment-instructions-modal"
-					role="dialog"
-					aria-modal="true"
-					aria-labelledby="assessment-instructions-title"
-				>
-					<div className="assessment-instructions-header">
-						<div className="assessment-instructions-heading">
-							<div className="assessment-instructions-icon">
-								<i className="fa fa-info-circle" aria-hidden="true"></i>
-							</div>
-							<div>
-								<h3 id="assessment-instructions-title">Instructions for Assessment & Interview Process</h3>
-								<p className="mb-0">Review these guidelines before managing candidate assessments and interview rounds.</p>
-							</div>
-						</div>
-						<button
-							type="button"
-							className="btn btn-dark assessment-instructions-header-close"
-							onClick={handleInstructionsModalClose}
-						>
-							{isCreateInstructionsFlow ? 'Cancel' : 'Close'}
-						</button>
-					</div>
-
-					<div className="assessment-instructions-body">
-						<div className="assessment-instructions-item">
-							<h4>For MCQ Assessments</h4>
-							<p>Results are evaluated automatically and candidates can view their results immediately after completion.</p>
-						</div>
-						<div className="assessment-instructions-item">
-							<h4>For Subjective / Descriptive / Written Tests</h4>
-							<p>Evaluation must be done manually by the employer. Candidates become eligible for the next round only after marks or stages are updated.</p>
-						</div>
-						<div className="assessment-instructions-item">
-							<h4>Progression to Next Round (MCQ)</h4>
-							<p>If a candidate meets the qualifying criteria, the next interview stage, including slot booking, is enabled instantly.</p>
-						</div>
-						<div className="assessment-instructions-item">
-							<h4>Mandatory Status Updates</h4>
-							<p>Updating candidate status at every stage is mandatory. Without status updates, candidates cannot access or book slots for the next round.</p>
-						</div>
-						<div className="assessment-instructions-item">
-							<h4>Candidate Monitoring & Integrity</h4>
-							<p>During assessments, the candidate&apos;s webcam remains active and images are captured throughout the test. All captured images are available inside the respective candidate application for review.</p>
-						</div>
-						<div className="assessment-instructions-item">
-							<h4>Right to Reject</h4>
-							<p>Employers have full authority to reject candidates at any stage, even after passing the assessment, if malpractice such as copying or external assistance is detected.</p>
-						</div>
-						<div className="assessment-instructions-item">
-							<h4>Timely Updates</h4>
-							<p>Employers must update the status of each stage within 24 hours to ensure a smooth hiring process.</p>
-						</div>
-					</div>
-					<div className="assessment-instructions-footer">
-						<button
-							type="button"
-							className="btn btn-dark assessment-instructions-footer-button"
-							onClick={handleInstructionsModalPrimaryAction}
-						>
-							{isCreateInstructionsFlow ? 'OK' : 'Close'}
-						</button>
-					</div>
-				</div>
-			</div>,
-			document.body
-		)
-		: null;
-
 	return (
 		<div className="twm-right-section-panel site-bg-gray emp-assessment-page" style={{
 			width: '100%',
@@ -390,18 +302,28 @@ export default function AssessmentDashboard() {
 			{/* Header */}
 			<div className="employer-page-shell employer-page-shell--header">
 				<div className="wt-admin-right-page-header clearfix employer-page-header-card" style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-						<div className="d-flex justify-content-between align-items-center">
+						<div className="d-flex justify-content-between align-items-center assessment-header-top-row">
 							<div>
 								<h2 className="employer-page-title">Assessments</h2>
 								<p className="employer-page-subtitle text-muted mb-0">Manage and create your assessments</p>
 							</div>
-							<div className="d-flex align-items-center gap-3">
+							<div className="d-flex align-items-center gap-3 assessment-header-actions">
 								<span className="badge bg-light text-dark px-3 py-2" style={{fontSize: '14px'}}>
 									Showing: {filteredAssessments.length} of {assessments.length}
 								</span>
 								<button className="btn btn-dark" onClick={handleCreateAssessmentClick}>
 									<i className="fa fa-plus me-2"></i>Create Assessment
 								</button>
+							</div>
+						</div>
+						<div className="assessment-instructions-inline" aria-label="Assessment instructions">
+							<div className="assessment-instructions-inline-label">Instructions</div>
+							<div className="assessment-instructions-inline-list">
+								{ASSESSMENT_INSTRUCTION_LINES.map((line) => (
+									<div key={line} className="assessment-instructions-inline-item">
+										{line}
+									</div>
+								))}
 							</div>
 						</div>
 				</div>
@@ -572,7 +494,6 @@ export default function AssessmentDashboard() {
 					editData={editingAssessment}
 				/>
 			)}
-			{instructionsModal}
 		</div>
 	);
 }

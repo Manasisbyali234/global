@@ -1,6 +1,6 @@
-const MAX_SKIPPED_EMAILS_IN_POPUP = 5;
+const MAX_DUPLICATE_EMAILS_IN_POPUP = 5;
 
-const normalizeSkippedEmails = (emails = []) => (
+const normalizeDuplicateEmails = (emails = []) => (
   [...new Set(
     emails
       .map(email => String(email || '').trim())
@@ -8,29 +8,41 @@ const normalizeSkippedEmails = (emails = []) => (
   )]
 );
 
-export const buildPlacementUploadPopup = (message, skippedEmails = [], fallbackMessage = '') => {
-  const normalizedMessage = String(message || fallbackMessage || '').trim();
-  const normalizedSkippedEmails = normalizeSkippedEmails(skippedEmails);
+const normalizeDuplicateEmailMessage = (message = '') => String(message || '')
+  .replace(/Skipped emails:/gi, 'Duplicate emails:')
+  .replace(
+    /are repeated in this file and will be skipped during processing/gi,
+    'are duplicate emails in this file'
+  )
+  .replace(
+    /already exist in the system and will be skipped during processing/gi,
+    'already exist in the system as duplicate emails'
+  )
+  .trim();
 
-  if (normalizedSkippedEmails.length === 0) {
+export const buildPlacementUploadPopup = (message, skippedEmails = [], fallbackMessage = '') => {
+  const normalizedMessage = normalizeDuplicateEmailMessage(message || fallbackMessage || '');
+  const normalizedDuplicateEmails = normalizeDuplicateEmails(skippedEmails);
+
+  if (normalizedDuplicateEmails.length === 0) {
     return {
       message: normalizedMessage,
       duration: 5000
     };
   }
 
-  if (/will be skipped during processing|skipped emails:/i.test(normalizedMessage)) {
+  if (/duplicate emails?:/i.test(normalizedMessage)) {
     return {
       message: normalizedMessage,
       duration: 8000
     };
   }
 
-  const skippedEmailList = normalizedSkippedEmails.slice(0, MAX_SKIPPED_EMAILS_IN_POPUP).join(', ');
-  const remainingSkippedCount = normalizedSkippedEmails.length - MAX_SKIPPED_EMAILS_IN_POPUP;
+  const duplicateEmailList = normalizedDuplicateEmails.slice(0, MAX_DUPLICATE_EMAILS_IN_POPUP).join(', ');
+  const remainingDuplicateCount = normalizedDuplicateEmails.length - MAX_DUPLICATE_EMAILS_IN_POPUP;
 
   return {
-    message: `${normalizedMessage} Skipped emails: ${skippedEmailList}${remainingSkippedCount > 0 ? ` and ${remainingSkippedCount} more` : ''}.`.trim(),
+    message: `${normalizedMessage} Duplicate emails: ${duplicateEmailList}${remainingDuplicateCount > 0 ? ` and ${remainingDuplicateCount} more` : ''}.`.trim(),
     duration: 8000
   };
 };

@@ -44,6 +44,7 @@ function EmployerSupportTickets() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isConsultantEmployer, setIsConsultantEmployer] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [isTicketModalMinimized, setIsTicketModalMinimized] = useState(false);
@@ -88,8 +89,18 @@ function EmployerSupportTickets() {
     };
 
     useEffect(() => {
+        fetchEmployerProfile();
+    }, []);
+
+    useEffect(() => {
         fetchSupportTickets();
     }, [filters.status, filters.priority, filters.receiver]);
+
+    useEffect(() => {
+        if (!isConsultantEmployer && filters.companySearch) {
+            setFilters((previous) => ({ ...previous, companySearch: '' }));
+        }
+    }, [isConsultantEmployer, filters.companySearch]);
 
     useEffect(() => {
         if (!showModal) return undefined;
@@ -145,6 +156,18 @@ function EmployerSupportTickets() {
             showError('Network error. Please check your connection and try again.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchEmployerProfile = async () => {
+        try {
+            const data = await api.getEmployerProfile();
+            const employerType = String(data?.profile?.employerId?.employerType || '').toLowerCase();
+            const employerCategory = String(data?.profile?.employerCategory || '').toLowerCase();
+            setIsConsultantEmployer(employerType === 'consultant' || employerCategory === 'consultancy');
+        } catch (error) {
+            console.error('Error fetching employer profile:', error);
+            setIsConsultantEmployer(false);
         }
     };
 
@@ -445,23 +468,25 @@ function EmployerSupportTickets() {
                                 />
                             </div>
                         </Col>
-                        <Col md={3}>
-                            <div className="search-input-wrapper">
-                                <span className="search-input-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" focusable="false">
-                                        <circle cx="11" cy="11" r="7"></circle>
-                                        <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
-                                    </svg>
-                                </span>
-                                <Form.Control
-                                    type="text"
-                                    className="search-input"
-                                    placeholder="Search by company name"
-                                    value={filters.companySearch}
-                                    onChange={(e) => setFilters({ ...filters, companySearch: e.target.value })}
-                                />
-                            </div>
-                        </Col>
+                        {isConsultantEmployer && (
+                            <Col md={3}>
+                                <div className="search-input-wrapper">
+                                    <span className="search-input-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false">
+                                            <circle cx="11" cy="11" r="7"></circle>
+                                            <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+                                        </svg>
+                                    </span>
+                                    <Form.Control
+                                        type="text"
+                                        className="search-input"
+                                        placeholder="Search by company name"
+                                        value={filters.companySearch}
+                                        onChange={(e) => setFilters({ ...filters, companySearch: e.target.value })}
+                                    />
+                                </div>
+                            </Col>
+                        )}
                         <Col md={3}>
                             <div className="filter-select-wrapper">
                                 <Form.Select

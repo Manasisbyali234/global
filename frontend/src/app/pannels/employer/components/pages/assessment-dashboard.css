@@ -31,21 +31,48 @@
   gap: 0.5rem !important;
 }
 
-.emp-assessment-page .assessment-instructions-button {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 0.5rem !important;
-  border-color: #cbd5e1 !important;
-  color: #1f2937 !important;
-  background: #ffffff !important;
+.emp-assessment-page .assessment-header-top-row {
+  gap: 16px;
 }
 
-.emp-assessment-page .assessment-instructions-button:hover,
-.emp-assessment-page .assessment-instructions-button:focus {
-  border-color: #94a3b8 !important;
-  background: #f8fafc !important;
-  color: #0f172a !important;
+.emp-assessment-page .assessment-header-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.emp-assessment-page .assessment-instructions-inline {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+}
+
+.emp-assessment-page .assessment-instructions-inline-label {
+  margin-bottom: 10px;
+  color: #9a3412;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.emp-assessment-page .assessment-instructions-inline-list {
+  display: grid;
+  gap: 8px;
+}
+
+.emp-assessment-page .assessment-instructions-inline-item {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.emp-assessment-page .assessment-instructions-inline-item::before {
+  content: '\2022';
+  color: #ea580c;
+  font-weight: 700;
+  margin-right: 10px;
 }
 
 .emp-assessment-page .assessment-search-input-wrap {
@@ -277,157 +304,6 @@
   line-height: 1.4;
 }
 
-.assessment-instructions-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483644 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(15, 23, 42, 0.45);
-}
-
-.assessment-instructions-modal {
-  position: relative;
-  width: min(760px, 100%);
-  max-height: calc(100vh - 48px);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
-  z-index: 2147483645 !important;
-}
-
-.assessment-instructions-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 36px;
-  height: 36px;
-  border: 0;
-  border-radius: 999px;
-  background: #f1f5f9;
-  color: #475569;
-  font-size: 24px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 !important;
-  margin: 0 !important;
-  appearance: none;
-  cursor: pointer;
-  z-index: 2147483646 !important;
-}
-
-.assessment-instructions-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 28px 32px 20px;
-  border-bottom: 1px solid #e2e8f0;
-  background: linear-gradient(135deg, #fff7ed 0%, #ffffff 65%);
-}
-
-.assessment-instructions-heading {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.assessment-instructions-header h3 {
-  margin: 0 0 6px;
-  color: #0f172a;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.assessment-instructions-header p {
-  color: #64748b;
-  line-height: 1.6;
-}
-
-.assessment-instructions-icon {
-  flex: 0 0 56px;
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  background: #fed7aa;
-  color: #c2410c;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-}
-
-.assessment-instructions-body {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 24px 32px 8px;
-}
-
-.assessment-instructions-footer {
-  display: flex;
-  justify-content: flex-end;
-  flex-shrink: 0;
-  padding: 0 32px 28px;
-}
-
-.assessment-instructions-footer-button {
-  min-width: 120px;
-}
-
-.emp-assessment-page .assessment-instructions-header-close,
-.emp-assessment-page .assessment-instructions-footer-button {
-  overflow: visible !important;
-  text-overflow: clip !important;
-}
-
-.assessment-instructions-item {
-  padding: 0 0 18px 22px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid #f1f5f9;
-  position: relative;
-}
-
-.assessment-instructions-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 7px;
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: #f97316;
-  box-shadow: 0 0 0 5px rgba(249, 115, 22, 0.12);
-}
-
-.assessment-instructions-item h4 {
-  margin: 0 0 8px;
-  color: #0f172a;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.assessment-instructions-item p {
-  margin: 0;
-  color: #475569;
-  line-height: 1.7;
-}
-
-.assessment-instructions-header-close {
-  flex: 0 0 auto;
-  align-self: flex-start;
-  margin: 0 !important;
-}
-
 @media (max-width: 768px) {
   .emp-assessment-page .assessment-selector-row {
     align-items: stretch !important;
@@ -516,8 +392,17 @@
     order: -1 !important;
   }
 
-  .emp-assessment-page .assessment-instructions-button {
-    width: 100% !important;
+  .emp-assessment-page .assessment-header-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .emp-assessment-page .assessment-instructions-inline {
+    padding: 14px 15px;
+  }
+
+  .emp-assessment-page .assessment-instructions-inline-item {
+    font-size: 13px;
   }
 
   /* Improve mobile responsiveness */
@@ -557,56 +442,4 @@
     max-width: 100% !important;
   }
 
-  .assessment-instructions-modal-overlay {
-    padding: 12px;
-    align-items: flex-start;
-    overflow-y: auto;
-  }
-
-  .assessment-instructions-modal {
-    max-height: calc(100vh - 24px);
-    border-radius: 16px;
-    margin: auto 0;
-  }
-
-  .assessment-instructions-header {
-    padding: 22px 18px 18px;
-    gap: 12px;
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .assessment-instructions-header h3 {
-    font-size: 20px;
-  }
-
-  .assessment-instructions-heading {
-    gap: 12px;
-  }
-
-  .assessment-instructions-icon {
-    width: 46px;
-    height: 46px;
-    flex-basis: 46px;
-    font-size: 22px;
-    border-radius: 14px;
-  }
-
-  .assessment-instructions-body {
-    flex: 1 1 auto;
-    min-height: 0;
-    padding: 18px 18px 6px;
-  }
-
-  .assessment-instructions-footer {
-    padding: 0 18px 18px;
-  }
-
-  .assessment-instructions-footer-button {
-    width: 100% !important;
-  }
-
-  .assessment-instructions-header-close {
-    width: 100% !important;
-  }
 }
