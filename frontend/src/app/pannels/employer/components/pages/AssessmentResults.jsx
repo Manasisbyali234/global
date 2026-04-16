@@ -17,6 +17,7 @@ export default function AssessmentResults() {
   const [companyFilter, setCompanyFilter] = useState('all');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [employerCategory, setEmployerCategory] = useState('');
 
   const getResultCompanyName = (result) =>
     result?.jobId?.companyName ||
@@ -32,6 +33,7 @@ export default function AssessmentResults() {
 
   useEffect(() => {
     fetchResults();
+    fetchEmployerCategory();
     
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 767);
@@ -42,6 +44,25 @@ export default function AssessmentResults() {
     
     return () => window.removeEventListener('resize', checkMobile);
   }, [assessmentId]);
+
+  const fetchEmployerCategory = async () => {
+    try {
+      const token = localStorage.getItem('employerToken');
+      const response = await axios.get('http://localhost:5000/api/employer/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        const profile = response.data.profile;
+        const category = (profile?.employerCategory || '').toLowerCase();
+        const empType = (profile?.employerId?.employerType || '').toLowerCase();
+        // 'company' employerType or 'company' category means not a consultancy
+        const isConsultancy = category === 'consultancy' || category === 'consultant' || empType === 'consultant';
+        setEmployerCategory(isConsultancy ? 'consultancy' : 'company');
+      }
+    } catch (error) {
+      console.error('Error fetching employer category:', error);
+    }
+  };
 
   const fetchResults = async () => {
     try {
@@ -221,6 +242,7 @@ export default function AssessmentResults() {
                 <option value="suspended">Suspended</option>
               </select>
             </div>
+            {employerCategory !== 'company' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Company:</label>
               <select
@@ -243,6 +265,7 @@ export default function AssessmentResults() {
                 ))}
               </select>
             </div>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <label style={{ color: '#374151', fontWeight: '500', fontSize: '0.875rem', whiteSpace: 'nowrap', margin: 0 }}>Designation:</label>
               <select
