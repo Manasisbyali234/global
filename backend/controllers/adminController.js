@@ -2967,12 +2967,6 @@ exports.approveIndividualFile = async (req, res) => {
         }
       );
 
-      const skippedEmails = [...new Set(skippedCandidates.map(candidate => candidate.email).filter(Boolean))];
-      const skippedEmailList = formatEmailListForNotification(skippedEmails);
-      const skippedEmailMessage = skippedEmailList
-        ? ` Skipped emails: ${skippedEmailList}.`
-        : '';
-
       // Create comprehensive notification
       try {
         const displayName = file.customName || file.fileName;
@@ -2987,7 +2981,7 @@ exports.approveIndividualFile = async (req, res) => {
 
         await createNotification({
           title: 'Student File Processed',
-          message: `File "${displayName}" processed. Created: ${createdCount}, skipped: ${skippedCount}.${skippedEmailMessage}`,
+          message: `File "${displayName}" processed. Created: ${createdCount}, skipped: ${skippedCount}.`,
           type: 'file_processed',
           role: 'placement',
           placementId: new mongoose.Types.ObjectId(placementId),
@@ -3001,9 +2995,9 @@ exports.approveIndividualFile = async (req, res) => {
       const displayName = file.customName || file.fileName;
       let message;
       if (createdCount === 0 && skippedCount > 0) {
-        message = `File "${displayName}" processed! ${skippedCount} students were skipped.${skippedEmailMessage} Use "Resend Welcome Emails" to send emails to existing students.`;
+        message = `File "${displayName}" processed! ${skippedCount} students were skipped. Use "Resend Welcome Emails" to send emails to existing students.`;
       } else {
-        message = `File "${displayName}" approved! All non-skipped students can now create their passwords and access their accounts.${skippedEmailMessage}`;
+        message = `File "${displayName}" approved! All non-skipped students can now create their passwords and access their accounts.`;
       }
       
       res.json({
@@ -3014,12 +3008,10 @@ exports.approveIndividualFile = async (req, res) => {
           skipped: skippedCount, 
           errors: errors.length,
           emailsSent: emailsSent,
-          emailsFailed: emailsFailed,
-          skippedEmails: skippedEmails
+          emailsFailed: emailsFailed
         },
         createdCandidates: createdCandidates.slice(0, 10),
         skippedCandidates: skippedCandidates.slice(0, 10),
-        skippedEmails,
         errors: errors.slice(0, 10),
         loginInstructions: {
           url: 'http://localhost:3000/',
