@@ -1540,7 +1540,7 @@ export default function EmpPostJob({ onNext }) {
 												}}>
 													{stageNumber}
 												</span>
-												Stage {stageNumber}: Assessment Schedule {assessmentIndex + 1}
+												Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex + 1}
 												<div style={{display: 'flex', alignItems: 'center', gap: 8, marginLeft: 12}}>
 													<button
 														style={{

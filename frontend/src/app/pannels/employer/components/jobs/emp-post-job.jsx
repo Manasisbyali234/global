@@ -3844,7 +3844,7 @@ export default function EmpPostJob({ onNext }) {
 							}}
 						>
 							<option value="">-- Select Round Type --</option>
-							<option value="assessment">MCQ/Aptitude/Assessment</option>
+							<option value="assessment">MCQ/Assessment</option>
 							<option value="oneOnOnePanel">One-on-One / Panel</option>
 							<option value="group">Group</option>
 							<option value="managerial">Managerial Round</option>
@@ -3937,7 +3937,7 @@ export default function EmpPostJob({ onNext }) {
 									oneOnOnePanel: 'One-on-One / Panel',
 									group: 'Group',
 									situational: 'Situational / Behavioral',
-									assessment: 'MCQ/Aptitude/Assessment Schedule',
+									assessment: 'MCQ/Assessment Schedule',
 									others: 'Others – Specify.'
 								};
 								
@@ -4304,7 +4304,7 @@ export default function EmpPostJob({ onNext }) {
 											</span>
 											<div>
 												<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
-													Stage {stageNumber}: Assessment Schedule {assessmentIndex + 1}
+													Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex + 1}
 												</h4>
 												<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 											</div>
@@ -4516,7 +4516,7 @@ export default function EmpPostJob({ onNext }) {
 														</span>
 														<div>
 															<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
-																Stage {stageNumber}: Assessment Schedule {assessmentIndex}
+																Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex}
 															</h4>
 													<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 												</div>
@@ -5352,7 +5352,7 @@ export default function EmpPostJob({ onNext }) {
 													</span>
 													<div>
 														<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
-															Stage {stageNumber}: Assessment Schedule {assessmentIndex + 1}
+															Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex + 1}
 														</h4>
 														<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 													</div>

@@ -394,7 +394,7 @@ function AdminTransactionsPage() {
                                             <div>
                                                 <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '45px', marginBottom: '15px' }} />
                                                 <div className="text-muted small">
-                                                    <p className="mb-1 fw-bold text-dark">TALEGLOBAL PLATFORM</p>
+                                                    <p className="mb-1 fw-bold text-dark"></p>
                                                     <p className="mb-1">Whitefield, Bengaluru, Karnataka 560066</p>
                                                     <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1Z</p>
                                                     <p className="mb-0"><strong>Email:</strong> finance@taleglobal.com</p>

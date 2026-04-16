@@ -462,7 +462,7 @@ function CanTransactionsPage() {
                                             <div style={{ flex: '1 1 auto' }}>
                                                 <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '38px', marginBottom: '10px' }} />
                                                 <div className="text-muted" style={{ fontSize: '0.82rem' }}>
-                                                    <p className="mb-1 fw-bold text-dark">TALEGLOBAL PLATFORM</p>
+                                                    <p className="mb-1 fw-bold text-dark"></p>
                                                     <p className="mb-1">Whitefield, Bengaluru, Karnataka 560066</p>
                                                     <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1Z</p>
                                                     <p className="mb-0"><strong>Support:</strong> help@taleglobal.net</p>
