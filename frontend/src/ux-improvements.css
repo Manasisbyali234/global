@@ -25,8 +25,6 @@ input:focus:not(:focus-visible) {
 /* ===== Better Button Feedback ===== */
 .circle-line-btn {
     transition: all 0.3s ease;
-    user-select: none;
-    -webkit-user-select: none;
 }
 
 

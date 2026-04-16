@@ -9,6 +9,66 @@ import '../../../../table-id-fix.css';
 import '../../../../placement-rejection-styles.css';
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+
+const FILE_STATUS_CONFIG = {
+    pending: {
+        badgeClass: 'is-pending',
+        iconClass: 'fa-clock-o',
+        label: 'Waiting for Admin Approval'
+    },
+    approved: {
+        badgeClass: 'is-approved',
+        iconClass: 'fa-check',
+        label: 'Approved'
+    },
+    processed: {
+        badgeClass: 'is-processed',
+        iconClass: 'fa-check-circle',
+        label: 'Processed - Login Ready'
+    },
+    rejected: {
+        badgeClass: 'is-rejected',
+        iconClass: 'fa-times',
+        label: 'Rejected'
+    },
+    resubmitted: {
+        badgeClass: 'is-resubmitted',
+        iconClass: 'fa-refresh',
+        label: 'Resubmitted'
+    }
+};
+
+const FILE_STATUS_FILTER_OPTIONS = [
+    { value: 'all', label: 'All Status' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'processed', label: 'Processed' },
+    { value: 'rejected', label: 'Rejected' },
+    { value: 'resubmitted', label: 'Resubmitted' }
+];
+
+const getNormalizedFileStatus = (file) => {
+    const rawStatus = String(file?.status || '').trim().toLowerCase();
+
+    if (rawStatus === 'processed') {
+        return 'processed';
+    }
+
+    if (rawStatus === 'approved') {
+        return 'approved';
+    }
+
+    if (rawStatus === 'rejected') {
+        return 'rejected';
+    }
+
+    if (rawStatus === 'resubmitted' || file?.resubmitted === true || file?.isResubmitted === true) {
+        return 'resubmitted';
+    }
+
+    return 'pending';
+};
+
 function PlacementDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -35,7 +95,11 @@ function PlacementDetails() {
     const [rejectingFile, setRejectingFile] = useState(null);
     const [rejectionReason, setRejectionReason] = useState('');
     const [selectedCourseName, setSelectedCourseName] = useState('all');
+<<<<<<< HEAD
     const [viewImageModal, setViewImageModal] = useState(null); // { src, title }
+=======
+    const [selectedFileStatus, setSelectedFileStatus] = useState('all');
+>>>>>>> ea4b3c8e7358da39cf249e241eddaf5974872ad2
 
     useEffect(() => {
         fetchPlacementDetails();
@@ -57,13 +121,18 @@ function PlacementDetails() {
     }, [placement]);
 
     const filteredFileHistory = useMemo(() => {
-        const files = placement?.fileHistory || [];
-        if (selectedCourseName === 'all') {
-            return files;
+        let files = placement?.fileHistory || [];
+
+        if (selectedCourseName !== 'all') {
+            files = files.filter((file) => String(file?.customName || '').trim().toLowerCase() === selectedCourseName);
         }
 
-        return files.filter((file) => String(file?.customName || '').trim().toLowerCase() === selectedCourseName);
-    }, [placement, selectedCourseName]);
+        if (selectedFileStatus !== 'all') {
+            files = files.filter((file) => getNormalizedFileStatus(file) === selectedFileStatus);
+        }
+
+        return files;
+    }, [placement, selectedCourseName, selectedFileStatus]);
 
     const displayedFileHistory = useMemo(() => (
         filteredFileHistory.slice().reverse()
@@ -396,27 +465,8 @@ function PlacementDetails() {
     };
 
     const renderFileStatus = (file) => {
-        let badgeClass = 'is-pending';
-        let iconClass = 'fa-clock-o';
-        let label = 'Waiting for Admin Approval';
-
-        if (file.status === 'processed') {
-            badgeClass = 'is-processed';
-            iconClass = 'fa-check-circle';
-            label = 'Processed - Login Ready';
-        } else if (file.status === 'approved') {
-            badgeClass = 'is-approved';
-            iconClass = 'fa-check';
-            label = 'Approved';
-        } else if (file.status === 'rejected') {
-            badgeClass = 'is-rejected';
-            iconClass = 'fa-times';
-            label = 'Rejected';
-        } else if (file.status === 'resubmitted' || file.resubmitted === true || file.isResubmitted === true) {
-            badgeClass = 'is-resubmitted';
-            iconClass = 'fa-refresh';
-            label = 'Resubmitted';
-        }
+        const normalizedStatus = getNormalizedFileStatus(file);
+        const { badgeClass, iconClass, label } = FILE_STATUS_CONFIG[normalizedStatus];
 
         return (
             <div className="placement-file-history-status-stack">
@@ -424,12 +474,12 @@ function PlacementDetails() {
                     <i className={`fa ${iconClass} me-2`}></i>
                     {label}
                 </span>
-                {file.status === 'approved' && file.candidatesCreated > 0 && (
+                {normalizedStatus === 'approved' && file.candidatesCreated > 0 && (
                     <span className="placement-file-history-status-meta">
                         {file.candidatesCreated} candidate{file.candidatesCreated === 1 ? '' : 's'} created
                     </span>
                 )}
-                {file.status === 'rejected' && file.rejectionReason && (
+                {normalizedStatus === 'rejected' && file.rejectionReason && (
                     <div className="placement-file-history-status-note">
                         <strong>Reason:</strong> {file.rejectionReason}
                     </div>
@@ -777,13 +827,13 @@ function PlacementDetails() {
                                         {filteredFileHistory.length} of {placement.fileHistory.length} files
                                     </span>
                                 </div>
-                                <div className="placement-university-filter-wrap">
-                                    <label className="placement-university-filter-label" htmlFor="placement-university-filter">
+                                <div className="placement-file-history-filter-wrap">
+                                    <label className="placement-file-history-filter-label" htmlFor="placement-university-filter">
                                         Course Name
                                     </label>
                                     <select
                                         id="placement-university-filter"
-                                        className="form-select placement-university-filter-select"
+                                        className="form-select placement-file-history-filter-select"
                                         value={selectedCourseName}
                                         onChange={(event) => setSelectedCourseName(event.target.value)}
                                     >
@@ -795,13 +845,30 @@ function PlacementDetails() {
                                         ))}
                                     </select>
                                 </div>
+                                <div className="placement-file-history-filter-wrap">
+                                    <label className="placement-file-history-filter-label" htmlFor="placement-file-status-filter">
+                                        Status
+                                    </label>
+                                    <select
+                                        id="placement-file-status-filter"
+                                        className="form-select placement-file-history-filter-select"
+                                        value={selectedFileStatus}
+                                        onChange={(event) => setSelectedFileStatus(event.target.value)}
+                                    >
+                                        {FILE_STATUS_FILTER_OPTIONS.map((statusOption) => (
+                                            <option key={statusOption.value} value={statusOption.value}>
+                                                {statusOption.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div className="placement-file-history-table-scroll">
                             {filteredFileHistory.length === 0 ? (
                                 <div className="placement-file-history-empty">
                                     <i className="fa fa-filter"></i>
-                                    <span>No uploaded files match the selected university.</span>
+                                    <span>No uploaded files match the selected filters.</span>
                                 </div>
                                                         ) : (
                                 <table className="table placement-file-history-table align-middle mb-0">

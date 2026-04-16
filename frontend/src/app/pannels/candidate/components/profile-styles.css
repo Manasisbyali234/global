@@ -110,6 +110,27 @@ label {
     box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
 }
 
+.profile-image-preview-trigger {
+    background: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 50%;
+    cursor: zoom-in;
+}
+
+.profile-image-preview-trigger:focus-visible {
+    outline: 3px solid rgba(255, 107, 53, 0.35);
+    outline-offset: 6px;
+}
+
+.profile-image-preview-copy {
+    margin-top: 10px;
+    display: block;
+    color: #ff6b35;
+    font-size: 12px;
+    font-weight: 600;
+}
+
 .profile-placeholder {
     width: 120px;
     height: 120px;
@@ -411,4 +432,72 @@ select.form-control[name="location"] {
 
 .col-md-4 {
     overflow: visible !important;
+}
+
+.profile-image-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 12000;
+}
+
+.profile-image-modal {
+    position: relative;
+    max-width: min(92vw, 720px);
+    max-height: 88vh;
+    padding: 18px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #ffffff 0%, #fff7f2 100%);
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
+}
+
+.profile-image-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.82);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.profile-image-modal-close:hover {
+    transform: scale(1.05);
+    background: #ff6b35;
+}
+
+.profile-image-modal-image {
+    display: block;
+    max-width: 100%;
+    max-height: calc(88vh - 36px);
+    border-radius: 18px;
+    object-fit: contain;
+}
+
+@media (max-width: 576px) {
+    .profile-image-modal-backdrop {
+        padding: 16px;
+    }
+
+    .profile-image-modal {
+        width: 100%;
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .profile-image-modal-close {
+        top: 10px;
+        right: 10px;
+    }
 }

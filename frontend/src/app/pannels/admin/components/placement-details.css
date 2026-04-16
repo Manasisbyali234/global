@@ -494,13 +494,13 @@
     flex-wrap: wrap;
 }
 
-.placement-university-filter-wrap {
+.placement-file-history-filter-wrap {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.placement-university-filter-label {
+.placement-file-history-filter-label {
     font-size: 0.9rem;
     font-weight: 600;
     color: #374151;
@@ -508,7 +508,7 @@
     white-space: nowrap;
 }
 
-.placement-university-filter-select {
+.placement-file-history-filter-select {
     min-width: 200px;
     border: 1px solid #d1d5db;
     border-radius: 12px;
@@ -518,7 +518,7 @@
     background-color: #ffffff;
 }
 
-.placement-university-filter-select:focus {
+.placement-file-history-filter-select:focus {
     border-color: #fd7e14;
     box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.16);
 }
