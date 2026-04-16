@@ -33,7 +33,7 @@
 }
 
 .page-toolbar__controls--dual {
-    grid-template-columns: repeat(2, minmax(180px, 240px));
+    grid-template-columns: minmax(180px, 220px) minmax(260px, 320px);
 }
 
 .page-toolbar__controls--triple {

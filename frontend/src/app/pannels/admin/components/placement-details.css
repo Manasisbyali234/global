@@ -541,7 +541,7 @@
 }
 
 .placement-file-history-table-scroll {
-    max-height: 450px;
+    max-height: 700px;
     overflow: auto;
     border: 1px solid #e9ecef;
     border-radius: 14px;

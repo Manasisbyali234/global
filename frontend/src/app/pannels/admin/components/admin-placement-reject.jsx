@@ -45,7 +45,8 @@ function AdminPlacementOfficersRejected() {
         const filtered = placements.filter(placement => 
             placement.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             placement.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            placement.phone?.includes(searchTerm)
+            placement.phone?.includes(searchTerm) ||
+            placement.collegeName?.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setFilteredPlacements(filtered);
     };
@@ -72,7 +73,7 @@ function AdminPlacementOfficersRejected() {
                         <div className="page-toolbar__controls page-toolbar__controls--single">
                         <div className="search-section page-toolbar__section">
                             <label className="search-label page-toolbar__label">
-                                <i className="fa fa-filter"></i> Search by Name or Email
+                                <i className="fa fa-filter"></i> Search by Name, Email or College
                             </label>
                             <div className="page-toolbar__control-wrap">
                             <SearchBar 

@@ -1,4 +1,4 @@
-﻿import { useCallback, useMemo, useState, useEffect } from 'react';
+﻿import { useMemo, useState, useEffect } from 'react';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../../../utils/api';
@@ -19,8 +19,6 @@ function PlacementDetails() {
     const [error, setError] = useState('');
     // Removed global credits state - now using file-specific credits
     const [processing, setProcessing] = useState(false);
-    const [studentData, setStudentData] = useState([]);
-    const [loadingData, setLoadingData] = useState(false);
     const [processingFiles, setProcessingFiles] = useState({});
     const [viewingFile, setViewingFile] = useState(null);
     const [fileStudentData, setFileStudentData] = useState([]);
@@ -28,8 +26,6 @@ function PlacementDetails() {
     const [showCreditsModal, setShowCreditsModal] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [fileCredits, setFileCredits] = useState(0);
-    const [showingStudentRecords, setShowingStudentRecords] = useState(false);
-    const [currentViewingFileId, setCurrentViewingFileId] = useState(null);
     const [showBulkCreditsModal, setShowBulkCreditsModal] = useState(false);
     const [bulkCredits, setBulkCredits] = useState(0);
     const [showStoredDataModal, setShowStoredDataModal] = useState(false);
@@ -39,6 +35,7 @@ function PlacementDetails() {
     const [rejectingFile, setRejectingFile] = useState(null);
     const [rejectionReason, setRejectionReason] = useState('');
     const [selectedCourseName, setSelectedCourseName] = useState('all');
+    const [viewImageModal, setViewImageModal] = useState(null); // { src, title }
 
     useEffect(() => {
         fetchPlacementDetails();
@@ -142,12 +139,6 @@ function PlacementDetails() {
                 setTimeout(() => {
                     fetchPlacementDetails();
                 }, 500);
-                // Refresh student data if currently viewing this file
-                if (currentViewingFileId === fileId) {
-                    setTimeout(() => {
-                        handleViewFileData(fileId, fileName);
-                    }, 1000);
-                }
             } else {
                 showError(`Failed to approve file: ${data.message}`);
             }
@@ -226,43 +217,6 @@ function PlacementDetails() {
 
     // Global credits assignment removed - now using file-specific credits
 
-    const handleViewFileData = useCallback(async (fileId, fileName) => {
-        try {
-            setLoadingData(true);
-            setShowingStudentRecords(true);
-            setCurrentViewingFileId(fileId);
-            
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/files/${fileId}/data`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                }
-            });
-            
-            const data = await response.json();
-            if (response.ok && data.success) {
-                console.log('Student data received:', data.students);
-                console.log('First student sample:', data.students?.[0]);
-                setStudentData(data.students || []);
-                
-                // Scroll to student records table
-                setTimeout(() => {
-                    const tableElement = document.querySelector('.modern-card.p-4:last-of-type');
-                    if (tableElement) {
-                        tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                }, 100);
-            } else {
-                console.error('Failed to load student data:', data);
-                setStudentData([]);
-            }
-        } catch (error) {
-            
-            setStudentData([]);
-        } finally {
-            setLoadingData(false);
-        }
-    }, [id]);
-
     const handleOpenFileRecordsPage = (fileId) => {
         navigate(`/admin/placement-details/${id}/files/${fileId}`);
     };
@@ -301,12 +255,6 @@ function PlacementDetails() {
                 showSuccess(message);
                 setShowCreditsModal(false);
                 fetchPlacementDetails();
-                // Refresh student data if currently viewing this file
-                if (currentViewingFileId === selectedFile._id) {
-                    setTimeout(() => {
-                        handleViewFileData(selectedFile._id, selectedFile.fileName);
-                    }, 500);
-                }
             } else {
                 showError(`Failed to update credits: ${data.message}`);
             }
@@ -340,13 +288,7 @@ function PlacementDetails() {
                 const skippedCount = data.stats?.skipped ?? 0;
                 const successMessage = `${displayName} processed successfully. Created: ${createdCount}, Skipped: ${skippedCount}. Candidates can now login.`;
                 showPopup(successMessage, 'success', 5000);
-                
                 fetchPlacementDetails();
-                if (currentViewingFileId === fileId) {
-                    setTimeout(() => {
-                        handleViewFileData(fileId, fileName);
-                    }, 1000);
-                }
             } else {
                 showError(`Failed to process file: ${data.message}`);
             }
@@ -383,15 +325,6 @@ function PlacementDetails() {
                 showSuccess(message);
                 setShowBulkCreditsModal(false);
                 fetchPlacementDetails();
-                // Refresh student data if currently viewing a file
-                if (currentViewingFileId) {
-                    const currentFile = placement?.fileHistory?.find(f => f._id === currentViewingFileId);
-                    if (currentFile && currentFile.status === 'processed') {
-                        setTimeout(() => {
-                            handleViewFileData(currentViewingFileId, currentFile.fileName);
-                        }, 500);
-                    }
-                }
             } else {
                 showError(`Failed to update bulk credits: ${data.message}`);
             }
@@ -673,6 +606,15 @@ function PlacementDetails() {
                                     </div>
                                 )}
                                 <small className="text-muted d-block mt-2">College Logo</small>
+                                {placement.logo && (
+                                    <button
+                                        className="btn btn-sm mt-1"
+                                        onClick={() => setViewImageModal({ src: placement.logo, title: 'College Logo' })}
+                                        style={{ fontSize: '0.75rem', padding: '3px 8px', backgroundColor: '#FDC360', border: '1px solid #FDC360', color: '#000', borderRadius: '6px' }}
+                                    >
+                                        <i className="fa fa-eye"></i>
+                                    </button>
+                                )}
                             </div>
                             <div className="text-center">
                                 {placement.idCard ? (
@@ -705,6 +647,15 @@ function PlacementDetails() {
                                     </div>
                                 )}
                                 <small className="text-muted d-block mt-2">ID Card</small>
+                                {placement.idCard && (
+                                    <button
+                                        className="btn btn-sm mt-1"
+                                        onClick={() => setViewImageModal({ src: placement.idCard, title: 'ID Card' })}
+                                        style={{ fontSize: '0.75rem', padding: '3px 8px', backgroundColor: '#FDC360', border: '1px solid #FDC360', color: '#000', borderRadius: '6px' }}
+                                    >
+                                        <i className="fa fa-eye"></i>
+                                    </button>
+                                )}
                             </div>
                             <div style={{flex: 1}}>
                         <div className="row">
@@ -996,119 +947,6 @@ function PlacementDetails() {
                 </div>
             </div>
 
-            {/* Student Data */}
-            <div className="modern-card p-4" id="studentRecordsTable">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h5 className="mb-0" style={{color: '#2c3e50'}}>
-                        <i className="fa fa-graduation-cap me-2"></i>
-                        Student Records
-                        {studentData.length > 0 && (
-                            <span className="badge badge-primary ms-2">{studentData.length}</span>
-                        )}
-                        {showingStudentRecords && currentViewingFileId && (
-                            <small className="text-muted ms-2">
-                                (Showing data from selected file)
-                            </small>
-                        )}
-                    </h5>
-                    {showingStudentRecords && (
-                        <button 
-                            className="btn btn-outline-secondary btn-sm"
-                            onClick={() => {
-                                setShowingStudentRecords(false);
-                                setCurrentViewingFileId(null);
-                                setStudentData([]);
-                            }}
-                            style={{borderRadius: '6px'}}
-                        >
-                            <i className="fa fa-times me-2"></i>
-                            Clear View
-                        </button>
-                    )}
-                </div>
-                
-                {loadingData ? (
-                    <div className="text-center py-5">
-                        <div className="spinner-border text-primary mb-2" role="status"></div>
-                        <p className="text-muted">Loading student data...</p>
-                    </div>
-                ) : studentData.length > 0 ? (
-                    <div className="table-responsive">
-                        <table className="table table-striped" style={{minWidth: '600px'}}>
-                            <thead className="thead-light">
-                                <tr>
-                                    <th style={{minWidth: '80px', width: '80px'}}>ID</th>
-                                    <th style={{minWidth: '150px'}}>Name</th>
-                                    <th style={{minWidth: '200px'}}>Email</th>
-                                    <th style={{minWidth: '120px'}}>Phone</th>
-                                    <th style={{minWidth: '80px'}}>Credits</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {studentData.map((student, index) => (
-                                    <tr key={index}>
-                                        <td style={{minWidth: '80px', width: '80px', fontWeight: 'bold', backgroundColor: '#f8f9fa'}}>
-                                            <span className="badge badge-primary" style={{fontSize: '12px', padding: '4px 8px', display: 'inline-block'}}>
-                                                {student.id || student.ID || student.candidateId || (index + 1)}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div className="d-flex align-items-center">
-                                                <div className="avatar-sm me-2" style={{
-                                                    width: '32px',
-                                                    height: '32px',
-                                                    borderRadius: '50%',
-                                                    background: '#FDC36020',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    color: '#FDC360',
-                                                    fontSize: '0.8rem',
-                                                    fontWeight: '600'
-                                                }}>
-                                                    {(student.name || 'N').charAt(0).toUpperCase()}
-                                                </div>
-                                                <span className="company-name">{student.name || 'N/A'}</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {student.email || 'N/A'}
-                                        </td>
-                                        <td>
-                                            {student.phone || '-'}
-                                        </td>
-                                        <td style={{verticalAlign: 'top', paddingTop: '12px'}}>
-                                            <span className="status-badge status-approved">
-                                                {student.credits || (() => {
-                                                    if (currentViewingFileId) {
-                                                        const currentFile = placement?.fileHistory?.find(f => f._id === currentViewingFileId);
-                                                        return currentFile?.credits || 0;
-                                                    }
-                                                    return 0;
-                                                })()}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                ) : (
-                    <div className="text-center py-5">
-                        <i className="fa fa-users fa-3x text-muted mb-3"></i>
-                        <h6 className="text-muted">
-                            {showingStudentRecords ? 'No data in selected file' : 'No student data to display'}
-                        </h6>
-                        <p className="text-muted mb-0">
-                            {showingStudentRecords 
-                                ? 'The selected file appears to be empty or has no valid student data' 
-                                : 'Click the "View" button next to any uploaded file to see its student records here'
-                            }
-                        </p>
-                    </div>
-                )}
-            </div>
-
             {/* File Data Modal */}
             {viewingFile && (
                 <div className="modal fade show" style={{display: 'block', background: 'rgba(0,0,0,0.5)'}} onClick={() => setViewingFile(null)}>
@@ -1352,6 +1190,35 @@ function PlacementDetails() {
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowStoredDataModal(false)}>Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Image View Modal */}
+            {viewImageModal && (
+                <div className="modal fade show" style={{display: 'block', background: 'rgba(0,0,0,0.7)'}} onClick={() => setViewImageModal(null)}>
+                    <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">
+                                    <i className="fa fa-image me-2"></i>
+                                    {viewImageModal.title}
+                                </h5>
+                                <button type="button" className="close" onClick={() => setViewImageModal(null)}>
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body text-center">
+                                <img
+                                    src={viewImageModal.src}
+                                    alt={viewImageModal.title}
+                                    style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain', borderRadius: '8px' }}
+                                />
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={() => setViewImageModal(null)}>Close</button>
                             </div>
                         </div>
                     </div>

@@ -207,13 +207,13 @@ function AdminTransactionsPage() {
                         <div className="page-toolbar__controls page-toolbar__controls--single">
                         <div className="page-toolbar__section">
                             <label className="page-toolbar__label">
-                                Search Transactions
+                                Search Transactions 
                             </label>
                         <div className="page-toolbar__control-wrap">
                             <input
                                 type="text"
                                 className="form-control page-toolbar__input"
-                                placeholder="Search by candidate name or email..."
+                                placeholder="Search by candidate email or name..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 style={{

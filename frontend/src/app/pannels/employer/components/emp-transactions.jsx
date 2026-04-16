@@ -126,7 +126,7 @@ function EmpTransactionsPage() {
                         <div className="page-toolbar__controls page-toolbar__controls--single">
                         <div className="page-toolbar__section">
                             <label className="page-toolbar__label">
-                                <i className="fa fa-search"></i> Search Transactions
+                                <i className="fa fa-search"></i> Search Transactions 
                             </label>
                         <div className="input-group page-toolbar__control-wrap">
                             <span className="input-group-text bg-white border-end-0">
