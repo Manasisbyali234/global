@@ -5008,7 +5008,7 @@ export default function EmpPostJob({ onNext }) {
 												<i className="fa fa-info-circle" style={{ color: '#d97706', fontSize: 15, marginTop: 2, flexShrink: 0 }}></i>
 												<div style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>
 													<span style={{ fontWeight: 700, color: '#92400e' }}>Note: </span>
-													Please select the interview date based on the available slots. Use the <strong>Start Date</strong> and <strong>End Date</strong> fields above to set the schedule, and adjust the number of days as needed.
+	                                              Use the <strong>Start Date</strong> and <strong>End Date</strong> fields above to set the schedule, and adjust the number of days as needed; based on the selected dates, the slots will open for candidates to choose their preferred time.
 												</div>
 											</div>
 
