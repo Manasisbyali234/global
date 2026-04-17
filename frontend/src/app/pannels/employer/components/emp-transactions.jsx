@@ -126,7 +126,7 @@ function EmpTransactionsPage() {
                         <div className="page-toolbar__controls page-toolbar__controls--single">
                         <div className="page-toolbar__section">
                             <label className="page-toolbar__label">
-                                <i className="fa fa-search"></i> Search Transactions
+                                <i className="fa fa-search"></i> Search Transactions 
                             </label>
                         <div className="input-group page-toolbar__control-wrap">
                             <span className="input-group-text bg-white border-end-0">
@@ -252,7 +252,7 @@ function EmpTransactionsPage() {
                                             <div>
                                                 <img src={publicUrlFor('images/logo-dark.png')} alt="TaleGlobal Logo" style={{ height: '45px', marginBottom: '15px' }} />
                                                 <div className="text-muted small">
-                                                    <p className="mb-1 fw-bold text-dark">TALEGLOBAL PLATFORM</p>
+                                                    <p className="mb-1 fw-bold text-dark"></p>
                                                     <p className="mb-1">Whitefield, Bengaluru, Karnataka 560066</p>
                                                     <p className="mb-1"><strong>GSTIN:</strong> 29ABCFG9123F1Z</p>
                                                     <p className="mb-0"><strong>Email:</strong> help@taleglobal.net</p>

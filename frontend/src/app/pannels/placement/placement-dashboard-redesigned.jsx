@@ -52,6 +52,7 @@ function PlacementDashboardRedesigned() {
     const [courseNameOption, setCourseNameOption] = useState('');
     const [university, setUniversity] = useState('');
     const [universityOption, setUniversityOption] = useState('');
+    const [universitySearch, setUniversitySearch] = useState('');
     const [batch, setBatch] = useState('');
     const [viewingFileId, setViewingFileId] = useState(null);
     const [viewingFileName, setViewingFileName] = useState(null);
@@ -88,6 +89,9 @@ function PlacementDashboardRedesigned() {
     const [uploadHistorySearch, setUploadHistorySearch] = useState('');
     const [uploadHistoryBatchFilter, setUploadHistoryBatchFilter] = useState('');
     const [uploadHistoryUniversitySearch, setUploadHistoryUniversitySearch] = useState('');
+    const [courseSearch, setCourseSearch] = useState('');
+    const [editCollegeNameSearch, setEditCollegeNameSearch] = useState('');
+    const [editCollegeNameOption, setEditCollegeNameOption] = useState('');
     const [stats, setStats] = useState({
         totalStudents: 0,
         avgCredits: 0,
@@ -261,8 +265,10 @@ function PlacementDashboardRedesigned() {
                 setSelectedFileName('');
                 setCourseName('');
                 setCourseNameOption('');
+                setCourseSearch('');
                 setUniversity('');
                 setUniversityOption('');
+                setUniversitySearch('');
                 setBatch('');
                 await Promise.all([
                     fetchPlacementDetails(), // Refresh placement data to show new file
@@ -312,6 +318,10 @@ function PlacementDashboardRedesigned() {
             additionalOfficialEmail: placementData?.additionalOfficialEmail || '',
             collegeOfficialPhone: placementData?.collegeOfficialPhone || ''
         });
+        const savedCollegeName = placementData?.collegeName || '';
+        const isKnownOption = privateUniversityOptions.includes(savedCollegeName);
+        setEditCollegeNameOption(savedCollegeName ? (isKnownOption ? savedCollegeName : 'other') : '');
+        setEditCollegeNameSearch('');
         setLogoPreview(null);
         setIdCardPreview(null);
         setShowEditModal(true);
@@ -599,6 +609,21 @@ function PlacementDashboardRedesigned() {
         showSuccess('Statistics recalculated successfully!');
     };
 
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('.field-group') && !e.target.closest('.form-group')) {
+                const courseDD = document.getElementById('course-dropdown');
+                const uniDD = document.getElementById('university-dropdown');
+                const editCollegeDD = document.getElementById('edit-college-dropdown');
+                if (courseDD) courseDD.style.display = 'none';
+                if (uniDD) uniDD.style.display = 'none';
+                if (editCollegeDD) editCollegeDD.style.display = 'none';
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     const activitySearchTerm = activitySearch.trim().toLowerCase();
     const activityBatchOptions = [...new Set((placementData?.fileHistory || []).map(f => f.batch).filter(Boolean))];
     const filteredRecentActivity = (placementData?.fileHistory || [])
@@ -667,7 +692,7 @@ function PlacementDashboardRedesigned() {
                         }}
                     >
                         <i className="fa fa-dashboard"></i>
-                        <span>Overview</span>
+                        <span>Dashboard</span>
                     </div>
                     <div 
                         className={`nav-item ${activeTab === 'students' ? 'active' : ''}`}
@@ -686,11 +711,25 @@ function PlacementDashboardRedesigned() {
                         className={`nav-item ${activeTab === 'upload' ? 'active' : ''}`}
                         onClick={() => {
                             setActiveTab('upload');
+                            if (!university && placementData?.collegeName) {
+                                setUniversity(placementData.collegeName);
+                                setUniversityOption(privateUniversityOptions.includes(placementData.collegeName) ? placementData.collegeName : 'other');
+                            }
                             setIsSidebarOpen(false);
                         }}
                     >
                         <i className="fa fa-upload"></i>
                         <span>Batch Upload</span>
+                    </div>
+                    <div 
+                        className={`nav-item ${activeTab === 'history' ? 'active' : ''}`}
+                        onClick={() => {
+                            setActiveTab('history');
+                            setIsSidebarOpen(false);
+                        }}
+                    >
+                        <i className="fa fa-history"></i>
+                        <span>Batch History</span>
                     </div>
                     <div
                         className={`nav-item ${activeTab === 'support' ? 'active' : ''}`}
@@ -864,21 +903,10 @@ function PlacementDashboardRedesigned() {
                                                     <div className="stat-icon">
                                                         <i className="fa fa-graduation-cap"></i>
                                                     </div>
-                                                    <h3 className="stat-value">{stats.activeBatches}</h3>
+                                                    <h3 className="stat-value">{placementData?.fileHistory?.length || 0}</h3>
                                                 </div>
                                                 <div className="stat-content">
-                                                    <p className="stat-label">Active Batches</p>
-                                                </div>
-                                            </div>
-                                            <div className="stats-card">
-                                                <div className="stats-card-top">
-                                                    <div className="stat-icon">
-                                                        <i className="fa fa-book"></i>
-                                                    </div>
-                                                    <h3 className="stat-value">{stats.coursesCovered}</h3>
-                                                </div>
-                                                <div className="stat-content">
-                                                    <p className="stat-label">Courses Covered</p>
+                                                    <p className="stat-label">Total Batches</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -1058,36 +1086,81 @@ function PlacementDashboardRedesigned() {
                                             <div className="form-content">
                                                 {/* Form Fields */}
                                                 <div className="form-fields">
-                                                    <div className="field-group">
+                                                    <div className="field-group" style={{position: 'relative'}}>
                                                         <label className="field-label">Course Name</label>
-                                                        <select 
+                                                        <div
                                                             className="form-input"
-                                                            value={courseNameOption}
-                                                            onChange={(e) => {
-                                                                setCourseNameOption(e.target.value);
-                                                                if (e.target.value !== 'other') {
-                                                                    setCourseName(e.target.value);
-                                                                } else {
-                                                                    setCourseName('');
-                                                                }
-                                                            }}
+                                                            style={{cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none', background: '#fff'}}
+                                                            onClick={() => { setCourseSearch(''); setCourseName(prev => prev); document.getElementById('course-dropdown').style.display = document.getElementById('course-dropdown').style.display === 'block' ? 'none' : 'block'; }}
                                                         >
-                                                            <option value="">Select course name</option>
-                                                            <option value="Computer Science Engineering">Computer Science Engineering</option>
-                                                            <option value="Information Technology">Information Technology</option>
-                                                            <option value="Electronics and Communication">Electronics and Communication</option>
-                                                            <option value="Mechanical Engineering">Mechanical Engineering</option>
-                                                            <option value="Civil Engineering">Civil Engineering</option>
-                                                            <option value="Electrical Engineering">Electrical Engineering</option>
-                                                            <option value="Business Administration">Business Administration</option>
-                                                            <option value="Commerce">Commerce</option>
-                                                            <option value="Arts">Arts</option>
-                                                            <option value="other">Other-Specify</option>
-                                                        </select>
+                                                            <span style={{color: courseNameOption ? '#232323' : '#aaa'}}>
+                                                                {courseNameOption && courseNameOption !== 'other' ? courseNameOption : courseNameOption === 'other' ? 'Other-Specify' : 'Select course name'}
+                                                            </span>
+                                                            <i className="fa fa-chevron-down" style={{fontSize: '12px', color: '#888'}}></i>
+                                                        </div>
+                                                        <div
+                                                            id="course-dropdown"
+                                                            style={{display: 'none', position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 999, background: '#fff', border: '1px solid #ddd', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', marginTop: '2px'}}
+                                                        >
+                                                            <div style={{padding: '8px', borderBottom: '1px solid #eee', position: 'relative'}}>
+                                                                <i className="fa fa-search" style={{position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#aaa', fontSize: '13px'}}></i>
+                                                                <input
+                                                                    type="text"
+                                                                    style={{width: '100%', padding: '6px 8px 6px 28px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none'}}
+                                                                    placeholder="Search course..."
+                                                                    value={courseSearch}
+                                                                    onChange={(e) => setCourseSearch(e.target.value)}
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                />
+                                                            </div>
+                                                            <ul style={{listStyle: 'none', margin: 0, padding: 0, maxHeight: '200px', overflowY: 'auto'}}>
+                                                                {[{label: 'Select course name', value: ''}, ...[
+                                                                    'Computer Science Engineering',
+                                                                    'Information Technology',
+                                                                    'Electronics and Communication',
+                                                                    'Mechanical Engineering',
+                                                                    'Civil Engineering',
+                                                                    'Electrical Engineering',
+                                                                    'Chemical Engineering',
+                                                                    'Aerospace Engineering',
+                                                                    'Biotechnology',
+                                                                    'Data Science',
+                                                                    'Artificial Intelligence and Machine Learning',
+                                                                    'Cyber Security',
+                                                                    'Business Administration',
+                                                                    'Master of Business Administration',
+                                                                    'Commerce',
+                                                                    'Arts',
+                                                                    'Science',
+                                                                    'Mathematics',
+                                                                    'Physics',
+                                                                    'Law',
+                                                                    'Pharmacy',
+                                                                    'Architecture'
+                                                                ].filter(c => c.toLowerCase().includes(courseSearch.toLowerCase())).map(c => ({label: c, value: c})),
+                                                                {label: 'Other-Specify', value: 'other'}]
+                                                                .map((item) => (
+                                                                    <li
+                                                                        key={item.value}
+                                                                        style={{padding: '8px 14px', cursor: 'pointer', fontSize: '13px', color: item.value === '' ? '#aaa' : '#232323', background: courseNameOption === item.value ? '#f0f4ff' : 'transparent'}}
+                                                                        onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
+                                                                        onMouseLeave={(e) => e.currentTarget.style.background = courseNameOption === item.value ? '#f0f4ff' : 'transparent'}
+                                                                        onClick={() => {
+                                                                            setCourseNameOption(item.value);
+                                                                            setCourseName(item.value !== 'other' ? item.value : '');
+                                                                            setCourseSearch('');
+                                                                            document.getElementById('course-dropdown').style.display = 'none';
+                                                                        }}
+                                                                    >
+                                                                        {item.label}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
                                                         {courseNameOption === 'other' && (
-                                                            <input 
-                                                                type="text" 
-                                                                className="form-input" 
+                                                            <input
+                                                                type="text"
+                                                                className="form-input"
                                                                 style={{marginTop: '8px'}}
                                                                 placeholder="Enter custom course name"
                                                                 value={courseName}
@@ -1096,52 +1169,85 @@ function PlacementDashboardRedesigned() {
                                                         )}
                                                     </div>
                                                     
-                                                    <div className="field-group">
+                                                    <div className="field-group" style={{position: 'relative'}}>
                                                         <label className="field-label">University</label>
-                                                        <select 
-                                                            className="form-input"
-                                                            value={universityOption}
-                                                            onChange={(e) => {
-                                                                setUniversityOption(e.target.value);
-                                                                if (e.target.value !== 'other') {
-                                                                    setUniversity(e.target.value);
-                                                                } else {
-                                                                    setUniversity('');
-                                                                }
-                                                            }}
-                                                        >
-                                                            <option value="">Select university</option>
-                                                            {privateUniversityOptions.map((option) => (
-                                                                <option key={option} value={option}>{option}</option>
-                                                            ))}
-                                                            <option value="other">Other-Specify</option>
-                                                        </select>
-                                                        {universityOption === 'other' && (
-                                                            <input 
-                                                                type="text" 
-                                                                className="form-input" 
-                                                                style={{marginTop: '8px'}}
-                                                                placeholder="Enter custom university name"
-                                                                value={university}
-                                                                onChange={(e) => setUniversity(e.target.value)}
-                                                            />
+                                                        {universityOption === 'other' ? (
+                                                            <div className="form-input" style={{display: 'flex', alignItems: 'center', padding: 0, overflow: 'hidden'}}>
+                                                                <input
+                                                                    type="text"
+                                                                    style={{flex: 1, border: 'none', outline: 'none', padding: '8px 12px', fontSize: '14px', background: 'transparent'}}
+                                                                    placeholder="Enter custom university name"
+                                                                    value={university}
+                                                                    onChange={(e) => setUniversity(e.target.value)}
+                                                                    autoFocus
+                                                                />
+                                                                <i className="fa fa-times" style={{padding: '8px 12px', cursor: 'pointer', color: '#888', fontSize: '13px'}} onClick={() => { setUniversityOption(''); setUniversity(''); }}></i>
+                                                            </div>
+                                                        ) : (
+                                                            <div
+                                                                className="form-input"
+                                                                style={{cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none', background: '#fff'}}
+                                                                onClick={() => { setUniversitySearch(''); document.getElementById('university-dropdown').style.display = document.getElementById('university-dropdown').style.display === 'block' ? 'none' : 'block'; }}
+                                                            >
+                                                                <span style={{color: universityOption ? '#232323' : '#aaa'}}>
+                                                                    {universityOption ? universityOption : (placementData?.collegeName || 'Select university')}
+                                                                </span>
+                                                                <i className="fa fa-chevron-down" style={{fontSize: '12px', color: '#888'}}></i>
+                                                            </div>
                                                         )}
+                                                        <div
+                                                            id="university-dropdown"
+                                                            style={{display: 'none', position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 999, background: '#fff', border: '1px solid #ddd', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', marginTop: '2px'}}
+                                                        >
+                                                            <div style={{padding: '8px', borderBottom: '1px solid #eee', position: 'relative'}}>
+                                                                <i className="fa fa-search" style={{position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#aaa', fontSize: '13px'}}></i>
+                                                                <input
+                                                                    type="text"
+                                                                    style={{width: '100%', padding: '6px 8px 6px 28px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none'}}
+                                                                    placeholder="Search university..."
+                                                                    value={universitySearch}
+                                                                    onChange={(e) => setUniversitySearch(e.target.value)}
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                />
+                                                            </div>
+                                                            <ul style={{listStyle: 'none', margin: 0, padding: 0, maxHeight: '200px', overflowY: 'auto'}}>
+                                                                {[{label: 'Select university', value: ''},
+                                                                  ...privateUniversityOptions
+                                                                    .filter(o => o.toLowerCase().includes(universitySearch.toLowerCase()))
+                                                                    .map(o => ({label: o, value: o})),
+                                                                  {label: 'Other-Specify', value: 'other'}
+                                                                ].map((item) => (
+                                                                    <li
+                                                                        key={item.value}
+                                                                        style={{padding: '8px 14px', cursor: 'pointer', fontSize: '13px', color: item.value === '' ? '#aaa' : '#232323', background: universityOption === item.value ? '#f0f4ff' : 'transparent'}}
+                                                                        onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
+                                                                        onMouseLeave={(e) => e.currentTarget.style.background = universityOption === item.value ? '#f0f4ff' : 'transparent'}
+                                                                        onClick={() => {
+                                                                            setUniversityOption(item.value);
+                                                                            setUniversity(item.value !== 'other' ? item.value : '');
+                                                                            setUniversitySearch('');
+                                                                            document.getElementById('university-dropdown').style.display = 'none';
+                                                                        }}
+                                                                    >
+                                                                        {item.label}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                     
                                                     <div className="field-group">
                                                         <label className="field-label">Batch</label>
-                                                        <input 
-                                                            type="text" 
+                                                        <select
                                                             className="form-input"
-                                                            placeholder="Enter batch information (e.g., 2024)"
                                                             value={batch}
-                                                            onChange={(e) => {
-                                                                const value = e.target.value;
-                                                                if (value === '' || /^[0-9]+$/.test(value)) {
-                                                                    setBatch(value);
-                                                                }
-                                                            }}
-                                                        />
+                                                            onChange={(e) => setBatch(e.target.value)}
+                                                        >
+                                                            <option value="">Select batch year</option>
+                                                            {Array.from({length: 12}, (_, i) => 2024 + i).map(year => (
+                                                                <option key={year} value={String(year)}>{year}</option>
+                                                            ))}
+                                                        </select>
                                                     </div>
                                                 </div>
 
@@ -1216,10 +1322,14 @@ function PlacementDashboardRedesigned() {
                                         </div>
                                     </div>
 
-                                    {/* Upload History Table */}
+                                </div>
+                            )}
+
+                            {activeTab === 'history' && (
+                                <div className="upload-page">
                                     <div className="upload-history-section">
                                         <div className="section-header">
-                                            <h3>Upload History</h3>
+                                            <h3>Batch History</h3>
                                             <div className="upload-history-header-actions">
                                                 <div className="upload-history-search" style={{display: 'flex', gap: '16px', alignItems: 'flex-end', flexWrap: 'wrap'}}>
                                                     <div style={{flex: 1, minWidth: '150px'}}>
@@ -1229,7 +1339,6 @@ function PlacementDashboardRedesigned() {
                                                             value={uploadHistorySearch}
                                                             onChange={(e) => setUploadHistorySearch(e.target.value)}
                                                             placeholder="Search by course name"
-                                                            aria-label="Search upload history by course name"
                                                         />
                                                     </div>
                                                     <div style={{flex: 1, minWidth: '150px'}}>
@@ -1239,7 +1348,6 @@ function PlacementDashboardRedesigned() {
                                                             value={uploadHistoryUniversitySearch}
                                                             onChange={(e) => setUploadHistoryUniversitySearch(e.target.value)}
                                                             placeholder="Search by university"
-                                                            aria-label="Search by university"
                                                         />
                                                     </div>
                                                     <div style={{flex: 1, minWidth: '150px'}}>
@@ -1247,7 +1355,6 @@ function PlacementDashboardRedesigned() {
                                                         <select
                                                             value={uploadHistoryBatchFilter}
                                                             onChange={(e) => setUploadHistoryBatchFilter(e.target.value)}
-                                                            aria-label="Filter by batch"
                                                         >
                                                             <option value="">All Batches</option>
                                                             {uploadHistoryBatchOptions.map(b => (
@@ -1264,7 +1371,6 @@ function PlacementDashboardRedesigned() {
                                             </div>
                                         </div>
                                         <div className="upload-history-table table-responsive">
-                                            {console.log('File history data:', placementData?.fileHistory)}
                                             <table>
                                                 <colgroup>
                                                     <col className="upload-history-col-file" />
@@ -1291,9 +1397,7 @@ function PlacementDashboardRedesigned() {
                                                 <tbody>
                                                     {placementData?.fileHistory && placementData.fileHistory.length > 0 ? (
                                                         filteredFileHistory.length > 0 ? (
-                                                            filteredFileHistory.map((file, index) => {
-                                                                console.log('Rendering file:', file);
-                                                                return (
+                                                            filteredFileHistory.map((file, index) => (
                                                                 <tr key={file._id || index}>
                                                                     <td>{file.fileName}</td>
                                                                     <td className="upload-history-balanced-cell">{file.customName || '-'}</td>
@@ -1302,8 +1406,8 @@ function PlacementDashboardRedesigned() {
                                                                     <td>{formatDate(file.uploadedAt)}</td>
                                                                     <td>
                                                                         <span className={`status-badge ${
-                                                                            file.status === 'processed' ? 'status-success' : 
-                                                                            file.status === 'approved' ? 'status-info' : 
+                                                                            file.status === 'processed' ? 'status-success' :
+                                                                            file.status === 'approved' ? 'status-info' :
                                                                             file.status === 'rejected' ? 'status-danger' : 'status-warning'
                                                                         }`}>
                                                                             {file.status === 'processed' ? 'Approved' : file.status || 'Pending'}
@@ -1311,55 +1415,27 @@ function PlacementDashboardRedesigned() {
                                                                     </td>
                                                                     <td>
                                                                         {file.status === 'rejected' && file.rejectionReason ? (
-                                                                            <button 
+                                                                            <button
                                                                                 className="eye-btn"
-                                                                                onClick={() => {
-                                                                                    setSelectedRejectionReason(file.rejectionReason);
-                                                                                    setShowRejectionModal(true);
-                                                                                }}
+                                                                                onClick={() => { setSelectedRejectionReason(file.rejectionReason); setShowRejectionModal(true); }}
                                                                                 title="View rejection reason"
-                                                                                style={{
-                                                                                    background: 'none',
-                                                                                    border: 'none',
-                                                                                    color: '#dc3545',
-                                                                                    fontSize: '16px',
-                                                                                    cursor: 'pointer',
-                                                                                    padding: '4px 8px',
-                                                                                    borderRadius: '4px',
-                                                                                    transition: 'background-color 0.2s'
-                                                                                }}
-                                                                                onMouseEnter={(e) => e.target.style.backgroundColor = '#fff5f5'}
-                                                                                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                                                                style={{background: 'none', border: 'none', color: '#dc3545', fontSize: '16px', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px'}}
                                                                             >
                                                                                 <i className="fa fa-eye"></i>
                                                                             </button>
-                                                                        ) : (
-                                                                            '-'
-                                                                        )}
+                                                                        ) : '-'}
                                                                     </td>
                                                                     <td>
                                                                         <div className="d-flex gap-2 upload-history-actions">
-                                                                            <button 
-                                                                                className="view-btn"
-                                                                                onClick={() => handleViewFile(file._id, file.fileName)}
-                                                                                title="View file data"
-                                                                            >
+                                                                            <button className="view-btn" onClick={() => handleViewFile(file._id, file.fileName)} title="View file data">
                                                                                 <i className="fa fa-eye"></i>
                                                                             </button>
                                                                             {file.status === 'rejected' && (
-                                                                                <button 
+                                                                                <button
                                                                                     className="reupload-btn"
                                                                                     onClick={() => handleResubmitFile(file)}
                                                                                     title="Reupload corrected file"
-                                                                                    style={{
-                                                                                        backgroundColor: '#28a745',
-                                                                                        color: 'white',
-                                                                                        border: 'none',
-                                                                                        borderRadius: '4px',
-                                                                                        padding: '6px 10px',
-                                                                                        fontSize: '0.8rem',
-                                                                                        cursor: 'pointer'
-                                                                                    }}
+                                                                                    style={{backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '0.8rem', cursor: 'pointer'}}
                                                                                 >
                                                                                     <i className="fa fa-upload"></i>
                                                                                 </button>
@@ -1367,8 +1443,7 @@ function PlacementDashboardRedesigned() {
                                                                         </div>
                                                                     </td>
                                                                 </tr>
-                                                                );
-                                                            })
+                                                            ))
                                                         ) : (
                                                             <tr>
                                                                 <td colSpan="8" style={{textAlign: 'center', padding: '40px'}}>
@@ -1478,18 +1553,69 @@ function PlacementDashboardRedesigned() {
                                     </small>
                                 )}
                             </div>
-                            <div className="form-group">
+                            <div className="form-group" style={{position: 'relative'}}>
                                 <label>College Name <span style={{color: 'red'}}>*</span></label>
-                                <input
-                                    type="text"
-                                    value={editFormData.collegeName || ''}
-                                    onChange={(e) => {
-                                        setEditFormData({...editFormData, collegeName: e.target.value});
-                                        if (formErrors.collegeName) setFormErrors({...formErrors, collegeName: ''});
-                                    }}
-                                    placeholder="Enter your college name"
-                                    style={{borderColor: formErrors.collegeName ? '#dc3545' : ''}}
-                                />
+                                <div
+                                    style={{cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none', background: formErrors.collegeName ? '#fff' : '#fff', border: `1px solid ${formErrors.collegeName ? '#dc3545' : '#ddd'}`, borderRadius: '6px', padding: '8px 12px', fontSize: '14px'}}
+                                    onClick={() => { setEditCollegeNameSearch(''); const dd = document.getElementById('edit-college-dropdown'); if (dd) dd.style.display = dd.style.display === 'block' ? 'none' : 'block'; }}
+                                >
+                                    <span style={{color: editCollegeNameOption ? '#232323' : '#aaa'}}>
+                                        {editCollegeNameOption && editCollegeNameOption !== 'other' ? editCollegeNameOption : editCollegeNameOption === 'other' ? 'Other-Specify' : 'Select college name'}
+                                    </span>
+                                    <i className="fa fa-chevron-down" style={{fontSize: '12px', color: '#888'}}></i>
+                                </div>
+                                <div
+                                    id="edit-college-dropdown"
+                                    style={{display: 'none', position: 'absolute', left: 0, right: 0, zIndex: 1050, background: '#fff', border: '1px solid #ddd', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', marginTop: '2px'}}
+                                >
+                                    <div style={{padding: '8px', borderBottom: '1px solid #eee', position: 'relative'}}>
+                                        <i className="fa fa-search" style={{position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#aaa', fontSize: '13px'}}></i>
+                                        <input
+                                            type="text"
+                                            style={{width: '100%', padding: '6px 8px 6px 28px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none'}}
+                                            placeholder="Search college..."
+                                            value={editCollegeNameSearch}
+                                            onChange={(e) => setEditCollegeNameSearch(e.target.value)}
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    </div>
+                                    <ul style={{listStyle: 'none', margin: 0, padding: 0, maxHeight: '200px', overflowY: 'auto'}}>
+                                        {[{label: 'Select college name', value: ''},
+                                          ...privateUniversityOptions
+                                            .filter(o => o.toLowerCase().includes(editCollegeNameSearch.toLowerCase()))
+                                            .map(o => ({label: o, value: o})),
+                                          {label: 'Other-Specify', value: 'other'}
+                                        ].map((item) => (
+                                            <li
+                                                key={item.value}
+                                                style={{padding: '8px 14px', cursor: 'pointer', fontSize: '13px', color: item.value === '' ? '#aaa' : '#232323', background: editCollegeNameOption === item.value ? '#f0f4ff' : 'transparent'}}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = editCollegeNameOption === item.value ? '#f0f4ff' : 'transparent'}
+                                                onClick={() => {
+                                                    setEditCollegeNameOption(item.value);
+                                                    setEditFormData({...editFormData, collegeName: item.value !== 'other' ? item.value : ''});
+                                                    if (formErrors.collegeName) setFormErrors({...formErrors, collegeName: ''});
+                                                    setEditCollegeNameSearch('');
+                                                    document.getElementById('edit-college-dropdown').style.display = 'none';
+                                                }}
+                                            >
+                                                {item.label}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                {editCollegeNameOption === 'other' && (
+                                    <input
+                                        type="text"
+                                        value={editFormData.collegeName || ''}
+                                        onChange={(e) => {
+                                            setEditFormData({...editFormData, collegeName: e.target.value});
+                                            if (formErrors.collegeName) setFormErrors({...formErrors, collegeName: ''});
+                                        }}
+                                        placeholder="Enter your college name"
+                                        style={{marginTop: '8px', width: '100%', padding: '8px 12px', border: `1px solid ${formErrors.collegeName ? '#dc3545' : '#ddd'}`, borderRadius: '6px', fontSize: '14px', outline: 'none'}}
+                                    />
+                                )}
                                 {formErrors.collegeName && (
                                     <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>
                                         {formErrors.collegeName}
@@ -1699,12 +1825,16 @@ function PlacementDashboardRedesigned() {
                             
                             <div className="form-group">
                                 <label>Batch <span style={{color: 'red'}}>*</span></label>
-                                <input
-                                    type="text"
+                                <select
                                     value={resubmitBatch}
                                     onChange={(e) => setResubmitBatch(e.target.value)}
-                                    placeholder="Enter batch information"
-                                />
+                                    style={{width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px'}}
+                                >
+                                    <option value="">Select batch year</option>
+                                    {Array.from({length: 12}, (_, i) => 2024 + i).map(year => (
+                                        <option key={year} value={String(year)}>{year}</option>
+                                    ))}
+                                </select>
                             </div>
                             
                             <div className="form-group">

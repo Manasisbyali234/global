@@ -33,7 +33,10 @@ function AdminOverviewPage() {
   const autoOpenedEmployerIdRef = useRef(null);
   const visibleEmployerJobs = employerJobs.filter((job) => {
     if (job.status === "draft") return false;
-    if (!job.title.toLowerCase().includes(jobSearch.toLowerCase())) return false;
+    const searchLower = jobSearch.toLowerCase();
+    const matchesTitle = job.title.toLowerCase().includes(searchLower);
+    const matchesCompany = String(job.companyName || selectedEmployer?.employerName || "").toLowerCase().includes(searchLower);
+    if (!matchesTitle && !matchesCompany) return false;
     if (jobStatusFilter === "active" && job.status !== "active") return false;
     if (jobStatusFilter === "closed" && job.status !== "closed") return false;
     if ((jobFromDate || jobToDate) && job.createdAt) {
@@ -358,7 +361,7 @@ function AdminOverviewPage() {
                 <table className="table table-striped">
                   <thead>
                     <tr>
-                      <th>Employer Name</th>
+                      <th>Company Name</th>
                       <th>Employer Type</th>
                       <th>Number of Jobs</th>
                       <th>Active Jobs</th>
@@ -421,11 +424,11 @@ function AdminOverviewPage() {
               <div className="admin-overview-filter-control">
                 <label className="d-block m-b10" style={{ fontWeight: 600, color: "#232323" }}>
                   <i className="fa fa-filter me-2 text-primary" />
-                  Search by Job Name
+                  Search by Job  or Company
                 </label>
                 <SearchBar
                   onSearch={setJobSearch}
-                  placeholder="Search Job Name..."
+                  placeholder="Search by job name or company..."
                   className="employer-search"
                 />
               </div>
@@ -439,7 +442,7 @@ function AdminOverviewPage() {
                   value={jobStatusFilter}
                   onChange={(e) => setJobStatusFilter(e.target.value)}
                 >
-                  <option value="all">All Statuses</option>
+                  <option value="all">All Status</option>
                   <option value="active">Active</option>
                   <option value="closed">Closed</option>
                 </select>
@@ -499,7 +502,7 @@ function AdminOverviewPage() {
                     {visibleEmployerJobs.length === 0 ? (
                       <tr>
                         <td colSpan={showJobCompanyColumn ? 13 : 12} className="text-center">
-                          {jobSearch ? "No matching jobs found." : "No jobs found for this employer."}
+                          {jobSearch ? "No jobs match your search." : "No jobs found for this employer."}
                         </td>
                       </tr>
                     ) : (

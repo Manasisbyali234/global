@@ -85,6 +85,9 @@ function AdminBatchUploads() {
                         <h4 className="panel-tittle m-a0 page-toolbar__title">Batch Uploads({filteredPlacements.length})</h4>
                         <div className="page-toolbar__controls page-toolbar__controls--single">
                         <div className="search-section page-toolbar__section">
+                            <label className="search-label page-toolbar__label">
+                                <i className="fa fa-filter"></i> Search by Name, Email or College
+                            </label>
                             <div className="page-toolbar__control-wrap">
                                 <SearchBar 
                                     onSearch={handleSearch}

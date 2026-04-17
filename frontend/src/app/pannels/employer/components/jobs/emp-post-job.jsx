@@ -4099,7 +4099,7 @@ export default function EmpPostJob({ onNext }) {
 							}}
 						>
 							<option value="">-- Select Round Type --</option>
-							<option value="assessment">MCQ/Aptitude/Assessment</option>
+							<option value="assessment">MCQ/Assessment</option>
 							<option value="oneOnOnePanel">One-on-One / Panel</option>
 							<option value="group">Group</option>
 							<option value="managerial">Managerial Round</option>
@@ -4108,7 +4108,7 @@ export default function EmpPostJob({ onNext }) {
 							<option value="situational">Situational / Behavioral</option>
 							<option value="others">Others – Specify.</option>
 						</select>
-						
+
 						{/* Others Specify Text Input */}
 						{formData.interviewRoundOrder.some(key => formData.interviewRoundTypes[key] === 'others') && (
 							<div style={{marginTop: 12}}>
@@ -4192,7 +4192,7 @@ export default function EmpPostJob({ onNext }) {
 									oneOnOnePanel: 'One-on-One / Panel',
 									group: 'Group',
 									situational: 'Situational / Behavioral',
-									assessment: 'MCQ/Aptitude/Assessment Schedule',
+									assessment: 'MCQ/Assessment Schedule',
 									others: 'Others – Specify.'
 								};
 								
@@ -4559,7 +4559,7 @@ export default function EmpPostJob({ onNext }) {
 											</span>
 											<div>
 												<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
-													Stage {stageNumber}: Assessment Schedule {assessmentIndex + 1}
+													Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex + 1}
 												</h4>
 												<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 											</div>
@@ -4771,7 +4771,7 @@ export default function EmpPostJob({ onNext }) {
 														</span>
 														<div>
 															<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
-																Stage {stageNumber}: Assessment Schedule {assessmentIndex}
+																Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex}
 															</h4>
 													<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 												</div>
@@ -5182,6 +5182,24 @@ export default function EmpPostJob({ onNext }) {
 
 											</div>
 
+											{/* Note for slot-based scheduling */}
+											<div style={{
+												marginTop: 16,
+												padding: '12px 16px',
+												background: '#fffbeb',
+												border: '1px solid #fde68a',
+												borderRadius: 10,
+												display: 'flex',
+												alignItems: 'flex-start',
+												gap: 10
+											}}>
+												<i className="fa fa-info-circle" style={{ color: '#d97706', fontSize: 15, marginTop: 2, flexShrink: 0 }}></i>
+												<div style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>
+													<span style={{ fontWeight: 700, color: '#92400e' }}>Note: </span>
+	                                              Use the <strong>Start Date</strong> and <strong>End Date</strong> fields above to set the schedule, and adjust the number of days as needed; based on the selected dates, the slots will open for candidates to choose their preferred time.
+												</div>
+											</div>
+
 											{/* Divider Line */}
 											<div style={{ borderTop: '1px dashed #d1d5db', margin: '24px 0' }}></div>
 
@@ -5540,7 +5558,7 @@ export default function EmpPostJob({ onNext }) {
 													</span>
 													<div>
 														<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
-															Stage {stageNumber}: Assessment Schedule {assessmentIndex + 1}
+															Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex + 1}
 														</h4>
 														<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 													</div>

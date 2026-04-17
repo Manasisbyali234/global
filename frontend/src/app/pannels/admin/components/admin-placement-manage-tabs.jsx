@@ -69,7 +69,8 @@ function AdminPlacementOfficersTabs() {
         const filtered = baseList.filter(p => 
             p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             p.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.phone?.includes(searchTerm)
+            p.phone?.includes(searchTerm) ||
+            p.collegeName?.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setFilteredPlacements(filtered);
     };
@@ -141,7 +142,7 @@ function AdminPlacementOfficersTabs() {
                         
                         <div className="search-section page-toolbar__section">
                             <label className="search-label page-toolbar__label">
-                                <i className="fa fa-filter"></i> Search by Name or Email
+                                <i className="fa fa-filter"></i> Search by Name, Email or College
                             </label>
                             <div className="page-toolbar__control-wrap">
                                 <SearchBar 
@@ -160,7 +161,7 @@ function AdminPlacementOfficersTabs() {
                         <table className="table emp-table">
                             <thead>
                                 <tr>
-                                    {statusFilter === 'approved' && <th>University/College Name</th>}
+                                    <th>University/College Name</th>
                                     <th>Placement Dean</th>
                                     <th>Email</th>
                                     <th>Phone</th>
@@ -171,11 +172,11 @@ function AdminPlacementOfficersTabs() {
                             </thead>
                             <tbody>
                                 {filteredPlacements.length === 0 ? (
-                                    <tr><td colSpan={statusFilter === 'approved' ? 7 : 6} className="text-center" style={{padding: '40px'}}>No records found</td></tr>
+                                    <tr><td colSpan={7} className="text-center" style={{padding: '40px'}}>No records found</td></tr>
                                 ) : (
                                     filteredPlacements.map((placement) => (
                                         <tr key={placement._id}>
-                                            {statusFilter === 'approved' && <td style={{textAlign: 'center'}}>{placement.collegeName || 'N/A'}</td>}
+                                            <td style={{textAlign: 'center'}}>{placement.collegeName || 'N/A'}</td>
                                             <td style={{textAlign: 'center'}}>{placement.name}</td>
                                             <td style={{textAlign: 'center', fontFamily: 'monospace'}}>{placement.email}</td>
                                             <td style={{textAlign: 'center', fontFamily: 'monospace'}}>{placement.phone || 'N/A'}</td>
