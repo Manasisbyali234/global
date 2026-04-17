@@ -90,8 +90,7 @@ function PlacementDashboardRedesigned() {
     const [uploadHistoryBatchFilter, setUploadHistoryBatchFilter] = useState('');
     const [uploadHistoryUniversitySearch, setUploadHistoryUniversitySearch] = useState('');
     const [courseSearch, setCourseSearch] = useState('');
-    const [editCollegeNameSearch, setEditCollegeNameSearch] = useState('');
-    const [editCollegeNameOption, setEditCollegeNameOption] = useState('');
+
     const [stats, setStats] = useState({
         totalStudents: 0,
         avgCredits: 0,
@@ -318,10 +317,6 @@ function PlacementDashboardRedesigned() {
             additionalOfficialEmail: placementData?.additionalOfficialEmail || '',
             collegeOfficialPhone: placementData?.collegeOfficialPhone || ''
         });
-        const savedCollegeName = placementData?.collegeName || '';
-        const isKnownOption = privateUniversityOptions.includes(savedCollegeName);
-        setEditCollegeNameOption(savedCollegeName ? (isKnownOption ? savedCollegeName : 'other') : '');
-        setEditCollegeNameSearch('');
         setLogoPreview(null);
         setIdCardPreview(null);
         setShowEditModal(true);
@@ -614,10 +609,8 @@ function PlacementDashboardRedesigned() {
             if (!e.target.closest('.field-group') && !e.target.closest('.form-group')) {
                 const courseDD = document.getElementById('course-dropdown');
                 const uniDD = document.getElementById('university-dropdown');
-                const editCollegeDD = document.getElementById('edit-college-dropdown');
                 if (courseDD) courseDD.style.display = 'none';
                 if (uniDD) uniDD.style.display = 'none';
-                if (editCollegeDD) editCollegeDD.style.display = 'none';
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -691,7 +684,7 @@ function PlacementDashboardRedesigned() {
                             setIsSidebarOpen(false);
                         }}
                     >
-                        <i className="fa fa-dashboard"></i>
+                        <i className="fa fa-home"></i>
                         <span>Dashboard</span>
                     </div>
                     <div 
@@ -1171,30 +1164,14 @@ function PlacementDashboardRedesigned() {
                                                     
                                                     <div className="field-group" style={{position: 'relative'}}>
                                                         <label className="field-label">University</label>
-                                                        {universityOption === 'other' ? (
-                                                            <div className="form-input" style={{display: 'flex', alignItems: 'center', padding: 0, overflow: 'hidden'}}>
-                                                                <input
-                                                                    type="text"
-                                                                    style={{flex: 1, border: 'none', outline: 'none', padding: '8px 12px', fontSize: '14px', background: 'transparent'}}
-                                                                    placeholder="Enter custom university name"
-                                                                    value={university}
-                                                                    onChange={(e) => setUniversity(e.target.value)}
-                                                                    autoFocus
-                                                                />
-                                                                <i className="fa fa-times" style={{padding: '8px 12px', cursor: 'pointer', color: '#888', fontSize: '13px'}} onClick={() => { setUniversityOption(''); setUniversity(''); }}></i>
-                                                            </div>
-                                                        ) : (
-                                                            <div
-                                                                className="form-input"
-                                                                style={{cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none', background: '#fff'}}
-                                                                onClick={() => { setUniversitySearch(''); document.getElementById('university-dropdown').style.display = document.getElementById('university-dropdown').style.display === 'block' ? 'none' : 'block'; }}
-                                                            >
-                                                                <span style={{color: universityOption ? '#232323' : '#aaa'}}>
-                                                                    {universityOption ? universityOption : (placementData?.collegeName || 'Select university')}
-                                                                </span>
-                                                                <i className="fa fa-chevron-down" style={{fontSize: '12px', color: '#888'}}></i>
-                                                            </div>
-                                                        )}
+                                                        <div
+                                                            className="form-input"
+                                                            style={{cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none', background: '#fff'}}
+                                                            onClick={() => { setUniversitySearch(''); document.getElementById('university-dropdown').style.display = document.getElementById('university-dropdown').style.display === 'block' ? 'none' : 'block'; }}
+                                                        >
+                                                            <span style={{color: '#aaa'}}>Please select the university if you need to make any changes.</span>
+                                                            <i className="fa fa-chevron-down" style={{fontSize: '12px', color: '#888'}}></i>
+                                                        </div>
                                                         <div
                                                             id="university-dropdown"
                                                             style={{display: 'none', position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 999, background: '#fff', border: '1px solid #ddd', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', marginTop: '2px'}}
@@ -1234,6 +1211,17 @@ function PlacementDashboardRedesigned() {
                                                                 ))}
                                                             </ul>
                                                         </div>
+                                                        {universityOption && (
+                                                            <input
+                                                                type="text"
+                                                                className="form-input"
+                                                                style={{marginTop: '8px'}}
+                                                                placeholder="Enter your custom university name"
+                                                                value={university}
+                                                                onChange={(e) => setUniversity(e.target.value)}
+                                                                readOnly={universityOption !== 'other'}
+                                                            />
+                                                        )}
                                                     </div>
                                                     
                                                     <div className="field-group">
@@ -1553,69 +1541,18 @@ function PlacementDashboardRedesigned() {
                                     </small>
                                 )}
                             </div>
-                            <div className="form-group" style={{position: 'relative'}}>
+                            <div className="form-group">
                                 <label>College Name <span style={{color: 'red'}}>*</span></label>
-                                <div
-                                    style={{cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none', background: formErrors.collegeName ? '#fff' : '#fff', border: `1px solid ${formErrors.collegeName ? '#dc3545' : '#ddd'}`, borderRadius: '6px', padding: '8px 12px', fontSize: '14px'}}
-                                    onClick={() => { setEditCollegeNameSearch(''); const dd = document.getElementById('edit-college-dropdown'); if (dd) dd.style.display = dd.style.display === 'block' ? 'none' : 'block'; }}
-                                >
-                                    <span style={{color: editCollegeNameOption ? '#232323' : '#aaa'}}>
-                                        {editCollegeNameOption && editCollegeNameOption !== 'other' ? editCollegeNameOption : editCollegeNameOption === 'other' ? 'Other-Specify' : 'Select college name'}
-                                    </span>
-                                    <i className="fa fa-chevron-down" style={{fontSize: '12px', color: '#888'}}></i>
-                                </div>
-                                <div
-                                    id="edit-college-dropdown"
-                                    style={{display: 'none', position: 'absolute', left: 0, right: 0, zIndex: 1050, background: '#fff', border: '1px solid #ddd', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', marginTop: '2px'}}
-                                >
-                                    <div style={{padding: '8px', borderBottom: '1px solid #eee', position: 'relative'}}>
-                                        <i className="fa fa-search" style={{position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#aaa', fontSize: '13px'}}></i>
-                                        <input
-                                            type="text"
-                                            style={{width: '100%', padding: '6px 8px 6px 28px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none'}}
-                                            placeholder="Search college..."
-                                            value={editCollegeNameSearch}
-                                            onChange={(e) => setEditCollegeNameSearch(e.target.value)}
-                                            onClick={(e) => e.stopPropagation()}
-                                        />
-                                    </div>
-                                    <ul style={{listStyle: 'none', margin: 0, padding: 0, maxHeight: '200px', overflowY: 'auto'}}>
-                                        {[{label: 'Select college name', value: ''},
-                                          ...privateUniversityOptions
-                                            .filter(o => o.toLowerCase().includes(editCollegeNameSearch.toLowerCase()))
-                                            .map(o => ({label: o, value: o})),
-                                          {label: 'Other-Specify', value: 'other'}
-                                        ].map((item) => (
-                                            <li
-                                                key={item.value}
-                                                style={{padding: '8px 14px', cursor: 'pointer', fontSize: '13px', color: item.value === '' ? '#aaa' : '#232323', background: editCollegeNameOption === item.value ? '#f0f4ff' : 'transparent'}}
-                                                onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                                                onMouseLeave={(e) => e.currentTarget.style.background = editCollegeNameOption === item.value ? '#f0f4ff' : 'transparent'}
-                                                onClick={() => {
-                                                    setEditCollegeNameOption(item.value);
-                                                    setEditFormData({...editFormData, collegeName: item.value !== 'other' ? item.value : ''});
-                                                    if (formErrors.collegeName) setFormErrors({...formErrors, collegeName: ''});
-                                                    setEditCollegeNameSearch('');
-                                                    document.getElementById('edit-college-dropdown').style.display = 'none';
-                                                }}
-                                            >
-                                                {item.label}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                {editCollegeNameOption === 'other' && (
-                                    <input
-                                        type="text"
-                                        value={editFormData.collegeName || ''}
-                                        onChange={(e) => {
-                                            setEditFormData({...editFormData, collegeName: e.target.value});
-                                            if (formErrors.collegeName) setFormErrors({...formErrors, collegeName: ''});
-                                        }}
-                                        placeholder="Enter your college name"
-                                        style={{marginTop: '8px', width: '100%', padding: '8px 12px', border: `1px solid ${formErrors.collegeName ? '#dc3545' : '#ddd'}`, borderRadius: '6px', fontSize: '14px', outline: 'none'}}
-                                    />
-                                )}
+                                <input
+                                    type="text"
+                                    value={editFormData.collegeName || ''}
+                                    onChange={(e) => {
+                                        setEditFormData({...editFormData, collegeName: e.target.value});
+                                        if (formErrors.collegeName) setFormErrors({...formErrors, collegeName: ''});
+                                    }}
+                                    placeholder="Enter your college name"
+                                    style={{borderColor: formErrors.collegeName ? '#dc3545' : ''}}
+                                />
                                 {formErrors.collegeName && (
                                     <small style={{color: '#dc3545', display: 'block', marginTop: '4px'}}>
                                         {formErrors.collegeName}

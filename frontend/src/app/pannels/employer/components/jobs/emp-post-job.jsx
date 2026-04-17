@@ -5231,7 +5231,7 @@ export default function EmpPostJob({ onNext }) {
 												<i className="fa fa-info-circle" style={{ color: '#d97706', fontSize: 15, marginTop: 2, flexShrink: 0 }}></i>
 												<div style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>
 													<span style={{ fontWeight: 700, color: '#92400e' }}>Note: </span>
-	                                                 The date range represents the overall interview <strong>timeline</strong>, while the number of days indicates the specific days available for candidates to select and book their interview slots.
+                                                    The date range represents the overall interview <strong>timeline</strong>, while the number of days indicates the specific days available for candidates to select and book their interview slots. The available dates and time slots will be displayed accordingly based on the configured settings.
 												</div>
 											</div>
 

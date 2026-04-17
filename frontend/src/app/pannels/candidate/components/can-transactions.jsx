@@ -167,10 +167,9 @@ function CanTransactionsPage() {
             const company = (t.employerId?.brandName || t.employerId?.companyName || "").toLowerCase();
             if (!(jobTitle.includes(q) || company.includes(q))) return false;
             const parseDate = (str) => {
-                const [dd, mm, yyyy] = (str || '').trim().split('/');
-                if (dd && mm && yyyy && yyyy.length === 4)
-                    return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
-                return null;
+                if (!str) return null;
+                const d = new Date(str);
+                return isNaN(d) ? null : d;
             };
             const txDate = new Date(t.createdAt);
             txDate.setHours(0, 0, 0, 0);
@@ -291,12 +290,10 @@ function CanTransactionsPage() {
                                 <i className="fa fa-calendar"></i> From Date
                             </label>
                             <input
-                                type="text"
+                                type="date"
                                 className="form-control page-toolbar__input"
-                                placeholder="DD/MM/YYYY"
                                 value={fromDate}
                                 onChange={(e) => setFromDate(e.target.value)}
-                                maxLength={10}
                                 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '140px', maxWidth: '160px' }}
                             />
                         </div>
@@ -305,12 +302,10 @@ function CanTransactionsPage() {
                                 <i className="fa fa-calendar"></i> To Date
                             </label>
                             <input
-                                type="text"
+                                type="date"
                                 className="form-control page-toolbar__input"
-                                placeholder="DD/MM/YYYY"
                                 value={toDate}
                                 onChange={(e) => setToDate(e.target.value)}
-                                maxLength={10}
                                 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '140px', maxWidth: '160px' }}
                             />
                         </div>
