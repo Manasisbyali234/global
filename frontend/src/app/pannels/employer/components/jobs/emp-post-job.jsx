@@ -5106,6 +5106,21 @@ export default function EmpPostJob({ onNext }) {
 														flexDirection: 'column',
 														gap: '8px'
 													}}>
+														{/* Note inside date range card */}
+														<div style={{
+															display: 'flex',
+															alignItems: 'flex-start',
+															gap: 8,
+															padding: '8px 10px',
+															background: '#eff6ff',
+															border: '1px solid #bfdbfe',
+															borderRadius: '8px',
+														}}>
+															<i className="fa fa-info-circle" style={{ color: '#2563eb', fontSize: 13, marginTop: 2, flexShrink: 0 }}></i>
+															<span style={{ fontSize: 12, color: '#1e40af', lineHeight: 1.5 }}>
+																<strong>Select a date range</strong> by specifying the <strong>start date</strong> and <strong>end date</strong> of the interview process.
+															</span>
+														</div>
 														<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 															<span style={{ fontSize: '12px', color: '#9ca3af', width: isMobile ? 'auto' : '50px', minWidth: '45px' }}>START:</span>
 															<input
@@ -5143,7 +5158,7 @@ export default function EmpPostJob({ onNext }) {
 															/>
 														</div>
 														<div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '8px', marginTop: '4px' }}>
-															<label style={{ fontSize: '11px', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: '600' }}>GENERATE DAYS</label>
+															<label style={{ fontSize: '14px', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: '600' }}>Number of Days</label>
 															<input
 																type="number"
 																min="1"
@@ -5175,6 +5190,10 @@ export default function EmpPostJob({ onNext }) {
 																	<option key={day} value={day} />
 																))}
 															</datalist>
+															<div style={{ display: 'flex', alignItems: 'flex-start', gap: 7, padding: '7px 10px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', marginTop: '6px' }}>
+																<i className="fa fa-info-circle" style={{ color: '#d97706', fontSize: 12, marginTop: 2, flexShrink: 0 }}></i>
+																<span style={{ fontSize: 11, color: '#78350f', lineHeight: 1.5 }}>Enter the number of days available for scheduling interview slots for candidates to attend.</span>
+															</div>
 														</div>
 													</div>
 												</div>
@@ -5196,7 +5215,7 @@ export default function EmpPostJob({ onNext }) {
 												<i className="fa fa-info-circle" style={{ color: '#d97706', fontSize: 15, marginTop: 2, flexShrink: 0 }}></i>
 												<div style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>
 													<span style={{ fontWeight: 700, color: '#92400e' }}>Note: </span>
-	                                              Use the <strong>Start Date</strong> and <strong>End Date</strong> fields above to set the schedule, and adjust the number of days as needed; based on the selected dates, the slots will open for candidates to choose their preferred time.
+	                                                 The date range represents the overall interview <strong>timeline</strong>, while the number of days indicates the specific days available for candidates to select and book their interview slots.
 												</div>
 											</div>
 
