@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { api } from "../../../../../utils/api";
 import TermsModal from "../../../../../components/TermsModal";
 import PageLoader from "../../../../../components/PageLoader";
@@ -382,20 +383,70 @@ function SectionCandicateBasicInfo() {
         }
     };
 
+    const saveProfilePicture = async (profilePictureFile) => {
+        if (!profilePictureFile) return false;
+
+        setSaving(true);
+        setNotification(null);
+
+        try {
+            const submitData = new FormData();
+            submitData.append('profilePicture', profilePictureFile);
+
+            const response = await api.updateCandidateProfile(submitData);
+
+            if (!response.success) {
+                const errorMessage = response.message || 'Failed to update profile picture';
+                showError(errorMessage);
+                setNotification({ type: 'error', message: errorMessage });
+                return false;
+            }
+
+            if (response.profile?.profilePicture) {
+                setCurrentProfilePicture(response.profile.profilePicture);
+            }
+
+            setFormData(prev => ({
+                ...prev,
+                profilePicture: null
+            }));
+            setImagePreview(null);
+            showSuccess('Profile picture updated successfully!');
+            window.dispatchEvent(new Event('candidateProfileUpdated'));
+            fetchProfile();
+            return true;
+        } catch (error) {
+            const errorMessage = error.message || 'Error updating profile picture';
+            showError(errorMessage);
+            setNotification({ type: 'error', message: errorMessage });
+            return false;
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const applyProcessedProfilePicture = async (processedImageDataUrl) => {
-        const processedFile = await dataUrlToFile(processedImageDataUrl);
+        try {
+            const processedFile = await dataUrlToFile(processedImageDataUrl);
 
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.profilePicture;
-            return newErrors;
-        });
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.profilePicture;
+                return newErrors;
+            });
 
-        setFormData(prev => ({
-            ...prev,
-            profilePicture: processedFile
-        }));
-        setImagePreview(processedImageDataUrl);
+            setFormData(prev => ({
+                ...prev,
+                profilePicture: processedFile
+            }));
+            setImagePreview(processedImageDataUrl);
+
+            await saveProfilePicture(processedFile);
+        } catch (error) {
+            const errorMessage = error.message || 'Unable to process image';
+            setErrors(prev => ({ ...prev, profilePicture: errorMessage }));
+            setNotification({ type: 'error', message: errorMessage });
+        }
     };
 
     const handleFileChange = async (e) => {
@@ -953,7 +1004,7 @@ function SectionCandicateBasicInfo() {
                 lockCropArea={resizeConfig.lockCropArea}
                 quality={resizeConfig.quality}
             />
-            {isImagePreviewOpen && previewImageSrc && (
+            {isImagePreviewOpen && previewImageSrc && typeof document !== 'undefined' && createPortal(
                 <div
                     className="profile-image-modal-backdrop"
                     onClick={() => setIsImagePreviewOpen(false)}
@@ -980,7 +1031,8 @@ function SectionCandicateBasicInfo() {
                             className="profile-image-modal-image"
                         />
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </form>
         </>

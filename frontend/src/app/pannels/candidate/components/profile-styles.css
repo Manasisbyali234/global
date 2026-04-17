@@ -442,7 +442,8 @@ select.form-control[name="location"] {
     align-items: center;
     justify-content: center;
     padding: 24px;
-    z-index: 12000;
+    z-index: 2147483646 !important;
+    isolation: isolate;
 }
 
 .profile-image-modal {
@@ -453,6 +454,7 @@ select.form-control[name="location"] {
     border-radius: 24px;
     background: linear-gradient(180deg, #ffffff 0%, #fff7f2 100%);
     box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
+    z-index: 2147483647;
 }
 
 .profile-image-modal-close {
