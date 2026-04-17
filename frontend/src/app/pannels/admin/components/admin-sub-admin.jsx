@@ -149,11 +149,42 @@ function AdminSubAdmin() {
         return Object.keys(errors).length === 0;
     };
 
+    const scrollToFirstError = (errors) => {
+        const fieldOrder = ['firstName', 'lastName', 'email', 'phone', 'employerCode', 'permissions', 'password', 'confirmPassword'];
+        const fieldIdMap = {
+            firstName: 'sub-admin-first-name',
+            lastName: 'sub-admin-last-name',
+            email: 'sub-admin-email',
+            phone: 'sub-admin-phone',
+            employerCode: 'sub-admin-employer-code',
+            permissions: 'employers',
+            password: 'sub-admin-password',
+            confirmPassword: 'sub-admin-confirm-password'
+        };
+        const firstError = fieldOrder.find(f => errors[f]);
+        if (firstError) {
+            const el = document.getElementById(fieldIdMap[firstError]);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
         // Validate form
         if (!validateForm()) {
+            const errors = {};
+            if (!formData.firstName.trim() || formData.firstName.trim().length < 2 || !/^[a-zA-Z\s]+$/.test(formData.firstName)) errors.firstName = true;
+            if (!formData.lastName.trim() || formData.lastName.trim().length < 2 || !/^[a-zA-Z\s]+$/.test(formData.lastName)) errors.lastName = true;
+            if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) errors.email = true;
+            if (!formData.phone.trim() || !/^[0-9]{10}$/.test(formData.phone.replace(/[\s-]/g, ''))) errors.phone = true;
+            if (!formData.employerCode.trim() || formData.employerCode.trim().length < 3 || !/^[a-zA-Z0-9_-]+$/.test(formData.employerCode)) errors.employerCode = true;
+            if (formData.permissions.length === 0) errors.permissions = true;
+            if (showAddForm || formData.password) {
+                if (!formData.password || formData.password.length < 6 || !/(?=.*[A-Z])/.test(formData.password) || !/[@#!%$*?]/.test(formData.password)) errors.password = true;
+                if (!formData.confirmPassword || formData.password !== formData.confirmPassword) errors.confirmPassword = true;
+            }
+            scrollToFirstError(errors);
             return;
         }
         

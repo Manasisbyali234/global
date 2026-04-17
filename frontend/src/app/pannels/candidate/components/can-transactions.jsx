@@ -175,8 +175,8 @@ function CanTransactionsPage() {
             txDate.setHours(0, 0, 0, 0);
             const from = parseDate(fromDate);
             const to = parseDate(toDate);
-            if (from && txDate < from) return false;
-            if (to && txDate > to) return false;
+            if (from) { from.setHours(0, 0, 0, 0); if (txDate < from) return false; }
+            if (to) { to.setHours(23, 59, 59, 999); if (txDate > to) return false; }
             return true;
         });
     }, [transactions, searchText, fromDate, toDate]);
@@ -285,7 +285,7 @@ function CanTransactionsPage() {
                         </div>
                         </div>
                         </div>
-                        <div className="page-toolbar__section" style={{ marginLeft: '1rem' }}>
+                        <div className="page-toolbar__section" style={{ marginLeft: '1rem', position: 'relative', zIndex: 9999 }}>
                             <label className="page-toolbar__label">
                                 <i className="fa fa-calendar"></i> From Date
                             </label>
@@ -294,10 +294,10 @@ function CanTransactionsPage() {
                                 className="form-control page-toolbar__input"
                                 value={fromDate}
                                 onChange={(e) => setFromDate(e.target.value)}
-                                style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '140px', maxWidth: '160px' }}
+                                style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '140px', maxWidth: '160px', position: 'relative', zIndex: 9999 }}
                             />
                         </div>
-                        <div className="page-toolbar__section" style={{ marginLeft: '1rem' }}>
+                        <div className="page-toolbar__section" style={{ marginLeft: '1rem', position: 'relative', zIndex: 9999 }}>
                             <label className="page-toolbar__label">
                                 <i className="fa fa-calendar"></i> To Date
                             </label>
@@ -306,7 +306,7 @@ function CanTransactionsPage() {
                                 className="form-control page-toolbar__input"
                                 value={toDate}
                                 onChange={(e) => setToDate(e.target.value)}
-                                style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '140px', maxWidth: '160px' }}
+                                style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '140px', maxWidth: '160px', position: 'relative', zIndex: 9999 }}
                             />
                         </div>
                         <div className="d-flex align-items-center gap-3" style={{ marginLeft: 'auto' }}>
