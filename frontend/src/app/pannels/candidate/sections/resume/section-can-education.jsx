@@ -615,7 +615,7 @@ function SectionCanEducation({ profile, onUpdate }) {
     return (
         <>
             <div className="panel-heading wt-panel-heading p-a20 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h4 className="panel-tittle m-a0">Educational Qualification Details</h4>
+                <h4 className="panel-tittle m-a0">Educational Qualification Details <span style={{color: 'red'}}>*</span></h4>
                 {!showEducationSelector && !selectedEducationLevel && !editingEntry ? (
                     <button
                         type="button"
@@ -641,7 +641,7 @@ function SectionCanEducation({ profile, onUpdate }) {
                     {educationEntries.length === 0 && (
                         <div className="alert alert-danger py-2 mb-3" role="alert">
                             <i className="fa fa-exclamation-circle me-2"></i>
-                            <strong>Required:</strong> Please add at least one education entry.
+                            <strong>Required:</strong> Please add at least one education entry to proceed.
                         </div>
                     )}
 
@@ -728,22 +728,6 @@ function SectionCanEducation({ profile, onUpdate }) {
                                         {errors.state && <div className="invalid-feedback">{errors.state}</div>}
                                     </div>
 
-                                    <div className="col-md-6">
-                                        <label className="form-label required-field">Result</label>
-                                        <select
-                                            className={`form-select ${errors.result ? 'is-invalid' : ''}`}
-                                            name="result"
-                                            value={formData.result}
-                                            onChange={handleInputChange}
-                                            required
-                                        >
-                                            <option value="">Select Result</option>
-                                            <option value="Passed">Pass</option>
-                                            <option value="Failed">Fail</option>
-                                        </select>
-                                        {errors.result && <div className="invalid-feedback">{errors.result}</div>}
-                                    </div>
-
                                     {/* Percentage/CGPA */}
                                     <div className="col-md-6">
                                         <label className="form-label">Percentage (%)</label>
@@ -760,6 +744,22 @@ function SectionCanEducation({ profile, onUpdate }) {
                                             required
                                         />
                                         {errors.percentage && <div className="invalid-feedback">{errors.percentage}</div>}
+                                    </div>
+
+                                    <div className="col-md-6">
+                                        <label className="form-label required-field">Result</label>
+                                        <select
+                                            className={`form-select ${errors.result ? 'is-invalid' : ''}`}
+                                            name="result"
+                                            value={formData.result}
+                                            onChange={handleInputChange}
+                                            required
+                                        >
+                                            <option value="">Select Result</option>
+                                            <option value="Passed">Pass</option>
+                                            <option value="Failed">Fail</option>
+                                        </select>
+                                        {errors.result && <div className="invalid-feedback">{errors.result}</div>}
                                     </div>
 
                                     <div className="col-md-6">
