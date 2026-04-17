@@ -1279,7 +1279,6 @@ function Home16Page() {
             }}>
                 <Container>
                     <div className="section-head center wt-small-separator-outer mb-5 text-center">
-                        <span className="badge-orange" style={{background: '#FFEBE3', color: '#FF6A3D'}}>Process</span>
                         <h2 className="section-title-large">How It Works for Candidates</h2>
                         <p className="section-subtitle">Follow these simple steps to land your dream job</p>
                     </div>
@@ -1329,7 +1328,6 @@ function Home16Page() {
             <div className="section-full redesign-section animate-on-scroll" style={{background: '#F9FAFB'}}>
                 <Container>
                     <div className="section-head center wt-small-separator-outer mb-5 text-center">
-                        <span className="badge-orange">For Employers</span>
                         <h2 className="section-title-large">How It Works for Employers</h2>
                         <p className="section-subtitle">Streamline your hiring process with these simple steps</p>
                     </div>
