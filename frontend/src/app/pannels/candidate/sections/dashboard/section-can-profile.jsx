@@ -1,6 +1,16 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../../../../utils/api';
 
+const SECTION_ANCHORS = {
+	'Resume Headline': 'resume-headline',
+	'Profile Summary': 'profile-summary',
+	'Key Skills': 'key-skills',
+	'Personal Details': 'personal-details',
+	'Education (need at least 1 complete entry)': 'education',
+	'Work Location Preferences': 'work-location',
+	'Resume Attachment': 'resume-attachment',
+};
+
 function CompleteProfileCard() {
 	const [profileCompletion, setProfileCompletion] = useState(0);
 	const [missingSections, setMissingSections] = useState([]);
@@ -9,10 +19,8 @@ function CompleteProfileCard() {
 	useEffect(() => {
 		fetchProfileCompletion();
 		
-		// Listen for profile updates
 		const handleProfileUpdate = () => {
 			fetchProfileCompletion();
-			// Trigger notification refresh
 			window.dispatchEvent(new CustomEvent('refreshNotifications'));
 		};
 		
@@ -27,12 +35,10 @@ function CompleteProfileCard() {
 		try {
 			const response = await api.getCandidateProfile();
 			if (response.success) {
-				// Use backend-calculated profile completion
 				const completion = response.profileCompletion || 0;
 				const details = response.profileCompletionDetails || { missingSections: [] };
 				setProfileCompletion(completion);
 				setMissingSections(details.missingSections || []);
-				// Trigger notification refresh when completion changes
 				window.dispatchEvent(new CustomEvent('refreshNotifications'));
 			}
 		} catch (error) {
@@ -100,11 +106,22 @@ function CompleteProfileCard() {
 						Missing sections:
 					</small>
 					<div className="d-flex flex-wrap gap-1">
-						{missingSections.map((section, index) => (
-							<span key={index} className="badge bg-light text-dark" style={{fontSize: '11px'}}>
-								{section}
-							</span>
-						))}
+						{missingSections.map((section, index) => {
+							const anchor = SECTION_ANCHORS[section] || 'resume-headline';
+							return (
+								<a
+									key={index}
+									href={`/candidate/my-resume#${anchor}`}
+									className="badge bg-light text-dark text-decoration-none"
+									style={{fontSize: '11px', cursor: 'pointer', border: '1px solid #dee2e6'}}
+									onMouseEnter={(e) => { e.currentTarget.style.background = '#fff3cd'; e.currentTarget.style.borderColor = '#ff6b35'; e.currentTarget.style.color = '#ff6b35'; }}
+									onMouseLeave={(e) => { e.currentTarget.style.background = ''; e.currentTarget.style.borderColor = '#dee2e6'; e.currentTarget.style.color = ''; }}
+								>
+									<i className="fa fa-plus-circle me-1" style={{fontSize: '10px'}}></i>
+									{section}
+								</a>
+							);
+						})}
 					</div>
 				</div>
 			)}
@@ -126,4 +143,3 @@ function CompleteProfileCard() {
 }
 
 export default CompleteProfileCard;
-

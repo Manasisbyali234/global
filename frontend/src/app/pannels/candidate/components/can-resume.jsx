@@ -63,6 +63,16 @@ function CanMyResumePage() {
         fetchProfile();
     }, [fetchProfile]);
 
+    useEffect(() => {
+        if (!loading && !error && window.location.hash) {
+            const id = window.location.hash.substring(1);
+            const el = document.getElementById(id);
+            if (el) {
+                setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+            }
+        }
+    }, [loading, error]);
+
     return (
 			<>
 				<div className="twm-right-section-panel site-bg-gray">
@@ -108,27 +118,27 @@ function CanMyResumePage() {
 						) : (
 							<div className="row">
 								<div className="col-12">
-									<div className="panel panel-default mb-4">
+									<div id="resume-headline" className="panel panel-default mb-4">
 										<SectionCanResumeHeadline profile={profile} />
 									</div>
 
-									<div className="panel panel-default mb-4">
+									<div id="profile-summary" className="panel panel-default mb-4">
 										<SectionCanProfileSummary profile={profile} />
 									</div>
 
-									<div className="panel panel-default mb-4">
+									<div id="key-skills" className="panel panel-default mb-4">
 										<SectionCanKeySkills profile={profile} />
 									</div>
 
-									<div className="panel panel-default mb-4">
+									<div id="personal-details" className="panel panel-default mb-4">
 										<SectionCanPersonalDetail profile={profile} />
 									</div>
 
-									<div className="panel panel-default mb-4 education-panel-container">
+									<div id="education" className="panel panel-default mb-4 education-panel-container">
 										<SectionCanEducation profile={profile} />
 									</div>
 
-									<div className="panel panel-default mb-4">
+									<div id="work-location" className="panel panel-default mb-4">
 										<SectionCanWorkLocation profile={profile} onUpdate={handleProfileUpdate} />
 									</div>
 
@@ -136,7 +146,7 @@ function CanMyResumePage() {
 										<SectionCanEmployment profile={profile} onUpdate={handleProfileUpdate} />
 									</div>
 
-									<div className="panel panel-default mb-4">
+									<div id="resume-attachment" className="panel panel-default mb-4">
 										<SectionCanAttachment profile={profile} />
 									</div>
 								</div>
