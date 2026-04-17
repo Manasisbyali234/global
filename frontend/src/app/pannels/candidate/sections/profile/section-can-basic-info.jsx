@@ -3,8 +3,7 @@ import { createPortal } from "react-dom";
 import { api } from "../../../../../utils/api";
 import TermsModal from "../../../../../components/TermsModal";
 import PageLoader from "../../../../../components/PageLoader";
-import ImageResizer from "../../../../../components/ImageResizer";
-import { useImageResizer } from "../../../../../hooks/useImageResizer";
+import { imageUtils } from "../../../../../utils/imageUtils";
 import '../../../../../remove-profile-hover-effects.css';
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../../utils/popupNotification';
 import { fetchLocationFromPincode } from '../../../../../utils/pincodeService';
@@ -20,16 +19,6 @@ const indianCities = [
 
 
 function SectionCandicateBasicInfo() {
-    const {
-        isResizerOpen,
-        currentImage,
-        resizeConfig,
-        closeResizer,
-        handleSave: handleResizerSave,
-        openProfileResizer,
-        handleFileWithResize
-    } = useImageResizer();
-
     const getImagePreviewSrc = (imageValue) => {
         const backendBaseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
         if (!imageValue || typeof imageValue !== 'string') return '';
@@ -395,14 +384,14 @@ function SectionCandicateBasicInfo() {
 
             const response = await api.updateCandidateProfile(submitData);
 
-            if (!response.success) {
-                const errorMessage = response.message || 'Failed to update profile picture';
+            if (!response?.success) {
+                const errorMessage = response?.message || 'Failed to auto-save profile picture';
                 showError(errorMessage);
                 setNotification({ type: 'error', message: errorMessage });
                 return false;
             }
 
-            if (response.profile?.profilePicture) {
+            if (response?.profile?.profilePicture) {
                 setCurrentProfilePicture(response.profile.profilePicture);
             }
 
@@ -411,12 +400,12 @@ function SectionCandicateBasicInfo() {
                 profilePicture: null
             }));
             setImagePreview(null);
+
             showSuccess('Profile picture updated successfully!');
             window.dispatchEvent(new Event('candidateProfileUpdated'));
-            fetchProfile();
             return true;
         } catch (error) {
-            const errorMessage = error.message || 'Error updating profile picture';
+            const errorMessage = error?.message || 'Failed to auto-save profile picture';
             showError(errorMessage);
             setNotification({ type: 'error', message: errorMessage });
             return false;
@@ -426,27 +415,21 @@ function SectionCandicateBasicInfo() {
     };
 
     const applyProcessedProfilePicture = async (processedImageDataUrl) => {
-        try {
-            const processedFile = await dataUrlToFile(processedImageDataUrl);
+        const processedFile = await dataUrlToFile(processedImageDataUrl);
 
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors.profilePicture;
-                return newErrors;
-            });
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.profilePicture;
+            return newErrors;
+        });
 
-            setFormData(prev => ({
-                ...prev,
-                profilePicture: processedFile
-            }));
-            setImagePreview(processedImageDataUrl);
+        setFormData(prev => ({
+            ...prev,
+            profilePicture: processedFile
+        }));
+        setImagePreview(processedImageDataUrl);
 
-            await saveProfilePicture(processedFile);
-        } catch (error) {
-            const errorMessage = error.message || 'Unable to process image';
-            setErrors(prev => ({ ...prev, profilePicture: errorMessage }));
-            setNotification({ type: 'error', message: errorMessage });
-        }
+        await saveProfilePicture(processedFile);
     };
 
     const handleFileChange = async (e) => {
@@ -469,9 +452,15 @@ function SectionCandicateBasicInfo() {
             }
 
             try {
-                await handleFileWithResize(file, 'profile', (processedImage) => {
-                    applyProcessedProfilePicture(processedImage);
-                });
+                const profileDimensions = imageUtils.getOptimalDimensions('profile');
+                const sourceDataUrl = await imageUtils.fileToDataURL(file);
+                const processedImage = await imageUtils.generateThumbnail(
+                    sourceDataUrl,
+                    profileDimensions.width,
+                    0.9
+                );
+
+                await applyProcessedProfilePicture(processedImage);
             } catch (error) {
                 setErrors(prev => ({ ...prev, profilePicture: error.message || 'Unable to process image' }));
                 setNotification({ type: 'error', message: error.message || 'Unable to process image' });
@@ -688,31 +677,6 @@ function SectionCandicateBasicInfo() {
                                     onChange={handleFileChange}
                                     style={{maxWidth: '300px'}}
                                 />
-                                {(imagePreview || currentProfilePicture) && (
-                                    <div className="mt-2">
-                                        <button
-                                            type="button"
-                                            className="btn btn-sm"
-                                            style={{
-                                                background: 'rgba(255, 107, 53, 0.9)',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                padding: '6px 12px',
-                                                fontSize: '12px'
-                                            }}
-                                            onClick={() => {
-                                                const imageSrc = imagePreview || getImagePreviewSrc(currentProfilePicture);
-                                                openProfileResizer(imageSrc, (processedImage) => {
-                                                    applyProcessedProfilePicture(processedImage);
-                                                });
-                                            }}
-                                            title="Resize & Crop Image"
-                                        >
-                                            <i className="fa fa-crop me-1"></i> Resize & Crop
-                                        </button>
-                                    </div>
-                                )}
                                 {errors.profilePicture && (
                                     <div className="invalid-feedback d-block" style={{maxWidth: '300px', margin: '0 auto'}}>
                                         {errors.profilePicture}
@@ -992,17 +956,6 @@ function SectionCandicateBasicInfo() {
                     }, 300); // Give modal more time to close on mobile
                 }}
                 role="candidateProfile"
-            />
-            <ImageResizer
-                src={currentImage}
-                isOpen={isResizerOpen}
-                onClose={closeResizer}
-                onSave={handleResizerSave}
-                aspectRatio={resizeConfig.aspectRatio}
-                maxWidth={resizeConfig.maxWidth}
-                maxHeight={resizeConfig.maxHeight}
-                lockCropArea={resizeConfig.lockCropArea}
-                quality={resizeConfig.quality}
             />
             {isImagePreviewOpen && previewImageSrc && typeof document !== 'undefined' && createPortal(
                 <div
