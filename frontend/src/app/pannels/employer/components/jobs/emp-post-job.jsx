@@ -331,6 +331,7 @@ function AssessmentSearchSelect({
 	onSelect,
 	employerType = 'company',
 	inputStyle = {},
+	containerStyle = {},
 	minWidth = '320px',
 	placeholder = 'Search or choose an assessment...'
 }) {
@@ -367,7 +368,7 @@ function AssessmentSearchSelect({
 	};
 
 	return (
-		<div style={{ position: 'relative', minWidth }}>
+		<div style={{ position: 'relative', minWidth, ...containerStyle }}>
 			<div style={{ position: 'relative' }}>
 				<button
 					type="button"
@@ -378,6 +379,10 @@ function AssessmentSearchSelect({
 					style={{
 						...inputStyle,
 						width: '100%',
+						backgroundImage: 'none',
+						appearance: 'none',
+						WebkitAppearance: 'none',
+						MozAppearance: 'none',
 						paddingLeft: '14px',
 						paddingRight: '40px',
 						cursor: 'pointer',
@@ -403,7 +408,7 @@ function AssessmentSearchSelect({
 					top: '50%',
 					transform: 'translateY(-50%)',
 					pointerEvents: 'none',
-					color: '#c26213'
+					color: '#64748b'
 				}}>
 					<i className={`fa ${showDropdown ? 'fa-chevron-up' : 'fa-chevron-down'}`} style={{ fontSize: 12 }}></i>
 				</div>
@@ -447,6 +452,10 @@ function AssessmentSearchSelect({
 									...inputStyle,
 									minWidth: '100%',
 									width: '100%',
+									backgroundImage: 'none',
+									appearance: 'none',
+									WebkitAppearance: 'none',
+									MozAppearance: 'none',
 									paddingLeft: '36px',
 									paddingRight: '12px',
 									borderRadius: '8px',
@@ -4539,15 +4548,16 @@ export default function EmpPostJob({ onNext }) {
 										display: "flex",
 										alignItems: "center",
 										justifyContent: "space-between",
-										flexWrap: "wrap",
+										flexWrap: isMobile ? "wrap" : "nowrap",
 										gap: 12
 									}}>
-										<div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+										<div style={{ display: "flex", alignItems: "center", gap: 12, flex: "1 1 auto", minWidth: 0 }}>
 											<span style={{
 												fontSize: 14,
 												fontWeight: 700,
-												color: '#fff',
-												background: '#ff6b35',
+												color: '#334155',
+												background: '#e2e8f0',
+												border: '1px solid #cbd5e1',
 												borderRadius: '8px',
 												width: '32px',
 												height: '32px',
@@ -4557,14 +4567,14 @@ export default function EmpPostJob({ onNext }) {
 											}}>
 												{stageNumber}
 											</span>
-											<div>
-												<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
+											<div style={{ minWidth: 0 }}>
+												<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700, whiteSpace: isMobile ? 'normal' : 'nowrap' }}>
 													Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex + 1}
 												</h4>
 												<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 											</div>
 										</div>
-										<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+										<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
 											{null}
 											<div 
 												style={{
@@ -4753,13 +4763,14 @@ export default function EmpPostJob({ onNext }) {
 												boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
 												width: '100%'
 											}}>
-										<div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-											<div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+										<div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
+											<div style={{ display: "flex", alignItems: "center", gap: 12, flex: '1 1 auto', minWidth: 0 }}>
 														<span style={{
 															fontSize: 14,
 															fontWeight: 700,
-															color: '#fff',
-															background: '#ff6b35',
+															color: '#334155',
+															background: '#e2e8f0',
+															border: '1px solid #cbd5e1',
 															borderRadius: '8px',
 															width: '32px',
 															height: '32px',
@@ -4769,20 +4780,25 @@ export default function EmpPostJob({ onNext }) {
 														}}>
 															{stageNumber}
 														</span>
-														<div>
-															<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
+														<div style={{ minWidth: 0 }}>
+															<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700, whiteSpace: isMobile ? 'normal' : 'nowrap' }}>
 																Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex}
 															</h4>
 													<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 												</div>
 											</div>
-											<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+											<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: isMobile ? 'wrap' : 'nowrap', justifyContent: isMobile ? 'flex-start' : 'flex-end', flex: isMobile ? '1 1 100%' : '0 1 auto' }}>
 												<AssessmentSearchSelect
 													assessments={availableAssessments}
 													value={selectedAssessmentForRound}
 													onSelect={(newAssessmentId) => handleAssessmentRoundSelection(uniqueKey, newAssessmentId)}
 													employerType={employerType}
-													minWidth={isMobile ? '220px' : '320px'}
+													minWidth={isMobile ? '100%' : '440px'}
+													containerStyle={{
+														flex: isMobile ? '1 1 100%' : '1 1 440px',
+														width: isMobile ? '100%' : 'min(100%, 520px)',
+														maxWidth: isMobile ? '100%' : '520px'
+													}}
 													inputStyle={{
 														...input,
 														cursor: 'text',
@@ -4790,7 +4806,7 @@ export default function EmpPostJob({ onNext }) {
 														borderRadius: '10px',
 														background: '#fff',
 														fontSize: 14,
-														minWidth: isMobile ? '220px' : '320px'
+														minWidth: '100%'
 													}}
 												/>
 												{selectedAssessmentForRound && (
@@ -5538,15 +5554,16 @@ export default function EmpPostJob({ onNext }) {
 												display: "flex",
 												alignItems: "center",
 												justifyContent: "space-between",
-												flexWrap: "wrap",
+												flexWrap: isMobile ? "wrap" : "nowrap",
 												gap: 12
 											}}>
-												<div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+												<div style={{ display: "flex", alignItems: "center", gap: 12, flex: "1 1 auto", minWidth: 0 }}>
 													<span style={{
 														fontSize: 14,
 														fontWeight: 700,
-														color: '#fff',
-														background: '#ff6b35',
+														color: '#334155',
+														background: '#e2e8f0',
+														border: '1px solid #cbd5e1',
 														borderRadius: '8px',
 														width: '32px',
 														height: '32px',
@@ -5556,14 +5573,14 @@ export default function EmpPostJob({ onNext }) {
 													}}>
 														{stageNumber}
 													</span>
-													<div>
-														<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700 }}>
+													<div style={{ minWidth: 0 }}>
+														<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700, whiteSpace: isMobile ? 'normal' : 'nowrap' }}>
 															Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex + 1}
 														</h4>
 														<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 													</div>
 												</div>
-												<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+												<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
 													<button
 														style={{
 															background: '#10b981',

@@ -2554,14 +2554,14 @@ exports.updateApplicationStatus = async (req, res) => {
             const emailResult = await sendMailWithGreeting(transporter, {
               from: process.env.EMAIL_USER,
               to: application.candidateId.email,
-              subject: `ðŸŽ‰ Congratulations! You've been shortlisted for ${jobTitle}`,
+              subject: `Congratulations! You've been shortlisted for ${jobTitle}`,
               html: `
                 <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa;">
                   <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                    <h1 style="color: #28a745; text-align: center; margin-bottom: 30px;">ðŸŽ‰ Congratulations!</h1>
+                    <h1 style="color: #28a745; text-align: center; margin-bottom: 30px;">&#127881; Congratulations!</h1>
                     <p style="color: #666; font-size: 16px; line-height: 1.6;">Dear ${candidateName},</p>
                     <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 100%); padding: 25px; border-radius: 10px; margin: 25px 0; border-left: 5px solid #28a745;">
-                      <p style="color: #155724; margin: 0; font-size: 18px; line-height: 1.6; font-weight: 600;">âœ… You have been shortlisted for the position of <strong>${jobTitle}</strong>!</p>
+                      <p style="color: #155724; margin: 0; font-size: 18px; line-height: 1.6; font-weight: 600;">&#9989; You have been shortlisted for the position of <strong>${jobTitle}</strong>!</p>
                     </div>
                     ${trimmedNotes ? `<div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 25px 0;"><p style="color: #856404; margin: 0; font-size: 14px;"><strong>Employer Note:</strong> ${trimmedNotes}</p></div>` : ''}
                     <p style="color: #666; font-size: 16px; line-height: 1.6;">Please check your dashboard for next steps and interview details.</p>
