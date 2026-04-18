@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { publicUser } from "../../../../../../globals/route-names";
 import { handlePhoneInputChange, validatePhoneOnBlur } from "../../../../../../utils/phoneValidation";
-import { showSuccess, showError } from "../../../../../../utils/popupNotification";
+import { showSuccess, showError, showWarning } from "../../../../../../utils/popupNotification";
 import TermsModal from "../../../../../../components/TermsModal";
 import JobZImage from "../../../../../common/jobz-img";
 import "./AuthPages.css";
@@ -157,7 +157,12 @@ function SignupEmployer() {
                 setEmployerData({ name: '', email: '', mobile: '', employerCategory: '', countryCode: '+91' });
                 navigate(publicUser.pages.LOGIN_EMPLOYER);
             } else {
-                showError(data.message || 'Registration failed.');
+                const message = data.message || 'Registration failed.';
+                if (String(message).toLowerCase().includes('email already registered')) {
+                    showWarning(message);
+                } else {
+                    showError(message);
+                }
             }
         } catch (error) {
             showError('Network error. Please try again.');
