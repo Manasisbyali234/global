@@ -213,7 +213,7 @@ router.put('/profile', upload.single('profilePicture'), (req, res, next) => {
   // Apply validations and then handle validation errors
   Promise.all(validations.map(validation => validation.run(req)))
     .then(() => {
-      handleValidationErrors(req, res, next);
+      handleValidationErrors(req, res, () => candidateController.updateProfile(req, res));
     })
     .catch(next);
 });

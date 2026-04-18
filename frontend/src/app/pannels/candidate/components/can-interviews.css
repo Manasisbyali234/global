@@ -33,13 +33,11 @@
 }
 
 .candidate-interviews-header-controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(210px, 0.9fr) minmax(260px, 1.1fr) minmax(220px, 0.95fr);
   gap: 1rem;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap;
   min-width: 0;
-  overflow-x: auto;
 }
 
 .candidate-interviews-empty {
@@ -53,6 +51,8 @@
 
 .candidate-interviews-search-input-wrap {
   position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
   min-width: 0;
 }
@@ -60,7 +60,7 @@
 .candidate-interviews-search-icon {
   position: absolute;
   top: 50%;
-  left: 16px;
+  right: 16px;
   transform: translateY(-50%);
   color: #9ca3af;
   font-size: 14px;
@@ -71,10 +71,13 @@
   width: 100%;
   border: 1px solid #d1d5db;
   border-radius: 999px;
-  padding: 0.72rem 1rem 0.72rem 2.75rem;
+  padding: 0.72rem 2.75rem 0.72rem 1rem;
+  min-height: 46px;
+  line-height: 1.2;
   font-size: 0.92rem;
   color: #111827;
   background: #ffffff;
+  text-align: left;
 }
 
 .candidate-interviews-search-input:focus {
@@ -85,18 +88,21 @@
 
 .candidate-interviews-search-input::placeholder {
   color: #9ca3af;
+  text-align: left;
 }
 
 .candidate-interviews-field-group {
-  display: flex;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
   align-items: center;
-  gap: 0.65rem;
-  flex: 0 0 auto;
+  column-gap: 0.65rem;
+  row-gap: 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .candidate-interviews-search-group {
-  flex: 0 1 260px;
-  min-width: 0;
+  max-width: none;
 }
 
 .candidate-interviews-inline-label {
@@ -105,10 +111,12 @@
   color: #4b5563;
   margin: 0;
   white-space: nowrap;
+  min-width: 88px;
+  text-align: right;
 }
 
 .candidate-interviews-filter-wrap {
-  min-width: 220px;
+  min-width: 0;
 }
 
 .candidate-interviews-filter-select {
@@ -116,6 +124,7 @@
   border: 1px solid #d1d5db;
   border-radius: 999px;
   padding: 0.72rem 2.75rem 0.72rem 1rem;
+  min-height: 46px;
   font-size: 0.92rem;
   color: #111827;
   background-color: #ffffff;
@@ -124,7 +133,7 @@
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
   appearance: none;
-  min-width: 170px;
+  min-width: 0;
 }
 
 .candidate-interviews-filter-select:focus {
@@ -206,5 +215,28 @@
 
   .candidate-interviews-header-top {
     margin-bottom: 0.75rem;
+  }
+
+  .candidate-interviews-header-controls {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .candidate-interviews-field-group {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.45rem;
+  }
+
+  .candidate-interviews-inline-label {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .candidate-interviews-search-group,
+  .candidate-interviews-filter-wrap {
+    min-width: 0;
   }
 }

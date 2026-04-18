@@ -499,7 +499,7 @@ function CanInterviewsPage() {
                   id="candidate-interviews-search"
                   type="text"
                   className="candidate-interviews-search-input"
-                  placeholder="Search by company name"
+                  placeholder="By company"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                 />
