@@ -8,6 +8,8 @@ const isValidationErrorMessage = (value) => {
     text.includes('validation error') ||
     text.includes('please check your input') ||
     text.includes('fill all required fields') ||
+    text.includes('required fields are missing') ||
+    text.includes('missing required fields') ||
     text.includes('must be after') ||
     text.includes('must be on') ||
     text.includes('clashes with') ||
@@ -28,6 +30,11 @@ const isValidationErrorMessage = (value) => {
 const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 }) => {
   const displayType = type === 'error' && isValidationErrorMessage(message) ? 'warning' : type;
   const isSingleLineScheduleMessage = typeof message === 'string' && message.startsWith('Assessment scheduled on ');
+  const isStructuredMessage = typeof message === 'string' && !isSingleLineScheduleMessage && (
+    message.includes('\n') ||
+    message.includes('•') ||
+    /required fields|missing required fields|row\(s\)|duplicate ids/i.test(message)
+  );
 
   useEffect(() => {
     if (message) {
@@ -64,13 +71,13 @@ const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 })
 
   return (
     <div className="popup-overlay" onClick={handleOverlayClick}>
-      <div className={`popup-box popup-${displayType} ${isSingleLineScheduleMessage ? 'popup-box-single-line' : ''}`}>
+      <div className={`popup-box popup-${displayType} ${isSingleLineScheduleMessage ? 'popup-box-single-line' : ''} ${isStructuredMessage ? 'popup-box-structured' : ''}`}>
         <button className="popup-close-button" onClick={onClose} aria-label="Close">
           {'\u00D7'}
         </button>
-        <div className="popup-content">
+        <div className={`popup-content ${isStructuredMessage ? 'popup-content-structured' : ''}`}>
           <div className="popup-icon">{icons[displayType] || icons.info}</div>
-          <div className={`popup-message ${isSingleLineScheduleMessage ? 'popup-message-single-line' : ''}`} style={{ textAlign: 'center' }}>{message}</div>
+          <div className={`popup-message ${isSingleLineScheduleMessage ? 'popup-message-single-line' : ''} ${isStructuredMessage ? 'popup-message-structured' : ''}`}>{message}</div>
         </div>
       </div>
     </div>

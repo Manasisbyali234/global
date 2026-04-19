@@ -3,7 +3,7 @@ import { formatDate } from '../../../utils/dateFormatter';
 import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { debugAuth, testAPIConnection, testPlacementAuth } from '../../../utils/authDebug';
-import { getPlacementFileStudents, normalizePlacementStudents } from '../../../utils/placementStudentData';
+import { getPlacementFileStudents, normalizePlacementStudents, normalizePlacementUploadErrorMessage } from '../../../utils/placementStudentData';
 import PlacementNotificationsRedesigned from './sections/PlacementNotificationsRedesigned';
 import PlacementSupportSection from './sections/PlacementSupportSection';
 import UnifiedHeader from '../../../components/UnifiedHeader';
@@ -274,27 +274,16 @@ function PlacementDashboardRedesigned() {
                     fetchStudentData() // Refresh student data
                 ]);
             } else {
-                showError(data.message || 'Upload failed');
+                showError(normalizePlacementUploadErrorMessage(data.message, 'Upload failed'));
             }
         } catch (error) {
             console.error('Upload error:', error);
-            // Extract the actual error message from the error object
-            let errorMessage = 'Upload failed. Please try again.';
-            
-            if (error.response && error.response.data && error.response.data.message) {
-                errorMessage = error.response.data.message;
-            } else if (error.message) {
-                errorMessage = error.message;
-            }
-            
-            // Clean up the error message by removing HTTP status codes and extra formatting
-            errorMessage = errorMessage
-                .replace(/^HTTP\s*\d+:\s*/i, '')
-                .replace(/^\d{3}\s*-?\s*/g, '')
-                .replace(/^[:\s-]+|[:\s-]+$/g, '')
-                .trim();
-            
-            showError(errorMessage);
+            showError(
+                normalizePlacementUploadErrorMessage(
+                    error.response?.data?.message || error.message,
+                    'Upload failed. Please try again.'
+                )
+            );
         } finally {
             setUploadingFile(false);
         }
@@ -580,18 +569,16 @@ function PlacementDashboardRedesigned() {
                     fetchStudentData()
                 ]);
             } else {
-                showError(data.message || 'Resubmission failed');
+                showError(normalizePlacementUploadErrorMessage(data.message, 'Resubmission failed'));
             }
         } catch (error) {
             console.error('Resubmit error:', error);
-            const errorMessage = error.message || 'Resubmission failed. Please try again.';
-            // Remove HTTP status codes and related error prefixes from error message
-            const cleanMessage = errorMessage
-                .replace(/HTTP\s*\d+/gi, '')
-                .replace(/\d{3}\s*-?\s*/g, '')
-                .replace(/^[:\s-]+|[:\s-]+$/g, '')
-                .trim();
-            showError(cleanMessage || 'Resubmission failed. Please try again.');
+            showError(
+                normalizePlacementUploadErrorMessage(
+                    error.response?.data?.message || error.message,
+                    'Resubmission failed. Please try again.'
+                )
+            );
         } finally {
             setResubmitting(false);
         }

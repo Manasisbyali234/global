@@ -347,6 +347,7 @@ function AssessmentSearchSelect({
 	const filteredAssessments = assessments.filter((assessment) =>
 		getAssessmentOptionSearchText(assessment, employerType).includes(searchTerm.trim().toLowerCase())
 	);
+	const resolvedMinWidth = typeof minWidth === 'number' ? `${minWidth}px` : minWidth;
 
 	const handleSelect = (assessmentId) => {
 		if (!assessmentId) return;
@@ -368,7 +369,7 @@ function AssessmentSearchSelect({
 	};
 
 	return (
-		<div style={{ position: 'relative', minWidth, ...containerStyle }}>
+		<div style={{ position: 'relative', width: '100%', minWidth: 0, maxWidth: '100%', flexBasis: resolvedMinWidth, ...containerStyle }}>
 			<div style={{ position: 'relative' }}>
 				<button
 					type="button"
@@ -388,7 +389,8 @@ function AssessmentSearchSelect({
 						cursor: 'pointer',
 						textAlign: 'left',
 						display: 'flex',
-						alignItems: 'center'
+						alignItems: 'center',
+						minWidth: 0
 					}}
 				>
 					<span style={{
@@ -397,7 +399,9 @@ function AssessmentSearchSelect({
 						textOverflow: 'ellipsis',
 						whiteSpace: 'nowrap',
 						display: 'block',
-						width: '100%'
+						width: '100%',
+						flex: 1,
+						minWidth: 0
 					}}>
 						{selectedLabel || '-- Choose an Assessment --'}
 					</span>
@@ -4763,7 +4767,7 @@ export default function EmpPostJob({ onNext }) {
 												boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
 												width: '100%'
 											}}>
-										<div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
+										<div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
 											<div style={{ display: "flex", alignItems: "center", gap: 12, flex: '1 1 auto', minWidth: 0 }}>
 														<span style={{
 															fontSize: 14,
@@ -4780,14 +4784,14 @@ export default function EmpPostJob({ onNext }) {
 														}}>
 															{stageNumber}
 														</span>
-														<div style={{ minWidth: 0 }}>
-															<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700, whiteSpace: isMobile ? 'normal' : 'nowrap' }}>
-																Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex}
-															</h4>
+										<div style={{ minWidth: 0, flex: 1 }}>
+											<h4 style={{ margin: 0, fontSize: 16, color: "#1e293b", fontWeight: 700, whiteSpace: 'normal', lineHeight: 1.35 }}>
+												Stage {stageNumber}: MCQ/Assessment Schedule {assessmentIndex}
+											</h4>
 													<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 												</div>
 											</div>
-											<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: isMobile ? 'wrap' : 'nowrap', justifyContent: isMobile ? 'flex-start' : 'flex-end', flex: isMobile ? '1 1 100%' : '0 1 auto' }}>
+											<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: isMobile ? 'flex-start' : 'flex-end', flex: isMobile ? '1 1 100%' : '1 1 420px', minWidth: 0 }}>
 												<AssessmentSearchSelect
 													assessments={availableAssessments}
 													value={selectedAssessmentForRound}
@@ -4795,9 +4799,10 @@ export default function EmpPostJob({ onNext }) {
 													employerType={employerType}
 													minWidth={isMobile ? '100%' : '440px'}
 													containerStyle={{
-														flex: isMobile ? '1 1 100%' : '1 1 440px',
+														flex: isMobile ? '1 1 100%' : '1 1 420px',
 														width: isMobile ? '100%' : 'min(100%, 520px)',
-														maxWidth: isMobile ? '100%' : '520px'
+														maxWidth: isMobile ? '100%' : '520px',
+														minWidth: 0
 													}}
 													inputStyle={{
 														...input,
@@ -4809,23 +4814,6 @@ export default function EmpPostJob({ onNext }) {
 														minWidth: '100%'
 													}}
 												/>
-												{selectedAssessmentForRound && (
-													<div style={{
-														display: 'flex', 
-														alignItems: 'center', 
-														gap: 6, 
-														color: '#059669', 
-														fontSize: 13, 
-														fontWeight: 700,
-														background: '#ecfdf5',
-														padding: '6px 12px',
-														borderRadius: '10px',
-														border: '1px solid #d1fae5'
-													}}>
-														<i className="fa fa-check-circle"></i>
-														<span>Active</span>
-													</div>
-												)}
 											</div>
 													{null}
 												</div>

@@ -5,6 +5,7 @@ import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { showSuccess, showError, showWarning } from '../../../utils/popupNotification';
 import { buildPlacementUploadPopup } from '../../../utils/placementUploadPopup';
+import { normalizePlacementUploadErrorMessage } from '../../../utils/placementStudentData';
 import './batch-upload.css';
 
 function BatchUpload() {
@@ -127,10 +128,15 @@ function BatchUpload() {
                 resetForm();
                 fetchUploadHistory();
             } else {
-                showError(data.message || 'Upload failed');
+                showError(normalizePlacementUploadErrorMessage(data.message, 'Upload failed'));
             }
         } catch (error) {
-            showError(error.message || 'Upload failed. Please try again.');
+            showError(
+                normalizePlacementUploadErrorMessage(
+                    error.response?.data?.message || error.message,
+                    'Upload failed. Please try again.'
+                )
+            );
         } finally {
             setUploading(false);
         }
@@ -200,10 +206,15 @@ function BatchUpload() {
                 setResubmitFileId(null);
                 fetchUploadHistory();
             } else {
-                showError(data.message || 'Resubmission failed');
+                showError(normalizePlacementUploadErrorMessage(data.message, 'Resubmission failed'));
             }
         } catch (error) {
-            showError(error.message || 'Resubmission failed. Please try again.');
+            showError(
+                normalizePlacementUploadErrorMessage(
+                    error.response?.data?.message || error.message,
+                    'Resubmission failed. Please try again.'
+                )
+            );
         } finally {
             setUploading(false);
         }

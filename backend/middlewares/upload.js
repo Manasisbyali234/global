@@ -224,7 +224,7 @@ const validateExcelContent = (source, mimetype) => {
       return { valid: false, message: 'Your file only contains headers. Please add student data rows' };
     }
     
-    // Check for duplicate emails and IDs within the file
+    // Check for duplicate IDs within the file. Duplicate emails are sanitized before storage.
     const emails = [];
     const ids = [];
     const duplicateEmails = [];
@@ -255,20 +255,12 @@ const validateExcelContent = (source, mimetype) => {
       }
     });
     
-    if (duplicateEmails.length > 0 || duplicateIds.length > 0) {
-      let message = 'Duplicates found in your file:';
-      if (duplicateEmails.length > 0) {
-        message += ` Emails: ${duplicateEmails.join(', ')}`;
-      }
-      if (duplicateIds.length > 0) {
-        message += ` IDs: ${duplicateIds.join(', ')}`;
-      }
-      message += '. Please fix the duplicates and upload again.';
-      
+    if (duplicateIds.length > 0) {
+      const message = `Duplicate IDs found in your file: ${duplicateIds.join(', ')}. Please fix the duplicate IDs and upload again.`;
+
       return { 
         valid: false, 
         message: message,
-        duplicateEmails: duplicateEmails,
         duplicateIds: duplicateIds
       };
     }

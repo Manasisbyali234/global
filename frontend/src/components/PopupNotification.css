@@ -63,6 +63,10 @@
   width: fit-content;
 }
 
+.popup-box.popup-box-structured {
+  width: min(92vw, 560px) !important;
+}
+
 @media (min-width: 576px) {
   .popup-box {
     max-width: 500px !important;
@@ -86,6 +90,14 @@
 
 .popup-content {
   text-align: center;
+}
+
+.popup-content.popup-content-structured {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  row-gap: 12px;
 }
 
 .popup-secure .popup-content {
@@ -184,6 +196,27 @@
 
 .popup-message.popup-message-single-line {
   white-space: nowrap;
+}
+
+.popup-message.popup-message-structured {
+  text-align: center;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding-right: 0;
+}
+
+.popup-content.popup-content-structured .popup-icon {
+  margin: 0 auto;
+  width: 52px;
+  height: 52px;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 575px) {
+  .popup-content.popup-content-structured {
+    row-gap: 10px;
+  }
 }
 
 .popup-message-left {
@@ -285,7 +318,15 @@
     width: auto;
   }
 
+  .popup-box.popup-box-structured {
+    width: min(100%, 520px) !important;
+  }
+
   .popup-message.popup-message-single-line {
     white-space: normal;
+  }
+
+  .popup-message.popup-message-structured {
+    padding-right: 0;
   }
 }

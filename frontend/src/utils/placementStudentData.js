@@ -67,5 +67,42 @@ export const normalizePlacementStudent = (student = {}) => {
 export const normalizePlacementStudents = (students = []) =>
   Array.isArray(students) ? students.map(normalizePlacementStudent) : [];
 
+const dedupePlacementStudentsByEmail = (students = []) => {
+  const seenEmails = new Set();
+
+  return students.filter(student => {
+    const email = String(student?.email || '').trim().toLowerCase();
+    if (!email) return true;
+    if (seenEmails.has(email)) return false;
+
+    seenEmails.add(email);
+    return true;
+  });
+};
+
 export const getPlacementFileStudents = (payload = {}) =>
-  normalizePlacementStudents(payload.students || payload.fileData || []);
+  dedupePlacementStudentsByEmail(
+    normalizePlacementStudents(payload.students || payload.fileData || [])
+  );
+
+export const normalizePlacementUploadErrorMessage = (message = '', fallback = 'Upload failed. Please try again.') => {
+  const safeMessage = String(message || '')
+    .replace(/^HTTP\s*\d+:\s*/i, '')
+    .replace(/^\d{3}\s*-?\s*/g, '')
+    .replace(/^[:\s-]+|[:\s-]+$/g, '')
+    .trim();
+
+  if (!safeMessage) {
+    return fallback;
+  }
+
+  if (
+    /missing required fields|row\(s\) with missing required information|required fields for all rows|missing phone|missing email|missing candidate name|missing id|actual student data/i.test(
+      safeMessage
+    )
+  ) {
+    return 'Required fields are missing in the Excel sheet.';
+  }
+
+  return safeMessage;
+};

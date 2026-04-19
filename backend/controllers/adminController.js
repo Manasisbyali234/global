@@ -27,7 +27,12 @@ const { createNotification } = require('./notificationController');
 const mongoose = require('mongoose');
 const XLSX = require('xlsx');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
-const { checkEmailExists } = require('../utils/authUtils');
+const { checkEmailExists, findExistingEmails } = require('../utils/authUtils');
+const {
+  getRowEmail,
+  sanitizeRowsByEmail,
+  buildStructuredPlacementRows
+} = require('../utils/placementFileUtils');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -1969,16 +1974,22 @@ exports.getFileData = async (req, res) => {
       return res.json({ success: true, students: [] });
     }
     
-    const emails = jsonData.map(row => (row.Email || row.email || row.EMAIL || '').toLowerCase()).filter(email => email);
-    const existingCandidates = await Candidate.find({ email: { $in: emails } });
+    const emails = jsonData.map(getRowEmail).filter(Boolean);
+    const [existingCandidates, placementCandidates, existingSystemEmails] = await Promise.all([
+      Candidate.find({ placementId, email: { $in: emails } }).select('_id email'),
+      PlacementCandidate.find({ fileId: fileId }),
+      findExistingEmails(emails)
+    ]);
     const candidateMap = new Map(existingCandidates.map(c => [c.email.toLowerCase(), c._id]));
-
-    // Get placement candidates for this file to identify who was actually processed/approved
-    const placementCandidates = await PlacementCandidate.find({ fileId: fileId });
     const pcMap = new Map(placementCandidates.map(pc => [pc.studentEmail.toLowerCase(), pc]));
+    const placementOwnedEmails = existingCandidates.map(candidate => candidate.email.toLowerCase());
+    const { rows: previewRows } = sanitizeRowsByEmail(jsonData, {
+      blockedEmails: existingSystemEmails,
+      allowedEmails: placementOwnedEmails
+    });
 
-    let students = jsonData.map((row, index) => {
-      const email = (row.Email || row.email || row.EMAIL || '').toLowerCase();
+    let students = previewRows.map((row, index) => {
+      const email = getRowEmail(row);
       const candidateId = email ? candidateMap.get(email) : null;
       const pcRecord = email ? pcMap.get(email) : null;
 
@@ -2000,7 +2011,7 @@ exports.getFileData = async (req, res) => {
     if (file.status === 'approved' || file.status === 'processed') {
       const processedEmails = new Set();
       students = students.filter(student => {
-        if (!student.isProcessed) return false;
+        if (!student.isProcessed || !student.candidateId) return false;
 
         const email = (student.email || '').toString().trim().toLowerCase();
         if (!email) return true;
@@ -2780,40 +2791,14 @@ exports.approveIndividualFile = async (req, res) => {
           let candidate;
           
           if (existingUser) {
-            // If it's a candidate, we might want to still process them for placement
-            if (existingUser.role === 'candidate') {
-              console.log(`User ${email} already exists as candidate. Checking placement record...`);
-              candidate = existingUser.user;
-              
-              // Check if they already have a placement candidate record for THIS placement and file
-              const existingPC = await PlacementCandidate.findOne({
-                candidateId: candidate._id,
-                placementId: placement._id
-              });
-              
-              if (existingPC && existingPC.welcomeEmailSent) {
-                console.log(`Skipping existing candidate: ${email} - Placement record already exists and email sent.`);
-                skippedCount++;
-                skippedCandidates.push({
-                  name: name.trim(),
-                  email: email.trim().toLowerCase(),
-                  reason: 'Candidate already registered and welcome email sent'
-                });
-                continue;
-              }
-              
-              // If we reach here, we will update/create the placement record and send email
-              console.log(`Proceeding with existing candidate: ${email} to send welcome email.`);
-            } else {
-              console.log(`Skipping existing user: ${email} in role: ${existingUser.role}`);
-              skippedCount++;
-              skippedCandidates.push({
-                name: name.trim(),
-                email: email.trim().toLowerCase(),
-                reason: `Email already registered as ${existingUser.role}`
-              });
-              continue;
-            }
+            console.log(`Skipping existing user: ${email} in role: ${existingUser.role}`);
+            skippedCount++;
+            skippedCandidates.push({
+              name: name.trim(),
+              email: email.trim().toLowerCase(),
+              reason: `Email already registered as ${existingUser.role}`
+            });
+            continue;
           }
           
           // Use file-specific credits or individual row credits
@@ -2847,8 +2832,6 @@ exports.approveIndividualFile = async (req, res) => {
                 scoreValue: '0'
               }]
             });
-            
-            createdCount++;
           } else {
             // Update existing candidate credits if needed
             if (finalCredits > 0) {
@@ -2995,7 +2978,7 @@ exports.approveIndividualFile = async (req, res) => {
       const displayName = file.customName || file.fileName;
       let message;
       if (createdCount === 0 && skippedCount > 0) {
-        message = `File "${displayName}" processed! ${skippedCount} students were skipped. Use "Resend Welcome Emails" to send emails to existing students.`;
+        message = `File "${displayName}" processed! ${skippedCount} duplicate ${skippedCount === 1 ? 'student was' : 'students were'} found. Use "Resend Welcome Emails" to send emails to existing students.`;
       } else {
         message = `File "${displayName}" approved! All non-skipped students can now create their passwords and access their accounts.`;
       }
@@ -3363,23 +3346,17 @@ exports.storeExcelDataInMongoDB = async (req, res) => {
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            const fileEmails = jsonData.map(getRowEmail).filter(Boolean);
+            const [placementOwnedCandidates, existingSystemEmails] = await Promise.all([
+              Candidate.find({ placementId: placement._id, email: { $in: fileEmails } }).select('email').lean(),
+              findExistingEmails(fileEmails)
+            ]);
+            const { rows: sanitizedRows } = sanitizeRowsByEmail(jsonData, {
+              blockedEmails: existingSystemEmails,
+              allowedEmails: placementOwnedCandidates.map(candidate => candidate.email)
+            });
             
-            // Store structured data in file object
-            const structuredData = jsonData.map((row, index) => ({
-              rowIndex: index + 1,
-              id: row.ID || row.id || row.Id || '',
-              candidateName: row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['full name'] || row['FULL NAME'] || row['Student Name'] || row['student name'] || row['STUDENT NAME'] || '',
-              collegeName: row['College Name'] || row['college name'] || row['COLLEGE NAME'] || row.College || row.college || row.COLLEGE || '',
-              email: row.Email || row.email || row.EMAIL || '',
-              phone: row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
-              course: row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || 'Not Specified',
-              password: row.Password || row.password || row.PASSWORD || '',
-              creditsAssigned: parseInt(row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || file.credits || 0),
-              originalRowData: row, // Store complete original row data
-              processedAt: new Date(),
-              placementId: placement._id,
-              fileId: file._id
-            }));
+            const structuredData = buildStructuredPlacementRows(sanitizedRows, { file, placement });
             
             // Update file with structured data
             file.structuredData = structuredData;

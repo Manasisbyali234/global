@@ -11,6 +11,18 @@ const XLSX = require('xlsx');
 const { base64ToBuffer } = require('../utils/base64Helper');
 const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket');
 const { checkEmailExists, findExistingEmails } = require('../utils/authUtils');
+const {
+  getRowEmail,
+  getRowId,
+  getRowName,
+  getRowPhone,
+  getRowCourse,
+  getRowPassword,
+  getRowCredits,
+  collectDuplicateValues,
+  sanitizeRowsByEmail,
+  writeRowsToStoredFile
+} = require('../utils/placementFileUtils');
 
 const getWorkbook = (fileData, fileType) => {
   const XLSX = require('xlsx');
@@ -31,29 +43,6 @@ const getWorkbook = (fileData, fileType) => {
   }
 };
 
-const getRowEmail = (row = {}) => (row.Email || row.email || row.EMAIL || '').toString().trim().toLowerCase();
-const getRowId = (row = {}) => (row.ID || row.id || row.Id || '').toString().trim();
-
-const collectDuplicateValues = (rows = [], getValue) => {
-  const seen = new Set();
-  const duplicates = [];
-
-  rows.forEach(row => {
-    const value = getValue(row);
-    if (!value) return;
-
-    if (seen.has(value)) {
-      if (!duplicates.includes(value)) {
-        duplicates.push(value);
-      }
-    } else {
-      seen.add(value);
-    }
-  });
-
-  return duplicates;
-};
-
 const buildSkippedEmailNotice = (emails = [], notice) => {
   if (emails.length === 0) {
     return '';
@@ -67,8 +56,22 @@ const buildSkippedEmailNotice = (emails = [], notice) => {
 };
 
 const appendSkippedEmailNotice = (message, { repeatedEmails = [], existingEmails = [] } = {}) => {
-  return `${message}${buildSkippedEmailNotice(repeatedEmails, 'are repeated in this file and will be skipped during processing')}${buildSkippedEmailNotice(existingEmails, 'already exist in the system and will be skipped during processing')}`;
+  return `${message}${buildSkippedEmailNotice(repeatedEmails, 'are repeated in this file and were removed before saving')}${buildSkippedEmailNotice(existingEmails, 'already exist in the system and were removed before saving')}`;
 };
+
+const formatPlacementFileRow = (row = {}, { liveCandidate, placementCandidate, fallbackCredits = '0' } = {}) => ({
+  'ID': row.ID || row.id || row.Id || '',
+  'Candidate Name': getRowName(row),
+  'Email': row.Email || row.email || row.EMAIL || '',
+  'Phone': getRowPhone(row),
+  'Course': getRowCourse(row),
+  'Password': getRowPassword(row),
+  'Credits Assigned': placementCandidate && placementCandidate.creditsAssigned !== undefined && placementCandidate.creditsAssigned !== null
+    ? placementCandidate.creditsAssigned
+    : liveCandidate && liveCandidate.credits !== undefined && liveCandidate.credits !== null
+      ? liveCandidate.credits
+      : getRowCredits(row, fallbackCredits)
+});
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -304,7 +307,7 @@ exports.uploadStudentData = async (req, res) => {
     if (!validation.valid) {
       return res.status(400).json({ 
         success: false, 
-        message: `${validation.message}. Please upload a file with actual student data.` 
+        message: `${validation.message}\n\nPlease upload a file with actual student data.` 
       });
     }
     
@@ -318,14 +321,10 @@ exports.uploadStudentData = async (req, res) => {
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     
-    // Duplicate emails are allowed; repeated email rows will be skipped during processing.
-    const duplicateEmails = collectDuplicateValues(jsonData, getRowEmail);
     const duplicateIds = collectDuplicateValues(jsonData, getRowId);
-    const existingEmails = (await findExistingEmails(jsonData.map(getRowEmail)))
-      .filter(email => !duplicateEmails.includes(email));
-    const skippedEmails = [...new Set([...duplicateEmails, ...existingEmails])];
+    const existingEmails = await findExistingEmails(jsonData.map(getRowEmail));
     
-    // Only block duplicate IDs here. Existing/duplicate emails are skipped during approval.
+    // Only block duplicate IDs here. Duplicate/existing emails are removed before the file is saved.
     if (duplicateIds.length > 0) {
       let message = '';
       message += `Duplicate IDs found in file: ${duplicateIds.slice(0, 3).join(', ')}${duplicateIds.length > 3 ? ` and ${duplicateIds.length - 3} more` : ''}. `;
@@ -337,6 +336,30 @@ exports.uploadStudentData = async (req, res) => {
         duplicateIds: duplicateIds
       });
     }
+
+    const {
+      rows: sanitizedRows,
+      duplicateEmails: removedDuplicateEmails,
+      blockedEmails: removedExistingEmails
+    } = sanitizeRowsByEmail(jsonData, { blockedEmails: existingEmails });
+    const skippedEmails = [...new Set([...removedDuplicateEmails, ...removedExistingEmails])];
+
+    if (sanitizedRows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'All emails in this file are duplicates or already exist in the system. Please upload only new, unique email addresses.',
+        skippedEmails,
+        repeatedEmails: removedDuplicateEmails,
+        existingEmails: removedExistingEmails
+      });
+    }
+
+    writeRowsToStoredFile({
+      rows: sanitizedRows,
+      filePath: req.file.path,
+      fileType: req.file.mimetype,
+      sheetName
+    });
 
     const studentDataPath = `/uploads/${req.file.filename}`;
     
@@ -391,14 +414,20 @@ exports.uploadStudentData = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Student data uploaded and validated successfully. Waiting for admin approval.',
+      message: appendSkippedEmailNotice(
+        'Student data uploaded and validated successfully. Waiting for admin approval.',
+        {
+          repeatedEmails: removedDuplicateEmails,
+          existingEmails: removedExistingEmails
+        }
+      ),
       fileName: req.file.originalname,
       customName: customFileName && customFileName.trim() ? customFileName.trim() : null,
       university: university && university.trim() ? university.trim() : null,
       batch: batch && batch.trim() ? batch.trim() : null,
       skippedEmails,
-      repeatedEmails: duplicateEmails,
-      existingEmails
+      repeatedEmails: removedDuplicateEmails,
+      existingEmails: removedExistingEmails
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -1233,11 +1262,10 @@ exports.resubmitFile = async (req, res) => {
     if (!validation.valid) {
       return res.status(400).json({ 
         success: false, 
-        message: `${validation.message}. Please upload a file with actual student data.` 
+        message: `${validation.message}\n\nPlease upload a file with actual student data.` 
       });
     }
 
-    // Duplicate emails are allowed; repeated email rows will be skipped during processing.
     const XLSX = require('xlsx');
     const workbook = XLSX.readFile(req.file.path);
     
@@ -1245,11 +1273,8 @@ exports.resubmitFile = async (req, res) => {
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     
-    const duplicateEmails = collectDuplicateValues(jsonData, getRowEmail);
     const duplicateIds = collectDuplicateValues(jsonData, getRowId);
-    const existingEmails = (await findExistingEmails(jsonData.map(getRowEmail)))
-      .filter(email => !duplicateEmails.includes(email));
-    const skippedEmails = [...new Set([...duplicateEmails, ...existingEmails])];
+    const existingEmails = await findExistingEmails(jsonData.map(getRowEmail));
     
     if (duplicateIds.length > 0) {
       let message = '';
@@ -1262,6 +1287,30 @@ exports.resubmitFile = async (req, res) => {
         duplicateIds
       });
     }
+
+    const {
+      rows: sanitizedRows,
+      duplicateEmails: removedDuplicateEmails,
+      blockedEmails: removedExistingEmails
+    } = sanitizeRowsByEmail(jsonData, { blockedEmails: existingEmails });
+    const skippedEmails = [...new Set([...removedDuplicateEmails, ...removedExistingEmails])];
+
+    if (sanitizedRows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'All emails in this file are duplicates or already exist in the system. Please resubmit only new, unique email addresses.',
+        skippedEmails,
+        repeatedEmails: removedDuplicateEmails,
+        existingEmails: removedExistingEmails
+      });
+    }
+
+    writeRowsToStoredFile({
+      rows: sanitizedRows,
+      filePath: req.file.path,
+      fileType: req.file.mimetype,
+      sheetName
+    });
 
     const studentDataPath = `/uploads/${req.file.filename}`;
     
@@ -1301,11 +1350,17 @@ exports.resubmitFile = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'File resubmitted successfully. Waiting for admin approval.',
+      message: appendSkippedEmailNotice(
+        'File resubmitted successfully. Waiting for admin approval.',
+        {
+          repeatedEmails: removedDuplicateEmails,
+          existingEmails: removedExistingEmails
+        }
+      ),
       fileName: req.file.originalname,
       skippedEmails,
-      repeatedEmails: duplicateEmails,
-      existingEmails
+      repeatedEmails: removedDuplicateEmails,
+      existingEmails: removedExistingEmails
     });
   } catch (error) {
     console.error('Error resubmitting file:', error);
@@ -1352,38 +1407,59 @@ exports.viewFileData = async (req, res) => {
       });
     }
 
-    const fileEmails = jsonData
-      .map(row => String(row.Email || row.email || row.EMAIL || '').toLowerCase())
-      .filter(Boolean);
-    const liveCandidates = await Candidate.find({
-      placementId,
-      email: { $in: fileEmails }
-    })
-      .select('email credits')
-      .lean();
+    const fileEmails = [...new Set(jsonData.map(getRowEmail).filter(Boolean))];
+    const [liveCandidates, placementCandidates, existingSystemEmails] = await Promise.all([
+      Candidate.find({
+        placementId,
+        email: { $in: fileEmails }
+      })
+        .select('email credits')
+        .lean(),
+      PlacementCandidate.find({
+        placementId,
+        fileId
+      })
+        .select('studentEmail creditsAssigned')
+        .lean(),
+      findExistingEmails(fileEmails)
+    ]);
     const liveCandidateMap = new Map(
       liveCandidates
         .filter(candidate => candidate.email)
         .map(candidate => [String(candidate.email).toLowerCase(), candidate])
     );
-    
-    // Format the data to show only required fields
-    const formattedData = jsonData.map(row => {
-      const email = String(row.Email || row.email || row.EMAIL || '').toLowerCase();
-      const liveCandidate = liveCandidateMap.get(email);
-      const rowCredits = row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || '0';
+    const placementCandidateMap = new Map(
+      placementCandidates
+        .filter(candidate => candidate.studentEmail)
+        .map(candidate => [String(candidate.studentEmail).toLowerCase(), candidate])
+    );
 
-      return {
-        'ID': row.ID || row.id || row.Id || '',
-        'Candidate Name': row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['Student Name'] || '',
-        'Email': row.Email || row.email || row.EMAIL || '',
-        'Phone': row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
-        'Course': row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || 'Not Specified',
-        'Password': row.Password || row.password || row.PASSWORD || '',
-        'Credits Assigned': liveCandidate && liveCandidate.credits !== undefined && liveCandidate.credits !== null
-          ? liveCandidate.credits
-          : rowCredits
-      };
+    const placementOwnedEmails = Array.from(liveCandidateMap.keys());
+    const { rows: previewRows } = sanitizeRowsByEmail(jsonData, {
+      blockedEmails: existingSystemEmails,
+      allowedEmails: placementOwnedEmails
+    });
+    let visibleRows = previewRows;
+
+    if ((file.status === 'approved' || file.status === 'processed') && placementCandidateMap.size > 0) {
+      const processedEmails = new Set();
+      visibleRows = previewRows.filter(row => {
+        const email = getRowEmail(row);
+        if (!email || !placementCandidateMap.has(email) || !liveCandidateMap.has(email)) return false;
+        if (processedEmails.has(email)) return false;
+
+        processedEmails.add(email);
+        return true;
+      });
+    }
+
+    const formattedData = visibleRows.map(row => {
+      const email = getRowEmail(row);
+      return formatPlacementFileRow(row, {
+        liveCandidate: liveCandidateMap.get(email),
+        placementCandidate: placementCandidateMap.get(email),
+        fallbackCredits: file.credits || 0
+      });
     });
     
     res.json({
@@ -1392,7 +1468,8 @@ exports.viewFileData = async (req, res) => {
       fileName: file.fileName,
       customName: file.customName,
       uploadedAt: file.uploadedAt,
-      status: file.status
+      status: file.status,
+      hiddenDuplicateRows: Math.max(0, jsonData.length - previewRows.length)
     });
     
   } catch (error) {

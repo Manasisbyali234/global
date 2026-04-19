@@ -141,8 +141,7 @@ router.get('/data', auth(['placement']), async (req, res) => {
   try {
     const Placement = require('../models/Placement');
     const Candidate = require('../models/Candidate');
-    const XLSX = require('xlsx');
-    const { base64ToBuffer } = require('../utils/base64Helper');
+    const PlacementCandidate = require('../models/PlacementCandidate');
     
     const placementId = req.user.id;
     
@@ -153,106 +152,107 @@ router.get('/data', auth(['placement']), async (req, res) => {
     }
 
     let students = [];
-    const studentMap = new Map();
-    const liveCandidates = await Candidate.find({ placementId })
-      .select('email credits')
-      .lean();
-    const liveCandidateMap = new Map(
-      liveCandidates
-        .filter(candidate => candidate.email)
-        .map(candidate => [String(candidate.email).toLowerCase(), candidate])
+    const fileInfoMap = new Map(
+      (placement.fileHistory || []).map(file => [
+        String(file._id),
+        {
+          fileName: file.fileName || '',
+          batch: file.batch || '',
+          university: file.university || placement.collegeName || ''
+        }
+      ])
     );
 
-    // Get students from ALL uploaded files in file history
-    if (placement.fileHistory && placement.fileHistory.length > 0) {
-      for (const file of placement.fileHistory) {
-        if (file && file.fileData) {
-          try {
-            const result = base64ToBuffer(file.fileData);
-            const buffer = result.buffer;
-            
-            let workbook;
-            if (file.fileType && file.fileType.includes('csv')) {
-              const csvData = buffer.toString('utf8');
-              workbook = XLSX.read(csvData, { type: 'string' });
-            } else {
-              workbook = XLSX.read(buffer, { type: 'buffer' });
-            }
-            
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
-            
-            // Parse and format student data from each uploaded file
-            jsonData.forEach(row => {
-              const email = row.Email || row.email || row.EMAIL || '';
-              if (email && !studentMap.has(email.toLowerCase())) {
-                const liveCandidate = liveCandidateMap.get(email.toLowerCase());
+    const placementCandidates = await PlacementCandidate.find({
+      placementId,
+      status: 'approved'
+    })
+      .sort({ updatedAt: -1, createdAt: -1 })
+      .lean();
 
-                // Extract credits from multiple possible column names
-                let credits = 0;
-                const creditsValue = row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || 
-                                    row.Credits || row.credits || row.CREDITS || 
-                                    row.Credit || row.credit || row.CREDIT ||
-                                    row['Available Credits'] || row['available credits'] || row['AVAILABLE CREDITS'] ||
-                                    file.credits || placement.credits || 0;
-                
-                // Parse credits value
-                if (typeof creditsValue === 'number') {
-                  credits = creditsValue;
-                } else if (typeof creditsValue === 'string') {
-                  const parsed = parseInt(creditsValue.replace(/[^0-9]/g, ''));
-                  credits = isNaN(parsed) ? 0 : parsed;
-                }
+    if (placementCandidates.length > 0) {
+      const candidateIds = placementCandidates
+        .map(record => record.candidateId)
+        .filter(Boolean);
+      const linkedCandidates = candidateIds.length > 0
+        ? await Candidate.find({ _id: { $in: candidateIds } })
+          .select('name email phone course credits fileId placementId registrationMethod')
+          .lean()
+        : [];
 
-                if (liveCandidate && liveCandidate.credits !== undefined && liveCandidate.credits !== null) {
-                  credits = Number(liveCandidate.credits) || 0;
-                }
-                
-                studentMap.set(email.toLowerCase(), {
-                  name: row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['Student Name'] || '',
-                  email: email,
-                  phone: row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '',
-                  course: row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH || 'Not Specified',
-                  credits: credits,
-                  id: row.ID || row.id || row.Id || '',
-                  fileName: file.fileName,
-                  batch: file.batch || '',
-                  university: file.university || placement.collegeName || ''
-                });
-              }
-            });
-          } catch (parseError) {
-            console.error('Error parsing uploaded file:', parseError);
-          }
+      const candidateMap = new Map(
+        linkedCandidates.map(candidate => [String(candidate._id), candidate])
+      );
+      const studentMap = new Map();
+
+      placementCandidates.forEach(record => {
+        const candidate = record.candidateId ? candidateMap.get(String(record.candidateId)) : null;
+        if (candidate && (candidate.registrationMethod !== 'placement' || String(candidate.placementId || '') !== String(placementId))) {
+          return;
         }
-      }
-      
-      // Convert map to array
+
+        const email = String(candidate?.email || record.studentEmail || '').trim();
+        const normalizedEmail = email.toLowerCase();
+
+        if (!normalizedEmail || studentMap.has(normalizedEmail)) {
+          return;
+        }
+
+        const fileId = String(candidate?.fileId || record.fileId || '');
+        const fileInfo = fileInfoMap.get(fileId) || {};
+        const sourceRow = record.originalRowData || {};
+
+        studentMap.set(normalizedEmail, {
+          name: candidate?.name || record.studentName || '',
+          email,
+          phone: candidate?.phone || record.studentPhone || '',
+          course: candidate?.course || record.course || sourceRow.Course || sourceRow.course || sourceRow.COURSE || sourceRow.Branch || sourceRow.branch || sourceRow.BRANCH || 'Not Specified',
+          credits: candidate?.credits !== undefined && candidate?.credits !== null
+            ? Number(candidate.credits) || 0
+            : Number(record.creditsAssigned) || 0,
+          id: sourceRow.ID || sourceRow.id || sourceRow.Id || '',
+          fileName: fileInfo.fileName || record.fileName || '',
+          batch: fileInfo.batch || '',
+          university: fileInfo.university || record.collegeName || placement.collegeName || ''
+        });
+      });
+
       students = Array.from(studentMap.values());
     }
 
     // If no students from files, try to get from Candidate model
     if (students.length === 0) {
       const candidates = await Candidate.find({ placementId })
-        .select('name email phone course credits')
+        .select('name email phone course credits fileId')
         .sort({ createdAt: -1 })
         .limit(100)
         .lean();
-      
-      students = candidates.map(candidate => ({
-        name: candidate.name,
-        email: candidate.email,
-        phone: candidate.phone,
-        course: candidate.course || 'Not Specified',
-        credits: candidate.credits || 0
-      }));
-    } else {
-      // Reverse the array so newest entries appear first
-      students.reverse();
+
+      const studentMap = new Map();
+      candidates.forEach(candidate => {
+        const email = String(candidate.email || '').trim();
+        const normalizedEmail = email.toLowerCase();
+        if (!normalizedEmail || studentMap.has(normalizedEmail)) {
+          return;
+        }
+
+        const fileInfo = fileInfoMap.get(String(candidate.fileId || '')) || {};
+        studentMap.set(normalizedEmail, {
+          name: candidate.name,
+          email,
+          phone: candidate.phone,
+          course: candidate.course || 'Not Specified',
+          credits: candidate.credits || 0,
+          fileName: fileInfo.fileName || '',
+          batch: fileInfo.batch || '',
+          university: fileInfo.university || placement.collegeName || ''
+        });
+      });
+
+      students = Array.from(studentMap.values());
     }
     
-    console.log(`Retrieved ${students.length} unique students from ${placement.fileHistory?.length || 0} files`);
+    console.log(`Retrieved ${students.length} actual students for placement ${placementId}`);
     res.json({ success: true, students });
   } catch (error) {
     console.error('Error getting placement data:', error);
