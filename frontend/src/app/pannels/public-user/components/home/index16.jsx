@@ -1307,8 +1307,8 @@ function Home16Page() {
                                 <div className="process-icon-circle" style={{background: 'rgba(139, 92, 246, 0.1)'}}>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                                 </div>
-                                <h4>Take Assessment</h4>
-                                <p>Complete skill assessments to stand out from other candidates and show your expertise.</p>
+                                <h4>Book interview slots</h4>
+                                <p>Book interview slots by selecting your preferred date and time.</p>
                             </div>
                         </Col>
                         <Col lg={3} md={6}>
@@ -1348,7 +1348,7 @@ function Home16Page() {
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6A3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                 </div>
                                 <h4>Post Your Job</h4>
-                                <p>Create account and post job openings with details and requirements.</p>
+                                <p>Slots are opened according to the company’s recruitment process.</p>
                             </div>
                         </Col>
                         <Col lg={3} md={6}>
