@@ -101,7 +101,7 @@ export const normalizePlacementUploadErrorMessage = (message = '', fallback = 'U
       safeMessage
     )
   ) {
-    return 'Required fields are missing in the Excel sheet.';
+    return safeMessage;
   }
 
   return safeMessage;

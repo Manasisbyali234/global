@@ -347,7 +347,7 @@ exports.uploadStudentData = async (req, res) => {
     if (sanitizedRows.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'All emails in this file are duplicates or already exist in the system. Please upload only new, unique email addresses.',
+        message: 'All emails in this file are duplicates. Please upload only new, unique email addresses.',
         skippedEmails,
         repeatedEmails: removedDuplicateEmails,
         existingEmails: removedExistingEmails

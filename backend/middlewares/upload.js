@@ -266,43 +266,33 @@ const validateExcelContent = (source, mimetype) => {
     }
     
     // Validate only required fields: ID, Candidate Name, Email, Phone
-    const missingFields = [];
+    const missingFieldRows = { 'ID': [], 'Candidate Name': [], 'Email': [], 'Phone': [] };
     jsonData.forEach((row, index) => {
-      const rowNum = index + 2; // +2 because Excel rows start at 1 and we have a header row
+      const rowNum = index + 2;
       const id = row.ID || row.id || row.Id || '';
       const name = row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'] || row.Name || row.name || row.NAME || row['Full Name'] || row['Student Name'] || '';
       const email = row.Email || row.email || row.EMAIL || '';
       const phone = row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE || '';
-      
-      const missing = [];
-      if (!id || String(id).trim() === '') missing.push('ID');
-      if (!name || String(name).trim() === '') missing.push('Candidate Name');
-      if (!email || String(email).trim() === '') missing.push('Email');
-      if (!phone || String(phone).trim() === '') missing.push('Phone');
-      
-      if (missing.length > 0) {
-        missingFields.push(`Row ${rowNum}: Missing ${missing.join(', ')}`);
-      }
+
+      if (!id || String(id).trim() === '') missingFieldRows['ID'].push(rowNum);
+      if (!name || String(name).trim() === '') missingFieldRows['Candidate Name'].push(rowNum);
+      if (!email || String(email).trim() === '') missingFieldRows['Email'].push(rowNum);
+      if (!phone || String(phone).trim() === '') missingFieldRows['Phone'].push(rowNum);
     });
-    
-    if (missingFields.length > 0) {
-      const totalRows = missingFields.length;
-      const displayRows = missingFields.slice(0, 3);
-      const moreMsg = totalRows > 3 ? ` and ${totalRows - 3} more rows` : '';
-      
-      return { 
-        valid: false, 
+
+    const affectedFields = Object.entries(missingFieldRows).filter(([, rows]) => rows.length > 0);
+
+    if (affectedFields.length > 0) {
+      const lines = affectedFields.map(([field, rows]) => {
+        const displayRows = rows.slice(0, 5).join(', ');
+        const more = rows.length > 5 ? ` and ${rows.length - 5} more` : '';
+        return `• Row ${displayRows}${more}: ${field} is missing`;
+      });
+      return {
+        valid: false,
         message: `⚠️ Missing Required Fields
 
-Your Excel file has ${totalRows} row(s) with missing required information:
-
-${displayRows.map(row => `• ${row}`).join('\n')}${moreMsg ? '\n• ' + moreMsg : ''}
-
-📋 Required fields for ALL rows:
-• ID
-• Candidate Name
-• Email
-• Phone
+${lines.join('\n')}
 
 Please fill in all required fields and upload again.`
       };
