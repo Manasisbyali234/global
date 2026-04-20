@@ -226,65 +226,164 @@
 /* Employment Details Modal - Ensure it appears above sidebar */
 .employment-details-modal {
     z-index: 99999 !important;
+    position: fixed !important;
+    inset: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     padding: 16px !important;
     overflow: hidden !important;
-    inset: 0 !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
-.employment-details-modal .modal-dialog {
+.employment-details-modal--maximized {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+}
+
+.employment-details-modal--minimized {
+    background-color: transparent !important;
+    align-items: flex-end !important;
+    justify-content: flex-end !important;
+    pointer-events: none;
+}
+
+.employment-details-dialog {
     z-index: 99999 !important;
     width: min(100%, 800px) !important;
     max-width: 800px !important;
     max-height: calc(100vh - 32px) !important;
-    margin: 0 auto !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    margin: 0 !important;
     display: flex !important;
     align-items: stretch !important;
     justify-content: center !important;
 }
 
-.employment-details-modal .modal-dialog.modal-dialog-centered {
-    min-height: auto !important;
-}
-
-.employment-details-modal .modal-content {
-    z-index: 99999 !important;
-    max-height: calc(100vh - 32px) !important;
-    overflow: hidden !important;
-    display: flex !important;
-    flex-direction: column !important;
-    min-height: 0 !important;
-}
-
-.employment-details-dialog {
-    width: min(100%, 800px) !important;
-    max-width: 800px !important;
-    margin: 0 auto !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-}
-
 .employment-details-dialog .modal-content {
     max-height: calc(100vh - 32px) !important;
+}
+
+.employment-details-dialog.employment-details-dialog--maximized {
+    position: fixed;
+    inset: 0;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    height: 100vh !important;
+    margin: 0 !important;
+}
+
+.employment-details-dialog.employment-details-dialog--minimized {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    left: auto;
+    width: min(420px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: none !important;
+    height: auto !important;
+    margin: 0 !important;
+    pointer-events: auto;
+}
+
+.employment-details-content {
+    z-index: 99999 !important;
+    width: 100%;
+    max-height: calc(100vh - 32px) !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
     min-height: 0 !important;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.22);
 }
 
-.employment-details-dialog .modal-header,
-.employment-details-dialog .modal-footer {
+.employment-details-content.employment-details-content--maximized {
+    width: 100%;
+    min-height: 100vh !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+}
+
+.employment-details-content.employment-details-content--minimized {
+    min-height: auto !important;
+    max-height: none !important;
+    border-radius: 18px !important;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.28) !important;
+}
+
+.employment-details-header,
+.employment-details-footer {
     flex-shrink: 0;
+}
+
+.employment-details-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.employment-details-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 16px 20px;
+    background: #f8fafc;
+    border-top: 1px solid #e5e7eb;
+}
+
+.employment-details-title {
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.employment-details-window-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.employment-details-window-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #dbe1ea;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.employment-details-window-btn:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+}
+
+.employment-details-window-btn--close:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: #ffffff;
 }
 
 .employment-details-body {
     flex: 1 1 0 !important;
     min-height: 0 !important;
     overflow: hidden !important;
+    padding: 20px;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -307,12 +406,40 @@
         padding: 10px !important;
     }
 
+    .employment-details-modal--maximized,
+    .employment-details-modal--minimized {
+        padding: 10px !important;
+    }
+
+    .employment-details-modal--maximized {
+        padding: 0 !important;
+    }
+
     .employment-details-dialog {
         width: 100% !important;
         max-width: 100% !important;
     }
 
-    .employment-details-dialog .modal-content {
+    .employment-details-dialog--minimized {
+        right: 10px;
+        bottom: 10px;
+        width: min(340px, calc(100vw - 20px)) !important;
+        max-width: calc(100vw - 20px) !important;
+    }
+
+    .employment-details-content {
         max-height: calc(100vh - 20px) !important;
+    }
+
+    .employment-details-content--maximized {
+        min-height: 100vh !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+    }
+
+    .employment-details-window-btn {
+        width: 34px;
+        height: 34px;
     }
 }

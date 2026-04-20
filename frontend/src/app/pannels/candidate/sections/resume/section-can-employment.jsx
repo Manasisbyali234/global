@@ -282,12 +282,41 @@ function SectionCanEmployment({ profile, onUpdate }) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedEmployment, setSelectedEmployment] = useState(null);
+    const [isDetailsModalMinimized, setIsDetailsModalMinimized] = useState(false);
+    const [isDetailsModalMaximized, setIsDetailsModalMaximized] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(null);
 
     const handleViewDetails = (emp) => {
         setSelectedEmployment(emp);
+        setIsDetailsModalMinimized(false);
+        setIsDetailsModalMaximized(false);
         setShowDetailsModal(true);
+    };
+
+    const closeDetailsModal = () => {
+        setShowDetailsModal(false);
+        setSelectedEmployment(null);
+        setIsDetailsModalMinimized(false);
+        setIsDetailsModalMaximized(false);
+    };
+
+    const handleToggleDetailsModalMinimized = () => {
+        const nextMinimized = !isDetailsModalMinimized;
+        setIsDetailsModalMinimized(nextMinimized);
+
+        if (nextMinimized) {
+            setIsDetailsModalMaximized(false);
+        }
+    };
+
+    const handleToggleDetailsModalMaximized = () => {
+        const nextMaximized = !isDetailsModalMaximized;
+        setIsDetailsModalMaximized(nextMaximized);
+
+        if (nextMaximized) {
+            setIsDetailsModalMinimized(false);
+        }
     };
 
     useEffect(() => {
@@ -591,50 +620,92 @@ function SectionCanEmployment({ profile, onUpdate }) {
 
             {/* Details Modal */}
             {showDetailsModal && selectedEmployment && ReactDOM.createPortal(
-                <div className="modal fade show employment-details-modal" style={{
-                    display: 'flex',
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    zIndex: 99999,
-                    overflow: 'hidden',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }} onClick={() => setShowDetailsModal(false)}>
-                    <div className="modal-dialog modal-lg modal-dialog-centered employment-details-dialog" onClick={(e) => e.stopPropagation()} style={{ 
-                        zIndex: 99999,
-                        position: 'relative',
-                        margin: '0 auto'
-                    }}>
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">
+                <div
+                    className={[
+                        "employment-details-modal",
+                        isDetailsModalMinimized ? "employment-details-modal--minimized" : "",
+                        isDetailsModalMaximized ? "employment-details-modal--maximized" : ""
+                    ].filter(Boolean).join(" ")}
+                    onClick={!isDetailsModalMinimized ? closeDetailsModal : undefined}
+                >
+                    <div
+                        className={[
+                            "employment-details-dialog",
+                            isDetailsModalMinimized ? "employment-details-dialog--minimized" : "",
+                            isDetailsModalMaximized ? "employment-details-dialog--maximized" : ""
+                        ].filter(Boolean).join(" ")}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div
+                            className={[
+                                "employment-details-content",
+                                isDetailsModalMinimized ? "employment-details-content--minimized" : "",
+                                isDetailsModalMaximized ? "employment-details-content--maximized" : ""
+                            ].filter(Boolean).join(" ")}
+                        >
+                            <div className="employment-details-header">
+                                <h5 className="employment-details-title">
                                     {selectedEmployment.organizationName || selectedEmployment.organization} - {selectedEmployment.designation}
                                 </h5>
-                                <button type="button" className="btn-close" onClick={() => setShowDetailsModal(false)}></button>
-                            </div>
-                            <div className="modal-body employment-details-body">
-                                <div className="employment-details-scroll-region">
-                                    {selectedEmployment.description && (
-                                        <div className="mb-3">
-                                            <h6 className="text-primary mb-2">Job Responsibilities:</h6>
-                                            <p className="text-muted employment-details-text" style={{whiteSpace: 'pre-wrap'}}>{selectedEmployment.description}</p>
-                                        </div>
-                                    )}
-                                    {selectedEmployment.projectDetails && (
-                                        <div>
-                                            <h6 className="text-primary mb-2">Project Details:</h6>
-                                            <p className="text-muted employment-details-text" style={{whiteSpace: 'pre-wrap'}}>{selectedEmployment.projectDetails}</p>
-                                        </div>
-                                    )}
+                                <div className="employment-details-window-controls">
+                                    <button
+                                        type="button"
+                                        className="employment-details-window-btn"
+                                        onClick={handleToggleDetailsModalMinimized}
+                                        aria-label={isDetailsModalMinimized ? "Restore details modal" : "Minimize details modal"}
+                                        title={isDetailsModalMinimized ? "Restore" : "Minimize"}
+                                    >
+                                        <i
+                                            className={`fas ${isDetailsModalMinimized ? "fa-window-restore" : "fa-minus"}`}
+                                            aria-hidden="true"
+                                        ></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="employment-details-window-btn"
+                                        onClick={handleToggleDetailsModalMaximized}
+                                        aria-label={isDetailsModalMaximized ? "Restore details modal size" : "Maximize details modal"}
+                                        title={isDetailsModalMaximized ? "Restore" : "Maximize"}
+                                    >
+                                        <i
+                                            className={isDetailsModalMaximized ? "fas fa-window-restore" : "far fa-square"}
+                                            aria-hidden="true"
+                                        ></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="employment-details-window-btn employment-details-window-btn--close"
+                                        onClick={closeDetailsModal}
+                                        aria-label="Close details modal"
+                                        title="Close"
+                                    >
+                                        <i className="fas fa-times" aria-hidden="true"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowDetailsModal(false)}>Close</button>
-                            </div>
+                            {!isDetailsModalMinimized && (
+                                <>
+                                    <div className="employment-details-body">
+                                        <div className="employment-details-scroll-region">
+                                            {selectedEmployment.description && (
+                                                <div className="mb-3">
+                                                    <h6 className="text-primary mb-2">Job Responsibilities:</h6>
+                                                    <p className="text-muted employment-details-text" style={{whiteSpace: 'pre-wrap'}}>{selectedEmployment.description}</p>
+                                                </div>
+                                            )}
+                                            {selectedEmployment.projectDetails && (
+                                                <div>
+                                                    <h6 className="text-primary mb-2">Project Details:</h6>
+                                                    <p className="text-muted employment-details-text" style={{whiteSpace: 'pre-wrap'}}>{selectedEmployment.projectDetails}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="employment-details-footer">
+                                        <button type="button" className="btn btn-secondary" onClick={closeDetailsModal}>Close</button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>,
