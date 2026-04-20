@@ -166,6 +166,7 @@ function AdminAddCandidate() {
                                 <input
                                     type="number"
                                     name="credits"
+                                    min="0"
                                     className={`form-control ${errors.credits ? 'is-invalid' : ''}`}
                                     value={formData.credits}
                                     onChange={handleChange}

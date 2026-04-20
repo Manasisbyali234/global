@@ -807,7 +807,7 @@ button[type="submit"][style*="width"],
 #placement-submit-btn,
 .modal-body button[type="submit"] {
   display: block !important;
-  width: 100% !important;
+  width: 50% !important;
   margin: 0 !important;
 }
 
