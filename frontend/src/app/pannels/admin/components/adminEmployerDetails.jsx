@@ -623,7 +623,7 @@ function EmployerDetails() {
                             <p>{profile.officialEmail || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="350">
-                            <h6><i className="fa fa-mobile-alt"></i>Official Mobile</h6>
+                            <h6><i className="fa fa-mobile-alt"></i>Official Mobile Number</h6>
                             <p>{profile.officialMobile || 'N/A'}</p>
                         </div>
                     </div>
@@ -738,27 +738,7 @@ function EmployerDetails() {
                     </div>
                 </div>
                 
-                {/* Company ID Card Picture */}
-                {profile.companyIdCardPicture && (
-                    <div className="row mt-3">
-                        <div className="col-lg-12">
-                            <div className="profile-field" data-aos="fade-up" data-aos-delay="400">
-                                <h6><i className="fa fa-id-card"></i>Company ID Card Picture</h6>
-                                <div>
-                                    <button 
-                                        className="btn btn-outline-primary btn-sm"
-                                        onClick={() => viewDocumentImage(id, 'companyIdCardPicture')}
-                                        style={{ backgroundColor: 'transparent', borderColor: '#ff6b35', color: '#ff6b35' }}
-                                    >
-                                        <i className="fa fa-eye"></i>
-                                        View ID Card
-                                    </button>
-                                    <p className="text-success mt-1"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+
             </div>
 
             {isConsultantProfile && consultantCompanies.length > 0 && (

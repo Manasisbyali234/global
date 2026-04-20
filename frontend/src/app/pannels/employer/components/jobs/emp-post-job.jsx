@@ -3060,7 +3060,6 @@ export default function EmpPostJob({ onNext }) {
 							<option>Full-Time</option>
 							<option>Part-Time</option>
 							<option>Remote</option>
-							<option>Hybrid</option>
 							<option>Contract</option>
 							<option>Freelance</option>
 							<option>Temporary</option>

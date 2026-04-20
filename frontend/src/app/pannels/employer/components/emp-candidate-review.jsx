@@ -1165,13 +1165,24 @@ function EmpCandidateReviewPage() {
                                     <div className="info-field">
                                         <div className="field-icon"><i className="fas fa-user"></i></div>
                                         <div className="field-content">
-                                            <label>Full Name</label>
-                                            <span>
-                                                {candidate.firstName ? 
-                                                    `${candidate.firstName} ${candidate.middleName ? candidate.middleName + ' ' : ''}${candidate.lastName || ''}` : 
-                                                    (candidate.name || 'Not provided')
-                                                }
-                                            </span>
+                                            <label>First Name</label>
+                                            <span>{candidate.firstName || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="info-field">
+                                        <div className="field-icon"><i className="fas fa-user"></i></div>
+                                        <div className="field-content">
+                                            <label>Middle Name</label>
+                                            <span>{candidate.middleName || 'Not provided'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="info-row">
+                                    <div className="info-field">
+                                        <div className="field-icon"><i className="fas fa-user"></i></div>
+                                        <div className="field-content">
+                                            <label>Last Name</label>
+                                            <span>{candidate.lastName || 'Not provided'}</span>
                                         </div>
                                     </div>
                                     <div className="info-field">

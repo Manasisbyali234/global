@@ -327,9 +327,8 @@ function PlacementDashboardRedesigned() {
         const primaryPhone = normalizePhone(editFormData.phone);
         const officialPhone = normalizePhone(editFormData.collegeOfficialPhone);
         if (primaryPhone && officialPhone && primaryPhone === officialPhone) {
-            const phoneConflictMessage = 'College official phone and primary phone should be different';
-            errors.phone = phoneConflictMessage;
-            errors.collegeOfficialPhone = phoneConflictMessage;
+            errors.phone = 'Primary phone number  must be different from college official phone number';
+            errors.collegeOfficialPhone = 'College official phone number must be different from primary phone number';
         }
         
         if (Object.keys(errors).length > 0) {
@@ -362,7 +361,7 @@ function PlacementDashboardRedesigned() {
             const response = await api.updatePlacementProfile(editFormData);
             
             if (response && response.success) {
-                showSuccess('Profile picture  updated successfully!');
+                showSuccess('Profile updated successfully!');
                 setShowEditModal(false);
                 setLogoPreview(null);
                 setIdCardPreview(null);
@@ -1514,9 +1513,14 @@ function PlacementDashboardRedesigned() {
                                     type="tel"
                                     value={editFormData.phone || ''}
                                     onChange={(e) => {
-                                        setEditFormData({...editFormData, phone: e.target.value});
-                                        if (formErrors.phone || formErrors.collegeOfficialPhone) {
-                                            setFormErrors({...formErrors, phone: '', collegeOfficialPhone: ''});
+                                        const newPhone = e.target.value;
+                                        setEditFormData({...editFormData, phone: newPhone});
+                                        const p1 = newPhone.replace(/\D/g, '');
+                                        const p2 = (editFormData.collegeOfficialPhone || '').replace(/\D/g, '');
+                                        if (p1 && p2 && p1 === p2) {
+                                            setFormErrors({...formErrors, phone: 'Primary phone must be different from college official phone', collegeOfficialPhone: 'College official phone must be different from primary phone'});
+                                        } else {
+                                            setFormErrors({...formErrors, phone: '', collegeOfficialPhone: formErrors.collegeOfficialPhone === 'College official phone must be different from primary phone' ? '' : formErrors.collegeOfficialPhone});
                                         }
                                     }}
                                     placeholder="Enter your phone number"
@@ -1597,9 +1601,14 @@ function PlacementDashboardRedesigned() {
                                     type="tel"
                                     value={editFormData.collegeOfficialPhone || ''}
                                     onChange={(e) => {
-                                        setEditFormData({...editFormData, collegeOfficialPhone: e.target.value});
-                                        if (formErrors.collegeOfficialPhone || formErrors.phone) {
-                                            setFormErrors({...formErrors, collegeOfficialPhone: '', phone: ''});
+                                        const newOfficialPhone = e.target.value;
+                                        setEditFormData({...editFormData, collegeOfficialPhone: newOfficialPhone});
+                                        const p1 = (editFormData.phone || '').replace(/\D/g, '');
+                                        const p2 = newOfficialPhone.replace(/\D/g, '');
+                                        if (p1 && p2 && p1 === p2) {
+                                            setFormErrors({...formErrors, collegeOfficialPhone: 'College official phone must be different from primary phone', phone: 'Primary phone must be different from college official phone'});
+                                        } else {
+                                            setFormErrors({...formErrors, collegeOfficialPhone: '', phone: formErrors.phone === 'Primary phone must be different from college official phone' ? '' : formErrors.phone});
                                         }
                                     }}
                                     placeholder="Enter college official phone"
