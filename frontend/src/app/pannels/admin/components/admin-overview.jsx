@@ -30,7 +30,30 @@ function AdminOverviewPage() {
   const [jobStatusFilter, setJobStatusFilter] = useState("all");
   const [jobFromDate, setJobFromDate] = useState("");
   const [jobToDate, setJobToDate] = useState("");
+  const [employerPage, setEmployerPage] = useState(1);
+  const [jobPage, setJobPage] = useState(1);
+  const [applicantPage, setApplicantPage] = useState(1);
+  const PAGE_SIZE = 10;
   const autoOpenedEmployerIdRef = useRef(null);
+  const renderPagination = (currentPage, setPage, totalItems) => {
+    const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+    if (totalPages <= 1) return null;
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
+        <div style={{ color: "#6c757d", fontSize: "13px" }}>
+          Showing {totalItems === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, totalItems)} of {totalItems}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
+          <button onClick={() => setPage(p => p - 1)} disabled={currentPage === 1} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === 1 ? "#f8f9fa" : "#fff", color: currentPage === 1 ? "#adb5bd" : "#495057", cursor: currentPage === 1 ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8249;</button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            <button key={page} onClick={() => setPage(page)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: page === currentPage ? "1px solid #ff8c00" : "1px solid #dee2e6", background: page === currentPage ? "#ff8c00" : "#fff", color: page === currentPage ? "#fff" : "#495057", fontWeight: page === currentPage ? 700 : 400, cursor: "pointer", fontSize: "13px" }}>{page}</button>
+          ))}
+          <button onClick={() => setPage(p => p + 1)} disabled={currentPage === totalPages} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === totalPages ? "#f8f9fa" : "#fff", color: currentPage === totalPages ? "#adb5bd" : "#495057", cursor: currentPage === totalPages ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8250;</button>
+        </div>
+      </div>
+    );
+  };
+
   const visibleEmployerJobs = employerJobs.filter((job) => {
     if (job.status === "draft") return false;
     const searchLower = jobSearch.toLowerCase();
@@ -220,6 +243,7 @@ function AdminOverviewPage() {
       setJobsError("");
       setJobStatusFilter("all");
       setViewMode("employers");
+      setJobPage(1);
       return;
     }
 
@@ -233,6 +257,7 @@ function AdminOverviewPage() {
       setJobStatusFilter("all");
       setJobFromDate("");
       setJobToDate("");
+      setJobPage(1);
       const response = await api.getAdminEmployerOverviewJobs(employer.employerId);
       if (response.success) {
         setSelectedEmployer(response.employer);
@@ -276,6 +301,7 @@ function AdminOverviewPage() {
       setApplicantSearch("");
       setApplicantStatusFilter("all");
       setViewMode("jobs");
+      setApplicantPage(1);
       return;
     }
 
@@ -284,6 +310,7 @@ function AdminOverviewPage() {
       setApplicantsError("");
       setApplicantSearch("");
       setApplicantStatusFilter("all");
+      setApplicantPage(1);
       const response = await api.getAdminJobApplicants(job.jobId);
       if (response.success) {
         setSelectedJob(response.job);
@@ -331,7 +358,7 @@ function AdminOverviewPage() {
                   Search by Company Name
                 </label>
                 <SearchBar
-                  onSearch={setEmployerSearch}
+                  onSearch={(val) => { setEmployerSearch(val); setEmployerPage(1); }}
                   placeholder="Search Company Name..."
                   className="employer-search"
                 />
@@ -344,7 +371,7 @@ function AdminOverviewPage() {
                 <select
                   className="form-control admin-overview-filter-select"
                   value={employerTypeFilter}
-                  onChange={(e) => setEmployerTypeFilter(e.target.value)}
+                  onChange={(e) => { setEmployerTypeFilter(e.target.value); setEmployerPage(1); }}
                 >
                   <option value="all">All Types</option>
                   <option value="company">Company</option>
@@ -387,6 +414,7 @@ function AdminOverviewPage() {
                           emp.employerName.toLowerCase().includes(employerSearch.toLowerCase()) &&
                           (employerTypeFilter === "all" || String(emp.employerType || "").toLowerCase() === employerTypeFilter)
                         )
+                        .slice((employerPage - 1) * PAGE_SIZE, employerPage * PAGE_SIZE)
                         .map((employer) => (
                           <tr key={employer.employerId}>
                             <td>{employer.employerName}</td>
@@ -413,6 +441,10 @@ function AdminOverviewPage() {
                 </table>
               </div>
             )}
+            {!loading && !error && renderPagination(employerPage, setEmployerPage, employers.filter(emp =>
+              emp.employerName.toLowerCase().includes(employerSearch.toLowerCase()) &&
+              (employerTypeFilter === "all" || String(emp.employerType || "").toLowerCase() === employerTypeFilter)
+            ).length)}
           </div>
         </div>
       )}
@@ -440,7 +472,7 @@ function AdminOverviewPage() {
                 <select
                   className="form-control admin-overview-filter-select"
                   value={jobStatusFilter}
-                  onChange={(e) => setJobStatusFilter(e.target.value)}
+                  onChange={(e) => { setJobStatusFilter(e.target.value); setJobPage(1); }}
                 >
                   <option value="all">All Status</option>
                   <option value="active">Active</option>
@@ -457,7 +489,7 @@ function AdminOverviewPage() {
                   className="form-control admin-overview-filter-select"
                   value={jobFromDate}
                   max={jobToDate || undefined}
-                  onChange={(e) => setJobFromDate(e.target.value)}
+                  onChange={(e) => { setJobFromDate(e.target.value); setJobPage(1); }}
                 />
               </div>
               <div className="admin-overview-filter-control">
@@ -470,7 +502,7 @@ function AdminOverviewPage() {
                   className="form-control admin-overview-filter-select"
                   value={jobToDate}
                   min={jobFromDate || undefined}
-                  onChange={(e) => setJobToDate(e.target.value)}
+                  onChange={(e) => { setJobToDate(e.target.value); setJobPage(1); }}
                 />
               </div>
             </div>
@@ -506,7 +538,7 @@ function AdminOverviewPage() {
                         </td>
                       </tr>
                     ) : (
-                      visibleEmployerJobs.map((job) => (
+                      visibleEmployerJobs.slice((jobPage - 1) * PAGE_SIZE, jobPage * PAGE_SIZE).map((job) => (
                           <tr key={job.jobId}>
                             <td>{job.createdAt ? formatDate(job.createdAt) : "N/A"}</td>
                             {showJobCompanyColumn && <td>{job.companyName || selectedEmployer?.employerName || "N/A"}</td>}
@@ -538,6 +570,7 @@ function AdminOverviewPage() {
                 </table>
               </div>
             )}
+            {!jobsLoading && !jobsError && renderPagination(jobPage, setJobPage, visibleEmployerJobs.length)}
           </div>
         </div>
       )}
@@ -565,7 +598,7 @@ function AdminOverviewPage() {
                 <select
                   className="form-control admin-overview-filter-select"
                   value={applicantStatusFilter}
-                  onChange={(e) => setApplicantStatusFilter(e.target.value)}
+                  onChange={(e) => { setApplicantStatusFilter(e.target.value); setApplicantPage(1); }}
                 >
                   <option value="all">All</option>
                   <option value="pending">Pending</option>
@@ -602,7 +635,7 @@ function AdminOverviewPage() {
                         </td>
                       </tr>
                     ) : (
-                      visibleJobApplicants.map((applicant) => {
+                      visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
 
                         return (
@@ -685,6 +718,7 @@ function AdminOverviewPage() {
                 </table>
               </div>
             )}
+            {!applicantsLoading && !applicantsError && renderPagination(applicantPage, setApplicantPage, visibleJobApplicants.length)}
           </div>
         </div>
       )}
