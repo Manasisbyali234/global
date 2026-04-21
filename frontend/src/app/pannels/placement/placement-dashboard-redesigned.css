@@ -149,6 +149,15 @@
     background-color: rgba(239, 68, 68, 0.1) !important;
 }
 
+.nav-resubmit-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ef4444;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
 /* Main Content */
 .main-content {
     flex: 1;
@@ -1618,6 +1627,21 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+.sample-note {
+    margin: 8px 0 0 0;
+    font-size: 13px;
+    color: #dc3545;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.sample-note i {
+    color: #dc3545;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
 .upload-tips {
     background-color: var(--soft-orange);
     border-left: 4px solid var(--accent-orange);
