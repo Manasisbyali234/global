@@ -595,6 +595,21 @@ exports.processPlacementApproval = async (req, res) => {
         message: 'It looks like your file only contains headers without any student data. Please add student information to your file and upload again.' 
       });
     }
+
+    const duplicateEmails = collectDuplicateValues(jsonData, getRowEmail);
+    const existingEmails = await findExistingEmails(jsonData.map(getRowEmail));
+    if (duplicateEmails.length > 0 || existingEmails.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: buildEmailConflictMessage({
+          duplicateEmails,
+          existingEmails,
+          action: 'upload a corrected file again'
+        }),
+        duplicateEmails,
+        existingEmails
+      });
+    }
     
     let createdCount = 0;
     let skippedCount = 0;
@@ -994,6 +1009,37 @@ exports.processFileApproval = async (req, res) => {
       return res.status(400).json({ 
         success: false, 
         message: 'It looks like your file only contains headers without any student data. Please add student information to your file and upload again.' 
+      });
+    }
+
+    const duplicateEmails = collectDuplicateValues(jsonData, getRowEmail);
+    const existingEmails = await findExistingEmails(jsonData.map(getRowEmail));
+    if (duplicateEmails.length > 0 || existingEmails.length > 0) {
+      const rejectionReason = buildEmailConflictMessage({
+        duplicateEmails,
+        existingEmails,
+        action: 'resubmit the corrected file'
+      });
+
+      await Placement.findOneAndUpdate(
+        { _id: placementId, 'fileHistory._id': fileId },
+        {
+          $set: {
+            'fileHistory.$.status': 'rejected',
+            'fileHistory.$.rejectedAt': new Date(),
+            'fileHistory.$.rejectionReason': rejectionReason,
+            'fileHistory.$.candidatesCreated': 0
+          }
+        }
+      );
+
+      return res.status(400).json({
+        success: false,
+        message: rejectionReason,
+        duplicateEmails,
+        existingEmails,
+        requiresResubmission: true,
+        fileStatus: 'rejected'
       });
     }
     

@@ -30,6 +30,7 @@ const { emitCreditUpdate, emitBulkCreditUpdate } = require('../utils/websocket')
 const { checkEmailExists, findExistingEmails } = require('../utils/authUtils');
 const {
   getRowEmail,
+  collectDuplicateValues,
   sanitizeRowsByEmail,
   buildStructuredPlacementRows
 } = require('../utils/placementFileUtils');
@@ -64,6 +65,52 @@ const formatEmailListForNotification = (emails = [], limit = 5) => {
   const remainingCount = uniqueEmails.length - limit;
   return remainingCount > 0 ? `${visibleEmails} and ${remainingCount} more` : visibleEmails;
 };
+
+const buildPlacementFileConflictMessage = ({ duplicateEmails = [], existingEmails = [] } = {}) => {
+  const messageParts = [];
+
+  if (duplicateEmails.length > 0) {
+    messageParts.push(`Duplicate emails found in file: ${formatEmailListForNotification(duplicateEmails)}.`);
+  }
+
+  if (existingEmails.length > 0) {
+    messageParts.push(`Emails already registered in the system: ${formatEmailListForNotification(existingEmails)}.`);
+  }
+
+  if (messageParts.length === 0) {
+    return 'This batch was not processed. Please remove the conflicting emails and resubmit the file.';
+  }
+
+  messageParts.push('This batch was not processed. Please remove these emails and ask the placement officer to resubmit the file.');
+  return messageParts.join(' ');
+};
+
+const findPlacementFileEmailConflicts = async (rows = []) => {
+  const duplicateEmails = collectDuplicateValues(rows, getRowEmail);
+  const existingEmails = await findExistingEmails(rows.map(getRowEmail));
+
+  return {
+    duplicateEmails,
+    existingEmails,
+    hasConflicts: duplicateEmails.length > 0 || existingEmails.length > 0,
+    message: buildPlacementFileConflictMessage({ duplicateEmails, existingEmails })
+  };
+};
+
+const rejectPlacementFileForConflicts = async ({ placementId, fileId, rejectionReason, rejectedBy }) => (
+  Placement.findOneAndUpdate(
+    { _id: placementId, 'fileHistory._id': fileId },
+    {
+      $set: {
+        'fileHistory.$.status': 'rejected',
+        'fileHistory.$.rejectedAt': new Date(),
+        'fileHistory.$.rejectedBy': rejectedBy,
+        'fileHistory.$.rejectionReason': rejectionReason,
+        'fileHistory.$.candidatesCreated': 0
+      }
+    }
+  )
+);
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -2785,6 +2832,25 @@ exports.approveIndividualFile = async (req, res) => {
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      const emailConflicts = await findPlacementFileEmailConflicts(jsonData);
+      if (emailConflicts.hasConflicts) {
+        await rejectPlacementFileForConflicts({
+          placementId,
+          fileId,
+          rejectionReason: emailConflicts.message,
+          rejectedBy: req.user.id
+        });
+
+        return res.status(400).json({
+          success: false,
+          message: emailConflicts.message,
+          duplicateEmails: emailConflicts.duplicateEmails,
+          existingEmails: emailConflicts.existingEmails,
+          requiresResubmission: true,
+          fileStatus: 'rejected'
+        });
+      }
       
       let createdCount = 0;
       let skippedCount = 0;
@@ -4321,6 +4387,7 @@ exports.approveAllStudentsInPlacement = async (req, res) => {
     let totalEmailsSent = 0;
     let totalEmailsFailed = 0;
     let totalErrors = 0;
+    let rejectedFiles = 0;
     const processedFiles = [];
     
     // Process all pending files in fileHistory
@@ -4343,6 +4410,30 @@ exports.approveAllStudentsInPlacement = async (req, res) => {
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+            const emailConflicts = await findPlacementFileEmailConflicts(jsonData);
+            if (emailConflicts.hasConflicts) {
+              await rejectPlacementFileForConflicts({
+                placementId,
+                fileId: file._id,
+                rejectionReason: emailConflicts.message,
+                rejectedBy: req.user.id
+              });
+
+              rejectedFiles++;
+              totalErrors++;
+              processedFiles.push({
+                fileName: file.customName || file.fileName,
+                status: 'rejected',
+                reason: emailConflicts.message,
+                duplicateEmails: emailConflicts.duplicateEmails,
+                existingEmails: emailConflicts.existingEmails,
+                studentsProcessed: 0,
+                emailsSent: 0,
+                emailsFailed: 0
+              });
+              continue;
+            }
             
             let fileProcessed = 0;
             let fileEmailsSent = 0;
@@ -4544,7 +4635,7 @@ exports.approveAllStudentsInPlacement = async (req, res) => {
     try {
       await createNotification({
         title: 'Bulk Student Approval Completed',
-        message: `All pending students in ${placement.collegeName} have been processed. ${totalProcessed} students approved, ${totalEmailsSent} welcome emails sent successfully.`,
+        message: `All pending students in ${placement.collegeName} have been processed. ${totalProcessed} students approved, ${totalEmailsSent} welcome emails sent successfully.${rejectedFiles > 0 ? ` ${rejectedFiles} ${rejectedFiles === 1 ? 'file was' : 'files were'} rejected because they contained duplicate or already-registered emails.` : ''}`,
         type: 'bulk_approval_completed',
         role: 'admin',
         relatedId: placementId,
@@ -4556,12 +4647,13 @@ exports.approveAllStudentsInPlacement = async (req, res) => {
     
     res.json({
       success: true,
-      message: `Bulk approval completed! ${totalProcessed} students approved and ${totalEmailsSent} welcome emails sent.`,
+      message: `Bulk approval completed! ${totalProcessed} students approved and ${totalEmailsSent} welcome emails sent.${rejectedFiles > 0 ? ` ${rejectedFiles} ${rejectedFiles === 1 ? 'file was' : 'files were'} rejected and must be resubmitted with only new email addresses.` : ''}`,
       stats: {
         totalStudentsProcessed: totalProcessed,
         totalEmailsSent: totalEmailsSent,
         totalEmailsFailed: totalEmailsFailed,
         totalErrors: totalErrors,
+        rejectedFiles: rejectedFiles,
         filesProcessed: processedFiles.length
       },
       processedFiles: processedFiles,
