@@ -13,6 +13,12 @@ import { ErrorDisplay, GlobalErrorDisplay } from "../../../../../components/Erro
 import { validateField, validateForm, displayError, safeApiCall, getErrorMessage } from "../../../../../utils/errorHandler";
 import RichTextEditor from "../../../../../components/RichTextEditor";
 import { formatTimeToAMPM } from "../../../../../utils/dateFormatter";
+import {
+	JOB_EDUCATION_LEVELS,
+	formatJobEducationDisplay,
+	getJobEducationSpecializationOptions,
+	normalizeJobEducationSpecializations
+} from "../../../../../utils/jobEducationOptions";
 
 import "../../../../../components/ErrorDisplay.css";
 import "./emp-post-job-mobile-fix.css";
@@ -548,6 +554,7 @@ export default function EmpPostJob({ onNext }) {
 		jobDescription: "",
 		rolesAndResponsibilities: "",
 		education: [], // dropdown
+		educationSpecializations: [],
 		backlogsAllowed: false,
 		requiredSkills: [],
 		preferredLanguages: [],
@@ -792,6 +799,41 @@ export default function EmpPostJob({ onNext }) {
 					return newErrors;
 				});
 			}
+		});
+	};
+
+	const syncEducationSelection = (nextEducation) => {
+		update({
+			education: nextEducation,
+			educationSpecializations: normalizeJobEducationSpecializations(
+				formData.educationSpecializations,
+				nextEducation
+			)
+		});
+	};
+
+	const getSelectedEducationSpecialization = (qualification) => {
+		const normalizedSpecializations = normalizeJobEducationSpecializations(
+			formData.educationSpecializations,
+			formData.education
+		);
+
+		return normalizedSpecializations.find((entry) => entry.qualification === qualification)?.specialization
+			|| getJobEducationSpecializationOptions(qualification)[0]
+			|| '';
+	};
+
+	const handleEducationSpecializationChange = (qualification, specialization) => {
+		const nextEntries = [
+			...formData.educationSpecializations.filter((entry) => entry?.qualification !== qualification),
+			{ qualification, specialization }
+		];
+
+		update({
+			educationSpecializations: normalizeJobEducationSpecializations(
+				nextEntries,
+				formData.education
+			)
 		});
 	};
 
@@ -1054,6 +1096,10 @@ export default function EmpPostJob({ onNext }) {
 					jobDescription: job.description || '',
 					rolesAndResponsibilities: job.responsibilities ? job.responsibilities.join('\n') : '',
 					education: Array.isArray(job.education) ? job.education : (job.education ? [job.education] : []),
+					educationSpecializations: normalizeJobEducationSpecializations(
+						job.educationSpecializations,
+						Array.isArray(job.education) ? job.education : (job.education ? [job.education] : [])
+					),
 					backlogsAllowed: job.backlogsAllowed || false,
 					requiredSkills: job.requiredSkills || [],
 					preferredLanguages: job.preferredLanguages || [],
@@ -1991,6 +2037,10 @@ export default function EmpPostJob({ onNext }) {
 				minExperience: formData.minExperience ? parseInt(formData.minExperience) : 0,
 				maxExperience: formData.maxExperience ? parseInt(formData.maxExperience) : 0,
 				education: formData.education,
+				educationSpecializations: normalizeJobEducationSpecializations(
+					formData.educationSpecializations,
+					formData.education
+				),
 				backlogsAllowed: formData.backlogsAllowed,
 				offerLetterDate: formData.offerLetterDate || null,
 				joiningDate: formData.joiningDate || null,
@@ -2092,6 +2142,10 @@ export default function EmpPostJob({ onNext }) {
 				minExperience: formData.minExperience ? parseInt(formData.minExperience) : 0,
 				maxExperience: formData.maxExperience ? parseInt(formData.maxExperience) : 0,
 				education: formData.education,
+				educationSpecializations: normalizeJobEducationSpecializations(
+					formData.educationSpecializations,
+					formData.education
+				),
 				backlogsAllowed: formData.backlogsAllowed,
 				interviewRoundsCount: parseInt(formData.interviewRoundsCount) || 0,
 				interviewRoundTypes: formData.interviewRoundTypes,
@@ -3405,7 +3459,7 @@ export default function EmpPostJob({ onNext }) {
 								color: formData.education.length > 0 ? '#111827' : '#9ca3af'
 							}}>
 								{formData.education.length > 0 
-									? formData.education.join(", ") 
+									? formatJobEducationDisplay(formData.education, formData.educationSpecializations)
 									: "Select educational background..."}
 							</div>
 							<i className={`fa fa-chevron-${showEducationDropdown ? 'up' : 'down'}`} style={{ color: '#6b7280', fontSize: '12px' }}></i>
@@ -3442,7 +3496,7 @@ export default function EmpPostJob({ onNext }) {
 									maxHeight: '300px',
 									overflowY: 'auto'
 								}}>
-									{["Any", "10th Pass", "12th Pass", "Diploma", "ITI", "Polytechnic", "B.E", "B.Tech", "B.Sc", "BCA", "BBA", "B.Com", "BA", "B.Arch", "B.Pharm", "B.Ed", "BDS", "BAMS", "BHMS", "BPT", "B.Des", "BFA", "LLB", "MBBS", "M.E", "M.Tech", "M.Sc", "MCA", "MBA", "M.Com", "MA", "M.Arch", "M.Pharm", "M.Ed", "MDS", "MS", "MD", "LLM", "M.Des", "MFA", "PhD", "D.Pharm", "Postgraduate Diploma", "Certificate Course"].map(level => (
+									{JOB_EDUCATION_LEVELS.map(level => (
 										<label key={level} style={{
 											display: 'flex',
 											alignItems: 'center',
@@ -3472,7 +3526,7 @@ export default function EmpPostJob({ onNext }) {
 															? [...formData.education.filter(edu => edu !== "Any"), level]
 															: formData.education.filter(edu => edu !== level);
 													}
-													update({ education: newEducation });
+													syncEducationSelection(newEducation);
 												}}
 												style={{ 
 													width: '18px', 
@@ -3486,6 +3540,38 @@ export default function EmpPostJob({ onNext }) {
 									))}
 								</div>
 							</>
+						)}
+						{formData.education.filter(level => level !== 'Any').length > 0 && (
+							<div style={{
+								marginTop: '16px',
+								display: 'grid',
+								gap: '12px'
+							}}>
+								{formData.education
+									.filter(level => level !== 'Any')
+									.map((qualification) => {
+										const specializationOptions = getJobEducationSpecializationOptions(qualification);
+										return (
+											<div key={`specialization-${qualification}`}>
+												<label style={label}>
+													<i className="fa fa-graduation-cap" style={{marginRight: '8px', color: '#ff6b35'}}></i>
+													{qualification} Specialization / Stream
+												</label>
+												<select
+													style={{ ...input, cursor: 'pointer' }}
+													value={getSelectedEducationSpecialization(qualification)}
+													onChange={(event) => handleEducationSpecializationChange(qualification, event.target.value)}
+												>
+													{specializationOptions.map((option) => (
+														<option key={`${qualification}-${option}`} value={option}>
+															{option}
+														</option>
+													))}
+												</select>
+											</div>
+										);
+									})}
+							</div>
 						)}
 						{errors.education && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>

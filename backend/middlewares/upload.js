@@ -2,6 +2,18 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+const formatDuplicatePreview = (values = [], maxItems = 5) => {
+  const normalizedValues = [...new Set(
+    values
+      .map(value => String(value || '').trim())
+      .filter(Boolean)
+  )];
+
+  const preview = normalizedValues.slice(0, maxItems).join(', ');
+  const remainingCount = normalizedValues.length - maxItems;
+  return remainingCount > 0 ? `${preview} and ${remainingCount} more` : preview;
+};
+
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -224,7 +236,7 @@ const validateExcelContent = (source, mimetype) => {
       return { valid: false, message: 'Your file only contains headers. Please add student data rows' };
     }
     
-    // Check for duplicate IDs within the file. Duplicate emails are sanitized before storage.
+    // Check for duplicate emails and IDs within the file before anything is saved.
     const emails = [];
     const ids = [];
     const duplicateEmails = [];
@@ -255,12 +267,23 @@ const validateExcelContent = (source, mimetype) => {
       }
     });
     
-    if (duplicateIds.length > 0) {
-      const message = `Duplicate IDs found in your file: ${duplicateIds.join(', ')}. Please fix the duplicate IDs and upload again.`;
+    if (duplicateEmails.length > 0 || duplicateIds.length > 0) {
+      const messageParts = [];
+
+      if (duplicateEmails.length > 0) {
+        messageParts.push(`Duplicate emails found in your file: ${formatDuplicatePreview(duplicateEmails)}.`);
+      }
+
+      if (duplicateIds.length > 0) {
+        messageParts.push(`Duplicate IDs found in your file: ${formatDuplicatePreview(duplicateIds)}.`);
+      }
+
+      messageParts.push('Please remove the duplicate entries and upload again.');
 
       return { 
         valid: false, 
-        message: message,
+        message: messageParts.join(' '),
+        duplicateEmails: duplicateEmails,
         duplicateIds: duplicateIds
       };
     }

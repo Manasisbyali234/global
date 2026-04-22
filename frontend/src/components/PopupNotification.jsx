@@ -33,7 +33,7 @@ const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 })
   const isStructuredMessage = typeof message === 'string' && !isSingleLineScheduleMessage && (
     message.includes('\n') ||
     message.includes('•') ||
-    /required fields|missing required fields|row\(s\)|duplicate ids/i.test(message)
+    /required fields|missing required fields|row\(s\)|duplicate ids|duplicate emails|already registered emails/i.test(message)
   );
 
   useEffect(() => {

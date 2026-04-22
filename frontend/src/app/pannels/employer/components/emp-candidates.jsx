@@ -246,9 +246,9 @@ function EmpCandidatesPage() {
                         <option key={title} value={title}>
                           {title}
                         </option>
-                      ))}
-                    </select>
-                  </div>
+                        ))}
+                      </select>
+                    </div>
                   <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
                     <label className="page-toolbar__label">
                       <i className="fa fa-filter"></i> Application Status

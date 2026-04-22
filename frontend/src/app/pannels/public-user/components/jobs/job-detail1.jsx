@@ -9,6 +9,7 @@ import SectionJobsSidebar2 from "../../sections/jobs/sidebar/section-jobs-sideba
 import TermsModal from "../../../../../components/TermsModal";
 import PageLoader from "../../../../../components/PageLoader";
 import { pendingPaymentManager } from '../../../../../utils/pendingPaymentManager';
+import { formatJobEducationDisplay } from '../../../../../utils/jobEducationOptions';
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
 import "../../../../../job-detail-section-spacing.css";
@@ -804,7 +805,7 @@ function JobDetail1Page() {
                                             <p style={{marginBottom: 0}}>
                                                 <strong>Education: </strong>
                                                 {Array.isArray(job?.education) && job.education.length > 0 
-                                                    ? job.education.join(', ')
+                                                    ? formatJobEducationDisplay(job.education, job.educationSpecializations)
                                                     : (job?.education || 'Not specified')
                                                 }
                                             </p>

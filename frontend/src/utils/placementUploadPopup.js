@@ -20,6 +20,24 @@ const normalizeDuplicateEmailMessage = (message = '') => String(message || '')
   )
   .trim();
 
+const buildEmailSection = (title, emails = []) => {
+  const normalizedEmails = normalizeDuplicateEmails(emails);
+  if (normalizedEmails.length === 0) {
+    return '';
+  }
+
+  const visibleEmails = normalizedEmails.slice(0, MAX_DUPLICATE_EMAILS_IN_POPUP);
+  const remainingCount = normalizedEmails.length - visibleEmails.length;
+
+  return [
+    title,
+    ...visibleEmails,
+    remainingCount > 0 ? `and ${remainingCount} more` : ''
+  ]
+    .filter(Boolean)
+    .join('\n');
+};
+
 export const buildPlacementUploadPopup = (message, skippedEmails = [], fallbackMessage = '') => {
   const normalizedMessage = normalizeDuplicateEmailMessage(message || fallbackMessage || '');
   const normalizedDuplicateEmails = normalizeDuplicateEmails(skippedEmails);
@@ -44,5 +62,21 @@ export const buildPlacementUploadPopup = (message, skippedEmails = [], fallbackM
   return {
     message: `${normalizedMessage} Duplicate emails: ${duplicateEmailList}${remainingDuplicateCount > 0 ? ` and ${remainingDuplicateCount} more` : ''}.`.trim(),
     duration: 8000
+  };
+};
+
+export const buildPlacementUploadErrorPopup = ({
+  message,
+  duplicateEmails = [],
+  existingEmails = [],
+  fallbackMessage = 'Upload failed. Please try again.'
+} = {}) => {
+  const normalizedMessage = normalizeDuplicateEmailMessage(message || fallbackMessage || '');
+  const duplicateSection = buildEmailSection('Duplicate emails:', duplicateEmails);
+  const existingSection = buildEmailSection('Already registered emails:', existingEmails);
+
+  return {
+    message: [normalizedMessage, duplicateSection, existingSection].filter(Boolean).join('\n\n'),
+    duration: duplicateSection || existingSection ? 10000 : 5000
   };
 };

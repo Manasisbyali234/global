@@ -15,7 +15,7 @@ import JobZImage from '../../common/jobz-img';
 import YesNoPopup from '../../common/popups/popup-yes-no';
 import { popupType } from '../../../globals/constants';
 import { privateUniversityOptions } from '../../../utils/privateUniversityOptions';
-import { buildPlacementUploadPopup } from '../../../utils/placementUploadPopup';
+import { buildPlacementUploadPopup, buildPlacementUploadErrorPopup } from '../../../utils/placementUploadPopup';
 
 function PlacementDashboardRedesigned() {
     const MAX_PROFILE_IMAGE_SIZE_MB = 20;
@@ -274,15 +274,28 @@ function PlacementDashboardRedesigned() {
                     fetchStudentData() // Refresh student data
                 ]);
             } else {
-                showError(normalizePlacementUploadErrorMessage(data.message, 'Upload failed'));
+                const popup = buildPlacementUploadErrorPopup({
+                    message: normalizePlacementUploadErrorMessage(data.message, 'Upload failed'),
+                    duplicateEmails: data.duplicateEmails,
+                    existingEmails: data.existingEmails,
+                    fallbackMessage: 'Upload failed'
+                });
+                showError(popup.message, popup.duration);
             }
         } catch (error) {
             console.error('Upload error:', error);
-            showError(
-                normalizePlacementUploadErrorMessage(
+            const popup = buildPlacementUploadErrorPopup({
+                message: normalizePlacementUploadErrorMessage(
                     error.response?.data?.message || error.message,
                     'Upload failed. Please try again.'
-                )
+                ),
+                duplicateEmails: error.response?.data?.duplicateEmails,
+                existingEmails: error.response?.data?.existingEmails,
+                fallbackMessage: 'Upload failed. Please try again.'
+            });
+            showError(
+                popup.message,
+                popup.duration
             );
         } finally {
             setUploadingFile(false);
@@ -568,15 +581,28 @@ function PlacementDashboardRedesigned() {
                     fetchStudentData()
                 ]);
             } else {
-                showError(normalizePlacementUploadErrorMessage(data.message, 'Resubmission failed'));
+                const popup = buildPlacementUploadErrorPopup({
+                    message: normalizePlacementUploadErrorMessage(data.message, 'Resubmission failed'),
+                    duplicateEmails: data.duplicateEmails,
+                    existingEmails: data.existingEmails,
+                    fallbackMessage: 'Resubmission failed'
+                });
+                showError(popup.message, popup.duration);
             }
         } catch (error) {
             console.error('Resubmit error:', error);
-            showError(
-                normalizePlacementUploadErrorMessage(
+            const popup = buildPlacementUploadErrorPopup({
+                message: normalizePlacementUploadErrorMessage(
                     error.response?.data?.message || error.message,
                     'Resubmission failed. Please try again.'
-                )
+                ),
+                duplicateEmails: error.response?.data?.duplicateEmails,
+                existingEmails: error.response?.data?.existingEmails,
+                fallbackMessage: 'Resubmission failed. Please try again.'
+            });
+            showError(
+                popup.message,
+                popup.duration
             );
         } finally {
             setResubmitting(false);

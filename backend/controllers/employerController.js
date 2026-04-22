@@ -65,6 +65,47 @@ const dedupeHiringCompanies = (companies = []) => (
   )
 );
 
+const DEFAULT_JOB_EDUCATION_SPECIALIZATION = 'All';
+
+const normalizeJobEducationSelections = (values = []) => (
+  [...new Set(
+    (Array.isArray(values) ? values : [values])
+      .map(value => String(value || '').trim())
+      .filter(Boolean)
+  )]
+);
+
+const normalizeJobEducationSpecializations = (specializations = [], education = []) => {
+  const selectedQualifications = normalizeJobEducationSelections(education)
+    .filter(qualification => qualification !== 'Any');
+
+  if (selectedQualifications.length === 0) {
+    return [];
+  }
+
+  const specializationEntries = Array.isArray(specializations) ? specializations : [];
+  const specializationMap = new Map();
+
+  specializationEntries.forEach((entry = {}) => {
+    const qualification = String(entry.qualification || entry.education || entry.level || '').trim();
+    const specialization = String(entry.specialization || entry.stream || entry.courseName || '').trim();
+
+    if (!qualification || !selectedQualifications.includes(qualification) || specializationMap.has(qualification)) {
+      return;
+    }
+
+    specializationMap.set(
+      qualification,
+      specialization || DEFAULT_JOB_EDUCATION_SPECIALIZATION
+    );
+  });
+
+  return selectedQualifications.map((qualification) => ({
+    qualification,
+    specialization: specializationMap.get(qualification) || DEFAULT_JOB_EDUCATION_SPECIALIZATION
+  }));
+};
+
 const EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS = 2;
 const EMPLOYER_VERIFICATION_STATUS_FIELDS = [
   'panCardVerified',
@@ -1371,6 +1412,11 @@ exports.createJob = async (req, res) => {
     }
 
     const jobData = { ...req.body, employerId: req.user._id, status: 'draft' };
+    jobData.education = normalizeJobEducationSelections(jobData.education);
+    jobData.educationSpecializations = normalizeJobEducationSpecializations(
+      jobData.educationSpecializations,
+      jobData.education
+    );
     
     console.log('=== FULL REQUEST BODY DEBUG ===');
     console.log('Full req.body:', JSON.stringify(req.body, null, 2));
@@ -1702,6 +1748,17 @@ exports.updateJob = async (req, res) => {
     if (!oldJob) {
       return res.status(404).json({ success: false, message: 'Job not found' });
     }
+
+    const normalizedEducation = req.body.education !== undefined
+      ? normalizeJobEducationSelections(req.body.education)
+      : normalizeJobEducationSelections(oldJob.education);
+    req.body.education = normalizedEducation;
+    req.body.educationSpecializations = normalizeJobEducationSpecializations(
+      req.body.educationSpecializations !== undefined
+        ? req.body.educationSpecializations
+        : oldJob.educationSpecializations,
+      normalizedEducation
+    );
     
     // Handle rolesAndResponsibilities field conversion
     console.log('=== UPDATE JOB - DEBUG ROLES & RESPONSIBILITIES ===');

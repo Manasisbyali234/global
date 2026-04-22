@@ -93,7 +93,7 @@
 }
 
 .popup-content.popup-content-structured {
-  text-align: center;
+  text-align: left;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -199,7 +199,7 @@
 }
 
 .popup-message.popup-message-structured {
-  text-align: center;
+  text-align: left;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   padding-right: 0;

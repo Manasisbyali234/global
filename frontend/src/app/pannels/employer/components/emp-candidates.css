@@ -102,9 +102,87 @@
   width: 100%;
 }
 
-@media (max-width: 992px) {
-  .emp-candidates-page .wt-admin-right-page-header {
-    padding: 20px !important;
+@media (max-width: 991px) {
+  #content.mobile-view .emp-candidates-page .panel.panel-default.site-bg-white.p-3.employer-page-content-card {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .emp-candidates-toolbar {
+    gap: 0.625rem !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .emp-candidates-toolbar__filters {
+    gap: 0.625rem !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .panel-body.wt-panel-body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .emp-candidates-grid.row {
+    --bs-gutter-x: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    row-gap: 0.75rem !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .emp-candidates-grid.row > .col-lg-6.col-12 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .emp-candidates-card.d-flex.justify-content-between.align-items-center.p-3.border.rounded.mb-3.shadow-sm {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    overflow: visible !important;
+    gap: 0.875rem !important;
+    padding: 1rem 0.875rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .emp-candidates-card__body.d-flex.align-items-center.gap-3 {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    overflow: visible !important;
+    gap: 0.75rem !important;
+    margin-right: 0 !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .emp-candidates-card__details,
+  #content.mobile-view .emp-candidates-page .emp-candidates-card__details *,
+  #content.mobile-view .emp-candidates-page .emp-candidates-card__action,
+  #content.mobile-view .emp-candidates-page .emp-candidates-card__action .btn {
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    overflow: visible !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .emp-candidates-card__action {
+    width: 100% !important;
+    flex-shrink: 0 !important;
+  }
+
+  #content.mobile-view .emp-candidates-page .emp-candidates-card__action .btn {
+    display: flex !important;
+    width: 100% !important;
+    justify-content: center !important;
   }
 }
 
@@ -113,54 +191,126 @@
     padding: 15px !important;
   }
 
+  .emp-candidates-page .panel.panel-default.employer-page-content-card {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  .emp-candidates-page .panel-body.wt-panel-body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .emp-candidates-page .page-toolbar {
+    margin-bottom: 0.35rem !important;
+  }
+
+  .emp-candidates-page .employer-page-header-card > .d-flex.justify-content-between.align-items-start {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+  }
+
+  .emp-candidates-page .employer-page-header-card > .d-flex.justify-content-between.align-items-start .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
   .emp-candidates-toolbar {
     flex-direction: column;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: stretch;
+    gap: 8px;
   }
 
   .emp-candidates-toolbar__filters {
     width: 100% !important;
-    flex-wrap: wrap;
+    flex-direction: column;
+    flex-wrap: nowrap;
     align-items: stretch;
+    justify-content: stretch;
+    gap: 6px;
   }
 
   .emp-candidates-toolbar__filters .page-toolbar__section,
   .emp-candidates-toolbar .page-toolbar__section {
+    flex: 0 0 auto !important;
     min-width: 0 !important;
     width: 100%;
   }
 
+  .emp-candidates-toolbar__filters .page-toolbar__section {
+    gap: 6px;
+    margin: 0 !important;
+  }
+
+  .emp-candidates-toolbar__filters .page-toolbar__label,
+  .emp-candidates-toolbar__filters .page-toolbar__select {
+    margin: 0 !important;
+  }
+
   .emp-candidates-grid {
-    max-width: 720px;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .emp-candidates-grid > [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .emp-candidates-card {
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 1rem !important;
+    padding: 1rem !important;
+    min-width: 0;
   }
 
   .emp-candidates-card__body {
+    flex-direction: column !important;
+    align-items: flex-start !important;
     width: 100% !important;
     margin-right: 0 !important;
+    gap: 12px !important;
+  }
+
+  .emp-candidates-card__action {
+    width: 100%;
   }
 
   .emp-candidates-card__action .btn {
     width: 100%;
+    justify-content: center;
+    white-space: normal !important;
   }
 
   .emp-candidates-card__details h5,
-  .emp-candidates-card__details p {
+  .emp-candidates-card__details p,
+  .emp-candidates-card__details small,
+  .emp-candidates-card__details .badge {
+    max-width: 100%;
     white-space: normal !important;
     overflow: visible !important;
     text-overflow: unset !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .emp-candidates-card__details .badge {
+    line-height: 1.35;
   }
 }
 
 @media (max-width: 576px) {
   .emp-candidates-grid {
-    max-width: 100%;
+    max-width: 100% !important;
+  }
+
+  .emp-candidates-grid > [class*="col-"] {
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .emp-candidates-search-input {

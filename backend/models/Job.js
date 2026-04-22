@@ -27,6 +27,10 @@ const jobSchema = new mongoose.Schema({
   vacancies: { type: Number },
   applicationLimit: { type: Number },
   education: [String],
+  educationSpecializations: [{
+    qualification: { type: String },
+    specialization: { type: String }
+  }],
   backlogsAllowed: { type: Boolean, default: false },
   requiredSkills: [String],
   preferredLanguages: [String],

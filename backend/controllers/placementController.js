@@ -1,3 +1,4 @@
+const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Placement = require('../models/Placement');
@@ -20,8 +21,7 @@ const {
   getRowPassword,
   getRowCredits,
   collectDuplicateValues,
-  sanitizeRowsByEmail,
-  writeRowsToStoredFile
+  sanitizeRowsByEmail
 } = require('../utils/placementFileUtils');
 
 const getWorkbook = (fileData, fileType) => {
@@ -43,20 +43,49 @@ const getWorkbook = (fileData, fileType) => {
   }
 };
 
-const buildSkippedEmailNotice = (emails = [], notice) => {
-  if (emails.length === 0) {
-    return '';
-  }
+const formatConflictPreview = (values = [], maxItems = 5) => {
+  const normalizedValues = [...new Set(
+    values
+      .map(value => String(value || '').trim())
+      .filter(Boolean)
+  )];
 
-  const noun = emails.length === 1 ? 'email' : 'emails';
-  const emailList = emails.slice(0, 5).join(', ');
-  const remainingCount = emails.length - 5;
-  const remainingText = remainingCount > 0 ? ` and ${remainingCount} more` : '';
-  return ` ${emails.length} ${noun} ${notice}: ${emailList}${remainingText}.`;
+  const preview = normalizedValues.slice(0, maxItems).join(', ');
+  const remainingCount = normalizedValues.length - maxItems;
+  return remainingCount > 0 ? `${preview} and ${remainingCount} more` : preview;
 };
 
-const appendSkippedEmailNotice = (message, { repeatedEmails = [], existingEmails = [] } = {}) => {
-  return `${message}${buildSkippedEmailNotice(repeatedEmails, 'are repeated in this file and were removed before saving')}${buildSkippedEmailNotice(existingEmails, 'already exist in the system and were removed before saving')}`;
+const buildEmailConflictMessage = ({ duplicateEmails = [], existingEmails = [], action = 'upload again' } = {}) => {
+  const messageParts = [];
+
+  if (duplicateEmails.length > 0) {
+    messageParts.push(`Duplicate emails found in file: ${formatConflictPreview(duplicateEmails)}.`);
+  }
+
+  if (existingEmails.length > 0) {
+    messageParts.push(`Emails already registered in the system: ${formatConflictPreview(existingEmails)}.`);
+  }
+
+  if (messageParts.length === 0) {
+    return `Please fix the email conflicts and ${action}.`;
+  }
+
+  messageParts.push(`Please remove these emails and ${action}.`);
+  return messageParts.join(' ');
+};
+
+const removeUploadedFile = (filePath) => {
+  if (!filePath) {
+    return;
+  }
+
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (error) {
+    console.error('Failed to remove rejected upload file:', error);
+  }
 };
 
 const formatPlacementFileRow = (row = {}, { liveCandidate, placementCandidate, fallbackCredits = '0' } = {}) => ({
@@ -305,15 +334,19 @@ exports.uploadStudentData = async (req, res) => {
     const validation = validateExcelContent(req.file.path, req.file.mimetype);
     
     if (!validation.valid) {
+      removeUploadedFile(req.file?.path);
+      const validationMessage = validation.duplicateEmails?.length || validation.duplicateIds?.length
+        ? validation.message
+        : `${validation.message}\n\nPlease upload a file with actual student data.`;
       return res.status(400).json({ 
         success: false, 
-        message: `${validation.message}\n\nPlease upload a file with actual student data.` 
+        message: validationMessage
       });
     }
     
     console.log(`File validation passed: ${validation.rowCount} rows found`);
 
-    // Check for duplicate IDs in the uploaded file
+    // Check for duplicate IDs and existing emails before saving the batch
     const XLSX = require('xlsx');
     const workbook = XLSX.readFile(req.file.path);
     
@@ -322,10 +355,11 @@ exports.uploadStudentData = async (req, res) => {
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     
     const duplicateIds = collectDuplicateValues(jsonData, getRowId);
+    const duplicateEmails = collectDuplicateValues(jsonData, getRowEmail);
     const existingEmails = await findExistingEmails(jsonData.map(getRowEmail));
     
-    // Only block duplicate IDs here. Duplicate/existing emails are removed before the file is saved.
     if (duplicateIds.length > 0) {
+      removeUploadedFile(req.file?.path);
       let message = '';
       message += `Duplicate IDs found in file: ${duplicateIds.slice(0, 3).join(', ')}${duplicateIds.length > 3 ? ` and ${duplicateIds.length - 3} more` : ''}. `;
       message += 'Please fix these issues and upload again.';
@@ -337,29 +371,19 @@ exports.uploadStudentData = async (req, res) => {
       });
     }
 
-    const {
-      rows: sanitizedRows,
-      duplicateEmails: removedDuplicateEmails,
-      blockedEmails: removedExistingEmails
-    } = sanitizeRowsByEmail(jsonData, { blockedEmails: existingEmails });
-    const skippedEmails = [...new Set([...removedDuplicateEmails, ...removedExistingEmails])];
-
-    if (sanitizedRows.length === 0) {
+    if (duplicateEmails.length > 0 || existingEmails.length > 0) {
+      removeUploadedFile(req.file?.path);
       return res.status(400).json({
         success: false,
-        message: 'All emails in this file are duplicates. Please upload only new, unique email addresses.',
-        skippedEmails,
-        repeatedEmails: removedDuplicateEmails,
-        existingEmails: removedExistingEmails
+        message: buildEmailConflictMessage({
+          duplicateEmails,
+          existingEmails,
+          action: 'upload again'
+        }),
+        duplicateEmails,
+        existingEmails
       });
     }
-
-    writeRowsToStoredFile({
-      rows: sanitizedRows,
-      filePath: req.file.path,
-      fileType: req.file.mimetype,
-      sheetName
-    });
 
     const studentDataPath = `/uploads/${req.file.filename}`;
     
@@ -414,20 +438,11 @@ exports.uploadStudentData = async (req, res) => {
 
     res.json({
       success: true,
-      message: appendSkippedEmailNotice(
-        'Student data uploaded and validated successfully. Waiting for admin approval.',
-        {
-          repeatedEmails: removedDuplicateEmails,
-          existingEmails: removedExistingEmails
-        }
-      ),
+      message: 'Student data uploaded and validated successfully. Waiting for admin approval.',
       fileName: req.file.originalname,
       customName: customFileName && customFileName.trim() ? customFileName.trim() : null,
       university: university && university.trim() ? university.trim() : null,
-      batch: batch && batch.trim() ? batch.trim() : null,
-      skippedEmails,
-      repeatedEmails: removedDuplicateEmails,
-      existingEmails: removedExistingEmails
+      batch: batch && batch.trim() ? batch.trim() : null
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -1260,9 +1275,13 @@ exports.resubmitFile = async (req, res) => {
     const validation = validateExcelContent(req.file.path, req.file.mimetype);
     
     if (!validation.valid) {
+      removeUploadedFile(req.file?.path);
+      const validationMessage = validation.duplicateEmails?.length || validation.duplicateIds?.length
+        ? validation.message
+        : `${validation.message}\n\nPlease upload a file with actual student data.`;
       return res.status(400).json({ 
         success: false, 
-        message: `${validation.message}\n\nPlease upload a file with actual student data.` 
+        message: validationMessage
       });
     }
 
@@ -1274,9 +1293,11 @@ exports.resubmitFile = async (req, res) => {
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     
     const duplicateIds = collectDuplicateValues(jsonData, getRowId);
+    const duplicateEmails = collectDuplicateValues(jsonData, getRowEmail);
     const existingEmails = await findExistingEmails(jsonData.map(getRowEmail));
     
     if (duplicateIds.length > 0) {
+      removeUploadedFile(req.file?.path);
       let message = '';
       message += `Duplicate IDs found in file: ${duplicateIds.slice(0, 3).join(', ')}${duplicateIds.length > 3 ? ` and ${duplicateIds.length - 3} more` : ''}. `;
       message += 'Please fix these issues and resubmit.';
@@ -1288,29 +1309,19 @@ exports.resubmitFile = async (req, res) => {
       });
     }
 
-    const {
-      rows: sanitizedRows,
-      duplicateEmails: removedDuplicateEmails,
-      blockedEmails: removedExistingEmails
-    } = sanitizeRowsByEmail(jsonData, { blockedEmails: existingEmails });
-    const skippedEmails = [...new Set([...removedDuplicateEmails, ...removedExistingEmails])];
-
-    if (sanitizedRows.length === 0) {
+    if (duplicateEmails.length > 0 || existingEmails.length > 0) {
+      removeUploadedFile(req.file?.path);
       return res.status(400).json({
         success: false,
-        message: 'All emails in this file are duplicates or already exist in the system. Please resubmit only new, unique email addresses.',
-        skippedEmails,
-        repeatedEmails: removedDuplicateEmails,
-        existingEmails: removedExistingEmails
+        message: buildEmailConflictMessage({
+          duplicateEmails,
+          existingEmails,
+          action: 'resubmit again'
+        }),
+        duplicateEmails,
+        existingEmails
       });
     }
-
-    writeRowsToStoredFile({
-      rows: sanitizedRows,
-      filePath: req.file.path,
-      fileType: req.file.mimetype,
-      sheetName
-    });
 
     const studentDataPath = `/uploads/${req.file.filename}`;
     
@@ -1350,17 +1361,8 @@ exports.resubmitFile = async (req, res) => {
 
     res.json({
       success: true,
-      message: appendSkippedEmailNotice(
-        'File resubmitted successfully. Waiting for admin approval.',
-        {
-          repeatedEmails: removedDuplicateEmails,
-          existingEmails: removedExistingEmails
-        }
-      ),
-      fileName: req.file.originalname,
-      skippedEmails,
-      repeatedEmails: removedDuplicateEmails,
-      existingEmails: removedExistingEmails
+      message: 'File resubmitted successfully. Waiting for admin approval.',
+      fileName: req.file.originalname
     });
   } catch (error) {
     console.error('Error resubmitting file:', error);

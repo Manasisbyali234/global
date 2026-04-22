@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
+import { formatJobEducationDisplay } from '../../../../utils/jobEducationOptions';
 import JobZImage from "../../../common/jobz-img";
 import { loadScript } from "../../../../globals/constants";
 import { useNavigate, useParams } from "react-router-dom";
@@ -433,7 +434,7 @@ function EmpJobReviewPage() {
                                     <h5 className="mb-1">Required Educational Background</h5>
                                     <p className="mb-0 text-muted">
                                         {Array.isArray(jobDetails.education) && jobDetails.education.length > 0 
-                                            ? jobDetails.education.join(', ') 
+                                            ? formatJobEducationDisplay(jobDetails.education, jobDetails.educationSpecializations)
                                             : (jobDetails.education || 'N/A')}
                                     </p>
                                 </div>

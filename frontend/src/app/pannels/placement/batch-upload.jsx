@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../../utils/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { showSuccess, showError, showWarning } from '../../../utils/popupNotification';
-import { buildPlacementUploadPopup } from '../../../utils/placementUploadPopup';
+import { buildPlacementUploadPopup, buildPlacementUploadErrorPopup } from '../../../utils/placementUploadPopup';
 import { normalizePlacementUploadErrorMessage } from '../../../utils/placementStudentData';
 import './batch-upload.css';
 
@@ -128,14 +128,27 @@ function BatchUpload() {
                 resetForm();
                 fetchUploadHistory();
             } else {
-                showError(normalizePlacementUploadErrorMessage(data.message, 'Upload failed'));
+                const popup = buildPlacementUploadErrorPopup({
+                    message: normalizePlacementUploadErrorMessage(data.message, 'Upload failed'),
+                    duplicateEmails: data.duplicateEmails,
+                    existingEmails: data.existingEmails,
+                    fallbackMessage: 'Upload failed'
+                });
+                showError(popup.message, popup.duration);
             }
         } catch (error) {
-            showError(
-                normalizePlacementUploadErrorMessage(
+            const popup = buildPlacementUploadErrorPopup({
+                message: normalizePlacementUploadErrorMessage(
                     error.response?.data?.message || error.message,
                     'Upload failed. Please try again.'
-                )
+                ),
+                duplicateEmails: error.response?.data?.duplicateEmails,
+                existingEmails: error.response?.data?.existingEmails,
+                fallbackMessage: 'Upload failed. Please try again.'
+            });
+            showError(
+                popup.message,
+                popup.duration
             );
         } finally {
             setUploading(false);
@@ -206,14 +219,27 @@ function BatchUpload() {
                 setResubmitFileId(null);
                 fetchUploadHistory();
             } else {
-                showError(normalizePlacementUploadErrorMessage(data.message, 'Resubmission failed'));
+                const popup = buildPlacementUploadErrorPopup({
+                    message: normalizePlacementUploadErrorMessage(data.message, 'Resubmission failed'),
+                    duplicateEmails: data.duplicateEmails,
+                    existingEmails: data.existingEmails,
+                    fallbackMessage: 'Resubmission failed'
+                });
+                showError(popup.message, popup.duration);
             }
         } catch (error) {
-            showError(
-                normalizePlacementUploadErrorMessage(
+            const popup = buildPlacementUploadErrorPopup({
+                message: normalizePlacementUploadErrorMessage(
                     error.response?.data?.message || error.message,
                     'Resubmission failed. Please try again.'
-                )
+                ),
+                duplicateEmails: error.response?.data?.duplicateEmails,
+                existingEmails: error.response?.data?.existingEmails,
+                fallbackMessage: 'Resubmission failed. Please try again.'
+            });
+            showError(
+                popup.message,
+                popup.duration
             );
         } finally {
             setUploading(false);

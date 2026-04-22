@@ -240,7 +240,7 @@ export default function EmpPostedJobs() {
 				</div>
 
 				<div className="panel-body wt-panel-body">
-					<div className="mb-4 d-flex flex-wrap gap-3 justify-content-between align-items-center">
+					<div className="manage-jobs-toolbar d-flex flex-wrap gap-3 justify-content-between align-items-center">
 						<div className="position-relative" style={{maxWidth: '360px', flex: '1 1 300px'}}>
 							<i className="fa fa-search position-absolute" style={{left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#ff6b35', fontSize: '16px', zIndex: 10}}></i>
 							<input
@@ -304,7 +304,7 @@ export default function EmpPostedJobs() {
 							</div>
 						</div>
 					) : (
-						<div className="row">
+						<div className="row manage-jobs-grid">
                             {filteredJobs.length === 0 ? (
                                 <div className="col-12 text-center py-4">
                                     <p className="text-muted">No jobs posted yet.</p>

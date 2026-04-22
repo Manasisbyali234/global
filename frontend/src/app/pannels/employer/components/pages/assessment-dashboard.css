@@ -306,10 +306,14 @@
 
 @media (max-width: 768px) {
   .emp-assessment-page .assessment-selector-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px !important;
     align-items: stretch !important;
   }
 
   .emp-assessment-page .assessment-selector-label {
+    display: block;
     min-width: 0;
     width: 100%;
   }
@@ -317,7 +321,17 @@
   .emp-assessment-page .assessment-filter-group,
   .emp-assessment-page .assessment-filter-group--assessment {
     width: 100%;
-    flex: 1 1 100%;
+    min-width: 0;
+    flex: 1 1 100% !important;
+  }
+
+  .emp-assessment-page .assessment-selector-row--consultant .assessment-filter-group,
+  .emp-assessment-page .assessment-selector-row--consultant .assessment-filter-group--assessment,
+  .emp-assessment-page .assessment-selector-row--consultant .assessment-status-filter-wrap,
+  .emp-assessment-page .assessment-selector-row--consultant .assessment-company-search-wrap {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 100% !important;
   }
 
   .emp-assessment-page .assessment-selector-control-wrap {
@@ -328,9 +342,11 @@
 
   .emp-assessment-page .assessment-status-filter-wrap {
     width: 100%;
+    min-width: 0;
     align-items: stretch;
     flex-direction: column;
     gap: 8px;
+    justify-self: stretch;
   }
 
   .emp-assessment-page .assessment-company-search-wrap {
@@ -339,6 +355,7 @@
     align-items: stretch;
     flex-direction: column;
     gap: 8px;
+    justify-self: stretch;
   }
 
   .emp-assessment-page .assessment-status-filter-select {
@@ -348,6 +365,11 @@
 
   .emp-assessment-page .assessment-company-search-input {
     width: 100%;
+  }
+
+  .emp-assessment-page .assessment-search-input-wrap,
+  .emp-assessment-page .assessment-selector-trigger {
+    width: 100% !important;
   }
 
   .emp-assessment-page .assessment-selector-menu {

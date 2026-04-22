@@ -469,17 +469,32 @@ td .text-success:not(.badge) {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex: 1 1 280px;
+    flex-wrap: nowrap;
+    min-width: 0;
 }
 
 .status-page-filter-label {
+    display: inline-flex;
+    align-items: center;
     font-size: 0.9rem;
     font-weight: 600;
     color: #374151;
     margin: 0;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.status-page-filter-group > div,
+.status-page-filter-group > select,
+.status-page-filter-group > input {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .status-page-filter-select {
     min-width: 180px;
+    width: 100%;
     border: 1px solid #d1d5db;
     border-radius: 999px;
     padding: 0.45rem 0.9rem;
@@ -516,17 +531,16 @@ td .text-success:not(.badge) {
         margin: 0 !important;
     }
 
-    .status-page-toolbar {
-        justify-content: space-between;
-    }
-
     .status-page-filter-group {
         width: 100%;
+        flex: 1 1 100% !important;
+        flex-wrap: nowrap !important;
+        min-width: 0 !important;
     }
 
     .status-page-filter-select {
         flex: 1 1 auto;
-        min-width: 0;
+        min-width: 0 !important;
     }
 
     .status-page-content-container .card-body {

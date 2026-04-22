@@ -8,6 +8,7 @@ import HeroBody from "../../../../../components/HeroBody";
 import { Container, Row, Col } from "react-bootstrap";
 import HomeJobCard from "../../../../../components/HomeJobCard";
 import useDebounce from "../../../../../utils/useDebounce";
+import { formatJobEducationDisplay } from "../../../../../utils/jobEducationOptions";
 import { SkeletonContainer, JobCardSkeleton, StatsSkeleton, RecruiterSkeleton } from "../../../../../components/SkeletonLoader";
 import "../../../../../new-job-card.css";
 import "../../../../../home-responsive.css";
@@ -434,7 +435,9 @@ function Home16Page() {
                     try {
                         // Check if job has education requirements that match
                         const rawEducation = job.education || job.educationRequirement || job.qualifications || '';
-                        const jobEducation = Array.isArray(rawEducation) ? rawEducation.join(', ') : String(rawEducation);
+                        const jobEducation = Array.isArray(rawEducation)
+                            ? formatJobEducationDisplay(rawEducation, job.educationSpecializations)
+                            : String(rawEducation);
                         return jobEducation.toLowerCase().includes(education) ||
                                job.requirements?.toLowerCase().includes(education) ||
                                job.description?.toLowerCase().includes(education);
