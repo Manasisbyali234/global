@@ -89,17 +89,19 @@ const formatAssessmentOptionLabel = (assessment = {}, employerType = 'company') 
 	const duration = getAssessmentDuration(assessment);
 	const durationLabel = duration === 'N/A' ? 'Duration: N/A' : `${duration} min`;
 
-	const nameWithDesignation = designation 
-		? `${assessmentName} - ${designation}`
-		: assessmentName;
-
 	if (employerType === 'consultant') {
-		return `${companyName || 'N/A'} - ${nameWithDesignation} - ${durationLabel}`;
+		// consultant: Company Name - Designation - Assessment Title (10 min)
+		const parts = [companyName || 'N/A'];
+		if (designation) parts.push(designation);
+		parts.push(`${assessmentName} (${durationLabel})`);
+		return parts.join(' - ');
 	}
 
-	return companyName
-		? `${nameWithDesignation} (${durationLabel}) - ${companyName}`
-		: `${nameWithDesignation} (${durationLabel})`;
+	// company: Designation - Assessment Title (10 min)
+	if (designation) {
+		return `${designation} - ${assessmentName} (${durationLabel})`;
+	}
+	return `${assessmentName} (${durationLabel})`;
 };
 
 const getAssessmentOptionId = (assessment = {}) => assessment?._id || assessment?.id || '';
