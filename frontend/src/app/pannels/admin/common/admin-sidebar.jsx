@@ -193,7 +193,8 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             adminRoute(admin.CAN_MANAGE),
             adminRoute(admin.CAN_APPROVE),
             adminRoute(admin.CAN_REJECT),
-            adminRoute(admin.OVERVIEW)
+            adminRoute(admin.OVERVIEW),
+            adminRoute(admin.JOBS_POSTED)
         ].includes(currentpath);
 
         const isPlacementPath = [
@@ -349,6 +350,11 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                                     <li className={currentpath === adminRoute(admin.OVERVIEW) ? 'active' : ''}>
                                         <NavLink to={adminRoute(admin.OVERVIEW)} id="overviewList">
                                             <span className="admin-nav-text">Overview</span>
+                                        </NavLink>
+                                    </li>
+                                    <li className={currentpath === adminRoute(admin.JOBS_POSTED) ? 'active' : ''}>
+                                        <NavLink to={adminRoute(admin.JOBS_POSTED)} id="jobsPostedList">
+                                            <span className="admin-nav-text">Job Posted</span>
                                         </NavLink>
                                     </li>
                                 </ul>

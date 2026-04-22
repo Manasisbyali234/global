@@ -549,7 +549,7 @@ function EmployerDetails() {
                             <p>{profile.companyName || profile.employerId?.companyName || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="250">
-                            <h6><i className="fa fa-phone"></i>Phone</h6>
+                            <h6><i className="fa fa-phone"></i>Phone Number</h6>
                             <p>{profile.phone || 'N/A'}</p>
                         </div>
                         <div className="profile-field" data-aos="fade-right" data-aos-delay="275">

@@ -17,6 +17,8 @@ function RegisteredCandidatesPage() {
     const [selectedCandidate, setSelectedCandidate] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [profileStatusFilter, setProfileStatusFilter] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const PAGE_SIZE = 10;
     const modalRef = useRef(null);
 
     useEffect(() => {
@@ -90,6 +92,7 @@ function RegisteredCandidatesPage() {
 
     const handleSearch = (searchTerm) => {
         setSearchTerm(searchTerm);
+        setCurrentPage(1);
     };
 
     const viewCandidateDetails = (candidate) => {
@@ -193,7 +196,7 @@ function RegisteredCandidatesPage() {
                                 <select
                                     className="profile-status-filter page-toolbar__select"
                                     value={profileStatusFilter}
-                                    onChange={(event) => setProfileStatusFilter(event.target.value)}
+                                    onChange={(event) => { setProfileStatusFilter(event.target.value); setCurrentPage(1); }}
                                 >
                                     <option value="">All status</option>
                                     <option value="completed">Completed</option>
@@ -226,7 +229,7 @@ function RegisteredCandidatesPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredCandidates.map((candidate, index) => {
+                                    {filteredCandidates.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((candidate, index) => {
                                         const shortlistInfo = getCandidateShortlistInfo(candidate._id);
                                         return (
                                             <tr key={candidate._id}>
@@ -281,6 +284,20 @@ function RegisteredCandidatesPage() {
                             </table>
                         </div>
                     )}
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
+                        <div style={{ color: "#6c757d", fontSize: "13px" }}>
+                            Showing {filteredCandidates.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredCandidates.length)} of {filteredCandidates.length} candidate{filteredCandidates.length !== 1 ? "s" : ""}
+                        </div>
+                        {Math.ceil(filteredCandidates.length / PAGE_SIZE) > 1 && (
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
+                                <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === 1 ? "#f8f9fa" : "#fff", color: currentPage === 1 ? "#adb5bd" : "#495057", cursor: currentPage === 1 ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8249;</button>
+                                {Array.from({ length: Math.ceil(filteredCandidates.length / PAGE_SIZE) }, (_, i) => i + 1).map(page => (
+                                    <button key={page} onClick={() => setCurrentPage(page)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: page === currentPage ? "1px solid #ff8c00" : "1px solid #dee2e6", background: page === currentPage ? "#ff8c00" : "#fff", color: page === currentPage ? "#fff" : "#495057", fontWeight: page === currentPage ? 700 : 400, cursor: "pointer", fontSize: "13px" }}>{page}</button>
+                                ))}
+                                <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === Math.ceil(filteredCandidates.length / PAGE_SIZE)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === Math.ceil(filteredCandidates.length / PAGE_SIZE) ? "#f8f9fa" : "#fff", color: currentPage === Math.ceil(filteredCandidates.length / PAGE_SIZE) ? "#adb5bd" : "#495057", cursor: currentPage === Math.ceil(filteredCandidates.length / PAGE_SIZE) ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8250;</button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

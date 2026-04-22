@@ -110,6 +110,7 @@ export const admin = {
     INITIAL:        "/",
     DASHBOARD:      "/dashboard",
     OVERVIEW:       "/overview",
+    JOBS_POSTED:    "/jobs-posted",
     CANDIDATES:     "/candidates-list",
     REGISTERED_CANDIDATES: "/registered-candidates",
     CANDIDATE_REVIEW: "/candidate-review/:candidateId",

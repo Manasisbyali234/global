@@ -547,6 +547,13 @@ export const api = {
     }).then(handleApiResponse);
   },
 
+  getAdminJobsPosted: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return safeFetch(`${API_BASE_URL}/admin/dashboard/jobs-posted?${queryString}`, {
+      headers: getAuthHeaders('admin'),
+    }).then(handleApiResponse);
+  },
+
   getAdminEmployerOverview: () => {
     return safeFetch(`${API_BASE_URL}/admin/dashboard/employer-overview`, {
       headers: getAuthHeaders('admin'),

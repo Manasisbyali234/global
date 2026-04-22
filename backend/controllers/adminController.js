@@ -186,6 +186,55 @@ exports.getDashboardStats = async (req, res) => {
   }
 };
 
+// Jobs Posted overview for admin dashboard
+exports.getJobsPosted = async (req, res) => {
+  try {
+    const jobs = await Job.find({ status: { $ne: 'draft' } })
+      .populate('employerId', 'companyName name employerType')
+      .select('_id title status createdAt lastDateOfApplication offerLetterDate companyName employerId')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const jobIds = jobs.map(j => j._id);
+    const offerSentCounts = jobIds.length
+      ? await Application.aggregate([
+          {
+            $match: {
+              jobId: { $in: jobIds },
+              $or: [
+                { status: 'offer_sent' },
+                {
+                  statusHistory: {
+                    $elemMatch: { status: 'offer_sent' }
+                  }
+                }
+              ]
+            }
+          },
+          { $group: { _id: '$jobId', count: { $sum: 1 } } }
+        ])
+      : [];
+
+    const offerSentMap = new Map(offerSentCounts.map(item => [String(item._id), item.count]));
+
+    const data = jobs.map(job => ({
+      jobId: job._id,
+      title: job.title,
+      companyName: job.companyName || job.employerId?.companyName || job.employerId?.name || 'N/A',
+      employerType: job.employerId?.employerType || 'company',
+      postedDate: job.createdAt,
+      lastDateOfApplication: job.lastDateOfApplication || null,
+      offerLetterDate: job.offerLetterDate || null,
+      offerLetterSentCount: offerSentMap.get(String(job._id)) || 0,
+      status: job.status
+    }));
+
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Employer overview for admin dashboard
 exports.getEmployerOverview = async (req, res) => {
   try {

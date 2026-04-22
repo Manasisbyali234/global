@@ -95,17 +95,19 @@ const formatAssessmentOptionLabel = (assessment = {}, employerType = 'company') 
 	const duration = getAssessmentDuration(assessment);
 	const durationLabel = duration === 'N/A' ? 'Duration: N/A' : `${duration} min`;
 
-	const nameWithDesignation = designation 
-		? `${assessmentName} - ${designation}`
-		: assessmentName;
-
 	if (employerType === 'consultant') {
-		return `${companyName || 'N/A'} - ${nameWithDesignation} - ${durationLabel}`;
+		// consultant: Company Name - Designation - Assessment Title (10 min)
+		const parts = [companyName || 'N/A'];
+		if (designation) parts.push(designation);
+		parts.push(`${assessmentName} (${durationLabel})`);
+		return parts.join(' - ');
 	}
 
-	return companyName
-		? `${nameWithDesignation} (${durationLabel}) - ${companyName}`
-		: `${nameWithDesignation} (${durationLabel})`;
+	// company: Designation - Assessment Title (10 min)
+	if (designation) {
+		return `${designation} - ${assessmentName} (${durationLabel})`;
+	}
+	return `${assessmentName} (${durationLabel})`;
 };
 
 const getAssessmentOptionId = (assessment = {}) => assessment?._id || assessment?.id || '';
@@ -1603,18 +1605,14 @@ export default function EmpPostJob({ onNext }) {
 
 	const scrollToField = (fieldName) => {
 		setTimeout(() => {
-			const fieldElement = document.querySelector(`[name="${fieldName}"]`) ||
-									document.querySelector(`[data-field="${fieldName}"]`) ||
-									document.getElementById(fieldName) ||
-									document.querySelector(`[aria-label*="${fieldLabelMap[fieldName] || fieldName}"]`);
-			
-			if (fieldElement) {
-				fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-				fieldElement.focus?.();
-			} else {
-				window.scrollTo({ top: 0, behavior: 'smooth' });
-			}
-		}, 100);
+			const el =
+				document.querySelector(`[data-field="${fieldName}"]`) ||
+				document.querySelector(`[name="${fieldName}"]`) ||
+				document.getElementById(fieldName);
+			if (!el) return;
+			const y = el.getBoundingClientRect().top + window.scrollY - 120;
+			window.scrollTo({ top: y, behavior: 'smooth' });
+		}, 50);
 	};
 
 	const extractPlainText = (htmlContent) => {
@@ -2956,7 +2954,7 @@ export default function EmpPostJob({ onNext }) {
 						})()}
 					</div>
 
-					<div style={fullRow}>
+					<div style={fullRow} data-field="workMode">
 						<label style={label}>
 							<i className="fa fa-home" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Work Mode <span style={redAsterisk}>*</span>
@@ -3007,7 +3005,7 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					{/* Transportation */}
-					<div style={fullRow}>
+					<div style={fullRow} data-field="transportation">
 						<label style={label}>
 							<i className="fa fa-car" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Transportation Options <span style={redAsterisk}>*</span>
@@ -3129,7 +3127,7 @@ export default function EmpPostJob({ onNext }) {
 						)}
 					</div>
 
-					<div style={fullRow}>
+					<div style={fullRow} data-field="shift">
 						<label style={label}>
 							<i className="fa fa-clock" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Work Shift <span style={redAsterisk}>*</span>
@@ -3180,7 +3178,7 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					{/* Row 2 */}
-					<div style={fullRow}>
+					<div style={fullRow} data-field="jobLocation">
 						<label style={label}>
 							<i className="fa fa-map-marker-alt" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Job Location <span style={redAsterisk}>*</span>
@@ -3433,7 +3431,7 @@ export default function EmpPostJob({ onNext }) {
 						</h3>
 					</div>
 
-					<div style={{ position: 'relative' }}>
+					<div style={{ position: 'relative' }} data-field="education">
 						<label style={label}>
 							<i className="fa fa-graduation-cap" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Required Educational Background <span style={redAsterisk}>*</span>
@@ -3599,7 +3597,7 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					{/* Skills (full width) */}
-					<div style={fullRow}>
+					<div style={fullRow} data-field="requiredSkills">
 						<label style={label}>
 							<i className="fa fa-cogs" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Required Skills <span style={redAsterisk}>*</span>
@@ -3943,7 +3941,7 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					{/* Job Description */}
-					<div style={fullRow}>
+					<div style={fullRow} data-field="jobDescription">
 						<label style={label}>
 							<i className="fa fa-align-left" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Job Description <span style={redAsterisk}>*</span>
@@ -3968,7 +3966,7 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 
 					{/* Roles and Responsibilities */}
-					<div style={fullRow}>
+					<div style={fullRow} data-field="rolesAndResponsibilities">
 						<label style={label}>
 							<i className="fa fa-tasks" style={{marginRight: '8px', color: '#ff6b35'}}></i>
 							Roles and Responsibilities <span style={redAsterisk}>*</span>

@@ -735,6 +735,9 @@ function PlacementDashboardRedesigned() {
                     >
                         <i className="fa fa-history"></i>
                         <span>Batch History</span>
+                        {(placementData?.fileHistory || []).some(f => f.status === 'rejected') && (
+                            <span className="nav-resubmit-dot"></span>
+                        )}
                     </div>
                     <div
                         className={`nav-item ${activeTab === 'support' ? 'active' : ''}`}
@@ -1073,12 +1076,31 @@ function PlacementDashboardRedesigned() {
                                         <div className="upload-tips">
                                             <h5>Upload Tips:</h5>
                                             <ul>
-                                                <li>Ensure your file contains columns: ID, Name, Email, Phone Number </li>
-                                                <li>Use CSV or Excel format (.csv, .xlsx, .xls)</li>
+                                                <li>Ensure your file contains columns: ID, Candidate Name, Email, Phone Number </li>
+                                                <li>Upload in (CSV or Excel format). If duplicate emails are detected, remove them as shown in the pop-up and re-upload the file.</li>
                                                 <li>Maximum file size: 10MB</li>
                                                 <li>Remove empty rows and special characters</li>
                                                 <li>Verify all email addresses are valid</li>
                                             </ul>
+                                        </div>
+
+                                        <div className="sample-download">
+                                            <button 
+                                                className="sample-btn"
+                                                onClick={() => {
+                                                    const link = document.createElement('a');
+                                                    link.href = '/assets/sample-student-data.csv';
+                                                    link.download = 'sample-student-data.csv';
+                                                    link.click();
+                                                }}
+                                            >
+                                                <i className="fa fa-download"></i>
+                                                Download Sample Data
+                                            </button>
+                                            <p className="sample-note">
+                                                <i className="fa fa-info-circle"></i>
+                                                Download this sample file to see the required format before uploading your student data.
+                                            </p>
                                         </div>
                                         
                                         {/* Configuration & Details Form */}
@@ -1120,28 +1142,178 @@ function PlacementDashboardRedesigned() {
                                                             </div>
                                                             <ul style={{listStyle: 'none', margin: 0, padding: 0, maxHeight: '200px', overflowY: 'auto'}}>
                                                                 {[{label: 'Select course name', value: ''}, ...[
-                                                                    'Computer Science Engineering',
-                                                                    'Information Technology',
-                                                                    'Electronics and Communication',
-                                                                    'Mechanical Engineering',
-                                                                    'Civil Engineering',
-                                                                    'Electrical Engineering',
-                                                                    'Chemical Engineering',
-                                                                    'Aerospace Engineering',
-                                                                    'Biotechnology',
-                                                                    'Data Science',
-                                                                    'Artificial Intelligence and Machine Learning',
-                                                                    'Cyber Security',
-                                                                    'Business Administration',
-                                                                    'Master of Business Administration',
-                                                                    'Commerce',
-                                                                    'Arts',
-                                                                    'Science',
-                                                                    'Mathematics',
-                                                                    'Physics',
-                                                                    'Law',
-                                                                    'Pharmacy',
-                                                                    'Architecture'
+                                                                    // Engineering - UG
+                                                                    'B.E - Computer Science Engineering',
+                                                                    'B.E - Information Technology',
+                                                                    'B.E - Electronics and Communication Engineering',
+                                                                    'B.E - Electrical Engineering',
+                                                                    'B.E - Electrical and Electronics Engineering',
+                                                                    'B.E - Mechanical Engineering',
+                                                                    'B.E - Civil Engineering',
+                                                                    'B.E - Chemical Engineering',
+                                                                    'B.E - Aerospace Engineering',
+                                                                    'B.E - Aeronautical Engineering',
+                                                                    'B.E - Automobile Engineering',
+                                                                    'B.E - Biomedical Engineering',
+                                                                    'B.E - Biotechnology',
+                                                                    'B.E - Environmental Engineering',
+                                                                    'B.E - Industrial Engineering',
+                                                                    'B.E - Instrumentation Engineering',
+                                                                    'B.E - Marine Engineering',
+                                                                    'B.E - Mechatronics Engineering',
+                                                                    'B.E - Mining Engineering',
+                                                                    'B.E - Petroleum Engineering',
+                                                                    'B.E - Production Engineering',
+                                                                    'B.E - Textile Engineering',
+                                                                    'B.E - Artificial Intelligence and Machine Learning',
+                                                                    'B.E - Artificial Intelligence and Data Science',
+                                                                    'B.E - Data Science',
+                                                                    'B.E - Cyber Security',
+                                                                    'B.E - Internet of Things',
+                                                                    'B.E - Robotics and Automation',
+                                                                    'B.E - Computer Science and Business Systems',
+                                                                    // Engineering - PG
+                                                                    'M.Tech - Computer Science Engineering',
+                                                                    'M.Tech - Information Technology',
+                                                                    'M.Tech - Electronics and Communication Engineering',
+                                                                    'M.Tech - Electrical Engineering',
+                                                                    'M.Tech - Mechanical Engineering',
+                                                                    'M.Tech - Civil Engineering',
+                                                                    'M.Tech - Structural Engineering',
+                                                                    'M.Tech - VLSI Design',
+                                                                    'M.Tech - Embedded Systems',
+                                                                    'M.Tech - Power Systems',
+                                                                    'M.Tech - Artificial Intelligence',
+                                                                    'M.Tech - Data Science',
+                                                                    'M.Tech - Cyber Security',
+                                                                    'M.Tech - Robotics and Automation',
+                                                                    'M.Tech - Internet of Things',
+                                                                    'M.Tech - Artificial Intelligence and Machine Learning',
+                                                                    'M.Tech - Computer Networks',
+                                                                    'M.Tech - Software Engineering',
+                                                                    // Management
+                                                                    'BBA - Bachelor of Business Administration',
+                                                                    'MBA - Master of Business Administration',
+                                                                    'MBA - Finance',
+                                                                    'MBA - Marketing',
+                                                                    'MBA - Human Resource Management',
+                                                                    'MBA - Operations Management',
+                                                                    'MBA - Information Technology',
+                                                                    'MBA - Business Analytics',
+                                                                    'MBA - International Business',
+                                                                    'MBA - Supply Chain Management',
+                                                                    'MBA - Entrepreneurship',
+                                                                    'PGDM - Post Graduate Diploma in Management',
+                                                                    // Computer Applications
+                                                                    'BCA - Bachelor of Computer Applications',
+                                                                    'MCA - Master of Computer Applications',
+                                                                    // Science - UG
+                                                                    'B.Sc - Computer Science',
+                                                                    'B.Sc - Information Technology',
+                                                                    'B.Sc - Data Science',
+                                                                    'B.Sc - Physics',
+                                                                    'B.Sc - Chemistry',
+                                                                    'B.Sc - Mathematics',
+                                                                    'B.Sc - Statistics',
+                                                                    'B.Sc - Biology',
+                                                                    'B.Sc - Biotechnology',
+                                                                    'B.Sc - Microbiology',
+                                                                    'B.Sc - Biochemistry',
+                                                                    'B.Sc - Nursing',
+                                                                    'B.Sc - Agriculture',
+                                                                    'B.Sc - Horticulture',
+                                                                    'B.Sc - Forestry',
+                                                                    'B.Sc - Food Technology',
+                                                                    'B.Sc - Environmental Science',
+                                                                    'B.Sc - Psychology',
+                                                                    'B.Sc - Electronics',
+                                                                    // Science - PG
+                                                                    'M.Sc - Computer Science',
+                                                                    'M.Sc - Information Technology',
+                                                                    'M.Sc - Data Science',
+                                                                    'M.Sc - Physics',
+                                                                    'M.Sc - Chemistry',
+                                                                    'M.Sc - Mathematics',
+                                                                    'M.Sc - Statistics',
+                                                                    'M.Sc - Biotechnology',
+                                                                    'M.Sc - Microbiology',
+                                                                    'M.Sc - Biochemistry',
+                                                                    'M.Sc - Nursing',
+                                                                    'M.Sc - Agriculture',
+                                                                    'M.Sc - Environmental Science',
+                                                                    'M.Sc - Psychology',
+                                                                    // Commerce
+                                                                    'B.Com - Bachelor of Commerce',
+                                                                    'B.Com - Accounting and Finance',
+                                                                    'B.Com - Computer Applications',
+                                                                    'B.Com - Banking and Insurance',
+                                                                    'M.Com - Master of Commerce',
+                                                                    // Arts / Humanities
+                                                                    'B.A. - English',
+                                                                    'B.A. - Economics',
+                                                                    'B.A. - History',
+                                                                    'B.A. - Political Science',
+                                                                    'B.A. - Sociology',
+                                                                    'B.A. - Psychology',
+                                                                    'B.A. - Geography',
+                                                                    'B.A. - Philosophy',
+                                                                    'B.A. - Journalism and Mass Communication',
+                                                                    'B.A. - Social Work',
+                                                                    'M.A. - English',
+                                                                    'M.A. - Economics',
+                                                                    'M.A. - History',
+                                                                    'M.A. - Political Science',
+                                                                    'M.A. - Sociology',
+                                                                    'M.A. - Psychology',
+                                                                    'M.A. - Journalism and Mass Communication',
+                                                                    // Law
+                                                                    'B.A. LLB - Bachelor of Arts and Law',
+                                                                    'B.B.A. LLB - Bachelor of Business Administration and Law',
+                                                                    'B.Com LLB - Bachelor of Commerce and Law',
+                                                                    'LLB - Bachelor of Laws',
+                                                                    'LLM - Master of Laws',
+                                                                    // Medical / Pharmacy / Health
+                                                                    'MBBS - Bachelor of Medicine and Bachelor of Surgery',
+                                                                    'BDS - Bachelor of Dental Surgery',
+                                                                    'BAMS - Bachelor of Ayurvedic Medicine and Surgery',
+                                                                    'BHMS - Bachelor of Homeopathic Medicine and Surgery',
+                                                                    'B.Pharm - Bachelor of Pharmacy',
+                                                                    'M.Pharm - Master of Pharmacy',
+                                                                    'Pharm.D - Doctor of Pharmacy',
+                                                                    'BPT - Bachelor of Physiotherapy',
+                                                                    'MPT - Master of Physiotherapy',
+                                                                    'BMLT - Bachelor of Medical Laboratory Technology',
+                                                                    'DMLT - Diploma in Medical Laboratory Technology',
+                                                                    // Architecture and Design
+                                                                    'B.Arch - Bachelor of Architecture',
+                                                                    'M.Arch - Master of Architecture',
+                                                                    'B.Des - Bachelor of Design',
+                                                                    'M.Des - Master of Design',
+                                                                    'B.F.A. - Bachelor of Fine Arts',
+                                                                    'M.F.A. - Master of Fine Arts',
+                                                                    // Education
+                                                                    'B.Ed - Bachelor of Education',
+                                                                    'M.Ed - Master of Education',
+                                                                    'D.El.Ed - Diploma in Elementary Education',
+                                                                    // Hotel Management / Hospitality
+                                                                    'BHM - Bachelor of Hotel Management',
+                                                                    'MHM - Master of Hotel Management',
+                                                                    // Diploma Programs
+                                                                    'Diploma - Computer Science Engineering',
+                                                                    'Diploma - Mechanical Engineering',
+                                                                    'Diploma - Civil Engineering',
+                                                                    'Diploma - Electrical Engineering',
+                                                                    'Diploma - Electronics and Communication',
+                                                                    'Diploma - Information Technology',
+                                                                    // Research
+                                                                    'Ph.D - Computer Science',
+                                                                    'Ph.D - Engineering',
+                                                                    'Ph.D - Management',
+                                                                    'Ph.D - Science',
+                                                                    'Ph.D - Arts and Humanities',
+                                                                    'Ph.D - Commerce',
+                                                                    'Ph.D - Law',
+                                                                    'Ph.D - Education'
                                                                 ].filter(c => c.toLowerCase().includes(courseSearch.toLowerCase())).map(c => ({label: c, value: c})),
                                                                 {label: 'Other-Specify', value: 'other'}]
                                                                 .map((item) => (
@@ -1287,20 +1459,6 @@ function PlacementDashboardRedesigned() {
                                                     Files will be processed automatically after admin approval.
                                                 </div>
                                                 
-                                                <div className="sample-download">
-                                                    <button 
-                                                        className="sample-btn"
-                                                        onClick={() => {
-                                                            const link = document.createElement('a');
-                                                            link.href = '/assets/sample-student-data.csv';
-                                                            link.download = 'sample-student-data.csv';
-                                                            link.click();
-                                                        }}
-                                                    >
-                                                        <i className="fa fa-download"></i>
-                                                        Download Sample Data
-                                                    </button>
-                                                </div>
                                             </div>
 
                                             {/* Action Buttons */}
@@ -1622,7 +1780,7 @@ function PlacementDashboardRedesigned() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>College Official Phone <span style={{color: 'red'}}>*</span></label>
+                                <label>College Official Phone Number <span style={{color: 'red'}}>*</span></label>
                                 <input
                                     type="tel"
                                     value={editFormData.collegeOfficialPhone || ''}

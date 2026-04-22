@@ -34,6 +34,7 @@ router.use(auth(['admin', 'sub-admin']));
 
 router.get('/dashboard/stats', adminController.getDashboardStats);
 router.get('/dashboard/charts', adminController.getChartData);
+router.get('/dashboard/jobs-posted', adminController.getJobsPosted);
 router.get('/dashboard/employer-overview', adminController.getEmployerOverview);
 router.get('/dashboard/employer-overview/:employerId/jobs', adminController.getEmployerOverviewJobs);
 router.get('/dashboard/jobs/:jobId/applicants', adminController.getJobApplicantsForOverview);

@@ -1317,6 +1317,25 @@ function CanStatusPage() {
 		return [{ name: 'Technical', uniqueKey: 'technical', roundType: 'technical' }, { name: 'HR', uniqueKey: 'hr', roundType: 'hr' }, { name: 'Final', uniqueKey: 'final', roundType: 'final' }];
 	};
 
+	const formatAssessmentScheduleMessage = (startDate) => {
+		if (!startDate) return 'Assessment scheduled. Test will open on the scheduled date and time.';
+		try {
+			const date = new Date(startDate);
+			if (isNaN(date.getTime())) return 'Assessment scheduled. Test will open on the scheduled date and time.';
+			const day = date.getDate();
+			const suffix = day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+			const month = date.toLocaleString('en-US', { month: 'long' });
+			let hours = date.getHours();
+			const minutes = date.getMinutes();
+			const ampm = hours >= 12 ? 'pm' : 'am';
+			hours = hours % 12 || 12;
+			const timeStr = minutes === 0 ? `${hours}${ampm}` : `${hours}:${String(minutes).padStart(2, '0')}${ampm}`;
+			return `Assessment will be live on ${day}${suffix} ${month} at ${timeStr}`;
+		} catch (e) {
+			return 'Assessment scheduled. Test will open on the scheduled date and time.';
+		}
+	};
+
 	const getRoundStatus = (application, roundIndex, roundName, isPopup = false, roundDetails = null) => {
 		const formatProcessStatusLabel = (rawStatus) => {
 			const status = String(rawStatus || '').toLowerCase();
@@ -1409,8 +1428,9 @@ function CanStatusPage() {
 				!isInProgress &&
 				!isSuspended
 			) {
+				const schedMsg = formatAssessmentScheduleMessage(windowInfo.startDate);
 				return isPopup
-					? { text: 'Assessment scheduled. Test will open on the scheduled date and time.', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
+					? { text: schedMsg, class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
 					: { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
 			
@@ -1427,7 +1447,7 @@ function CanStatusPage() {
 				'not_required': windowInfo.isBeforeStart
 					? { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
 					: { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
-				'not_started': { text: 'Assessment scheduled. Test will open on the scheduled date and time.', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
+				'not_started': { text: formatAssessmentScheduleMessage(windowInfo.startDate), class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
 			};
 			
 			const result = statusMappings[status];
