@@ -3671,7 +3671,7 @@ exports.resendWelcomeEmail = async (req, res) => {
     const { placementCandidateId } = req.params;
     
     const placementCandidate = await PlacementCandidate.findById(placementCandidateId)
-      .populate('candidateId', 'password')
+      .populate('candidateId', 'password credits')
       .populate('placementId', 'name collegeName');
     
     if (!placementCandidate) {
@@ -3689,7 +3689,8 @@ exports.resendWelcomeEmail = async (req, res) => {
         placementCandidate.studentName,
         placementCandidate.candidateId.password,
         placementCandidate.placementOfficerName,
-        placementCandidate.collegeName
+        placementCandidate.collegeName,
+        placementCandidate.candidateId.credits || placementCandidate.creditsAssigned || 0
       );
       
       // Update email sent status
@@ -3859,7 +3860,8 @@ exports.bulkResendWelcomeEmails = async (req, res) => {
           placementCandidate.studentName,
           placementCandidate.candidateId.password,
           placementCandidate.placementOfficerName,
-          placementCandidate.collegeName
+          placementCandidate.collegeName,
+          placementCandidate.candidateId.credits || placementCandidate.creditsAssigned || 0
         );
         
         // Update email sent status
