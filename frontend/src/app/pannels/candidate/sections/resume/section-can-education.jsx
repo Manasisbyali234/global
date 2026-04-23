@@ -273,6 +273,11 @@ function SectionCanEducation({ profile, onUpdate }) {
                 [name]: value
             }));
 
+            // Prevent negative year of passing
+            if (name === 'yearOfPassing' && value && parseInt(value) < 0) {
+                return;
+            }
+
             // Auto-calculate CGPA and result from percentage
             if (name === 'percentage' && value) {
                 const percentageValue = parseFloat(value);
@@ -811,6 +816,8 @@ function SectionCanEducation({ profile, onUpdate }) {
                                                 onChange={handleInputChange}
                                                 placeholder="Enter year of passing (e.g., 2023)"
                                                 title="Enter the year you passed/completed this qualification"
+                                                min="1900"
+                                                max={new Date().getFullYear()}
                                                 required
                                             />
                                             {errors.yearOfPassing && <div className="invalid-feedback">{errors.yearOfPassing}</div>}
@@ -843,6 +850,8 @@ function SectionCanEducation({ profile, onUpdate }) {
                                                     onChange={handleInputChange}
                                                     placeholder="Enter year of passing (e.g., 2023)"
                                                     title="Enter the year you passed/completed this qualification"
+                                                    min="1900"
+                                                    max={new Date().getFullYear()}
                                                     required
                                                 />
                                                 {errors.yearOfPassing && <div className="invalid-feedback">{errors.yearOfPassing}</div>}
