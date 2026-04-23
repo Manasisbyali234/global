@@ -188,23 +188,7 @@ function AdminJobsPostedPage() {
                         <td>{job.companyName}</td>
                         <td>{formatEmployerType(job.employerType)}</td>
                         <td>{job.lastDateOfApplication ? formatDate(job.lastDateOfApplication) : "N/A"}</td>
-                        <td>
-                          {job.offerLetterDate ? formatDate(job.offerLetterDate) : "N/A"}
-                          {job.offerLetterSentCount > 0 && (
-                            <span style={{
-                              marginLeft: "6px",
-                              background: "#e7f7ee",
-                              color: "#146c43",
-                              border: "1px solid #8fd19e",
-                              borderRadius: "999px",
-                              fontSize: "11px",
-                              padding: "1px 7px",
-                              fontWeight: 600
-                            }}>
-                              {job.offerLetterSentCount} sent
-                            </span>
-                          )}
-                        </td>
+                        <td>{job.offerLetterDate ? formatDate(job.offerLetterDate) : "N/A"}</td>
                         <td>{getStatusBadge(job.status)}</td>
                       </tr>
                     ))
