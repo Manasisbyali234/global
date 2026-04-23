@@ -1,4 +1,4 @@
-export const privateUniversityOptions = `
+export const privateUniversityOptions = Array.from(new Set(`
 A.K.S. University
 A.P.G. (Alakh Prakash Goyal) Shimla University
 AAFT University of Media and Arts
@@ -443,6 +443,53 @@ World University of Design
 Woxsen University
 XIM University (Formerly Xavier University)
 YBN University
+Jawahar Lal Nehru University
+B.L.D.E. University, Bijapur
+Bangalore University, Bangalore
+Davangere University, Davangere
+Gulbarga University, Gulbarga
+JSS ACADEMY OF HIGHER EDUCATION & RESEARCH
+K.L.E. Academy of Higher Education and Research, Belgaum
+Kannada University, Hampi, Kamalapura
+Karnataka State Law University, Hubli
+Karnataka State Women University, Bijapur
+Karnataka University, Dharwad
+Karnataka Vetrinary, Animal & Fisheries Science University, Nandinagar
+Kuvempu University, Shankaraghatta, Shimoga
+Mangalore University, Mangalore
+Manipal Academy of Higher Education, Manipal
+Mysore University, Mysore
+National Institute of Technology, Karnataka
+NITTE Unversity, Mangalore
+Rajiv Gandhi University of Health Sciences, Bangalore
+Sri Devraj Urs Acaedmy of Highehr Education and Research, Kolar
+Sri Siddharatha Acedemy of Higher Education
+Tumkur University, Tumkur
+University of Horticultural Sciences, Bagalkot
+University of Agricultural Sciences, Dharwad
+University of Agricultural Sciences, Raichur
+University of Agricultural Sciences, Bangalore
+Vesveswaraiah Technological University, Belgaum
+Yenepoya University, Mangalore
+Dakshina Bharat Hindi Prachar Sabha
+Rani Channamma University, Belagavi
+Vijayanagara Sri Krishnadevaraya University, Bellary
+Karnataka Sanskrit University
+UNIVERSITY OF AGRICULTURAL AND HORTICULTURAL SCIENCES, SHIMOGA
+PES UNIVERSITY, BANGLORE
+INDIAN INSTITUTE OF INFORMATION TECHNOLOGY, DHARWAD
+CBSE
+ICSE
+Karnataka PU Board
+Bangalore Central University
+Bangalore North University
+Deemed University
+Industrial Training & Employment
+Karnataka State Diploma in Nursing Examination Board
+Govt of Karnataka
+Govt of India
 `
   .trim()
-  .split('\n');
+  .split('\n')
+  .map((option) => option.trim())
+  .filter(Boolean)));

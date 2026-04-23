@@ -2210,6 +2210,25 @@
     background-color: var(--light-grey);
 }
 
+.upload-history-table tbody tr.upload-history-row-rejected td {
+    background-color: rgba(254, 242, 242, 0.96);
+    border-bottom-color: rgba(248, 113, 113, 0.28);
+    box-shadow:
+        inset 0 1px 0 rgba(248, 113, 113, 0.16),
+        inset 0 -1px 0 rgba(248, 113, 113, 0.12);
+}
+
+.upload-history-table tbody tr.upload-history-row-rejected td:first-child {
+    box-shadow:
+        inset 4px 0 0 rgba(220, 38, 38, 0.55),
+        inset 0 1px 0 rgba(248, 113, 113, 0.16),
+        inset 0 -1px 0 rgba(248, 113, 113, 0.12);
+}
+
+.upload-history-table tbody tr.upload-history-row-rejected:hover td {
+    background-color: #fee2e2;
+}
+
 .status-badge {
     padding: 4px 8px;
     border-radius: 6px;
@@ -2230,6 +2249,12 @@
 .status-danger {
     background-color: #fee2e2;
     color: #dc2626;
+}
+
+.upload-history-table .status-badge.upload-history-status-badge.status-danger {
+    background-color: #dc2626;
+    color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(185, 28, 28, 0.18);
 }
 
 .status-info {

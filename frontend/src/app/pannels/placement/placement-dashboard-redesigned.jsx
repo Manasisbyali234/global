@@ -1556,19 +1556,25 @@ function PlacementDashboardRedesigned() {
                                                     {placementData?.fileHistory && placementData.fileHistory.length > 0 ? (
                                                         filteredFileHistory.length > 0 ? (
                                                             filteredFileHistory.map((file, index) => (
-                                                                <tr key={file._id || index}>
+                                                                <tr
+                                                                    key={file._id || index}
+                                                                    className={file.status === 'rejected' ? 'upload-history-row upload-history-row-rejected' : 'upload-history-row'}
+                                                                >
                                                                     <td>{file.fileName}</td>
                                                                     <td className="upload-history-balanced-cell">{file.customName || '-'}</td>
                                                                     <td className="upload-history-balanced-cell">{file.university || '-'}</td>
                                                                     <td className="upload-history-balanced-cell">{file.batch || '-'}</td>
                                                                     <td>{formatDate(file.uploadedAt)}</td>
                                                                     <td>
-                                                                        <span className={`status-badge ${
+                                                                        <span className={`status-badge upload-history-status-badge ${
                                                                             file.status === 'processed' ? 'status-success' :
                                                                             file.status === 'approved' ? 'status-info' :
                                                                             file.status === 'rejected' ? 'status-danger' : 'status-warning'
                                                                         }`}>
-                                                                            {file.status === 'processed' ? 'Approved' : file.status || 'Pending'}
+                                                                            {file.status === 'processed' ? 'Approved' :
+                                                                                file.status === 'approved' ? 'Approved' :
+                                                                                file.status === 'rejected' ? 'Rejected' :
+                                                                                file.status || 'Pending'}
                                                                         </span>
                                                                     </td>
                                                                     <td>

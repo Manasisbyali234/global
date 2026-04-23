@@ -6,7 +6,46 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { showSuccess, showError, showWarning } from '../../../utils/popupNotification';
 import { buildPlacementUploadPopup, buildPlacementUploadErrorPopup } from '../../../utils/placementUploadPopup';
 import { normalizePlacementUploadErrorMessage } from '../../../utils/placementStudentData';
+import { privateUniversityOptions } from '../../../utils/privateUniversityOptions';
 import './batch-upload.css';
+
+const legacyBatchUploadUniversityOptions = [
+    'Indian Institute of Technology (IIT) Delhi',
+    'Indian Institute of Technology (IIT) Bombay',
+    'Indian Institute of Technology (IIT) Madras',
+    'Indian Institute of Technology (IIT) Kanpur',
+    'Indian Institute of Technology (IIT) Kharagpur',
+    'Indian Institute of Technology (IIT) Roorkee',
+    'Indian Institute of Technology (IIT) Guwahati',
+    'Indian Institute of Technology (IIT) Hyderabad',
+    'Indian Institute of Science (IISc) Bangalore',
+    'National Institute of Technology (NIT) Trichy',
+    'National Institute of Technology (NIT) Warangal',
+    'National Institute of Technology (NIT) Surathkal',
+    'Delhi Technological University (DTU)',
+    'Netaji Subhas University of Technology (NSUT)',
+    'Birla Institute of Technology and Science (BITS) Pilani',
+    'Vellore Institute of Technology (VIT)',
+    'Manipal Institute of Technology',
+    'SRM Institute of Science and Technology',
+    'Amity University',
+    'Lovely Professional University (LPU)',
+    'Chandigarh University',
+    'Thapar Institute of Engineering and Technology',
+    'Jadavpur University',
+    'Anna University',
+    'University of Delhi',
+    'Jawaharlal Nehru University (JNU)',
+    'Banaras Hindu University (BHU)',
+    'Aligarh Muslim University (AMU)',
+    'Jamia Millia Islamia'
+];
+
+const batchUploadUniversityOptions = Array.from(new Set([
+    ...legacyBatchUploadUniversityOptions,
+    ...privateUniversityOptions,
+    'Other'
+]));
 
 function BatchUpload() {
     const navigate = useNavigate();
@@ -406,36 +445,9 @@ function BatchUpload() {
                                             required
                                         >
                                             <option value="">Select University</option>
-                                            <option value="Indian Institute of Technology (IIT) Delhi">Indian Institute of Technology (IIT) Delhi</option>
-                                            <option value="Indian Institute of Technology (IIT) Bombay">Indian Institute of Technology (IIT) Bombay</option>
-                                            <option value="Indian Institute of Technology (IIT) Madras">Indian Institute of Technology (IIT) Madras</option>
-                                            <option value="Indian Institute of Technology (IIT) Kanpur">Indian Institute of Technology (IIT) Kanpur</option>
-                                            <option value="Indian Institute of Technology (IIT) Kharagpur">Indian Institute of Technology (IIT) Kharagpur</option>
-                                            <option value="Indian Institute of Technology (IIT) Roorkee">Indian Institute of Technology (IIT) Roorkee</option>
-                                            <option value="Indian Institute of Technology (IIT) Guwahati">Indian Institute of Technology (IIT) Guwahati</option>
-                                            <option value="Indian Institute of Technology (IIT) Hyderabad">Indian Institute of Technology (IIT) Hyderabad</option>
-                                            <option value="Indian Institute of Science (IISc) Bangalore">Indian Institute of Science (IISc) Bangalore</option>
-                                            <option value="National Institute of Technology (NIT) Trichy">National Institute of Technology (NIT) Trichy</option>
-                                            <option value="National Institute of Technology (NIT) Warangal">National Institute of Technology (NIT) Warangal</option>
-                                            <option value="National Institute of Technology (NIT) Surathkal">National Institute of Technology (NIT) Surathkal</option>
-                                            <option value="Delhi Technological University (DTU)">Delhi Technological University (DTU)</option>
-                                            <option value="Netaji Subhas University of Technology (NSUT)">Netaji Subhas University of Technology (NSUT)</option>
-                                            <option value="Birla Institute of Technology and Science (BITS) Pilani">Birla Institute of Technology and Science (BITS) Pilani</option>
-                                            <option value="Vellore Institute of Technology (VIT)">Vellore Institute of Technology (VIT)</option>
-                                            <option value="Manipal Institute of Technology">Manipal Institute of Technology</option>
-                                            <option value="SRM Institute of Science and Technology">SRM Institute of Science and Technology</option>
-                                            <option value="Amity University">Amity University</option>
-                                            <option value="Lovely Professional University (LPU)">Lovely Professional University (LPU)</option>
-                                            <option value="Chandigarh University">Chandigarh University</option>
-                                            <option value="Thapar Institute of Engineering and Technology">Thapar Institute of Engineering and Technology</option>
-                                            <option value="Jadavpur University">Jadavpur University</option>
-                                            <option value="Anna University">Anna University</option>
-                                            <option value="University of Delhi">University of Delhi</option>
-                                            <option value="Jawaharlal Nehru University (JNU)">Jawaharlal Nehru University (JNU)</option>
-                                            <option value="Banaras Hindu University (BHU)">Banaras Hindu University (BHU)</option>
-                                            <option value="Aligarh Muslim University (AMU)">Aligarh Muslim University (AMU)</option>
-                                            <option value="Jamia Millia Islamia">Jamia Millia Islamia</option>
-                                            <option value="Other">Other</option>
+                                            {batchUploadUniversityOptions.map((option) => (
+                                                <option key={option} value={option}>{option}</option>
+                                            ))}
                                         </select>
                                     </div>
 
@@ -620,36 +632,9 @@ function BatchUpload() {
                                         required
                                     >
                                         <option value="">Select University</option>
-                                        <option value="Indian Institute of Technology (IIT) Delhi">Indian Institute of Technology (IIT) Delhi</option>
-                                        <option value="Indian Institute of Technology (IIT) Bombay">Indian Institute of Technology (IIT) Bombay</option>
-                                        <option value="Indian Institute of Technology (IIT) Madras">Indian Institute of Technology (IIT) Madras</option>
-                                        <option value="Indian Institute of Technology (IIT) Kanpur">Indian Institute of Technology (IIT) Kanpur</option>
-                                        <option value="Indian Institute of Technology (IIT) Kharagpur">Indian Institute of Technology (IIT) Kharagpur</option>
-                                        <option value="Indian Institute of Technology (IIT) Roorkee">Indian Institute of Technology (IIT) Roorkee</option>
-                                        <option value="Indian Institute of Technology (IIT) Guwahati">Indian Institute of Technology (IIT) Guwahati</option>
-                                        <option value="Indian Institute of Technology (IIT) Hyderabad">Indian Institute of Technology (IIT) Hyderabad</option>
-                                        <option value="Indian Institute of Science (IISc) Bangalore">Indian Institute of Science (IISc) Bangalore</option>
-                                        <option value="National Institute of Technology (NIT) Trichy">National Institute of Technology (NIT) Trichy</option>
-                                        <option value="National Institute of Technology (NIT) Warangal">National Institute of Technology (NIT) Warangal</option>
-                                        <option value="National Institute of Technology (NIT) Surathkal">National Institute of Technology (NIT) Surathkal</option>
-                                        <option value="Delhi Technological University (DTU)">Delhi Technological University (DTU)</option>
-                                        <option value="Netaji Subhas University of Technology (NSUT)">Netaji Subhas University of Technology (NSUT)</option>
-                                        <option value="Birla Institute of Technology and Science (BITS) Pilani">Birla Institute of Technology and Science (BITS) Pilani</option>
-                                        <option value="Vellore Institute of Technology (VIT)">Vellore Institute of Technology (VIT)</option>
-                                        <option value="Manipal Institute of Technology">Manipal Institute of Technology</option>
-                                        <option value="SRM Institute of Science and Technology">SRM Institute of Science and Technology</option>
-                                        <option value="Amity University">Amity University</option>
-                                        <option value="Lovely Professional University (LPU)">Lovely Professional University (LPU)</option>
-                                        <option value="Chandigarh University">Chandigarh University</option>
-                                        <option value="Thapar Institute of Engineering and Technology">Thapar Institute of Engineering and Technology</option>
-                                        <option value="Jadavpur University">Jadavpur University</option>
-                                        <option value="Anna University">Anna University</option>
-                                        <option value="University of Delhi">University of Delhi</option>
-                                        <option value="Jawaharlal Nehru University (JNU)">Jawaharlal Nehru University (JNU)</option>
-                                        <option value="Banaras Hindu University (BHU)">Banaras Hindu University (BHU)</option>
-                                        <option value="Aligarh Muslim University (AMU)">Aligarh Muslim University (AMU)</option>
-                                        <option value="Jamia Millia Islamia">Jamia Millia Islamia</option>
-                                        <option value="Other">Other</option>
+                                        {batchUploadUniversityOptions.map((option) => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
                                     </select>
                                 </div>
 
