@@ -2636,7 +2636,7 @@ export default function EmpPostJob({ onNext }) {
 											</div>
 										)}
 										<p style={{color: '#64748b', fontSize: 12, margin: '6px 0 0 0'}}>
-											Optional. This banner will be shown on the public job detail page for this consultant-posted job.
+											This banner will be displayed on the public job details page. Please upload a vertical image.
 										</p>
 									</div>
 								</div>
