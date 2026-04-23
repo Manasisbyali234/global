@@ -608,7 +608,8 @@
 }
 
 .placement-file-history-inline-badge {
-    display: inline-flex;
+    display: flex;
+    width: fit-content;
     align-items: center;
     gap: 0.25rem;
     margin-top: 0.5rem;
