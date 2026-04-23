@@ -59,7 +59,7 @@ const PopupNotification = ({ message, onClose, type = 'info', duration = 4000 })
 
   const icons = {
     success: '\u2713',
-    error: '\u2716',
+    error: <i className="fas fa-exclamation-triangle" />,
     warning: '\u26A0',
     info: '\uD83D\uDC4D',
     secure: (
