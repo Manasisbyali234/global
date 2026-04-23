@@ -1227,13 +1227,14 @@ export default function EmpPostJob({ onNext }) {
 				setEmployerType(finalType);
 				// For consultants, check if they have default company info in profile
 				if (empType === 'consultant' && data.profile.consultantCompanyName) {
-					update({
-						companyLogo: data.profile.consultantCompanyLogo || '',
-						companyBanner: data.profile.consultantCompanyBanner || '',
-						companyName: data.profile.consultantCompanyName || '',
-						companyDescription: data.profile.consultantCompanyDescription || '',
-						aboutCompany: data.profile.consultantAboutCompany || ''
-					});
+					setFormData((current) => ({
+						...current,
+						companyLogo: current.companyLogo || data.profile.consultantCompanyLogo || '',
+						companyBanner: current.companyBanner || data.profile.consultantCompanyBanner || '',
+						companyName: current.companyName || data.profile.consultantCompanyName || '',
+						companyDescription: current.companyDescription || data.profile.consultantCompanyDescription || '',
+						aboutCompany: current.aboutCompany || data.profile.consultantAboutCompany || ''
+					}));
 				}
 			}
 		} catch (error) {

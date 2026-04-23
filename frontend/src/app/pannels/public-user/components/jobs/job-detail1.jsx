@@ -10,6 +10,7 @@ import TermsModal from "../../../../../components/TermsModal";
 import PageLoader from "../../../../../components/PageLoader";
 import { pendingPaymentManager } from '../../../../../utils/pendingPaymentManager';
 import { formatJobEducationDisplay } from '../../../../../utils/jobEducationOptions';
+import { getJobDisplayBanner, getJobDisplayLogo, isConsultantJobPost } from "../../../../../utils/jobBranding";
 import "./job-detail.css";
 import "../../../../../job-detail-spacing.css";
 import "../../../../../job-detail-section-spacing.css";
@@ -212,9 +213,9 @@ function JobDetail1Page() {
         );
     }
 
-    const isConsultantPostedJob =
-        job?.employerId?.employerType?.toLowerCase?.() === 'consultant' ||
-        job?.postedBy?.toLowerCase?.() === 'consultant';
+    const isConsultantPostedJob = isConsultantJobPost(job);
+    const bannerSrc = getJobDisplayBanner(job);
+    const logoSrc = getJobDisplayLogo(job);
 
     const submitJobApplication = async () => {
         try {
@@ -597,8 +598,8 @@ function JobDetail1Page() {
                                         <div className="twm-job-self-info">
                                             <div className="twm-job-self-top">
                                                 <div className="twm-media-bg">
-                                                    {(job.companyBanner || job.employerProfile?.coverImage) ? (
-                                                        <img src={job.companyBanner || job.employerProfile.coverImage} alt="Company Cover" />
+                                                    {bannerSrc ? (
+                                                        <img src={bannerSrc} alt="Company Cover" />
                                                     ) : (
                                                         <JobZImage src="images/employer-bg.jpg" alt="#" />
                                                     )}
@@ -609,8 +610,8 @@ function JobDetail1Page() {
 
                                                 <div className="twm-mid-content">
                                                     <div className="twm-media">
-                                                        {(job.companyLogo || job.employerProfile?.logo) ? (
-                                                            <img src={job.companyLogo || job.employerProfile.logo} alt="Company Logo" />
+                                                        {logoSrc ? (
+                                                            <img src={logoSrc} alt="Company Logo" />
                                                         ) : (
                                                             <JobZImage src="images/jobs-company/pic1.jpg" alt="#" />
                                                         )}

@@ -7,6 +7,7 @@ import { NavLink } from "react-router-dom";
 import MobileTestIndicator from "../../../../../components/MobileTestIndicator";
 import HomeJobCard from "../../../../../components/HomeJobCard";
 import { formatDate } from "../../../../../utils/dateFormatter";
+import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
 // CSS is now in public/assets/css/home-job-cards.css
 import "../../../../../categories-mobile-grid-fix.css";
 import "../../../../../remove-carousel-hover-effects.css";
@@ -105,20 +106,6 @@ const popularCities = [
 function HomeJobsList() {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const API_ORIGIN = ((process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, ""));
-
-    const resolveLogoSrc = (logoValue) => {
-        if (!logoValue || typeof logoValue !== "string") return "";
-        const trimmed = logoValue.trim();
-        if (!trimmed) return "";
-        if (trimmed.startsWith("data:")) return trimmed;
-        if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
-        if (trimmed.startsWith("/uploads") || trimmed.startsWith("uploads/")) {
-            const normalizedPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-            return `${API_ORIGIN}${normalizedPath}`;
-        }
-        return `data:image/jpeg;base64,${trimmed}`;
-    };
 
     useEffect(() => {
         fetchJobs();
@@ -155,8 +142,8 @@ function HomeJobsList() {
                         <li key={job._id}>
                             <div className="twm-jobs-list-style1 mb-5">
                                 <div className="twm-media">
-                                    {(job.companyLogo || job.employerProfile?.logo) ? (
-                                        <img src={resolveLogoSrc(job.companyLogo || job.employerProfile?.logo)} alt="Company Logo" style={{width: '60px', height: '60px', objectFit: 'cover'}} />
+                                    {getJobDisplayLogo(job) ? (
+                                        <img src={getJobDisplayLogo(job)} alt="Company Logo" style={{width: '60px', height: '60px', objectFit: 'cover'}} />
                                     ) : (
                                         <JobZImage src="images/jobs-company/pic1.jpg" alt="#" />
                                     )}

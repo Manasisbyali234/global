@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../../../../contexts/AuthContext";
 import { formType, loadScript, publicUrlFor } from "../../../../../globals/constants";
 import CountUp from "react-countup";
+import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
 
 function AfterLoginPage() {
 
@@ -317,10 +318,10 @@ function AfterLoginPage() {
                             <ul>
                                 {jobs.map((job) => (
                                     <li key={job._id}>
-                                        <div className="twm-jobs-list-style1 mb-5">
-                                            <div className="twm-media">
-                                                {job.employerProfile?.logo ? (
-                                                    <img src={job.employerProfile.logo} alt="Company Logo" style={{width: '60px', height: '60px', objectFit: 'cover'}} />
+                                            <div className="twm-jobs-list-style1 mb-5">
+                                                <div className="twm-media">
+                                                {getJobDisplayLogo(job) ? (
+                                                    <img src={getJobDisplayLogo(job)} alt="Company Logo" style={{width: '60px', height: '60px', objectFit: 'cover'}} />
                                                 ) : (
                                                     <JobZImage src="images/jobs-company/pic1.jpg" alt="#" />
                                                 )}

@@ -9,6 +9,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import HomeJobCard from "../../../../../components/HomeJobCard";
 import useDebounce from "../../../../../utils/useDebounce";
 import { formatJobEducationDisplay } from "../../../../../utils/jobEducationOptions";
+import { getJobDisplayLogo } from "../../../../../utils/jobBranding";
 import { SkeletonContainer, JobCardSkeleton, StatsSkeleton, RecruiterSkeleton } from "../../../../../components/SkeletonLoader";
 import "../../../../../new-job-card.css";
 import "../../../../../home-responsive.css";
@@ -47,19 +48,6 @@ const ErrorBoundary = ({ children }) => {
     return children;
 };
 function Home16Page() {
-    const API_ORIGIN = ((process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, ""));
-    const resolveLogoSrc = (logoValue) => {
-        if (!logoValue || typeof logoValue !== "string") return "";
-        const trimmed = logoValue.trim();
-        if (!trimmed) return "";
-        if (trimmed.startsWith("data:")) return trimmed;
-        if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
-        if (trimmed.startsWith("/uploads") || trimmed.startsWith("uploads/")) {
-            const normalizedPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-            return `${API_ORIGIN}${normalizedPath}`;
-        }
-        return `data:image/jpeg;base64,${trimmed}`;
-    };
     const formatJobTitle = (value) => {
         if (!value || typeof value !== "string") return "Job title";
         const trimmed = value.trim();
@@ -1018,9 +1006,9 @@ function Home16Page() {
                                                 <div className="job-card-header">
                                                     <div className="job-card-left">
                                                         <div className="company-logo">
-                                                            {(job.companyLogo || job.employerProfile?.logo) ? (
+                                                            {getJobDisplayLogo(job) ? (
                                                                 <img
-                                                                    src={resolveLogoSrc(job.companyLogo || job.employerProfile?.logo)}
+                                                                    src={getJobDisplayLogo(job)}
                                                                     alt="Company Logo"
                                                                 />
                                                             ) : (

@@ -1,14 +1,25 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 const SearchableSelect = ({ options, value, onChange, placeholder, className, isMulti = false, showCategories = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
-    const [dropUp, setDropUp] = useState(false);
+    const [menuPosition, setMenuPosition] = useState({
+        top: 0,
+        bottom: 'auto',
+        left: 0,
+        width: 0,
+        maxHeight: 300
+    });
     const wrapperRef = useRef(null);
+    const menuRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+            const clickedTrigger = wrapperRef.current && wrapperRef.current.contains(e.target);
+            const clickedMenu = menuRef.current && menuRef.current.contains(e.target);
+
+            if (!clickedTrigger && !clickedMenu) {
                 setIsOpen(false);
             }
         };
@@ -17,24 +28,54 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
     }, []);
 
     useEffect(() => {
-        if (isOpen && wrapperRef.current) {
+        if (!isOpen || !wrapperRef.current) {
+            return undefined;
+        }
+
+        const updateMenuPosition = () => {
+            if (!wrapperRef.current) {
+                return;
+            }
+
             const rect = wrapperRef.current.getBoundingClientRect();
-            const spaceAbove = rect.top;
-            const spaceBelow = window.innerHeight - rect.bottom;
+            const viewportPadding = 8;
+            const menuGap = 4;
             const visibleOptionCount = options.filter(opt =>
                 opt.label.toLowerCase().includes(search.toLowerCase())
             ).length;
             const preferredMenuHeight = Math.min(300, Math.max(180, visibleOptionCount * 36 + 60));
+            const spaceAbove = rect.top - viewportPadding;
+            const spaceBelow = window.innerHeight - rect.bottom - viewportPadding;
+            const shouldDropUp = spaceBelow < preferredMenuHeight && spaceAbove > spaceBelow;
+            const maxHeight = Math.min(
+                300,
+                Math.max(140, shouldDropUp ? spaceAbove - menuGap : spaceBelow - menuGap)
+            );
+            const maxWidth = window.innerWidth - viewportPadding * 2;
+            const width = Math.min(rect.width, maxWidth);
+            const left = Math.min(
+                Math.max(viewportPadding, rect.left),
+                Math.max(viewportPadding, window.innerWidth - viewportPadding - width)
+            );
 
-            // Prefer opening downward. Only drop up if:
-            // 1) not enough space below for the menu, and
-            // 2) there is more space above than below.
-            if (spaceBelow < preferredMenuHeight && spaceAbove > spaceBelow) {
-                setDropUp(true);
-            } else {
-                setDropUp(false);
-            }
-        }
+            setMenuPosition({
+                top: shouldDropUp ? 'auto' : rect.bottom + menuGap,
+                bottom: shouldDropUp ? window.innerHeight - rect.top + menuGap : 'auto',
+                left,
+                width,
+                maxHeight
+            });
+        };
+
+        const frameId = window.requestAnimationFrame(updateMenuPosition);
+        window.addEventListener('resize', updateMenuPosition);
+        window.addEventListener('scroll', updateMenuPosition, true);
+
+        return () => {
+            window.cancelAnimationFrame(frameId);
+            window.removeEventListener('resize', updateMenuPosition);
+            window.removeEventListener('scroll', updateMenuPosition, true);
+        };
     }, [isOpen, options, search]);
 
     useEffect(() => {
@@ -188,6 +229,169 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
         }
     };
 
+    const listMaxHeight = Math.max(96, menuPosition.maxHeight - 48);
+
+    const dropdownMenu = isOpen && typeof document !== 'undefined'
+        ? createPortal(
+            <div
+                ref={menuRef}
+                style={{
+                    position: 'fixed',
+                    top: menuPosition.top,
+                    bottom: menuPosition.bottom,
+                    left: menuPosition.left,
+                    width: menuPosition.width,
+                    backgroundColor: '#fff',
+                    border: '1px solid #dee2e6',
+                    borderRadius: '4px',
+                    maxHeight: menuPosition.maxHeight,
+                    overflow: 'hidden',
+                    zIndex: 2147483646,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                }}
+            >
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search or type to add..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ borderRadius: 0, border: 'none', borderBottom: '1px solid #dee2e6' }}
+                    autoFocus
+                />
+                <div style={{ maxHeight: listMaxHeight, overflowY: 'auto' }}>
+                    {showCategories && groupedOptions ? (
+                        sortedCategories.map(category => (
+                            <div key={category}>
+                                <div style={{
+                                    padding: '8px 12px',
+                                    backgroundColor: '#f8f9fa',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.875em',
+                                    color: '#495057',
+                                    borderBottom: '1px solid #dee2e6',
+                                    position: 'sticky',
+                                    top: 0,
+                                    zIndex: 10
+                                }}>
+                                    <i className={`fa ${category === 'Metro Cities' ? 'fa-star' : category === 'Major Cities' ? 'fa-building' : 'fa-map-marker'} me-2`}></i>
+                                    {category}
+                                </div>
+                                {groupedOptions[category].map(opt => {
+                                    const isSelected = isMulti
+                                        ? Array.isArray(value) && value.includes(opt.value)
+                                        : opt.value === value;
+                                    return (
+                                        <div
+                                            key={opt.value}
+                                            onClick={() => handleOptionClick(opt.value)}
+                                            style={{
+                                                padding: '8px 16px',
+                                                cursor: 'pointer',
+                                                backgroundColor: isSelected ? '#e3f2fd' : '#fff',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderLeft: opt.popular ? '3px solid #007bff' : 'none'
+                                            }}
+                                            onMouseEnter={(e) => e.target.style.backgroundColor = isSelected ? '#bbdefb' : '#f8f9fa'}
+                                            onMouseLeave={(e) => e.target.style.backgroundColor = isSelected ? '#e3f2fd' : '#fff'}
+                                        >
+                                            {isMulti && (
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isSelected}
+                                                    onChange={() => {}}
+                                                    style={{ marginRight: '8px', flexShrink: 0, zIndex: 1 }}
+                                                />
+                                            )}
+                                            <span style={{ flex: 1 }}>{opt.label}</span>
+                                            {opt.popular && (
+                                                <span style={{
+                                                    fontSize: '0.75em',
+                                                    color: '#007bff',
+                                                    fontWeight: 'bold',
+                                                    marginLeft: '8px'
+                                                }}>
+                                                    POPULAR
+                                                </span>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ))
+                    ) : (
+                        filtered.map(opt => {
+                            const isSelected = isMulti
+                                ? Array.isArray(value) && value.includes(opt.value)
+                                : opt.value === value;
+                            return (
+                                <div
+                                    key={opt.value}
+                                    onClick={() => handleOptionClick(opt.value)}
+                                    style={{
+                                        padding: '8px 12px',
+                                        cursor: 'pointer',
+                                        backgroundColor: isSelected ? '#e3f2fd' : '#fff',
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = isSelected ? '#e3f2fd' : '#fff'}
+                                >
+                                    {isMulti && (
+                                        <input
+                                            type="checkbox"
+                                            checked={isSelected}
+                                            onChange={() => {}}
+                                            style={{ marginRight: '8px', flexShrink: 0, zIndex: 1 }}
+                                        />
+                                    )}
+                                    {opt.label}
+                                </div>
+                            );
+                        })
+                    )}
+                    {search.trim() && !options.find(opt => opt.label.toLowerCase() === search.toLowerCase()) && (
+                        <div
+                            onClick={handleAddCustom}
+                            style={{
+                                padding: '8px 12px',
+                                cursor: 'pointer',
+                                backgroundColor: '#f8f9fa',
+                                borderTop: '1px solid #dee2e6',
+                                fontStyle: 'italic',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#e9ecef'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                        >
+                            <i className="fa fa-plus-circle me-2 text-success"></i>
+                            Add "{search.trim()}"
+                        </div>
+                    )}
+                    {filtered.length === 0 && !search.trim() && (
+                        <div style={{ padding: '12px', textAlign: 'center', color: '#6c757d' }}>
+                            <i className="fa fa-search mb-2" style={{ fontSize: '2em', opacity: 0.5 }}></i>
+                            <div>Start typing to search locations...</div>
+                        </div>
+                    )}
+                    {filtered.length === 0 && search.trim() && (
+                        <div style={{ padding: '12px', textAlign: 'center', color: '#6c757d' }}>
+                            <i className="fa fa-exclamation-circle mb-2" style={{ fontSize: '2em', opacity: 0.5 }}></i>
+                            <div>No locations found matching "{search}"</div>
+                            <small>You can add it as a custom location</small>
+                        </div>
+                    )}
+                </div>
+            </div>,
+            document.body
+        )
+        : null;
+
     return (
         <div ref={wrapperRef} style={{ position: 'relative' }}>
             <div 
@@ -215,161 +419,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className, is
                     }}></i>
                 )}
             </div>
-            {isOpen && (
-                <div style={{
-                    position: 'absolute',
-                    [dropUp ? 'bottom' : 'top']: '100%',
-                    left: 0,
-                    right: 0,
-                    backgroundColor: '#fff',
-                    border: '1px solid #dee2e6',
-                    borderRadius: '4px',
-                    maxHeight: '300px',
-                    overflow: 'hidden',
-                    zIndex: 99999,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                    marginBottom: dropUp ? '4px' : '0',
-                    marginTop: dropUp ? '0' : '4px'
-                }}>
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Search or type to add..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ borderRadius: 0, border: 'none', borderBottom: '1px solid #dee2e6' }}
-                        autoFocus
-                    />
-                    <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                        {showCategories && groupedOptions ? (
-                            sortedCategories.map(category => (
-                                <div key={category}>
-                                    <div style={{
-                                        padding: '8px 12px',
-                                        backgroundColor: '#f8f9fa',
-                                        fontWeight: 'bold',
-                                        fontSize: '0.875em',
-                                        color: '#495057',
-                                        borderBottom: '1px solid #dee2e6',
-                                        position: 'sticky',
-                                        top: 0,
-                                        zIndex: 10
-                                    }}>
-                                        <i className={`fa ${category === 'Metro Cities' ? 'fa-star' : category === 'Major Cities' ? 'fa-building' : 'fa-map-marker'} me-2`}></i>
-                                        {category}
-                                    </div>
-                                    {groupedOptions[category].map(opt => {
-                                        const isSelected = isMulti 
-                                            ? Array.isArray(value) && value.includes(opt.value)
-                                            : opt.value === value;
-                                        return (
-                                            <div
-                                                key={opt.value}
-                                                onClick={() => handleOptionClick(opt.value)}
-                                                style={{
-                                                    padding: '8px 16px',
-                                                    cursor: 'pointer',
-                                                    backgroundColor: isSelected ? '#e3f2fd' : '#fff',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    borderLeft: opt.popular ? '3px solid #007bff' : 'none'
-                                                }}
-                                                onMouseEnter={(e) => e.target.style.backgroundColor = isSelected ? '#bbdefb' : '#f8f9fa'}
-                                                onMouseLeave={(e) => e.target.style.backgroundColor = isSelected ? '#e3f2fd' : '#fff'}
-                                            >
-                                                {isMulti && (
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={isSelected}
-                                                        onChange={() => {}}
-                                                        style={{ marginRight: '8px', flexShrink: 0, zIndex: 1 }}
-                                                    />
-                                                )}
-                                                <span style={{ flex: 1 }}>{opt.label}</span>
-                                                {opt.popular && (
-                                                    <span style={{
-                                                        fontSize: '0.75em',
-                                                        color: '#007bff',
-                                                        fontWeight: 'bold',
-                                                        marginLeft: '8px'
-                                                    }}>
-                                                        POPULAR
-                                                    </span>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            ))
-                        ) : (
-                            filtered.map(opt => {
-                                const isSelected = isMulti 
-                                    ? Array.isArray(value) && value.includes(opt.value)
-                                    : opt.value === value;
-                                return (
-                                    <div
-                                        key={opt.value}
-                                        onClick={() => handleOptionClick(opt.value)}
-                                        style={{
-                                            padding: '8px 12px',
-                                            cursor: 'pointer',
-                                            backgroundColor: isSelected ? '#e3f2fd' : '#fff',
-                                            display: 'flex',
-                                            alignItems: 'center'
-                                        }}
-                                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                                        onMouseLeave={(e) => e.target.style.backgroundColor = isSelected ? '#e3f2fd' : '#fff'}
-                                    >
-                                        {isMulti && (
-                                            <input
-                                                type="checkbox"
-                                                checked={isSelected}
-                                                onChange={() => {}}
-                                                style={{ marginRight: '8px', flexShrink: 0, zIndex: 1 }}
-                                            />
-                                        )}
-                                        {opt.label}
-                                    </div>
-                                );
-                            })
-                        )}
-                        {search.trim() && !options.find(opt => opt.label.toLowerCase() === search.toLowerCase()) && (
-                            <div
-                                onClick={handleAddCustom}
-                                style={{
-                                    padding: '8px 12px',
-                                    cursor: 'pointer',
-                                    backgroundColor: '#f8f9fa',
-                                    borderTop: '1px solid #dee2e6',
-                                    fontStyle: 'italic',
-                                    display: 'flex',
-                                    alignItems: 'center'
-                                }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#e9ecef'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                            >
-                                <i className="fa fa-plus-circle me-2 text-success"></i>
-                                Add "{search.trim()}"
-                            </div>
-                        )}
-                        {filtered.length === 0 && !search.trim() && (
-                            <div style={{ padding: '12px', textAlign: 'center', color: '#6c757d' }}>
-                                <i className="fa fa-search mb-2" style={{ fontSize: '2em', opacity: 0.5 }}></i>
-                                <div>Start typing to search locations...</div>
-                            </div>
-                        )}
-                        {filtered.length === 0 && search.trim() && (
-                            <div style={{ padding: '12px', textAlign: 'center', color: '#6c757d' }}>
-                                <i className="fa fa-exclamation-circle mb-2" style={{ fontSize: '2em', opacity: 0.5 }}></i>
-                                <div>No locations found matching "{search}"</div>
-                                <small>You can add it as a custom location</small>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
+            {dropdownMenu}
         </div>
     );
 };

@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { publicUser } from "../../../../../../globals/route-names";
 import PageLoader from "../../../../../../components/PageLoader";
+import { getJobDisplayLogo } from "../../../../../../utils/jobBranding";
 import "../../../../../../new-job-card.css";
 
 function SectionAvailableJobsList({ employerId }) {
@@ -110,9 +111,9 @@ function SectionAvailableJobsList({ employerId }) {
 								<div className="job-card-header">
 									<div className="job-card-left">
 										<div className="company-logo">
-											{job.employerProfile?.logo ? (
+											{getJobDisplayLogo(job) ? (
 												<img
-													src={job.employerProfile.logo}
+													src={getJobDisplayLogo(job)}
 													alt="Company Logo"
 												/>
 											) : (
