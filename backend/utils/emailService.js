@@ -522,7 +522,7 @@ const sendPlacementCandidateWelcomeEmail = async (email, name, password, placeme
         
         <p>To proceed, please reset your password and log in to your account to complete your profile. After logging in, you can update your personal, educational, and skill-related information.</p>
         
-        <p><strong>🎯 Credits Assigned:</strong> As a final-year student, you have been provided with ${credits} free job application credits, valid for 1 year from the date of assignment. You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
+        <p><strong>🎯 Credits Assigned:</strong> As a final-year student, you have been provided with <strong>${credits} free job application credit${credits !== 1 ? 's' : ''}</strong>, valid for 1 year from the date of assignment. You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
         
         <p>Take the next step and explore opportunities through completely online interviews.</p>
         <p><strong>Important Information:</strong></p>
@@ -1125,7 +1125,7 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
         
         <p>To proceed, please reset your password and log in to your account to complete your profile. After logging in, you can update your personal, educational, and skill-related information.</p>
         
-        <p><strong>?? Credits Assigned:</strong> As a final-year student, you have been provided with ${credits} free job application credits, valid for 1 year from the date of assignment. You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
+        <p><strong>🎯 Credits Assigned:</strong> As a final-year student, you have been provided with <strong>${credits} free job application credit${credits !== 1 ? 's' : ''}</strong>, valid for 1 year from the date of assignment. You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
         
         <p>Take the next step and explore opportunities through completely online interviews.</p>
         <p><strong>Important Information:</strong></p>

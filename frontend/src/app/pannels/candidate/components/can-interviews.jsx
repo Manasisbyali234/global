@@ -276,6 +276,8 @@ const getStatusBadge = (status) => {
   };
 };
 
+const PAGE_SIZE = 12;
+
 function CanInterviewsPage() {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
@@ -286,6 +288,7 @@ function CanInterviewsPage() {
   const [selectedDesignation, setSelectedDesignation] = useState("all");
   const [showInterviewInstructionsModal, setShowInterviewInstructionsModal] = useState(false);
   const [pendingInterviewApplicationId, setPendingInterviewApplicationId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const deferredSearchTerm = useDeferredValue(searchTerm);
 
   useEffect(() => {
@@ -479,6 +482,9 @@ function CanInterviewsPage() {
     });
   }, [applicationCards, deferredSearchTerm, selectedStatus, selectedDesignation]);
 
+  const totalPages = Math.ceil(filteredApplicationCards.length / PAGE_SIZE);
+  const paginatedCards = filteredApplicationCards.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <div className="twm-right-section-panel site-bg-gray candidate-interviews">
         <div className="candidate-interviews-header-card">
@@ -501,7 +507,7 @@ function CanInterviewsPage() {
                   className="candidate-interviews-search-input"
                   placeholder="By company"
                   value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
+                  onChange={(event) => { setSearchTerm(event.target.value); setCurrentPage(1); }}
                 />
               </div>
             </div>
@@ -513,7 +519,7 @@ function CanInterviewsPage() {
                 id="candidate-interviews-designation-filter"
                 className="candidate-interviews-filter-select"
                 value={selectedDesignation}
-                onChange={(event) => setSelectedDesignation(event.target.value)}
+                onChange={(event) => { setSelectedDesignation(event.target.value); setCurrentPage(1); }}
               >
                 {designationOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -530,7 +536,7 @@ function CanInterviewsPage() {
                 id="candidate-interviews-status-filter"
                 className="candidate-interviews-filter-select"
                 value={selectedStatus}
-                onChange={(event) => setSelectedStatus(event.target.value)}
+                onChange={(event) => { setSelectedStatus(event.target.value); setCurrentPage(1); }}
               >
                 {statusOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -551,7 +557,7 @@ function CanInterviewsPage() {
       ) : (
         <div className="twm-employer-list-wrap">
           <Row className="justify-content-start">
-            {filteredApplicationCards.map((card) => {
+            {paginatedCards.map((card) => {
               const badge = getStatusBadge(card.status);
               const companyInitial = (card.companyName || "C").charAt(0);
               const logoSrc = getLogoSrc(card.companyLogo);
@@ -600,6 +606,21 @@ function CanInterviewsPage() {
           </Row>
         </div>
       )}
+
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
+        <div style={{ color: "#6c757d", fontSize: "13px" }}>
+          Showing {filteredApplicationCards.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredApplicationCards.length)} of {filteredApplicationCards.length} record{filteredApplicationCards.length !== 1 ? "s" : ""}
+        </div>
+        {totalPages > 1 && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
+            <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === 1 ? "#f8f9fa" : "#fff", color: currentPage === 1 ? "#adb5bd" : "#495057", cursor: currentPage === 1 ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8249;</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button key={page} onClick={() => setCurrentPage(page)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: page === currentPage ? "1px solid #ff8c00" : "1px solid #dee2e6", background: page === currentPage ? "#ff8c00" : "#fff", color: page === currentPage ? "#fff" : "#495057", fontWeight: page === currentPage ? 700 : 400, cursor: "pointer", fontSize: "13px" }}>{page}</button>
+            ))}
+            <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === totalPages ? "#f8f9fa" : "#fff", color: currentPage === totalPages ? "#adb5bd" : "#495057", cursor: currentPage === totalPages ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8250;</button>
+          </div>
+        )}
+      </div>
 
       <TermsModal
         isOpen={showInterviewInstructionsModal}

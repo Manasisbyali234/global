@@ -89,6 +89,8 @@ function PlacementDashboardRedesigned() {
     const [uploadHistorySearch, setUploadHistorySearch] = useState('');
     const [uploadHistoryBatchFilter, setUploadHistoryBatchFilter] = useState('');
     const [uploadHistoryUniversitySearch, setUploadHistoryUniversitySearch] = useState('');
+    const [historyPage, setHistoryPage] = useState(1);
+    const HISTORY_PAGE_SIZE = 10;
     const [courseSearch, setCourseSearch] = useState('');
 
     const [stats, setStats] = useState({
@@ -649,6 +651,8 @@ function PlacementDashboardRedesigned() {
         const matchesUniversity = !uploadHistoryUniversitySearchTerm || String(file.university || '').toLowerCase().includes(uploadHistoryUniversitySearchTerm);
         return matchesFile && matchesBatch && matchesUniversity;
     });
+    const historyTotalPages = Math.ceil(filteredFileHistory.length / HISTORY_PAGE_SIZE);
+    const paginatedFileHistory = filteredFileHistory.slice((historyPage - 1) * HISTORY_PAGE_SIZE, historyPage * HISTORY_PAGE_SIZE);
 
     if (authLoading) {
         return (
@@ -1741,7 +1745,7 @@ function PlacementDashboardRedesigned() {
                                                         <input
                                                             type="text"
                                                             value={uploadHistorySearch}
-                                                            onChange={(e) => setUploadHistorySearch(e.target.value)}
+                                                            onChange={(e) => { setUploadHistorySearch(e.target.value); setHistoryPage(1); }}
                                                             placeholder="Search by course name"
                                                         />
                                                     </div>
@@ -1750,7 +1754,7 @@ function PlacementDashboardRedesigned() {
                                                         <input
                                                             type="text"
                                                             value={uploadHistoryUniversitySearch}
-                                                            onChange={(e) => setUploadHistoryUniversitySearch(e.target.value)}
+                                                            onChange={(e) => { setUploadHistoryUniversitySearch(e.target.value); setHistoryPage(1); }}
                                                             placeholder="Search by university"
                                                         />
                                                     </div>
@@ -1758,7 +1762,7 @@ function PlacementDashboardRedesigned() {
                                                         <label style={{fontSize: '13px', fontWeight: '600', marginBottom: '4px', display: 'block'}}>Batch</label>
                                                         <select
                                                             value={uploadHistoryBatchFilter}
-                                                            onChange={(e) => setUploadHistoryBatchFilter(e.target.value)}
+                                                            onChange={(e) => { setUploadHistoryBatchFilter(e.target.value); setHistoryPage(1); }}
                                                         >
                                                             <option value="">All Batches</option>
                                                             {uploadHistoryBatchOptions.map(b => (
@@ -1801,7 +1805,7 @@ function PlacementDashboardRedesigned() {
                                                 <tbody>
                                                     {placementData?.fileHistory && placementData.fileHistory.length > 0 ? (
                                                         filteredFileHistory.length > 0 ? (
-                                                            filteredFileHistory.map((file, index) => (
+                                                            paginatedFileHistory.map((file, index) => (
                                                                 <tr
                                                                     key={file._id || index}
                                                                     className={file.status === 'rejected' ? 'upload-history-row upload-history-row-rejected' : 'upload-history-row'}
@@ -1872,6 +1876,20 @@ function PlacementDashboardRedesigned() {
                                                     )}
                                                 </tbody>
                                             </table>
+                                        </div>
+                                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
+                                            <div style={{ color: "#6c757d", fontSize: "13px" }}>
+                                                Showing {filteredFileHistory.length === 0 ? 0 : (historyPage - 1) * HISTORY_PAGE_SIZE + 1}–{Math.min(historyPage * HISTORY_PAGE_SIZE, filteredFileHistory.length)} of {filteredFileHistory.length} record{filteredFileHistory.length !== 1 ? "s" : ""}
+                                            </div>
+                                            {historyTotalPages > 1 && (
+                                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
+                                                    <button onClick={() => setHistoryPage(p => p - 1)} disabled={historyPage === 1} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: historyPage === 1 ? "#f8f9fa" : "#fff", color: historyPage === 1 ? "#adb5bd" : "#495057", cursor: historyPage === 1 ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8249;</button>
+                                                    {Array.from({ length: historyTotalPages }, (_, i) => i + 1).map(page => (
+                                                        <button key={page} onClick={() => setHistoryPage(page)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: page === historyPage ? "1px solid #ff8c00" : "1px solid #dee2e6", background: page === historyPage ? "#ff8c00" : "#fff", color: page === historyPage ? "#fff" : "#495057", fontWeight: page === historyPage ? 700 : 400, cursor: "pointer", fontSize: "13px" }}>{page}</button>
+                                                    ))}
+                                                    <button onClick={() => setHistoryPage(p => p + 1)} disabled={historyPage === historyTotalPages} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: historyPage === historyTotalPages ? "#f8f9fa" : "#fff", color: historyPage === historyTotalPages ? "#adb5bd" : "#495057", cursor: historyPage === historyTotalPages ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8250;</button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

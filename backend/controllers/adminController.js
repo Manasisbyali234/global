@@ -2718,7 +2718,7 @@ exports.approveAuthorizationLetter = async (req, res) => {
 
       const notificationData = {
         title: 'Authorization Letter Approved',
-        message: `Your authorization letter "${approvedLetter.fileName}" has been approved by admin. You can now proceed with the next steps.`,
+        message: `Your authorization letter “${approvedLetter.fileName}” has been successfully approved. Please continue with the next steps.`,
         type: 'document_approved',
         role: 'employer',
         relatedId: new mongoose.Types.ObjectId(employerId),
@@ -3079,7 +3079,7 @@ exports.approveIndividualFile = async (req, res) => {
 
         await createNotification({
           title: 'Student File Processed',
-          message: `File "${displayName}" processed. Created: ${createdCount}, skipped: ${skippedCount}.`,
+          message: `File "${displayName}" created.`,
           type: 'file_processed',
           role: 'placement',
           placementId: new mongoose.Types.ObjectId(placementId),
@@ -3671,7 +3671,7 @@ exports.resendWelcomeEmail = async (req, res) => {
     const { placementCandidateId } = req.params;
     
     const placementCandidate = await PlacementCandidate.findById(placementCandidateId)
-      .populate('candidateId', 'password')
+      .populate('candidateId', 'password credits')
       .populate('placementId', 'name collegeName');
     
     if (!placementCandidate) {
@@ -3689,7 +3689,8 @@ exports.resendWelcomeEmail = async (req, res) => {
         placementCandidate.studentName,
         placementCandidate.candidateId.password,
         placementCandidate.placementOfficerName,
-        placementCandidate.collegeName
+        placementCandidate.collegeName,
+        placementCandidate.candidateId.credits || placementCandidate.creditsAssigned || 0
       );
       
       // Update email sent status
@@ -3859,7 +3860,8 @@ exports.bulkResendWelcomeEmails = async (req, res) => {
           placementCandidate.studentName,
           placementCandidate.candidateId.password,
           placementCandidate.placementOfficerName,
-          placementCandidate.collegeName
+          placementCandidate.collegeName,
+          placementCandidate.candidateId.credits || placementCandidate.creditsAssigned || 0
         );
         
         // Update email sent status
