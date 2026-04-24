@@ -33,10 +33,7 @@ export const isConsultantJobPost = (job) => {
 };
 
 export const getJobDisplayLogo = (job) => {
-  const rawLogo = isConsultantJobPost(job)
-    ? pickFirstNonEmptyString(job?.companyLogo)
-    : pickFirstNonEmptyString(job?.companyLogo, job?.employerProfile?.logo);
-
+  const rawLogo = pickFirstNonEmptyString(job?.companyLogo, job?.employerProfile?.logo);
   return resolveJobMediaSrc(rawLogo);
 };
 
