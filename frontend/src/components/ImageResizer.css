@@ -28,7 +28,7 @@
   gap: 12px;
   padding: 20px 24px;
   border-bottom: 1px solid #fed7aa;
-  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+  background: #ffffff;
 }
 
 .image-resizer-header h3 {
@@ -85,22 +85,103 @@
   gap: 20px;
   padding: 24px;
   overflow-y: auto;
+  background: #ffffff;
 }
 
 .image-container {
   position: relative;
   border-radius: 16px;
   overflow: hidden;
-  background: #111827;
-  border: 1px solid #1f2937;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
 }
 
 .image-container--cropper {
   min-height: 420px;
 }
 
+.image-container--preview {
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #ffffff;
+}
+
 .image-container--cropper .reactEasyCrop_Container {
   border-radius: 16px;
+}
+
+.image-container--cropper .reactEasyCrop_CropArea {
+  box-shadow: 0 0 0 9999px #ffffff !important;
+}
+
+.image-resizer-preview-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.image-resizer-preview-image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+}
+
+.image-resizer-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.image-resizer-preview-panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(92vw, 960px);
+  max-height: calc(100vh - 48px);
+  padding: 56px 24px 24px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.2);
+}
+
+.image-resizer-preview-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #fdba74;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #ea580c;
+  cursor: pointer;
+}
+
+.image-resizer-preview-close:hover,
+.image-resizer-preview-close:focus,
+.image-resizer-preview-close:focus-visible {
+  outline: none;
+  border-color: #fb923c;
+  background: #ffedd5;
+  color: #c2410c;
 }
 
 .controls {
@@ -116,7 +197,7 @@
   padding: 16px;
   border: 1px solid #fed7aa;
   border-radius: 14px;
-  background: #fffaf5;
+  background: #ffffff;
 }
 
 .control-group--wide {
@@ -195,20 +276,25 @@
 
 .image-resizer-meta {
   padding: 16px 18px;
-  border: 1px solid #bae6fd;
+  border: 1px solid #e5e7eb;
   border-radius: 14px;
-  background: #f0f9ff;
+  background: #ffffff;
 }
 
 .image-resizer-meta p {
   margin: 0;
-  color: #075985;
+  color: #374151;
   font-size: 0.9rem;
   line-height: 1.55;
 }
 
 .image-resizer-meta p + p {
   margin-top: 6px;
+}
+
+.image-resizer-error {
+  color: #b91c1c !important;
+  font-weight: 600;
 }
 
 .image-resizer-footer {
@@ -221,6 +307,7 @@
 }
 
 .btn-cancel,
+.btn-preview,
 .btn-save {
   display: inline-flex;
   align-items: center;
@@ -245,6 +332,17 @@
   background: #f9fafb;
 }
 
+.btn-preview {
+  border: 1px solid #fdba74;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.btn-preview:hover:not(:disabled) {
+  background: #ffedd5;
+  border-color: #fb923c;
+}
+
 .btn-save {
   border: 1px solid #f97316;
   background: #f97316;
@@ -257,10 +355,12 @@
 }
 
 .btn-cancel:active,
+.btn-preview:active:not(:disabled),
 .btn-save:active:not(:disabled) {
   transform: scale(0.98);
 }
 
+.btn-preview:disabled,
 .btn-save:disabled {
   cursor: not-allowed;
   opacity: 0.65;
@@ -269,6 +369,16 @@
 @media (max-width: 768px) {
   .image-resizer-overlay {
     padding: 10px;
+  }
+
+  .image-resizer-preview-overlay {
+    padding: 16px;
+  }
+
+  .image-resizer-preview-panel {
+    width: 100%;
+    max-height: calc(100vh - 32px);
+    padding: 52px 16px 16px;
   }
 
   .image-resizer-modal {
@@ -304,6 +414,7 @@
   }
 
   .btn-cancel,
+  .btn-preview,
   .btn-save {
     width: 100%;
   }

@@ -12,7 +12,10 @@ import InterviewDateTester from "../../../../../components/InterviewDateTester";
 import { ErrorDisplay, GlobalErrorDisplay } from "../../../../../components/ErrorDisplay";
 import { validateField, validateForm, displayError, safeApiCall, getErrorMessage } from "../../../../../utils/errorHandler";
 import RichTextEditor from "../../../../../components/RichTextEditor";
+import ImageResizer from "../../../../../components/ImageResizer";
+import ImagePreviewModal from "../../../../../components/ImagePreviewModal";
 import { formatTimeToAMPM } from "../../../../../utils/dateFormatter";
+import { useImageResizer } from "../../../../../hooks/useImageResizer";
 import {
 	JOB_EDUCATION_LEVELS,
 	formatJobEducationDisplay,
@@ -545,6 +548,21 @@ export default function EmpPostJob({ onNext }) {
 	const isEditMode = Boolean(id);
 	const [currentJobId, setCurrentJobId] = useState(id);
 	const today = new Date().toISOString().split('T')[0];
+	const backendBaseUrl = process.env.REACT_APP_API_URL
+		? process.env.REACT_APP_API_URL.replace(/\/api\/?$/, '')
+		: (typeof window !== 'undefined'
+			? (window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin)
+			: '');
+	const {
+		isResizerOpen,
+		currentImage,
+		resizeConfig,
+		closeResizer,
+		handleSave: handleResizerSave,
+		openLogoResizer,
+		openBannerResizer,
+		fileToDataURL
+	} = useImageResizer();
 	const [formData, setFormData] = useState({
 		jobTitle: "",
 		jobLocation: [],
@@ -739,6 +757,8 @@ export default function EmpPostJob({ onNext }) {
 		elements.forEach((element) => autoResizeTextarea(element));
 	}, [formData.interviewRoundDetails, formData.interviewRoundOrder, autoResizeTextarea]);
 	const [logoFile, setLogoFile] = useState(null);
+	const [previewImage, setPreviewImage] = useState(null);
+	const [previewAlt, setPreviewAlt] = useState('');
 	const [isMobile, setIsMobile] = useState(false);
 	const [availableAssessments, setAvailableAssessments] = useState([]);
 	const [selectedAssessment, setSelectedAssessment] = useState('');
@@ -803,6 +823,89 @@ export default function EmpPostJob({ onNext }) {
 			}
 		});
 	};
+
+	const getImagePreviewSrc = useCallback((imageValue) => {
+		if (!imageValue || typeof imageValue !== 'string') return '';
+		if (
+			imageValue.startsWith('data:') ||
+			imageValue.startsWith('blob:') ||
+			imageValue.startsWith('http://') ||
+			imageValue.startsWith('https://')
+		) {
+			return imageValue;
+		}
+		if (imageValue.startsWith('/uploads') || imageValue.startsWith('uploads/')) {
+			const normalizedPath = imageValue.startsWith('/') ? imageValue : `/${imageValue}`;
+			return `${backendBaseUrl}${normalizedPath}`;
+		}
+		if (/^[A-Za-z0-9+/=]+$/.test(imageValue)) {
+			return `data:image/jpeg;base64,${imageValue}`;
+		}
+		return imageValue;
+	}, [backendBaseUrl]);
+
+	const openImagePreview = useCallback((imageSrc, altText) => {
+		if (!imageSrc) return;
+		setPreviewImage(imageSrc);
+		setPreviewAlt(altText || 'Image preview');
+	}, []);
+
+	const closeImagePreview = useCallback(() => {
+		setPreviewImage(null);
+		setPreviewAlt('');
+	}, []);
+
+	const getImageDimensions = useCallback((file) => (
+		new Promise((resolve, reject) => {
+			const objectUrl = URL.createObjectURL(file);
+			const image = new Image();
+
+			image.onload = () => {
+				const dimensions = { width: image.width, height: image.height };
+				URL.revokeObjectURL(objectUrl);
+				resolve(dimensions);
+			};
+
+			image.onerror = () => {
+				URL.revokeObjectURL(objectUrl);
+				reject(new Error('Unable to read the selected image. Please try another file.'));
+			};
+
+			image.src = objectUrl;
+		})
+	), []);
+
+	const validateConsultantImage = useCallback(async (file, fieldName) => {
+		const imageRules = fieldName === 'companyLogo'
+			? {
+				label: 'Company logo',
+				maxSizeMB: 5,
+				minWidth: 136,
+				minHeight: 136
+			}
+			: {
+				label: 'Company banner',
+				maxSizeMB: 5,
+				minWidth: 800,
+				minHeight: 450
+			};
+		const acceptedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+
+		if (!acceptedTypes.includes(file.type)) {
+			throw new Error(`${imageRules.label} must be a JPG or PNG image.`);
+		}
+
+		if (file.size > imageRules.maxSizeMB * 1024 * 1024) {
+			throw new Error(`${imageRules.label} must be ${imageRules.maxSizeMB}MB or smaller.`);
+		}
+
+		const { width, height } = await getImageDimensions(file);
+		if (width < imageRules.minWidth || height < imageRules.minHeight) {
+			throw new Error(
+				`${imageRules.label} must be at least ${imageRules.minWidth}x${imageRules.minHeight}px.`
+			);
+		}
+	}, [getImageDimensions]);
 
 	const syncEducationSelection = (nextEducation) => {
 		update({
@@ -1554,26 +1657,42 @@ export default function EmpPostJob({ onNext }) {
 		showSuccess(`Added ${dayCount} day${dayCount > 1 ? 's' : ''} for scheduling`);
 	};
 
-	const handleLogoUpload = (e) => {
-		const file = e.target.files[0];
-		if (file) {
+	const handleLogoUpload = async (event) => {
+		const inputElement = event.target;
+		const file = inputElement.files?.[0];
+
+		if (!file) return;
+
+		try {
+			await validateConsultantImage(file, 'companyLogo');
 			setLogoFile(file);
-			const reader = new FileReader();
-			reader.onload = (e) => {
-				update({ companyLogo: e.target.result });
-			};
-			reader.readAsDataURL(file);
+			const dataUrl = await fileToDataURL(file);
+			await openLogoResizer(dataUrl, (processedImage) => {
+				update({ companyLogo: processedImage });
+			});
+		} catch (error) {
+			showWarning(error.message || 'Unable to process the company logo.');
+		} finally {
+			inputElement.value = '';
 		}
 	};
 
-	const handleBannerUpload = (e) => {
-		const file = e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = (event) => {
-				update({ companyBanner: event.target.result });
-			};
-			reader.readAsDataURL(file);
+	const handleBannerUpload = async (event) => {
+		const inputElement = event.target;
+		const file = inputElement.files?.[0];
+
+		if (!file) return;
+
+		try {
+			await validateConsultantImage(file, 'companyBanner');
+			const dataUrl = await fileToDataURL(file);
+			await openBannerResizer(dataUrl, (processedImage) => {
+				update({ companyBanner: processedImage });
+			});
+		} catch (error) {
+			showWarning(error.message || 'Unable to process the company banner.');
+		} finally {
+			inputElement.value = '';
 		}
 	};
 
@@ -2587,23 +2706,60 @@ export default function EmpPostJob({ onNext }) {
 										<input
 											style={{...input, padding: '10px'}}
 											type="file"
-											accept="image/*"
+											accept=".jpg,.jpeg,.png"
 											onChange={handleLogoUpload}
 										/>
+										<p style={{color: '#64748b', fontSize: 12, margin: '6px 0 0 0'}}>
+											Upload opens the crop and resize editor before saving. Click the uploaded logo to preview it.
+										</p>
 										{formData.companyLogo && (
 											<div style={{marginTop: 12}}>
-												<img
-													src={formData.companyLogo}
-													alt="Company Logo"
+												<button
+													type="button"
+													onClick={() => openImagePreview(getImagePreviewSrc(formData.companyLogo), 'Company Logo')}
+													title="Preview company logo"
+													aria-label="Preview company logo"
 													style={{
-														width: '80px',
-														height: '80px',
-														borderRadius: 8,
-														objectFit: 'cover',
-														border: '2px solid #e5e7eb',
-														boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+														padding: 0,
+														border: 'none',
+														background: 'transparent',
+														cursor: 'zoom-in',
+														lineHeight: 0
 													}}
-												/>
+												>
+													<img
+														src={getImagePreviewSrc(formData.companyLogo)}
+														alt="Company Logo"
+														style={{
+															width: '80px',
+															height: '80px',
+															borderRadius: 8,
+															objectFit: 'cover',
+															boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+														}}
+													/>
+												</button>
+												<div style={{marginTop: 10}}>
+													<button
+														type="button"
+														onClick={() => openLogoResizer(getImagePreviewSrc(formData.companyLogo), (processedImage) => {
+															update({ companyLogo: processedImage });
+														})}
+														style={{
+															border: 'none',
+															borderRadius: 8,
+															background: '#fff7ed',
+															color: '#c2410c',
+															padding: '8px 12px',
+															fontSize: 12,
+															fontWeight: 600,
+															cursor: 'pointer'
+														}}
+													>
+														<i className="fa fa-crop" style={{marginRight: 6}}></i>
+														Resize & Crop
+													</button>
+												</div>
 											</div>
 										)}
 									</div>
@@ -2616,24 +2772,61 @@ export default function EmpPostJob({ onNext }) {
 										<input
 											style={{...input, padding: '10px'}}
 											type="file"
-											accept="image/*"
+											accept=".jpg,.jpeg,.png"
 											onChange={handleBannerUpload}
 										/>
+										<p style={{color: '#64748b', fontSize: 12, margin: '6px 0 0 0'}}>
+											Upload opens the crop and resize editor before saving. Click the uploaded banner to preview it.
+										</p>
 										{formData.companyBanner && (
 											<div style={{marginTop: 12}}>
-												<img
-													src={formData.companyBanner}
-													alt="Company Banner"
+												<button
+													type="button"
+													onClick={() => openImagePreview(getImagePreviewSrc(formData.companyBanner), 'Company Banner')}
+													title="Preview company banner"
+													aria-label="Preview company banner"
 													style={{
-														width: '100%',
-														maxWidth: '420px',
-														height: '160px',
-														borderRadius: 10,
-														objectFit: 'cover',
-														border: '2px solid #e5e7eb',
-														boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
+														padding: 0,
+														border: 'none',
+														background: 'transparent',
+														cursor: 'zoom-in',
+														lineHeight: 0
 													}}
-												/>
+												>
+													<img
+														src={getImagePreviewSrc(formData.companyBanner)}
+														alt="Company Banner"
+														style={{
+															width: '100%',
+															maxWidth: '420px',
+															height: '160px',
+															borderRadius: 10,
+															objectFit: 'cover',
+															boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
+														}}
+													/>
+												</button>
+												<div style={{marginTop: 10}}>
+													<button
+														type="button"
+														onClick={() => openBannerResizer(getImagePreviewSrc(formData.companyBanner), (processedImage) => {
+															update({ companyBanner: processedImage });
+														})}
+														style={{
+															border: 'none',
+															borderRadius: 8,
+															background: '#fff7ed',
+															color: '#c2410c',
+															padding: '8px 12px',
+															fontSize: 12,
+															fontWeight: 600,
+															cursor: 'pointer'
+														}}
+													>
+														<i className="fa fa-crop" style={{marginRight: 6}}></i>
+														Resize & Crop
+													</button>
+												</div>
 											</div>
 										)}
 										<p style={{color: '#64748b', fontSize: 12, margin: '6px 0 0 0'}}>
@@ -6249,6 +6442,26 @@ export default function EmpPostJob({ onNext }) {
 					</div>
 				</div>
 			)}
+
+			{previewImage && (
+				<ImagePreviewModal
+					src={previewImage}
+					alt={previewAlt}
+					onClose={closeImagePreview}
+				/>
+			)}
+
+			<ImageResizer
+				src={currentImage}
+				isOpen={isResizerOpen}
+				onClose={closeResizer}
+				onSave={handleResizerSave}
+				aspectRatio={resizeConfig.aspectRatio}
+				maxWidth={resizeConfig.maxWidth}
+				maxHeight={resizeConfig.maxHeight}
+				lockCropArea={resizeConfig.lockCropArea}
+				quality={resizeConfig.quality}
+			/>
 		</div>
 	);
 }
