@@ -23,7 +23,7 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
             <div className="modal-dialog modal-xl" style={{ maxWidth: '900px' }}>
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title">Assessment Terms & Conditions</h5>
+                        <h5 className="modal-title">Terms & Conditions</h5>
                     </div>
 
                     <div className="modal-body assessment-terms-modal__body" style={{ maxHeight: '60vh', overflowY: 'auto', padding: '0' }}>
