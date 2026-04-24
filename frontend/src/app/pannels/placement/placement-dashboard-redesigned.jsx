@@ -48,6 +48,7 @@ function PlacementDashboardRedesigned() {
     const [uploadingFile, setUploadingFile] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedFileName, setSelectedFileName] = useState('');
+    const [uploadError, setUploadError] = useState('');
     const [courseName, setCourseName] = useState('');
     const [courseNameOption, setCourseNameOption] = useState('');
     const [university, setUniversity] = useState('');
@@ -143,6 +144,12 @@ function PlacementDashboardRedesigned() {
         }
     }, [activeTab, viewingFileId]);
 
+    useEffect(() => {
+        if (activeTab !== 'upload') {
+            setUploadError('');
+        }
+    }, [activeTab]);
+
     const fetchPlacementDetails = async () => {
         try {
             const token = localStorage.getItem('placementToken');
@@ -210,10 +217,29 @@ function PlacementDashboardRedesigned() {
         });
     };
 
+    const setBatchUploadError = ({
+        message,
+        duplicateEmails = [],
+        existingEmails = [],
+        fallbackMessage = 'Upload failed. Please try again.'
+    } = {}) => {
+        const feedback = buildPlacementUploadErrorPopup({
+            message: normalizePlacementUploadErrorMessage(message, fallbackMessage),
+            duplicateEmails,
+            existingEmails,
+            fallbackMessage
+        });
+
+        setUploadError(feedback.message);
+        return feedback;
+    };
+
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
+        setUploadError('');
+
         if (!file) {
-            showWarning('Please select a file to upload.');
+            setUploadError('Please select a file to upload.');
             return;
         }
         
@@ -227,17 +253,17 @@ function PlacementDashboardRedesigned() {
         
         // Validate required fields
         if (!courseName.trim()) {
-            showWarning('Course Name is required.');
+            setUploadError('Course Name is required.');
             return;
         }
         
         if (!university.trim()) {
-            showWarning('University name is required.');
+            setUploadError('University name is required.');
             return;
         }
         
         if (!batch.trim()) {
-            showWarning('Batch information is required.');
+            setUploadError('Batch information is required.');
             return;
         }
         
@@ -264,6 +290,7 @@ function PlacementDashboardRedesigned() {
                 showSuccess(popup.message, popup.duration);
                 setSelectedFile(null);
                 setSelectedFileName('');
+                setUploadError('');
                 setCourseName('');
                 setCourseNameOption('');
                 setCourseSearch('');
@@ -276,17 +303,16 @@ function PlacementDashboardRedesigned() {
                     fetchStudentData() // Refresh student data
                 ]);
             } else {
-                const popup = buildPlacementUploadErrorPopup({
+                setBatchUploadError({
                     message: normalizePlacementUploadErrorMessage(data.message, 'Upload failed'),
                     duplicateEmails: data.duplicateEmails,
                     existingEmails: data.existingEmails,
                     fallbackMessage: 'Upload failed'
                 });
-                showError(popup.message, popup.duration);
             }
         } catch (error) {
             console.error('Upload error:', error);
-            const popup = buildPlacementUploadErrorPopup({
+            setBatchUploadError({
                 message: normalizePlacementUploadErrorMessage(
                     error.response?.data?.message || error.message,
                     'Upload failed. Please try again.'
@@ -295,10 +321,6 @@ function PlacementDashboardRedesigned() {
                 existingEmails: error.response?.data?.existingEmails,
                 fallbackMessage: 'Upload failed. Please try again.'
             });
-            showError(
-                popup.message,
-                popup.duration
-            );
         } finally {
             setUploadingFile(false);
         }
@@ -1576,6 +1598,7 @@ function PlacementDashboardRedesigned() {
                                                                             setCourseNameOption(item.value);
                                                                             setCourseName(item.value !== 'other' ? item.value : '');
                                                                             setCourseSearch('');
+                                                                            setUploadError('');
                                                                             document.getElementById('course-dropdown').style.display = 'none';
                                                                         }}
                                                                     >
@@ -1591,7 +1614,10 @@ function PlacementDashboardRedesigned() {
                                                                 style={{marginTop: '8px'}}
                                                                 placeholder="Enter custom course name"
                                                                 value={courseName}
-                                                                onChange={(e) => setCourseName(e.target.value)}
+                                                                onChange={(e) => {
+                                                                    setCourseName(e.target.value);
+                                                                    setUploadError('');
+                                                                }}
                                                             />
                                                         )}
                                                     </div>
@@ -1637,6 +1663,7 @@ function PlacementDashboardRedesigned() {
                                                                             setUniversityOption(item.value);
                                                                             setUniversity(item.value !== 'other' ? item.value : '');
                                                                             setUniversitySearch('');
+                                                                            setUploadError('');
                                                                             document.getElementById('university-dropdown').style.display = 'none';
                                                                         }}
                                                                     >
@@ -1652,7 +1679,10 @@ function PlacementDashboardRedesigned() {
                                                                 style={{marginTop: '8px'}}
                                                                 placeholder="Enter your custom university name"
                                                                 value={university}
-                                                                onChange={(e) => setUniversity(e.target.value)}
+                                                                onChange={(e) => {
+                                                                    setUniversity(e.target.value);
+                                                                    setUploadError('');
+                                                                }}
                                                                 readOnly={universityOption !== 'other'}
                                                             />
                                                         )}
@@ -1663,7 +1693,10 @@ function PlacementDashboardRedesigned() {
                                                         <select
                                                             className="form-input"
                                                             value={batch}
-                                                            onChange={(e) => setBatch(e.target.value)}
+                                                            onChange={(e) => {
+                                                                setBatch(e.target.value);
+                                                                setUploadError('');
+                                                            }}
                                                         >
                                                             <option value="">Select batch year</option>
                                                             {Array.from({length: 12}, (_, i) => 2024 + i).map(year => (
@@ -1674,13 +1707,13 @@ function PlacementDashboardRedesigned() {
                                                 </div>
 
                                                 {/* File Upload Area */}
-                                                <div className="upload-field">
-                                                    <label className="field-label">Student Data File </label>
-                                                    <div 
-                                                        className="file-upload-area"
-                                                        onClick={() => !uploadingFile && document.getElementById('fileInput').click()}
-                                                    >
-                                                        <i className="fa fa-file-excel-o upload-icon"></i>
+                                                    <div className="upload-field">
+                                                        <label className="field-label">Student Data File </label>
+                                                        <div 
+                                                            className={`file-upload-area ${uploadError ? 'has-error' : ''}`}
+                                                            onClick={() => !uploadingFile && document.getElementById('fileInput').click()}
+                                                        >
+                                                            <i className="fa fa-file-excel-o upload-icon"></i>
                                                         <span className="upload-text">
                                                             {uploadingFile ? 'Uploading...' : 
                                                              selectedFileName ? selectedFileName : 
@@ -1693,21 +1726,29 @@ function PlacementDashboardRedesigned() {
                                                         type="file" 
                                                         accept=".xlsx,.xls,.csv"
                                                         style={{display: 'none'}}
-                                                        onChange={(e) => {
-                                                            const file = e.target.files[0];
-                                                            if (file) {
-                                                                setSelectedFile(file);
-                                                                setSelectedFileName(file.name);
-                                                                console.log('File selected:', file.name);
-                                                            }
-                                                        }}
-                                                    />
-                                                </div>
+                                                            onChange={(e) => {
+                                                                const file = e.target.files[0];
+                                                                if (file) {
+                                                                    setSelectedFile(file);
+                                                                    setSelectedFileName(file.name);
+                                                                    setUploadError('');
+                                                                    console.log('File selected:', file.name);
+                                                                }
+                                                            }}
+                                                        />
 
-                                                <div className="helper-text">
-                                                    <i className="fa fa-info-circle"></i>
-                                                    Files will be processed automatically after admin approval.
-                                                </div>
+                                                        {uploadError && (
+                                                            <div className="upload-feedback upload-feedback-error" role="alert">
+                                                                <i className="fa fa-exclamation-circle"></i>
+                                                                <span>{uploadError}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="helper-text">
+                                                        <i className="fa fa-info-circle"></i>
+                                                        Files will be processed automatically after admin approval. Maximum 200 students per upload.
+                                                    </div>
                                                 
                                             </div>
 
@@ -1720,7 +1761,7 @@ function PlacementDashboardRedesigned() {
                                                         handleFileUpload({ target: { files: [selectedFile] } });
                                                     } else {
                                                         console.log('No file selected for upload');
-                                                        showWarning('Please select a file first');
+                                                        setUploadError('Please select a file first.');
                                                     }
                                                 }} disabled={uploadingFile || !selectedFile}>
                                                     <i className="fa fa-upload"></i>

@@ -497,7 +497,13 @@ export const api = {
       if (!response.ok) {
         // Extract the error message from the response
         const errorMessage = data.message || `HTTP ${response.status}: Request failed`;
-        throw new Error(errorMessage);
+        const error = new Error(errorMessage);
+        error.status = response.status;
+        error.response = {
+          status: response.status,
+          data
+        };
+        throw error;
       }
       
       return data;

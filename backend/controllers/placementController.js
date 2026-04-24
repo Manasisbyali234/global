@@ -88,6 +88,41 @@ const removeUploadedFile = (filePath) => {
   }
 };
 
+const buildUploadValidationResponse = (validation = {}) => {
+  const shouldAppendDataHint = !validation.duplicateEmails?.length &&
+    !validation.duplicateIds?.length &&
+    validation.errorCode !== 'UPLOAD_ROW_LIMIT_EXCEEDED';
+
+  const response = {
+    success: false,
+    message: shouldAppendDataHint
+      ? `${validation.message}\n\nPlease upload a file with actual student data.`
+      : validation.message
+  };
+
+  if (validation.duplicateEmails?.length) {
+    response.duplicateEmails = validation.duplicateEmails;
+  }
+
+  if (validation.duplicateIds?.length) {
+    response.duplicateIds = validation.duplicateIds;
+  }
+
+  if (validation.rowCount !== undefined) {
+    response.rowCount = validation.rowCount;
+  }
+
+  if (validation.maxRows !== undefined) {
+    response.maxRows = validation.maxRows;
+  }
+
+  if (validation.errorCode) {
+    response.errorCode = validation.errorCode;
+  }
+
+  return response;
+};
+
 const formatPlacementFileRow = (row = {}, { liveCandidate, placementCandidate, fallbackCredits = '0' } = {}) => ({
   'ID': row.ID || row.id || row.Id || '',
   'Candidate Name': getRowName(row),
@@ -335,13 +370,7 @@ exports.uploadStudentData = async (req, res) => {
     
     if (!validation.valid) {
       removeUploadedFile(req.file?.path);
-      const validationMessage = validation.duplicateEmails?.length || validation.duplicateIds?.length
-        ? validation.message
-        : `${validation.message}\n\nPlease upload a file with actual student data.`;
-      return res.status(400).json({ 
-        success: false, 
-        message: validationMessage
-      });
+      return res.status(400).json(buildUploadValidationResponse(validation));
     }
     
     console.log(`File validation passed: ${validation.rowCount} rows found`);
@@ -1322,13 +1351,7 @@ exports.resubmitFile = async (req, res) => {
     
     if (!validation.valid) {
       removeUploadedFile(req.file?.path);
-      const validationMessage = validation.duplicateEmails?.length || validation.duplicateIds?.length
-        ? validation.message
-        : `${validation.message}\n\nPlease upload a file with actual student data.`;
-      return res.status(400).json({ 
-        success: false, 
-        message: validationMessage
-      });
+      return res.status(400).json(buildUploadValidationResponse(validation));
     }
 
     const XLSX = require('xlsx');

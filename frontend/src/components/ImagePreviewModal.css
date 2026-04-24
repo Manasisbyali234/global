@@ -1,15 +1,17 @@
+body.image-preview-modal-open {
+    overflow: hidden;
+}
+
 .image-preview-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
-    animation: fadeIn 0.2s;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2147483647 !important;
+    animation: imagePreviewFadeIn 0.2s ease-out;
 }
 
 .image-preview-overlay.minimized {
@@ -18,8 +20,8 @@
     padding: 20px;
 }
 
-.image-preview-container {
-    background: white;
+.image-preview-window {
+    background: #ffffff;
     border-radius: 8px;
     max-width: 90%;
     max-height: 90%;
@@ -27,16 +29,17 @@
     flex-direction: column;
     box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
     transition: all 0.3s ease;
+    overflow: hidden;
 }
 
-.image-preview-container.maximized {
+.image-preview-window.maximized {
     max-width: 98%;
     max-height: 98%;
     width: 98%;
     height: 98%;
 }
 
-.image-preview-container.minimized {
+.image-preview-window.minimized {
     max-width: 300px;
     max-height: 50px;
     width: 300px;
@@ -51,35 +54,30 @@
     border-radius: 8px 8px 0 0;
 }
 
-.control-btn {
+.image-preview-controls .control-btn {
     width: 30px;
     height: 30px;
-    border: none;
-    background: #e0e0e0;
+    border: 1px solid #fdba74 !important;
+    background: #fff7ed !important;
     border-radius: 4px;
     cursor: pointer;
     font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    color: #ea580c !important;
+    box-shadow: none !important;
 }
 
-.control-btn:hover {
-    background: #d0d0d0;
-}
-
-.minimize-btn:hover {
-    background: #ffc107;
-}
-
-.maximize-btn:hover {
-    background: #4caf50;
-}
-
-.close-btn:hover {
-    background: #f44336;
-    color: white;
+.image-preview-controls .control-btn:hover,
+.image-preview-controls .control-btn:focus,
+.image-preview-controls .control-btn:focus-visible {
+    border: 1px solid #fb923c !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #c2410c !important;
+    background: #ffedd5 !important;
 }
 
 .image-preview-content {
@@ -92,12 +90,24 @@
 }
 
 .image-preview-content img {
+    display: block;
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+@media (max-width: 767px) {
+    .image-preview-overlay {
+        padding: 16px;
+    }
+}
+
+@keyframes imagePreviewFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }

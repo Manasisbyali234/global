@@ -14,6 +14,8 @@ const formatDuplicatePreview = (values = [], maxItems = 5) => {
   return remainingCount > 0 ? `${preview} and ${remainingCount} more` : preview;
 };
 
+const MAX_STUDENT_UPLOAD_ROWS = 200;
+
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -234,6 +236,16 @@ const validateExcelContent = (source, mimetype) => {
     
     if (!hasValidData) {
       return { valid: false, message: 'Your file only contains headers. Please add student data rows' };
+    }
+
+    if (jsonData.length > MAX_STUDENT_UPLOAD_ROWS) {
+      return {
+        valid: false,
+        errorCode: 'UPLOAD_ROW_LIMIT_EXCEEDED',
+        maxRows: MAX_STUDENT_UPLOAD_ROWS,
+        rowCount: jsonData.length,
+        message: `You can upload a maximum of ${MAX_STUDENT_UPLOAD_ROWS} students at a time. This file contains ${jsonData.length} students. Please split the file into smaller batches and upload again.`
+      };
     }
     
     // Check for duplicate emails and IDs within the file before anything is saved.

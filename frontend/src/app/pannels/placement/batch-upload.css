@@ -69,6 +69,11 @@
     cursor: pointer;
 }
 
+.file-upload-area.has-error {
+    border-color: #ef4444;
+    background: #fff5f5;
+}
+
 .upload-icon {
     font-size: 2rem;
     color: #ff8c00;
@@ -77,6 +82,32 @@
 
 .upload-text {
     color: #6b7280;
+}
+
+.upload-feedback {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    margin-top: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.upload-feedback span {
+    white-space: pre-line;
+}
+
+.upload-feedback-error {
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #b42318;
+}
+
+.upload-feedback-error i {
+    margin-top: 0.15rem;
 }
 
 /* Form Fields */

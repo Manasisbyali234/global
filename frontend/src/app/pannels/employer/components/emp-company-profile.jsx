@@ -6,6 +6,7 @@ import { validateForm, safeApiCall, getErrorMessage, getFieldLabel } from "../..
 import RichTextEditor from "../../../../components/RichTextEditor";
 import TermsModal from '../../../../components/TermsModal';
 import ImageResizer from '../../../../components/ImageResizer';
+import ImagePreviewModal from '../../../../components/ImagePreviewModal';
 import { useImageResizer } from '../../../../hooks/useImageResizer';
 
 import './emp-company-profile.css';
@@ -102,6 +103,8 @@ function EmpCompanyProfilePage() {
     const [deleteConfirmation, setDeleteConfirmation] = useState(null);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [imageToDelete, setImageToDelete] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
+    const [previewAlt, setPreviewAlt] = useState('');
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [validationRules] = useState({
@@ -728,12 +731,35 @@ function EmpCompanyProfilePage() {
 
         if (useResizer) {
             try {
+                const imageRules = fieldName === 'logo'
+                    ? {
+                        maxSizeMB: 5,
+                        minWidth: 136,
+                        minHeight: 136,
+                        allowedTypes: ['image/jpeg', 'image/png']
+                    }
+                    : {
+                        maxSizeMB: 5,
+                        minWidth: 800,
+                        minHeight: 450,
+                        allowedTypes: ['image/jpeg', 'image/png']
+                    };
+
+                const imageValidation = await validateImageFile(file, imageRules);
+                if (!imageValidation.ok) {
+                    showError(`${getFieldLabel(fieldName)}: ${imageValidation.message}`);
+                    e.target.value = '';
+                    return;
+                }
+
                 const resizerType = fieldName === 'logo' ? 'logo' : 'banner';
                 await handleFileWithResize(file, resizerType, (processedImage) => {
                     uploadProcessedImage(processedImage, fieldName);
                 });
             } catch (error) {
-                showError(error.message);
+                showError(error.message || 'Unable to open the crop editor. Please try again.');
+            } finally {
+                e.target.value = '';
             }
             return;
         }
@@ -804,8 +830,17 @@ function EmpCompanyProfilePage() {
 
     const uploadProcessedImage = async (processedImageDataURL, fieldName) => {
         try {
+            const processedImageSource = typeof processedImageDataURL === 'string'
+                ? processedImageDataURL
+                : processedImageDataURL?.url;
+
+            if (!processedImageSource) {
+                showError('Image processing failed. Please try again.');
+                return;
+            }
+
             // Convert data URL to blob
-            const response = await fetch(processedImageDataURL);
+            const response = await fetch(processedImageSource);
             const blob = await response.blob();
             
             const formData = new FormData();
@@ -854,6 +889,20 @@ function EmpCompanyProfilePage() {
             console.error('Processed image upload error:', error);
             showError('Image upload failed. Please try again.');
         }
+    };
+
+    const openImagePreview = (imageSrc, altText) => {
+        if (!imageSrc) {
+            return;
+        }
+
+        setPreviewImage(imageSrc);
+        setPreviewAlt(altText || 'Image preview');
+    };
+
+    const closeImagePreview = () => {
+        setPreviewImage(null);
+        setPreviewAlt('');
     };
 
     const buildUpdatedAuthorizationLetters = (sections = authSections) => {
@@ -1523,19 +1572,26 @@ function EmpCompanyProfilePage() {
                                 {formData.logo && (
                                     <div className="mt-2">
                                         <div className="d-inline-block">
-                                            <img 
-                                                src={getImagePreviewSrc(formData.logo)} 
-                                                alt="Company Logo" 
-                                                style={{
-                                                    width: '150px', 
-                                                    height: '150px', 
-                                                    objectFit: 'cover', 
-                                                    objectPosition: 'center',
-                                                    border: '1px solid #ddd',
-                                                    borderRadius: '8px',
-                                                    display: 'block'
-                                                }} 
-                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => openImagePreview(getImagePreviewSrc(formData.logo), 'Company Logo')}
+                                                className="company-image-preview-trigger"
+                                                title="Preview company logo"
+                                                aria-label="Preview uploaded company logo"
+                                            >
+                                                <img 
+                                                    src={getImagePreviewSrc(formData.logo)} 
+                                                    alt="Company Logo" 
+                                                    style={{
+                                                        width: '150px', 
+                                                        height: '150px', 
+                                                        objectFit: 'cover', 
+                                                        objectPosition: 'center',
+                                                        borderRadius: '8px',
+                                                        display: 'block'
+                                                    }} 
+                                                />
+                                            </button>
                                         </div>
                                         <div className="mt-2">
                                             <button
@@ -1563,7 +1619,7 @@ function EmpCompanyProfilePage() {
                                         </div>
                                     </div>
                                 )}
-                                <small className="text-muted">Square logo for your company profile (300x300px, JPG, PNG, max 5MB)</small>
+                                <small className="text-muted">Square logo for your company profile (300x300px, JPG, PNG, max 5MB). Upload opens the crop and resize editor before saving.</small>
                             </div>
                         </div>
 
@@ -1579,19 +1635,26 @@ function EmpCompanyProfilePage() {
                                 {formData.coverImage && (
                                     <div className="mt-2">
                                         <div className="d-inline-block">
-                                            <img 
-                                                src={getImagePreviewSrc(formData.coverImage)} 
-                                                alt="Background Banner" 
-                                                style={{
-                                                    width: '200px', 
-                                                    height: '120px', 
-                                                    objectFit: 'cover', 
-                                                    objectPosition: 'center',
-                                                    border: '1px solid #ddd',
-                                                    borderRadius: '8px',
-                                                    display: 'block'
-                                                }} 
-                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => openImagePreview(getImagePreviewSrc(formData.coverImage), 'Background Banner')}
+                                                className="company-image-preview-trigger"
+                                                title="Preview background banner"
+                                                aria-label="Preview uploaded background banner"
+                                            >
+                                                <img 
+                                                    src={getImagePreviewSrc(formData.coverImage)} 
+                                                    alt="Background Banner" 
+                                                    style={{
+                                                        width: '200px', 
+                                                        height: '120px', 
+                                                        objectFit: 'cover', 
+                                                        objectPosition: 'center',
+                                                        borderRadius: '8px',
+                                                        display: 'block'
+                                                    }} 
+                                                />
+                                            </button>
                                         </div>
                                         <div className="mt-2">
                                             <button
@@ -1619,7 +1682,7 @@ function EmpCompanyProfilePage() {
                                         </div>
                                     </div>
                                 )}
-                                <small className="text-muted">Widescreen banner for your company profile (1200x675px, JPG, PNG, max 5MB)</small>
+                                <small className="text-muted">Widescreen banner for your company profile (1200x675px, JPG, PNG, max 5MB). Upload opens the crop and resize editor before saving.</small>
                             </div>
                         </div>
                     </div>
@@ -2713,7 +2776,15 @@ function EmpCompanyProfilePage() {
                     type="warning"
                 />
             )}
-            
+
+            {previewImage && (
+                <ImagePreviewModal
+                    src={previewImage}
+                    alt={previewAlt}
+                    onClose={closeImagePreview}
+                />
+            )}
+             
             <ImageResizer
                 src={currentImage}
                 isOpen={isResizerOpen}

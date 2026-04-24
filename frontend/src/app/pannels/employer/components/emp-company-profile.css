@@ -1549,6 +1549,47 @@ button.btn-danger:hover i.fas {
 }
 
 /* Logo and Banner Image Containers */
+.emp-company-profile button.company-image-preview-trigger {
+  display: inline-block;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border-radius: 8px;
+  line-height: 0;
+  cursor: zoom-in;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: none !important;
+  color: inherit !important;
+  transform: none !important;
+}
+
+.emp-company-profile button.company-image-preview-trigger:hover,
+.emp-company-profile button.company-image-preview-trigger:focus,
+.emp-company-profile button.company-image-preview-trigger:focus-visible,
+.emp-company-profile button.company-image-preview-trigger:active {
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  transform: none !important;
+}
+
+.emp-company-profile .company-image-preview-trigger img,
+.emp-company-profile .company-image-preview-trigger:hover img,
+.emp-company-profile .company-image-preview-trigger:focus img,
+.emp-company-profile .company-image-preview-trigger:focus-visible img {
+  display: block;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .logo-container,
 .banner-container,
 .id-card-container {
