@@ -2905,7 +2905,7 @@ exports.getApplicationDetails = async (req, res) => {
       employerId: req.user._id
     })
     .populate('candidateId', 'name email phone profilePicture profileImage')
-    .populate('jobId', 'title location interviewRoundsCount interviewRoundTypes interviewRoundOrder interviewRoundDetails assessmentId');
+    .populate('jobId', 'title location interviewRoundsCount interviewRoundTypes interviewRoundOrder interviewRoundDetails assessmentId lastDateOfApplication lastDateOfApplicationTime');
 
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });
@@ -3896,14 +3896,33 @@ exports.saveInterviewReview = async (req, res) => {
         ].includes(normalized);
       };
 
-      updateData.interviewProcesses = interviewProcesses.map(p => ({
-        id: String(p.id || ''),
-        name: String(p.name || ''),
-        type: String(p.type || ''),
-        status: String(p.status || ''),
-        isCompleted: Boolean(p.isCompleted),
-        result: p.result ? String(p.result) : null
-      }));
+      const isProgressionInterviewProcessStatus = (value = '') =>
+        normalizeInterviewProcessStatus(value) === 'shortlisted for next round';
+
+      updateData.interviewProcesses = interviewProcesses.reduce((sanitizedProcesses, process, index) => {
+        const hasRejectedBefore = sanitizedProcesses.some((previousProcess) =>
+          isRejectedInterviewProcessStatus(previousProcess.status)
+        );
+        const allPreviousStagesShortlisted = sanitizedProcesses.every((previousProcess) =>
+          isProgressionInterviewProcessStatus(previousProcess.status)
+        );
+
+        let nextStatus = String(process?.status || 'pending');
+        if (index > 0 && (hasRejectedBefore || !allPreviousStagesShortlisted)) {
+          nextStatus = 'pending';
+        }
+
+        sanitizedProcesses.push({
+          id: String(process.id || ''),
+          name: String(process.name || ''),
+          type: String(process.type || ''),
+          status: nextStatus,
+          isCompleted: nextStatus !== 'pending',
+          result: process.result ? String(process.result) : null
+        });
+
+        return sanitizedProcesses;
+      }, []);
 
       const shouldAutoRejectFromStageStatus = updateData.interviewProcesses.some((process) =>
         isRejectedInterviewProcessStatus(process.status)

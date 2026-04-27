@@ -95,6 +95,159 @@ function EmpCandidateReviewPage() {
         ].includes(normalized);
     };
 
+    const isShortlistedForNextRoundStatus = (value) =>
+        normalizeStatusValue(value) === 'shortlisted for next round';
+
+    const formatStatusLabel = (value) => {
+        const normalized = normalizeStatusValue(value);
+        if (!normalized) return 'Pending';
+        return normalized.replace(/\b\w/g, (char) => char.toUpperCase());
+    };
+
+    const normalizeTrackedProcessState = (process) => {
+        const status = String(process?.status || 'pending');
+        return {
+            ...process,
+            status,
+            isCompleted: status !== 'pending'
+        };
+    };
+
+    const normalizeManualTrackingSequence = (processes = []) => {
+        const sanitized = [];
+
+        processes.forEach((process, index) => {
+            let nextProcess = normalizeTrackedProcessState(process);
+
+            if (index > 0) {
+                const hasRejectedBefore = sanitized.some((previousProcess) =>
+                    isRejectedLikeStatus(previousProcess.status)
+                );
+                const allPreviousStagesShortlisted = sanitized.every((previousProcess) =>
+                    isShortlistedForNextRoundStatus(previousProcess.status)
+                );
+
+                if (hasRejectedBefore || !allPreviousStagesShortlisted) {
+                    nextProcess = {
+                        ...nextProcess,
+                        status: 'pending',
+                        isCompleted: false
+                    };
+                }
+            }
+
+            sanitized.push(nextProcess);
+        });
+
+        return sanitized;
+    };
+
+    const applySavedManualStatuses = (baseProcesses = [], savedProcesses = []) => {
+        const savedById = new Map(
+            (Array.isArray(savedProcesses) ? savedProcesses : [])
+                .filter((process) => process?.id)
+                .map((process) => [String(process.id).trim(), process])
+        );
+
+        const mergedProcesses = baseProcesses.map((process, index) => {
+            const processId = String(process?.id || '').trim();
+            const savedProcess =
+                (processId && savedById.get(processId)) ||
+                (Array.isArray(savedProcesses) ? savedProcesses[index] : null) ||
+                null;
+
+            if (!savedProcess?.status) {
+                return process;
+            }
+
+            return normalizeTrackedProcessState({
+                ...process,
+                status: savedProcess.status,
+                result: savedProcess.result || process.result || null
+            });
+        });
+
+        return normalizeManualTrackingSequence(mergedProcesses);
+    };
+
+    const getApplicationDeadline = (jobData = {}) => {
+        if (!jobData?.lastDateOfApplication) return null;
+
+        const deadline = new Date(jobData.lastDateOfApplication);
+        if (Number.isNaN(deadline.getTime())) {
+            return null;
+        }
+
+        if (jobData.lastDateOfApplicationTime && typeof jobData.lastDateOfApplicationTime === 'string') {
+            const [hours, minutes] = jobData.lastDateOfApplicationTime.split(':').map((part) => Number(part));
+            if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+                deadline.setHours(hours, minutes, 59, 999);
+                return deadline;
+            }
+        }
+
+        deadline.setHours(23, 59, 59, 999);
+        return deadline;
+    };
+
+    const hasTrackedInterviewActivity = (applicationData = {}, processes = []) => {
+        const nonConductedStatuses = new Set([
+            '',
+            'pending',
+            'scheduled',
+            'available',
+            'not started',
+            'not required'
+        ]);
+
+        const processActivity = (Array.isArray(processes) ? processes : []).some((process) => {
+            const normalizedStatus = normalizeStatusValue(process?.status);
+            if (normalizedStatus && !nonConductedStatuses.has(normalizedStatus)) {
+                return true;
+            }
+
+            if (process?.isCompleted) {
+                return true;
+            }
+
+            if (process?.type === 'assessment') {
+                const normalizedResult = normalizeStatusValue(process?.result);
+                return (
+                    process?.assessmentScore !== null ||
+                    process?.assessmentPercentage !== null ||
+                    (normalizedResult && normalizedResult !== 'pending')
+                );
+            }
+
+            return false;
+        });
+
+        if (processActivity) {
+            return true;
+        }
+
+        const baseStatus = normalizeStatusValue(applicationData?.status);
+        return ['interviewed', 'offer sent', 'accepted', 'hired', 'rejected'].includes(baseStatus);
+    };
+
+    const isApplicationSessionExpired = (applicationData = {}, processes = []) => {
+        const baseStatus = normalizeStatusValue(applicationData?.status);
+        if (['accepted', 'hired', 'offer sent', 'rejected', 'interviewed'].includes(baseStatus)) {
+            return false;
+        }
+
+        const deadline = getApplicationDeadline(applicationData?.jobId);
+        if (!deadline) {
+            return false;
+        }
+
+        if (new Date() <= deadline) {
+            return false;
+        }
+
+        return !hasTrackedInterviewActivity(applicationData, processes);
+    };
+
     const buildAssessmentSummary = ({
         score = null,
         totalMarks = null,
@@ -191,7 +344,7 @@ function EmpCandidateReviewPage() {
 
     const getApplicationDisplayStatus = (applicationData, processes = []) => {
         const baseStatus = String(applicationData?.status || '').trim().toLowerCase() || 'pending';
-        if (['accepted', 'hired'].includes(baseStatus)) {
+        if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
             return baseStatus;
         }
 
@@ -203,6 +356,10 @@ function EmpCandidateReviewPage() {
         const assessmentSummary = getAssessmentSummary(applicationData);
         if (isRejectedLikeStatus(assessmentSummary?.status) || isRejectedLikeStatus(assessmentSummary?.resultDisplay)) {
             return 'rejected';
+        }
+
+        if (isApplicationSessionExpired(applicationData, processes)) {
+            return 'session_expired';
         }
 
         return baseStatus;
@@ -252,6 +409,10 @@ function EmpCandidateReviewPage() {
                     setIsSelected(data.application.isSelectedForProcess);
                 }
                 
+                const savedManualProcesses = Array.isArray(data.application.interviewProcesses)
+                    ? data.application.interviewProcesses.filter(process => process && process.name && process.type)
+                    : [];
+
                 // Load interview processes
                 let processes = [];
                 if (data.application.interviewProcess?.stages && data.application.interviewProcess.stages.length > 0) {
@@ -267,7 +428,7 @@ function EmpCandidateReviewPage() {
                                 ? resolveAssessmentProcessStatus(stage.assessmentAttemptStatus || stage.status, stageAssessmentSummary)
                                 : (stage.status || 'pending');
 
-                            return {
+                            return normalizeTrackedProcessState({
                                 id: stage._id || `${stage.stageType}-${stage.stageOrder}`,
                                 name: stage.stageName,
                                 type: stage.stageType,
@@ -284,8 +445,9 @@ function EmpCandidateReviewPage() {
                                 assessmentPercentage: stage.stageType === 'assessment' ? stageAssessmentSummary.percentage : null,
                                 assessmentTotalMarks: stage.stageType === 'assessment' ? stageAssessmentSummary.totalMarks : null,
                                 assessmentCaptures: stage.stageType === 'assessment' ? stageAssessmentSummary.captures : []
-                            };
+                            });
                         });
+                    processes = applySavedManualStatuses(processes, savedManualProcesses);
                 } else if (data.application.interviewProcesses && data.application.interviewProcesses.length > 0) {
                     const assessmentStageCount = data.application.interviewProcesses.filter(p => p?.type === 'assessment').length;
                     processes = data.application.interviewProcesses.filter(p => p && p.name && p.type).map(p => {
@@ -296,7 +458,7 @@ function EmpCandidateReviewPage() {
                             ? resolveAssessmentProcessStatus(p.status, stageAssessmentSummary)
                             : (p.status || 'pending');
 
-                        return {
+                        return normalizeTrackedProcessState({
                             id: p.id,
                             name: p.name,
                             type: p.type,
@@ -312,8 +474,9 @@ function EmpCandidateReviewPage() {
                             assessmentPercentage: p.type === 'assessment' ? stageAssessmentSummary.percentage : null,
                             assessmentTotalMarks: p.type === 'assessment' ? stageAssessmentSummary.totalMarks : null,
                             assessmentCaptures: p.type === 'assessment' ? stageAssessmentSummary.captures : []
-                        };
+                        });
                     });
+                    processes = normalizeManualTrackingSequence(processes);
                 } else if (data.application.jobId?.interviewRoundOrder && data.application.jobId.interviewRoundOrder.length > 0) {
                     const assessmentRoundCount = data.application.jobId.interviewRoundOrder.filter(roundKey => {
                         const roundType = data.application.jobId.interviewRoundTypes?.[roundKey] || roundKey;
@@ -344,7 +507,7 @@ function EmpCandidateReviewPage() {
                             ? getStageAssessmentSummary(roundDetails, assessmentRoundCount > 1 ? null : assessmentSummary)
                             : null;
 
-                        return {
+                        return normalizeTrackedProcessState({
                             id: `initial-${roundKey}-${index}`,
                             name: displayName,
                             type: roundType,
@@ -358,8 +521,9 @@ function EmpCandidateReviewPage() {
                             assessmentPercentage: roundType === 'assessment' ? stageAssessmentSummary.percentage : null,
                             assessmentTotalMarks: roundType === 'assessment' ? stageAssessmentSummary.totalMarks : null,
                             assessmentCaptures: roundType === 'assessment' ? stageAssessmentSummary.captures : []
-                        };
+                        });
                     });
+                    processes = normalizeManualTrackingSequence(processes);
                 }
                 
                 setInterviewProcesses(processes);
@@ -791,6 +955,7 @@ function EmpCandidateReviewPage() {
     }
 
     const applicationDisplayStatus = getApplicationDisplayStatus(application, interviewProcesses);
+    const isSessionExpiredApplication = applicationDisplayStatus === 'session_expired';
 
     return (
         <div className="candidate-review-container emp-candidate-review-page">
@@ -830,7 +995,7 @@ function EmpCandidateReviewPage() {
                                 <span className={`value status ${applicationDisplayStatus}`}>
                                     {applicationDisplayStatus === 'offer_sent' ? 'Offer Letter Sent' :
                                      applicationDisplayStatus === 'accepted' ? 'Offer Accepted' :
-                                     applicationDisplayStatus.replace('_', ' ')}
+                                     formatStatusLabel(applicationDisplayStatus)}
                                 </span>
                             </div>
                         </div>
@@ -891,12 +1056,14 @@ function EmpCandidateReviewPage() {
                                             <div className="processes-grid">
                                                 {interviewProcesses.map((process, index) => {
                                                     const isPreviousRejected = interviewProcesses.slice(0, index).some(p => isRejectedLikeStatus(p.status));
-                                                    const isPreviousIncomplete = interviewProcesses.slice(0, index).some(p => 
-                                                        !p.status || 
-                                                        p.status === 'pending' ||
-                                                        p.status !== 'shortlisted_for_next_round'
-                                                    );
-                                                    const isCurrentDisabled = isPreviousRejected || isPreviousIncomplete || (applicationDisplayStatus === 'rejected' && !isRejectedLikeStatus(process.status));
+                                                    const isPreviousIncomplete = index > 0 && !interviewProcesses
+                                                        .slice(0, index)
+                                                        .every((previousProcess) => isShortlistedForNextRoundStatus(previousProcess.status));
+                                                    const isCurrentDisabled =
+                                                        isSessionExpiredApplication ||
+                                                        isPreviousRejected ||
+                                                        isPreviousIncomplete ||
+                                                        (applicationDisplayStatus === 'rejected' && !isRejectedLikeStatus(process.status));
 
                                                     return (
                                                         <div key={process.id} className={`process-item ${process.isCompleted ? 'completed' : ''} ${isCurrentDisabled ? 'stage-disabled' : ''}`}>
@@ -906,7 +1073,7 @@ function EmpCandidateReviewPage() {
                                                                     <h6>{cleanProcessName(process.name)}</h6>
                                                                 </div>
                                                                 <span className={`status-badge ${process.status || 'pending'}`}>
-                                                                    {(process.status || 'pending').replace('_', ' ')}
+                                                                    {formatStatusLabel(process.status)}
                                                                 </span>
                                                             </div>
                                                             {process.type === 'assessment' && (process.assessmentScore !== null || process.assessmentPercentage !== null || process.result) && (
@@ -969,11 +1136,13 @@ function EmpCandidateReviewPage() {
                                                                         onChange={(e) => {
                                                                             const newStatus = e.target.value;
                                                                             setInterviewProcesses(prev => {
-                                                                                const updated = prev.map(p => p.id === process.id ? {
-                                                                                    ...p,
-                                                                                    status: newStatus,
-                                                                                    isCompleted: newStatus === 'rejected' ? true : p.isCompleted
-                                                                                } : p);
+                                                                                const updated = normalizeManualTrackingSequence(
+                                                                                    prev.map(p => p.id === process.id ? {
+                                                                                        ...p,
+                                                                                        status: newStatus,
+                                                                                        isCompleted: newStatus !== 'pending'
+                                                                                    } : p)
+                                                                                );
                                                                                 saveInterviewProcesses(updated, true);
                                                                                 return updated;
                                                                             });
@@ -1020,6 +1189,12 @@ function EmpCandidateReviewPage() {
                                                                     }}
                                                                 />
                                                             </div>
+                                                            {isSessionExpiredApplication && (
+                                                                <div className="stage-locked-info">
+                                                                    <i className="fas fa-clock"></i>
+                                                                    <span>Tracking locked because the application session has expired.</span>
+                                                                </div>
+                                                            )}
                                                             {isPreviousRejected && (
                                                                 <div className="stage-locked-info">
                                                                     <i className="fas fa-info-circle"></i>
@@ -1065,18 +1240,24 @@ function EmpCandidateReviewPage() {
                                             </button>
                                         </div>
                                         <div className="action-buttons">
+                                            {isSessionExpiredApplication && (
+                                                <div className="alert alert-warning d-flex align-items-center mb-3" style={{ width: '100%', fontSize: '14px', padding: '10px' }}>
+                                                    <i className="fas fa-clock me-2"></i>
+                                                    <div>No interview stage was completed before the application deadline, so this session is expired.</div>
+                                                </div>
+                                            )}
                                             {application.status === 'accepted' && (
                                                 <div className="alert alert-success d-flex align-items-center mb-3" style={{ width: '100%', fontSize: '14px', padding: '10px' }}>
                                                     <i className="fas fa-check-circle me-2"></i>
                                                     <div>Candidate has Accepted the Offer</div>
                                                 </div>
                                             )}
-                                            {application.status === 'rejected' && application.statusHistory?.some(h => h.status === 'offer_sent') ? (
+                                            {!isSessionExpiredApplication && application.status === 'rejected' && application.statusHistory?.some(h => h.status === 'offer_sent') ? (
                                                 <div className="alert alert-warning d-flex align-items-center mb-3" style={{ width: '100%', fontSize: '14px', padding: '10px' }}>
                                                     <i className="fas fa-times-circle me-2"></i>
                                                     <div>Candidate has Not Accepted the Offer</div>
                                                 </div>
-                                            ) : hasNegativeStatus() ? (
+                                            ) : !isSessionExpiredApplication && hasNegativeStatus() ? (
                                                 <>
                                                     <button 
                                                             className={`${applicationDisplayStatus === 'rejected' ? 'active' : ''}`}
@@ -1143,7 +1324,7 @@ function EmpCandidateReviewPage() {
                                                 </>
                                             )}
                                         </div>
-                                        {application.status !== 'accepted' && application.status !== 'hired' && !hasNegativeStatus() && !isFinalStageShortlisted() && (!allProcessesCompleted() || !hasShortlistedForNextRound()) && (
+                                        {application.status !== 'accepted' && application.status !== 'hired' && !isSessionExpiredApplication && !hasNegativeStatus() && !isFinalStageShortlisted() && (!allProcessesCompleted() || !hasShortlistedForNextRound()) && (
                                             <p className="warning-text">
                                                 {!hasShortlistedForNextRound()
                                                     ? 'Please select "Shortlisted for next Round" for at least one stage to enable actions.'

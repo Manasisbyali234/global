@@ -80,6 +80,17 @@ function CanStatusPage() {
 		].includes(normalized);
 	};
 
+	const isPositiveInterviewProcessStatus = (value) => {
+		const normalized = normalizeStatusValue(value);
+		if (!normalized) return false;
+
+		return [
+			'shortlisted for next round',
+			'shortlisted',
+			'selected'
+		].includes(normalized);
+	};
+
 	const getApplicationDisplayStatus = (application = {}) => {
 		const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
 		if (['accepted', 'hired'].includes(baseStatus)) {
@@ -375,6 +386,85 @@ function CanStatusPage() {
 			__roundName: roundName,
 			__roundIndex: roundIndex,
 			__assessmentOrderIndex: assessmentRoundIndex
+		};
+	};
+
+	const getRoundActivationState = (application, roundIndex, roundsList = null) => {
+		if (!application || roundIndex <= 0) {
+			return {
+				canStart: false,
+				previousAssessmentFailed: false
+			};
+		}
+
+		const resolvedRounds =
+			Array.isArray(roundsList) && roundsList.length > 0
+				? roundsList
+				: getInterviewRounds(application?.jobId, application);
+		const previousRound = resolvedRounds?.[roundIndex - 1];
+
+		if (!previousRound) {
+			return {
+				canStart: false,
+				previousAssessmentFailed: false
+			};
+		}
+
+		const previousRoundName = typeof previousRound === 'string' ? previousRound : previousRound?.name;
+		const normalizeType = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+		const previousRoundTypeRaw =
+			typeof previousRound === 'object'
+				? previousRound?.roundType
+				: previousRoundName?.toLowerCase();
+		const previousRoundType = normalizeType(previousRoundTypeRaw);
+		const previousRoundKey = typeof previousRound === 'object' ? previousRound?.uniqueKey : previousRoundType;
+		const previousRelatedProcess = application?.interviewProcesses?.find((process) => {
+			const processType = normalizeType(process?.type || '');
+			const processName = normalizeType(process?.name || '');
+			const roundNameNorm = normalizeType(previousRoundName || '');
+			return processType === previousRoundType ||
+				processName.includes(roundNameNorm) ||
+				String(process?.id) === String(previousRoundKey) ||
+				String(process?._id) === String(previousRoundKey);
+		});
+		const previousRelatedStage = application?.interviewProcess?.stages?.find((stage) => {
+			const stageType = normalizeType(stage?.stageType || '');
+			return String(stage?._id) === String(previousRoundKey) || stageType === previousRoundType;
+		});
+		const previousProcessStatus = normalizeStatusValue(previousRelatedProcess?.status);
+		const previousStageStatus = normalizeStatusValue(previousRelatedStage?.status);
+		const previousLegacyRound = Array.isArray(application?.interviewRounds)
+			? application.interviewRounds.find((round) => Number(round?.round) === roundIndex)
+			: null;
+		const previousLegacyRoundStatus = normalizeStatusValue(previousLegacyRound?.status);
+
+		if (previousRoundName === 'Assessment') {
+			const previousRoundDetails = resolveRoundDetails(application, previousRound, roundIndex - 1, resolvedRounds);
+			const previousAssessmentInfo = getAssessmentRoundInfo(application, previousRoundName, previousRoundDetails);
+			const completionInfo = previousAssessmentInfo?.completionInfo || {};
+			const assessmentStatus = normalizeStatusValue(completionInfo.status);
+			const previousAssessmentFailed = Boolean(completionInfo.isFailed);
+			const previousAssessmentPassed = Boolean(completionInfo.isPassed);
+			const previousCompleted = ['completed', 'passed', 'failed', 'expired'].includes(assessmentStatus);
+
+			return {
+				canStart: previousCompleted && previousAssessmentPassed && !previousAssessmentFailed,
+				previousAssessmentFailed
+			};
+		}
+
+		const hasPositiveProgress =
+			isPositiveInterviewProcessStatus(previousProcessStatus) ||
+			isPositiveInterviewProcessStatus(previousStageStatus) ||
+			previousLegacyRoundStatus === 'passed';
+		const hasRejectedProgress =
+			isRejectedInterviewProcessStatus(previousProcessStatus) ||
+			isRejectedInterviewProcessStatus(previousStageStatus) ||
+			previousLegacyRoundStatus === 'failed';
+
+		return {
+			canStart: hasPositiveProgress && !hasRejectedProgress,
+			previousAssessmentFailed: false
 		};
 	};
 
@@ -1488,11 +1578,16 @@ function CanStatusPage() {
 			}
 		}
 
-		// Use current interview process status when available
-		if (Array.isArray(application.interviewProcesses) && application.interviewProcesses.length > 0) {
+		// Use current tracked stage status when available
+		if (
+			(Array.isArray(application.interviewProcesses) && application.interviewProcesses.length > 0) ||
+			(Array.isArray(application.interviewProcess?.stages) && application.interviewProcess.stages.length > 0)
+		) {
 			const roundType = getRoundTypeFromName(roundName);
-			const relatedProcessIndexByType = application.interviewProcesses.findIndex((p) => p?.type === roundType);
-			const relatedProcessIndexByName = application.interviewProcesses.findIndex((p) =>
+			const trackedProcesses = Array.isArray(application.interviewProcesses) ? application.interviewProcesses : [];
+			const trackedStages = Array.isArray(application.interviewProcess?.stages) ? application.interviewProcess.stages : [];
+			const relatedProcessIndexByType = trackedProcesses.findIndex((p) => p?.type === roundType);
+			const relatedProcessIndexByName = trackedProcesses.findIndex((p) =>
 				String(p?.name || '').toLowerCase().includes(String(roundName || '').toLowerCase())
 			);
 			const relatedProcessIndex =
@@ -1500,18 +1595,45 @@ function CanStatusPage() {
 					? relatedProcessIndexByType
 					: relatedProcessIndexByName !== -1
 						? relatedProcessIndexByName
-						: roundIndex < application.interviewProcesses.length
+						: roundIndex < trackedProcesses.length
 							? roundIndex
 							: -1;
 			const relatedProcess =
 				relatedProcessIndex !== -1
-					? application.interviewProcesses[relatedProcessIndex]
+					? trackedProcesses[relatedProcessIndex]
 					: null;
+			const relatedStage = trackedStages.find((stage) => {
+				const stageType = String(stage?.stageType || '');
+				return String(stage?._id) === String(roundDetails?.__uniqueKey) || stageType === roundType;
+			}) || null;
+			const trackedStatus = relatedProcess?.status || relatedStage?.status || '';
+			const normalizedTrackedStatus = normalizeStatusValue(trackedStatus);
+			const isFinalTrackedStage =
+				relatedProcessIndex !== -1
+					? relatedProcessIndex === trackedProcesses.length - 1
+					: relatedStage
+						? Number(relatedStage?.stageOrder || 0) === trackedStages.length
+						: false;
 
-			const mapped = mapProcessStatusToBadge(relatedProcess?.status, {
-				isFinalStage: relatedProcessIndex === application.interviewProcesses.length - 1
-			});
-			if (mapped) {
+			if (trackedStatus && normalizedTrackedStatus !== 'pending') {
+				const mapped = mapProcessStatusToBadge(trackedStatus, {
+					isFinalStage: isFinalTrackedStage
+				});
+				return { ...mapped, feedback: '' };
+			}
+
+			if (roundIndex > 0 && getRoundActivationState(application, roundIndex).canStart) {
+				return {
+					text: 'Scheduled',
+					class: 'bg-info bg-opacity-10 text-info border border-info',
+					feedback: ''
+				};
+			}
+
+			if (trackedStatus) {
+				const mapped = mapProcessStatusToBadge(trackedStatus, {
+					isFinalStage: isFinalTrackedStage
+				});
 				return { ...mapped, feedback: '' };
 			}
 		}
@@ -2453,6 +2575,9 @@ function CanStatusPage() {
 											: null;
 										
 										const assessmentId = assessmentRoundInfo?.assessmentId || selectedApplication.jobId?.assessmentId;
+										const activationState = roundIndex > 0
+											? getRoundActivationState(selectedApplication, roundIndex, roundsList)
+											: { canStart: true, previousAssessmentFailed: false };
 
 										return (
 											<div key={roundIndex} className="mb-3 p-3" style={{backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e0e0e0'}}>
@@ -2847,76 +2972,10 @@ function CanStatusPage() {
 													const buttonIcon = hasBookedSlot ? 'fa-video-camera' : 'fa-calendar';
 													let canBookThisRound = true;
 													let previousAssessmentFailed = false;
-													let previousAssessmentPassed = false;
 
 													if (roundIndex > 0) {
-														const previousRound = roundsList[roundIndex - 1];
-														const previousRoundName = typeof previousRound === 'string' ? previousRound : previousRound.name;
-														const normalizeType = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
-														const previousRoundTypeRaw = typeof previousRound === 'object' ? previousRound.roundType : previousRoundName.toLowerCase();
-														const previousRoundType = normalizeType(previousRoundTypeRaw);
-														const previousRoundKey = typeof previousRound === 'object' ? previousRound.uniqueKey : previousRoundType;
-														
-														const previousRelatedProcess = selectedApplication.interviewProcesses?.find((process) => {
-															const processType = normalizeType(process?.type || '');
-															const processName = normalizeType(process?.name || '');
-															const roundNameNorm = normalizeType(previousRoundName || '');
-															return processType === previousRoundType ||
-																processName.includes(roundNameNorm) ||
-																String(process?.id) === String(previousRoundKey) ||
-																String(process?._id) === String(previousRoundKey);
-														});
-														
-														const previousRelatedStage = selectedApplication.interviewProcess?.stages?.find((stage) => {
-															const stageType = normalizeType(stage?.stageType || '');
-															return String(stage?._id) === String(previousRoundKey) || stageType === previousRoundType;
-														});
-														
-														const previousProcessStatus = (previousRelatedProcess?.status || '').toLowerCase();
-														const previousStageStatus = (previousRelatedStage?.status || '').toLowerCase();
-														const previousRoundDetails = {
-															__uniqueKey: previousRoundKey,
-															__roundType: previousRoundTypeRaw,
-															__roundName: previousRoundName,
-															__roundIndex: roundIndex - 1
-														};
-														const previousAssessmentInfo = previousRoundName === 'Assessment'
-															? getAssessmentRoundInfo(selectedApplication, previousRoundName, previousRoundDetails)
-															: null;
-														const previousRoundStatus = getRoundStatus(selectedApplication, roundIndex - 1, previousRoundName, true, previousRoundDetails);
-														const previousStatusText = (previousRoundStatus?.text || '').toLowerCase();
-
-														const invalidStatusStates = ['', 'pending'];
-														const positiveStatusStates = ['shortlisted_for_next_round', 'selected', 'shortlisted'];
-														const hasValidProcessStatus =
-															Boolean(previousProcessStatus) && !invalidStatusStates.includes(previousProcessStatus);
-														const hasValidStageStatus =
-															Boolean(previousStageStatus) && !invalidStatusStates.includes(previousStageStatus);
-														const previousStatusUpdated = hasValidProcessStatus || hasValidStageStatus;
-														const isPreviousShortlisted = positiveStatusStates.includes(previousProcessStatus) || 
-															positiveStatusStates.includes(previousStageStatus) || 
-															positiveStatusStates.some(s => previousStatusText.includes(s.replace('_', ' ')));
-
-														const previousRemarks =
-															(previousRelatedProcess?.id && selectedApplication.processRemarks?.[previousRelatedProcess.id]) ||
-															(previousRelatedProcess?._id && selectedApplication.processRemarks?.[previousRelatedProcess._id]) ||
-															previousRelatedProcess?.remarks ||
-															previousRelatedProcess?.feedback ||
-															previousRelatedStage?.remarks ||
-															previousRelatedStage?.feedback ||
-															'';
-														const previousRemarksUpdated = typeof previousRemarks === 'string' && previousRemarks.trim().length > 0;
-
-														// For assessment, remarks may not exist; keep completion-based gating.
-														const isPreviousAssessment = previousRoundName === 'Assessment';
-														previousAssessmentFailed = Boolean(previousAssessmentInfo?.completionInfo?.isFailed);
-														previousAssessmentPassed = Boolean(previousAssessmentInfo?.completionInfo?.isPassed);
-														const completedStates = ['completed', 'passed', 'failed', 'rejected', 'expired'];
-														const previousCompleted = completedStates.includes(previousStatusText);
-
-														canBookThisRound = isPreviousAssessment
-															? (previousCompleted && previousAssessmentPassed && !previousAssessmentFailed)
-															: isPreviousShortlisted;
+														canBookThisRound = activationState.canStart;
+														previousAssessmentFailed = activationState.previousAssessmentFailed;
 													}
 													
 													if (isCurrentRoundCompleted) {

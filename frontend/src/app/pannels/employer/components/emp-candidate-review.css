@@ -158,6 +158,7 @@
 .stat .value.status.hired, .stat .value.status.complete { color: #28a745; }
 .stat .value.status.shortlisted { color: #ffc107; }
 .stat .value.status.rejected { color: #dc3545; }
+.stat .value.status.session_expired { color: #dc3545; }
 .stat .value.status.incomplete { color: #6c757d; }
 
 /* Enhanced Navigation */
