@@ -54,10 +54,10 @@ const normalizeRoundName = (value) => {
 };
 
 const getCompanyName = (application) =>
-  application?.jobId?.brandName ||
   application?.jobId?.companyName ||
-  application?.employerId?.brandName ||
+  application?.jobId?.brandName ||
   application?.employerId?.companyName ||
+  application?.employerId?.brandName ||
   application?.employerId?.name ||
   "Company";
 
