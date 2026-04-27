@@ -861,7 +861,7 @@ function SectionCanEducation({ profile, onUpdate }) {
 
                                     {/* Document Upload */}
                                     <div className="col-12">
-                                        <label className="form-label">Upload Supporting Document (PDF only, max 50MB)</label>
+                                        <label className="form-label">Upload Supporting Document (PDF only, max 50MB) (Optional)</label>
                                         <input
                                             type="file"
                                             className={`form-control ${errors.document ? 'is-invalid' : ''}`}

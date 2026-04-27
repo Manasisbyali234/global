@@ -1404,7 +1404,7 @@ exports.createJob = async (req, res) => {
     if (approvedDocumentCount < EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS) {
       return res.status(403).json({
         success: false,
-        message: `Your company profile is approved, but job posting will be enabled only after admin approves at least ${EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS} documents in the Document Verification section. Currently approved: ${approvedDocumentCount}.`,
+        message: 'Your profile is under review. Job posting will be available once the admin approves your documents. Please wait for admin approval.',
         requiresDocumentApproval: true,
         approvedDocumentCount,
         minimumApprovedDocuments: EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS

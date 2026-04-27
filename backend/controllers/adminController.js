@@ -1277,7 +1277,7 @@ exports.updateEmployerStatus = async (req, res) => {
         const notificationData = {
           title: isApproved ? 'Profile Approved - You Can Now Post Jobs!' : 'Profile Rejected',
           message: isApproved 
-            ? 'Congratulations! Your company profile has been approved by admin. You can now post jobs and start hiring candidates.' 
+            ? 'Congratulations! Your company profile has been approved by admin. Your documents are currently under verification. Once they are verified, you can post jobs and start hiring candidates..' 
             : 'Your company profile has been rejected by admin. Please contact support for more information or resubmit your profile with the required corrections.',
           type: isApproved ? 'profile_approved' : 'profile_rejected',
           role: 'employer',
@@ -1382,7 +1382,7 @@ exports.updateEmployerProfile = async (req, res) => {
           const isApproved = req.body[field] === 'approved';
           const notificationData = {
             title: `${documentName} ${isApproved ? 'Approved' : 'Rejected'}`,
-            message: `Your ${documentName} has been ${req.body[field]} by admin. ${isApproved ? 'You can now proceed.' : 'Please resubmit the document with correct information.'}`,
+            message: `${documentName} has been ${req.body[field]} by admin.${isApproved ? '' : ' Please resubmit the document with correct information.'}`,
             type: isApproved ? 'document_approved' : 'document_rejected',
             role: 'employer',
             relatedId: new mongoose.Types.ObjectId(req.params.id),
@@ -3154,7 +3154,7 @@ exports.approveIndividualFile = async (req, res) => {
       if (createdCount === 0 && skippedCount > 0) {
         message = `File "${displayName}" processed! ${skippedCount} duplicate ${skippedCount === 1 ? 'student was' : 'students were'} found. Use "Resend Welcome Emails" to send emails to existing students.`;
       } else {
-        message = `File "${displayName}" approved! All non-skipped students can now create their passwords and access their accounts.`;
+        message = `File "${displayName}" approved! All students can now create their passwords and access their accounts.`;
       }
       
       res.json({
