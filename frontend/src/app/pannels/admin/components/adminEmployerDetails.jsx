@@ -777,6 +777,9 @@ function EmployerDetails() {
                 <h4 className="profile-section-title">
                     <i className="fa fa-file-alt"></i>
                     Document Verification
+                    {[panCardMeta, cinMeta, gstMeta, incorporationMeta, companyIdMeta].some(m => m.isResubmitted) && (
+                        <span className="company-name-dot company-name-dot--resubmit" title="Document resubmitted" style={{marginLeft: '8px', verticalAlign: 'middle'}} aria-hidden="true"></span>
+                    )}
                 </h4>
                 <div className="table-responsive">
                     <table className="table documents-table">
