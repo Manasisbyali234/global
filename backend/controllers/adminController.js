@@ -85,6 +85,70 @@ const buildPlacementFileConflictMessage = ({ duplicateEmails = [], existingEmail
   return messageParts.join(' ');
 };
 
+const CREDIT_ROW_FIELDS = [
+  'Credits Assigned',
+  'credits assigned',
+  'CREDITS ASSIGNED',
+  'Credits',
+  'credits',
+  'CREDITS',
+  'Credit',
+  'credit'
+];
+
+const applyPlacementCreditsToRow = (row = {}, credits = 0) => {
+  const creditValue = Number.isFinite(Number(credits)) ? Number(credits) : 0;
+
+  return CREDIT_ROW_FIELDS.reduce((updatedRow, key) => {
+    updatedRow[key] = creditValue;
+    return updatedRow;
+  }, { ...row });
+};
+
+const buildPlacementCandidateCreditUpdate = (credits = 0) => {
+  const creditValue = Number.isFinite(Number(credits)) ? Number(credits) : 0;
+  const update = { creditsAssigned: creditValue };
+
+  CREDIT_ROW_FIELDS.forEach((key) => {
+    update[`originalRowData.${key}`] = creditValue;
+  });
+
+  return update;
+};
+
+const syncPlacementCandidateCredits = (filter = {}, credits = 0) => {
+  if (!filter || Object.keys(filter).length === 0) {
+    return Promise.resolve({ matchedCount: 0, modifiedCount: 0 });
+  }
+
+  return PlacementCandidate.updateMany(filter, {
+    $set: buildPlacementCandidateCreditUpdate(credits)
+  });
+};
+
+const syncPlacementCandidateCreditsForCandidate = async (candidate = null, credits = 0) => {
+  if (!candidate?._id || !candidate?.placementId) {
+    return { matchedCount: 0, modifiedCount: 0 };
+  }
+
+  const filters = [
+    { candidateId: candidate._id, placementId: candidate.placementId }
+  ];
+
+  if (candidate.fileId) {
+    filters.push({
+      candidateId: candidate._id,
+      placementId: candidate.placementId,
+      fileId: candidate.fileId
+    });
+  }
+
+  return syncPlacementCandidateCredits(
+    { $or: filters, status: 'approved' },
+    credits
+  );
+};
+
 const findPlacementFileEmailConflicts = async (rows = []) => {
   const duplicateEmails = collectDuplicateValues(rows, getRowEmail);
   const existingEmails = await findExistingEmails(rows.map(getRowEmail));
@@ -2185,17 +2249,7 @@ exports.assignPlacementCredits = async (req, res) => {
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
             
             // Update all rows with new credits
-            const updatedData = jsonData.map(row => ({
-              ...row,
-              'Credits Assigned': creditsNum,
-              'credits assigned': creditsNum,
-              'CREDITS ASSIGNED': creditsNum,
-              Credits: creditsNum,
-              credits: creditsNum,
-              CREDITS: creditsNum,
-              Credit: creditsNum,
-              credit: creditsNum
-            }));
+            const updatedData = jsonData.map(row => applyPlacementCreditsToRow(row, creditsNum));
             
             // Convert back to Excel/CSV
             const newWorksheet = XLSX.utils.json_to_sheet(updatedData);
@@ -2240,10 +2294,7 @@ exports.assignPlacementCredits = async (req, res) => {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         
-        const updatedData = jsonData.map(row => ({
-          ...row,
-          'Credits Assigned': creditsNum
-        }));
+        const updatedData = jsonData.map(row => applyPlacementCreditsToRow(row, creditsNum));
         
         const newWorksheet = XLSX.utils.json_to_sheet(updatedData);
         const newWorkbook = XLSX.utils.book_new();
@@ -2286,6 +2337,11 @@ exports.assignPlacementCredits = async (req, res) => {
     const updateResult = await Candidate.updateMany(
       { placementId: placementObjectId },
       { $set: { credits: creditsNum } }
+    );
+
+    await syncPlacementCandidateCredits(
+      { placementId: placementObjectId, status: 'approved' },
+      creditsNum
     );
 
     // Emit real-time credit updates to affected candidates
@@ -2336,6 +2392,8 @@ exports.updateCandidateCredits = async (req, res) => {
       { credits: newCredits },
       { new: true }
     ).select('-password');
+
+    await syncPlacementCandidateCreditsForCandidate(candidate, newCredits);
     
     res.json({ success: true, candidate: updatedCandidate });
   } catch (error) {
@@ -2355,13 +2413,14 @@ exports.bulkUpdateCandidateCredits = async (req, res) => {
     const candidates = await Candidate.find({ _id: { $in: candidateIds } });
     
     // Update each candidate's credits
-    const updatePromises = candidates.map(candidate => {
+    const updatePromises = candidates.map(async (candidate) => {
       const newCredits = Math.max(0, (candidate.credits || 0) + creditsToAdd);
-      return Candidate.findByIdAndUpdate(
+      await Candidate.findByIdAndUpdate(
         candidate._id,
         { credits: newCredits },
         { new: true }
       );
+      await syncPlacementCandidateCreditsForCandidate(candidate, newCredits);
     });
     
     await Promise.all(updatePromises);
@@ -3232,17 +3291,7 @@ exports.updateFileCredits = async (req, res) => {
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         
         // Update all rows with new credits
-        const updatedData = jsonData.map(row => ({
-          ...row,
-          'Credits Assigned': credits,
-          'credits assigned': credits,
-          'CREDITS ASSIGNED': credits,
-          Credits: credits,
-          credits: credits,
-          CREDITS: credits,
-          Credit: credits,
-          credit: credits
-        }));
+        const updatedData = jsonData.map(row => applyPlacementCreditsToRow(row, credits));
         
         // Convert back to Excel/CSV
         const newWorksheet = XLSX.utils.json_to_sheet(updatedData);
@@ -3302,6 +3351,11 @@ exports.updateFileCredits = async (req, res) => {
       const legacyCandidateIds = legacyCandidatesToUpdate.map(c => c._id.toString());
       emitBulkCreditUpdate(legacyCandidateIds, credits);
     }
+
+    await syncPlacementCandidateCredits(
+      { placementId, fileId, status: 'approved' },
+      credits
+    );
     
     res.json({
       success: true,
@@ -3367,17 +3421,7 @@ exports.assignBulkFileCredits = async (req, res) => {
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
             
             // Update all rows with new credits
-            const updatedData = jsonData.map(row => ({
-              ...row,
-              'Credits Assigned': creditsNum,
-              'credits assigned': creditsNum,
-              'CREDITS ASSIGNED': creditsNum,
-              Credits: creditsNum,
-              credits: creditsNum,
-              CREDITS: creditsNum,
-              Credit: creditsNum,
-              credit: creditsNum
-            }));
+            const updatedData = jsonData.map(row => applyPlacementCreditsToRow(row, creditsNum));
             
             // Convert back to Excel/CSV
             const newWorksheet = XLSX.utils.json_to_sheet(updatedData);
@@ -3411,6 +3455,17 @@ exports.assignBulkFileCredits = async (req, res) => {
     const updateResult = await Candidate.updateMany(
       { placementId: placementObjectId },
       { $set: { credits: creditsNum } }
+    );
+
+    const processedFileIds = (placement.fileHistory || [])
+      .filter(file => file.status === 'processed')
+      .map(file => file._id);
+
+    await syncPlacementCandidateCredits(
+      processedFileIds.length > 0
+        ? { placementId: placementObjectId, fileId: { $in: processedFileIds }, status: 'approved' }
+        : { placementId: placementObjectId, status: 'approved' },
+      creditsNum
     );
 
     res.json({ 

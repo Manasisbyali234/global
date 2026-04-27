@@ -13,6 +13,18 @@ import "../../../../../emp-grid-optimizations.css";
 import "../../../../../emp-grid-mobile-fix.css";
 import "../../../../../new-job-card.css";
 
+const formatIndustryLabel = (value = "") =>
+    String(value || "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((word) => {
+            if (word.toUpperCase() === "IT") return "IT";
+            if (/^[A-Z0-9&+-]{2,}$/.test(word)) return word;
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .join(" ");
+
 const EmployersGridPage = memo(() => {
     const [employers, setEmployers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -192,7 +204,7 @@ const EmployersGridPage = memo(() => {
                     </div>
 
                     <div className="industry-tag-pill">
-                        {(employer.profile?.industry || employer.profile?.industrySector || 'Industry').replace(/\bit\b/gi, 'IT')}
+                        {formatIndustryLabel(employer.profile?.industry || employer.profile?.industrySector || "Industry")}
                     </div>
 
                     <button className="view-details-btn-orange" onClick={handleViewClick}>

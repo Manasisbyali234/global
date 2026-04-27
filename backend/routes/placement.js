@@ -7,6 +7,42 @@ const { upload } = require('../middlewares/upload');
 const { auth } = require('../middlewares/auth');
 const { requiredPhoneValidationRules, phoneValidationRules } = require('../middlewares/phoneValidation');
 
+const coercePlacementCredits = (value) => {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : null;
+};
+
+const resolvePlacementDisplayCredits = ({ candidate, placementCandidate, fileCredits } = {}) => {
+  const candidateCredits = coercePlacementCredits(candidate?.credits);
+  if (candidateCredits !== null && candidateCredits > 0) {
+    return candidateCredits;
+  }
+
+  const assignedCredits = coercePlacementCredits(placementCandidate?.creditsAssigned);
+  if (assignedCredits !== null && assignedCredits > 0) {
+    return assignedCredits;
+  }
+
+  const fallbackCredits = coercePlacementCredits(fileCredits);
+  if (fallbackCredits !== null && fallbackCredits > 0) {
+    return fallbackCredits;
+  }
+
+  if (candidateCredits !== null) {
+    return candidateCredits;
+  }
+
+  if (assignedCredits !== null) {
+    return assignedCredits;
+  }
+
+  return fallbackCredits !== null ? fallbackCredits : 0;
+};
+
 // Registration route without file upload
 router.post('/register', [
   body('name').notEmpty().withMessage('Name is required'),
@@ -158,7 +194,8 @@ router.get('/data', auth(['placement']), async (req, res) => {
         {
           fileName: file.fileName || '',
           batch: file.batch || '',
-          university: file.university || placement.collegeName || ''
+          university: file.university || placement.collegeName || '',
+          credits: coercePlacementCredits(file.credits) ?? 0
         }
       ])
     );
@@ -201,15 +238,18 @@ router.get('/data', auth(['placement']), async (req, res) => {
         const fileId = String(candidate?.fileId || record.fileId || '');
         const fileInfo = fileInfoMap.get(fileId) || {};
         const sourceRow = record.originalRowData || {};
+        const credits = resolvePlacementDisplayCredits({
+          candidate,
+          placementCandidate: record,
+          fileCredits: fileInfo.credits
+        });
 
         studentMap.set(normalizedEmail, {
           name: candidate?.name || record.studentName || '',
           email,
           phone: candidate?.phone || record.studentPhone || '',
           course: candidate?.course || record.course || sourceRow.Course || sourceRow.course || sourceRow.COURSE || sourceRow.Branch || sourceRow.branch || sourceRow.BRANCH || 'Not Specified',
-          credits: candidate?.credits !== undefined && candidate?.credits !== null
-            ? Number(candidate.credits) || 0
-            : Number(record.creditsAssigned) || 0,
+          credits,
           id: sourceRow.ID || sourceRow.id || sourceRow.Id || '',
           fileName: fileInfo.fileName || record.fileName || '',
           batch: fileInfo.batch || '',
@@ -242,7 +282,10 @@ router.get('/data', auth(['placement']), async (req, res) => {
           email,
           phone: candidate.phone,
           course: candidate.course || 'Not Specified',
-          credits: candidate.credits || 0,
+          credits: resolvePlacementDisplayCredits({
+            candidate,
+            fileCredits: fileInfo.credits
+          }),
           fileName: fileInfo.fileName || '',
           batch: fileInfo.batch || '',
           university: fileInfo.university || placement.collegeName || ''

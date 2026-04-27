@@ -123,6 +123,47 @@ const buildUploadValidationResponse = (validation = {}) => {
   return response;
 };
 
+const normalizePlacementCreditValue = (value) => {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : null;
+};
+
+const resolvePlacementCreditDisplay = ({ liveCandidate, placementCandidate, fallbackCredits = '0' } = {}) => {
+  const liveCredits = normalizePlacementCreditValue(liveCandidate?.credits);
+  const assignedCredits = normalizePlacementCreditValue(placementCandidate?.creditsAssigned);
+  const fileCredits = normalizePlacementCreditValue(fallbackCredits);
+
+  if (liveCredits !== null && liveCredits > 0) {
+    return liveCredits;
+  }
+
+  if (assignedCredits !== null && assignedCredits > 0) {
+    return assignedCredits;
+  }
+
+  if (fileCredits !== null && fileCredits > 0) {
+    return fileCredits;
+  }
+
+  if (liveCredits !== null) {
+    return liveCredits;
+  }
+
+  if (assignedCredits !== null) {
+    return assignedCredits;
+  }
+
+  if (fileCredits !== null) {
+    return fileCredits;
+  }
+
+  return 0;
+};
+
 const formatPlacementFileRow = (row = {}, { liveCandidate, placementCandidate, fallbackCredits = '0' } = {}) => ({
   'ID': row.ID || row.id || row.Id || '',
   'Candidate Name': getRowName(row),
@@ -130,11 +171,11 @@ const formatPlacementFileRow = (row = {}, { liveCandidate, placementCandidate, f
   'Phone': getRowPhone(row),
   'Course': getRowCourse(row),
   'Password': getRowPassword(row),
-  'Credits Assigned': placementCandidate && placementCandidate.creditsAssigned !== undefined && placementCandidate.creditsAssigned !== null
-    ? placementCandidate.creditsAssigned
-    : liveCandidate && liveCandidate.credits !== undefined && liveCandidate.credits !== null
-      ? liveCandidate.credits
-      : getRowCredits(row, fallbackCredits)
+  'Credits Assigned': resolvePlacementCreditDisplay({
+    liveCandidate,
+    placementCandidate,
+    fallbackCredits: getRowCredits(row, fallbackCredits)
+  })
 });
 
 const generateToken = (id, role) => {

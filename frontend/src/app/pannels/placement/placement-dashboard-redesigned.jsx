@@ -1066,7 +1066,7 @@ function PlacementDashboardRedesigned() {
                                                             <td>{student.email || '-'}</td>
                                                             <td>{student.phone || '-'}</td>
                                                             <td>
-                                                                <span className="credits-badge" title={`Available Credits: ${student.credits || 0}`}>
+                                                                <span className="credits-badge" title={`Credits: ${student.credits || 0}`}>
                                                                     {student.credits !== undefined && student.credits !== null ? student.credits : 0}
                                                                 </span>
                                                             </td>
