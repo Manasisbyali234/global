@@ -15,14 +15,13 @@ const STATUS_OPTIONS = [
 ];
 
 const ASSESSMENT_INSTRUCTION_LINES = [
-	"MCQ Assessments: Auto-evaluated results are shown instantly.",
-	"Descriptive Tests: Require manual evaluation by the employer.",
-	"Next Round Eligibility: Only qualified candidates can proceed.",
-	"Status Updates: Mandatory at every stage.",
-	"Slot Booking: Enabled only after status updates.",
-	"Candidate Monitoring: Webcam remains active during assessments.",
-	"Right to Reject: Employers can reject candidates at any stage.",
-	"Timely Updates: All stages must be updated within 24 hours."
+	"MCQ Assessments: Results are evaluated automatically and candidates can view their results immediately after completion.",
+	"Subjective / Descriptive / Written Tests: Evaluation must be done manually by the employer. Candidates will only be eligible for the next round after marks/stages are updated.",
+	"Progression to Next Round (MCQ): If a candidate meets the qualifying criteria, the next interview stage (slot booking) will be enabled instantly.",
+	"Mandatory Status Updates: Updating candidate status at every stage is mandatory. Without status updates, candidates will not be able to access or book slots for the next round.",
+	"Candidate Monitoring & Integrity: During assessments, candidates' webcam will be active, and images will be captured throughout the test. All captured images are available in the respective candidate's application for review.",
+	"Right to Reject: Employers have full authority to reject candidates at any stage, even after passing the assessment, if malpractice (such as copying or external assistance) is detected.",
+	"Timely Updates: Employers must update the status of each stage within 24 hours to ensure a smooth hiring process."
 ];
 
 export default function AssessmentDashboard() {

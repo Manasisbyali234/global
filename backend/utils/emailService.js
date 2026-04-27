@@ -845,7 +845,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
             <strong>⚠️ Eligibility Criteria:</strong> Only candidates who pass Round 1 will be eligible for Round 2 and subsequent rounds.
           </div>
           <div style="margin-bottom: 12px;">
-            <strong>📧 Communication:</strong> All interview updates and results will be communicated via email and your dashboard.
+            <strong>📧 Communication:</strong>All interview updates and results will be available on your dashboard.
           </div>
           <div style="margin-bottom: 12px;">
             <strong>⏰ Punctuality:</strong> Please be on time for all scheduled interviews. Late arrivals may result in disqualification.
@@ -854,7 +854,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
             <strong>📱 Technical Requirements:</strong> Ensure stable internet connection and working camera/microphone for online interviews.
           </div>
           <div>
-            <strong>🔄 Updates:</strong> Interview schedules may be updated. Please check your email and dashboard regularly.
+            <strong>🔄 Updates:</strong> Interview schedules may be updated. Please check your dashboard regularly.
           </div>
         </div>
       </div>
@@ -913,7 +913,6 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
           <h4 style="color: #1565c0; margin: 0 0 10px 0; font-size: 16px;">📱 What's Next?</h4>
           <ul style="color: #1565c0; margin: 0; font-size: 14px; padding-left: 20px;">
             <li>Keep your profile updated</li>
-            <li>Check your email regularly for updates</li>
             <li>Track your application status in your dashboard</li>
             <li>Prepare for potential interviews</li>
             ${jobDetails && jobDetails.assessmentEnabled && jobDetails.assessmentId ? '<li><strong>Complete the technical assessment when available</strong></li>' : ''}
