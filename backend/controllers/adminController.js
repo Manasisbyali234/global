@@ -3166,7 +3166,7 @@ exports.approveIndividualFile = async (req, res) => {
       if (createdCount === 0 && skippedCount > 0) {
         message = `File "${displayName}" processed! ${skippedCount} duplicate ${skippedCount === 1 ? 'student was' : 'students were'} found. Use "Resend Welcome Emails" to send emails to existing students.`;
       } else {
-        message = `File "${displayName}" approved! All students can now create their passwords and access their accounts.`;
+        message = `File approved! All students can now create their passwords and access their accounts.`;
       }
       
       res.json({
