@@ -1538,7 +1538,7 @@ exports.getAssessmentResults = async (req, res) => {
     
     const results = await AssessmentAttempt.find({
       assessmentId: req.params.id,
-      status: { $in: ['completed', 'expired', 'suspended', 'in_progress'] }
+      status: { $in: ['completed', 'expired', 'suspended'] }
     }).populate('candidateId', 'name email phone')
       .populate('applicationId')
       .populate({
@@ -1550,30 +1550,11 @@ exports.getAssessmentResults = async (req, res) => {
         }
       })
       .sort({ endTime: -1 });
-
-    // Mark in_progress attempts as expired if time has passed
-    const timerSeconds = Number(assessment.timer || 0) * 60;
-    for (const r of results) {
-      if (r.status === 'in_progress' && r.startTime) {
-        const elapsed = Math.floor((Date.now() - new Date(r.startTime).getTime()) / 1000);
-        if (elapsed >= timerSeconds) {
-          r.status = 'expired';
-          r.endTime = r.endTime || new Date(new Date(r.startTime).getTime() + timerSeconds * 1000);
-          r.timeRemaining = 0;
-          await r.save();
-          await Application.findByIdAndUpdate(r.applicationId, { assessmentStatus: 'expired', assessmentAttemptId: r._id });
-          await updateInterviewProcessAssessmentStage(r.applicationId, r.assessmentId, { status: 'expired', assessmentCompletedAt: r.endTime });
-        }
-      }
-    }
-
-    // Filter out still-in-progress attempts (not yet expired)
-    const filteredResults = results.filter(r => r.status !== 'in_progress');
-
-    console.log('Raw assessment results:', filteredResults.length);
+    
+    console.log('Raw assessment results:', results.length);
     
     // Ensure violations array exists for each result and convert to plain objects
-    const resultsWithViolations = filteredResults.map(r => {
+    const resultsWithViolations = results.map(r => {
       const resultObj = r.toObject();
       const evaluation = buildAttemptEvaluationSummary(assessment, resultObj);
       
@@ -1619,7 +1600,7 @@ exports.getAssessmentResults = async (req, res) => {
     console.log('Sending response with', resultsWithViolations.length, 'results');
     console.log('Sample result structure:', JSON.stringify(resultsWithViolations[0], null, 2));
 
-    const fallbackJob = filteredResults.find((result) => result?.jobId)?.jobId || null;
+    const fallbackJob = results.find((result) => result?.jobId)?.jobId || null;
     const normalizedAssessment = {
       ...assessment.toObject(),
       companyName:
