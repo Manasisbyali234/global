@@ -103,7 +103,7 @@ function SectionCanAccomplishments() {
                                                 <div className="form-group">
                                                     <label>Duration From</label>
                                                     <div className="ls-inputicon-box">
-                                                        <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="mm/dd/yyyy" />
+                                                        <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="MM/DD/YYYY" />
                                                         <i className="fs-input-icon far fa-calendar" />
                                                     </div>
                                                 </div>
@@ -113,7 +113,7 @@ function SectionCanAccomplishments() {
                                                 <div className="form-group">
                                                     <label>Duration to</label>
                                                     <div className="ls-inputicon-box">
-                                                        <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="mm/dd/yyyy" />
+                                                        <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="MM/DD/YYYY" />
                                                         <i className="fs-input-icon far fa-calendar" />
                                                     </div>
                                                 </div>
@@ -185,7 +185,7 @@ function SectionCanAccomplishments() {
                                                 <div className="form-group">
                                                     <label>Published On</label>
                                                     <div className="ls-inputicon-box">
-                                                        <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="mm/dd/yyyy" />
+                                                        <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="MM/DD/YYYY" />
                                                         <i className="fs-input-icon far fa-calendar" />
                                                     </div>
                                                 </div>
@@ -410,7 +410,7 @@ function SectionCanAccomplishments() {
                                                 <div className="form-group">
                                                     <label>Published On</label>
                                                     <div className="ls-inputicon-box">
-                                                        <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="mm/dd/yyyy" />
+                                                        <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="MM/DD/YYYY" />
                                                         <i className="fs-input-icon far fa-calendar" />
                                                     </div>
                                                 </div>

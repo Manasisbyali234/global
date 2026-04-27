@@ -91,7 +91,7 @@ function SectionCanProjects() {
                                         <div className="form-group">
                                             <label>Started Working From</label>
                                             <div className="ls-inputicon-box">
-                                                <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="mm/dd/yyyy" />
+                                                <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="MM/DD/YYYY" />
                                                 <i className="fs-input-icon far fa-calendar" />
                                             </div>
                                         </div>
@@ -101,7 +101,7 @@ function SectionCanProjects() {
                                         <div className="form-group">
                                             <label>Worked Till</label>
                                             <div className="ls-inputicon-box">
-                                                <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="mm/dd/yyyy" />
+                                                <input className="form-control datepicker" data-provide="datepicker" name="company_since" type="text" placeholder="MM/DD/YYYY" />
                                                 <i className="fs-input-icon far fa-calendar" />
                                             </div>
                                         </div>
