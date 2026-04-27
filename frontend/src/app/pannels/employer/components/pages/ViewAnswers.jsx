@@ -359,10 +359,7 @@ export default function ViewAnswers() {
               <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Passing Percentage</div>
               <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{passingPercentage}%</div>
             </div>
-            <div>
-              <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Passing Marks</div>
-              <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>{passingMarks}/{attempt.totalMarks}</div>
-            </div>
+
           </div>
         </div>
 

@@ -3249,7 +3249,7 @@ exports.getProfileCompletion = async (req, res) => {
     } else if (profileSubmittedForReview && !isApproved) {
       message = 'Thank you for completing your profile! Your profile has been submitted for admin review.';
     } else if (!hasMinimumApprovedDocuments) {
-      message = `Your company profile is approved.Wait for Document Verification`;
+      message = `Without documents verification, Will not approve to post job`;
     } else {
       message = 'Thank you for completing your profile! Your profile is approved and you can now post jobs.';
     }
