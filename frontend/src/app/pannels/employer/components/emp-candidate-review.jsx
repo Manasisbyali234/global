@@ -1354,7 +1354,7 @@ function EmpCandidateReviewPage() {
                                                             {isSessionExpiredApplication && (
                                                                 <div className="stage-locked-info">
                                                                     <i className="fas fa-clock"></i>
-                                                                    <span>Tracking locked because the application session has expired.</span>
+                                                                    <span>Tracking locked because the application is marked as No Show.</span>
                                                                 </div>
                                                             )}
                                                             {!isSessionExpiredApplication && assessmentDisplay.isWindowExpired && (

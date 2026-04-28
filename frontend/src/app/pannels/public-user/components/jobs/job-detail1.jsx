@@ -265,7 +265,7 @@ function JobDetail1Page() {
 
             if (isPlacementCandidate && hasCredits) {
                 console.log('Placement candidate with credits detected. Using credit-based application.');
-                showInfo(`Applying using 1 credit. Remaining credits: ${credits - 1}`);
+                showInfo(`Applied using 1 credit. Remaining credits: ${credits - 1}`);
                 handleCreditApplication();
             } else {
                 // Payment is required for every job application
@@ -299,7 +299,7 @@ function JobDetail1Page() {
             
             if (data.success) {
                 setHasApplied(true);
-                showSuccess('Application submitted successfully using credits!');
+                showSuccess('Application submitted successfully using credits.Please login to your dashboard to book your interview');
                 fetchJobDetails();
                 fetchCandidateData(); // Refresh credits
             } else {

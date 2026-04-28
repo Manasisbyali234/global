@@ -345,7 +345,7 @@ exports.applyWithCredits = async (req, res) => {
 
     res.json({ 
       success: true, 
-      message: 'Application submitted successfully using credits', 
+      message: 'Application submitted successfully using credits.Please login to your dashboard to book your interview slots', 
       application,
       remainingCredits: candidate.credits
     });

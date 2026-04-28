@@ -146,6 +146,8 @@ function EmpCandidatesPage() {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [designationFilter, setDesignationFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     loadScript("js/custom.js");
@@ -241,6 +243,8 @@ function EmpCandidatesPage() {
       company && typeof company === "string" && company.toLowerCase().includes(q)
     );
   }, [companies, searchText]);
+
+  useEffect(() => { setCurrentPage(1); }, [searchText, statusFilter, designationFilter]);
 
   const filteredApplications = useMemo(() => {
     const q = searchText.trim().toLowerCase();
@@ -374,7 +378,7 @@ function EmpCandidatesPage() {
                       >
                         <option value="">All Companies</option>
                         {companies.map((company) => (
-                          <option key={company} value={company}>{company}</option>
+                          <option key={company} value={company}>{company.charAt(0).toUpperCase() + company.slice(1)}</option>
                         ))}
                       </select>
                     </div>
@@ -424,7 +428,7 @@ function EmpCandidatesPage() {
                   </p>
                 </div>
               ) : (
-                filteredApplications.map((application) => (
+                filteredApplications.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((application) => (
                   <div className="col-lg-6 col-12" key={application._id}>
                     <div 
                       className="emp-candidates-card d-flex justify-content-between align-items-center p-3 border rounded mb-3 shadow-sm"
@@ -510,6 +514,22 @@ function EmpCandidatesPage() {
                     </div>
                   </div>
                 ))
+              )}
+            </div>
+          )}
+          {!loading && filteredApplications.length > 0 && (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
+              <div style={{ color: "#6c757d", fontSize: "13px" }}>
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredApplications.length)} of {filteredApplications.length} applicant{filteredApplications.length !== 1 ? "s" : ""}
+              </div>
+              {Math.ceil(filteredApplications.length / PAGE_SIZE) > 1 && (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
+                  <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === 1 ? "#f8f9fa" : "#fff", color: currentPage === 1 ? "#adb5bd" : "#495057", cursor: currentPage === 1 ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8249;</button>
+                  {Array.from({ length: Math.ceil(filteredApplications.length / PAGE_SIZE) }, (_, i) => i + 1).map(page => (
+                    <button key={page} onClick={() => setCurrentPage(page)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: page === currentPage ? "1px solid #ff8c00" : "1px solid #dee2e6", background: page === currentPage ? "#ff8c00" : "#fff", color: page === currentPage ? "#fff" : "#495057", fontWeight: page === currentPage ? 700 : 400, cursor: "pointer", fontSize: "13px" }}>{page}</button>
+                  ))}
+                  <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === Math.ceil(filteredApplications.length / PAGE_SIZE)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === Math.ceil(filteredApplications.length / PAGE_SIZE) ? "#f8f9fa" : "#fff", color: currentPage === Math.ceil(filteredApplications.length / PAGE_SIZE) ? "#adb5bd" : "#495057", cursor: currentPage === Math.ceil(filteredApplications.length / PAGE_SIZE) ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8250;</button>
+                </div>
               )}
             </div>
           )}

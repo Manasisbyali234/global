@@ -287,40 +287,13 @@
   .can-dashboard .dashboard-card-2 {
     padding: 1.25rem !important;
   }
-  
-  .can-dashboard > div:first-child {
-    padding: 1.5rem 1.5rem 0 1.5rem !important;
-  }
-  
-  .can-dashboard > div:last-child {
-    padding: 0 1.5rem 1.5rem 1.5rem !important;
-  }
 }
 
 @media (max-width: 768px) {
   .can-dashboard { 
     padding-bottom: 20px; 
   }
-  
-  .can-dashboard > div:first-child {
-    padding: 1rem 1rem 0 1rem !important;
-  }
-  
-  .can-dashboard > div:last-child {
-    padding: 0 1rem 1rem 1rem !important;
-  }
-  
-  .can-dashboard .welcome-card-container {
-    padding: 1rem 1rem 0 1rem !important;
-  }
-  
-  .can-dashboard .welcome-card-container > div {
-    padding: 1.25rem !important;
-  }
-  
-  .can-dashboard .welcome-card-container h2,
-  .can-dashboard .welcome-card-container p,
-  .can-dashboard .welcome-card-container span,
+
   .can-dashboard .dashboard-card-2 *,
   .can-dashboard .notification-item *,
   .can-dashboard .job-recommendation-card *,
@@ -373,18 +346,6 @@
 }
 
 @media (max-width: 576px) {
-  .can-dashboard > div:first-child {
-    padding: 0.75rem 0.75rem 0 0.75rem !important;
-  }
-  
-  .can-dashboard > div:last-child {
-    padding: 0 0.75rem 0.75rem 0.75rem !important;
-  }
-  
-  .can-dashboard .welcome-card-container {
-    padding: 0.75rem 0.75rem 0 0.75rem !important;
-  }
-  
   .can-dashboard .welcome-card-container > div {
     padding: 1rem !important;
   }

@@ -487,6 +487,7 @@ function CanInterviewsPage() {
 
   return (
     <div className="twm-right-section-panel site-bg-gray candidate-interviews">
+      <div className="candidate-page-shell candidate-page-shell--header">
         <div className="candidate-interviews-header-card">
           <div className="candidate-interviews-header-top">
             <div>
@@ -547,7 +548,9 @@ function CanInterviewsPage() {
             </div>
           </div>
         </div>
+      </div>
 
+      <div className="candidate-page-shell candidate-page-shell--content">
       {loading ? (
         <div className="candidate-interviews-empty">Loading interviews...</div>
       ) : applicationCards.length === 0 ? (
@@ -574,7 +577,7 @@ function CanInterviewsPage() {
                       </div>
                     </div>
 
-                    <h4 className="company-card-name">{card.companyName}</h4>
+                    <h4 className="company-card-name">{card.companyName.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())}</h4>
                     <div className="company-card-subtitle">
                       {card.jobTitle}
                     </div>
@@ -628,6 +631,7 @@ function CanInterviewsPage() {
         onAccept={handleAcceptInterviewInstructions}
         role="candidateInterviewInstructions"
       />
+      </div>
     </div>
   );
 }

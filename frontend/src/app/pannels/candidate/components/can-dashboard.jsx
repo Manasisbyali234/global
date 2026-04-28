@@ -6,6 +6,7 @@ import CompleteProfileCard from "../sections/dashboard/section-can-profile";
 import SectionNotifications from "../sections/dashboard/section-notifications";
 import SectionRecommendedJobs from "../sections/dashboard/section-recommended-jobs";
 import './can-dashboard.css';
+import '../components/can-notifications.css';
 
 function CanDashboardPage() {
   const [candidate, setCandidate] = useState({ name: 'Loading...', location: '', profilePicture: null });
@@ -156,7 +157,7 @@ function CanDashboardPage() {
     <>
       <div className="twm-right-section-panel site-bg-gray can-dashboard">
         {/* Welcome Card */}
-        <div style={{ padding: '2rem 2rem 0 2rem' }} className="welcome-card-container">
+        <div className="candidate-page-shell candidate-page-shell--header welcome-card-container">
           <div style={{ background: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', marginBottom: '2rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               {candidate.profilePicture ? (
@@ -207,7 +208,7 @@ function CanDashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div style={{ padding: '0 2rem 2rem 2rem' }}>
+        <div className="candidate-page-shell candidate-page-shell--content">
           <SectionCandidateOverview />
 
           {/* Profile Completion and Notifications */}

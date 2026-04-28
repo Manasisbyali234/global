@@ -1110,41 +1110,52 @@ const sendPlacementAccessEnabledEmail = async (email, name, collegeName, officia
 
 const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
   const transporter = createTransport();
-  const resetPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=candidate`;
+  const createPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=candidate`;
   const loginUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/`;
-  
+  const safeCredits = Math.max(0, parseInt(credits, 10) || 0);
+
   const template = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
       <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Your TaleGlobal Account Is Ready – Login & Start Applying</h2>
-        
-        <p>Dear <strong>${name}</strong>,</p>
-        
-        <p>Your details have been successfully updated on the TaleGlobal platform by your Placement Dean.</p>
-        
-        <p>To proceed, please reset your password and log in to your account to complete your profile. After logging in, you can update your personal, educational, and skill-related information.</p>
-        
-        <p><strong>🎯 Credits Assigned:</strong> As a final-year student, you have been provided with <strong>${credits} free job application credit${credits !== 1 ? 's' : ''}</strong>, valid for 1 year from the date of assignment. You can apply for jobs using these credits at no cost. If a job is not secured after using the free credits, you may continue applying through our pay-per-job model.</p>
-        
-        <p>Take the next step and explore opportunities through completely online interviews.</p>
-        <p><strong>Important Information:</strong></p>
-        <p>
-          * No payment or fees have been collected from your college or Placement Dean<br>
-          * TaleGlobal does not assure or guarantee 100% placement<br>
-          * Placement opportunities depend on your skills, eligibility, and performance
-        </p>
-        
+        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Credits Assigned to Your TaleGlobal Account – Complete Your Profile</h2>
+
+        <p>Dear <strong>${name || 'Candidate'}</strong>,</p>
+
+        <p>Greetings from TaleGlobal!</p>
+
+        <p>Your account has been successfully created on the TaleGlobal platform, and <strong>${safeCredits} job application credit${safeCredits !== 1 ? 's' : ''}</strong> ${safeCredits !== 1 ? 'have' : 'has'} been assigned to you directly.</p>
+
+        <p><strong>Next Steps:</strong></p>
+        <ul style="padding-left: 20px; margin: 0 0 20px;">
+          <li style="margin-bottom: 8px;">Please set your password using the link sent to your registered email.</li>
+          <li style="margin-bottom: 8px;">Log in to your dashboard and complete your profile with your education, skills, and preferences.</li>
+          <li>Start applying for jobs that match your profile using your assigned credits.</li>
+        </ul>
+
+        <p><strong>Credit Details:</strong></p>
+        <ul style="padding-left: 20px; margin: 0 0 20px;">
+          <li style="margin-bottom: 8px;">Valid for 1 year from the date of assignment.</li>
+          <li style="margin-bottom: 8px;">Applicable for online interviews only.</li>
+          <li>Once your credits are used, you can continue applying through our pay-per-job model.</li>
+        </ul>
+
+        <p>TaleGlobal enables a completely online hiring experience, allowing you to attend interviews from anywhere.</p>
+
+        <p>For any assistance, feel free to contact us at <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a>.</p>
+
+        <p>Wishing you great success in your career journey.</p>
+
         <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
           <p style="color: #1565c0; margin: 0; font-size: 14px;">
             <strong>📝 Note:</strong> Use the login credentials provided by your Placement Dean. If you don't have them or want to set a new password, use the "Create Password" option below.
           </p>
         </div>
-        
+
         <div style="text-align: center; margin: 30px 0;">
           <a href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; margin-right: 10px;">🔗 Login Here</a>
-          <a href="${resetPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
+          <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">🔐 Create Password</a>
         </div>
-        
+
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="margin: 0;">Best wishes for your career journey,</p>
           <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
@@ -1158,7 +1169,7 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
   const mailOptions = {
     from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Your TaleGlobal Account Is Ready – Login & Start Applying',
+    subject: 'Credits Assigned to Your TaleGlobal Account – Complete Your Profile',
     html: template
   };
 

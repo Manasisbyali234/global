@@ -26,7 +26,7 @@
 }
 
 .role-notifications-title {
-  font-size: 1.9rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #111827;
   margin: 0 0 0.5rem 0;
@@ -35,6 +35,7 @@
 .role-notifications-subtitle {
   color: #6b7280;
   margin: 0;
+  font-size: 0.85rem;
 }
 
 .role-notifications-stats {
@@ -54,17 +55,7 @@
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
-.role-notifications-stat-card.tone-orange {
-  border-top: 4px solid var(--notifications-accent);
-}
 
-.role-notifications-stat-card.tone-blue {
-  border-top: 4px solid #2563eb;
-}
-
-.role-notifications-stat-card.tone-green {
-  border-top: 4px solid #16a34a;
-}
 
 .role-notifications-stat-icon {
   width: 48px;
@@ -90,7 +81,7 @@
 }
 
 .role-notifications-stat-value {
-  font-size: 1.8rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #111827;
   line-height: 1;
@@ -99,7 +90,7 @@
 .role-notifications-stat-label {
   margin-top: 0.35rem;
   color: #6b7280;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
 }
 
 .role-notifications-panel {
@@ -126,19 +117,18 @@
 }
 
 .role-notifications-filter {
-  border: 1px solid #e5e7eb;
+  border: none;
   background: #ffffff;
   color: #4b5563;
   border-radius: 999px;
-  padding: 0.6rem 1rem;
-  font-size: 0.92rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   transition: all 0.2s ease;
 }
 
 .role-notifications-filter.is-active {
   background: #111827;
-  border-color: #111827;
   color: #ffffff;
 }
 
@@ -182,22 +172,22 @@
 
 .role-notifications-list {
   display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 }
 
 .role-notification-card {
+  position: relative;
   display: flex;
   gap: 1rem;
   padding: 1.15rem;
   border-radius: 18px;
-  border: 1px solid #e5e7eb;
   background: #ffffff;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-  border-left: 4px solid var(--notification-card-accent);
 }
 
 .role-notification-card.is-unread {
-  background: linear-gradient(180deg, #fffaf5 0%, #ffffff 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
 }
 
 .role-notification-card__icon {
@@ -217,12 +207,7 @@
 }
 
 .role-notification-card__topline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
   margin-bottom: 0.55rem;
-  flex-wrap: wrap;
 }
 
 .role-notification-card__category,
@@ -235,6 +220,12 @@
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.01em;
+}
+
+.role-notification-card__status {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
 }
 
 .role-notification-card__category {
@@ -254,7 +245,7 @@
 
 .role-notification-card__title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #111827;
 }
@@ -262,7 +253,8 @@
 .role-notification-card__message {
   margin: 0.55rem 0 0 0;
   color: #4b5563;
-  line-height: 1.7;
+  font-size: 0.82rem;
+  line-height: 1.6;
   word-break: break-word;
 }
 
@@ -280,7 +272,7 @@
   align-items: center;
   gap: 0.45rem;
   color: #6b7280;
-  font-size: 0.88rem;
+  font-size: 0.75rem;
 }
 
 .role-notification-card__actions {
@@ -294,17 +286,16 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  border: 1px solid #d1d5db;
+  border: none;
   border-radius: 12px;
   background: #ffffff;
   color: #111827;
-  padding: 0.65rem 0.9rem;
-  font-size: 0.9rem;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.78rem;
   font-weight: 600;
 }
 
 .role-notification-action.danger {
-  border-color: #fecaca;
   color: #b91c1c;
   background: #fff5f5;
 }
@@ -329,7 +320,7 @@
 .role-notifications-empty-state h4 {
   margin: 0;
   color: #111827;
-  font-size: 1.15rem;
+  font-size: 0.95rem;
 }
 
 .role-notifications-empty-state p {
@@ -344,6 +335,10 @@
   }
 
   .role-notifications-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .role-notifications-list {
     grid-template-columns: 1fr;
   }
 
@@ -363,7 +358,7 @@
   }
 
   .role-notifications-title {
-    font-size: 1.55rem;
+    font-size: 1.2rem;
   }
 
   .role-notifications-toolbar,
@@ -388,4 +383,52 @@
     padding: 1rem;
     border-radius: 16px;
   }
+}
+
+.role-notifications-date-range {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.role-notifications-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.role-notifications-date-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.role-notifications-date-field input {
+  border: none;
+  border-radius: 10px;
+  padding: 0.3rem 0.35rem;
+  font-size: 0.9rem;
+  color: #111827;
+  background: #fff;
+  width: 130px;
+  outline: none;
+}
+
+.role-notifications-date-clear {
+  border: none;
+  background: #fff;
+  color: #6b7280;
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 1px;
+}
+
+.role-notifications-date-clear:hover {
+  background: #fee2e2;
+  color: #b91c1c;
 }
