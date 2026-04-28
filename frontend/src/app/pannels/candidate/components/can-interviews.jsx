@@ -577,7 +577,7 @@ function CanInterviewsPage() {
                       </div>
                     </div>
 
-                    <h4 className="company-card-name">{card.companyName}</h4>
+                    <h4 className="company-card-name">{card.companyName.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())}</h4>
                     <div className="company-card-subtitle">
                       {card.jobTitle}
                     </div>
