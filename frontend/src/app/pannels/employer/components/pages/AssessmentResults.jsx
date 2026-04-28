@@ -238,7 +238,6 @@ export default function AssessmentResults() {
                 <option value="all">All</option>
                 <option value="pass">Pass</option>
                 <option value="fail">Fail</option>
-                <option value="expired">Expired</option>
                 <option value="suspended">Suspended</option>
               </select>
             </div>
