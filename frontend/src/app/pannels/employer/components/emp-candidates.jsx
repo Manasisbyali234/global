@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import JobZImage from "../../../common/jobz-img";
 import { ArrowLeft, ListChecks } from "lucide-react";
@@ -10,6 +10,7 @@ import './emp-candidates.css';
 function EmpCandidatesPage() {
   const navigate = useNavigate();
   const { jobId } = useParams();
+  const location = useLocation();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [employerType, setEmployerType] = useState("company");
@@ -26,7 +27,7 @@ function EmpCandidatesPage() {
     loadScript("js/custom.js");
     fetchEmployerType();
     fetchApplications();
-  }, []);
+  }, [location.key]);
 
 
 
