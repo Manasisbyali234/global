@@ -366,7 +366,6 @@ function RoleNotificationsPage({
 
                       <div className="role-notification-card__body">
                         <div className="role-notification-card__topline">
-                          <span className="role-notification-card__category">{meta.label}</span>
                           <span className={`role-notification-card__status ${notification.isRead ? "is-read" : "is-unread"}`}>
                             {notification.isRead ? "Read" : "Unread"}
                           </span>

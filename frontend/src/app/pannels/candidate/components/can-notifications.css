@@ -40,15 +40,15 @@
 }
 
 .candidate-notifications-stat-card.tone-orange {
-  border-top: 4px solid #f97316;
+  border-top: 4px solid #6b7280;
 }
 
 .candidate-notifications-stat-card.tone-blue {
-  border-top: 4px solid #2563eb;
+  border-top: 4px solid #6b7280;
 }
 
 .candidate-notifications-stat-card.tone-green {
-  border-top: 4px solid #16a34a;
+  border-top: 4px solid #6b7280;
 }
 
 .candidate-notifications-stat-icon {
@@ -59,23 +59,23 @@
   align-items: center;
   justify-content: center;
   font-size: 1.15rem;
-  background: #fff7ed;
-  color: #f97316;
+  background: #f3f4f6;
+  color: #6b7280;
   flex-shrink: 0;
 }
 
 .tone-blue .candidate-notifications-stat-icon {
-  background: #eff6ff;
-  color: #2563eb;
+  background: #f3f4f6;
+  color: #6b7280;
 }
 
 .tone-green .candidate-notifications-stat-icon {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: #f3f4f6;
+  color: #6b7280;
 }
 
 .candidate-notifications-stat-value {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #111827;
   line-height: 1;
@@ -84,7 +84,7 @@
 .candidate-notifications-stat-label {
   margin-top: 0.35rem;
   color: #6b7280;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
 }
 
 .candidate-notifications-panel {
@@ -115,15 +115,15 @@
   background: #ffffff;
   color: #4b5563;
   border-radius: 999px;
-  padding: 0.6rem 1rem;
-  font-size: 0.92rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   transition: all 0.2s ease;
 }
 
 .candidate-notifications-filter.is-active {
-  background: #111827;
-  border-color: #111827;
+  background: #6b7280;
+  border-color: #6b7280;
   color: #ffffff;
 }
 
@@ -142,14 +142,15 @@
   background: #ffffff;
   color: #111827;
   border-radius: 12px;
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   transition: all 0.2s ease;
 }
 
 .candidate-notifications-toolbar-button.primary {
-  background: #f97316;
-  border-color: #f97316;
+  background: #6b7280;
+  border-color: #6b7280;
   color: #ffffff;
 }
 
@@ -183,7 +184,7 @@
 }
 
 .candidate-notification-card.is-unread {
-  background: linear-gradient(180deg, #fffaf5 0%, #ffffff 100%);
+  background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
 }
 
 .candidate-notification-card__icon {
@@ -216,9 +217,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.32rem 0.7rem;
+  padding: 0.25rem 0.55rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.01em;
 }
@@ -229,8 +230,8 @@
 }
 
 .candidate-notification-card__status.is-unread {
-  background: #ffedd5;
-  color: #c2410c;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .candidate-notification-card__status.is-read {
@@ -240,7 +241,7 @@
 
 .candidate-notification-card__title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #111827;
 }
@@ -248,7 +249,8 @@
 .candidate-notification-card__message {
   margin: 0.55rem 0 0 0;
   color: #4b5563;
-  line-height: 1.7;
+  font-size: 0.82rem;
+  line-height: 1.6;
   word-break: break-word;
 }
 
@@ -266,7 +268,7 @@
   align-items: center;
   gap: 0.45rem;
   color: #6b7280;
-  font-size: 0.88rem;
+  font-size: 0.75rem;
 }
 
 .candidate-notification-card__actions {
@@ -284,8 +286,8 @@
   border-radius: 12px;
   background: #ffffff;
   color: #111827;
-  padding: 0.65rem 0.9rem;
-  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
   font-weight: 600;
 }
 
@@ -308,14 +310,14 @@
 
 .candidate-notifications-empty-state i {
   font-size: 2rem;
-  color: #f97316;
+  color: #6b7280;
   margin-bottom: 1rem;
 }
 
 .candidate-notifications-empty-state h4 {
   margin: 0;
   color: #111827;
-  font-size: 1.15rem;
+  font-size: 0.95rem;
 }
 
 .candidate-notifications-empty-state p {
@@ -378,7 +380,7 @@
 }
 
 .candidate-notifications-page-info {
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #374151;
 }
@@ -417,7 +419,7 @@
 }
 
 .candidate-notifications-date-field input:focus {
-  border-color: #f97316;
+  border-color: #6b7280;
 }
 
 .candidate-notifications-date-clear {

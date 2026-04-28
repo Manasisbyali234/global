@@ -3311,7 +3311,6 @@ export default function EmpPostJob({ onNext }) {
 							<option>Temporary</option>
 							<option>Permanent</option>
 							<option>Apprenticeship</option>
-							<option>Consultant</option>
 						</select>
 						{errors.jobType && (
 							<div style={{color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4}}>
