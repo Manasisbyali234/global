@@ -106,6 +106,126 @@ const normalizeJobEducationSpecializations = (specializations = [], education = 
   }));
 };
 
+const normalizeApplicationStatusValue = (value = '') =>
+  String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ');
+
+const getApplicationDeadline = (jobData = {}) => {
+  if (!jobData?.lastDateOfApplication) return null;
+
+  const deadline = new Date(jobData.lastDateOfApplication);
+  if (Number.isNaN(deadline.getTime())) {
+    return null;
+  }
+
+  if (jobData.lastDateOfApplicationTime && typeof jobData.lastDateOfApplicationTime === 'string') {
+    const [hours, minutes] = jobData.lastDateOfApplicationTime.split(':').map((part) => Number(part));
+    if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+      deadline.setHours(hours, minutes, 59, 999);
+      return deadline;
+    }
+  }
+
+  deadline.setHours(23, 59, 59, 999);
+  return deadline;
+};
+
+const hasTrackedInterviewActivity = (application = {}) => {
+  const nonConductedStatuses = new Set([
+    '',
+    'pending',
+    'scheduled',
+    'available',
+    'not started',
+    'not required'
+  ]);
+
+  const processActivity = (Array.isArray(application.interviewProcesses) ? application.interviewProcesses : []).some((process) => {
+    const normalizedStatus = normalizeApplicationStatusValue(process?.status);
+    if (normalizedStatus && !nonConductedStatuses.has(normalizedStatus)) {
+      return true;
+    }
+
+    return Boolean(process?.isCompleted);
+  });
+
+  if (processActivity) {
+    return true;
+  }
+
+  const assessmentStatus = normalizeApplicationStatusValue(application.assessmentStatus);
+  if (assessmentStatus && !nonConductedStatuses.has(assessmentStatus)) {
+    return true;
+  }
+
+  if (application.assessmentScore !== null && application.assessmentScore !== undefined) {
+    return true;
+  }
+
+  if (application.assessmentPercentage !== null && application.assessmentPercentage !== undefined) {
+    return true;
+  }
+
+  const assessmentResult = normalizeApplicationStatusValue(application.assessmentResult);
+  if (assessmentResult && assessmentResult !== 'pending') {
+    return true;
+  }
+
+  const baseStatus = normalizeApplicationStatusValue(application.status);
+  return ['interviewed', 'offer sent', 'accepted', 'hired', 'rejected'].includes(baseStatus);
+};
+
+const shouldAutoRejectExpiredApplication = (application = {}) => {
+  const baseStatus = normalizeApplicationStatusValue(application.status);
+  if (['accepted', 'hired', 'offer sent', 'rejected', 'interviewed'].includes(baseStatus)) {
+    return false;
+  }
+
+  const deadline = getApplicationDeadline(application.jobId);
+  if (!deadline || new Date() <= deadline) {
+    return false;
+  }
+
+  return !hasTrackedInterviewActivity(application);
+};
+
+const ensureExpiredApplicationRejected = async (application = null) => {
+  if (!application) return application;
+
+  const applicationObject = typeof application.toObject === 'function'
+    ? application.toObject()
+    : { ...application };
+
+  if (!shouldAutoRejectExpiredApplication(applicationObject)) {
+    return applicationObject;
+  }
+
+  const statusHistoryEntry = {
+    status: 'rejected',
+    changedAt: new Date(),
+    notes: 'Auto-rejected after application session expired'
+  };
+
+  await Application.updateOne(
+    { _id: applicationObject._id, status: { $ne: 'rejected' } },
+    {
+      $set: { status: 'rejected' },
+      $push: { statusHistory: statusHistoryEntry }
+    }
+  );
+
+  return {
+    ...applicationObject,
+    status: 'rejected',
+    statusHistory: Array.isArray(applicationObject.statusHistory)
+      ? [...applicationObject.statusHistory, statusHistoryEntry]
+      : [statusHistoryEntry]
+  };
+};
+
 const EMPLOYER_POST_JOB_REQUIRED_DOCUMENT_APPROVALS = 2;
 const EMPLOYER_VERIFICATION_STATUS_FIELDS = [
   'panCardVerified',
@@ -2815,24 +2935,27 @@ exports.getEmployerApplications = async (req, res) => {
     
     const applications = await Application.find(query)
       .populate('candidateId', 'name email phone')
-      .populate('jobId', 'title location companyName')
+      .populate('jobId', 'title location companyName lastDateOfApplication lastDateOfApplicationTime')
       .sort({ createdAt: -1 });
 
     const applicationsWithProfiles = await Promise.all(
       applications.map(async (application) => {
+        const normalizedApplication = await ensureExpiredApplicationRejected(application);
+
         // Handle guest applications that don't have candidateId
-        if (!application.candidateId) {
+        if (!normalizedApplication.candidateId) {
           return {
-            ...application.toObject(),
+            ...normalizedApplication,
             candidateId: null
           };
         }
-        
-        const candidateProfile = await CandidateProfile.findOne({ candidateId: application.candidateId._id });
+
+        const candidateId = normalizedApplication.candidateId?._id || normalizedApplication.candidateId;
+        const candidateProfile = await CandidateProfile.findOne({ candidateId });
         return {
-          ...application.toObject(),
+          ...normalizedApplication,
           candidateId: {
-            ...application.candidateId.toObject(),
+            ...normalizedApplication.candidateId,
             profilePicture: candidateProfile?.profilePicture,
             gender: candidateProfile?.gender
           }
@@ -2860,25 +2983,28 @@ exports.getJobApplications = async (req, res) => {
     
     const applications = await Application.find({ jobId, employerId: req.user._id })
       .populate('candidateId', 'name email phone')
-      .populate('jobId', 'title location companyName')
+      .populate('jobId', 'title location companyName lastDateOfApplication lastDateOfApplicationTime')
       .sort({ createdAt: -1 });
 
     // Add profile pictures to applications
     const applicationsWithProfiles = await Promise.all(
       applications.map(async (application) => {
+        const normalizedApplication = await ensureExpiredApplicationRejected(application);
+
         // Handle guest applications that don't have candidateId
-        if (!application.candidateId) {
+        if (!normalizedApplication.candidateId) {
           return {
-            ...application.toObject(),
+            ...normalizedApplication,
             candidateId: null
           };
         }
-        
-        const candidateProfile = await CandidateProfile.findOne({ candidateId: application.candidateId._id });
+
+        const candidateId = normalizedApplication.candidateId?._id || normalizedApplication.candidateId;
+        const candidateProfile = await CandidateProfile.findOne({ candidateId });
         return {
-          ...application.toObject(),
+          ...normalizedApplication,
           candidateId: {
-            ...application.candidateId.toObject(),
+            ...normalizedApplication.candidateId,
             profilePicture: candidateProfile?.profilePicture,
             gender: candidateProfile?.gender
           }
@@ -2913,12 +3039,12 @@ exports.getApplicationDetails = async (req, res) => {
 
     // Handle guest applications that don't have candidateId
     if (!application.candidateId) {
-      const responseApplication = {
+      const responseApplication = await ensureExpiredApplicationRejected({
         ...application.toObject(),
         candidateId: null,
         assessmentAttempt: null,
         interviewProcess: null
-      };
+      });
       return res.json({ success: true, application: responseApplication });
     }
 
@@ -3063,7 +3189,7 @@ exports.getApplicationDetails = async (req, res) => {
       dateOfBirth: candidateProfileObj.dateOfBirth || null
     };
 
-    const responseApplication = {
+    const responseApplication = await ensureExpiredApplicationRejected({
       ...application.toObject(),
       candidateId: candidateData,
       assessmentAttempt: assessmentAttempt,
@@ -3074,7 +3200,7 @@ exports.getApplicationDetails = async (req, res) => {
         ...application.jobId.toObject(),
         assessmentId: application.jobId.assessmentId
       }
-    };
+    });
 
     res.json({ success: true, application: responseApplication });
   } catch (error) {

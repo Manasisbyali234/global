@@ -190,12 +190,26 @@ body.home-scrollbar-hidden .home-page-alignment::-webkit-scrollbar {
     margin-right: 0 !important;
 }
 
+.home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .row {
+    margin-left: -10px !important;
+    margin-right: -10px !important;
+}
+
+.home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .row > [class*="col-"] {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+.home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .new-job-card .job-card-left {
+    overflow: visible !important;
+}
+
 .home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .new-job-card .top-jobs-company-logo {
     width: 82px !important;
     height: 50px !important;
     min-width: 82px !important;
     flex: 0 0 82px !important;
-    padding: 4px !important;
+    padding: 0 !important;
     border: 1px solid #dbe3ee !important;
     border-radius: 10px !important;
     overflow: hidden !important;
@@ -210,10 +224,14 @@ body.home-scrollbar-hidden .home-page-alignment::-webkit-scrollbar {
     width: 100% !important;
     height: 100% !important;
     max-width: none !important;
+    max-height: none !important;
     display: block !important;
+    margin: auto !important;
     object-fit: contain !important;
     object-position: center !important;
     border-radius: 0 !important;
+    transform: scale(1.12) !important;
+    transform-origin: center !important;
 }
 
 @media (max-width: 767px) {

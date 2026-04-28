@@ -214,7 +214,7 @@ function CandidateInterviewReminder() {
           <span>The reminder sound keeps ringing until you click Got it.</span>
         </div>
 
-        <button type="button" className="candidate-interview-reminder-button" onClick={handleAcknowledge}>
+        <button type="button" className="candidate-interview-reminder-button site-button" onClick={handleAcknowledge}>
           Got it
         </button>
       </div>

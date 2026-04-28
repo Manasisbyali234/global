@@ -5044,8 +5044,8 @@ export default function EmpPostJob({ onNext }) {
 												boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
 												width: '100%'
 											}}>
-										<div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-											<div style={{ display: "flex", alignItems: "center", gap: 12, flex: '1 1 auto', minWidth: 0 }}>
+										<div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 14 }}>
+											<div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
 														<span style={{
 															fontSize: 14,
 															fontWeight: 700,
@@ -5068,17 +5068,20 @@ export default function EmpPostJob({ onNext }) {
 													<div style={{ fontSize: 12, color: "#aa2c2c" }}>Set the date and time window for candidates (end time is auto-fetched).</div>
 												</div>
 											</div>
-											<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: isMobile ? 'flex-start' : 'flex-end', flex: isMobile ? '1 1 100%' : '1 1 420px', minWidth: 0 }}>
+											<div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: isMobile ? '100%' : 'min(100%, 380px)', maxWidth: isMobile ? '100%' : '380px', alignSelf: 'flex-start' }}>
+												<label style={{ ...label, marginBottom: 0, color: '#475569', fontWeight: 600 }}>
+													<i className="fa fa-list-alt" style={{ marginRight: 8, color: '#ff6b35' }}></i>
+													Choose Assessment
+												</label>
 												<AssessmentSearchSelect
 													assessments={availableAssessments}
 													value={selectedAssessmentForRound}
 													onSelect={(newAssessmentId) => handleAssessmentRoundSelection(uniqueKey, newAssessmentId)}
 													employerType={employerType}
-													minWidth={isMobile ? '100%' : '440px'}
+													minWidth="100%"
 													containerStyle={{
-														flex: isMobile ? '1 1 100%' : '1 1 420px',
-														width: isMobile ? '100%' : 'min(100%, 520px)',
-														maxWidth: isMobile ? '100%' : '520px',
+														width: '100%',
+														maxWidth: '100%',
 														minWidth: 0
 													}}
 													inputStyle={{
@@ -5092,7 +5095,6 @@ export default function EmpPostJob({ onNext }) {
 													}}
 												/>
 											</div>
-													{null}
 												</div>
 
 												<div

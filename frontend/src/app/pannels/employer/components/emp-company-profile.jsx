@@ -1648,18 +1648,24 @@ function EmpCompanyProfilePage() {
                                                 title="Preview background banner"
                                                 aria-label="Preview uploaded background banner"
                                             >
-                                                <img 
-                                                    src={getImagePreviewSrc(formData.coverImage)} 
-                                                    alt="Background Banner" 
+                                                <div
+                                                    className="banner-container"
                                                     style={{
-                                                        width: '200px', 
-                                                        height: '120px', 
-                                                        objectFit: 'cover', 
-                                                        objectPosition: 'center',
-                                                        borderRadius: '8px',
-                                                        display: 'block'
-                                                    }} 
-                                                />
+                                                        width: '240px',
+                                                        maxWidth: '100%',
+                                                        aspectRatio: '16 / 9'
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={getImagePreviewSrc(formData.coverImage)}
+                                                        alt="Background Banner"
+                                                        style={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            display: 'block'
+                                                        }}
+                                                    />
+                                                </div>
                                             </button>
                                         </div>
                                         <div className="mt-2">

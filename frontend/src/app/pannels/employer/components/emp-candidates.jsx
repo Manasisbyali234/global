@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
@@ -6,6 +6,133 @@ import JobZImage from "../../../common/jobz-img";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
 import './emp-candidates.css';
+
+function SearchableFilterDropdown({
+  value,
+  options = [],
+  placeholder = "",
+  searchPlaceholder = "Search...",
+  onChange
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const containerRef = useRef(null);
+  const searchInputRef = useRef(null);
+
+  const selectedOption = options.find((option) => option.value === value) || null;
+
+  const filteredOptions = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return options;
+    return options.filter((option) => option.label.toLowerCase().includes(query));
+  }, [options, searchTerm]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const handleOutsideClick = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const timer = window.setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [isOpen]);
+
+  const handleToggle = () => {
+    setIsOpen((prev) => !prev);
+    setSearchTerm("");
+  };
+
+  const handleSelect = (nextValue) => {
+    onChange(nextValue);
+    setIsOpen(false);
+    setSearchTerm("");
+  };
+
+  const handleTriggerKeyDown = (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleToggle();
+    }
+  };
+
+  return (
+    <div ref={containerRef} className="emp-candidates-filter-dropdown">
+      <div
+        className={`form-select page-toolbar__select emp-candidates-filter-dropdown__trigger${isOpen ? " is-open" : ""}`}
+        role="button"
+        tabIndex={0}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        onClick={handleToggle}
+        onKeyDown={handleTriggerKeyDown}
+      >
+        <span className={`emp-candidates-filter-dropdown__trigger-text${selectedOption ? "" : " is-placeholder"}`}>
+          {selectedOption?.label || placeholder}
+        </span>
+      </div>
+
+      {isOpen && (
+        <div className="emp-candidates-filter-menu" role="listbox">
+          <div className="emp-candidates-filter-menu__search">
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="form-control page-toolbar__input emp-candidates-filter-menu__search-input"
+              placeholder={searchPlaceholder}
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              onClick={(event) => event.stopPropagation()}
+            />
+          </div>
+
+          <div className="emp-candidates-filter-menu__options">
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option) => (
+                <div
+                  key={`${option.value || "all"}-${option.label}`}
+                  className={`emp-candidates-filter-option${option.value === value ? " is-selected" : ""}`}
+                  role="option"
+                  aria-selected={option.value === value}
+                  onClick={() => handleSelect(option.value)}
+                >
+                  {option.label}
+                </div>
+              ))
+            ) : (
+              <div className="emp-candidates-filter-menu__empty">No matching results</div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function EmpCandidatesPage() {
   const navigate = useNavigate();
@@ -141,6 +268,26 @@ function EmpCandidatesPage() {
     return Array.from(titles).sort((a, b) => a.localeCompare(b));
   }, [applications]);
 
+  const designationOptions = useMemo(
+    () => [
+      { value: "", label: "All Designation" },
+      ...jobTitleOptions.map((title) => ({ value: title, label: title }))
+    ],
+    [jobTitleOptions]
+  );
+
+  const statusOptions = useMemo(
+    () => [
+      { value: "", label: "All Status (Show All)" },
+      { value: "pending", label: "Pending" },
+      { value: "shortlisted", label: "Shortlisted" },
+      { value: "offer_sent", label: "Offer Letter Sent" },
+      { value: "accepted", label: "Offer Accepted" },
+      { value: "rejected", label: "Rejected" }
+    ],
+    []
+  );
+
   return (
     <div className="twm-right-section-panel site-bg-gray emp-candidates-page" style={{
       width: '100%',
@@ -236,36 +383,26 @@ function EmpCandidatesPage() {
                     <label className="page-toolbar__label">
                       <i className="fa fa-briefcase"></i> Designation
                     </label>
-                    <select
-                      className="form-select page-toolbar__select"
+                    <SearchableFilterDropdown
                       value={designationFilter}
-                      onChange={(e) => setDesignationFilter(e.target.value)}
-                    >
-                      <option value="">All Designation</option>
-                      {jobTitleOptions.map((title) => (
-                        <option key={title} value={title}>
-                          {title}
-                        </option>
-                        ))}
-                      </select>
-                    </div>
+                      options={designationOptions}
+                      placeholder="All Designation"
+                      searchPlaceholder="Search designation"
+                      onChange={setDesignationFilter}
+                    />
+                  </div>
                   <div className="page-toolbar__section" style={{ minWidth: '180px' }}>
                     <label className="page-toolbar__label">
                       <i className="fa fa-filter"></i> Application Status
-                  </label>
-                  <select
-                    className="form-select page-toolbar__select"
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                  >
-                    <option value="">All Status (Show All)</option>
-                    <option value="pending">Pending</option>
-                    <option value="shortlisted">Shortlisted</option>
-                    <option value="offer_sent">Offer Letter Sent</option>
-                    <option value="accepted">Offer Accepted</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
+                    </label>
+                    <SearchableFilterDropdown
+                      value={statusFilter}
+                      options={statusOptions}
+                      placeholder="All Status (Show All)"
+                      searchPlaceholder="Search status"
+                      onChange={setStatusFilter}
+                    />
+                  </div>
               </div>
             </div>
           </div>
