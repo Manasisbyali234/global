@@ -80,6 +80,10 @@ function RoleNotificationsPage({
   const [activeFilter, setActiveFilter] = useState("all");
   const [pendingAction, setPendingAction] = useState("");
   const [error, setError] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const tokenKey = `${role}Token`;
 
@@ -214,11 +218,20 @@ function RoleNotificationsPage({
 
   const filteredNotifications = useMemo(() => {
     return notifications.filter((notification) => {
-      if (activeFilter === "unread") return !notification.isRead;
-      if (activeFilter === "read") return notification.isRead;
+      if (activeFilter === "unread" && notification.isRead) return false;
+      if (activeFilter === "read" && !notification.isRead) return false;
+      if (dateFrom && new Date(notification.createdAt) < new Date(dateFrom)) return false;
+      if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59, 999);
+        if (new Date(notification.createdAt) > to) return false;
+      }
       return true;
     });
-  }, [activeFilter, notifications]);
+  }, [activeFilter, notifications, dateFrom, dateTo]);
+
+  const totalPages = Math.ceil(filteredNotifications.length / PAGE_SIZE);
+  const paginatedNotifications = filteredNotifications.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const stats = [
     { label: "Total Notifications", value: notifications.length, icon: "fa fa-bell", tone: "orange" },
@@ -274,45 +287,48 @@ function RoleNotificationsPage({
                 <button
                   type="button"
                   className={`role-notifications-filter ${activeFilter === "all" ? "is-active" : ""}`}
-                  onClick={() => setActiveFilter("all")}
+                  onClick={() => { setActiveFilter("all"); setCurrentPage(1); }}
                 >
                   All
                 </button>
                 <button
                   type="button"
                   className={`role-notifications-filter ${activeFilter === "unread" ? "is-active" : ""}`}
-                  onClick={() => setActiveFilter("unread")}
+                  onClick={() => { setActiveFilter("unread"); setCurrentPage(1); }}
                 >
                   Unread
                 </button>
                 <button
                   type="button"
                   className={`role-notifications-filter ${activeFilter === "read" ? "is-active" : ""}`}
-                  onClick={() => setActiveFilter("read")}
+                  onClick={() => { setActiveFilter("read"); setCurrentPage(1); }}
                 >
                   Read
                 </button>
               </div>
 
-              <div className="role-notifications-toolbar-actions">
-                <button
-                  type="button"
-                  className="role-notifications-toolbar-button"
-                  onClick={() => fetchNotifications()}
-                  disabled={loading || isRefreshing}
-                >
-                  <i className={`fa ${isRefreshing ? "fa-spinner fa-spin" : "fa-refresh"}`}></i>
-                  Refresh
-                </button>
-                <button
-                  type="button"
-                  className="role-notifications-toolbar-button primary"
-                  onClick={markAllAsRead}
-                  disabled={loading || unreadCount === 0 || pendingAction === "read-all"}
-                >
-                  <i className={`fa ${pendingAction === "read-all" ? "fa-spinner fa-spin" : "fa-check"}`}></i>
-                  Mark all as read
-                </button>
+              <div className="role-notifications-date-range">
+                <div className="role-notifications-date-field">
+                  <label>From</label>
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
+                  />
+                </div>
+                <div className="role-notifications-date-field">
+                  <label>To</label>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
+                  />
+                </div>
+                {(dateFrom || dateTo) && (
+                  <button type="button" className="role-notifications-date-clear" onClick={() => { setDateFrom(""); setDateTo(""); setCurrentPage(1); }}>
+                    <i className="fa fa-times"></i>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -330,7 +346,7 @@ function RoleNotificationsPage({
               </div>
             ) : filteredNotifications.length > 0 ? (
               <div className="role-notifications-list">
-                {filteredNotifications.map((notification) => {
+                {paginatedNotifications.map((notification) => {
                   const meta = getNotificationMeta(notification);
                   const isReadPending = pendingAction === `read:${notification._id}`;
                   const isDismissPending = pendingAction === `dismiss:${notification._id}`;
@@ -374,7 +390,6 @@ function RoleNotificationsPage({
                                 disabled={isReadPending || isDismissPending}
                               >
                                 <i className={`fa ${isReadPending ? "fa-spinner fa-spin" : "fa-eye"}`}></i>
-                                Mark as read
                               </button>
                             )}
                             <button
@@ -384,7 +399,6 @@ function RoleNotificationsPage({
                               disabled={isDismissPending || isReadPending}
                             >
                               <i className={`fa ${isDismissPending ? "fa-spinner fa-spin" : "fa-trash"}`}></i>
-                              Dismiss
                             </button>
                           </div>
                         </div>
@@ -402,6 +416,23 @@ function RoleNotificationsPage({
                     ? "New updates will appear here as soon as they are generated."
                     : "Try another filter or come back after new activity arrives."}
                 </p>
+              </div>
+            )}
+
+            {filteredNotifications.length > 0 && (
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
+                <div style={{ color: "#6c757d", fontSize: "13px" }}>
+                  Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredNotifications.length)} of {filteredNotifications.length} notification{filteredNotifications.length !== 1 ? "s" : ""}
+                </div>
+                {totalPages > 1 && (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
+                    <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === 1 ? "#f8f9fa" : "#fff", color: currentPage === 1 ? "#adb5bd" : "#495057", cursor: currentPage === 1 ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8249;</button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button key={page} onClick={() => setCurrentPage(page)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: page === currentPage ? `1px solid ${accentColor}` : "1px solid #dee2e6", background: page === currentPage ? accentColor : "#fff", color: page === currentPage ? "#fff" : "#495057", fontWeight: page === currentPage ? 700 : 400, cursor: "pointer", fontSize: "13px" }}>{page}</button>
+                    ))}
+                    <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "34px", height: "34px", borderRadius: "6px", border: "1px solid #dee2e6", background: currentPage === totalPages ? "#f8f9fa" : "#fff", color: currentPage === totalPages ? "#adb5bd" : "#495057", cursor: currentPage === totalPages ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}>&#8250;</button>
+                  </div>
+                )}
               </div>
             )}
           </div>

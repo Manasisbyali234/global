@@ -1,3 +1,27 @@
+.candidate-page-shell {
+  padding: 2rem;
+}
+
+.candidate-page-shell--header {
+  padding-bottom: 0;
+}
+
+.candidate-page-shell--content {
+  padding-top: 0;
+}
+
+@media (max-width: 992px) {
+  .candidate-page-shell {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .candidate-page-shell {
+    padding: 1rem;
+  }
+}
+
 .candidate-notifications-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -143,6 +167,7 @@
 
 .candidate-notifications-list {
   display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 }
 
@@ -304,6 +329,10 @@
     grid-template-columns: 1fr;
   }
 
+  .candidate-notifications-list {
+    grid-template-columns: 1fr;
+  }
+
   .candidate-notification-card {
     flex-direction: column;
   }
@@ -337,4 +366,73 @@
     padding: 1rem;
     border-radius: 16px;
   }
+}
+
+.candidate-notifications-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.candidate-notifications-page-info {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.candidate-notifications-date-range {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.candidate-notifications-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.candidate-notifications-date-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.candidate-notifications-date-field input {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 0.3rem 0.35rem;
+  font-size: 0.9rem;
+  color: #111827;
+  background: #fff;
+  width: 130px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.candidate-notifications-date-field input:focus {
+  border-color: #f97316;
+}
+
+.candidate-notifications-date-clear {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 1px;
+}
+
+.candidate-notifications-date-clear:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
 }
