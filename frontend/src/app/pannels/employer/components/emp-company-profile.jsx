@@ -292,6 +292,12 @@ function EmpCompanyProfilePage() {
             if (data.success && data.profile) {
                 const profileData = { ...data.profile };
 
+                // Clear default placeholder description
+                const defaultDesc = 'We are a dynamic company focused on delivering excellent services and creating opportunities for talented professionals.';
+                if (profileData.description && profileData.description.replace(/<[^>]*>/g, '').trim() === defaultDesc) {
+                    profileData.description = '';
+                }
+
                 // Fallback: derive employerCategory from employerId.employerType if not set
                 if (!profileData.employerCategory && profileData.employerId?.employerType) {
                     profileData.employerCategory = profileData.employerId.employerType === 'consultant' ? 'consultancy' : 'company';

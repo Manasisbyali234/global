@@ -1133,6 +1133,17 @@ exports.getAllEmployers = async (req, res) => {
           ))
         : [];
       
+      const docResubmitFields = [
+        { reuploadedAt: 'panCardReuploadedAt', verified: 'panCardVerified' },
+        { reuploadedAt: 'cinReuploadedAt', verified: 'cinVerified' },
+        { reuploadedAt: 'gstReuploadedAt', verified: 'gstVerified' },
+        { reuploadedAt: 'incorporationReuploadedAt', verified: 'incorporationVerified' },
+        { reuploadedAt: 'companyIdCardReuploadedAt', verified: 'companyIdCardVerified' }
+      ];
+      const hasResubmittedDocuments = profile
+        ? docResubmitFields.some(f => profile[f.reuploadedAt] && profile[f.verified] === 'pending')
+        : false;
+
       return {
         ...employer,
         hasProfile: !!profile,
@@ -1141,6 +1152,7 @@ exports.getAllEmployers = async (req, res) => {
         authorizationLetters,
         hasNewConsultantCompanies: newConsultantCompanies.length > 0,
         newConsultantCompanies,
+        hasResubmittedDocuments,
         profileCompletionPercentage: profile 
           ? Math.round((requiredFields.filter(field => profile[field]).length / requiredFields.length) * 100)
           : 0
@@ -1275,10 +1287,10 @@ exports.updateEmployerStatus = async (req, res) => {
         }
         
         const notificationData = {
-          title: isApproved ? 'Profile Approved - You Can Now Post Jobs!' : 'Profile Rejected',
+          title: isApproved ? 'Profile Approved - Document Verification Pending' : 'Profile Rejected',
           message: isApproved 
-            ? 'Congratulations! Your company profile has been approved by admin. Your documents are currently under verification. Once they are verified, you can post jobs and start hiring candidates..' 
-            : 'Your company profile has been rejected by admin. Please contact support for more information or resubmit your profile with the required corrections.',
+            ? 'Your company profile has been approved by TaleGlobal. However, you cannot post jobs until your documents are verified. Please wait for document verification to be completed before posting jobs.' 
+            : 'Your company profile has been rejected by TaleGlobal. Please contact support for more information or resubmit your profile with the required corrections',
           type: isApproved ? 'profile_approved' : 'profile_rejected',
           role: 'employer',
           relatedId: employer._id,
@@ -1382,7 +1394,7 @@ exports.updateEmployerProfile = async (req, res) => {
           const isApproved = req.body[field] === 'approved';
           const notificationData = {
             title: `${documentName} ${isApproved ? 'Approved' : 'Rejected'}`,
-            message: `${documentName} has been ${req.body[field]} by admin.${isApproved ? '' : ' Please resubmit the document with correct information.'}`,
+            message: `${documentName} has been ${req.body[field]} by TaleGlobal.${isApproved ? '' : ' Please resubmit the document with correct information.'}`,
             type: isApproved ? 'document_approved' : 'document_rejected',
             role: 'employer',
             relatedId: new mongoose.Types.ObjectId(req.params.id),
@@ -2869,7 +2881,7 @@ exports.rejectAuthorizationLetter = async (req, res) => {
 
       const notificationData = {
         title: 'Authorization Letter Rejected',
-        message: `Your authorization letter "${rejectedLetter.fileName}" has been rejected by admin. Please resubmit the document with correct information or contact support for assistance.`,
+        message: `Authorization letter "${rejectedLetter.fileName}" has been rejected by TaleGlobal. Please resubmit the document with correct information or contact support for assistance.`,
         type: 'document_rejected',
         role: 'employer',
         relatedId: new mongoose.Types.ObjectId(employerId),
@@ -3180,7 +3192,7 @@ exports.approveIndividualFile = async (req, res) => {
       if (createdCount === 0 && skippedCount > 0) {
         message = `File "${displayName}" processed! ${skippedCount} duplicate ${skippedCount === 1 ? 'student was' : 'students were'} found. Use "Resend Welcome Emails" to send emails to existing students.`;
       } else {
-        message = `File "${displayName}" approved! All students can now create their passwords and access their accounts.`;
+        message = `File approved! All students can now create their passwords and access their accounts.`;
       }
       
       res.json({

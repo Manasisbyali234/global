@@ -98,6 +98,8 @@ function PlacementDetails() {
     const [viewImageModal, setViewImageModal] = useState(null); // { src, title }
 
     const [selectedFileStatus, setSelectedFileStatus] = useState('all');
+    const [showCreditWarningModal, setShowCreditWarningModal] = useState(false);
+    const [creditWarningFile, setCreditWarningFile] = useState(null);
 
     useEffect(() => {
         fetchPlacementDetails();
@@ -188,6 +190,12 @@ function PlacementDetails() {
     const handleFileApprove = async (fileId, fileName) => {
         const file = placement?.fileHistory?.find(f => f._id === fileId);
         const displayName = file?.customName || fileName;
+
+        if (!file?.credits || file.credits <= 0) {
+            setCreditWarningFile(file);
+            setShowCreditWarningModal(true);
+            return;
+        }
         
         try {
             setProcessingFiles(prev => ({...prev, [fileId]: 'approving'}));
@@ -1284,6 +1292,54 @@ function PlacementDetails() {
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setViewImageModal(null)}>Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Credit Warning Modal */}
+            {showCreditWarningModal && creditWarningFile && (
+                <div className="modal fade show" style={{display: 'block', background: 'rgba(0,0,0,0.5)'}} onClick={() => setShowCreditWarningModal(false)}>
+                    <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-content" style={{borderRadius: '12px', overflow: 'hidden'}}>
+                            <div className="modal-header" style={{background: '#fff8e1', borderBottom: '1px solid #ffe082'}}>
+                                <h5 className="modal-title" style={{color: '#e65100', fontWeight: '600'}}>
+                                    <i className="fa fa-exclamation-triangle me-2" style={{color: '#FDC360'}}></i>
+                                    Credits Not Assigned
+                                </h5>
+                                <button type="button" className="close" onClick={() => setShowCreditWarningModal(false)}>
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body" style={{padding: '24px'}}>
+                                <div className="text-center">
+                                    <p style={{fontSize: '0.9rem', color: '#e65100', fontWeight: '500', margin: '0'}}>
+                                        <i className="fa fa-info-circle me-1"></i>
+                                        Assign credit to click approve.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="modal-footer" style={{borderTop: '1px solid #f0f0f0'}}>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowCreditWarningModal(false)}
+                                    style={{borderRadius: '8px'}}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn"
+                                    onClick={() => {
+                                        setShowCreditWarningModal(false);
+                                        handleFileCreditsManagement(creditWarningFile);
+                                    }}
+                                    style={{backgroundColor: '#FDC360', border: '1px solid #FDC360', color: '#000', borderRadius: '8px', fontWeight: '600'}}
+                                >
+                                    <i className="fa fa-credit-card me-2"></i>Assign Credits
+                                </button>
                             </div>
                         </div>
                     </div>

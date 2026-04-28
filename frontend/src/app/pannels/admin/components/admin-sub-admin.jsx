@@ -92,7 +92,7 @@ function AdminSubAdmin() {
         if (!formData.lastName.trim()) {
             errors.lastName = 'Last name is required';
         } else if (formData.lastName.trim().length < 2) {
-            errors.lastName = 'Last name must be at least 2 characters';
+            errors.lastName = 'Last name must be at least 2 character';
         } else if (!/^[a-zA-Z\s]+$/.test(formData.lastName)) {
             errors.lastName = 'Last name can only contain letters';
         }

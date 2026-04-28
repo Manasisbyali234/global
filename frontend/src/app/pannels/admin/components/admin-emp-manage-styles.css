@@ -1023,3 +1023,8 @@
         flex-direction: column;
     }
 }
+
+.company-name-dot--resubmit {
+    background: #f97316;
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.18);
+}

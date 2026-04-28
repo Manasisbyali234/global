@@ -204,6 +204,9 @@ function AdminEmployersApproved() {
                                                             {employer.hasNewConsultantCompanies && (
                                                                 <span className="company-name-dot" aria-hidden="true"></span>
                                                             )}
+                                                            {employer.hasResubmittedDocuments && (
+                                                                <span className="company-name-dot company-name-dot--resubmit" title="Document resubmitted" aria-hidden="true"></span>
+                                                            )}
                                                             {employer.companyName || employer.email}
                                                         </span>
                                                         {employer.hasNewConsultantCompanies && employer.newConsultantCompanies?.length > 0 && (
