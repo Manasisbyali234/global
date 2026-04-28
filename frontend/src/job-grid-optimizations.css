@@ -99,6 +99,22 @@
   padding-left: 20px !important;
 }
 
+.job-grid-page .new-job-card .company-logo {
+  box-sizing: border-box;
+  padding: 0;
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+.job-grid-page .new-job-card .company-logo img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
 .site-bg-white {
   background: transparent !important;
 }

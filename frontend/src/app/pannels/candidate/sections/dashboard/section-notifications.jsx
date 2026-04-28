@@ -38,6 +38,7 @@ function SectionNotifications() {
 				headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
 			});
 			setNotifications(prev => prev.filter(n => n._id !== id));
+			window.dispatchEvent(new CustomEvent('refreshNotifications'));
 		} catch (error) {}
 	};
 

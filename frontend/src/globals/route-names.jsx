@@ -66,6 +66,7 @@ export const publicUser = {
 export const candidate = {
 	INITIAL: "/",
 	DASHBOARD: "/dashboard",
+	NOTIFICATIONS: "/notifications",
 	PROFILE: "/profile",
 	APPLIED_JOBS: "/applied-jobs",
 	STATUS: "/status",
@@ -88,6 +89,7 @@ export const candidate = {
 export const employer = {
 	INITIAL: "/",
 	DASHBOARD: "/dashboard",
+	NOTIFICATIONS: "/notifications",
 	PROFILE: "/profile",
 	PROFILE1: "/profile1",
 	POST_A_JOB: "/post-job",
@@ -109,6 +111,7 @@ export const employer = {
 export const admin = {
     INITIAL:        "/",
     DASHBOARD:      "/dashboard",
+    NOTIFICATIONS:  "/notifications",
     OVERVIEW:       "/overview",
     JOBS_POSTED:    "/jobs-posted",
     CANDIDATES:     "/candidates-list",

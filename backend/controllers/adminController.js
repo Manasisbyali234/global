@@ -2376,7 +2376,7 @@ exports.updateCandidateCredits = async (req, res) => {
     const { candidateId } = req.params;
     const { creditsToAdd } = req.body;
     
-    if (typeof creditsToAdd !== 'number') {
+    if (typeof creditsToAdd !== 'number' || Number.isNaN(creditsToAdd)) {
       return res.status(400).json({ success: false, message: 'Credits must be a number' });
     }
     
@@ -2394,8 +2394,34 @@ exports.updateCandidateCredits = async (req, res) => {
     ).select('-password');
 
     await syncPlacementCandidateCreditsForCandidate(candidate, newCredits);
+
+    emitCreditUpdate(candidateId, newCredits);
+
+    let emailSent = false;
+    let responseMessage = 'Credits updated successfully.';
+
+    if (creditsToAdd > 0 && updatedCandidate?.email) {
+      try {
+        const { sendIndividualCreditsAssignedEmail } = require('../utils/emailService');
+        await sendIndividualCreditsAssignedEmail(
+          updatedCandidate.email,
+          updatedCandidate.name,
+          creditsToAdd
+        );
+        emailSent = true;
+        responseMessage = 'Credits updated successfully. Email sent to candidate.';
+      } catch (emailError) {
+        console.error(`Failed to send individual credits email to ${updatedCandidate.email}:`, emailError);
+        responseMessage = 'Credits updated successfully, but the email could not be sent.';
+      }
+    }
     
-    res.json({ success: true, candidate: updatedCandidate });
+    res.json({
+      success: true,
+      candidate: updatedCandidate,
+      emailSent,
+      message: responseMessage
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

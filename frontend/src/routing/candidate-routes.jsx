@@ -3,6 +3,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { candidate } from "../globals/route-names";
 import { useState, useEffect } from "react";
 import CanDashboardPage from "../app/pannels/candidate/components/can-dashboard";
+import CanNotificationsPage from "../app/pannels/candidate/components/can-notifications";
 import CanProfilePage from "../app/pannels/candidate/components/can-profile";
 import CanAppliedJobs from "../app/pannels/candidate/components/can-applied-jobs";
 import CanStatusPage from "../app/pannels/candidate/components/application-status";
@@ -73,6 +74,7 @@ function CandidateRoutes() {
 			<Routes>
 				<Route path={candidate.INITIAL} element={<CanDashboardPage />} />
 				<Route path={candidate.DASHBOARD} element={<CanDashboardPage />} />
+				<Route path={candidate.NOTIFICATIONS} element={<CanNotificationsPage />} />
 				<Route path={candidate.PROFILE} element={<CanProfilePage />} />
 				<Route path={candidate.APPLIED_JOBS} element={<CanAppliedJobs />} />
 				<Route path={candidate.STATUS} element={<CanStatusPage />} />

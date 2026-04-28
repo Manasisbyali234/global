@@ -163,7 +163,9 @@ function EmpCandidateReviewPage() {
             return normalizeTrackedProcessState({
                 ...process,
                 status: savedProcess.status,
-                result: savedProcess.result || process.result || null
+                result: process.type === 'assessment'
+                    ? process.result || null
+                    : (savedProcess.result || process.result || null)
             });
         });
 
@@ -328,6 +330,135 @@ function EmpCandidateReviewPage() {
     const getAssessmentResultClass = (resultLabel) =>
         String(resultLabel || 'pending').toLowerCase().replace(/\s+/g, '_');
 
+    const parseScheduleTime = (value = '') => {
+        const normalized = String(value || '').trim();
+        if (!normalized) return null;
+
+        const match = normalized.match(/^(\d{1,2}):(\d{2})(?:\s*(am|pm))?$/i);
+        if (!match) return null;
+
+        let hours = Number(match[1]);
+        const minutes = Number(match[2]);
+        const meridiem = (match[3] || '').toLowerCase();
+
+        if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+            return null;
+        }
+
+        if (meridiem === 'pm' && hours < 12) {
+            hours += 12;
+        } else if (meridiem === 'am' && hours === 12) {
+            hours = 0;
+        }
+
+        return { hours, minutes };
+    };
+
+    const buildScheduleDateTime = (dateValue, timeValue = '', boundary = 'start') => {
+        if (!dateValue) return null;
+
+        const date = new Date(dateValue);
+        if (Number.isNaN(date.getTime())) {
+            return null;
+        }
+
+        const parsedTime = parseScheduleTime(timeValue);
+        if (parsedTime) {
+            date.setHours(
+                parsedTime.hours,
+                parsedTime.minutes,
+                boundary === 'end' ? 59 : 0,
+                boundary === 'end' ? 999 : 0
+            );
+            return date;
+        }
+
+        if (boundary === 'end') {
+            date.setHours(23, 59, 59, 999);
+        } else {
+            date.setHours(0, 0, 0, 0);
+        }
+
+        return date;
+    };
+
+    const getAssessmentDisplayState = (process = {}, applicationData = null) => {
+        const defaultStatusValue = process?.status || 'pending';
+        const defaultResultValue = process?.result || null;
+
+        if (process?.type !== 'assessment') {
+            return {
+                statusValue: defaultStatusValue,
+                statusLabel: formatStatusLabel(defaultStatusValue),
+                statusClass: defaultStatusValue,
+                resultValue: defaultResultValue,
+                resultClass: process?.resultClass || 'pending',
+                isWindowExpired: false
+            };
+        }
+
+        const normalizedStatus = normalizeStatusValue(process?.status);
+        const hasAssessmentData = Boolean(process?.assessmentHasData);
+        const terminalStatuses = new Set([
+            'suspended',
+            'expired',
+            'in progress',
+            'completed',
+            'passed',
+            'failed',
+            'cancelled'
+        ]);
+        const pendingStatuses = new Set([
+            '',
+            'pending',
+            'available',
+            'scheduled',
+            'not started'
+        ]);
+
+        const fromDate =
+            process?.fromDate ||
+            process?.scheduledDate ||
+            applicationData?.jobId?.assessmentStartDate ||
+            null;
+        const toDate =
+            process?.toDate ||
+            process?.fromDate ||
+            process?.scheduledDate ||
+            applicationData?.jobId?.assessmentEndDate ||
+            fromDate;
+        const startTime =
+            process?.startTime ||
+            process?.scheduledTime ||
+            applicationData?.jobId?.assessmentStartTime ||
+            '';
+        const endTime =
+            process?.endTime ||
+            applicationData?.jobId?.assessmentEndTime ||
+            '';
+
+        const scheduledEnd = buildScheduleDateTime(toDate || fromDate, endTime, 'end');
+        const isWindowExpired = Boolean(
+            !hasAssessmentData &&
+            !terminalStatuses.has(normalizedStatus) &&
+            pendingStatuses.has(normalizedStatus) &&
+            scheduledEnd &&
+            new Date() > scheduledEnd
+        );
+
+        return {
+            statusValue: isWindowExpired ? 'session expired' : defaultStatusValue,
+            statusLabel: isWindowExpired ? 'Session Expired' : formatStatusLabel(defaultStatusValue),
+            statusClass: isWindowExpired ? 'expired' : defaultStatusValue,
+            resultValue: isWindowExpired ? 'Session Expired' : defaultResultValue,
+            resultClass: isWindowExpired ? 'expired' : (process?.resultClass || 'pending'),
+            isWindowExpired
+        };
+    };
+
+    const getProcessEffectiveStatus = (process = {}, applicationData = null) =>
+        getAssessmentDisplayState(process, applicationData).statusValue;
+
     const resolveAssessmentProcessStatus = (stageStatus, assessmentSummary) => {
         const normalizedStageStatus = String(stageStatus || '').toLowerCase();
         const normalizedAssessmentStatus = String(assessmentSummary?.status || '').toLowerCase();
@@ -441,10 +572,18 @@ function EmpCandidateReviewPage() {
                                 resultClass: stage.stageType === 'assessment'
                                     ? stageAssessmentSummary.resultClass
                                     : '',
+                                assessmentHasData: stage.stageType === 'assessment' ? stageAssessmentSummary.hasData : false,
                                 assessmentScore: stage.stageType === 'assessment' ? stageAssessmentSummary.score : null,
                                 assessmentPercentage: stage.stageType === 'assessment' ? stageAssessmentSummary.percentage : null,
                                 assessmentTotalMarks: stage.stageType === 'assessment' ? stageAssessmentSummary.totalMarks : null,
-                                assessmentCaptures: stage.stageType === 'assessment' ? stageAssessmentSummary.captures : []
+                                assessmentCaptures: stage.stageType === 'assessment' ? stageAssessmentSummary.captures : [],
+                                assessmentId: stage.stageType === 'assessment' ? (stage.assessmentId || null) : null,
+                                fromDate: stage.stageType === 'assessment' ? (stage.fromDate || null) : null,
+                                toDate: stage.stageType === 'assessment' ? (stage.toDate || stage.fromDate || null) : null,
+                                startTime: stage.stageType === 'assessment' ? (stage.startTime || stage.scheduledTime || '') : '',
+                                endTime: stage.stageType === 'assessment' ? (stage.endTime || '') : '',
+                                scheduledDate: stage.stageType === 'assessment' ? (stage.scheduledDate || null) : null,
+                                scheduledTime: stage.stageType === 'assessment' ? (stage.scheduledTime || '') : ''
                             });
                         });
                     processes = applySavedManualStatuses(processes, savedManualProcesses);
@@ -467,15 +606,23 @@ function EmpCandidateReviewPage() {
                             result: p.type === 'assessment'
                                 ? stageAssessmentSummary.resultDisplay
                                 : null,
-                            resultClass: p.type === 'assessment'
-                                ? stageAssessmentSummary.resultClass
-                                : '',
-                            assessmentScore: p.type === 'assessment' ? stageAssessmentSummary.score : null,
-                            assessmentPercentage: p.type === 'assessment' ? stageAssessmentSummary.percentage : null,
-                            assessmentTotalMarks: p.type === 'assessment' ? stageAssessmentSummary.totalMarks : null,
-                            assessmentCaptures: p.type === 'assessment' ? stageAssessmentSummary.captures : []
+                                resultClass: p.type === 'assessment'
+                                    ? stageAssessmentSummary.resultClass
+                                    : '',
+                                assessmentHasData: p.type === 'assessment' ? stageAssessmentSummary.hasData : false,
+                                assessmentScore: p.type === 'assessment' ? stageAssessmentSummary.score : null,
+                                assessmentPercentage: p.type === 'assessment' ? stageAssessmentSummary.percentage : null,
+                                assessmentTotalMarks: p.type === 'assessment' ? stageAssessmentSummary.totalMarks : null,
+                                assessmentCaptures: p.type === 'assessment' ? stageAssessmentSummary.captures : [],
+                                assessmentId: p.type === 'assessment' ? (p.assessmentId || null) : null,
+                                fromDate: p.type === 'assessment' ? (p.fromDate || null) : null,
+                                toDate: p.type === 'assessment' ? (p.toDate || p.fromDate || null) : null,
+                                startTime: p.type === 'assessment' ? (p.startTime || p.scheduledTime || '') : '',
+                                endTime: p.type === 'assessment' ? (p.endTime || '') : '',
+                                scheduledDate: p.type === 'assessment' ? (p.scheduledDate || null) : null,
+                                scheduledTime: p.type === 'assessment' ? (p.scheduledTime || '') : ''
+                            });
                         });
-                    });
                     processes = normalizeManualTrackingSequence(processes);
                 } else if (data.application.jobId?.interviewRoundOrder && data.application.jobId.interviewRoundOrder.length > 0) {
                     const assessmentRoundCount = data.application.jobId.interviewRoundOrder.filter(roundKey => {
@@ -517,10 +664,18 @@ function EmpCandidateReviewPage() {
                             isCompleted: false,
                             result: roundType === 'assessment' ? stageAssessmentSummary.resultDisplay : null,
                             resultClass: roundType === 'assessment' ? stageAssessmentSummary.resultClass : '',
+                            assessmentHasData: roundType === 'assessment' ? stageAssessmentSummary.hasData : false,
                             assessmentScore: roundType === 'assessment' ? stageAssessmentSummary.score : null,
                             assessmentPercentage: roundType === 'assessment' ? stageAssessmentSummary.percentage : null,
                             assessmentTotalMarks: roundType === 'assessment' ? stageAssessmentSummary.totalMarks : null,
-                            assessmentCaptures: roundType === 'assessment' ? stageAssessmentSummary.captures : []
+                            assessmentCaptures: roundType === 'assessment' ? stageAssessmentSummary.captures : [],
+                            assessmentId: roundType === 'assessment' ? (roundDetails?.assessmentId || data.application.jobId?.assessmentId || null) : null,
+                            fromDate: roundType === 'assessment' ? (roundDetails?.fromDate || roundDetails?.date || data.application.jobId?.assessmentStartDate || null) : null,
+                            toDate: roundType === 'assessment' ? (roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || data.application.jobId?.assessmentEndDate || null) : null,
+                            startTime: roundType === 'assessment' ? (roundDetails?.startTime || data.application.jobId?.assessmentStartTime || '') : '',
+                            endTime: roundType === 'assessment' ? (roundDetails?.endTime || data.application.jobId?.assessmentEndTime || '') : '',
+                            scheduledDate: null,
+                            scheduledTime: ''
                         });
                     });
                     processes = normalizeManualTrackingSequence(processes);
@@ -631,7 +786,7 @@ function EmpCandidateReviewPage() {
                 type: String(p.type),
                 status: String(p.status),
                 isCompleted: Boolean(p.isCompleted),
-                result: p.result || null
+                result: p.type === 'assessment' ? null : (p.result || null)
             }));
             
             const response = await fetch(`${API_BASE_URL}/employer/applications/${applicationId}/review`, {
@@ -675,7 +830,7 @@ function EmpCandidateReviewPage() {
                 type: String(p.type),
                 status: String(p.status),
                 isCompleted: Boolean(p.isCompleted),
-                result: p.result || null
+                result: p.type === 'assessment' ? null : (p.result || null)
             }));
             
             const response = await fetch(`${API_BASE_URL}/employer/applications/${applicationId}/review`, {
@@ -794,7 +949,10 @@ function EmpCandidateReviewPage() {
             'not_eligibal_for_next_round',
             'not_eligible_for_next_round'
         ]);
-        return interviewProcesses.some(p => negativeStatuses.has(p.status) || isRejectedLikeStatus(p.status));
+        return interviewProcesses.some((process) => {
+            const effectiveStatus = getProcessEffectiveStatus(process, application);
+            return negativeStatuses.has(effectiveStatus) || isRejectedLikeStatus(effectiveStatus);
+        });
     };
 
     const isFinalStageShortlisted = () => {
@@ -1055,12 +1213,16 @@ function EmpCandidateReviewPage() {
                                         <div className="section-body">
                                             <div className="processes-grid">
                                                 {interviewProcesses.map((process, index) => {
-                                                    const isPreviousRejected = interviewProcesses.slice(0, index).some(p => isRejectedLikeStatus(p.status));
+                                                    const assessmentDisplay = getAssessmentDisplayState(process, application);
+                                                    const isPreviousRejected = interviewProcesses
+                                                        .slice(0, index)
+                                                        .some((previousProcess) => isRejectedLikeStatus(getProcessEffectiveStatus(previousProcess, application)));
                                                     const isPreviousIncomplete = index > 0 && !interviewProcesses
                                                         .slice(0, index)
                                                         .every((previousProcess) => isShortlistedForNextRoundStatus(previousProcess.status));
                                                     const isCurrentDisabled =
                                                         isSessionExpiredApplication ||
+                                                        assessmentDisplay.isWindowExpired ||
                                                         isPreviousRejected ||
                                                         isPreviousIncomplete ||
                                                         (applicationDisplayStatus === 'rejected' && !isRejectedLikeStatus(process.status));
@@ -1072,11 +1234,11 @@ function EmpCandidateReviewPage() {
                                                                     <span className="stage-number">Stage {index + 1}</span>
                                                                     <h6>{cleanProcessName(process.name)}</h6>
                                                                 </div>
-                                                                <span className={`status-badge ${process.status || 'pending'}`}>
-                                                                    {formatStatusLabel(process.status)}
+                                                                <span className={`status-badge ${assessmentDisplay.statusClass || 'pending'}`}>
+                                                                    {assessmentDisplay.statusLabel}
                                                                 </span>
                                                             </div>
-                                                            {process.type === 'assessment' && (process.assessmentScore !== null || process.assessmentPercentage !== null || process.result) && (
+                                                            {process.type === 'assessment' && (process.assessmentScore !== null || process.assessmentPercentage !== null || assessmentDisplay.resultValue) && (
                                                                 <div className="assessment-process-summary">
                                                                     {process.assessmentScore !== null && process.assessmentTotalMarks !== null && (
                                                                         <div className="assessment-process-item">
@@ -1094,11 +1256,11 @@ function EmpCandidateReviewPage() {
                                                                             </span>
                                                                         </div>
                                                                     )}
-                                                                    {process.result && (
+                                                                    {assessmentDisplay.resultValue && (
                                                                         <div className="assessment-process-item">
                                                                             <span className="assessment-process-label">Result</span>
-                                                                            <span className={`assessment-process-value result ${process.resultClass || 'pending'}`}>
-                                                                                {process.result}
+                                                                            <span className={`assessment-process-value result ${assessmentDisplay.resultClass || 'pending'}`}>
+                                                                                {assessmentDisplay.resultValue}
                                                                             </span>
                                                                         </div>
                                                                     )}
@@ -1193,6 +1355,12 @@ function EmpCandidateReviewPage() {
                                                                 <div className="stage-locked-info">
                                                                     <i className="fas fa-clock"></i>
                                                                     <span>Tracking locked because the application session has expired.</span>
+                                                                </div>
+                                                            )}
+                                                            {!isSessionExpiredApplication && assessmentDisplay.isWindowExpired && (
+                                                                <div className="stage-locked-info">
+                                                                    <i className="fas fa-clock"></i>
+                                                                    <span>Assessment window ended before the candidate attended it.</span>
                                                                 </div>
                                                             )}
                                                             {isPreviousRejected && (

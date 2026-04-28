@@ -1166,6 +1166,69 @@ const sendCandidateDetailsUpdatedEmail = async (email, name, credits = 3) => {
   await sendMailWithGreeting(transporter, mailOptions);
 };
 
+const sendIndividualCreditsAssignedEmail = async (email, name, creditsAssigned = 0) => {
+  const transporter = createTransport();
+  const createPasswordUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/create-password?email=${encodeURIComponent(email)}&type=candidate`;
+  const loginUrl = `${process.env.FRONTEND_URL || 'https://taleglobal.net'}/`;
+  const safeCreditsAssigned = Math.max(0, parseInt(creditsAssigned, 10) || 0);
+  const creditNoun = safeCreditsAssigned === 1 ? 'credit' : 'credits';
+  const creditVerb = safeCreditsAssigned === 1 ? 'has' : 'have';
+
+  const template = `
+    <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa; color: #333;">
+      <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 24px;">Credits Assigned to Your TaleGlobal Account</h2>
+
+        <p>Dear ${name || 'Candidate'},</p>
+
+        <p>Greetings from TaleGlobal!</p>
+
+        <p>Your account has been successfully created on the TaleGlobal platform, and <strong>${safeCreditsAssigned} job application ${creditNoun}</strong> ${creditVerb} been assigned to you directly.</p>
+
+        <p><strong>Next Steps:</strong></p>
+        <ul style="padding-left: 20px; margin: 0 0 20px;">
+          <li style="margin-bottom: 8px;">Please set your password using the link sent to your registered email.</li>
+          <li style="margin-bottom: 8px;">Log in to your dashboard and complete your profile with your education, skills, and preferences.</li>
+          <li>Start applying for jobs that match your profile using your assigned credits.</li>
+        </ul>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${createPasswordUrl}" style="background-color: #ff6b35; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; margin-right: 10px;">Create Password</a>
+          <a href="${loginUrl}" style="background-color: #2c3e50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">Login</a>
+        </div>
+
+        <p><strong>Credit Details:</strong></p>
+        <ul style="padding-left: 20px; margin: 0 0 20px;">
+          <li style="margin-bottom: 8px;">Valid for 1 year from the date of assignment.</li>
+          <li style="margin-bottom: 8px;">Applicable for online interviews only.</li>
+          <li>Once your credits are used, you can continue applying through our pay-per-job model.</li>
+        </ul>
+
+        <p>TaleGlobal enables a completely online hiring experience, allowing you to attend interviews from anywhere.</p>
+
+        <p>For any assistance, feel free to contact us at <a href="mailto:support@taleglobal.net" style="color: #ff6b35; text-decoration: none;">support@taleglobal.net</a>.</p>
+
+        <p>Wishing you great success in your career journey.</p>
+
+        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+          <p style="margin: 0;">Warm regards,</p>
+          <p style="margin: 5px 0; font-weight: bold; color: #ff6b35;">Team TaleGlobal</p>
+          <p style="margin: 0; font-size: 14px;"><a href="https://www.taleglobal.net" style="color: #ff6b35; text-decoration: none;">www.taleglobal.net</a></p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const mailOptions = {
+    from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: 'Credits Assigned to Your TaleGlobal Account - Complete Your Profile',
+    html: template
+  };
+
+  await sendMailWithGreeting(transporter, mailOptions);
+};
+
 const sendPlacementOfficerApprovalEmail = async (email, name) => {
   const transporter = createTransport();
   
@@ -1336,6 +1399,7 @@ module.exports = {
   sendPlacementAccessEnabledEmail,
   sendPlacementOfficerApprovalEmail,
   sendCandidateDetailsUpdatedEmail,
+  sendIndividualCreditsAssignedEmail,
   sendEmployerAccountApprovalEmail,
   sendConsultantApprovalEmail,
   sendPlacementRejectionEmail,

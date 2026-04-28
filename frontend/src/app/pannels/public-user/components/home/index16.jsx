@@ -1005,9 +1005,10 @@ function Home16Page() {
                                                 {/* Top Row */}
                                                 <div className="job-card-header">
                                                     <div className="job-card-left">
-                                                        <div className="company-logo">
+                                                        <div className="company-logo top-jobs-company-logo">
                                                             {getJobDisplayLogo(job) ? (
                                                                 <img
+                                                                    className="top-jobs-company-logo-image"
                                                                     src={getJobDisplayLogo(job)}
                                                                     alt="Company Logo"
                                                                 />

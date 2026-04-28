@@ -9,6 +9,7 @@ import "./emp-sidebar-scroll-fix.css";
 function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
     const currentpath = useLocation().pathname;
     const [hasNewTickets, setHasNewTickets] = useState(false);
+    const [unreadNotifications, setUnreadNotifications] = useState(0);
     const [scrollThumbHeight, setScrollThumbHeight] = useState(48);
     const [scrollThumbTop, setScrollThumbTop] = useState(0);
     const [isScrolling, setIsScrolling] = useState(false);
@@ -30,16 +31,50 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
         }
     };
 
+    const checkNotificationCount = async () => {
+        try {
+            const token = localStorage.getItem('employerToken');
+            if (!token) {
+                setUnreadNotifications(0);
+                return;
+            }
+
+            const response = await fetch('http://localhost:5000/api/notifications/employer?page=1&limit=1', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    setUnreadNotifications(Number(data.unreadCount ?? 0));
+                }
+            }
+        } catch (error) {
+            console.error('Error checking employer notifications:', error);
+        }
+    };
+
     useEffect(() => {
         loadScript("js/custom.js");
         loadScript("js/emp-sidebar.js");
         checkNewTickets();
+        checkNotificationCount();
 
         const interval = setInterval(() => {
             checkNewTickets();
+            checkNotificationCount();
         }, 45000);
 
-        return () => clearInterval(interval);
+        const handleNotificationRefresh = () => {
+            checkNotificationCount();
+        };
+
+        window.addEventListener('refreshNotifications', handleNotificationRefresh);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('refreshNotifications', handleNotificationRefresh);
+        };
     }, []);
 
     useEffect(() => {
@@ -160,6 +195,18 @@ function EmpSidebarSection({ sidebarActive, isMobile, onClose }) {
                         <li
                             className={setMenuActive(currentpath, empRoute(employer.DASHBOARD))}>
                             <NavLink to={empRoute(employer.DASHBOARD)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}><i className="fa fa-home" style={{minWidth: '30px', textAlign: 'center'}} /><span className="admin-nav-text" style={{paddingLeft: '10px'}}>Dashboard</span></NavLink>
+                        </li>
+
+                        <li className={setMenuActive(currentpath, empRoute(employer.NOTIFICATIONS))}>
+                            <NavLink to={empRoute(employer.NOTIFICATIONS)} onClick={handleLinkClick} style={{display: 'flex', alignItems: 'center'}}>
+                                <i className="fa fa-bell" style={{minWidth: '30px', textAlign: 'center'}} />
+                                <span className="admin-nav-text" style={{paddingLeft: '10px'}}>Notifications</span>
+                                {unreadNotifications > 0 && (
+                                    <span className="admin-nav-badge">
+                                        {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                                    </span>
+                                )}
+                            </NavLink>
                         </li>
 
                         <li

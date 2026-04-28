@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import './NotificationBell.css';
 
 const NotificationBell = ({ userRole }) => {
@@ -49,15 +49,7 @@ const NotificationBell = ({ userRole }) => {
     }
   }, [unreadCount]);
 
-  useEffect(() => {
-    if (userRole) {
-      fetchNotifications();
-      const interval = setInterval(fetchNotifications, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [userRole]);
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const token = localStorage.getItem(`${userRole}Token`);
       if (!token) {
@@ -83,7 +75,28 @@ const NotificationBell = ({ userRole }) => {
       }
     } catch (error) {
     }
-  };
+  }, [userRole]);
+
+  useEffect(() => {
+    if (userRole) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [userRole, fetchNotifications]);
+
+  useEffect(() => {
+    if (!userRole) {
+      return undefined;
+    }
+
+    const handleRefresh = () => {
+      fetchNotifications();
+    };
+
+    window.addEventListener('refreshNotifications', handleRefresh);
+    return () => window.removeEventListener('refreshNotifications', handleRefresh);
+  }, [userRole, fetchNotifications]);
 
   const markAsRead = async (notificationId) => {
     try {
@@ -101,6 +114,7 @@ const NotificationBell = ({ userRole }) => {
         }
       });
       fetchNotifications();
+      window.dispatchEvent(new CustomEvent('refreshNotifications'));
     } catch (error) {
       // Silent error handling
     }
@@ -123,6 +137,7 @@ const NotificationBell = ({ userRole }) => {
       });
       setShowCloseBtn(true);
       fetchNotifications();
+      window.dispatchEvent(new CustomEvent('refreshNotifications'));
     } catch (error) {
       // Silent error handling
     }
@@ -145,6 +160,7 @@ const NotificationBell = ({ userRole }) => {
         }
       });
       fetchNotifications();
+      window.dispatchEvent(new CustomEvent('refreshNotifications'));
     } catch (error) {}
   };
 

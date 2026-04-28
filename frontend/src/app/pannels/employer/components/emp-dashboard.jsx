@@ -38,8 +38,24 @@ function EmpDashboardPage() {
         
         checkMobile();
         window.addEventListener('resize', checkMobile);
-        
-        return () => window.removeEventListener('resize', checkMobile);
+
+        const handleNotificationRefresh = async () => {
+            try {
+                const notificationData = await api.getEmployerNotifications();
+                if (notificationData.success) {
+                    setNotifications(notificationData.notifications || []);
+                }
+            } catch (error) {
+                console.error('Error refreshing employer notifications:', error);
+            }
+        };
+
+        window.addEventListener('refreshNotifications', handleNotificationRefresh);
+
+        return () => {
+            window.removeEventListener('resize', checkMobile);
+            window.removeEventListener('refreshNotifications', handleNotificationRefresh);
+        };
     }, []);
 
     const fetchDashboardData = async () => {
@@ -453,6 +469,7 @@ function EmpDashboardPage() {
                                                                             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                                                                         });
                                                                         setNotifications(prev => prev.filter(n => n._id !== notification._id));
+                                                                        window.dispatchEvent(new CustomEvent('refreshNotifications'));
                                                                     } catch (error) {}
                                                                 }}
                                                                 style={{

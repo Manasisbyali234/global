@@ -87,14 +87,22 @@
 
 .twm-media-bg {
     position: relative;
-    height: 200px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
+    background: #ffffff;
 }
 
 .twm-media-bg img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    display: block;
+    max-width: 100%;
+    max-height: 675px;
+    object-fit: contain;
+    object-position: center;
 }
 
 .twm-jobs-category {

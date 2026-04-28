@@ -1498,7 +1498,7 @@ function CanStatusPage() {
 				return { text: 'Fail', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 			if ((isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
-				return { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+				return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 
 			if (
@@ -1533,7 +1533,7 @@ function CanStatusPage() {
 				'available': windowInfo.isBeforeStart
 					? { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
 					: { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
-				'expired': { text: 'Expired', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
+				'expired': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'suspended': { text: 'Suspended', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'pending': { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
 				'not_required': windowInfo.isBeforeStart

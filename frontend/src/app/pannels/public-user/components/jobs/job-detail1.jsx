@@ -673,9 +673,9 @@ function JobDetail1Page() {
                                                             </span>
                                                         )}
                                                     </div>
-                                                    
 
                                                     
+
                                                     {((typeof job.salary === 'string' || typeof job.salary === 'number') || job.minSalary || job.maxSalary) && (
                                                         <div className="salary-info">
                                                             <span className="salary-amount">

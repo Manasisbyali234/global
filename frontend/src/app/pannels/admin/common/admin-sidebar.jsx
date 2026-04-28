@@ -19,6 +19,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
     const [hasPendingBatchUploads, setHasPendingBatchUploads] = useState(false);
     const [hasNewTickets, setHasNewTickets] = useState(false);
     const [hasProfileUpdates, setHasProfileUpdates] = useState(false);
+    const [unreadNotifications, setUnreadNotifications] = useState(0);
     const employersLinkRef = useRef(null);
     const placementLinkRef = useRef(null);
 
@@ -163,6 +164,29 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         }
     };
 
+    const checkNotificationCount = async () => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                setUnreadNotifications(0);
+                return;
+            }
+
+            const res = await fetch(`${ADMIN_API_BASE_URL}/notifications/admin?page=1&limit=1`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success) {
+                    setUnreadNotifications(Number(data.unreadCount ?? 0));
+                }
+            }
+        } catch (error) {
+            console.error('Error checking admin notifications:', error);
+        }
+    };
+
     useEffect(() => {
         loadScript("js/custom.js");
         loadScript("js/admin-sidebar.js");
@@ -171,6 +195,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
         checkPendingBatchUploads();
         checkNewTickets();
         checkProfileUpdates();
+        checkNotificationCount();
 
         const interval = setInterval(() => {
             checkNewEmployers();
@@ -178,7 +203,14 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
             checkPendingBatchUploads();
             checkNewTickets();
             checkProfileUpdates();
+            checkNotificationCount();
         }, 45000);
+
+        const handleNotificationRefresh = () => {
+            checkNotificationCount();
+        };
+
+        window.addEventListener('refreshNotifications', handleNotificationRefresh);
 
         // Add arrows after scripts load
         setTimeout(() => {
@@ -237,6 +269,7 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                 clearInterval(refreshInterval);
             }
             clearInterval(interval);
+            window.removeEventListener('refreshNotifications', handleNotificationRefresh);
         };
     }, [currentpath, currentSearch])
 
@@ -281,6 +314,18 @@ function AdminSidebarSection({ sidebarActive, isMobile }) {
                         <li
                             className={setMenuActive(currentpath, adminRoute(admin.DASHBOARD))}>
                             <NavLink to={adminRoute(admin.DASHBOARD)}><i className="fa fa-home" /><span className="admin-nav-text">Dashboard</span></NavLink>
+                        </li>
+
+                        <li className={setMenuActive(currentpath, adminRoute(admin.NOTIFICATIONS))}>
+                            <NavLink to={adminRoute(admin.NOTIFICATIONS)}>
+                                <i className="fa fa-bell" />
+                                <span className="admin-nav-text">Notifications</span>
+                                {unreadNotifications > 0 && (
+                                    <span className="admin-nav-badge">
+                                        {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                                    </span>
+                                )}
+                            </NavLink>
                         </li>
 
                         {hasPermission('employers') && (

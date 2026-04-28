@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../../../utils/api';
 import SearchBar from '../../../../components/SearchBar';
-import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
+import { showSuccess, showError, showWarning } from '../../../../utils/popupNotification';
 import '../../../../admin-credits-button-fix.css';
 function AdminIndividualCredit() {
     const navigate = useNavigate();
@@ -39,13 +39,13 @@ function AdminIndividualCredit() {
         try {
             const response = await api.updateCandidateCredits(selectedCandidate, { creditsToAdd: parseInt(credits) });
             if (response.success) {
-                showSuccess('Credits updated successfully!');
+                showSuccess(response.message || 'Credits updated successfully!');
                 setSelectedCandidate('');
                 setCredits('');
                 setShowUpdateForm(false);
                 fetchCandidates();
             } else {
-                showError('Failed to update credits');
+                showError(response.message || 'Failed to update credits');
             }
         } catch (error) {
             showError('Error updating credits');

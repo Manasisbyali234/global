@@ -15,11 +15,13 @@ import EmpPostJob from "../app/pannels/employer/components/jobs/emp-post-job";
 import EmpJobReviewPage from "../app/pannels/employer/components/emp-job-review";
 import EmpSupport from "../app/pannels/employer/components/emp-support";
 import EmployerSupportTickets from "../app/pannels/employer/components/employer-support-tickets";
+import EmpNotificationsPage from "../app/pannels/employer/components/emp-notifications";
 
 function EmployerRoutes() {
     return (
 			<Routes>
 				<Route path={employer.DASHBOARD} element={<EmpDashboardPage />} />
+				<Route path={employer.NOTIFICATIONS} element={<EmpNotificationsPage />} />
 				<Route path={employer.PROFILE} element={<EmpCompanyProfilePage />} />
 				<Route path={employer.MANAGE_JOBS} element={<EmpPostedJobs />} /> 
 				<Route path={employer.POST_A_JOB} element={<EmpPostJob />} />

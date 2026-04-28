@@ -29,6 +29,7 @@ import AdminSupportTickets from "../app/pannels/admin/components/admin-support-t
 import AdminAddCandidate from "../app/pannels/admin/components/admin-add-candidate.jsx";
 import AdminExcelUploads from "../app/pannels/admin/components/admin-excel-uploads";
 import AdminTransactionsPage from "../app/pannels/admin/components/admin-transactions";
+import AdminNotificationsPage from "../app/pannels/admin/components/admin-notifications";
 
 import RegisteredCandidatesPage from "../app/pannels/admin/components/registered-candidates";
 import AdminCandidateReviewPage from "../app/pannels/admin/components/admin-candidate-review";
@@ -37,6 +38,7 @@ function AdminRoutes() {
     return (
 			<Routes>
 				<Route path={admin.DASHBOARD} element={<AdminDashboardPage />} />
+				<Route path={admin.NOTIFICATIONS} element={<AdminNotificationsPage />} />
 				<Route path={admin.OVERVIEW} element={<AdminOverviewPage />} />
 				<Route path={admin.JOBS_POSTED} element={<AdminJobsPostedPage />} />
 				<Route path={admin.CAN_MANAGE} element={<AdminEmployersAllRequest />} />

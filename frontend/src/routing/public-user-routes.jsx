@@ -52,7 +52,7 @@ const CreatePassword = lazy(() => import("../app/common/CreatePassword"));
 
 function PublicUserRoutes() {
     return (
-        <Suspense fallback={<PageLoader pageName="Public Page" compact />}>
+        <Suspense fallback={<PageLoader pageName="Public Page" loadingText="Loading.." compact />}>
             <Routes>
             <Route path={publicUser.INITIAL} element={<Home16Page />} />
             <Route path={publicUser.HOME} element={<Home16Page />} />

@@ -10,30 +10,56 @@ import "./can-sidebar.css";
 function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
   const currentpath = useLocation().pathname;
   const [showTransactions, setShowTransactions] = useState(true);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   useEffect(() => {
-    const checkPlacementStatus = async () => {
+    const fetchSidebarMeta = async () => {
       try {
         const token = localStorage.getItem('candidateToken');
-        if (!token) return;
+        if (!token) {
+          setUnreadNotifications(0);
+          return;
+        }
 
-        const response = await fetch('http://localhost:5000/api/candidate/dashboard/stats', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const [statsResponse, notificationResponse] = await Promise.all([
+          fetch('http://localhost:5000/api/candidate/dashboard/stats', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch('http://localhost:5000/api/notifications/candidate?page=1&limit=1', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        ]);
 
-        if (response.ok) {
-          const data = await response.json();
+        if (statsResponse.ok) {
+          const data = await statsResponse.json();
           if (data.success && data.candidate) {
             const credits = Number(data.candidate?.credits ?? 0);
             setShowTransactions(credits === 0);
           }
         }
+
+        if (notificationResponse.ok) {
+          const notificationData = await notificationResponse.json();
+          if (notificationData.success) {
+            setUnreadNotifications(Number(notificationData.unreadCount ?? 0));
+          }
+        }
       } catch (error) {
-        console.error('Error checking placement status:', error);
+        console.error('Error loading candidate sidebar details:', error);
       }
     };
 
-    checkPlacementStatus();
+    fetchSidebarMeta();
+
+    const handleRefresh = () => {
+      fetchSidebarMeta();
+    };
+
+    window.addEventListener('refreshNotifications', handleRefresh);
+
+    return () => {
+      window.removeEventListener('refreshNotifications', handleRefresh);
+    };
   }, []);
 
   const handleLinkClick = () => {
@@ -66,6 +92,17 @@ function CanSidebarSection({ sidebarActive, isMobile, onLinkClick }) {
               <NavLink to={canRoute(candidate.DASHBOARD)} onClick={handleLinkClick}>
                 <i className="fa fa-home" />
                 <span className="admin-nav-text">Dashboard</span>
+              </NavLink>
+            </li>
+            <li className={setMenuActive(currentpath, canRoute(candidate.NOTIFICATIONS))}>
+              <NavLink to={canRoute(candidate.NOTIFICATIONS)} onClick={handleLinkClick}>
+                <i className="fa fa-bell" />
+                <span className="admin-nav-text">Notifications</span>
+                {unreadNotifications > 0 && (
+                  <span className="admin-nav-badge">
+                    {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                  </span>
+                )}
               </NavLink>
             </li>
             <li className={setMenuActive(currentpath, canRoute(candidate.PROFILE))}>

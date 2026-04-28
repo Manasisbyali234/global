@@ -190,6 +190,41 @@ body.home-scrollbar-hidden .home-page-alignment::-webkit-scrollbar {
     margin-right: 0 !important;
 }
 
+.home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .new-job-card .top-jobs-company-logo {
+    width: 82px !important;
+    height: 50px !important;
+    min-width: 82px !important;
+    flex: 0 0 82px !important;
+    padding: 4px !important;
+    border: 1px solid #dbe3ee !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+}
+
+.home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .new-job-card .top-jobs-company-logo-image {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    display: block !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border-radius: 0 !important;
+}
+
+@media (max-width: 767px) {
+    .home-page-alignment .twm-jobs-grid-wrap[data-section="top-jobs"] .new-job-card .top-jobs-company-logo {
+        width: 70px !important;
+        height: 44px !important;
+        min-width: 70px !important;
+        flex-basis: 70px !important;
+    }
+}
+
 /* Recruiters section alignment */
 .home-page-alignment .twm-recruiters5-wrap {
     margin-left: 0 !important;
