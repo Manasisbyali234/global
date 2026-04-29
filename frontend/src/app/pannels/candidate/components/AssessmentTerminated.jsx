@@ -202,13 +202,6 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
                             textAlign: 'left'
                         }}
                     >
-                        <h6 style={{ margin: '0 0 10px', color: '#111827', fontSize: '16px', fontWeight: '700' }}>What happened?</h6>
-                        <p style={{ margin: 0, color: '#4b5563', lineHeight: '1.7', fontSize: '15px' }}>
-                            {violation.color === 'warning'
-                                ? 'Your assessment time has expired. Any answers you provided have been submitted automatically.'
-                                : 'This assessment has been suspended after repeated rule violations and cannot be resumed. Please contact the employer if you believe this was an error.'
-                            }
-                        </p>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
