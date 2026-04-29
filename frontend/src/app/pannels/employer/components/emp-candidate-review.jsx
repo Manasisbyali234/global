@@ -160,6 +160,15 @@ function EmpCandidateReviewPage() {
                 return process;
             }
 
+            const normalizedAssessmentStatus = normalizeStatusValue(process?.status);
+            const shouldPreserveAssessmentStatus =
+                process?.type === 'assessment' &&
+                ['suspended', 'expired', 'in progress', 'completed', 'passed', 'failed'].includes(normalizedAssessmentStatus);
+
+            if (shouldPreserveAssessmentStatus) {
+                return normalizeTrackedProcessState(process);
+            }
+
             return normalizeTrackedProcessState({
                 ...process,
                 status: savedProcess.status,
@@ -385,6 +394,7 @@ function EmpCandidateReviewPage() {
     const getAssessmentDisplayState = (process = {}, applicationData = null) => {
         const defaultStatusValue = process?.status || 'pending';
         const defaultResultValue = process?.result || null;
+        const resolvedResultValue = getAssessmentResultDisplay(defaultResultValue, defaultStatusValue);
 
         if (process?.type !== 'assessment') {
             return {
@@ -450,8 +460,8 @@ function EmpCandidateReviewPage() {
             statusValue: isWindowExpired ? 'session expired' : defaultStatusValue,
             statusLabel: isWindowExpired ? 'Session Expired' : formatStatusLabel(defaultStatusValue),
             statusClass: isWindowExpired ? 'expired' : defaultStatusValue,
-            resultValue: isWindowExpired ? 'Session Expired' : defaultResultValue,
-            resultClass: isWindowExpired ? 'expired' : (process?.resultClass || 'pending'),
+            resultValue: isWindowExpired ? 'Session Expired' : resolvedResultValue,
+            resultClass: isWindowExpired ? 'expired' : getAssessmentResultClass(resolvedResultValue),
             isWindowExpired
         };
     };

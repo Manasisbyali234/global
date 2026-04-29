@@ -113,10 +113,21 @@ function CanStatusPage() {
 
 		if (hasAssessmentRound) {
 			const assessmentRoundInfo = getAssessmentRoundInfo(application, 'Assessment');
+			const assessmentRoundKey = getAssessmentRoundOrderKeys(application?.jobId)[0];
+			const assessmentRoundDetails = assessmentRoundKey
+				? application?.jobId?.interviewRoundDetails?.[assessmentRoundKey] || null
+				: null;
+			const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, assessmentRoundDetails);
 			const completionInfo = assessmentRoundInfo?.completionInfo || getAssessmentCompletionInfo(application);
 			const assessmentFailed = Boolean(completionInfo?.isFailed);
+			const assessmentNoShow =
+				Boolean(completionInfo?.isNoShow) ||
+				(Boolean(assessmentWindowInfo?.isAfterEnd) &&
+					!completionInfo?.isCompleted &&
+					!completionInfo?.isInProgress &&
+					!completionInfo?.isSuspended);
 
-			if (assessmentFailed) {
+			if (assessmentFailed || assessmentNoShow) {
 				return 'rejected';
 			}
 		}
@@ -207,19 +218,23 @@ function CanStatusPage() {
 
 	const getAssessmentCompletionInfo = (source = {}) => {
 		const status = String(source?.assessmentStatus ?? source?.assessmentAttemptStatus ?? source?.status ?? '').toLowerCase();
+		const normalizedStatus = normalizeStatusValue(status);
 		const result = String(source?.assessmentResult ?? source?.result ?? '').toLowerCase();
-		const isPassed = result === 'pass' || result === 'passed' || status === 'passed';
-		const isFailed = result === 'fail' || result === 'failed' || status === 'failed';
+		const isPassed = result === 'pass' || result === 'passed' || normalizedStatus === 'passed';
+		const isFailed = result === 'fail' || result === 'failed' || normalizedStatus === 'failed';
+		const isNoShow = ['expired', 'session expired', 'no show'].includes(normalizedStatus);
 		const isCompleted = ['completed', 'passed', 'failed'].includes(status) || isPassed || isFailed;
-		const isExpired = status === 'expired';
-		const isInProgress = status === 'in_progress';
-		const isSuspended = status === 'suspended';
+		const isExpired = ['expired', 'session expired'].includes(normalizedStatus);
+		const isInProgress = status === 'in_progress' || normalizedStatus === 'in progress';
+		const isSuspended = normalizedStatus === 'suspended';
 
 		return {
 			status,
+			normalizedStatus,
 			result,
 			isPassed,
 			isFailed,
+			isNoShow,
 			isCompleted,
 			isExpired,
 			isInProgress,
@@ -274,7 +289,7 @@ function CanStatusPage() {
 		const shouldPreferApplicationStatus =
 			Boolean(applicationFallbackStatus) &&
 			['', 'pending', 'scheduled', 'not_started', 'available'].includes(stageStatus) &&
-			['suspended', 'expired', 'in_progress', 'completed', 'passed', 'failed'].includes(applicationFallbackStatus);
+			['suspended', 'expired', 'session_expired', 'session expired', 'no_show', 'no show', 'in_progress', 'completed', 'passed', 'failed'].includes(applicationFallbackStatus);
 
 		const completionInfo = getAssessmentCompletionInfo({
 			status:
@@ -436,7 +451,7 @@ function CanStatusPage() {
 			const assessmentStatus = normalizeStatusValue(completionInfo.status);
 			const previousAssessmentFailed = Boolean(completionInfo.isFailed);
 			const previousAssessmentPassed = Boolean(completionInfo.isPassed);
-			const previousCompleted = ['completed', 'passed', 'failed', 'expired'].includes(assessmentStatus);
+			const previousCompleted = ['completed', 'passed', 'failed', 'expired', 'session expired', 'no show'].includes(assessmentStatus);
 
 			return {
 				canStart: previousCompleted && previousAssessmentPassed && !previousAssessmentFailed,
@@ -1478,7 +1493,7 @@ function CanStatusPage() {
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment') {
 			const assessmentRoundInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
-			const { status, isPassed, isFailed, isCompleted, isInProgress, isExpired, isSuspended } = assessmentRoundInfo.completionInfo;
+			const { status, isPassed, isFailed, isCompleted, isInProgress, isExpired, isSuspended, isNoShow } = assessmentRoundInfo.completionInfo;
 			
 			// Check if assessment window has expired
 			const windowInfo = getAssessmentWindowInfo(application.jobId, roundDetails);
@@ -1488,7 +1503,7 @@ function CanStatusPage() {
 			if (isFailed) {
 				return { text: 'Fail', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
-			if ((isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
+			if ((isNoShow || isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
 				return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 
@@ -1524,6 +1539,9 @@ function CanStatusPage() {
 				'available': windowInfo.isBeforeStart
 					? { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' }
 					: { text: 'Started', class: 'bg-info bg-opacity-10 text-info border border-info', feedback: '' },
+				'no_show': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
+				'session_expired': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
+				'session expired': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'expired': { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'suspended': { text: 'Suspended', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' },
 				'pending': { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' },
@@ -3007,7 +3025,7 @@ function CanStatusPage() {
 																	}}
 																>
 																	<i className="fa fa-clock-o me-2"></i>
-																	Session Expired
+																	No Show
 																</span>
 															</div>
 														);
