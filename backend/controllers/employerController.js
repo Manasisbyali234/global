@@ -113,6 +113,8 @@ const normalizeApplicationStatusValue = (value = '') =>
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ');
 
+const AUTO_REJECT_EXPIRED_SESSION_NOTE = 'Auto-rejected after application session expired';
+
 const getApplicationDeadline = (jobData = {}) => {
   if (!jobData?.lastDateOfApplication) return null;
 
@@ -206,16 +208,8 @@ const ensureExpiredApplicationRejected = async (application = null) => {
   const statusHistoryEntry = {
     status: 'rejected',
     changedAt: new Date(),
-    notes: 'Auto-rejected after application session expired'
+    notes: AUTO_REJECT_EXPIRED_SESSION_NOTE
   };
-
-  await Application.updateOne(
-    { _id: applicationObject._id, status: { $ne: 'rejected' } },
-    {
-      $set: { status: 'rejected' },
-      $push: { statusHistory: statusHistoryEntry }
-    }
-  );
 
   return {
     ...applicationObject,

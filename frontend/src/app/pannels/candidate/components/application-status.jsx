@@ -73,8 +73,6 @@ function CanStatusPage() {
 			'failed',
 			'fail',
 			'field',
-			'expired',
-			'session expired',
 			'not eligibal for next round',
 			'not eligible for next round'
 		].includes(normalized);
@@ -115,17 +113,10 @@ function CanStatusPage() {
 
 		if (hasAssessmentRound) {
 			const assessmentRoundInfo = getAssessmentRoundInfo(application, 'Assessment');
-			const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId);
 			const completionInfo = assessmentRoundInfo?.completionInfo || getAssessmentCompletionInfo(application);
-			const assessmentExpired =
-				Boolean(completionInfo?.isExpired) ||
-				(Boolean(assessmentWindowInfo?.isAfterEnd) &&
-					!completionInfo?.isCompleted &&
-					!completionInfo?.isInProgress &&
-					!completionInfo?.isSuspended);
 			const assessmentFailed = Boolean(completionInfo?.isFailed);
 
-			if (assessmentExpired || assessmentFailed) {
+			if (assessmentFailed) {
 				return 'rejected';
 			}
 		}

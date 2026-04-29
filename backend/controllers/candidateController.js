@@ -17,6 +17,85 @@ const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 };
 
+const AUTO_REJECT_EXPIRED_SESSION_NOTE = 'Auto-rejected after application session expired';
+
+const normalizeApplicationStatusValue = (value = '') =>
+  String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ');
+
+const getLatestApplicationStatusHistoryEntry = (application = {}) => {
+  const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
+
+  for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
+    if (statusHistory[index]?.status) {
+      return statusHistory[index];
+    }
+  }
+
+  return null;
+};
+
+const isAutoRejectedAfterExpiredSession = (application = {}) => {
+  if (normalizeApplicationStatusValue(application?.status) !== 'rejected') {
+    return false;
+  }
+
+  const latestStatusEntry = getLatestApplicationStatusHistoryEntry(application);
+  return normalizeApplicationStatusValue(latestStatusEntry?.status) === 'rejected'
+    && String(latestStatusEntry?.notes || '').trim() === AUTO_REJECT_EXPIRED_SESSION_NOTE;
+};
+
+const getStatusBeforeExpiredSessionAutoReject = (application = {}) => {
+  const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
+
+  for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
+    const entry = statusHistory[index];
+    const isAutoRejectedEntry = normalizeApplicationStatusValue(entry?.status) === 'rejected'
+      && String(entry?.notes || '').trim() === AUTO_REJECT_EXPIRED_SESSION_NOTE;
+
+    if (!isAutoRejectedEntry) {
+      continue;
+    }
+
+    for (let previousIndex = index - 1; previousIndex >= 0; previousIndex -= 1) {
+      const previousStatus = String(statusHistory[previousIndex]?.status || '').trim();
+      if (previousStatus) {
+        return previousStatus;
+      }
+    }
+
+    return 'pending';
+  }
+
+  return application?.status || 'pending';
+};
+
+const getCandidateVisibleApplicationStatus = (application = {}) => (
+  isAutoRejectedAfterExpiredSession(application)
+    ? getStatusBeforeExpiredSessionAutoReject(application)
+    : (application?.status || 'pending')
+);
+
+const normalizeCandidateVisibleApplication = (application = null) => {
+  if (!application) return application;
+
+  const applicationObject = typeof application.toObject === 'function'
+    ? application.toObject()
+    : { ...application };
+
+  if (!isAutoRejectedAfterExpiredSession(applicationObject)) {
+    return applicationObject;
+  }
+
+  return {
+    ...applicationObject,
+    status: getStatusBeforeExpiredSessionAutoReject(applicationObject)
+  };
+};
+
 // Authentication Controllers
 exports.registerCandidate = async (req, res) => {
   try {
@@ -736,7 +815,10 @@ exports.getAppliedJobs = async (req, res) => {
       // Removed console debug line for security;
     }
 
-    res.json({ success: true, applications });
+    res.json({
+      success: true,
+      applications: applications.map((application) => normalizeCandidateVisibleApplication(application))
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -756,7 +838,10 @@ exports.getApplicationStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Application not found' });
     }
 
-    res.json({ success: true, application });
+    res.json({
+      success: true,
+      application: normalizeCandidateVisibleApplication(application)
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -1126,16 +1211,26 @@ exports.resendMobileOTP = async (req, res) => {
 exports.getDashboard = async (req, res) => {
   try {
     const candidateId = req.user._id;
-    
-    const applied = await Application.countDocuments({ candidateId });
-    const inProgress = await Application.countDocuments({ candidateId, status: { $in: ['pending', 'interviewed'] } });
-    const shortlisted = await Application.countDocuments({ candidateId, status: 'shortlisted' });
-    
+
+    const dashboardApplications = await Application.find({ candidateId })
+      .select('status statusHistory')
+      .lean();
+    const normalizedDashboardApplications = dashboardApplications
+      .map((application) => normalizeCandidateVisibleApplication(application));
+    const normalizedDashboardStatuses = normalizedDashboardApplications
+      .map((application) => normalizeApplicationStatusValue(application?.status));
+
+    const applied = normalizedDashboardApplications.length;
+    const inProgress = normalizedDashboardStatuses.filter((status) => ['pending', 'interviewed'].includes(status)).length;
+    const shortlisted = normalizedDashboardStatuses.filter((status) => status === 'shortlisted').length;
+
     const recentApplications = await Application.find({ candidateId })
       .populate('jobId', 'title location')
       .populate('employerId', 'companyName brandName name')
       .sort({ createdAt: -1 })
       .limit(5);
+    const normalizedRecentApplications = recentApplications
+      .map((application) => normalizeCandidateVisibleApplication(application));
     
     // Get profile and calculate completion
     const profile = await CandidateProfile.findOne({ candidateId });
@@ -1150,7 +1245,7 @@ exports.getDashboard = async (req, res) => {
     res.json({
       success: true,
       stats: { applied, inProgress, shortlisted },
-      recentApplications,
+      recentApplications: normalizedRecentApplications,
       candidate: { 
         name: req.user.name,
         credits: req.user.credits || 0
@@ -1166,11 +1261,17 @@ exports.getDashboard = async (req, res) => {
 exports.getDashboardStats = async (req, res) => {
   try {
     const candidateId = req.user._id;
-    
-    const applied = await Application.countDocuments({ candidateId });
-    const inProgress = await Application.countDocuments({ candidateId, status: { $in: ['pending', 'interviewed'] } });
-    const shortlisted = await Application.countDocuments({ candidateId, status: 'shortlisted' });
-    const hired = await Application.countDocuments({ candidateId, status: 'hired' });
+
+    const dashboardApplications = await Application.find({ candidateId })
+      .select('status statusHistory')
+      .lean();
+    const normalizedDashboardStatuses = dashboardApplications
+      .map((application) => normalizeApplicationStatusValue(getCandidateVisibleApplicationStatus(application)));
+
+    const applied = dashboardApplications.length;
+    const inProgress = normalizedDashboardStatuses.filter((status) => ['pending', 'interviewed'].includes(status)).length;
+    const shortlisted = normalizedDashboardStatuses.filter((status) => status === 'shortlisted').length;
+    const hired = normalizedDashboardStatuses.filter((status) => status === 'hired').length;
     
     const candidate = await Candidate.findById(candidateId)
       .select('name email credits registrationMethod placementId course')
@@ -1774,8 +1875,10 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
           console.log(`Found assessment attempt for app ${app._id}: status=${assessmentAttempt.status}`);
         }
 
+        const normalizedApplication = normalizeCandidateVisibleApplication(app);
+
         return {
-          ...app,
+          ...normalizedApplication,
           assessmentStatus: app.assessmentStatus || 'not_required',
           assessmentScore: app.assessmentScore || null,
           assessmentPercentage: app.assessmentPercentage || null,
@@ -1865,7 +1968,7 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
         applicationId: application._id,
         jobTitle: job.title,
         companyName: application.employerId?.companyName,
-        applicationStatus: application.status,
+        applicationStatus: getCandidateVisibleApplicationStatus(application),
         rounds: []
       };
 
@@ -2176,7 +2279,7 @@ exports.getApplicationInterviewDetails = async (req, res) => {
       applicationId: application._id,
       jobTitle: job.title,
       companyName: application.employerId?.companyName,
-      applicationStatus: application.status,
+      applicationStatus: getCandidateVisibleApplicationStatus(application),
       appliedDate: application.createdAt || application.appliedAt,
       rounds: []
     };
@@ -2448,7 +2551,7 @@ exports.getInterviewProcessDetails = async (req, res) => {
       applicationId: application._id,
       jobTitle: job.title,
       companyName: application.employerId?.companyName,
-      applicationStatus: application.status,
+      applicationStatus: getCandidateVisibleApplicationStatus(application),
       processStatus: 'not_started',
       stages: [],
       totalStages: 0,

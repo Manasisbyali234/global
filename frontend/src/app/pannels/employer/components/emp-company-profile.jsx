@@ -14,6 +14,17 @@ import '../../../../remove-profile-hover-effects.css';
 
 import { showPopup, showSuccess, showError, showWarning, showInfo } from '../../../../utils/popupNotification';
 import ConfirmationDialog from '../../../../components/ConfirmationDialog';
+
+const EMPLOYER_PROFILE_BANNER_WIDTH = 1128;
+const EMPLOYER_PROFILE_BANNER_HEIGHT = 191;
+const EMPLOYER_PROFILE_BANNER_RESIZE_CONFIG = {
+    aspectRatio: EMPLOYER_PROFILE_BANNER_WIDTH / EMPLOYER_PROFILE_BANNER_HEIGHT,
+    maxWidth: EMPLOYER_PROFILE_BANNER_WIDTH,
+    maxHeight: EMPLOYER_PROFILE_BANNER_HEIGHT,
+    lockCropArea: true,
+    quality: 0.9
+};
+
 function EmpCompanyProfilePage() {
     const API_BASE_URL = process.env.REACT_APP_API_URL
         || (window.location.hostname === 'localhost'
@@ -25,12 +36,13 @@ function EmpCompanyProfilePage() {
         isResizerOpen,
         currentImage,
         resizeConfig,
+        openResizer,
         closeResizer,
         handleSave: handleResizerSave,
         openLogoResizer,
-        openBannerResizer,
         openProfileResizer,
         openGalleryResizer,
+        fileToDataURL,
         handleFileWithResize
     } = useImageResizer();
     
@@ -727,6 +739,10 @@ function EmpCompanyProfilePage() {
         });
     };
 
+    const openEmployerProfileBannerResizer = async (imageSrc, onSave) => {
+        await openResizer(imageSrc, EMPLOYER_PROFILE_BANNER_RESIZE_CONFIG, onSave);
+    };
+
     const handleDocumentUpload = async (e, fieldName) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -746,8 +762,8 @@ function EmpCompanyProfilePage() {
                     }
                     : {
                         maxSizeMB: 5,
-                        minWidth: 800,
-                        minHeight: 450,
+                        minWidth: EMPLOYER_PROFILE_BANNER_WIDTH,
+                        minHeight: EMPLOYER_PROFILE_BANNER_HEIGHT,
                         allowedTypes: ['image/jpeg', 'image/png']
                     };
 
@@ -758,10 +774,16 @@ function EmpCompanyProfilePage() {
                     return;
                 }
 
-                const resizerType = fieldName === 'logo' ? 'logo' : 'banner';
-                await handleFileWithResize(file, resizerType, (processedImage) => {
-                    uploadProcessedImage(processedImage, fieldName);
-                });
+                if (fieldName === 'logo') {
+                    await handleFileWithResize(file, 'logo', (processedImage) => {
+                        uploadProcessedImage(processedImage, fieldName);
+                    });
+                } else {
+                    const imageDataUrl = await fileToDataURL(file);
+                    await openEmployerProfileBannerResizer(imageDataUrl, (processedImage) => {
+                        uploadProcessedImage(processedImage, fieldName);
+                    });
+                }
             } catch (error) {
                 showError(error.message || 'Unable to open the crop editor. Please try again.');
             } finally {
@@ -1631,7 +1653,7 @@ function EmpCompanyProfilePage() {
 
                         <div className="col-lg-6 col-md-12">
                             <div className="form-group">
-                                <label className="required-field"><ImageIcon size={16} className="me-2" /> Background Banner Image (1200x675px)</label>
+                                <label className="required-field"><ImageIcon size={16} className="me-2" /> Background Banner Image (1128x191px)</label>
                                 <input
                                     className="form-control"
                                     type="file"
@@ -1651,9 +1673,9 @@ function EmpCompanyProfilePage() {
                                                 <div
                                                     className="banner-container"
                                                     style={{
-                                                        width: '240px',
+                                                        width: '320px',
                                                         maxWidth: '100%',
-                                                        aspectRatio: '16 / 9'
+                                                        aspectRatio: '1128 / 191'
                                                     }}
                                                 >
                                                     <img
@@ -1681,9 +1703,9 @@ function EmpCompanyProfilePage() {
                                                     marginRight: '8px',
                                                     fontSize: '12px'
                                                 }}
-                                                onClick={() => {
+                                                onClick={async () => {
                                                     const imgSrc = getImagePreviewSrc(formData.coverImage);
-                                                    openBannerResizer(imgSrc, (processedImage) => {
+                                                    await openEmployerProfileBannerResizer(imgSrc, (processedImage) => {
                                                         uploadProcessedImage(processedImage, 'coverImage');
                                                     });
                                                 }}
@@ -1694,7 +1716,7 @@ function EmpCompanyProfilePage() {
                                         </div>
                                     </div>
                                 )}
-                                <small className="text-muted">Widescreen banner for your company profile (1200x675px, JPG, PNG, max 5MB). Upload opens the crop and resize editor before saving.</small>
+                                <small className="text-muted">Widescreen banner for your company profile (1128x191px, JPG, PNG, max 5MB). Upload opens the crop and resize editor before saving.</small>
                             </div>
                         </div>
                     </div>
