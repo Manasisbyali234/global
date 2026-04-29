@@ -125,3 +125,10 @@ input[type="password"] ~ i[class*="eye"] {
     border: 1px solid #FF7A00 !important;
     color: #FF7A00 !important;
 }
+
+.login-submit-button {
+    display: block !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box;
+}

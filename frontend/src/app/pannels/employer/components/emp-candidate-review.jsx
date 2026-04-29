@@ -268,10 +268,15 @@ function EmpCandidateReviewPage() {
         captures = []
     } = {}) => {
         const normalizedStatus = String(status || '').toLowerCase();
+        const normalizedResult = String(result || '').trim().toLowerCase();
         const resultDisplay = getAssessmentResultDisplay(result, status);
 
         return {
-            hasData: score !== null || percentage !== null || !!result || ['suspended', 'expired', 'in_progress', 'completed', 'passed', 'failed'].includes(normalizedStatus),
+            hasData:
+                score !== null ||
+                percentage !== null ||
+                (normalizedResult && normalizedResult !== 'pending') ||
+                ['suspended', 'expired', 'in_progress', 'completed', 'passed', 'failed', 'no_show', 'session expired', 'session_expired'].includes(normalizedStatus),
             score,
             totalMarks,
             percentage,
@@ -323,7 +328,7 @@ function EmpCandidateReviewPage() {
     const getAssessmentResultDisplay = (resultValue, statusValue) => {
         const normalizedStatus = String(statusValue || '').toLowerCase();
         if (normalizedStatus === 'suspended') return 'Suspended';
-        if (normalizedStatus === 'expired') return 'Expired';
+        if (normalizedStatus === 'expired' || normalizedStatus === 'no_show' || normalizedStatus === 'session expired' || normalizedStatus === 'session_expired') return 'No Show';
         if (normalizedStatus === 'in_progress') return 'In Progress';
         if (normalizedStatus === 'passed') return 'Passed';
         if (normalizedStatus === 'failed') return 'Failed';
@@ -457,11 +462,11 @@ function EmpCandidateReviewPage() {
         );
 
         return {
-            statusValue: isWindowExpired ? 'session expired' : defaultStatusValue,
-            statusLabel: isWindowExpired ? 'Session Expired' : formatStatusLabel(defaultStatusValue),
-            statusClass: isWindowExpired ? 'expired' : defaultStatusValue,
-            resultValue: isWindowExpired ? 'Session Expired' : resolvedResultValue,
-            resultClass: isWindowExpired ? 'expired' : getAssessmentResultClass(resolvedResultValue),
+            statusValue: isWindowExpired ? 'no_show' : defaultStatusValue,
+            statusLabel: isWindowExpired ? 'No Show' : formatStatusLabel(defaultStatusValue),
+            statusClass: isWindowExpired ? 'no_show' : defaultStatusValue,
+            resultValue: isWindowExpired ? 'No Show' : resolvedResultValue,
+            resultClass: isWindowExpired ? 'no_show' : getAssessmentResultClass(resolvedResultValue),
             isWindowExpired
         };
     };

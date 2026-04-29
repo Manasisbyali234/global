@@ -120,6 +120,7 @@ function CanStatusPage() {
 			const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, assessmentRoundDetails);
 			const completionInfo = assessmentRoundInfo?.completionInfo || getAssessmentCompletionInfo(application);
 			const assessmentFailed = Boolean(completionInfo?.isFailed);
+			const assessmentSuspended = Boolean(completionInfo?.isSuspended);
 			const assessmentNoShow =
 				Boolean(completionInfo?.isNoShow) ||
 				(Boolean(assessmentWindowInfo?.isAfterEnd) &&
@@ -127,7 +128,7 @@ function CanStatusPage() {
 					!completionInfo?.isInProgress &&
 					!completionInfo?.isSuspended);
 
-			if (assessmentFailed || assessmentNoShow) {
+			if (assessmentFailed || assessmentSuspended || assessmentNoShow) {
 				return 'rejected';
 			}
 		}

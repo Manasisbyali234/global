@@ -212,7 +212,7 @@ function LoginPage() {
                                                     </div>
                                                     <NavLink to={publicUser.pages.FORGOT} className="site-text-primary" style={{fontSize: '14px', textDecoration: 'none'}}>Forgot Password</NavLink>
                                                 </div>
-                                                <button type="submit" className="w-100 mb-3" disabled={loading} style={{padding: '12px', borderRadius: '8px', fontWeight: '500', backgroundColor: '#fd7e14', color: 'white', border: 'none'}}>
+                                                <button type="submit" className="login-submit-button w-100 mb-3" disabled={loading} style={{padding: '12px', borderRadius: '8px', fontWeight: '500', backgroundColor: '#fd7e14', color: 'white', border: 'none'}}>
                                                     {loading ? 'Logging in...' : 'Log in'}
                                                 </button>
                                             </form>
@@ -255,7 +255,7 @@ function LoginPage() {
                                                     </div>
                                                     <NavLink to={publicUser.pages.FORGOT} className="site-text-primary" style={{fontSize: '14px', textDecoration: 'none'}}>Forgot Password</NavLink>
                                                 </div>
-                                                <button type="submit" className="w-100 mb-3" disabled={loading} style={{padding: '12px', borderRadius: '8px', fontWeight: '500', backgroundColor: '#fd7e14', color: 'white', border: 'none'}}>
+                                                <button type="submit" className="login-submit-button w-100 mb-3" disabled={loading} style={{padding: '12px', borderRadius: '8px', fontWeight: '500', backgroundColor: '#fd7e14', color: 'white', border: 'none'}}>
                                                     {loading ? 'Logging in...' : 'Log in'}
                                                 </button>
                                             </form>
@@ -298,7 +298,7 @@ function LoginPage() {
                                                     </div>
                                                     <NavLink to={publicUser.pages.FORGOT} className="site-text-primary" style={{fontSize: '14px', textDecoration: 'none'}}>Forgot Password</NavLink>
                                                 </div>
-                                                <button type="submit" className="w-100 mb-3" disabled={loading} style={{padding: '12px', borderRadius: '8px', fontWeight: '500', backgroundColor: '#fd7e14', color: 'white', border: 'none'}}>
+                                                <button type="submit" className="login-submit-button w-100 mb-3" disabled={loading} style={{padding: '12px', borderRadius: '8px', fontWeight: '500', backgroundColor: '#fd7e14', color: 'white', border: 'none'}}>
                                                     {loading ? 'Logging in...' : 'Log in'}
                                                 </button>
                                             </form>

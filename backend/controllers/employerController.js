@@ -2929,7 +2929,7 @@ exports.getEmployerApplications = async (req, res) => {
     
     const applications = await Application.find(query)
       .populate('candidateId', 'name email phone')
-      .populate('jobId', 'title location companyName lastDateOfApplication lastDateOfApplicationTime')
+      .populate('jobId', 'title location companyName lastDateOfApplication lastDateOfApplicationTime assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime interviewRoundTypes interviewRoundOrder interviewRoundDetails')
       .sort({ createdAt: -1 });
 
     const applicationsWithProfiles = await Promise.all(
@@ -2977,7 +2977,7 @@ exports.getJobApplications = async (req, res) => {
     
     const applications = await Application.find({ jobId, employerId: req.user._id })
       .populate('candidateId', 'name email phone')
-      .populate('jobId', 'title location companyName lastDateOfApplication lastDateOfApplicationTime')
+      .populate('jobId', 'title location companyName lastDateOfApplication lastDateOfApplicationTime assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime interviewRoundTypes interviewRoundOrder interviewRoundDetails')
       .sort({ createdAt: -1 });
 
     // Add profile pictures to applications

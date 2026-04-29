@@ -147,6 +147,7 @@ function EmpCandidatesPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [designationFilter, setDesignationFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [statusClock, setStatusClock] = useState(() => Date.now());
   const PAGE_SIZE = 10;
 
   useEffect(() => {
@@ -160,6 +161,14 @@ function EmpCandidatesPage() {
   useEffect(() => {
     fetchApplications();
   }, [selectedCompany, jobId]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setStatusClock(Date.now());
+    }, 30000);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   const fetchEmployerType = async () => {
     try {
@@ -235,6 +244,166 @@ function EmpCandidatesPage() {
     }
   };
 
+  const normalizeStatusValue = (value = "") =>
+    String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[_-]+/g, " ")
+      .replace(/\s+/g, " ");
+
+  const isRejectedLikeStatus = (value = "") => {
+    const normalized = normalizeStatusValue(value);
+    if (!normalized) return false;
+
+    return [
+      "rejected",
+      "failed",
+      "fail",
+      "field",
+      "expired",
+      "suspended",
+      "session expired",
+      "no show",
+      "not eligibal for next round",
+      "not eligible for next round"
+    ].includes(normalized);
+  };
+
+  const getAssessmentRoundOrderKeys = (job = {}) =>
+    (Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : []).filter(
+      (key) => String(job?.interviewRoundTypes?.[key] || "").toLowerCase() === "assessment"
+    );
+
+  const getAssessmentScheduleSource = (job = {}) => {
+    const assessmentRoundKey = getAssessmentRoundOrderKeys(job)[0];
+    const roundDetails = assessmentRoundKey
+      ? job?.interviewRoundDetails?.[assessmentRoundKey] || null
+      : null;
+
+    return {
+      startDate: roundDetails?.fromDate || roundDetails?.date || job?.assessmentStartDate || null,
+      endDate: roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || job?.assessmentEndDate || null,
+      startTime: roundDetails?.startTime || job?.assessmentStartTime || null,
+      endTime: roundDetails?.endTime || job?.assessmentEndTime || null
+    };
+  };
+
+  const getAssessmentWindowInfo = (job = {}, nowTimestamp = Date.now()) => {
+    const now = new Date(nowTimestamp);
+    const scheduleSource = getAssessmentScheduleSource(job);
+    const startRaw = scheduleSource.startDate ? new Date(scheduleSource.startDate) : null;
+    const endRaw = scheduleSource.endDate ? new Date(scheduleSource.endDate) : null;
+    const isValid = (date) => date instanceof Date && !Number.isNaN(date.getTime());
+    let startDate = isValid(startRaw) ? startRaw : null;
+    let endDate = isValid(endRaw) ? endRaw : null;
+
+    if (startDate && scheduleSource.startTime) {
+      const [hours, minutes] = String(scheduleSource.startTime).split(":").map(Number);
+      if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+        startDate = new Date(startDate);
+        startDate.setHours(hours, minutes, 0, 0);
+      }
+    }
+
+    if (endDate && scheduleSource.endTime) {
+      const [hours, minutes] = String(scheduleSource.endTime).split(":").map(Number);
+      endDate = new Date(endDate);
+      if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+        endDate.setHours(hours, minutes, 59, 999);
+      } else {
+        endDate.setHours(23, 59, 59, 999);
+      }
+    } else if (endDate) {
+      endDate = new Date(endDate);
+      endDate.setHours(23, 59, 59, 999);
+    }
+
+    return {
+      isAfterEnd: endDate ? now > endDate : false
+    };
+  };
+
+  const getAssessmentCompletionInfo = (application = {}) => {
+    const assessmentProcess = Array.isArray(application?.interviewProcesses)
+      ? application.interviewProcesses.find((process) => {
+          const normalizedType = normalizeStatusValue(process?.type);
+          const normalizedName = normalizeStatusValue(process?.name);
+          return normalizedType === "assessment" || normalizedName.includes("assessment");
+        }) || null
+      : null;
+
+    const primaryStatus = normalizeStatusValue(application?.assessmentStatus);
+    const processStatus = normalizeStatusValue(assessmentProcess?.status);
+    const effectiveStatus =
+      ((!primaryStatus || ["pending", "available", "not required", "not started", "scheduled"].includes(primaryStatus)) &&
+        processStatus)
+        ? processStatus
+        : primaryStatus;
+    const result = normalizeStatusValue(application?.assessmentResult || assessmentProcess?.result);
+    const isPassed = result === "pass" || result === "passed" || effectiveStatus === "passed";
+    const isFailed = result === "fail" || result === "failed" || effectiveStatus === "failed";
+    const isCompleted = ["completed", "passed", "failed"].includes(effectiveStatus) || isPassed || isFailed;
+    const isNoShow = ["expired", "session expired", "no show"].includes(effectiveStatus);
+    const isInProgress = effectiveStatus === "in progress" || effectiveStatus === "in_progress";
+    const isSuspended = effectiveStatus === "suspended";
+
+    return {
+      status: effectiveStatus,
+      isPassed,
+      isFailed,
+      isCompleted,
+      isNoShow,
+      isInProgress,
+      isSuspended
+    };
+  };
+
+  const getApplicationDisplayStatus = (application = {}, nowTimestamp = Date.now()) => {
+    const baseStatus = String(application?.status || "").trim().toLowerCase() || "pending";
+    if (["accepted", "hired", "offer_sent"].includes(baseStatus)) {
+      return baseStatus;
+    }
+
+    const processStatuses = (Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [])
+      .map((process) => process?.status);
+    if (processStatuses.some(isRejectedLikeStatus)) {
+      return "rejected";
+    }
+
+    const hasAssessmentRound =
+      Boolean(application?.jobId?.assessmentId) ||
+      getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
+      (Array.isArray(application?.interviewProcesses)
+        ? application.interviewProcesses.some((process) => normalizeStatusValue(process?.type) === "assessment")
+        : false);
+
+    if (hasAssessmentRound) {
+      const completionInfo = getAssessmentCompletionInfo(application);
+      const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, nowTimestamp);
+      const assessmentNoShow =
+        Boolean(completionInfo?.isNoShow) ||
+        (Boolean(assessmentWindowInfo?.isAfterEnd) &&
+          !completionInfo?.isCompleted &&
+          !completionInfo?.isInProgress &&
+          !completionInfo?.isSuspended);
+
+      if (completionInfo?.isFailed || completionInfo?.isSuspended || assessmentNoShow) {
+        return "rejected";
+      }
+    }
+
+    return baseStatus;
+  };
+
+  const applicationsWithDisplayStatus = useMemo(
+    () =>
+      applications.map((application) => ({
+        ...application,
+        displayStatus: getApplicationDisplayStatus(application, statusClock)
+      })),
+    [applications, statusClock]
+  );
+
   // Derived filtering
   const filteredCompanies = useMemo(() => {
     if (!searchText || searchText.trim().length < 3) return [];
@@ -248,18 +417,18 @@ function EmpCandidatesPage() {
 
   const filteredApplications = useMemo(() => {
     const q = searchText.trim().toLowerCase();
-    return applications.filter((application) => {
+    return applicationsWithDisplayStatus.filter((application) => {
       const email = application.candidateId?.email?.toLowerCase() || "";
       const matchesSearch = q ? email.includes(q) : true;
       const matchesStatus = statusFilter
-        ? application.status === statusFilter
+        ? application.displayStatus === statusFilter
         : true;
       const matchesDesignation = designationFilter
         ? String(application.jobId?.title || "").trim().toLowerCase() === designationFilter.toLowerCase()
         : true;
       return matchesSearch && matchesStatus && matchesDesignation;
     });
-  }, [applications, searchText, statusFilter, designationFilter]);
+  }, [applicationsWithDisplayStatus, searchText, statusFilter, designationFilter]);
 
   const jobTitleOptions = useMemo(() => {
     const titles = new Set();
@@ -489,12 +658,12 @@ function EmpCandidatesPage() {
                           <br />
                           <span
                             className={`badge ${getStatusBadge(
-                              application.status
+                              application.displayStatus
                             )} text-capitalize`}
                           >
-                            {application.status === 'offer_sent' ? 'Offer Letter Sent' :
-                             application.status === 'accepted' ? 'Offer Accepted' :
-                             application.status.replace('_', ' ')}
+                            {application.displayStatus === 'offer_sent' ? 'Offer Letter Sent' :
+                             application.displayStatus === 'accepted' ? 'Offer Accepted' :
+                             application.displayStatus.replace('_', ' ')}
                           </span>
                         </div>
                       </div>

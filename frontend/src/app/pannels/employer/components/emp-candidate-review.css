@@ -158,7 +158,8 @@
 .stat .value.status.hired, .stat .value.status.complete { color: #28a745; }
 .stat .value.status.shortlisted { color: #ffc107; }
 .stat .value.status.rejected { color: #dc3545; }
-.stat .value.status.session_expired { color: #dc3545; }
+.stat .value.status.session_expired,
+.stat .value.status.no_show { color: #dc3545; }
 .stat .value.status.incomplete { color: #6c757d; }
 
 /* Enhanced Navigation */
@@ -363,6 +364,7 @@
 }
 
 .status-badge.suspended,
+.status-badge.no_show,
 .status-badge.expired,
 .status-badge.failed {
     background: #f8d7da;
@@ -436,6 +438,10 @@
 }
 
 .assessment-process-value.result.suspended {
+    color: #dc3545;
+}
+
+.assessment-process-value.result.no_show {
     color: #dc3545;
 }
 
@@ -544,6 +550,9 @@
 .stat-box .value.result.suspended {
     color: #dc3545;
 }
+.stat-box .value.result.no_show {
+    color: #dc3545;
+}
 .stat-box .value.result.expired {
     color: #6c757d;
 }
@@ -615,6 +624,7 @@
 .summary-stats .stat .value.result.pass { color: #28a745; }
 .summary-stats .stat .value.result.fail { color: #dc3545; }
 .summary-stats .stat .value.result.suspended { color: #dc3545; }
+.summary-stats .stat .value.result.no_show { color: #dc3545; }
 .summary-stats .stat .value.result.expired { color: #6c757d; }
 .summary-stats .stat .value.result.in_progress { color: #fd7e14; }
 

@@ -73,6 +73,21 @@
   min-height: 44px;
 }
 
+.emp-candidates-page .page-toolbar__select {
+  border: 1px solid #e5e7eb;
+  box-shadow: none;
+  color: #374151;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #9ca3af 50%),
+    linear-gradient(135deg, #9ca3af 50%, transparent 50%);
+}
+
+.emp-candidates-page .page-toolbar__select:focus,
+.emp-candidates-page .page-toolbar__select:focus-visible {
+  border-color: #cbd5e1;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.12);
+}
+
 .emp-candidates-page .page-toolbar__section {
   display: flex;
   flex-direction: column;
@@ -100,6 +115,16 @@
   user-select: none;
 }
 
+.emp-candidates-page .emp-candidates-filter-dropdown .emp-candidates-filter-dropdown__trigger[role="button"] {
+  background-color: #ffffff !important;
+  color: #374151 !important;
+  border: 1px solid #d1d5db !important;
+  box-shadow: none !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: normal !important;
+}
+
 .emp-candidates-filter-dropdown__trigger-text {
   display: block;
   width: 100%;
@@ -107,10 +132,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: inherit;
 }
 
 .emp-candidates-filter-dropdown__trigger-text.is-placeholder {
-  color: #6b7280;
+  color: #6b7280 !important;
 }
 
 .emp-candidates-filter-menu {
@@ -161,7 +187,7 @@
 .emp-candidates-filter-option:hover,
 .emp-candidates-filter-option.is-selected {
   background-color: #f9fafb;
-  color: #e66814;
+  color: #374151;
 }
 
 .emp-candidates-filter-option:not(:last-child) {
