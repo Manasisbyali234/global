@@ -991,7 +991,9 @@ exports.createPassword = async (req, res) => {
 
     candidate.password = password;
     candidate.status = 'active';
-    candidate.registrationMethod = 'signup';
+    if (candidate.registrationMethod !== 'admin') {
+      candidate.registrationMethod = 'signup';
+    }
     await candidate.save();
 
     res.json({ success: true, message: 'Password created successfully' });
