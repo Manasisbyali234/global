@@ -282,7 +282,7 @@ function EmpCandidatesPage() {
 
   const statusOptions = useMemo(
     () => [
-      { value: "", label: "All Status (Show All)" },
+      { value: "", label: "All Status " },
       { value: "pending", label: "Pending" },
       { value: "shortlisted", label: "Shortlisted" },
       { value: "offer_sent", label: "Offer Letter Sent" },
@@ -402,7 +402,7 @@ function EmpCandidatesPage() {
                     <SearchableFilterDropdown
                       value={statusFilter}
                       options={statusOptions}
-                      placeholder="All Status (Show All)"
+                      placeholder="All Status "
                       searchPlaceholder="Search status"
                       onChange={setStatusFilter}
                     />

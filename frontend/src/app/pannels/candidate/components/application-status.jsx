@@ -1159,7 +1159,7 @@ function CanStatusPage() {
 		const action = response === 'accepted' ? 'Accept' : 'Reject';
 		
 		showConfirmation(
-			`Are you sure you want to ${action.toLowerCase()} this job offer?`,
+			`Are you sure you want to ${action.toLowerCase()} this job offer? ${action.toLowerCase() === 'reject' ? 'Once rejected, it cannot be accepted later.' : ''}`,
 			async () => {
 				try {
 					const res = await api.respondToOffer(applicationId, { status: response });

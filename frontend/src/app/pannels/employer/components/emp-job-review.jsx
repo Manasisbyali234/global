@@ -12,6 +12,7 @@ function EmpJobReviewPage() {
     const { id } = useParams();
     const [jobDetails, setJobDetails] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [interviewModal, setInterviewModal] = useState({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false });
 
     useEffect(() => {
         loadScript("js/custom.js");
@@ -237,7 +238,7 @@ function EmpJobReviewPage() {
                                                     {round.roundId && !round.isAssessment && !isPastEndDate(round.toDate || round.fromDate) && (
                                                         <button
                                                             className="btn site-button-secondry btn-sm interview-open-btn"
-                                                            onClick={() => window.open(`https://schedule.taleglobal.net/rounds/${round.roundId}`, '_blank')}
+                                                            onClick={() => setInterviewModal({ isOpen: true, url: `https://schedule.taleglobal.net/rounds/${round.roundId}`, title: `Schedule Interview - ${round.displayName}`, isMaximized: false, isMinimized: false })}
                                                         >
                                                             Join Now
                                                         </button>
@@ -510,6 +511,30 @@ function EmpJobReviewPage() {
                     </div>
                 </div>
             </div>
+
+            {interviewModal.isOpen && (
+                <div className={`document-modal-overlay ${interviewModal.isMinimized ? 'minimized-overlay' : ''}`} onClick={() => setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false })}>
+                    <div className={`document-modal-container ${interviewModal.isMaximized ? 'maximized' : ''} ${interviewModal.isMinimized ? 'minimized' : ''}`} onClick={e => e.stopPropagation()}>
+                        <div className="document-modal-header" onClick={() => interviewModal.isMinimized && setInterviewModal(prev => ({ ...prev, isMinimized: false }))}>
+                            <h3>{interviewModal.title}</h3>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <button onClick={() => setInterviewModal(prev => ({ ...prev, isMinimized: !prev.isMinimized }))} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 16 }}>
+                                    <i className={`fas ${interviewModal.isMinimized ? 'fa-window-restore' : 'fa-minus'}`}></i>
+                                </button>
+                                <button onClick={() => setInterviewModal(prev => ({ ...prev, isMaximized: !prev.isMaximized }))} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 16 }}>
+                                    <i className={`fas ${interviewModal.isMaximized ? 'fa-compress' : 'fa-expand'}`}></i>
+                                </button>
+                                <button onClick={() => setInterviewModal({ isOpen: false, url: '', title: '', isMaximized: false, isMinimized: false })} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 16 }}>
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="document-modal-body">
+                            <iframe src={interviewModal.url} title={interviewModal.title} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
