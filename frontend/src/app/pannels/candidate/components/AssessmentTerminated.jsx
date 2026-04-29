@@ -192,18 +192,6 @@ const AssessmentTerminated = ({ violationType, violationTimestamp, assessmentTit
                         </p>
                     </div>
 
-                    <div
-                        style={{
-                            backgroundColor: infoCardBackground,
-                            border: `1px solid ${infoCardBorder}`,
-                            borderRadius: '16px',
-                            padding: '20px',
-                            marginBottom: '28px',
-                            textAlign: 'left'
-                        }}
-                    >
-                    </div>
-
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                         <button
                             className="btn btn-primary"
