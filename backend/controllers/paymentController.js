@@ -216,13 +216,6 @@ exports.applyWithCredits = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Candidate not found' });
     }
 
-    if (candidate.registrationMethod !== 'placement' && !candidate.placementId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Credit-based applications are only available for candidates registered through Placement Dean' 
-      });
-    }
-
     if (candidate.credits <= 0) {
       return res.status(400).json({ 
         success: false, 

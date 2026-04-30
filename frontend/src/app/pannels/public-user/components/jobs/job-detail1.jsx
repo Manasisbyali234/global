@@ -195,11 +195,6 @@ function JobDetail1Page() {
         showJobInfo: true
     };
 
-    const isPlacementCandidateFromData = (candidate) => {
-        const registrationMethod = candidate?.registrationMethod?.toLowerCase();
-        return Boolean(candidate && (registrationMethod === 'placement' || candidate.placement));
-    };
-
     if (loading) {
         return <PageLoader pageName="Job Details" />;
     }
@@ -247,30 +242,21 @@ function JobDetail1Page() {
                 return;
             }
             
-            // Check if candidate is from Placement Dean and has credits
-            // Robust check for placement candidate
-            const registrationMethod = currentCandidateData?.registrationMethod?.toLowerCase();
-            const isPlacementCandidate = isPlacementCandidateFromData(currentCandidateData);
-            
             const credits = Number(currentCandidateData?.credits || 0);
             const hasCredits = credits > 0;
 
             console.log('Condition check:', { 
-                registrationMethod, 
-                isPlacementCandidate, 
                 credits,
-                hasCredits,
-                placementData: currentCandidateData?.placement 
+                hasCredits
             });
 
-            if (isPlacementCandidate && hasCredits) {
-                console.log('Placement candidate with credits detected. Using credit-based application.');
+            if (hasCredits) {
+                console.log('Candidate has available credits. Using credit-based application.');
                 showInfo(`Applied using 1 credit. Remaining credits: ${credits - 1}`);
                 handleCreditApplication();
             } else {
                 // Payment is required for every job application
-                console.log('Proceeding to Razorpay payment. Reason:', 
-                    !isPlacementCandidate ? 'Not a placement candidate' : 'Insufficient credits');
+                console.log('Proceeding to Razorpay payment. Reason: Insufficient credits');
                 handlePayment();
             }
         } catch (error) {
@@ -480,8 +466,8 @@ function JobDetail1Page() {
         } else if (hasApplied) {
             showInfo('You have already applied for this job!');
         } else {
-            let isPlacementCandidate = isPlacementCandidateFromData(candidateData);
-            if (!isPlacementCandidate) {
+            let availableCredits = Number(candidateData?.credits || 0);
+            if (availableCredits <= 0) {
                 try {
                     const token = localStorage.getItem('candidateToken');
                     const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
@@ -491,14 +477,14 @@ function JobDetail1Page() {
                     const statsData = await statsResponse.json();
                     if (statsData.success) {
                         setCandidateData(statsData.candidate);
-                        isPlacementCandidate = isPlacementCandidateFromData(statsData.candidate);
+                        availableCredits = Number(statsData.candidate?.credits || 0);
                     }
                 } catch (error) {
-                    console.error('Error checking candidate type before apply:', error);
+                    console.error('Error checking candidate credits before apply:', error);
                 }
             }
 
-            if (isPlacementCandidate) {
+            if (availableCredits > 0) {
                 setShowTermsModal(false);
                 setPendingJobApplication(false);
                 setTermsAccepted(true);
