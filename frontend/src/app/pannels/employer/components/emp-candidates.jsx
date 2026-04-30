@@ -5,6 +5,7 @@ import { loadScript } from "../../../../globals/constants";
 import JobZImage from "../../../common/jobz-img";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
+import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import './emp-candidates.css';
 
 function SearchableFilterDropdown({
@@ -340,21 +341,16 @@ function EmpCandidatesPage() {
         ? processStatus
         : primaryStatus;
     const result = normalizeStatusValue(application?.assessmentResult || assessmentProcess?.result);
-    const isPassed = result === "pass" || result === "passed" || effectiveStatus === "passed";
-    const isFailed = result === "fail" || result === "failed" || effectiveStatus === "failed";
-    const isCompleted = ["completed", "passed", "failed"].includes(effectiveStatus) || isPassed || isFailed;
-    const isNoShow = ["expired", "session expired", "no show"].includes(effectiveStatus);
-    const isInProgress = effectiveStatus === "in progress" || effectiveStatus === "in_progress";
-    const isSuspended = effectiveStatus === "suspended";
+    const outcome = getAssessmentOutcome({ status: effectiveStatus, result });
 
     return {
       status: effectiveStatus,
-      isPassed,
-      isFailed,
-      isCompleted,
-      isNoShow,
-      isInProgress,
-      isSuspended
+      isPassed: outcome.isPassed,
+      isFailed: outcome.isFailed,
+      isCompleted: outcome.isCompleted,
+      isNoShow: outcome.isNoShow,
+      isInProgress: outcome.isInProgress,
+      isSuspended: outcome.isSuspended
     };
   };
 

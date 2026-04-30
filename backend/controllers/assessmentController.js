@@ -272,11 +272,11 @@ const resolveAssessmentStageStatus = (attemptStatus, attemptResult) => {
   const normalizedResult = String(attemptResult || '').trim().toLowerCase();
 
   if (normalizedStatus === 'suspended') return 'suspended';
-  if (normalizedStatus === 'expired') return 'expired';
   if (normalizedStatus === 'in_progress') return 'in_progress';
   if (normalizedStatus === 'not_started') return 'pending';
   if (normalizedResult === 'pass') return 'passed';
   if (normalizedResult === 'fail') return 'failed';
+  if (normalizedStatus === 'expired') return 'expired';
   return 'completed';
 };
 

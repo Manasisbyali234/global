@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { BACKEND_URL } from '../../../../../utils/api';
+import { getAssessmentOutcomeLabel } from '../../../../../utils/assessmentOutcome';
 import { showError, showSuccess } from '../../../../../utils/popupNotification';
 
 export default function ViewAnswers() {
@@ -54,12 +55,11 @@ export default function ViewAnswers() {
 
   const getResultLabel = (attemptData) => {
     if (!attemptData) return 'Pending';
-    if (attemptData.status === 'suspended') return 'Suspended';
-    if (attemptData.status === 'expired') return 'Expired';
-    if (Number(attemptData.manualEvaluationPendingCount || 0) > 0) return 'Pending Review';
-    if (attemptData.result === 'pass') return 'Pass';
-    if (attemptData.result === 'fail') return 'Fail';
-    return 'Pending';
+    return getAssessmentOutcomeLabel({
+      status: attemptData.status,
+      result: attemptData.result,
+      manualEvaluationPendingCount: attemptData.manualEvaluationPendingCount
+    });
   };
 
   useEffect(() => {

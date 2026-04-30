@@ -10,6 +10,7 @@ import './emp-candidate-review-stage-text-mobile-fix.css';
 import './emp-candidate-review-mobile-fix.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
 import { BACKEND_URL } from '../../../../utils/api';
+import { getAssessmentOutcomeLabel } from '../../../../utils/assessmentOutcome';
 import TermsModal from "../../../../components/TermsModal";
 
 function EmpCandidateReviewPage() {
@@ -265,11 +266,12 @@ function EmpCandidateReviewPage() {
         percentage = null,
         result = null,
         status = '',
-        captures = []
+        captures = [],
+        manualEvaluationPendingCount = 0
     } = {}) => {
         const normalizedStatus = String(status || '').toLowerCase();
         const normalizedResult = String(result || '').trim().toLowerCase();
-        const resultDisplay = getAssessmentResultDisplay(result, status);
+        const resultDisplay = getAssessmentResultDisplay(result, status, manualEvaluationPendingCount);
 
         return {
             hasData:
@@ -282,6 +284,7 @@ function EmpCandidateReviewPage() {
             percentage,
             result,
             status: normalizedStatus,
+            manualEvaluationPendingCount,
             captures: Array.isArray(captures) ? captures : [],
             resultDisplay,
             resultClass: getAssessmentResultClass(resultDisplay)
@@ -296,7 +299,8 @@ function EmpCandidateReviewPage() {
             percentage: assessmentAttempt?.percentage ?? applicationData?.assessmentPercentage ?? null,
             result: assessmentAttempt?.result ?? applicationData?.assessmentResult ?? null,
             status: assessmentAttempt?.status ?? applicationData?.assessmentStatus ?? '',
-            captures: assessmentAttempt?.captures || assessmentAttempt?.capturedImages || []
+            captures: assessmentAttempt?.captures || assessmentAttempt?.capturedImages || [],
+            manualEvaluationPendingCount: assessmentAttempt?.manualEvaluationPendingCount ?? 0
         });
     };
 
@@ -321,25 +325,20 @@ function EmpCandidateReviewPage() {
         totalMarks: stageData?.assessmentTotalMarks ?? fallbackSummary?.totalMarks ?? null,
         percentage: stageData?.assessmentPercentage ?? fallbackSummary?.percentage ?? null,
         result: resolveAssessmentValue(stageData?.assessmentResult ?? stageData?.result, fallbackSummary?.result),
-        status: resolveAssessmentValue(stageData?.assessmentAttemptStatus ?? stageData?.status, fallbackSummary?.status) || '',
-        captures: stageData?.assessmentCaptures || fallbackSummary?.captures || []
+        status: resolveAssessmentValue(stageData?.status ?? stageData?.assessmentAttemptStatus, fallbackSummary?.status) || '',
+        captures: stageData?.assessmentCaptures || fallbackSummary?.captures || [],
+        manualEvaluationPendingCount:
+            stageData?.manualEvaluationPendingCount ??
+            fallbackSummary?.manualEvaluationPendingCount ??
+            0
     });
 
-    const getAssessmentResultDisplay = (resultValue, statusValue) => {
-        const normalizedStatus = String(statusValue || '').toLowerCase();
-        if (normalizedStatus === 'suspended') return 'Suspended';
-        if (normalizedStatus === 'expired' || normalizedStatus === 'no_show' || normalizedStatus === 'session expired' || normalizedStatus === 'session_expired') return 'No Show';
-        if (normalizedStatus === 'in_progress') return 'In Progress';
-        if (normalizedStatus === 'passed') return 'Passed';
-        if (normalizedStatus === 'failed') return 'Failed';
-        if (resultValue) {
-            const normalizedResult = String(resultValue).replace(/_/g, ' ').trim().toLowerCase();
-            if (normalizedResult === 'pass' || normalizedResult === 'passed') return 'Passed';
-            if (normalizedResult === 'fail' || normalizedResult === 'failed') return 'Failed';
-            return normalizedResult.charAt(0).toUpperCase() + normalizedResult.slice(1);
-        }
-        return 'Pending';
-    };
+    const getAssessmentResultDisplay = (resultValue, statusValue, manualEvaluationPendingCount = 0) =>
+        getAssessmentOutcomeLabel({
+            status: statusValue,
+            result: resultValue,
+            manualEvaluationPendingCount
+        });
 
     const getAssessmentResultClass = (resultLabel) =>
         String(resultLabel || 'pending').toLowerCase().replace(/\s+/g, '_');
@@ -571,7 +570,7 @@ function EmpCandidateReviewPage() {
                                 ? getStageAssessmentSummary(stage, assessmentStageCount > 1 ? null : assessmentSummary)
                                 : null;
                             const resolvedStatus = stage.stageType === 'assessment'
-                                ? resolveAssessmentProcessStatus(stage.assessmentAttemptStatus || stage.status, stageAssessmentSummary)
+                                ? resolveAssessmentProcessStatus(stage.status || stage.assessmentAttemptStatus, stageAssessmentSummary)
                                 : (stage.status || 'pending');
 
                             return normalizeTrackedProcessState({

@@ -8,6 +8,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
+import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import { pubRoute, publicUser, canRoute, candidate } from "../../../../globals/route-names";
 import CanPostedJobs from "./can-posted-jobs";
 import PopupInterviewRoundDetails from "../../../common/popups/popup-interview-round-details";
@@ -219,27 +220,20 @@ function CanStatusPage() {
 
 	const getAssessmentCompletionInfo = (source = {}) => {
 		const status = String(source?.assessmentStatus ?? source?.assessmentAttemptStatus ?? source?.status ?? '').toLowerCase();
-		const normalizedStatus = normalizeStatusValue(status);
 		const result = String(source?.assessmentResult ?? source?.result ?? '').toLowerCase();
-		const isPassed = result === 'pass' || result === 'passed' || normalizedStatus === 'passed';
-		const isFailed = result === 'fail' || result === 'failed' || normalizedStatus === 'failed';
-		const isNoShow = ['expired', 'session expired', 'no show'].includes(normalizedStatus);
-		const isCompleted = ['completed', 'passed', 'failed'].includes(status) || isPassed || isFailed;
-		const isExpired = ['expired', 'session expired'].includes(normalizedStatus);
-		const isInProgress = status === 'in_progress' || normalizedStatus === 'in progress';
-		const isSuspended = normalizedStatus === 'suspended';
+		const outcome = getAssessmentOutcome({ status, result });
 
 		return {
 			status,
-			normalizedStatus,
+			normalizedStatus: outcome.normalizedStatus,
 			result,
-			isPassed,
-			isFailed,
-			isNoShow,
-			isCompleted,
-			isExpired,
-			isInProgress,
-			isSuspended
+			isPassed: outcome.isPassed,
+			isFailed: outcome.isFailed,
+			isNoShow: outcome.isNoShow,
+			isCompleted: outcome.isCompleted,
+			isExpired: outcome.isExpired,
+			isInProgress: outcome.isInProgress,
+			isSuspended: outcome.isSuspended
 		};
 	};
 

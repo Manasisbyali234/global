@@ -3,6 +3,7 @@ import { formatDate } from '../../../../../utils/dateFormatter';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ResponsiveTable from '../../../../../components/ResponsiveTable';
+import { getAssessmentOutcome, getAssessmentOutcomeLabel } from '../../../../../utils/assessmentOutcome';
 import '../emp-dashboard.css';
 
 export default function AssessmentResults() {
@@ -30,6 +31,13 @@ export default function AssessmentResults() {
     result?.jobId?.title ||
     assessment?.designation ||
     'N/A';
+
+  const getResultOutcome = (result) =>
+    getAssessmentOutcome({
+      status: result?.status,
+      result: result?.result,
+      manualEvaluationPendingCount: result?.manualEvaluationPendingCount,
+    });
 
   useEffect(() => {
     fetchResults();
@@ -105,16 +113,16 @@ export default function AssessmentResults() {
   };
 
   const filterResults = (list) => list.filter(result => {
+    const outcome = getResultOutcome(result);
     const rawDate = result.endTime || result.suspendedAt || result.updatedAt;
     const resultDateStr = rawDate ? new Date(rawDate).toISOString().slice(0, 10) : '';
     if (fromDate && resultDateStr && resultDateStr < fromDate) return false;
     if (toDate && resultDateStr && resultDateStr > toDate) return false;
     if (companyFilter !== 'all' && getResultCompanyName(result) !== companyFilter) return false;
     if (designationFilter !== 'all' && getResultDesignation(result) !== designationFilter) return false;
-    if (statusFilter === 'suspended') return result.status === 'suspended';
-    if (statusFilter === 'expired') return result.status === 'expired';
-    if (statusFilter === 'pass') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'pass';
-    if (statusFilter === 'fail') return result.status !== 'suspended' && result.status !== 'expired' && result.result === 'fail';
+    if (statusFilter === 'suspended') return outcome.isSuspended;
+    if (statusFilter === 'pass') return outcome.isPassed;
+    if (statusFilter === 'fail') return outcome.isFailed;
     return true;
   });
 
@@ -406,7 +414,52 @@ export default function AssessmentResults() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filterResults(results).map((result, index) => (
+                  {filterResults(results).map((result, index) => {
+                    const outcome = getResultOutcome(result);
+                    const statusLabel = outcome.isSuspended
+                      ? 'Suspended'
+                      : outcome.isNoShow
+                        ? 'No Show'
+                        : 'Completed';
+                    const statusStyle = {
+                      background: outcome.isSuspended
+                        ? '#fee2e2'
+                        : outcome.isNoShow
+                          ? '#fef3c7'
+                          : '#dcfce7',
+                      color: outcome.isSuspended
+                        ? '#991b1b'
+                        : outcome.isNoShow
+                          ? '#92400e'
+                          : '#166534',
+                    };
+                    const resultLabel = getAssessmentOutcomeLabel({
+                      status: result.status,
+                      result: result.result,
+                      manualEvaluationPendingCount: result.manualEvaluationPendingCount,
+                    });
+                    const resultStyle = {
+                      background: outcome.isSuspended
+                        ? '#fee2e2'
+                        : outcome.isNoShow
+                          ? '#fef3c7'
+                          : outcome.isPendingReview
+                            ? '#ffedd5'
+                            : outcome.isPassed
+                              ? '#dcfce7'
+                              : '#fecaca',
+                      color: outcome.isSuspended
+                        ? '#991b1b'
+                        : outcome.isNoShow
+                          ? '#92400e'
+                          : outcome.isPendingReview
+                            ? '#9a3412'
+                            : outcome.isPassed
+                              ? '#166534'
+                              : '#991b1b',
+                    };
+
+                    return (
                     <tr key={result._id} style={{ 
                       borderBottom: index < results.length - 1 ? '1px solid #f3f4f6' : 'none',
                       transition: 'background-color 0.2s ease',
@@ -451,49 +504,26 @@ export default function AssessmentResults() {
                         </span>
                       </td>
                       <td style={{ padding: '1rem' }}>
-                        {result.status === 'suspended' ? (
-                          <span style={{ background: '#fee2e2', color: '#991b1b', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '600' }}>
-                            Suspended
-                          </span>
-                        ) : result.status === 'expired' ? (
-                          <span style={{ background: '#fef3c7', color: '#92400e', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '600' }}>
-                            Expired
-                          </span>
-                        ) : (
-                          <span style={{ background: '#dcfce7', color: '#166534', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '600' }}>
-                            Completed
-                          </span>
-                        )}
+                        <span style={{
+                          ...statusStyle,
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.875rem',
+                          fontWeight: '600'
+                        }}>
+                          {statusLabel}
+                        </span>
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <span style={{
-                          background:
-                            Number(result.manualEvaluationPendingCount || 0) > 0
-                              ? '#ffedd5'
-                              : result.result === 'pass'
-                                ? '#dcfce7'
-                                : result.status === 'suspended' || result.status === 'expired'
-                                  ? '#f3f4f6'
-                                  : '#fecaca',
-                          color:
-                            Number(result.manualEvaluationPendingCount || 0) > 0
-                              ? '#9a3412'
-                              : result.result === 'pass'
-                                ? '#166534'
-                                : result.status === 'suspended' || result.status === 'expired'
-                                  ? '#6b7280'
-                                  : '#991b1b',
+                          ...resultStyle,
                           padding: '0.25rem 0.75rem',
                           borderRadius: '9999px',
                           fontSize: '0.875rem',
                           fontWeight: '600',
                           textTransform: 'uppercase'
                         }}>
-                          {result.status === 'suspended' || result.status === 'expired'
-                            ? '-'
-                            : Number(result.manualEvaluationPendingCount || 0) > 0
-                              ? 'Pending Review'
-                              : (result.result || 'N/A')}
+                          {resultLabel}
                         </span>
                       </td>
                       <td style={{ padding: '1rem' }}>
@@ -577,7 +607,8 @@ export default function AssessmentResults() {
                         )}
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                   {filterResults(results).length === 0 && (
                     <tr>
                       <td colSpan="11" style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>

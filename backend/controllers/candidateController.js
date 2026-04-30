@@ -26,6 +26,20 @@ const normalizeApplicationStatusValue = (value = '') =>
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ');
 
+const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
+  const normalizedStatus = normalizeApplicationStatusValue(attempt?.status);
+  const normalizedResult = normalizeApplicationStatusValue(attempt?.result);
+
+  if (normalizedStatus === 'suspended') return 'suspended';
+  if (normalizedStatus === 'in progress') return 'in_progress';
+  if (normalizedStatus === 'not started') return 'pending';
+  if (normalizedResult === 'pass' || normalizedStatus === 'passed') return 'passed';
+  if (normalizedResult === 'fail' || normalizedStatus === 'failed') return 'failed';
+  if (normalizedStatus === 'expired') return 'expired';
+  if (normalizedStatus === 'completed') return 'completed';
+  return attempt?.status || 'pending';
+};
+
 const getLatestApplicationStatusHistoryEntry = (application = {}) => {
   const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
 
@@ -1838,24 +1852,9 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
                 return stage;
               }
 
-              let stageStatus = stage.status;
-              if (matchedAttempt.status === 'completed') {
-                stageStatus = matchedAttempt.result === 'pass'
-                  ? 'passed'
-                  : matchedAttempt.result === 'fail'
-                    ? 'failed'
-                    : 'completed';
-              } else if (matchedAttempt.status === 'in_progress') {
-                stageStatus = 'in_progress';
-              } else if (matchedAttempt.status === 'expired') {
-                stageStatus = 'expired';
-              } else if (matchedAttempt.status === 'suspended') {
-                stageStatus = 'suspended';
-              }
-
               return {
                 ...stage,
-                status: stageStatus,
+                status: resolveAssessmentAttemptStageStatus(matchedAttempt),
                 assessmentAttemptId: matchedAttempt._id,
                 assessmentAttemptStatus: matchedAttempt.status,
                 assessmentResult: matchedAttempt.result || stage.assessmentResult || null,
