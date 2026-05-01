@@ -504,7 +504,7 @@ function EmpCandidateReviewPage() {
         }
 
         if (isApplicationSessionExpired(applicationData, processes)) {
-            return 'session_expired';
+            return 'rejected';
         }
 
         return baseStatus;
@@ -1127,7 +1127,7 @@ function EmpCandidateReviewPage() {
     }
 
     const applicationDisplayStatus = getApplicationDisplayStatus(application, interviewProcesses);
-    const isSessionExpiredApplication = applicationDisplayStatus === 'session_expired';
+    const isAssessmentNoShowApplication = isApplicationSessionExpired(application, interviewProcesses);
 
     return (
         <div className="candidate-review-container emp-candidate-review-page">
@@ -1235,7 +1235,7 @@ function EmpCandidateReviewPage() {
                                                         .slice(0, index)
                                                         .every((previousProcess) => isShortlistedForNextRoundStatus(previousProcess.status));
                                                     const isCurrentDisabled =
-                                                        isSessionExpiredApplication ||
+                                                        isAssessmentNoShowApplication ||
                                                         assessmentDisplay.isWindowExpired ||
                                                         isPreviousRejected ||
                                                         isPreviousIncomplete ||
@@ -1365,13 +1365,13 @@ function EmpCandidateReviewPage() {
                                                                     }}
                                                                 />
                                                             </div>
-                                                            {isSessionExpiredApplication && (
+                                                            {isAssessmentNoShowApplication && (
                                                                 <div className="stage-locked-info">
                                                                     <i className="fas fa-clock"></i>
                                                                     <span>Tracking locked because the application is marked as No Show.</span>
                                                                 </div>
                                                             )}
-                                                            {!isSessionExpiredApplication && assessmentDisplay.isWindowExpired && (
+                                                            {!isAssessmentNoShowApplication && assessmentDisplay.isWindowExpired && (
                                                                 <div className="stage-locked-info">
                                                                     <i className="fas fa-clock"></i>
                                                                     <span>Assessment window ended before the candidate attended it.</span>
@@ -1422,7 +1422,7 @@ function EmpCandidateReviewPage() {
                                             </button>
                                         </div>
                                         <div className="action-buttons">
-                                            {isSessionExpiredApplication && (
+                                            {isAssessmentNoShowApplication && (
                                                 <div className="alert alert-warning d-flex align-items-center mb-3" style={{ width: '100%', fontSize: '14px', padding: '10px' }}>
                                                     <i className="fas fa-clock me-2"></i>
                                                     <div>No interview stage was completed before the application deadline, so this session is expired.</div>
@@ -1434,12 +1434,12 @@ function EmpCandidateReviewPage() {
                                                     <div>Candidate has Accepted the Offer</div>
                                                 </div>
                                             )}
-                                            {!isSessionExpiredApplication && application.status === 'rejected' && application.statusHistory?.some(h => h.status === 'offer_sent') ? (
+                                            {!isAssessmentNoShowApplication && application.status === 'rejected' && application.statusHistory?.some(h => h.status === 'offer_sent') ? (
                                                 <div className="alert alert-warning d-flex align-items-center mb-3" style={{ width: '100%', fontSize: '14px', padding: '10px' }}>
                                                     <i className="fas fa-times-circle me-2"></i>
                                                     <div>Candidate has Not Accepted the Offer</div>
                                                 </div>
-                                            ) : !isSessionExpiredApplication && hasNegativeStatus() ? (
+                                            ) : !isAssessmentNoShowApplication && hasNegativeStatus() ? (
                                                 <>
                                                     <button 
                                                             className={`${applicationDisplayStatus === 'rejected' ? 'active' : ''}`}
@@ -1506,7 +1506,7 @@ function EmpCandidateReviewPage() {
                                                 </>
                                             )}
                                         </div>
-                                        {application.status !== 'accepted' && application.status !== 'hired' && !isSessionExpiredApplication && !hasNegativeStatus() && !isFinalStageShortlisted() && (!allProcessesCompleted() || !hasShortlistedForNextRound()) && (
+                                        {application.status !== 'accepted' && application.status !== 'hired' && !isAssessmentNoShowApplication && !hasNegativeStatus() && !isFinalStageShortlisted() && (!allProcessesCompleted() || !hasShortlistedForNextRound()) && (
                                             <p className="warning-text">
                                                 {!hasShortlistedForNextRound()
                                                     ? 'Please select "Shortlisted for next Round" for at least one stage to enable actions.'
