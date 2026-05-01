@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { usePopupNotification } from '../../../../hooks/usePopupNotification';
 import PopupNotification from '../../../../components/PopupNotification';
+import { decodeAssessmentText, formatAssessmentContent } from '../../../../utils/assessmentContent';
 
 export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -488,7 +489,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
         <div className="card-header d-flex justify-content-between align-items-center">
           <div>
             <h5 className="mb-0">
-              {assessment.title}{assessment.jobTitle && ` - ${assessment.jobTitle}`}
+              {decodeAssessmentText(assessment.title)}{assessment.jobTitle && ` - ${decodeAssessmentText(assessment.jobTitle)}`}
             </h5>
             <small className="text-muted d-block">Question {currentQuestion + 1} of {assessment.questions.length}</small>
             <small className="text-success fw-semibold">
@@ -503,7 +504,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
         </div>
         <div className="card-body">
           <h6 className="mb-4">
-            Q{currentQuestion + 1}. {question.question ? <span dangerouslySetInnerHTML={{ __html: question.question }} /> : 'Please refer to the image below:'}
+            Q{currentQuestion + 1}. {question.question ? <span dangerouslySetInnerHTML={{ __html: formatAssessmentContent(question.question) }} /> : 'Please refer to the image below:'}
           </h6>
           {question.imageUrl && (
             <div className="mb-3">
@@ -528,7 +529,7 @@ export default function AssessmentQuiz({ assessment, attemptId, onComplete }) {
                     <div className="d-flex align-items-start">
                       <span className="me-2">{String.fromCharCode(65 + index)}.</span>
                       <div className="flex-grow-1">
-                        {question.type !== 'questionary-image-mcq' && <div>{option}</div>}
+                        {question.type !== 'questionary-image-mcq' && <div>{decodeAssessmentText(option)}</div>}
                         {(question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && question.optionImages && question.optionImages[index] && (
                           <div className="mt-2">
                             <img 

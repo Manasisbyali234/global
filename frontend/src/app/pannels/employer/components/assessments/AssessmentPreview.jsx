@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaClock } from "react-icons/fa";
-import { formatAssessmentContent } from "../../../../../utils/assessmentContent";
+import { decodeAssessmentText, formatAssessmentContent } from "../../../../../utils/assessmentContent";
 
 const AssessmentPreview = ({ assessment, onBack }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -51,7 +51,7 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                     marginBottom: "15px",
                 }}>
                     <h2 style={{ margin: "0", fontSize: "20px", fontWeight: "bold" }}>
-                        {assessment.title || "Assessment Title"}
+                        {decodeAssessmentText(assessment.title) || "Assessment Title"}
                     </h2>
                     <div style={{
                         display: "flex",
@@ -123,7 +123,7 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                             <span style={{ marginRight: "10px" }}>{currentQuestionIndex + 1}.</span>
                             <div 
                                 style={{ display: "inline-block", verticalAlign: "top", width: "calc(100% - 40px)" }}
-                                dangerouslySetInnerHTML={{ __html: currentQuestion.question || (currentQuestion.type === 'image-mcq' ? "Image-based question" : "Untitled Question") }} 
+                                dangerouslySetInnerHTML={{ __html: formatAssessmentContent(currentQuestion.question || (currentQuestion.type === 'image-mcq' ? "Image-based question" : "Untitled Question")) }} 
                             />
                         </div>
                         
@@ -195,7 +195,7 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                                                             onChange={() => handleOptionChange(idx)}
                                                             style={{ marginRight: "10px" }}
                                                         />
-                                                        {String.fromCharCode(65 + idx)}. {option}
+                                                        {String.fromCharCode(65 + idx)}. {decodeAssessmentText(option)}
                                                     </label>
                                                 ) : null
                                             ))}
@@ -225,7 +225,7 @@ const AssessmentPreview = ({ assessment, onBack }) => {
                                             style={{ marginRight: "10px", marginTop: "2px" }}
                                         />
                                         <div style={{ flex: 1 }}>
-                                            <div>{String.fromCharCode(65 + idx)}.{currentQuestion.type !== 'questionary-image-mcq' && ` ${option}`}</div>
+                                            <div>{String.fromCharCode(65 + idx)}.{currentQuestion.type !== 'questionary-image-mcq' && ` ${decodeAssessmentText(option)}`}</div>
                                             {(currentQuestion.type === 'visual-mcq' || currentQuestion.type === 'questionary-image-mcq') && currentQuestion.optionImages && currentQuestion.optionImages[idx] && (
                                                 <div style={{ marginTop: "8px" }}>
                                                     <img 

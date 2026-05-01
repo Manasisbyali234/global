@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { BACKEND_URL } from '../../../../../utils/api';
+import { decodeAssessmentText } from '../../../../../utils/assessmentContent';
 import { getAssessmentOutcomeLabel } from '../../../../../utils/assessmentOutcome';
 import { showError, showSuccess } from '../../../../../utils/popupNotification';
 
@@ -341,7 +342,7 @@ export default function ViewAnswers() {
           }}>
             <div style={{ minWidth: 0 }}>
               <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Assessment</div>
-              <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.8rem' }}>{assessment.title}</div>
+              <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.8rem' }}>{decodeAssessmentText(assessment.title)}</div>
             </div>
             <div>
               <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Score</div>
@@ -463,7 +464,7 @@ export default function ViewAnswers() {
                     color: '#111827', 
                     marginBottom: '1rem' 
                   }}>
-                    {question.question ? question.question.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').trim() : 'Image-based question'}
+                    {question.question ? decodeAssessmentText(question.question.replace(/<[^>]*>/g, '')) : 'Image-based question'}
                   </h3>
                   {question.imageUrl && (
                     <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
@@ -501,7 +502,7 @@ export default function ViewAnswers() {
                           >
                             <span style={{ fontWeight: '600', color: '#374151', marginTop: '2px' }}>{String.fromCharCode(65 + idx)}.</span>
                             <div style={{ flex: 1 }}>
-                              {question.type !== 'questionary-image-mcq' && <span style={{ color: '#374151' }}>{option}</span>}
+                              {question.type !== 'questionary-image-mcq' && <span style={{ color: '#374151' }}>{decodeAssessmentText(option)}</span>}
                               {(question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && question.optionImages && question.optionImages[idx] && (
                                 <div style={{ marginTop: '8px' }}>
                                   <img 

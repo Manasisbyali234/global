@@ -145,6 +145,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { api } from "../../../../utils/api";
+import { decodeAssessmentText } from "../../../../utils/assessmentContent";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -345,7 +346,7 @@ const AssessmentResults = () => {
 						Assessment Results
 					</h2>
 					<p style={{ margin: "10px 0 0 0", color: "#666" }}>
-						{assessment?.title || "Technical Assessment"}
+						{decodeAssessmentText(assessment?.title) || "Technical Assessment"}
 					</p>
 				</div>
 

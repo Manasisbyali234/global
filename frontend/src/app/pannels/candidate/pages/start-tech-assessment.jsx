@@ -3,6 +3,7 @@ import { FaClock } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { api } from "../../../../utils/api";
+import { decodeAssessmentText } from "../../../../utils/assessmentContent";
 import TermsModal from "../components/TermsModal";
 import ViolationModal from "../components/ViolationModal";
 import AssessmentTerminated from "../components/AssessmentTerminated";
@@ -1500,48 +1501,8 @@ On the 5th violation, your assessment will be terminated/suspended.`);
 	}
 
 	const question = assessment.questions[currentQuestionIndex];
-	const decodeHtmlEntities = (value, options = {}) => {
-		const { preserveWhitespace = false } = options;
-		if (!value || typeof value !== 'string') return '';
-
-		const normalizeLegacyNbsp = (input) =>
-			String(input || '').replace(/(?:&nbsp;|nbsp;|&#160;|\u00a0)+/gi, ' ');
-
-		let normalizedValue = value;
-		for (let index = 0; index < 3; index += 1) {
-			if (typeof document === 'undefined') {
-				normalizedValue = normalizeLegacyNbsp(normalizedValue);
-				break;
-			}
-
-			const textarea = document.createElement('textarea');
-			textarea.innerHTML = normalizedValue;
-			const decodedValue = textarea.value;
-
-			if (decodedValue === normalizedValue) {
-				break;
-			}
-
-			normalizedValue = decodedValue;
-		}
-
-		if (typeof document === 'undefined') {
-			const decodedValue = normalizeLegacyNbsp(normalizedValue);
-			return preserveWhitespace
-				? decodedValue.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim()
-				: decodedValue.replace(/\s+/g, ' ').trim();
-		}
-
-		const wrapper = document.createElement('div');
-		wrapper.innerHTML = normalizedValue;
-
-		const textValue = normalizeLegacyNbsp(wrapper.textContent || wrapper.innerText || normalizedValue);
-		return preserveWhitespace
-			? textValue.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim()
-			: textValue.replace(/\s+/g, ' ').trim();
-	};
 	const instructionsRaw = assessment?.instructions || assessment?.description || '';
-	const instructionsText = decodeHtmlEntities(
+	const instructionsText = decodeAssessmentText(
 		String(instructionsRaw || '')
 			.replace(/<br\s*\/?>/gi, '\n')
 			.replace(/<\/li>/gi, '\n')
@@ -1644,7 +1605,7 @@ On the 5th violation, your assessment will be terminated/suspended.`);
 								Secure Assessment Mode
 							</div>
 							<h2 style={{ margin: "0", fontSize: "24px", fontWeight: "700", color: "#0f172a" }}>
-								{assessment.title}
+						{decodeAssessmentText(assessment.title)}
 							</h2>
 							<div style={{ fontSize: "14px", color: "#555", marginTop: "10px" }}>
 								Progress:{" "}
@@ -1758,7 +1719,7 @@ On the 5th violation, your assessment will be terminated/suspended.`);
 							fontWeight: "bold",
 						}}
 					>
-						{currentQuestionIndex + 1}. {decodeHtmlEntities(String(question.question || '').replace(/<[^>]*>/g, ''))}
+						{currentQuestionIndex + 1}. {decodeAssessmentText(String(question.question || '').replace(/<[^>]*>/g, ''))}
 					</div>
 					{question.imageUrl && (
 						<div style={{ marginBottom: "15px", textAlign: "center" }}>
@@ -1885,7 +1846,7 @@ On the 5th violation, your assessment will be terminated/suspended.`);
 														disabled={isSubmitted}
 														style={{ marginRight: "10px", flexShrink: 0 }}
 													/>
-													<span style={{ wordBreak: "break-word" }}>{String.fromCharCode(65 + idx)}. {option}</span>
+													<span style={{ wordBreak: "break-word" }}>{String.fromCharCode(65 + idx)}. {decodeAssessmentText(option)}</span>
 												</label>
 											) : null
 										))}
@@ -1923,7 +1884,7 @@ On the 5th violation, your assessment will be terminated/suspended.`);
 										style={{ marginRight: "10px", marginTop: "2px" }}
 									/>
 									<div style={{ flex: 1 }}>
-										<div>{String.fromCharCode(65 + idx)}.{question.type !== 'questionary-image-mcq' && ` ${option}`}</div>
+										<div>{String.fromCharCode(65 + idx)}.{question.type !== 'questionary-image-mcq' && ` ${decodeAssessmentText(option)}`}</div>
 										{(question.type === 'visual-mcq' || question.type === 'questionary-image-mcq') && question.optionImages && question.optionImages[idx] && (
 											<div style={{ marginTop: "8px" }}>
 												<img 

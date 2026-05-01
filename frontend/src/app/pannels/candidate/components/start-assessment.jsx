@@ -5,6 +5,7 @@ import axios from "axios";
 import TermsModal from "./TermsModal";
 import AssessmentQuiz from "./AssessmentQuiz";
 import AssessmentResult from "./AssessmentResult";
+import { decodeAssessmentText } from "../../../../utils/assessmentContent";
 
 const StartAssessment = () => {
 	const location = useLocation();
@@ -190,7 +191,7 @@ export default StartAssessment;
 					{/* Header */}
 					<div className="d-flex justify-content-between align-items-center mb-3">
 						<div>
-							<h5 className="mb-1 text-primary">{assessment.title}</h5>
+							<h5 className="mb-1 text-primary">{decodeAssessmentText(assessment.title)}</h5>
 							<small>
 								Question {currentQuestionIndex + 1} of{" "}
 								{assessment.questions.length}
@@ -217,7 +218,7 @@ export default StartAssessment;
 
 					{/* Question */}
 					<div className="mb-3">
-						<h6 className="fw-semibold">{question.question}</h6>
+						<h6 className="fw-semibold">{decodeAssessmentText(question.question)}</h6>
 						<span className="badge bg-dark">{question.marks} Marks</span>
 					</div>
 
@@ -246,7 +247,7 @@ export default StartAssessment;
 									className="form-check-label ms-2"
 									htmlFor={`q-${currentQuestionIndex}-opt-${idx}`}
 								>
-									{option}
+									{decodeAssessmentText(option)}
 								</label>
 							</div>
 						))}
