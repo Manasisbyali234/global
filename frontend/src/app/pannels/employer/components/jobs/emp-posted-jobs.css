@@ -33,6 +33,68 @@
   margin-bottom: 1.5rem !important;
 }
 
+.emp-posted-jobs-page .manage-jobs-toolbar__date-group {
+  display: flex;
+  flex: 1 1 320px;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 260px;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar__date-label {
+  color: #4b5563;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar__date-fields {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar__date-input {
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar__date-type {
+  flex: 1 1 200px;
+  min-width: 180px;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar__date-separator {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar__clear-btn {
+  white-space: nowrap;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar__status-group {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 220px;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar__status-label {
+  color: #4b5563;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.emp-posted-jobs-page .manage-jobs-toolbar__status-buttons {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .emp-posted-jobs-page .manage-jobs-card__header {
   display: flex !important;
   align-items: flex-start !important;
@@ -504,5 +566,32 @@
   .emp-posted-jobs-page .manage-jobs-grid > [class*="col-"]:first-child {
     margin-top: 0 !important;
     padding-top: 0 !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-toolbar__date-group {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-toolbar__date-fields {
+    align-items: stretch;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-toolbar__date-separator {
+    width: 100%;
+    text-align: left;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-toolbar__clear-btn {
+    width: auto !important;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-toolbar__status-group {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .emp-posted-jobs-page .manage-jobs-toolbar__status-buttons {
+    justify-content: flex-start !important;
   }
 }

@@ -3998,21 +3998,30 @@ exports.saveInterviewReview = async (req, res) => {
           .replace(/[_-]+/g, ' ')
           .replace(/\s+/g, ' ');
 
-      const isRejectedInterviewProcessStatus = (value = '') => {
-        const normalized = normalizeInterviewProcessStatus(value);
+      const isAssessmentInterviewProcess = (process = {}) =>
+        normalizeInterviewProcessStatus(process?.type) === 'assessment';
+
+      const isRejectedInterviewProcessStatus = (process = {}) => {
+        const normalized = normalizeInterviewProcessStatus(process?.status);
         if (!normalized) return false;
 
-        return [
+        const rejectedStatuses = [
           'rejected',
           'no show',
           'failed',
           'fail',
           'field',
-          'expired',
+          'suspended',
           'session expired',
           'not eligibal for next round',
           'not eligible for next round'
-        ].includes(normalized);
+        ];
+
+        if (isAssessmentInterviewProcess(process)) {
+          return rejectedStatuses.includes(normalized);
+        }
+
+        return [...rejectedStatuses, 'expired'].includes(normalized);
       };
 
       const isProgressionInterviewProcessStatus = (value = '') =>
@@ -4020,7 +4029,7 @@ exports.saveInterviewReview = async (req, res) => {
 
       updateData.interviewProcesses = interviewProcesses.reduce((sanitizedProcesses, process, index) => {
         const hasRejectedBefore = sanitizedProcesses.some((previousProcess) =>
-          isRejectedInterviewProcessStatus(previousProcess.status)
+          isRejectedInterviewProcessStatus(previousProcess)
         );
         const allPreviousStagesShortlisted = sanitizedProcesses.every((previousProcess) =>
           isProgressionInterviewProcessStatus(previousProcess.status)
@@ -4044,7 +4053,7 @@ exports.saveInterviewReview = async (req, res) => {
       }, []);
 
       const shouldAutoRejectFromStageStatus = updateData.interviewProcesses.some((process) =>
-        isRejectedInterviewProcessStatus(process.status)
+        isRejectedInterviewProcessStatus(process)
       );
 
       if (shouldAutoRejectFromStageStatus) {

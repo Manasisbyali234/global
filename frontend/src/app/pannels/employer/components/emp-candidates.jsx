@@ -5,7 +5,7 @@ import { loadScript } from "../../../../globals/constants";
 import JobZImage from "../../../common/jobz-img";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
-import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
+import { getAssessmentOutcome, isAssessmentOutcomeRejected } from "../../../../utils/assessmentOutcome";
 import './emp-candidates.css';
 
 function SearchableFilterDropdown({
@@ -270,6 +270,16 @@ function EmpCandidatesPage() {
     ].includes(normalized);
   };
 
+  const isAssessmentProcess = (process = {}) =>
+    normalizeStatusValue(process?.type) === "assessment";
+
+  const wasAutoRejectedFromStageStatus = (application = {}) =>
+    Array.isArray(application?.statusHistory) &&
+    application.statusHistory.some((entry) =>
+      normalizeStatusValue(entry?.status) === "rejected" &&
+      normalizeStatusValue(entry?.notes).includes("auto updated from interview stage status")
+    );
+
   const getAssessmentRoundOrderKeys = (job = {}) =>
     (Array.isArray(job?.interviewRoundOrder) ? job.interviewRoundOrder : []).filter(
       (key) => String(job?.interviewRoundTypes?.[key] || "").toLowerCase() === "assessment"
@@ -360,18 +370,18 @@ function EmpCandidatesPage() {
       return baseStatus;
     }
 
-    const processStatuses = (Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [])
-      .map((process) => process?.status);
-    if (processStatuses.some(isRejectedLikeStatus)) {
-      return "rejected";
-    }
-
+    const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
     const hasAssessmentRound =
       Boolean(application?.jobId?.assessmentId) ||
       getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
-      (Array.isArray(application?.interviewProcesses)
-        ? application.interviewProcesses.some((process) => normalizeStatusValue(process?.type) === "assessment")
-        : false);
+      processes.some((process) => isAssessmentProcess(process));
+
+    const hasRejectedNonAssessmentStage = processes.some(
+      (process) => !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
+    );
+    if (hasRejectedNonAssessmentStage) {
+      return "rejected";
+    }
 
     if (hasAssessmentRound) {
       const completionInfo = getAssessmentCompletionInfo(application);
@@ -383,8 +393,20 @@ function EmpCandidatesPage() {
           !completionInfo?.isInProgress &&
           !completionInfo?.isSuspended);
 
-      if (completionInfo?.isFailed || completionInfo?.isSuspended || assessmentNoShow) {
+      if (
+        completionInfo?.isFailed ||
+        completionInfo?.isSuspended ||
+        assessmentNoShow ||
+        isAssessmentOutcomeRejected({
+          status: application?.assessmentStatus,
+          result: application?.assessmentResult,
+        })
+      ) {
         return "rejected";
+      }
+
+      if (baseStatus === "rejected" && wasAutoRejectedFromStageStatus(application)) {
+        return "pending";
       }
     }
 

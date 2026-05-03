@@ -10,7 +10,12 @@ import './emp-candidate-review-stage-text-mobile-fix.css';
 import './emp-candidate-review-mobile-fix.css';
 import { showSuccess, showError } from '../../../../utils/popupNotification';
 import { BACKEND_URL } from '../../../../utils/api';
-import { getAssessmentOutcomeLabel } from '../../../../utils/assessmentOutcome';
+import {
+    getAssessmentOutcome,
+    getAssessmentOutcomeLabel,
+    getAssessmentProcessStatus,
+    isAssessmentOutcomeRejected
+} from '../../../../utils/assessmentOutcome';
 import TermsModal from "../../../../components/TermsModal";
 
 function EmpCandidateReviewPage() {
@@ -98,6 +103,16 @@ function EmpCandidateReviewPage() {
 
     const isShortlistedForNextRoundStatus = (value) =>
         normalizeStatusValue(value) === 'shortlisted for next round';
+
+    const isAssessmentProcess = (process = {}) =>
+        normalizeStatusValue(process?.type) === 'assessment';
+
+    const wasAutoRejectedFromStageStatus = (applicationData = {}) =>
+        Array.isArray(applicationData?.statusHistory) &&
+        applicationData.statusHistory.some((entry) =>
+            normalizeStatusValue(entry?.status) === 'rejected' &&
+            normalizeStatusValue(entry?.notes).includes('auto updated from interview stage status')
+        );
 
     const formatStatusLabel = (value) => {
         const normalized = normalizeStatusValue(value);
@@ -235,6 +250,24 @@ function EmpCandidateReviewPage() {
         });
 
         if (processActivity) {
+            return true;
+        }
+
+        const assessmentStatus = normalizeStatusValue(applicationData?.assessmentStatus);
+        if (assessmentStatus && !nonConductedStatuses.has(assessmentStatus)) {
+            return true;
+        }
+
+        if (applicationData?.assessmentScore !== null && applicationData?.assessmentScore !== undefined) {
+            return true;
+        }
+
+        if (applicationData?.assessmentPercentage !== null && applicationData?.assessmentPercentage !== undefined) {
+            return true;
+        }
+
+        const assessmentResult = normalizeStatusValue(applicationData?.assessmentResult);
+        if (assessmentResult && assessmentResult !== 'pending') {
             return true;
         }
 
@@ -398,7 +431,12 @@ function EmpCandidateReviewPage() {
     const getAssessmentDisplayState = (process = {}, applicationData = null) => {
         const defaultStatusValue = process?.status || 'pending';
         const defaultResultValue = process?.result || null;
-        const resolvedResultValue = getAssessmentResultDisplay(defaultResultValue, defaultStatusValue);
+        const manualEvaluationPendingCount = process?.manualEvaluationPendingCount ?? 0;
+        const resolvedResultValue = getAssessmentResultDisplay(
+            defaultResultValue,
+            defaultStatusValue,
+            manualEvaluationPendingCount
+        );
 
         if (process?.type !== 'assessment') {
             return {
@@ -411,17 +449,13 @@ function EmpCandidateReviewPage() {
             };
         }
 
+        const assessmentOutcome = getAssessmentOutcome({
+            status: defaultStatusValue,
+            result: defaultResultValue,
+            manualEvaluationPendingCount
+        });
         const normalizedStatus = normalizeStatusValue(process?.status);
         const hasAssessmentData = Boolean(process?.assessmentHasData);
-        const terminalStatuses = new Set([
-            'suspended',
-            'expired',
-            'in progress',
-            'completed',
-            'passed',
-            'failed',
-            'cancelled'
-        ]);
         const pendingStatuses = new Set([
             '',
             'pending',
@@ -429,6 +463,72 @@ function EmpCandidateReviewPage() {
             'scheduled',
             'not started'
         ]);
+
+        if (assessmentOutcome.isPassed) {
+            return {
+                statusValue: 'passed',
+                statusLabel: 'Passed',
+                statusClass: 'passed',
+                resultValue: resolvedResultValue,
+                resultClass: getAssessmentResultClass(resolvedResultValue),
+                isWindowExpired: false
+            };
+        }
+
+        if (assessmentOutcome.isFailed) {
+            return {
+                statusValue: 'failed',
+                statusLabel: 'Failed',
+                statusClass: 'failed',
+                resultValue: resolvedResultValue,
+                resultClass: getAssessmentResultClass(resolvedResultValue),
+                isWindowExpired: false
+            };
+        }
+
+        if (assessmentOutcome.isSuspended) {
+            return {
+                statusValue: 'suspended',
+                statusLabel: 'Suspended',
+                statusClass: 'suspended',
+                resultValue: resolvedResultValue,
+                resultClass: getAssessmentResultClass(resolvedResultValue),
+                isWindowExpired: false
+            };
+        }
+
+        if (assessmentOutcome.isNoShow) {
+            return {
+                statusValue: 'no_show',
+                statusLabel: 'No Show',
+                statusClass: 'no_show',
+                resultValue: 'No Show',
+                resultClass: 'no_show',
+                isWindowExpired: true
+            };
+        }
+
+        if (assessmentOutcome.isInProgress) {
+            return {
+                statusValue: 'in_progress',
+                statusLabel: 'In Progress',
+                statusClass: 'in_progress',
+                resultValue: resolvedResultValue,
+                resultClass: getAssessmentResultClass(resolvedResultValue),
+                isWindowExpired: false
+            };
+        }
+
+        if (assessmentOutcome.isCompleted || assessmentOutcome.isPendingReview) {
+            return {
+                statusValue: 'completed',
+                statusLabel: 'Completed',
+                statusClass: 'completed',
+                resultValue: resolvedResultValue,
+                resultClass: getAssessmentResultClass(resolvedResultValue),
+                isWindowExpired: false
+            };
+        }
 
         const fromDate =
             process?.fromDate ||
@@ -454,7 +554,6 @@ function EmpCandidateReviewPage() {
         const scheduledEnd = buildScheduleDateTime(toDate || fromDate, endTime, 'end');
         const isWindowExpired = Boolean(
             !hasAssessmentData &&
-            !terminalStatuses.has(normalizedStatus) &&
             pendingStatuses.has(normalizedStatus) &&
             scheduledEnd &&
             new Date() > scheduledEnd
@@ -474,17 +573,36 @@ function EmpCandidateReviewPage() {
         getAssessmentDisplayState(process, applicationData).statusValue;
 
     const resolveAssessmentProcessStatus = (stageStatus, assessmentSummary) => {
-        const normalizedStageStatus = String(stageStatus || '').toLowerCase();
-        const normalizedAssessmentStatus = String(assessmentSummary?.status || '').toLowerCase();
+        const rawStageStatus = String(stageStatus || '').trim().toLowerCase();
+        const normalizedStageStatus = normalizeStatusValue(stageStatus);
+        const isPendingStageStatus = new Set([
+            '',
+            'pending',
+            'scheduled',
+            'available',
+            'not_started',
+            'not started'
+        ]).has(rawStageStatus) || new Set([
+            '',
+            'pending',
+            'scheduled',
+            'available',
+            'not started'
+        ]).has(normalizedStageStatus);
 
-        if (
-            ['suspended', 'expired', 'in_progress', 'completed', 'passed', 'failed'].includes(normalizedAssessmentStatus) &&
-            ['', 'pending', 'scheduled', 'available', 'not_started'].includes(normalizedStageStatus)
-        ) {
-            return normalizedAssessmentStatus;
+        if (isPendingStageStatus) {
+            const resolvedAssessmentStatus = getAssessmentProcessStatus({
+                status: assessmentSummary?.status,
+                result: assessmentSummary?.result,
+                manualEvaluationPendingCount: assessmentSummary?.manualEvaluationPendingCount
+            }, 'pending');
+
+            if (resolvedAssessmentStatus && resolvedAssessmentStatus !== 'pending') {
+                return resolvedAssessmentStatus;
+            }
         }
 
-        return normalizedStageStatus || 'pending';
+        return rawStageStatus ? rawStageStatus.replace(/\s+/g, '_') : 'pending';
     };
 
     const getApplicationDisplayStatus = (applicationData, processes = []) => {
@@ -493,18 +611,45 @@ function EmpCandidateReviewPage() {
             return baseStatus;
         }
 
-        const processStatuses = (Array.isArray(processes) ? processes : []).map((process) => process?.status);
-        if (processStatuses.some(isRejectedLikeStatus)) {
+        const normalizedProcesses = Array.isArray(processes) ? processes : [];
+        const hasRejectedNonAssessmentStage = normalizedProcesses.some((process) =>
+            !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
+        );
+        if (hasRejectedNonAssessmentStage) {
             return 'rejected';
         }
 
-        const assessmentSummary = getAssessmentSummary(applicationData);
-        if (isRejectedLikeStatus(assessmentSummary?.status) || isRejectedLikeStatus(assessmentSummary?.resultDisplay)) {
+        const normalizedAssessmentStatus = normalizeStatusValue(applicationData?.assessmentStatus);
+        const hasAssessmentRound =
+            Boolean(applicationData?.jobId?.assessmentId) ||
+            normalizedProcesses.some((process) => isAssessmentProcess(process)) ||
+            Boolean(applicationData?.assessmentResult) ||
+            (normalizedAssessmentStatus && normalizedAssessmentStatus !== 'not required');
+
+        if (hasAssessmentRound) {
+            const assessmentSummary = getAssessmentSummary(applicationData);
+            const hasRejectedAssessmentStage = normalizedProcesses
+                .filter((process) => isAssessmentProcess(process))
+                .some((process) => {
+                    const effectiveStatus = String(getProcessEffectiveStatus(process, applicationData) || '').trim().toLowerCase();
+                    return ['rejected', 'failed', 'suspended', 'no_show'].includes(effectiveStatus);
+                });
+
+            if (isAssessmentOutcomeRejected({
+                status: assessmentSummary?.status,
+                result: assessmentSummary?.result,
+                manualEvaluationPendingCount: assessmentSummary?.manualEvaluationPendingCount
+            }) || hasRejectedAssessmentStage) {
+                return 'rejected';
+            }
+        }
+
+        if (isApplicationSessionExpired(applicationData, normalizedProcesses)) {
             return 'rejected';
         }
 
-        if (isApplicationSessionExpired(applicationData, processes)) {
-            return 'rejected';
+        if (hasAssessmentRound && baseStatus === 'rejected' && wasAutoRejectedFromStageStatus(applicationData)) {
+            return 'pending';
         }
 
         return baseStatus;
@@ -590,10 +735,11 @@ function EmpCandidateReviewPage() {
                                 assessmentScore: stage.stageType === 'assessment' ? stageAssessmentSummary.score : null,
                                 assessmentPercentage: stage.stageType === 'assessment' ? stageAssessmentSummary.percentage : null,
                                 assessmentTotalMarks: stage.stageType === 'assessment' ? stageAssessmentSummary.totalMarks : null,
-                                assessmentCaptures: stage.stageType === 'assessment' ? stageAssessmentSummary.captures : [],
-                                assessmentId: stage.stageType === 'assessment' ? (stage.assessmentId || null) : null,
-                                fromDate: stage.stageType === 'assessment' ? (stage.fromDate || null) : null,
-                                toDate: stage.stageType === 'assessment' ? (stage.toDate || stage.fromDate || null) : null,
+                                 assessmentCaptures: stage.stageType === 'assessment' ? stageAssessmentSummary.captures : [],
+                                 manualEvaluationPendingCount: stage.stageType === 'assessment' ? stageAssessmentSummary.manualEvaluationPendingCount : 0,
+                                 assessmentId: stage.stageType === 'assessment' ? (stage.assessmentId || null) : null,
+                                 fromDate: stage.stageType === 'assessment' ? (stage.fromDate || null) : null,
+                                 toDate: stage.stageType === 'assessment' ? (stage.toDate || stage.fromDate || null) : null,
                                 startTime: stage.stageType === 'assessment' ? (stage.startTime || stage.scheduledTime || '') : '',
                                 endTime: stage.stageType === 'assessment' ? (stage.endTime || '') : '',
                                 scheduledDate: stage.stageType === 'assessment' ? (stage.scheduledDate || null) : null,
@@ -627,10 +773,11 @@ function EmpCandidateReviewPage() {
                                 assessmentScore: p.type === 'assessment' ? stageAssessmentSummary.score : null,
                                 assessmentPercentage: p.type === 'assessment' ? stageAssessmentSummary.percentage : null,
                                 assessmentTotalMarks: p.type === 'assessment' ? stageAssessmentSummary.totalMarks : null,
-                                assessmentCaptures: p.type === 'assessment' ? stageAssessmentSummary.captures : [],
-                                assessmentId: p.type === 'assessment' ? (p.assessmentId || null) : null,
-                                fromDate: p.type === 'assessment' ? (p.fromDate || null) : null,
-                                toDate: p.type === 'assessment' ? (p.toDate || p.fromDate || null) : null,
+                                 assessmentCaptures: p.type === 'assessment' ? stageAssessmentSummary.captures : [],
+                                 manualEvaluationPendingCount: p.type === 'assessment' ? stageAssessmentSummary.manualEvaluationPendingCount : 0,
+                                 assessmentId: p.type === 'assessment' ? (p.assessmentId || null) : null,
+                                 fromDate: p.type === 'assessment' ? (p.fromDate || null) : null,
+                                 toDate: p.type === 'assessment' ? (p.toDate || p.fromDate || null) : null,
                                 startTime: p.type === 'assessment' ? (p.startTime || p.scheduledTime || '') : '',
                                 endTime: p.type === 'assessment' ? (p.endTime || '') : '',
                                 scheduledDate: p.type === 'assessment' ? (p.scheduledDate || null) : null,
@@ -682,10 +829,11 @@ function EmpCandidateReviewPage() {
                             assessmentScore: roundType === 'assessment' ? stageAssessmentSummary.score : null,
                             assessmentPercentage: roundType === 'assessment' ? stageAssessmentSummary.percentage : null,
                             assessmentTotalMarks: roundType === 'assessment' ? stageAssessmentSummary.totalMarks : null,
-                            assessmentCaptures: roundType === 'assessment' ? stageAssessmentSummary.captures : [],
-                            assessmentId: roundType === 'assessment' ? (roundDetails?.assessmentId || data.application.jobId?.assessmentId || null) : null,
-                            fromDate: roundType === 'assessment' ? (roundDetails?.fromDate || roundDetails?.date || data.application.jobId?.assessmentStartDate || null) : null,
-                            toDate: roundType === 'assessment' ? (roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || data.application.jobId?.assessmentEndDate || null) : null,
+                             assessmentCaptures: roundType === 'assessment' ? stageAssessmentSummary.captures : [],
+                             manualEvaluationPendingCount: roundType === 'assessment' ? stageAssessmentSummary.manualEvaluationPendingCount : 0,
+                             assessmentId: roundType === 'assessment' ? (roundDetails?.assessmentId || data.application.jobId?.assessmentId || null) : null,
+                             fromDate: roundType === 'assessment' ? (roundDetails?.fromDate || roundDetails?.date || data.application.jobId?.assessmentStartDate || null) : null,
+                             toDate: roundType === 'assessment' ? (roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || data.application.jobId?.assessmentEndDate || null) : null,
                             startTime: roundType === 'assessment' ? (roundDetails?.startTime || data.application.jobId?.assessmentStartTime || '') : '',
                             endTime: roundType === 'assessment' ? (roundDetails?.endTime || data.application.jobId?.assessmentEndTime || '') : '',
                             scheduledDate: null,
@@ -1128,6 +1276,10 @@ function EmpCandidateReviewPage() {
 
     const applicationDisplayStatus = getApplicationDisplayStatus(application, interviewProcesses);
     const isAssessmentNoShowApplication = isApplicationSessionExpired(application, interviewProcesses);
+    const applicationStatusForActions =
+        applicationDisplayStatus === 'pending' && application.status === 'rejected'
+            ? 'pending'
+            : application.status;
 
     return (
         <div className="candidate-review-container emp-candidate-review-page">
@@ -1428,13 +1580,13 @@ function EmpCandidateReviewPage() {
                                                     <div>No interview stage was completed before the application deadline, so this session is expired.</div>
                                                 </div>
                                             )}
-                                            {application.status === 'accepted' && (
+                                            {applicationStatusForActions === 'accepted' && (
                                                 <div className="alert alert-success d-flex align-items-center mb-3" style={{ width: '100%', fontSize: '14px', padding: '10px' }}>
                                                     <i className="fas fa-check-circle me-2"></i>
                                                     <div>Candidate has Accepted the Offer</div>
                                                 </div>
                                             )}
-                                            {!isAssessmentNoShowApplication && application.status === 'rejected' && application.statusHistory?.some(h => h.status === 'offer_sent') ? (
+                                            {!isAssessmentNoShowApplication && applicationStatusForActions === 'rejected' && application.statusHistory?.some(h => h.status === 'offer_sent') ? (
                                                 <div className="alert alert-warning d-flex align-items-center mb-3" style={{ width: '100%', fontSize: '14px', padding: '10px' }}>
                                                     <i className="fas fa-times-circle me-2"></i>
                                                     <div>Candidate has Not Accepted the Offer</div>
@@ -1450,17 +1602,17 @@ function EmpCandidateReviewPage() {
                                                 </>
                                             ) : isFinalStageShortlisted() ? (
                                                 <>
-                                                    {application.status !== 'accepted' && application.status !== 'hired' && (
+                                                    {applicationStatusForActions !== 'accepted' && applicationStatusForActions !== 'hired' && (
                                                         <button 
-                                                            className={`${application.status === 'shortlisted' ? 'active shortlisted-btn' : ''}`}
+                                                            className={`${applicationStatusForActions === 'shortlisted' ? 'active shortlisted-btn' : ''}`}
                                                             onClick={() => updateApplicationStatus('shortlisted')}
                                                         >
                                                             <i className="fas fa-check"></i> Shortlist
                                                         </button>
                                                     )}
-                                                    {application.status !== 'hired' && application.status !== 'accepted' && (
+                                                    {applicationStatusForActions !== 'hired' && applicationStatusForActions !== 'accepted' && (
                                                         <button 
-                                                            className={`${application.status === 'offer_sent' ? 'active' : ''}`}
+                                                            className={`${applicationStatusForActions === 'offer_sent' ? 'active' : ''}`}
                                                             onClick={() => updateApplicationStatus('offer_sent')}
                                                         >
                                                             <i className="fas fa-envelope"></i> Offer Letter Sent
@@ -1469,33 +1621,33 @@ function EmpCandidateReviewPage() {
                                                 </>
                                             ) : (
                                                 <>
-                                                    {(allProcessesCompleted() && hasShortlistedForNextRound() || application.status === 'accepted') && (
+                                                    {(allProcessesCompleted() && hasShortlistedForNextRound() || applicationStatusForActions === 'accepted') && (
                                                         <>
-                                                            {application.status !== 'accepted' && application.status !== 'hired' && (
+                                                            {applicationStatusForActions !== 'accepted' && applicationStatusForActions !== 'hired' && (
                                                                 <button 
-                                                                    className={`${application.status === 'shortlisted' ? 'active shortlisted-btn' : ''}`}
+                                                                    className={`${applicationStatusForActions === 'shortlisted' ? 'active shortlisted-btn' : ''}`}
                                                                     onClick={() => updateApplicationStatus('shortlisted')}
                                                                 >
                                                                     <i className="fas fa-check"></i> Shortlist
                                                                 </button>
                                                             )}
                                                             <button 
-                                                                className={`${application.status === 'hired' ? 'active' : ''}`}
+                                                                className={`${applicationStatusForActions === 'hired' ? 'active' : ''}`}
                                                                 onClick={() => updateApplicationStatus('hired')}
                                                             >
                                                                 <i className="fas fa-briefcase"></i> Mark as Hired
                                                             </button>
                                                         </>
                                                     )}
-                                                    {application.status !== 'hired' && application.status !== 'accepted' && hasAnyStageTracked() && hasShortlistedForNextRound() && (
+                                                    {applicationStatusForActions !== 'hired' && applicationStatusForActions !== 'accepted' && hasAnyStageTracked() && hasShortlistedForNextRound() && (
                                                         <button 
-                                                            className={`${application.status === 'offer_sent' ? 'active' : ''}`}
+                                                            className={`${applicationStatusForActions === 'offer_sent' ? 'active' : ''}`}
                                                             onClick={() => updateApplicationStatus('offer_sent')}
                                                         >
                                                             <i className="fas fa-envelope"></i> Offer Letter Sent
                                                         </button>
                                                     )}
-                                                    {application.status !== 'shortlisted' && application.status !== 'hired' && application.status !== 'accepted' && hasAnyStageTracked() && hasShortlistedForNextRound() && (
+                                                    {applicationStatusForActions !== 'shortlisted' && applicationStatusForActions !== 'hired' && applicationStatusForActions !== 'accepted' && hasAnyStageTracked() && hasShortlistedForNextRound() && (
                                                         <button 
                                                                 className={`${applicationDisplayStatus === 'rejected' ? 'active' : ''}`}
                                                                 onClick={() => setShowRejectConfirm(true)}
@@ -1506,7 +1658,7 @@ function EmpCandidateReviewPage() {
                                                 </>
                                             )}
                                         </div>
-                                        {application.status !== 'accepted' && application.status !== 'hired' && !isAssessmentNoShowApplication && !hasNegativeStatus() && !isFinalStageShortlisted() && (!allProcessesCompleted() || !hasShortlistedForNextRound()) && (
+                                        {applicationStatusForActions !== 'accepted' && applicationStatusForActions !== 'hired' && !isAssessmentNoShowApplication && !hasNegativeStatus() && !isFinalStageShortlisted() && (!allProcessesCompleted() || !hasShortlistedForNextRound()) && (
                                             <p className="warning-text">
                                                 {!hasShortlistedForNextRound()
                                                     ? 'Please select "Shortlisted for next Round" for at least one stage to enable actions.'

@@ -5,6 +5,15 @@ const normalizeAssessmentValue = (value = '') =>
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ');
 
+const normalizeAssessmentProcessStatus = (value = '') => {
+  const normalized = normalizeAssessmentValue(value);
+  if (!normalized || normalized === 'not started') {
+    return 'pending';
+  }
+
+  return normalized.replace(/\s+/g, '_');
+};
+
 export const getAssessmentOutcome = ({
   status = '',
   result = '',
@@ -101,4 +110,39 @@ export const getAssessmentOutcomeLabel = (details = {}) => {
     default:
       return 'Pending';
   }
+};
+
+export const isAssessmentOutcomeRejected = (details = {}) => {
+  const outcome = getAssessmentOutcome(details);
+  return outcome.isFailed || outcome.isSuspended || outcome.isNoShow;
+};
+
+export const getAssessmentProcessStatus = (details = {}, fallbackStatus = 'pending') => {
+  const outcome = getAssessmentOutcome(details);
+
+  if (outcome.isSuspended) {
+    return 'suspended';
+  }
+
+  if (outcome.isPassed) {
+    return 'passed';
+  }
+
+  if (outcome.isFailed) {
+    return 'failed';
+  }
+
+  if (outcome.isNoShow) {
+    return 'no_show';
+  }
+
+  if (outcome.isInProgress) {
+    return 'in_progress';
+  }
+
+  if (outcome.isCompleted || outcome.isPendingReview) {
+    return 'completed';
+  }
+
+  return normalizeAssessmentProcessStatus(fallbackStatus);
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import AssessmentCard from "../assessments/AssessmnetCard";
 import CreateAssessmentModal from "../assessments/CreateassessmentModal";
+import QuestionModal from "../assessments/qusetion-popup";
 import { api } from '../../../../../utils/api';
 import './assessment-dashboard.css';
 import '../../../../../assessment-modal-fix.css';
@@ -30,6 +31,7 @@ export default function AssessmentDashboard() {
 	const [showModal, setShowModal] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [editingAssessment, setEditingAssessment] = useState(null);
+	const [previewAssessment, setPreviewAssessment] = useState(null);
 	const [selectedAssessmentId, setSelectedAssessmentId] = useState("");
 	const [selectedStatus, setSelectedStatus] = useState("all");
 	const [companySearch, setCompanySearch] = useState("");
@@ -474,6 +476,7 @@ export default function AssessmentDashboard() {
 										data={assessment} 
 										onDelete={handleDeleteAssessment}
 										onEdit={handleEditAssessment}
+										onView={setPreviewAssessment}
 										index={index}
 									/>
 								</div>
@@ -482,6 +485,11 @@ export default function AssessmentDashboard() {
 					)}
 				</div>
 			</div>
+
+			<QuestionModal
+				assessment={previewAssessment}
+				onClose={() => setPreviewAssessment(null)}
+			/>
 
 			{showModal && (
 				<CreateAssessmentModal

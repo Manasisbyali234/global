@@ -15,9 +15,30 @@ export default function EmpPostedJobs() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [designationFilter, setDesignationFilter] = useState('all');
     const [searchText, setSearchText] = useState('');
+    const [dateFilterField, setDateFilterField] = useState('createdAt');
+    const [postedDateFrom, setPostedDateFrom] = useState('');
+    const [postedDateTo, setPostedDateTo] = useState('');
     const [applicationCounts, setApplicationCounts] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const PAGE_SIZE = 10;
+
+    const parseFilterDateInput = (value) => {
+        if (!value) return null;
+        const [year, month, day] = value.split('-').map(Number);
+        if (!year || !month || !day) return null;
+        return new Date(year, month - 1, day);
+    };
+
+    const getEndOfDay = (date) => {
+        if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+    };
+
+    const getDateFilterValue = (job) => {
+        if (dateFilterField === 'lastDateOfApplication') return job?.lastDateOfApplication;
+        if (dateFilterField === 'offerLetterDate') return job?.offerLetterDate;
+        return job?.createdAt;
+    };
     
     useEffect(() => {
         loadScript("js/custom.js");
@@ -40,9 +61,29 @@ export default function EmpPostedJobs() {
         if (query) {
             next = next.filter(job => (job.companyName || '').toLowerCase().includes(query));
         }
+        const fromInputDate = parseFilterDateInput(postedDateFrom);
+        const toInputDate = parseFilterDateInput(postedDateTo);
+        const startDate = fromInputDate && toInputDate
+            ? new Date(Math.min(fromInputDate.getTime(), toInputDate.getTime()))
+            : fromInputDate;
+        const endDate = fromInputDate && toInputDate
+            ? getEndOfDay(new Date(Math.max(fromInputDate.getTime(), toInputDate.getTime())))
+            : getEndOfDay(toInputDate);
+        if (startDate || endDate) {
+            next = next.filter((job) => {
+                const filterDateValue = getDateFilterValue(job);
+                if (!filterDateValue) return false;
+
+                const filterDate = new Date(filterDateValue);
+                if (Number.isNaN(filterDate.getTime())) return false;
+                if (startDate && filterDate < startDate) return false;
+                if (endDate && filterDate > endDate) return false;
+                return true;
+            });
+        }
         setFilteredJobs(next);
         setCurrentPage(1);
-    }, [jobs, statusFilter, designationFilter, searchText]);
+    }, [jobs, statusFilter, designationFilter, searchText, postedDateFrom, postedDateTo, dateFilterField]);
 
     const jobSuggestions = useMemo(() => {
         const suggestions = new Set();
@@ -65,6 +106,14 @@ export default function EmpPostedJobs() {
         });
         return Array.from(titles).sort((a, b) => a.localeCompare(b));
     }, [jobs]);
+
+    const hasActiveFilters = useMemo(() => {
+        return statusFilter !== 'all'
+            || designationFilter !== 'all'
+            || Boolean((searchText || '').trim())
+            || Boolean(postedDateFrom)
+            || Boolean(postedDateTo);
+    }, [statusFilter, designationFilter, searchText, postedDateFrom, postedDateTo]);
 
 
     const fetchJobs = async () => {
@@ -243,7 +292,7 @@ export default function EmpPostedJobs() {
 				</div>
 
 				<div className="panel-body wt-panel-body">
-					<div className="manage-jobs-toolbar d-flex flex-wrap gap-3 justify-content-between align-items-center">
+					<div className="manage-jobs-toolbar d-flex flex-wrap gap-3 justify-content-between align-items-end">
 						<div className="position-relative" style={{maxWidth: '360px', flex: '1 1 300px'}}>
 							<i className="fa fa-search position-absolute" style={{left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#ff6b35', fontSize: '16px', zIndex: 10}}></i>
 							<input
@@ -275,7 +324,51 @@ export default function EmpPostedJobs() {
                                 ))}
                             </select>
                         </div>
-						<div className="d-flex gap-2">
+                        <div className="manage-jobs-toolbar__date-group">
+                            <label className="manage-jobs-toolbar__date-label">Filter by Date</label>
+                            <div className="manage-jobs-toolbar__date-fields">
+                                <select
+                                    className="form-select manage-jobs-toolbar__date-type"
+                                    value={dateFilterField}
+                                    onChange={(e) => setDateFilterField(e.target.value)}
+                                    aria-label="Select job date field to filter"
+                                >
+                                    <option value="createdAt">Posted Date</option>
+                                    <option value="lastDateOfApplication">Last Application Date</option>
+                                    <option value="offerLetterDate">Offer Date</option>
+                                </select>
+                                <input
+                                    type="date"
+                                    className="form-control manage-jobs-toolbar__date-input"
+                                    value={postedDateFrom}
+                                    onChange={(e) => setPostedDateFrom(e.target.value)}
+                                    aria-label="Filter jobs from posted date"
+                                />
+                                <span className="manage-jobs-toolbar__date-separator">to</span>
+                                <input
+                                    type="date"
+                                    className="form-control manage-jobs-toolbar__date-input"
+                                    value={postedDateTo}
+                                    onChange={(e) => setPostedDateTo(e.target.value)}
+                                    aria-label="Filter jobs to posted date"
+                                />
+                                {(postedDateFrom || postedDateTo) && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-secondary manage-jobs-toolbar__clear-btn"
+                                        onClick={() => {
+                                            setPostedDateFrom('');
+                                            setPostedDateTo('');
+                                        }}
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="manage-jobs-toolbar__status-group">
+                            <label className="manage-jobs-toolbar__status-label">Filter by Status</label>
+                            <div className="manage-jobs-toolbar__status-buttons d-flex gap-2">
 							<button 
 								type="button" 
 								className={`btn ${statusFilter === 'all' ? 'btn-outline-primary' : 'btn-outline-primary'}`}
@@ -297,6 +390,7 @@ export default function EmpPostedJobs() {
 							>
 								Closed
 							</button>
+                            </div>
 						</div>
 					</div>
 
@@ -310,7 +404,13 @@ export default function EmpPostedJobs() {
 						<div className="row manage-jobs-grid">
                             {filteredJobs.length === 0 ? (
                                 <div className="col-12 text-center py-4">
-                                    <p className="text-muted">No jobs posted yet.</p>
+                                    <p className="text-muted">
+                                        {jobs.length === 0
+                                            ? 'No jobs posted yet.'
+                                            : hasActiveFilters
+                                                ? 'No jobs match the selected filters.'
+                                                : 'No jobs available.'}
+                                    </p>
                                 </div>
                             ) : (
 								filteredJobs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((job) => {
@@ -365,6 +465,12 @@ export default function EmpPostedJobs() {
 														<Calendar size={14} className="me-2" />
 														<span>Posted: {formatDate(job.createdAt)}</span>
 													</div>
+                                                    {job.lastDateOfApplication && (
+                                                        <div className="d-flex align-items-center manage-jobs-card__date-row">
+                                                            <Calendar size={14} className="me-2" />
+                                                            <span>Last Apply: {formatDate(job.lastDateOfApplication)}</span>
+                                                        </div>
+                                                    )}
 													{displayStatus === 'closed' && (
 														<div className="d-flex align-items-center mt-1 text-danger fw-bold manage-jobs-card__date-row">
 															<AlertCircle size={14} className="" />

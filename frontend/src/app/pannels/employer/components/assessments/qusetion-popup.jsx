@@ -1,92 +1,89 @@
 import React, { useEffect } from "react";
-import { disableBodyScroll, enableBodyScroll } from "../../../../utils/scrollUtils";
+import { createPortal } from "react-dom";
+import { disableBodyScroll, enableBodyScroll } from "../../../../../utils/scrollUtils";
+import AssessmentPreview from "./AssessmentPreview";
+import "./CreateassessmentModal.css";
 
 export default function QuestionModal({ assessment, onClose }) {
 	useEffect(() => {
-		if (assessment) {
-			disableBodyScroll();
-		} else {
-			enableBodyScroll();
+		if (!assessment) {
+			return undefined;
 		}
-		return () => enableBodyScroll();
-	}, [assessment]);
 
-	if (!assessment) return null; // no data yet
+		disableBodyScroll();
 
-	return (
+		const handleKeyDown = (event) => {
+			if (event.key === "Escape") {
+				onClose?.();
+			}
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+
+		return () => {
+			document.removeEventListener("keydown", handleKeyDown);
+			enableBodyScroll();
+		};
+	}, [assessment, onClose]);
+
+	if (!assessment || typeof document === "undefined") {
+		return null;
+	}
+
+	return createPortal(
 		<div
+			className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center"
 			style={{
-				position: "fixed",
-				top: 0,
-				left: 0,
-				width: "100%",
-				height: "100%",
 				background: "rgba(0,0,0,0.5)",
-				display: "flex",
-				justifyContent: "center",
+				zIndex: 100000,
 				alignItems: "center",
-				zIndex: 9999,
+				padding: "20px",
 			}}
+			onClick={() => onClose?.()}
+			role="dialog"
+			aria-modal="true"
+			aria-label="Assessment Preview"
 		>
 			<div
+				className="bg-white rounded-3 shadow-lg"
 				style={{
-					background: "#fff",
-					padding: "20px",
-					borderRadius: "8px",
-					width: "500px",
-					maxHeight: "80%",
-					overflowY: "auto",
+					width: "min(960px, 100%)",
+					maxHeight: "90vh",
+					display: "flex",
+					flexDirection: "column",
+					overflow: "hidden",
+					position: "relative",
+					zIndex: 100001,
 				}}
+				onClick={(event) => event.stopPropagation()}
 			>
-				<h2 style={{ marginBottom: "15px" }}>{assessment.title}</h2>
-				{assessment.designation && (
-					<p style={{ margin: "0 0 10px 0", color: "#666", fontSize: "14px" }}>
-						<strong>Designation:</strong> {assessment.designation}
-					</p>
-				)}
-				{assessment.companyName && (
-					<p style={{ margin: "0 0 15px 0", color: "#666", fontSize: "14px" }}>
-						<strong>Company:</strong> {assessment.companyName}
-					</p>
-				)}
-				{assessment.questions?.map((q, i) => (
-					<div
-						key={i}
-						style={{
-							marginBottom: "20px",
-							paddingBottom: "15px",
-							borderBottom: "1px solid #eee",
-						}}
+				<div className="p-3 d-flex justify-content-between align-items-center" style={{ borderBottom: "1px solid #e5e7eb" }}>
+					<h5 className="m-0 fw-bold">Assessment Preview</h5>
+					<button
+						type="button"
+						className="btn btn-sm btn-outline-secondary"
+						onClick={() => onClose?.()}
+						aria-label="Close Preview"
 					>
-						<strong>
-							{i + 1}. <span dangerouslySetInnerHTML={{ __html: q.question }} />
-						</strong>
-						<div style={{ marginTop: "8px" }}>
-							{q.options?.map((opt, idx) => (
-								<div key={idx}>
-									<label>
-										<input type="radio" name={`q-${i}`} value={opt} /> {opt}
-									</label>
-								</div>
-							))}
-						</div>
-					</div>
-				))}
+						<i className="fa fa-times"></i>
+					</button>
+				</div>
 
-				<button
-					onClick={() => { enableBodyScroll(); onClose(); }}
-					style={{
-						background: "#007bff",
-						color: "#fff",
-						border: "none",
-						padding: "8px 16px",
-						borderRadius: "5px",
-						cursor: "pointer",
-					}}
-				>
-					Close
-				</button>
+				<div className="p-0 overflow-auto" style={{ flex: "1 1 auto", minHeight: 0 }}>
+					<AssessmentPreview assessment={assessment} />
+				</div>
+
+				<div className="p-3 border-top d-flex justify-content-end gap-2">
+					<button
+						type="button"
+						className="btn btn-secondary"
+						onClick={() => onClose?.()}
+					>
+						Close
+					</button>
+				</div>
 			</div>
-		</div>
+		</div>,
+		document.body
 	);
 }

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { formatAssessmentContent } from "../../../../../utils/assessmentContent";
 import "./create-assessment.css";
 
-export default function AssessmentCard({ data, onDelete, onEdit, index }) {
+export default function AssessmentCard({ data, onDelete, onEdit, onView, index }) {
 	const navigate = useNavigate();
 	const isAssigned = Boolean(data?.isAssigned);
 	const assignmentCount = Number(data?.assignedJobsCount) || 0;
@@ -115,6 +115,14 @@ export default function AssessmentCard({ data, onDelete, onEdit, index }) {
 				<div className="d-flex flex-wrap gap-2">
 					<button className="btn btn-sm btn-outline-primary" onClick={() => navigate(`/employer/assessment-results/${data._id}`)}>
 						<i className="fa fa-chart-bar"></i> Results
+					</button>
+					<button
+						className="btn btn-sm btn-outline-info"
+						onClick={() => onView?.(data)}
+						title="Preview Questions"
+						aria-label="Preview Questions"
+					>
+						<i className="fa fa-eye"></i>
 					</button>
 					{!isAssigned && (
 						<>
