@@ -406,24 +406,18 @@ function EmpDashboardPage() {
 
                         {/* Recent Activity Section */}
                         <div className="col-xl-4 col-lg-4 col-md-12 mb-4">
-                            <div style={{
-                                background: 'white',
-                                borderRadius: '0.75rem',
-                                border: '1px solid #e5e7eb',
-                                padding: isMobile ? '1rem' : '1.5rem',
-                                display: 'flex',
-                                flexDirection: 'column'
-                            }}>
-                                <div style={{ padding: '0 0 12px 0', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <h5 style={{ fontSize: '14px', fontWeight: 'bold', color: '#374151', margin: 0 }}>
-                                        <i className="feather-bell" style={{ marginRight: '8px' }}></i>Notifications
+                            <div className="emp-dashboard-notifications-panel">
+                                <div className="emp-dashboard-notifications-header">
+                                    <h5 className="emp-dashboard-notifications-title">
+                                        <i className="feather-bell"></i>
+                                        <span>Notifications</span>
                                     </h5>
-                                    <span style={{ background: '#f3f4f6', color: '#374151', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                                    <span className="emp-dashboard-notifications-count">
                                         {notifications.length}
                                     </span>
                                 </div>
 
-                                <div style={{ maxHeight: '320px', overflowY: 'auto', marginTop: '12px', flex: '1' }}>
+                                <div className="emp-dashboard-notifications-list">
                                     {notifications.length > 0 ? (
                                         <>
                                             {(showAllNotifications ? notifications : notifications.slice(0, 3)).map((notification, index, list) => {
@@ -432,33 +426,39 @@ function EmpDashboardPage() {
                                                 return (
                                                     <div
                                                         key={notification._id || index}
+                                                        className="emp-dashboard-notification-item"
                                                         onMouseEnter={() => setHoveredId(notification._id)}
                                                         onMouseLeave={() => setHoveredId(null)}
                                                         onClick={() => isMobile && setHoveredId(hoveredId === notification._id ? null : notification._id)}
                                                         style={{
-                                                            padding: '10px 12px',
-                                                            borderBottom: index < list.length - 1 ? '1px solid #f1f5f9' : 'none',
-                                                            display: 'flex',
-                                                            gap: '8px',
-                                                            alignItems: 'flex-start'
+                                                            borderBottom: index < list.length - 1 ? '1px solid #f1f5f9' : 'none'
                                                         }}
                                                     >
-                                                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                            <i className={icon} style={{ color, fontSize: '14px' }}></i>
+                                                        <div
+                                                            className="emp-dashboard-notification-icon"
+                                                            style={{
+                                                                '--notification-accent': color,
+                                                                '--notification-accent-bg': `${color}15`
+                                                            }}
+                                                        >
+                                                            <i className={icon}></i>
                                                         </div>
-                                                        <div style={{ flex: 1, minWidth: 0 }}>
-                                                            <h6 style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', margin: '0 0 4px 0', wordWrap: 'break-word' }}>
+                                                        <div className="emp-dashboard-notification-body">
+                                                            <h6 className="emp-dashboard-notification-title">
                                                                 {notification.title}
                                                             </h6>
-                                                            <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', lineHeight: '1.4' }}>
+                                                            <p className="emp-dashboard-notification-message">
                                                                 {notification.message}
                                                             </p>
-                                                            <small style={{ fontSize: '10px', color: '#9ca3af' }}>
+                                                            <small className="emp-dashboard-notification-time">
                                                                 {formatDate(notification.createdAt)}
                                                             </small>
                                                         </div>
                                                         {(hoveredId === notification._id || isMobile) && (
                                                             <button
+                                                                type="button"
+                                                                className="emp-dashboard-notification-dismiss"
+                                                                aria-label="Dismiss notification"
                                                                 onClick={async (e) => {
                                                                     e.stopPropagation();
 
@@ -472,22 +472,6 @@ function EmpDashboardPage() {
                                                                         window.dispatchEvent(new CustomEvent('refreshNotifications'));
                                                                     } catch (error) {}
                                                                 }}
-                                                                style={{
-                                                                    background: '#fed7aa',
-                                                                    border: 'none',
-                                                                    color: 'black',
-                                                                    fontSize: '12px',
-                                                                    cursor: 'pointer',
-                                                                    borderRadius: '2px',
-                                                                    padding: '2px 6px',
-                                                                    flexShrink: 0,
-                                                                    width: '20px',
-                                                                    height: '20px',
-                                                                    display: hoveredId === notification._id || isMobile ? 'flex' : 'none',
-                                                                    alignItems: 'center',
-                                                                    justifyContent: 'center',
-                                                                    transition: 'none'
-                                                                }}
                                                             >
                                                                 <i className="fa fa-times"></i>
                                                             </button>
@@ -496,10 +480,11 @@ function EmpDashboardPage() {
                                                 );
                                             })}
                                             {notifications.length > 3 && (
-                                                <div style={{ padding: '8px', textAlign: 'center', borderTop: '1px solid #f1f5f9' }}>
+                                                <div className="emp-dashboard-notifications-footer">
                                                     <button
+                                                        type="button"
+                                                        className="emp-dashboard-notifications-toggle"
                                                         onClick={() => setShowAllNotifications(!showAllNotifications)}
-                                                        style={{ background: 'rgba(0,0,0,0.8)', color: 'white', border: 'none', borderRadius: '12px', padding: '4px 12px', fontSize: '10px', cursor: 'pointer' }}
                                                     >
                                                         {showAllNotifications ? 'Show Less' : 'View All'}
                                                     </button>
@@ -507,10 +492,10 @@ function EmpDashboardPage() {
                                             )}
                                         </>
                                     ) : (
-                                        <div style={{ padding: '24px', textAlign: 'center' }}>
-                                            <i className="feather-bell" style={{ fontSize: '32px', color: '#d1d5db', opacity: 0.5 }}></i>
-                                            <h6 style={{ color: '#6b7280', fontSize: '12px', margin: '8px 0 0 0' }}>No notifications</h6>
-                                            <p style={{ color: '#9ca3af', fontSize: '10px', margin: '2px 0 0 0' }}>Updates will appear here</p>
+                                        <div className="emp-dashboard-notifications-empty">
+                                            <i className="feather-bell"></i>
+                                            <h6>No notifications</h6>
+                                            <p>Updates will appear here</p>
                                         </div>
                                     )}
                                 </div>

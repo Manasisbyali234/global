@@ -257,7 +257,7 @@ function AdminCandidateReviewPage() {
     const profileImageSrc = getProfileImageSrc();
 
     return (
-        <div className="candidate-review-container">
+        <div className="candidate-review-container admin-candidate-review-page">
             {/* Header Section */}
             <div className="candidate-review-header">
                 <button className="back-btn" onClick={() => navigate(-1)}>
@@ -323,48 +323,48 @@ function AdminCandidateReviewPage() {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="tab-navigation">
+            <div className="tab-navigation admin-review-tabs">
                 <button 
-                    className={`tab-btn ${activeTab === 'personal' ? 'active' : ''}`}
+                    className={`tab-btn admin-review-tab-btn ${activeTab === 'personal' ? 'active' : ''}`}
                     onClick={() => setActiveTab('personal')}
                 >
                     <i className="fas fa-user"></i>
-                    Personal Info
+                    <span>Personal Info</span>
                 </button>
                 <button 
-                    className={`tab-btn ${activeTab === 'education' ? 'active' : ''}`}
+                    className={`tab-btn admin-review-tab-btn ${activeTab === 'education' ? 'active' : ''}`}
                     onClick={() => setActiveTab('education')}
                 >
                     <i className="fas fa-graduation-cap"></i>
-                    Education
+                    <span>Education</span>
                 </button>
                 <button 
-                    className={`tab-btn ${activeTab === 'skills' ? 'active' : ''}`}
+                    className={`tab-btn admin-review-tab-btn ${activeTab === 'skills' ? 'active' : ''}`}
                     onClick={() => setActiveTab('skills')}
                 >
                     <i className="fas fa-cogs"></i>
-                    Skills & Summary
+                    <span>Skills &amp; Summary</span>
                 </button>
                 <button 
-                    className={`tab-btn ${activeTab === 'documents' ? 'active' : ''}`}
+                    className={`tab-btn admin-review-tab-btn ${activeTab === 'documents' ? 'active' : ''}`}
                     onClick={() => setActiveTab('documents')}
                 >
                     <i className="fas fa-file-alt"></i>
-                    Documents
+                    <span>Documents</span>
                 </button>
                 <button 
-                    className={`tab-btn ${activeTab === 'employment' ? 'active' : ''}`}
+                    className={`tab-btn admin-review-tab-btn ${activeTab === 'employment' ? 'active' : ''}`}
                     onClick={() => setActiveTab('employment')}
                 >
                     <i className="fas fa-briefcase"></i>
-                    Employment
+                    <span>Employment</span>
                 </button>
                 <button 
-                    className={`tab-btn ${activeTab === 'company' ? 'active' : ''}`}
+                    className={`tab-btn admin-review-tab-btn ${activeTab === 'company' ? 'active' : ''}`}
                     onClick={() => setActiveTab('company')}
                 >
                     <i className="fas fa-building"></i>
-                    Company Details
+                    <span>Company Details</span>
                 </button>
             </div>
 

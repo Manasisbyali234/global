@@ -732,3 +732,227 @@
     white-space: normal !important;
   }
 }
+
+.emp-dashboard-notifications-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.emp-dashboard-notifications-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.emp-dashboard-notifications-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #374151 !important;
+  min-width: 0;
+}
+
+.emp-dashboard-notifications-title i {
+  flex-shrink: 0;
+}
+
+.emp-dashboard-notifications-count {
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 4px 7px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.emp-dashboard-notifications-list {
+  margin-top: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.emp-dashboard-notification-item {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  width: 100%;
+  cursor: default;
+}
+
+.emp-dashboard-notification-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--notification-accent-bg, #f3f4f6);
+  color: var(--notification-accent, #6b7280);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.emp-dashboard-notification-icon i {
+  font-size: 14px;
+}
+
+.emp-dashboard-notification-body {
+  min-width: 0;
+}
+
+.emp-dashboard-notification-title {
+  margin: 0 0 4px 0 !important;
+  color: #1f2937 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.emp-dashboard-notification-message {
+  margin: 0 0 4px 0;
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.emp-dashboard-notification-time {
+  color: #9ca3af;
+  font-size: 10px;
+  display: block;
+}
+
+.emp-dashboard-notification-dismiss {
+  background: #fed7aa;
+  border: none;
+  color: #111827;
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+
+.emp-dashboard-notification-dismiss:hover {
+  background: #fdba74;
+  transform: none !important;
+}
+
+.emp-dashboard-notification-dismiss i {
+  font-size: 12px;
+}
+
+.emp-dashboard-notifications-footer {
+  padding: 8px;
+  text-align: center;
+  border-top: 1px solid #f1f5f9;
+}
+
+.emp-dashboard-notifications-toggle {
+  background: rgba(0, 0, 0, 0.82);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 10px;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+
+.emp-dashboard-notifications-toggle:hover {
+  background: #111827;
+  transform: none !important;
+}
+
+.emp-dashboard-notifications-empty {
+  padding: 24px;
+  text-align: center;
+}
+
+.emp-dashboard-notifications-empty i {
+  font-size: 32px;
+  color: #d1d5db;
+  opacity: 0.5;
+}
+
+.emp-dashboard-notifications-empty h6 {
+  margin: 8px 0 0 0 !important;
+  color: #6b7280 !important;
+  font-size: 12px !important;
+}
+
+.emp-dashboard-notifications-empty p {
+  margin: 2px 0 0 0;
+  color: #9ca3af;
+  font-size: 10px;
+}
+
+@media (max-width: 767px) {
+  .emp-dashboard-notifications-panel {
+    padding: 1rem;
+  }
+
+  .emp-dashboard-notifications-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .emp-dashboard-notifications-title {
+    width: calc(100% - 48px);
+    line-height: 1.4;
+  }
+
+  .emp-dashboard-notifications-list {
+    max-height: none;
+  }
+
+  .emp-dashboard-notification-item {
+    grid-template-columns: 28px minmax(0, 1fr) 30px;
+    gap: 10px;
+    padding: 12px 0;
+  }
+
+  .emp-dashboard-notification-dismiss {
+    grid-column: 3;
+    justify-self: end;
+    align-self: flex-start;
+    margin-top: 0;
+    width: 30px;
+    height: 30px;
+  }
+
+  .emp-dashboard-notifications-footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .emp-dashboard-notifications-toggle {
+    width: 100%;
+    min-height: 36px;
+    font-size: 11px;
+  }
+}

@@ -271,6 +271,13 @@
     box-sizing: border-box;
 }
 
+.admin-candidate-review-page .tab-navigation {
+    margin-right: 0;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
 .tab-btn {
     flex: 1 1 0 !important;
     min-width: 0 !important;
@@ -295,9 +302,24 @@
     text-align: center !important;
 }
 
+.admin-candidate-review-page .tab-btn span,
+.admin-candidate-review-page .back-btn span {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+}
+
+.admin-candidate-review-page .tab-btn {
+    min-height: 64px;
+    flex: 0 0 auto !important;
+    min-width: 150px !important;
+    padding: 12px 16px !important;
+}
+
 .tab-btn i {
     font-size: 1rem !important;
     color: #FF7A00 !important;
+    flex-shrink: 0;
 }
 
 @media (max-width: 991px) {
@@ -316,6 +338,14 @@
     }
     .tab-btn i {
         font-size: 0.9rem !important;
+    }
+
+    .admin-candidate-review-page .tab-btn {
+        flex: 1 1 calc(50% - 8px) !important;
+        min-width: 0 !important;
+        flex-direction: row !important;
+        gap: 8px !important;
+        padding: 12px 16px !important;
     }
 }
 
@@ -336,6 +366,16 @@
     .tab-btn i {
         display: inline-block !important;
         font-size: 0.85rem !important;
+    }
+
+    .admin-candidate-review-page .tab-btn {
+        flex: 1 1 100% !important;
+        min-width: 0 !important;
+        min-height: 52px;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        gap: 10px !important;
+        padding: 12px 16px !important;
     }
 }
 
@@ -1597,5 +1637,98 @@
         width: 32px;
         height: 32px;
         font-size: 0.9rem;
+    }
+}
+
+/* Final mobile-safe tab layout for admin candidate review.
+   Uses dedicated classes so the rest of the app's button CSS cannot push
+   these controls outside the viewport on the right side. */
+html body .admin-candidate-review-page .admin-review-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 30px 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+html body .admin-candidate-review-page .admin-review-tabs .admin-review-tab-btn {
+    all: unset !important;
+    appearance: none !important;
+    font-family: inherit !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 50px !important;
+    padding: 12px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    overflow: hidden !important;
+    background: rgba(255, 122, 0, 0.08) !important;
+    border: 1px solid rgba(255, 122, 0, 0.2) !important;
+    border-radius: 8px !important;
+    color: #FF7A00 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    cursor: pointer !important;
+    text-align: center !important;
+}
+
+html body .admin-candidate-review-page .admin-review-tabs .admin-review-tab-btn i {
+    flex-shrink: 0 !important;
+}
+
+html body .admin-candidate-review-page .admin-review-tabs .admin-review-tab-btn span {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+    text-align: center !important;
+}
+
+html body .admin-candidate-review-page .admin-review-tabs .admin-review-tab-btn.active {
+    background: #FFF3E5 !important;
+    border-color: #FF7A00 !important;
+    box-shadow: 0 8px 20px rgba(255, 122, 0, 0.18) !important;
+}
+
+html body .admin-candidate-review-page .candidate-review-header .back-btn {
+    max-width: 100% !important;
+    overflow: hidden !important;
+}
+
+html body .admin-candidate-review-page .candidate-review-header .back-btn span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+@media (max-width: 991px) {
+    html body .admin-candidate-review-page .admin-review-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        margin: 20px 0 !important;
+    }
+}
+
+@media (max-width: 767px) {
+    html body .admin-candidate-review-page .admin-review-tabs {
+        grid-template-columns: 1fr !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 20px 0 !important;
+        padding: 6px !important;
+    }
+
+    html body .admin-candidate-review-page .admin-review-tabs .admin-review-tab-btn {
+        min-height: 48px !important;
+        padding: 12px 16px !important;
     }
 }
