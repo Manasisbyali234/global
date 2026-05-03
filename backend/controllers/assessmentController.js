@@ -6,6 +6,7 @@ const Job = require('../models/Job');
 const InterviewRound = require('../models/InterviewRound');
 const InterviewProcess = require('../models/InterviewProcess');
 const { sendAssessmentResultPublishedEmail } = require('../utils/emailService');
+const { normalizeTimeFormat } = require('../utils/timeUtils');
 
 const RESTRICTION_WARNING_LIMIT = 4;
 const RESTRICTION_SUSPEND_THRESHOLD = 5;
@@ -350,6 +351,220 @@ const updateInterviewProcessAssessmentStage = async (applicationId, assessmentId
   interviewProcess.markModified('stages');
   interviewProcess.updateProcessStatus();
   await interviewProcess.save();
+};
+
+const normalizeRoundLookupKey = (value = '') =>
+  String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+const parseScheduledTime = (timeValue = '') => {
+  const normalized = normalizeTimeFormat(String(timeValue || '').trim());
+  const match = normalized.match(/^(\d{2}):(\d{2})$/);
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    hours: Number(match[1]),
+    minutes: Number(match[2])
+  };
+};
+
+const buildScheduledDateTime = (dateValue, timeValue = '', boundary = 'start') => {
+  if (!dateValue) {
+    return null;
+  }
+
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const parsedTime = parseScheduledTime(timeValue);
+  if (parsedTime) {
+    date.setHours(
+      parsedTime.hours,
+      parsedTime.minutes,
+      boundary === 'end' ? 59 : 0,
+      boundary === 'end' ? 999 : 0
+    );
+  } else if (boundary === 'end') {
+    date.setHours(23, 59, 59, 999);
+  } else {
+    date.setHours(0, 0, 0, 0);
+  }
+
+  return date;
+};
+
+const findAssessmentRoundDetails = (job = {}, assessmentId, matchedDbRound = null) => {
+  const detailsMap = job?.interviewRoundDetails || {};
+  if (!detailsMap || typeof detailsMap !== 'object') {
+    return null;
+  }
+
+  const normalizedAssessmentId = String(assessmentId || '').trim();
+  const exactAssessmentMatch = Object.values(detailsMap).find(
+    (value) => String(value?.assessmentId || '').trim() === normalizedAssessmentId
+  );
+
+  if (exactAssessmentMatch) {
+    return exactAssessmentMatch;
+  }
+
+  if (matchedDbRound?.key && detailsMap[matchedDbRound.key]) {
+    return detailsMap[matchedDbRound.key];
+  }
+
+  const fallbackLookupKeys = Array.from(
+    new Set(
+      [
+        matchedDbRound?.key,
+        matchedDbRound?.roundType,
+        matchedDbRound?.name,
+        'assessment'
+      ]
+        .filter(Boolean)
+        .map(normalizeRoundLookupKey)
+    )
+  );
+
+  const matchedEntry = Object.entries(detailsMap).find(([key, value]) => {
+    const detailKeys = [
+      key,
+      value?.key,
+      value?.roundType,
+      value?.name,
+      value?.interviewRoundId
+    ]
+      .filter(Boolean)
+      .map(normalizeRoundLookupKey);
+
+    return detailKeys.some((detailKey) => fallbackLookupKeys.includes(detailKey));
+  });
+
+  return matchedEntry ? matchedEntry[1] : null;
+};
+
+const loadAssessmentTimingContext = async ({ applicationId, jobId, assessmentId }) => {
+  let application = null;
+  let job = null;
+
+  if (applicationId) {
+    application = await Application.findById(applicationId).populate({
+      path: 'jobId',
+      select: 'assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime interviewRoundDetails'
+    });
+    job = application?.jobId || null;
+  }
+
+  if (!job && jobId) {
+    job = await Job.findById(jobId).select(
+      'assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime interviewRoundDetails'
+    );
+  }
+
+  const resolvedJobId = job?._id || application?.jobId || jobId || null;
+  const matchedDbRound = resolvedJobId && assessmentId
+    ? await InterviewRound.findOne({
+        jobId: resolvedJobId,
+        assessmentId
+      }).sort({ fromdate: 1, createdAt: -1 })
+    : null;
+
+  const roundDetails = findAssessmentRoundDetails(job, assessmentId, matchedDbRound);
+  const fromDate =
+    matchedDbRound?.fromdate ||
+    roundDetails?.fromDate ||
+    roundDetails?.date ||
+    job?.assessmentStartDate ||
+    null;
+  const toDate =
+    matchedDbRound?.todate ||
+    roundDetails?.toDate ||
+    roundDetails?.fromDate ||
+    roundDetails?.date ||
+    job?.assessmentEndDate ||
+    fromDate;
+  const startTime =
+    matchedDbRound?.startTime ||
+    roundDetails?.startTime ||
+    job?.assessmentStartTime ||
+    '';
+  const endTime =
+    matchedDbRound?.endTime ||
+    roundDetails?.endTime ||
+    job?.assessmentEndTime ||
+    '';
+
+  const windowStartAt = buildScheduledDateTime(fromDate, startTime, 'start');
+  const windowEndAt = buildScheduledDateTime(toDate || fromDate, endTime, 'end');
+  const now = Date.now();
+
+  return {
+    application,
+    job,
+    matchedDbRound,
+    roundDetails,
+    windowStartAt,
+    windowEndAt,
+    isBeforeStart: Boolean(windowStartAt && now < windowStartAt.getTime()),
+    isWindowClosed: Boolean(windowEndAt && now >= windowEndAt.getTime())
+  };
+};
+
+const resolveAttemptTiming = async ({ attempt, assessment, applicationId, jobId }) => {
+  const context = await loadAssessmentTimingContext({
+    applicationId: applicationId || attempt?.applicationId,
+    jobId: jobId || attempt?.jobId,
+    assessmentId: attempt?.assessmentId || assessment?._id
+  });
+
+  const totalSeconds = Math.max(0, Number(assessment?.timer || 0) * 60);
+  const startedAt = attempt?.startTime ? new Date(attempt.startTime) : null;
+  const hasValidStartTime = startedAt && !Number.isNaN(startedAt.getTime());
+  const durationEndAt = hasValidStartTime
+    ? new Date(startedAt.getTime() + totalSeconds * 1000)
+    : null;
+
+  let deadlineAt = durationEndAt;
+  if (context.windowEndAt && (!deadlineAt || context.windowEndAt.getTime() < deadlineAt.getTime())) {
+    deadlineAt = context.windowEndAt;
+  }
+
+  const now = Date.now();
+  const remainingSeconds = deadlineAt
+    ? Math.max(0, Math.ceil((deadlineAt.getTime() - now) / 1000))
+    : totalSeconds;
+
+  return {
+    ...context,
+    totalSeconds,
+    startedAt: hasValidStartTime ? startedAt : null,
+    durationEndAt,
+    deadlineAt,
+    remainingSeconds,
+    isBeforeStart: Boolean(context.windowStartAt && now < context.windowStartAt.getTime()),
+    isExpired: Boolean(deadlineAt && now >= deadlineAt.getTime()),
+    isWindowClosed: Boolean(context.windowEndAt && now >= context.windowEndAt.getTime())
+  };
+};
+
+const expireAttemptAndPersist = async (attempt, endedAt = new Date()) => {
+  attempt.status = 'expired';
+  attempt.endTime = endedAt;
+  attempt.timeRemaining = 0;
+  await attempt.save();
+
+  await Application.findByIdAndUpdate(attempt.applicationId, {
+    assessmentStatus: 'expired',
+    assessmentAttemptId: attempt._id
+  });
+
+  await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
+    status: 'expired',
+    assessmentCompletedAt: attempt.endTime
+  });
 };
 
 // Employer: Create Assessment
@@ -736,11 +951,13 @@ exports.getAssessmentForCandidate = async (req, res) => {
   }
 };
 
-const buildCandidateAttemptResponse = (attempt, assessment) => {
+const buildCandidateAttemptResponse = (attempt, assessment, timing = null) => {
   const totalSeconds = Number(assessment?.timer || 0) * 60;
   const startedAt = attempt?.startTime ? new Date(attempt.startTime).getTime() : null;
   const elapsedSeconds = startedAt ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000)) : 0;
-  const computedTimeRemaining = startedAt ? Math.max(0, totalSeconds - elapsedSeconds) : totalSeconds;
+  const computedTimeRemaining = Number.isFinite(Number(timing?.remainingSeconds))
+    ? Math.max(0, Math.floor(Number(timing.remainingSeconds)))
+    : (startedAt ? Math.max(0, totalSeconds - elapsedSeconds) : totalSeconds);
 
   return {
     _id: attempt._id,
@@ -752,6 +969,8 @@ const buildCandidateAttemptResponse = (attempt, assessment) => {
     warningCount: attempt.restrictionWarningCount || 0,
     restrictionWarningCount: attempt.restrictionWarningCount || 0,
     status: attempt.status,
+    deadlineAt: timing?.deadlineAt || null,
+    windowEndAt: timing?.windowEndAt || null,
     answers: attempt.answers || [],
     captureCount: Array.isArray(attempt.captures) ? attempt.captures.length : 0
   };
@@ -798,32 +1017,14 @@ exports.getCurrentCandidateAttempt = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Assessment not found' });
     }
 
-    if (attempt.status === 'in_progress') {
-      const startedAt = attempt.startTime ? new Date(attempt.startTime).getTime() : null;
-      const elapsedSeconds = startedAt ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000)) : 0;
-      const remainingSeconds = Math.max(0, (Number(assessment.timer || 0) * 60) - elapsedSeconds);
-
-      if (remainingSeconds <= 0) {
-        attempt.status = 'expired';
-        attempt.endTime = new Date();
-        attempt.timeRemaining = 0;
-        await attempt.save();
-
-        await Application.findByIdAndUpdate(attempt.applicationId, {
-          assessmentStatus: 'expired',
-          assessmentAttemptId: attempt._id
-        });
-
-        await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
-          status: 'expired',
-          assessmentCompletedAt: attempt.endTime
-        });
-      }
+    const timing = await resolveAttemptTiming({ attempt, assessment });
+    if (attempt.status === 'in_progress' && timing.isExpired) {
+      await expireAttemptAndPersist(attempt, timing.deadlineAt || new Date());
     }
 
     return res.json({
       success: true,
-      attempt: buildCandidateAttemptResponse(attempt, assessment)
+      attempt: buildCandidateAttemptResponse(attempt, assessment, timing)
     });
   } catch (error) {
     console.error('Get current candidate attempt error:', error);
@@ -902,6 +1103,21 @@ exports.startAssessment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Job ID mismatch. Please try again.' });
     }
     
+    const timingContext = await loadAssessmentTimingContext({ applicationId, jobId, assessmentId });
+    if (timingContext.isBeforeStart) {
+      return res.status(400).json({
+        success: false,
+        message: 'Assessment has not started yet. Please wait for the scheduled start time.'
+      });
+    }
+
+    if (timingContext.isWindowClosed) {
+      return res.status(400).json({
+        success: false,
+        message: 'Assessment window has ended. You cannot start this assessment now.'
+      });
+    }
+
     if (!attempt) {
       const totalMarks = assessment.questions.reduce((sum, q) => sum + (q.marks || 1), 0);
       attempt = new AssessmentAttempt({
@@ -924,29 +1140,11 @@ exports.startAssessment = async (req, res) => {
       });
     }
 
-    const existingStartTime = attempt.startTime ? new Date(attempt.startTime).getTime() : null;
-    const elapsedSeconds = existingStartTime
-      ? Math.max(0, Math.floor((Date.now() - existingStartTime) / 1000))
-      : 0;
-    const remainingSeconds = Math.max(0, (Number(assessment.timer || 0) * 60) - elapsedSeconds);
+    const resumedTiming = await resolveAttemptTiming({ attempt, assessment, applicationId, jobId });
 
-    if (attempt.status === 'in_progress' && existingStartTime) {
-      if (remainingSeconds <= 0) {
-        attempt.status = 'expired';
-        attempt.endTime = new Date();
-        attempt.timeRemaining = 0;
-        await attempt.save();
-
-        await Application.findByIdAndUpdate(applicationId, {
-          assessmentStatus: 'expired',
-          assessmentAttemptId: attempt._id
-        });
-
-        await updateInterviewProcessAssessmentStage(applicationId, assessmentId, {
-          status: 'expired',
-          assessmentCompletedAt: attempt.endTime
-        });
-
+    if (attempt.status === 'in_progress' && attempt.startTime) {
+      if (resumedTiming.isExpired) {
+        await expireAttemptAndPersist(attempt, resumedTiming.deadlineAt || new Date());
         return res.status(400).json({
           success: false,
           message: 'Assessment time expired. You cannot retake this assessment.'
@@ -956,13 +1154,33 @@ exports.startAssessment = async (req, res) => {
       return res.json({
         success: true,
         message: 'Assessment resumed successfully',
-        attempt: buildCandidateAttemptResponse(attempt, assessment)
+        attempt: buildCandidateAttemptResponse(attempt, assessment, resumedTiming)
+      });
+    }
+
+    const attemptStartTime = new Date();
+    const startedTiming = await resolveAttemptTiming({
+      attempt: {
+        assessmentId,
+        applicationId,
+        jobId,
+        startTime: attemptStartTime
+      },
+      assessment,
+      applicationId,
+      jobId
+    });
+
+    if (startedTiming.isWindowClosed || startedTiming.isExpired || startedTiming.remainingSeconds <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Assessment window has ended. You cannot start this assessment now.'
       });
     }
 
     attempt.status = 'in_progress';
-    attempt.startTime = new Date();
-    attempt.timeRemaining = assessment.timer * 60;
+    attempt.startTime = attemptStartTime;
+    attempt.timeRemaining = startedTiming.remainingSeconds;
     attempt.termsAccepted = true;
     attempt.termsAcceptedAt = new Date();
     attempt.currentQuestion = 0;
@@ -985,7 +1203,7 @@ exports.startAssessment = async (req, res) => {
     res.json({ 
       success: true, 
       message: 'Assessment started successfully',
-      attempt: buildCandidateAttemptResponse(attempt, assessment)
+      attempt: buildCandidateAttemptResponse(attempt, assessment, startedTiming)
     });
   } catch (error) {
     console.error('Start assessment error:', error);
@@ -1013,32 +1231,14 @@ exports.getCandidateAttemptState = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Assessment not found' });
     }
 
-    if (attempt.status === 'in_progress') {
-      const startedAt = attempt.startTime ? new Date(attempt.startTime).getTime() : null;
-      const elapsedSeconds = startedAt ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000)) : 0;
-      const remainingSeconds = Math.max(0, (Number(assessment.timer || 0) * 60) - elapsedSeconds);
-
-      if (remainingSeconds <= 0) {
-        attempt.status = 'expired';
-        attempt.endTime = new Date();
-        attempt.timeRemaining = 0;
-        await attempt.save();
-
-        await Application.findByIdAndUpdate(attempt.applicationId, {
-          assessmentStatus: 'expired',
-          assessmentAttemptId: attempt._id
-        });
-
-        await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
-          status: 'expired',
-          assessmentCompletedAt: attempt.endTime
-        });
-      }
+    const timing = await resolveAttemptTiming({ attempt, assessment });
+    if (attempt.status === 'in_progress' && timing.isExpired) {
+      await expireAttemptAndPersist(attempt, timing.deadlineAt || new Date());
     }
 
     res.json({
       success: true,
-      attempt: buildCandidateAttemptResponse(attempt, assessment)
+      attempt: buildCandidateAttemptResponse(attempt, assessment, timing)
     });
   } catch (error) {
     console.error('Get candidate attempt state error:', error);
@@ -1077,6 +1277,12 @@ exports.submitAnswer = async (req, res) => {
     const assessment = await Assessment.findById(attempt.assessmentId);
     if (!assessment || !assessment.questions[questionIndex]) {
       return res.status(400).json({ success: false, message: 'Question not found' });
+    }
+
+    const timing = await resolveAttemptTiming({ attempt, assessment });
+    if (timing.isExpired) {
+      await expireAttemptAndPersist(attempt, timing.deadlineAt || new Date());
+      return res.status(400).json({ success: false, message: 'Assessment time expired' });
     }
     
     const question = assessment.questions[questionIndex];
@@ -1163,6 +1369,12 @@ exports.uploadFileAnswer = async (req, res) => {
     const assessment = await Assessment.findById(attempt.assessmentId);
     if (!assessment || !assessment.questions[questionIndex]) {
       return res.status(400).json({ success: false, message: 'Invalid question index' });
+    }
+
+    const timing = await resolveAttemptTiming({ attempt, assessment });
+    if (timing.isExpired) {
+      await expireAttemptAndPersist(attempt, timing.deadlineAt || new Date());
+      return res.status(400).json({ success: false, message: 'Assessment time expired' });
     }
     
     const question = assessment.questions[questionIndex];
@@ -1255,6 +1467,17 @@ exports.uploadCapture = async (req, res) => {
       });
       return res.status(400).json({ success: false, message: 'Assessment is not in progress' });
     }
+
+    const assessment = await Assessment.findById(attempt.assessmentId).select('timer');
+    if (!assessment) {
+      return res.status(404).json({ success: false, message: 'Assessment not found' });
+    }
+
+    const timing = await resolveAttemptTiming({ attempt, assessment });
+    if (timing.isExpired) {
+      await expireAttemptAndPersist(attempt, timing.deadlineAt || new Date());
+      return res.status(400).json({ success: false, message: 'Assessment time expired' });
+    }
     
     // Store a web-accessible upload path
     const filePath = req.file?.filename
@@ -1340,13 +1563,12 @@ exports.submitAssessment = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Assessment not found' });
     }
     
-    // Check if time expired
-    const timeElapsed = (new Date() - new Date(attempt.startTime)) / 1000; // in seconds
-    const timeLimit = assessment.timer * 60; // in seconds
-    const isExpired = timeElapsed > timeLimit;
+    const timing = await resolveAttemptTiming({ attempt, assessment });
+    const isExpired = timing.isExpired;
     
     attempt.status = isExpired ? 'expired' : 'completed';
-    attempt.endTime = new Date();
+    attempt.endTime = isExpired ? (timing.deadlineAt || new Date()) : new Date();
+    attempt.timeRemaining = isExpired ? 0 : Math.max(0, Number(timing.remainingSeconds || 0));
     
     // Merge violations from request with existing violations
     if (!attempt.violations) {
@@ -1461,6 +1683,17 @@ exports.recordViolation = async (req, res) => {
     
     if (attempt.status !== 'in_progress') {
       return res.status(400).json({ success: false, message: 'Assessment is not in progress' });
+    }
+
+    const assessment = await Assessment.findById(attempt.assessmentId).select('timer');
+    if (!assessment) {
+      return res.status(404).json({ success: false, message: 'Assessment not found' });
+    }
+
+    const timing = await resolveAttemptTiming({ attempt, assessment });
+    if (timing.isExpired) {
+      await expireAttemptAndPersist(attempt, timing.deadlineAt || new Date());
+      return res.status(400).json({ success: false, message: 'Assessment time expired' });
     }
     
     if (!attempt.violations) {

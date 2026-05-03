@@ -169,6 +169,11 @@ const StartAssessment = () => {
     }, []);
 
     const getRemainingTimeSeconds = useCallback((assessmentData, attemptData) => {
+        const serverRemainingSeconds = Number(attemptData?.timeRemaining);
+        if (Number.isFinite(serverRemainingSeconds)) {
+            return Math.max(0, Math.floor(serverRemainingSeconds));
+        }
+
         const totalSeconds = Number(assessmentData?.timer || 0) * 60;
         if (!attemptData?.startTime) {
             return totalSeconds;
