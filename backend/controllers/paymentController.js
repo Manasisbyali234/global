@@ -5,7 +5,9 @@ const Job = require('../models/Job');
 const Application = require('../models/Application');
 const Counter = require('../models/Counter');
 const CandidateProfile = require('../models/CandidateProfile');
+const PlacementCandidate = require('../models/PlacementCandidate');
 const { sendJobApplicationConfirmationEmail } = require('../utils/emailService');
+const { emitCreditUpdate } = require('../utils/websocket');
 
 // Initialize Razorpay only when needed
 let razorpay = null;
@@ -20,6 +22,55 @@ const getRazorpay = () => {
 };
 
 const APPLICATION_FEE = 129; // Amount in INR
+const CREDIT_ROW_FIELDS = [
+  'Credits Assigned',
+  'credits assigned',
+  'CREDITS ASSIGNED',
+  'Credits',
+  'credits',
+  'CREDITS',
+  'Credit',
+  'credit'
+];
+
+const buildPlacementCandidateCreditUpdate = (credits = 0) => {
+  const creditValue = Number.isFinite(Number(credits)) ? Number(credits) : 0;
+  const update = { creditsAssigned: creditValue };
+
+  CREDIT_ROW_FIELDS.forEach((key) => {
+    update[`originalRowData.${key}`] = creditValue;
+  });
+
+  return update;
+};
+
+const syncPlacementCandidateCreditsForCandidate = async (candidate = null, credits = 0) => {
+  if (!candidate?._id || !candidate?.placementId) {
+    return { matchedCount: 0, modifiedCount: 0 };
+  }
+
+  const filters = [
+    { candidateId: candidate._id, placementId: candidate.placementId }
+  ];
+
+  if (candidate.fileId) {
+    filters.push({
+      candidateId: candidate._id,
+      placementId: candidate.placementId,
+      fileId: candidate.fileId
+    });
+  }
+
+  return PlacementCandidate.updateMany(
+    { $or: filters, status: 'approved' },
+    { $set: buildPlacementCandidateCreditUpdate(credits) }
+  );
+};
+
+const emitCandidateCreditState = (candidate = null) => {
+  if (!candidate?._id) return;
+  emitCreditUpdate(candidate._id.toString(), Number(candidate.credits) || 0);
+};
 
 const getNextReceiptSerial = async () => {
   const counter = await Counter.findOneAndUpdate(
@@ -206,21 +257,17 @@ exports.verifyPayment = async (req, res) => {
 };
 
 exports.applyWithCredits = async (req, res) => {
+  let candidate = null;
+  let applicationPersisted = false;
+
   try {
     const { jobId, coverLetter } = req.body;
     const candidateId = req.user._id;
 
-    // 1. Fetch candidate and check credits
-    const candidate = await Candidate.findById(candidateId);
-    if (!candidate) {
+    // 1. Ensure candidate exists before continuing
+    const existingCandidate = await Candidate.findById(candidateId).select('_id');
+    if (!existingCandidate) {
       return res.status(404).json({ success: false, message: 'Candidate not found' });
-    }
-
-    if (candidate.credits <= 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Insufficient credits. Please contact your Placement Dean or pay using Razorpay.' 
-      });
     }
 
     // 2. Fetch job
@@ -246,9 +293,19 @@ exports.applyWithCredits = async (req, res) => {
       paymentStatus: { $ne: 'paid' }
     });
 
-    // 4. Deduct credit
-    candidate.credits -= 1;
-    await candidate.save();
+    // 4. Deduct one credit atomically so concurrent applies cannot overspend
+    candidate = await Candidate.findOneAndUpdate(
+      { _id: candidateId, credits: { $gt: 0 } },
+      { $inc: { credits: -1 } },
+      { new: true }
+    );
+
+    if (!candidate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Insufficient credits. Please contact your Placement Dean or pay using Razorpay.'
+      });
+    }
 
     // 5. Create application
     const profile = await CandidateProfile.findOne({ candidateId });
@@ -279,11 +336,16 @@ exports.applyWithCredits = async (req, res) => {
     if (existingUnpaidApplication) {
       Object.assign(existingUnpaidApplication, applicationData);
       application = await existingUnpaidApplication.save();
+      applicationPersisted = true;
     } else {
       application = await Application.create(applicationData);
+      applicationPersisted = true;
       // 6. Update job application count only for brand new application
       await Job.findByIdAndUpdate(jobId, { $inc: { applicationCount: 1 } });
     }
+
+    await syncPlacementCandidateCreditsForCandidate(candidate, candidate.credits);
+    emitCandidateCreditState(candidate);
 
     // 7. Invalidate job cache
     const { cache } = require('../utils/cache');
@@ -343,6 +405,22 @@ exports.applyWithCredits = async (req, res) => {
       remainingCredits: candidate.credits
     });
   } catch (error) {
+    if (candidate?._id && !applicationPersisted) {
+      try {
+        const restoredCandidate = await Candidate.findByIdAndUpdate(
+          candidate._id,
+          { $inc: { credits: 1 } },
+          { new: true }
+        );
+
+        if (restoredCandidate) {
+          await syncPlacementCandidateCreditsForCandidate(restoredCandidate, restoredCandidate.credits);
+        }
+      } catch (rollbackError) {
+        console.error('Error rolling back deducted credit after failed application:', rollbackError);
+      }
+    }
+
     console.error('Error applying with credits:', error);
     res.status(500).json({ success: false, message: error.message });
   }
@@ -371,6 +449,11 @@ exports.verifyCreditPayment = async (req, res) => {
         { $inc: { credits: credits } },
         { new: true }
       );
+
+      if (candidate) {
+        await syncPlacementCandidateCreditsForCandidate(candidate, candidate.credits);
+        emitCandidateCreditState(candidate);
+      }
 
       res.json({ 
         success: true, 

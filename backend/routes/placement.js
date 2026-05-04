@@ -18,29 +18,21 @@ const coercePlacementCredits = (value) => {
 
 const resolvePlacementDisplayCredits = ({ candidate, placementCandidate, fileCredits } = {}) => {
   const candidateCredits = coercePlacementCredits(candidate?.credits);
-  if (candidateCredits !== null && candidateCredits > 0) {
-    return candidateCredits;
-  }
-
-  const assignedCredits = coercePlacementCredits(placementCandidate?.creditsAssigned);
-  if (assignedCredits !== null && assignedCredits > 0) {
-    return assignedCredits;
-  }
-
-  const fallbackCredits = coercePlacementCredits(fileCredits);
-  if (fallbackCredits !== null && fallbackCredits > 0) {
-    return fallbackCredits;
-  }
-
   if (candidateCredits !== null) {
     return candidateCredits;
   }
 
+  const assignedCredits = coercePlacementCredits(placementCandidate?.creditsAssigned);
   if (assignedCredits !== null) {
     return assignedCredits;
   }
 
-  return fallbackCredits !== null ? fallbackCredits : 0;
+  const fallbackCredits = coercePlacementCredits(fileCredits);
+  if (fallbackCredits !== null) {
+    return fallbackCredits;
+  }
+
+  return 0;
 };
 
 // Registration route without file upload

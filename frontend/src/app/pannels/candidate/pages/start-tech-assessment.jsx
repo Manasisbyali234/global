@@ -17,6 +17,9 @@ const RESTRICTION_WARNING_LIMIT = 4;
 const RESTRICTION_SUSPEND_THRESHOLD = 5;
 const IMMEDIATE_RESTRICTION_TYPES = new Set(['screen_capture']);
 const LOCKED_CAPTURE_KEYS = ['PrintScreen', 'MetaLeft', 'MetaRight'];
+const CAMERA_START_REQUIRED_MESSAGE = 'Camera access is required before the assessment can begin.';
+const CAMERA_RESUME_REQUIRED_MESSAGE = 'Camera access is required to continue this assessment.';
+const CAMERA_HELP_MESSAGE = 'Allow camera access in your browser and close any other app that may be using the webcam.';
 
 const getStoredAttemptId = () => {
     if (typeof window === 'undefined' || !window.sessionStorage) {
@@ -298,6 +301,10 @@ const StartAssessment = () => {
     const [isTerminated, setIsTerminated] = useState(false);
     const [terminationReason, setTerminationReason] = useState(null);
     const [terminationTimestamp, setTerminationTimestamp] = useState(null);
+    const [showCameraRequiredOverlay, setShowCameraRequiredOverlay] = useState(false);
+    const [cameraRequiredMessage, setCameraRequiredMessage] = useState(CAMERA_START_REQUIRED_MESSAGE);
+    const [cameraRecoveryMode, setCameraRecoveryMode] = useState('before_start'); // before_start, during_assessment
+    const [isRecoveringCamera, setIsRecoveringCamera] = useState(false);
 
     // Refs for event listeners
     const assessmentContainerRef = useRef(null);
@@ -316,6 +323,9 @@ const StartAssessment = () => {
     const multiScreenMonitorRef = useRef(null);
     const screenDetailsRef = useRef(null);
     const fileDialogOpenRef = useRef(false);
+    const cameraHealthMonitorRef = useRef(null);
+    const deviceChangeListenerRef = useRef(null);
+    const webcamFailureStreakRef = useRef(0);
     
     // Webcam capture refs and state
     const videoRef = useRef(null);
@@ -422,6 +432,19 @@ const StartAssessment = () => {
             showError(message);
         }
     }, [cleanupSecureMode, clearStoredAssessment, showError]);
+
+    const showCameraRequiredNotice = useCallback((message, mode = 'during_assessment') => {
+        setCameraRecoveryMode(mode);
+        setCameraRequiredMessage(message);
+        setShowCameraRequiredOverlay(true);
+    }, []);
+
+    const clearCameraRequiredNotice = useCallback(() => {
+        webcamFailureStreakRef.current = 0;
+        setShowCameraRequiredOverlay(false);
+        setCameraRequiredMessage(CAMERA_START_REQUIRED_MESSAGE);
+        setCameraRecoveryMode('before_start');
+    }, []);
 
     const registerRestrictionViolation = useCallback(async (violationType, userMessage, details = '') => {
         if (assessmentState !== 'in_progress' || !attemptId) {
@@ -665,6 +688,21 @@ const StartAssessment = () => {
         }
 
         setWebcamStatus(nextStatus);
+    }, []);
+
+    const isWebcamActive = useCallback(() => {
+        const stream = webcamStreamRef.current || videoRef.current?.srcObject;
+        const videoTrack =
+            stream?.getVideoTracks?.()?.[0] ||
+            videoRef.current?.srcObject?.getVideoTracks?.()?.[0];
+
+        return Boolean(
+            stream?.active &&
+            videoTrack &&
+            videoTrack.readyState === 'live' &&
+            videoTrack.enabled !== false &&
+            !videoTrack.muted
+        );
     }, []);
 
     const ensureWebcamStarted = useCallback(async () => {
@@ -1080,6 +1118,90 @@ const StartAssessment = () => {
         }, interval);
     }, [assessment, webcamStatus, captureImage]);
 
+    const beginAssessmentSession = useCallback(async () => {
+        if (!assessment) {
+            setError('Assessment data is unavailable. Please reload and try again.');
+            return false;
+        }
+
+        if (assessment) {
+            const activeAttemptId = attemptIdRef.current || getStoredAttemptId();
+            if (await tryResumeAttempt(assessment, activeAttemptId)) {
+                return true;
+            }
+
+            if (await tryResumeAttemptByContext(assessment)) {
+                return true;
+            }
+        }
+
+        const startResponse = await api.startAssessment({
+            assessmentId,
+            jobId,
+            applicationId
+        });
+
+        if (startResponse.success && startResponse.attempt && startResponse.attempt._id) {
+            restoreAttemptState(assessment, startResponse.attempt);
+            return true;
+        }
+
+        stopAssessmentWebcam();
+        setError(startResponse.message || 'Failed to start assessment. No attempt ID received.');
+        setShowTermsModal(true);
+        setAssessmentState('terms_pending');
+        return false;
+    }, [
+        applicationId,
+        assessment,
+        assessmentId,
+        jobId,
+        restoreAttemptState,
+        stopAssessmentWebcam,
+        tryResumeAttempt,
+        tryResumeAttemptByContext
+    ]);
+
+    const handleCameraRecovery = useCallback(async () => {
+        setIsRecoveringCamera(true);
+
+        try {
+            const fullscreenGranted = await requestAssessmentFullscreen();
+            if (!fullscreenGranted) {
+                setCameraRequiredMessage('Fullscreen permission is required before the assessment can continue.');
+                return;
+            }
+
+            const webcamReady = await initWebcam();
+            if (!webcamReady) {
+                setCameraRequiredMessage(
+                    cameraRecoveryMode === 'before_start'
+                        ? CAMERA_START_REQUIRED_MESSAGE
+                        : CAMERA_RESUME_REQUIRED_MESSAGE
+                );
+                return;
+            }
+
+            clearCameraRequiredNotice();
+
+            if (cameraRecoveryMode === 'before_start') {
+                await beginAssessmentSession();
+                return;
+            }
+
+            showSuccess('Camera is active again. You can continue the assessment.');
+        } finally {
+            setIsRecoveringCamera(false);
+        }
+    }, [
+        beginAssessmentSession,
+        cameraRecoveryMode,
+        clearCameraRequiredNotice,
+        initWebcam,
+        requestAssessmentFullscreen,
+        showSuccess
+    ]);
+
     // Security listeners management
     const addSecurityListeners = useCallback(() => {
         if (assessmentState !== 'in_progress') return;
@@ -1191,21 +1313,96 @@ const StartAssessment = () => {
 	}, [assessmentState, addSecurityListeners, removeSecurityListeners]);
 
 	useEffect(() => {
+        let cancelled = false;
+
 		if (assessmentState === 'in_progress') {
 			if (!webcamInitialized.current) {
-				initWebcam();
+				initWebcam().then((ready) => {
+                    if (cancelled) {
+                        return;
+                    }
+
+                    if (ready) {
+                        clearCameraRequiredNotice();
+                        return;
+                    }
+
+                    showCameraRequiredNotice(CAMERA_RESUME_REQUIRED_MESSAGE, 'during_assessment');
+				});
+			} else {
+                clearCameraRequiredNotice();
 			}
 
 			return () => {
+                    cancelled = true;
 				stopAssessmentWebcam();
 			};
 		}
 
+        cancelled = true;
+        clearCameraRequiredNotice();
 		stopAssessmentWebcam();
         cleanupSecureMode();
 
 		return undefined;
-	}, [assessmentState, cleanupSecureMode, initWebcam, stopAssessmentWebcam]);
+	}, [assessmentState, cleanupSecureMode, clearCameraRequiredNotice, initWebcam, showCameraRequiredNotice, stopAssessmentWebcam]);
+
+    useEffect(() => {
+        if (assessmentState !== 'in_progress' || webcamStatus !== 'active') {
+            webcamFailureStreakRef.current = 0;
+
+            if (cameraHealthMonitorRef.current) {
+                window.clearInterval(cameraHealthMonitorRef.current);
+                cameraHealthMonitorRef.current = null;
+            }
+
+            if (deviceChangeListenerRef.current && navigator.mediaDevices?.removeEventListener) {
+                navigator.mediaDevices.removeEventListener('devicechange', deviceChangeListenerRef.current);
+                deviceChangeListenerRef.current = null;
+            }
+
+            return undefined;
+        }
+
+        const verifyCameraHealth = () => {
+            if (isWebcamActive()) {
+                webcamFailureStreakRef.current = 0;
+                return;
+            }
+
+            webcamFailureStreakRef.current += 1;
+            if (webcamFailureStreakRef.current < 2) {
+                return;
+            }
+
+            stopAssessmentWebcam('failed');
+            showCameraRequiredNotice('Camera was turned off or disconnected. Turn it back on to continue the assessment.', 'during_assessment');
+        };
+
+        verifyCameraHealth();
+        cameraHealthMonitorRef.current = window.setInterval(verifyCameraHealth, 2000);
+
+        if (navigator.mediaDevices?.addEventListener) {
+            deviceChangeListenerRef.current = () => {
+                verifyCameraHealth();
+            };
+            navigator.mediaDevices.addEventListener('devicechange', deviceChangeListenerRef.current);
+        }
+
+        return () => {
+            webcamFailureStreakRef.current = 0;
+
+            if (cameraHealthMonitorRef.current) {
+                window.clearInterval(cameraHealthMonitorRef.current);
+                cameraHealthMonitorRef.current = null;
+            }
+
+            if (deviceChangeListenerRef.current && navigator.mediaDevices?.removeEventListener) {
+                navigator.mediaDevices.removeEventListener('devicechange', deviceChangeListenerRef.current);
+                deviceChangeListenerRef.current = null;
+            }
+        };
+    }, [assessmentState, isWebcamActive, showCameraRequiredNotice, stopAssessmentWebcam, webcamStatus]);
 
 	// Start captures when both webcam is active and assessment is loaded
 	useEffect(() => {
@@ -1296,34 +1493,14 @@ const StartAssessment = () => {
 
 			const webcamReady = await initWebcam();
 			if (!webcamReady) {
-				showWarning('Camera could not start. Please allow camera access and close any other app using the webcam.');
+                cleanupSecureMode();
+                showCameraRequiredNotice(CAMERA_START_REQUIRED_MESSAGE, 'before_start');
+                showWarning(`${CAMERA_START_REQUIRED_MESSAGE} ${CAMERA_HELP_MESSAGE}`);
+                return;
 			}
 
-            if (assessment) {
-                const activeAttemptId = attemptIdRef.current || getStoredAttemptId();
-                if (await tryResumeAttempt(assessment, activeAttemptId)) {
-                    return;
-                }
-
-                if (await tryResumeAttemptByContext(assessment)) {
-                    return;
-                }
-            }
-
-			const startResponse = await api.startAssessment({
-				assessmentId,
-				jobId,
-				applicationId
-			});
-
-			if (startResponse.success && startResponse.attempt && startResponse.attempt._id) {
-                restoreAttemptState(assessment, startResponse.attempt);
-			} else {
-				stopAssessmentWebcam();
-				setError(startResponse.message || "Failed to start assessment. No attempt ID received.");
-				setShowTermsModal(true);
-				setAssessmentState('terms_pending');
-			}
+            clearCameraRequiredNotice();
+            await beginAssessmentSession();
 		} catch (err) {
 			console.error("Error starting assessment:", err);
 			stopAssessmentWebcam();
@@ -1632,6 +1809,85 @@ const StartAssessment = () => {
 				timestamp={currentViolation?.timestamp}
 				onAcknowledge={handleViolationAcknowledge}
 			/>
+            {showCameraRequiredOverlay && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 10000,
+                        background: 'rgba(15, 23, 42, 0.78)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '24px'
+                    }}
+                >
+                    <div
+                        style={{
+                            width: '100%',
+                            maxWidth: '560px',
+                            background: '#ffffff',
+                            borderRadius: '18px',
+                            padding: '28px',
+                            boxShadow: '0 24px 64px rgba(15, 23, 42, 0.28)',
+                            border: '1px solid rgba(248, 113, 113, 0.24)'
+                        }}
+                    >
+                        <div style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#dc2626', marginBottom: '12px' }}>
+                            Camera Required
+                        </div>
+                        <h3 style={{ margin: '0 0 12px', fontSize: '24px', color: '#0f172a' }}>
+                            Turn on your camera to continue
+                        </h3>
+                        <p style={{ margin: '0 0 10px', fontSize: '15px', lineHeight: '1.6', color: '#475569' }}>
+                            {cameraRequiredMessage}
+                        </p>
+                        <p style={{ margin: '0 0 20px', fontSize: '14px', lineHeight: '1.6', color: '#64748b' }}>
+                            {CAMERA_HELP_MESSAGE} The assessment will remain blocked until the webcam is active.
+                        </p>
+                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                            <button
+                                type="button"
+                                onClick={handleCameraRecovery}
+                                disabled={isRecoveringCamera}
+                                style={{
+                                    background: isRecoveringCamera ? '#fb923c' : '#f97316',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    padding: '12px 18px',
+                                    fontWeight: '700',
+                                    cursor: isRecoveringCamera ? 'wait' : 'pointer',
+                                    boxShadow: '0 10px 24px rgba(249, 115, 22, 0.28)'
+                                }}
+                            >
+                                {isRecoveringCamera
+                                    ? 'Checking Camera...'
+                                    : cameraRecoveryMode === 'before_start'
+                                        ? 'Enable Camera & Start Assessment'
+                                        : 'Reconnect Camera'}
+                            </button>
+                            {cameraRecoveryMode === 'before_start' && (
+                                <button
+                                    type="button"
+                                    onClick={handleTermsDecline}
+                                    style={{
+                                        background: '#fff',
+                                        color: '#475569',
+                                        border: '1px solid #cbd5e1',
+                                        borderRadius: '10px',
+                                        padding: '12px 18px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Exit Assessment
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 			<div
 				ref={assessmentContainerRef}
 				style={{

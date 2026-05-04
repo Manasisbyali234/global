@@ -137,18 +137,6 @@ const resolvePlacementCreditDisplay = ({ liveCandidate, placementCandidate, fall
   const assignedCredits = normalizePlacementCreditValue(placementCandidate?.creditsAssigned);
   const fileCredits = normalizePlacementCreditValue(fallbackCredits);
 
-  if (liveCredits !== null && liveCredits > 0) {
-    return liveCredits;
-  }
-
-  if (assignedCredits !== null && assignedCredits > 0) {
-    return assignedCredits;
-  }
-
-  if (fileCredits !== null && fileCredits > 0) {
-    return fileCredits;
-  }
-
   if (liveCredits !== null) {
     return liveCredits;
   }

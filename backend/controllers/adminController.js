@@ -3783,7 +3783,7 @@ exports.resendWelcomeEmail = async (req, res) => {
         placementCandidate.candidateId.password,
         placementCandidate.placementOfficerName,
         placementCandidate.collegeName,
-        placementCandidate.candidateId.credits || placementCandidate.creditsAssigned || 0
+        placementCandidate.candidateId?.credits ?? placementCandidate.creditsAssigned ?? 0
       );
       
       // Update email sent status
@@ -3954,7 +3954,7 @@ exports.bulkResendWelcomeEmails = async (req, res) => {
           placementCandidate.candidateId.password,
           placementCandidate.placementOfficerName,
           placementCandidate.collegeName,
-          placementCandidate.candidateId.credits || placementCandidate.creditsAssigned || 0
+          placementCandidate.candidateId?.credits ?? placementCandidate.creditsAssigned ?? 0
         );
         
         // Update email sent status
