@@ -860,6 +860,15 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
       </div>
     `;
   }
+
+  const parsedApplicationDate = new Date(applicationDate);
+  const formattedApplicationDate = Number.isNaN(parsedApplicationDate.getTime())
+    ? applicationDate
+    : parsedApplicationDate.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
   
   const applicationTemplate = `
     <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa;">
@@ -889,14 +898,7 @@ const sendJobApplicationConfirmationEmail = async (candidateEmail, candidateName
             </div>
             <div style="margin-bottom: 12px;">
               <div style="color: #ff6b35; font-weight: bold;">Applied On:</div>
-              <div style="overflow-wrap: anywhere; word-break: break-word;">${new Date(applicationDate).toLocaleDateString('en-GB', { 
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-              })} ${new Date(applicationDate).toLocaleTimeString('en-GB', {
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</div>
+              <div style="overflow-wrap: anywhere; word-break: break-word;">${formattedApplicationDate}</div>
             </div>
           </div>
         </div>

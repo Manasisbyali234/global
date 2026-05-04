@@ -13,8 +13,7 @@ import { BACKEND_URL } from '../../../../utils/api';
 import {
     getAssessmentOutcome,
     getAssessmentOutcomeLabel,
-    getAssessmentProcessStatus,
-    isAssessmentOutcomeRejected
+    getAssessmentProcessStatus
 } from '../../../../utils/assessmentOutcome';
 import TermsModal from "../../../../components/TermsModal";
 
@@ -107,6 +106,19 @@ function EmpCandidateReviewPage() {
     const isAssessmentProcess = (process = {}) =>
         normalizeStatusValue(process?.type) === 'assessment';
 
+    const isAutoAssessmentStageStatus = (value) => {
+        const normalized = normalizeStatusValue(value);
+        return [
+            'passed',
+            'failed',
+            'completed',
+            'in progress',
+            'suspended',
+            'expired',
+            'session expired'
+        ].includes(normalized);
+    };
+
     const wasAutoRejectedFromStageStatus = (applicationData = {}) =>
         Array.isArray(applicationData?.statusHistory) &&
         applicationData.statusHistory.some((entry) =>
@@ -121,7 +133,12 @@ function EmpCandidateReviewPage() {
     };
 
     const normalizeTrackedProcessState = (process) => {
-        const status = String(process?.status || 'pending');
+        let status = String(process?.status || 'pending');
+
+        if (isAssessmentProcess(process) && isAutoAssessmentStageStatus(status)) {
+            status = 'pending';
+        }
+
         return {
             ...process,
             status,
@@ -174,15 +191,6 @@ function EmpCandidateReviewPage() {
 
             if (!savedProcess?.status) {
                 return process;
-            }
-
-            const normalizedAssessmentStatus = normalizeStatusValue(process?.status);
-            const shouldPreserveAssessmentStatus =
-                process?.type === 'assessment' &&
-                ['suspended', 'expired', 'in progress', 'completed', 'passed', 'failed'].includes(normalizedAssessmentStatus);
-
-            if (shouldPreserveAssessmentStatus) {
-                return normalizeTrackedProcessState(process);
             }
 
             return normalizeTrackedProcessState({
@@ -569,9 +577,6 @@ function EmpCandidateReviewPage() {
         };
     };
 
-    const getProcessEffectiveStatus = (process = {}, applicationData = null) =>
-        getAssessmentDisplayState(process, applicationData).statusValue;
-
     const resolveAssessmentProcessStatus = (stageStatus, assessmentSummary) => {
         const rawStageStatus = String(stageStatus || '').trim().toLowerCase();
         const normalizedStageStatus = normalizeStatusValue(stageStatus);
@@ -615,7 +620,10 @@ function EmpCandidateReviewPage() {
         const hasRejectedNonAssessmentStage = normalizedProcesses.some((process) =>
             !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
         );
-        if (hasRejectedNonAssessmentStage) {
+        const hasRejectedAssessmentStage = normalizedProcesses.some((process) =>
+            isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
+        );
+        if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage) {
             return 'rejected';
         }
 
@@ -625,24 +633,6 @@ function EmpCandidateReviewPage() {
             normalizedProcesses.some((process) => isAssessmentProcess(process)) ||
             Boolean(applicationData?.assessmentResult) ||
             (normalizedAssessmentStatus && normalizedAssessmentStatus !== 'not required');
-
-        if (hasAssessmentRound) {
-            const assessmentSummary = getAssessmentSummary(applicationData);
-            const hasRejectedAssessmentStage = normalizedProcesses
-                .filter((process) => isAssessmentProcess(process))
-                .some((process) => {
-                    const effectiveStatus = String(getProcessEffectiveStatus(process, applicationData) || '').trim().toLowerCase();
-                    return ['rejected', 'failed', 'suspended', 'no_show'].includes(effectiveStatus);
-                });
-
-            if (isAssessmentOutcomeRejected({
-                status: assessmentSummary?.status,
-                result: assessmentSummary?.result,
-                manualEvaluationPendingCount: assessmentSummary?.manualEvaluationPendingCount
-            }) || hasRejectedAssessmentStage) {
-                return 'rejected';
-            }
-        }
 
         if (isApplicationSessionExpired(applicationData, normalizedProcesses)) {
             return 'rejected';
@@ -1098,9 +1088,6 @@ function EmpCandidateReviewPage() {
         const negativeStatuses = new Set([
             'rejected',
             'no_show',
-            'pending_decision',
-            'on_hold',
-            'pending',
             'suspended',
             'expired',
             'failed',
@@ -1111,9 +1098,15 @@ function EmpCandidateReviewPage() {
             'not_eligibal_for_next_round',
             'not_eligible_for_next_round'
         ]);
+
+        const normalizedApplicationStatus = normalizeStatusValue(application?.status);
+        if (negativeStatuses.has(normalizedApplicationStatus) || isRejectedLikeStatus(normalizedApplicationStatus)) {
+            return true;
+        }
+
         return interviewProcesses.some((process) => {
-            const effectiveStatus = getProcessEffectiveStatus(process, application);
-            return negativeStatuses.has(effectiveStatus) || isRejectedLikeStatus(effectiveStatus);
+            const normalizedStageStatus = normalizeStatusValue(process?.status);
+            return negativeStatuses.has(normalizedStageStatus) || isRejectedLikeStatus(normalizedStageStatus);
         });
     };
 
@@ -1382,7 +1375,7 @@ function EmpCandidateReviewPage() {
                                                     const assessmentDisplay = getAssessmentDisplayState(process, application);
                                                     const isPreviousRejected = interviewProcesses
                                                         .slice(0, index)
-                                                        .some((previousProcess) => isRejectedLikeStatus(getProcessEffectiveStatus(previousProcess, application)));
+                                                        .some((previousProcess) => isRejectedLikeStatus(previousProcess.status));
                                                     const isPreviousIncomplete = index > 0 && !interviewProcesses
                                                         .slice(0, index)
                                                         .every((previousProcess) => isShortlistedForNextRoundStatus(previousProcess.status));
