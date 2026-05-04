@@ -4,6 +4,7 @@
     background: #ffffff;
     overflow: hidden;
     width: 100%;
+    min-width: 0;
     box-sizing: border-box;
 }
 
@@ -41,15 +42,26 @@
 
 .rich-text-editor-content {
     min-height: 200px;
-    padding: 16px;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 16px 16px 16px 18px;
+    padding-inline-start: 18px;
+    padding-inline-end: 16px;
+    -webkit-padding-start: 18px;
     line-height: 1.6;
     font-size: 14px;
     color: #000000 !important;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     box-sizing: border-box;
+    white-space: pre-wrap;
     word-break: break-word;
-    overflow-wrap: break-word;
-    overflow-x: hidden;
+    overflow-wrap: anywhere;
+    overflow-x: visible;
+    text-indent: 0;
+    -webkit-user-select: text;
+    -webkit-font-smoothing: antialiased;
+    background-clip: padding-box;
 }
 
 .rich-text-editor-content,
@@ -67,6 +79,14 @@
 
 .rich-text-editor-content:focus {
     outline: none;
+}
+
+.rich-text-editor-content > :first-child {
+    margin-top: 0;
+}
+
+.rich-text-editor-content > :last-child {
+    margin-bottom: 0;
 }
 
 .rich-text-editor-content:empty::before {
@@ -113,7 +133,10 @@
 
     .rich-text-editor-content {
         min-height: 150px;
-        padding: 12px;
+        padding: 12px 12px 12px 14px;
+        padding-inline-start: 14px;
+        padding-inline-end: 12px;
+        -webkit-padding-start: 14px;
         font-size: 14px;
     }
 }
@@ -135,7 +158,10 @@
     }
 
     .rich-text-editor-content {
-        padding: 10px;
+        padding: 10px 10px 10px 12px;
+        padding-inline-start: 12px;
+        padding-inline-end: 10px;
+        -webkit-padding-start: 12px;
         font-size: 13px;
     }
 }
