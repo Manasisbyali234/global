@@ -15,6 +15,8 @@ const ASSESSMENT_ATTEMPT_KEY = 'candidateCurrentAssessmentAttempt';
 const ASSESSMENT_PROGRESS_KEY = 'candidateCurrentAssessmentProgress';
 const RESTRICTION_WARNING_LIMIT = 4;
 const RESTRICTION_SUSPEND_THRESHOLD = 5;
+const IMMEDIATE_RESTRICTION_TYPES = new Set(['screen_capture']);
+const LOCKED_CAPTURE_KEYS = ['PrintScreen', 'MetaLeft', 'MetaRight'];
 
 const getStoredAttemptId = () => {
     if (typeof window === 'undefined' || !window.sessionStorage) {
@@ -357,11 +359,36 @@ const StartAssessment = () => {
         }
     }, [attemptId, assessmentState]);
 
-    const cleanupSecureMode = useCallback(() => {
-        if (document.exitFullscreen) {
-            document.exitFullscreen().catch(() => {});
+    const lockRestrictedKeys = useCallback(async () => {
+        const keyboardApi = typeof navigator === 'undefined' ? null : navigator.keyboard;
+        if (typeof keyboardApi?.lock !== 'function') {
+            return;
+        }
+
+        try {
+            await keyboardApi.lock(LOCKED_CAPTURE_KEYS);
+        } catch (error) {
+            console.warn('Unable to lock screenshot keys:', error);
         }
     }, []);
+
+    const unlockRestrictedKeys = useCallback(() => {
+        const keyboardApi = typeof navigator === 'undefined' ? null : navigator.keyboard;
+        if (typeof keyboardApi?.unlock !== 'function') {
+            return;
+        }
+
+        try {
+            keyboardApi.unlock();
+        } catch (error) {}
+    }, []);
+
+    const cleanupSecureMode = useCallback(() => {
+        unlockRestrictedKeys();
+        if (typeof document !== 'undefined' && document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        }
+    }, [unlockRestrictedKeys]);
 
     useEffect(() => {
         if (typeof document === 'undefined') {
@@ -414,20 +441,24 @@ const StartAssessment = () => {
             response?.restrictionWarningCount ??
             (restrictionWarningCountRef.current + 1)
         );
+        const isImmediateRestriction = IMMEDIATE_RESTRICTION_TYPES.has(violationType);
 
         restrictionWarningCountRef.current = nextWarningCount;
         setRestrictionWarningCount(nextWarningCount);
 
-        if (response?.suspended || nextWarningCount >= RESTRICTION_SUSPEND_THRESHOLD) {
+        if (response?.suspended || isImmediateRestriction || nextWarningCount >= RESTRICTION_SUSPEND_THRESHOLD) {
             suspendAssessment(
                 violationType,
-                response?.message || `${userMessage} This was your 5th mistake. Your assessment has been suspended.`
+                response?.message || (
+                    isImmediateRestriction
+                        ? 'Screenshot or screen-recording activity was detected. Your assessment has been suspended immediately.'
+                        : `${userMessage} This was your 5th mistake. Your assessment has been suspended.`
+                )
             );
             return;
         }
 
-        showWarning(`Warning: Unnecessary activity detected (screenshot, tab switch, or right-click). Mistake ${nextWarningCount}/${RESTRICTION_WARNING_LIMIT}.
-On the 5th violation, your assessment will be terminated/suspended.`);
+        showWarning(`${userMessage} Warning ${nextWarningCount}/${RESTRICTION_WARNING_LIMIT}. On the 5th restricted activity, your assessment will be suspended.`);
     }, [assessmentState, attemptId, logViolation, showWarning, suspendAssessment]);
 
     const requestAssessmentFullscreen = useCallback(async () => {
@@ -436,6 +467,7 @@ On the 5th violation, your assessment will be terminated/suspended.`);
         }
 
         if (document.fullscreenElement) {
+            await lockRestrictedKeys();
             return true;
         }
 
@@ -446,12 +478,13 @@ On the 5th violation, your assessment will be terminated/suspended.`);
 
         try {
             await rootElement.requestFullscreen({ navigationUI: 'hide' });
+            await lockRestrictedKeys();
             return true;
         } catch (error) {
             console.error('Failed to enter fullscreen mode:', error);
             return false;
         }
-    }, []);
+    }, [lockRestrictedKeys]);
 
     const checkMultiScreenUsage = useCallback(async () => {
         if (assessmentState !== 'in_progress') {
@@ -575,12 +608,35 @@ On the 5th violation, your assessment will be terminated/suspended.`);
 
         const key = e.key || '';
         const keyCode = e.keyCode || e.which;
+        const normalizedKey = String(key).toLowerCase();
+        const platform = typeof navigator === 'undefined'
+            ? ''
+            : navigator.userAgentData?.platform || navigator.platform || '';
+        const isWindowsPlatform = /win/i.test(platform);
+        const isMacPlatform = /mac/i.test(platform);
         const isPrintScreen = key === 'PrintScreen' || keyCode === 44;
-        const isSnippingShortcut = (e.shiftKey && (e.metaKey || e.ctrlKey) && (key === 'S' || key === 's'));
+        const isWindowsSnippingShortcut = isWindowsPlatform && e.metaKey && e.shiftKey && normalizedKey === 's';
+        const isMacCaptureShortcut = isMacPlatform && e.metaKey && e.shiftKey && ['3', '4', '5'].includes(normalizedKey);
+        const isWindowsGameBarShortcut = isWindowsPlatform && e.metaKey && normalizedKey === 'g';
+        const isWindowsRecordShortcut = isWindowsPlatform && e.metaKey && e.altKey && normalizedKey === 'r';
 
-        if (isPrintScreen || isSnippingShortcut) {
+        let captureSource = '';
+        if (isPrintScreen) {
+            captureSource = e.altKey ? 'alt_print_screen' : 'print_screen';
+        } else if (isWindowsSnippingShortcut) {
+            captureSource = 'windows_snipping_tool';
+        } else if (isMacCaptureShortcut) {
+            captureSource = normalizedKey === '5' ? 'mac_capture_toolbar' : `mac_capture_${normalizedKey}`;
+        } else if (isWindowsGameBarShortcut) {
+            captureSource = 'windows_game_bar';
+        } else if (isWindowsRecordShortcut) {
+            captureSource = 'windows_game_bar_record';
+        }
+
+        if (captureSource) {
             e.preventDefault();
-            handleScreenCaptureAttempt(isPrintScreen ? 'print_screen' : 'snipping_tool');
+            e.stopPropagation();
+            handleScreenCaptureAttempt(captureSource);
         }
     }, [assessmentState, handleScreenCaptureAttempt]);
     
@@ -1063,6 +1119,7 @@ On the 5th violation, your assessment will be terminated/suspended.`);
         // Screen capture key detection (best-effort)
         screenCaptureKeyListener.current = handleScreenCaptureKey;
         window.addEventListener('keydown', screenCaptureKeyListener.current);
+        window.addEventListener('keyup', screenCaptureKeyListener.current);
 
         checkMultiScreenUsage();
         if (!multiScreenMonitorRef.current) {
@@ -1099,6 +1156,7 @@ On the 5th violation, your assessment will be terminated/suspended.`);
         }
         if (screenCaptureKeyListener.current) {
             window.removeEventListener('keydown', screenCaptureKeyListener.current);
+            window.removeEventListener('keyup', screenCaptureKeyListener.current);
         }
         if (multiScreenMonitorRef.current) {
             window.clearInterval(multiScreenMonitorRef.current);
@@ -1144,12 +1202,10 @@ On the 5th violation, your assessment will be terminated/suspended.`);
 		}
 
 		stopAssessmentWebcam();
-            if (document.fullscreenElement && document.exitFullscreen) {
-                document.exitFullscreen().catch(() => {});
-            }
+        cleanupSecureMode();
 
 		return undefined;
-	}, [assessmentState, initWebcam, stopAssessmentWebcam]);
+	}, [assessmentState, cleanupSecureMode, initWebcam, stopAssessmentWebcam]);
 
 	// Start captures when both webcam is active and assessment is loaded
 	useEffect(() => {

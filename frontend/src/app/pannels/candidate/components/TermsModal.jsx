@@ -55,7 +55,8 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
                                 </h6>
                                 <ul style={{ paddingLeft: '24px', margin: '0', color: '#f72d12ff', lineHeight: '1.8' }}>
                                     <li style={{ marginBottom: '8px' }}>Complete in one continuous session</li>
-                                    <li style={{ marginBottom: '8px' }}>No tab/window switching (immediate termination)</li>
+                                    <li style={{ marginBottom: '8px' }}>No screenshots or screen recording shortcuts (immediate suspension)</li>
+                                    <li style={{ marginBottom: '8px' }}>No tab/window switching or leaving fullscreen</li>
                                     <li style={{ marginBottom: '8px' }}>Right-click and copy-paste disabled</li>
                                 </ul>
                             </div>
@@ -64,7 +65,7 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
                                 <h6 style={{ color: '#dc3545', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center' }}>
                                     <span style={{ marginRight: '8px' }}>⚠️</span> Violations = Immediate Termination
                                 </h6>
-                                <p style={{ margin: '0', color: '#495057', lineHeight: '1.6' }}>Tab switching, window blur, right-click, or copy/paste will terminate the assessment. Time expiration auto-submits current answers.</p>
+                                <p style={{ margin: '0', color: '#495057', lineHeight: '1.6' }}>Screenshot or screen-recording attempts suspend the assessment immediately. Tab switching, window blur, fullscreen exit, and other restricted activity are logged as warnings, and the assessment is suspended on the 5th warning. Time expiration auto-submits current answers.</p>
                             </div>
 
                             <div className="mb-4">
@@ -78,7 +79,7 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
                                 <h6 style={{ color: '#2c3e50', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center' }}>
                                     <span style={{ marginRight: '8px' }}>📌</span> Important Notes
                                 </h6>
-                                <p style={{ margin: '0', color: '#495057', lineHeight: '1.6' }}>Violations are logged. Terminated assessments cannot be resumed. Progress saved only on completion.</p>
+                                <p style={{ margin: '0', color: '#495057', lineHeight: '1.6' }}>Violations are logged. Suspended assessments cannot be resumed. Progress saved only on completion.</p>
                             </div>
 
                             <div style={{ backgroundColor: '#fff3cd', border: '1px solid #ffc107', borderRadius: '8px', padding: '12px 16px', marginTop: '20px', marginBottom: '20px' }}>

@@ -1,6 +1,7 @@
 import { showPopup, showSuccess, showError, showWarning, showInfo, showConfirmation } from '../../../../../utils/popupNotification';
 import { formatDate } from '../../../../../utils/dateFormatter';
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { NavLink, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { employer, empRoute, publicUser } from "../../../../../globals/route-names";
 import { holidaysApi } from "../../../../../utils/holidaysApi";
@@ -354,6 +355,15 @@ function AssessmentSearchSelect({
 		: '';
 	const [searchTerm, setSearchTerm] = useState('');
 	const [showDropdown, setShowDropdown] = useState(false);
+	const [menuPosition, setMenuPosition] = useState({
+		top: 0,
+		bottom: 'auto',
+		left: 0,
+		width: 0,
+		maxHeight: 280
+	});
+	const wrapperRef = useRef(null);
+	const menuRef = useRef(null);
 
 	const filteredAssessments = assessments.filter((assessment) =>
 		getAssessmentOptionSearchText(assessment, employerType).includes(searchTerm.trim().toLowerCase())
@@ -379,8 +389,210 @@ function AssessmentSearchSelect({
 		}
 	};
 
+	useEffect(() => {
+		if (!showDropdown) {
+			return undefined;
+		}
+
+		const handlePointerDown = (event) => {
+			const clickedTrigger = wrapperRef.current && wrapperRef.current.contains(event.target);
+			const clickedMenu = menuRef.current && menuRef.current.contains(event.target);
+
+			if (!clickedTrigger && !clickedMenu) {
+				setShowDropdown(false);
+				setSearchTerm('');
+			}
+		};
+
+		document.addEventListener('mousedown', handlePointerDown);
+		document.addEventListener('touchstart', handlePointerDown);
+
+		return () => {
+			document.removeEventListener('mousedown', handlePointerDown);
+			document.removeEventListener('touchstart', handlePointerDown);
+		};
+	}, [showDropdown]);
+
+	useEffect(() => {
+		if (!showDropdown || !wrapperRef.current) {
+			return undefined;
+		}
+
+		const updateMenuPosition = () => {
+			if (!wrapperRef.current) {
+				return;
+			}
+
+			const rect = wrapperRef.current.getBoundingClientRect();
+			const viewportPadding = 8;
+			const menuGap = 6;
+			const preferredMenuHeight = Math.min(320, Math.max(180, filteredAssessments.length * 52 + 64));
+			const spaceAbove = rect.top - viewportPadding;
+			const spaceBelow = window.innerHeight - rect.bottom - viewportPadding;
+			const shouldDropUp = spaceBelow < preferredMenuHeight && spaceAbove > spaceBelow;
+			const maxHeight = Math.min(
+				320,
+				Math.max(160, shouldDropUp ? spaceAbove - menuGap : spaceBelow - menuGap)
+			);
+			const maxWidth = window.innerWidth - viewportPadding * 2;
+			const width = Math.min(rect.width, maxWidth);
+			const left = Math.min(
+				Math.max(viewportPadding, rect.left),
+				Math.max(viewportPadding, window.innerWidth - viewportPadding - width)
+			);
+
+			setMenuPosition({
+				top: shouldDropUp ? 'auto' : rect.bottom + menuGap,
+				bottom: shouldDropUp ? window.innerHeight - rect.top + menuGap : 'auto',
+				left,
+				width,
+				maxHeight
+			});
+		};
+
+		const frameId = window.requestAnimationFrame(updateMenuPosition);
+		window.addEventListener('resize', updateMenuPosition);
+		window.addEventListener('scroll', updateMenuPosition, true);
+
+		return () => {
+			window.cancelAnimationFrame(frameId);
+			window.removeEventListener('resize', updateMenuPosition);
+			window.removeEventListener('scroll', updateMenuPosition, true);
+		};
+	}, [showDropdown, filteredAssessments.length]);
+
+	const optionsMaxHeight = Math.max(96, menuPosition.maxHeight - 68);
+
+	const dropdownMenu = showDropdown && typeof document !== 'undefined'
+		? createPortal(
+			<div
+				ref={menuRef}
+				data-dropdown-menu="assessment-search-select"
+				style={{
+					position: 'fixed',
+					top: menuPosition.top,
+					bottom: menuPosition.bottom,
+					left: menuPosition.left,
+					width: menuPosition.width,
+					background: '#fff',
+					border: '1px solid #d1d5db',
+					borderRadius: '12px',
+					maxHeight: menuPosition.maxHeight,
+					overflow: 'hidden',
+					zIndex: 2147483646,
+					boxShadow: '0 10px 25px rgba(15, 23, 42, 0.12)'
+				}}
+			>
+				<div
+					style={{
+						padding: '10px 12px',
+						borderBottom: '1px solid #e2e8f0',
+						background: '#f8fafc'
+					}}
+				>
+					<div style={{ position: 'relative' }}>
+						<input
+							type="text"
+							value={searchTerm}
+							onChange={(event) => setSearchTerm(event.target.value)}
+							onKeyDown={handleKeyDown}
+							placeholder={placeholder}
+							autoComplete="off"
+							autoFocus
+							style={{
+								...inputStyle,
+								minWidth: '100%',
+								width: '100%',
+								backgroundImage: 'none',
+								appearance: 'none',
+								WebkitAppearance: 'none',
+								MozAppearance: 'none',
+								paddingLeft: '36px',
+								paddingRight: '12px',
+								borderRadius: '8px',
+								borderColor: '#cbd5e1',
+								boxShadow: 'none'
+							}}
+						/>
+						<div style={{
+							position: 'absolute',
+							left: '12px',
+							top: '50%',
+							transform: 'translateY(-50%)',
+							pointerEvents: 'none',
+							color: '#9ca3af'
+						}}>
+							<i className="fa fa-search" style={{ fontSize: 13 }}></i>
+						</div>
+					</div>
+				</div>
+				<div
+					style={{
+						maxHeight: optionsMaxHeight,
+						overflowY: 'auto',
+						overscrollBehavior: 'contain',
+						WebkitOverflowScrolling: 'touch',
+						touchAction: 'pan-y'
+					}}
+					onWheel={(event) => event.stopPropagation()}
+					onTouchMove={(event) => event.stopPropagation()}
+				>
+					{filteredAssessments.length > 0 ? (
+						filteredAssessments.map((assessment) => {
+							const assessmentId = getAssessmentOptionId(assessment);
+							const isSelected = assessmentId === value;
+
+							return (
+								<div
+									key={assessmentId}
+									style={{
+										padding: '10px 12px',
+										cursor: 'pointer',
+										borderBottom: '1px solid #f1f5f9',
+										background: isSelected ? '#f0fdf4' : '#fff'
+									}}
+									onMouseDown={(event) => {
+										event.preventDefault();
+									}}
+									onClick={() => handleSelect(assessmentId)}
+									onMouseEnter={(event) => {
+										if (!isSelected) {
+											event.currentTarget.style.backgroundColor = '#f8fafc';
+										}
+									}}
+									onMouseLeave={(event) => {
+										event.currentTarget.style.backgroundColor = isSelected ? '#f0fdf4' : '#fff';
+									}}
+								>
+									<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+										<div style={{ minWidth: 0 }}>
+											<div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', lineHeight: 1.4 }}>
+												{formatAssessmentOptionLabel(assessment, employerType)}
+											</div>
+										</div>
+										{isSelected && (
+											<i className="fa fa-check-circle" style={{ color: '#059669', fontSize: 14, flexShrink: 0 }}></i>
+										)}
+									</div>
+								</div>
+							);
+						})
+					) : (
+						<div style={{ padding: '12px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
+							{assessments.length === 0 ? 'No assessments available.' : 'No matching assessments found.'}
+						</div>
+					)}
+				</div>
+			</div>,
+			document.body
+		)
+		: null;
+
 	return (
-		<div style={{ position: 'relative', width: '100%', minWidth: 0, maxWidth: '100%', flexBasis: resolvedMinWidth, ...containerStyle }}>
+		<div
+			ref={wrapperRef}
+			style={{ position: 'relative', width: '100%', minWidth: 0, maxWidth: '100%', flexBasis: resolvedMinWidth, ...containerStyle }}
+		>
 			<div style={{ position: 'relative' }}>
 				<button
 					type="button"
@@ -428,115 +640,7 @@ function AssessmentSearchSelect({
 					<i className={`fa ${showDropdown ? 'fa-chevron-up' : 'fa-chevron-down'}`} style={{ fontSize: 12 }}></i>
 				</div>
 			</div>
-
-			{showDropdown && (
-				<div style={{
-					position: 'absolute',
-					top: 'calc(100% + 6px)',
-					left: 0,
-					right: 0,
-					background: '#fff',
-					border: '1px solid #d1d5db',
-					borderRadius: '12px',
-					maxHeight: '280px',
-					overflowY: 'auto',
-					zIndex: 1000,
-					boxShadow: '0 10px 25px rgba(15, 23, 42, 0.12)'
-				}}>
-					<div style={{
-						padding: '10px 12px',
-						borderBottom: '1px solid #e2e8f0',
-						background: '#f8fafc'
-					}}>
-						<div style={{ position: 'relative' }}>
-							<input
-								type="text"
-								value={searchTerm}
-								onChange={(event) => setSearchTerm(event.target.value)}
-								onBlur={() => {
-									setTimeout(() => {
-										setShowDropdown(false);
-										setSearchTerm('');
-									}, 180);
-								}}
-								onKeyDown={handleKeyDown}
-								placeholder={placeholder}
-								autoComplete="off"
-								autoFocus
-								style={{
-									...inputStyle,
-									minWidth: '100%',
-									width: '100%',
-									backgroundImage: 'none',
-									appearance: 'none',
-									WebkitAppearance: 'none',
-									MozAppearance: 'none',
-									paddingLeft: '36px',
-									paddingRight: '12px',
-									borderRadius: '8px',
-									borderColor: '#cbd5e1',
-									boxShadow: 'none'
-								}}
-							/>
-							<div style={{
-								position: 'absolute',
-								left: '12px',
-								top: '50%',
-								transform: 'translateY(-50%)',
-								pointerEvents: 'none',
-								color: '#9ca3af'
-							}}>
-								<i className="fa fa-search" style={{ fontSize: 13 }}></i>
-							</div>
-						</div>
-					</div>
-					{filteredAssessments.length > 0 ? (
-						filteredAssessments.map((assessment) => {
-							const assessmentId = getAssessmentOptionId(assessment);
-							const isSelected = assessmentId === value;
-
-							return (
-								<div
-									key={assessmentId}
-									style={{
-										padding: '10px 12px',
-										cursor: 'pointer',
-										borderBottom: '1px solid #f1f5f9',
-										background: isSelected ? '#f0fdf4' : '#fff'
-									}}
-									onMouseDown={(event) => {
-										event.preventDefault();
-										handleSelect(assessmentId);
-									}}
-									onMouseEnter={(event) => {
-										if (!isSelected) {
-											event.currentTarget.style.backgroundColor = '#f8fafc';
-										}
-									}}
-									onMouseLeave={(event) => {
-										event.currentTarget.style.backgroundColor = isSelected ? '#f0fdf4' : '#fff';
-									}}
-								>
-									<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-										<div style={{ minWidth: 0 }}>
-											<div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', lineHeight: 1.4 }}>
-												{formatAssessmentOptionLabel(assessment, employerType)}
-											</div>
-										</div>
-										{isSelected && (
-											<i className="fa fa-check-circle" style={{ color: '#059669', fontSize: 14, flexShrink: 0 }}></i>
-										)}
-									</div>
-								</div>
-							);
-						})
-					) : (
-						<div style={{ padding: '12px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
-							{assessments.length === 0 ? 'No assessments available.' : 'No matching assessments found.'}
-						</div>
-					)}
-				</div>
-			)}
+			{dropdownMenu}
 		</div>
 	);
 }

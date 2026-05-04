@@ -18,6 +18,9 @@ const RESTRICTED_WARNING_VIOLATIONS = new Set([
   'fullscreen_exit',
   'multi_screen'
 ]);
+const IMMEDIATE_SUSPEND_VIOLATIONS = new Set([
+  'screen_capture'
+]);
 
 const OBJECTIVE_QUESTION_TYPES = new Set([
   'mcq',
@@ -1708,12 +1711,14 @@ exports.recordViolation = async (req, res) => {
 
     let suspended = false;
     let warningCount = attempt.restrictionWarningCount || 0;
+    const isRestrictedViolation = RESTRICTED_WARNING_VIOLATIONS.has(type);
+    const isImmediateSuspensionViolation = IMMEDIATE_SUSPEND_VIOLATIONS.has(type);
 
-    if (RESTRICTED_WARNING_VIOLATIONS.has(type)) {
+    if (isRestrictedViolation) {
       warningCount += 1;
       attempt.restrictionWarningCount = warningCount;
 
-      if (warningCount >= RESTRICTION_SUSPEND_THRESHOLD) {
+      if (isImmediateSuspensionViolation || warningCount >= RESTRICTION_SUSPEND_THRESHOLD) {
         suspended = true;
         attempt.status = 'suspended';
         attempt.suspendedAt = new Date();
@@ -1739,8 +1744,10 @@ exports.recordViolation = async (req, res) => {
     res.json({ 
       success: true, 
       message: suspended
-        ? 'Fifth rule violation detected. Assessment suspended.'
-        : RESTRICTED_WARNING_VIOLATIONS.has(type)
+        ? isImmediateSuspensionViolation
+          ? 'Screen capture or recording detected. Assessment suspended immediately.'
+          : 'Fifth rule violation detected. Assessment suspended.'
+        : isRestrictedViolation
           ? `Violation recorded. Warning ${warningCount}/${RESTRICTION_WARNING_LIMIT}.`
           : 'Violation recorded',
       violationCount: attempt.violations.length,
