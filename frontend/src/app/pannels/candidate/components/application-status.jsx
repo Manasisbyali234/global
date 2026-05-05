@@ -152,18 +152,24 @@ function CanStatusPage() {
 			return 'rejected';
 		}
 
-		// Check assessment-derived statuses (no_show, suspended) from attempt data
+		// Check assessment-derived statuses (no_show, suspended, failed) from attempt data
 		const assessmentStatus = String(application?.assessmentStatus || '').toLowerCase();
+		const assessmentResult = String(application?.assessmentResult || '').toLowerCase();
 		const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
-		if (rejectedAssessmentStatuses.includes(assessmentStatus)) {
+		const failedStatuses = ['failed', 'fail'];
+		const failedResults = ['failed', 'fail'];
+		if (rejectedAssessmentStatuses.includes(assessmentStatus) ||
+			failedStatuses.includes(assessmentStatus) ||
+			failedResults.includes(assessmentResult)) {
 			return 'rejected';
 		}
 
-		// Check all assessment attempts for no_show or suspended
+		// Check all assessment attempts for no_show, suspended, or failed
 		const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
 		const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
 			const s = String(attempt?.status || '').toLowerCase();
-			return rejectedAssessmentStatuses.includes(s);
+			const r = String(attempt?.result || '').toLowerCase();
+			return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedResults.includes(r);
 		});
 		if (hasRejectedAttempt) {
 			return 'rejected';
