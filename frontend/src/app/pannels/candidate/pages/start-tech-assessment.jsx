@@ -1508,15 +1508,7 @@ const StartAssessment = () => {
 
 			setShowTermsModal(false);
 
-			const webcamReady = await initWebcam();
-			if (!webcamReady) {
-                cleanupSecureMode();
-                showCameraRequiredNotice(CAMERA_START_REQUIRED_MESSAGE, 'before_start');
-                showWarning(`${CAMERA_START_REQUIRED_MESSAGE} ${CAMERA_HELP_MESSAGE}`);
-                return;
-			}
-
-            clearCameraRequiredNotice();
+			await initWebcam();
             await beginAssessmentSession();
 		} catch (err) {
 			console.error("Error starting assessment:", err);
@@ -1826,100 +1818,7 @@ const StartAssessment = () => {
 				timestamp={currentViolation?.timestamp}
 				onAcknowledge={handleViolationAcknowledge}
 			/>
-            {showCameraRequiredOverlay && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        zIndex: 10000,
-                        background: 'rgba(15, 23, 42, 0.78)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '24px'
-                    }}
-                >
-                    <div
-                        style={{
-                            width: '100%',
-                            maxWidth: '560px',
-                            background: '#ffffff',
-                            borderRadius: '18px',
-                            padding: '28px',
-                            boxShadow: '0 24px 64px rgba(15, 23, 42, 0.28)',
-                            border: '1px solid rgba(248, 113, 113, 0.24)'
-                        }}
-                    >
-                        <div style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#dc2626', marginBottom: '12px' }}>
-                            Camera Required
-                        </div>
-                        <h3 style={{ margin: '0 0 8px', fontSize: '22px', color: '#0f172a' }}>
-                            Turn on your camera to continue
-                        </h3>
-                        <p style={{ margin: '0 0 12px', fontSize: '14px', lineHeight: '1.6', color: '#475569' }}>
-                            Your camera is currently turned off, disconnected, or blocked by your browser or system settings.
-                        </p>
-                        <div style={{ margin: '0 0 10px' }}>
-                            <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>Enable camera access:</div>
-                            <ul style={{ margin: '0 0 10px', paddingLeft: '18px', fontSize: '13px', color: '#475569', lineHeight: '1.8' }}>
-                                <li>Click the site settings icon (sliders icon) in the address bar</li>
-                                <li>Find <strong>Camera</strong> and set it to <strong>Allow</strong></li>
-                                <li>Reload the page</li>
-                            </ul>
-                        </div>
-                        <div style={{ margin: '0 0 10px' }}>
-                            <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>If disabled in Chrome settings:</div>
-                            <ul style={{ margin: '0 0 10px', paddingLeft: '18px', fontSize: '13px', color: '#475569', lineHeight: '1.8' }}>
-                                <li><strong>Windows:</strong> Settings → Privacy → Camera → Turn ON access and allow your browser</li>
-                                <li><strong>Mac:</strong> System Settings → Privacy &amp; Security → Camera → Enable access for your browser</li>
-                            </ul>
-                        </div>
-                        <p style={{ margin: '0 0 14px', fontSize: '13px', lineHeight: '1.6', color: '#64748b', background: '#f8fafc', borderRadius: '8px', padding: '10px 12px', border: '1px solid #e2e8f0' }}>
-                            <strong>Note:</strong> Close any applications using the camera (Zoom, Teams, etc.), ensure your camera is connected, and refresh the page after enabling access.
-                        </p>
-                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                            <button
-                                type="button"
-                                onClick={handleCameraRecovery}
-                                disabled={isRecoveringCamera}
-                                style={{
-                                    background: isRecoveringCamera ? '#fb923c' : '#f97316',
-                                    color: '#fff',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    padding: '12px 18px',
-                                    fontWeight: '700',
-                                    cursor: isRecoveringCamera ? 'wait' : 'pointer',
-                                    boxShadow: '0 10px 24px rgba(249, 115, 22, 0.28)'
-                                }}
-                            >
-                                {isRecoveringCamera
-                                    ? 'Checking Camera...'
-                                    : cameraRecoveryMode === 'before_start'
-                                        ? 'Enable Camera & Start Assessment'
-                                        : 'Okay'}
-                            </button>
-                            {cameraRecoveryMode === 'before_start' && (
-                                <button
-                                    type="button"
-                                    onClick={handleTermsDecline}
-                                    style={{
-                                        background: '#fff',
-                                        color: '#475569',
-                                        border: '1px solid #cbd5e1',
-                                        borderRadius: '10px',
-                                        padding: '12px 18px',
-                                        fontWeight: '600',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    Exit Assessment
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
+
 			<div
 				ref={assessmentContainerRef}
 				style={{
