@@ -175,19 +175,6 @@ function CanStatusPage() {
 			return 'rejected';
 		}
 
-		// If application is marked rejected but was auto-rejected from a stage status
-		// that has since been changed to shortlisted, show as pending
-		if (baseStatus === 'rejected') {
-			const wasAutoRejectedFromStage = Array.isArray(application?.statusHistory) &&
-				application.statusHistory.some((entry) =>
-					normalizeStatusValue(entry?.status) === 'rejected' &&
-					normalizeStatusValue(entry?.notes).includes('auto-updated from interview stage status')
-				);
-			if (wasAutoRejectedFromStage) {
-				return 'pending';
-			}
-		}
-
 		return baseStatus;
 	};
 
