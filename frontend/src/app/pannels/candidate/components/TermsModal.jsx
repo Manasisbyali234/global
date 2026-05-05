@@ -19,6 +19,8 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
         ? Number(rawPassingPercentage)
         : 60;
     return (
+        <>
+        <div className="assessment-terms-modal-backdrop" />
         <div className="modal fade twm-model-popup assessment-terms-modal show" id="termsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-hidden="false" style={{ display: 'block' }}>
             <div className="modal-dialog modal-xl" style={{ maxWidth: '900px' }}>
                 <div className="modal-content">
@@ -163,6 +165,7 @@ const TermsModal = ({ isOpen, onAccept, onDecline, assessment }) => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

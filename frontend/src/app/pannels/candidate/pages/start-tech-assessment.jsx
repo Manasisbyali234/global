@@ -1853,14 +1853,29 @@ const StartAssessment = () => {
                         <div style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#dc2626', marginBottom: '12px' }}>
                             Camera Required
                         </div>
-                        <h3 style={{ margin: '0 0 12px', fontSize: '24px', color: '#0f172a' }}>
+                        <h3 style={{ margin: '0 0 8px', fontSize: '22px', color: '#0f172a' }}>
                             Turn on your camera to continue
                         </h3>
-                        <p style={{ margin: '0 0 10px', fontSize: '15px', lineHeight: '1.6', color: '#475569' }}>
-                            {cameraRequiredMessage}
+                        <p style={{ margin: '0 0 12px', fontSize: '14px', lineHeight: '1.6', color: '#475569' }}>
+                            Your camera is currently turned off, disconnected, or blocked by your browser or system settings.
                         </p>
-                        <p style={{ margin: '0 0 20px', fontSize: '14px', lineHeight: '1.6', color: '#64748b' }}>
-                            {CAMERA_HELP_MESSAGE} The assessment will remain blocked until the webcam is active.
+                        <div style={{ margin: '0 0 10px' }}>
+                            <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>Enable camera access:</div>
+                            <ul style={{ margin: '0 0 10px', paddingLeft: '18px', fontSize: '13px', color: '#475569', lineHeight: '1.8' }}>
+                                <li>Click the site settings icon (sliders icon) in the address bar</li>
+                                <li>Find <strong>Camera</strong> and set it to <strong>Allow</strong></li>
+                                <li>Reload the page</li>
+                            </ul>
+                        </div>
+                        <div style={{ margin: '0 0 10px' }}>
+                            <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>If disabled in Chrome settings:</div>
+                            <ul style={{ margin: '0 0 10px', paddingLeft: '18px', fontSize: '13px', color: '#475569', lineHeight: '1.8' }}>
+                                <li><strong>Windows:</strong> Settings → Privacy → Camera → Turn ON access and allow your browser</li>
+                                <li><strong>Mac:</strong> System Settings → Privacy &amp; Security → Camera → Enable access for your browser</li>
+                            </ul>
+                        </div>
+                        <p style={{ margin: '0 0 14px', fontSize: '13px', lineHeight: '1.6', color: '#64748b', background: '#f8fafc', borderRadius: '8px', padding: '10px 12px', border: '1px solid #e2e8f0' }}>
+                            <strong>Note:</strong> Close any applications using the camera (Zoom, Teams, etc.), ensure your camera is connected, and refresh the page after enabling access.
                         </p>
                         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                             <button
@@ -1882,7 +1897,7 @@ const StartAssessment = () => {
                                     ? 'Checking Camera...'
                                     : cameraRecoveryMode === 'before_start'
                                         ? 'Enable Camera & Start Assessment'
-                                        : 'Reconnect Camera'}
+                                        : 'Okay'}
                             </button>
                             {cameraRecoveryMode === 'before_start' && (
                                 <button

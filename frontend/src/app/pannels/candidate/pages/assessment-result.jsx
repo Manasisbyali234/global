@@ -413,7 +413,7 @@ const AssessmentResults = () => {
 							}}
 						>
 							<strong style={{ display: "block", color: "#9a3412", fontSize: "18px", margin: 0 }}>
-								Assessment submitted. Result is under review.
+								Assessment submitted. Result under review.
 							</strong>
 							<p style={{ fontSize: "14px", color: "#7c2d12", margin: 0, lineHeight: 1.6 }}>
 								Your assessment has been submitted successfully. Final marks and pass/fail status will appear after evaluation, and <strong>once the result is announced, you will be notified by email.</strong>

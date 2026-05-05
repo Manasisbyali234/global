@@ -1,3 +1,17 @@
+/* Blurred backdrop overlay */
+.assessment-terms-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+.twm-model-popup.assessment-terms-modal {
+  z-index: 1050;
+}
+
 .twm-model-popup.assessment-terms-modal .modal-body,
 .twm-model-popup.assessment-terms-modal .assessment-terms-modal__body,
 .twm-model-popup.assessment-terms-modal .assessment-terms-modal__content,
