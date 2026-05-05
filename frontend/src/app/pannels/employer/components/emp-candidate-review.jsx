@@ -1501,39 +1501,50 @@ function EmpCandidateReviewPage() {
                                                                     {assessmentDisplay.statusLabel}
                                                                 </span>
                                                             </div>
-                                                            {process.type === 'assessment' && (process.assessmentScore !== null || process.assessmentPercentage !== null || assessmentDisplay.resultValue) && (
+                                                            {process.type === 'assessment' && (() => {
+                                                                const attempt = application.assessmentAttempt;
+                                                                const displayScore = process.assessmentScore ?? attempt?.score ?? null;
+                                                                const displayTotalMarks = process.assessmentTotalMarks ?? attempt?.totalMarks ?? null;
+                                                                const displayPercentage = process.assessmentPercentage ?? attempt?.percentage ?? null;
+                                                                const displayResult = assessmentDisplay.resultValue || getAssessmentOutcomeLabel({
+                                                                    status: attempt?.status,
+                                                                    result: attempt?.result,
+                                                                    manualEvaluationPendingCount: attempt?.manualEvaluationPendingCount ?? 0
+                                                                });
+                                                                const hasData = displayScore !== null || displayPercentage !== null || (displayResult && displayResult !== 'Pending');
+                                                                return hasData ? (
                                                                 <div className="assessment-process-summary">
-                                                                    {process.assessmentScore !== null && process.assessmentTotalMarks !== null && (
+                                                                    {displayScore !== null && displayTotalMarks !== null && (
                                                                         <div className="assessment-process-item">
                                                                             <span className="assessment-process-label">Score</span>
                                                                             <span className="assessment-process-value">
-                                                                                {process.assessmentScore} / {process.assessmentTotalMarks}
+                                                                                {displayScore} / {displayTotalMarks}
                                                                             </span>
                                                                         </div>
                                                                     )}
-                                                                    {process.assessmentPercentage !== null && process.assessmentPercentage !== undefined && (
+                                                                    {displayPercentage !== null && displayPercentage !== undefined && (
                                                                         <div className="assessment-process-item">
                                                                             <span className="assessment-process-label">Percentage</span>
                                                                             <span className="assessment-process-value">
-                                                                                {Number(process.assessmentPercentage).toFixed(1)}%
+                                                                                {Number(displayPercentage).toFixed(1)}%
                                                                             </span>
                                                                         </div>
                                                                     )}
-                                                                    {assessmentDisplay.resultValue && (
+                                                                    {displayResult && (
                                                                         <div className="assessment-process-item">
                                                                             <span className="assessment-process-label">Result</span>
                                                                             <span className={`assessment-process-value result ${assessmentDisplay.resultClass || 'pending'}`}>
-                                                                                {assessmentDisplay.resultValue}
+                                                                                {displayResult}
                                                                             </span>
                                                                         </div>
                                                                     )}
-                                                                    {application.assessmentAttempt && (
+                                                                    {attempt && (
                                                                         <div className="assessment-actions assessment-process-actions">
                                                                             <button 
                                                                                 className="btn-view-answers"
                                                                                 onClick={() => {
-                                                                                    if (application.assessmentAttempt?._id) {
-                                                                                        navigate(`/employer/view-answers/${application.assessmentAttempt._id}`);
+                                                                                    if (attempt?._id) {
+                                                                                        navigate(`/employer/view-answers/${attempt._id}`);
                                                                                     } else {
                                                                                         showError('Assessment attempt ID not found');
                                                                                     }
@@ -1544,7 +1555,7 @@ function EmpCandidateReviewPage() {
                                                                             <button 
                                                                                 className="btn-view-captures"
                                                                                 onClick={() => {
-                                                                                    const captures = application.assessmentAttempt.captures || application.assessmentAttempt.capturedImages || [];
+                                                                                    const captures = attempt.captures || attempt.capturedImages || [];
                                                                                     setCapturesModal({ isOpen: true, captures });
                                                                                 }}
                                                                             >
@@ -1553,7 +1564,8 @@ function EmpCandidateReviewPage() {
                                                                         </div>
                                                                     )}
                                                                 </div>
-                                                            )}
+                                                                ) : null;
+                                                            })()}
                                                             <div className="process-controls">
                                                                 {statusUpdateUnlocked ? (
                                                                     <select 
