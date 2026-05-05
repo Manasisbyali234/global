@@ -38,6 +38,9 @@ function EmpCandidateReviewPage() {
     const [descriptionModal, setDescriptionModal] = useState({ isOpen: false, description: '' });
     const [detailsModal, setDetailsModal] = useState({ isOpen: false, role: '', projects: '' });
     const autoSaveTimeoutRef = useRef(null);
+    const isInitialLoadRef = useRef(true);
+    const processRemarksRef = useRef({});
+    const interviewProcessesRef = useRef([]);
     const [showStatusTermsModal, setShowStatusTermsModal] = useState(false);
     const [statusUpdateUnlocked, setStatusUpdateUnlocked] = useState(false);
     const [showRejectConfirm, setShowRejectConfirm] = useState(false);
@@ -742,6 +745,11 @@ function EmpCandidateReviewPage() {
     useEffect(() => {
         if (interviewProcesses.length === 0) return;
         
+        if (isInitialLoadRef.current) {
+            isInitialLoadRef.current = false;
+            return;
+        }
+        
         if (autoSaveTimeoutRef.current) {
             clearTimeout(autoSaveTimeoutRef.current);
         }
@@ -923,8 +931,6 @@ function EmpCandidateReviewPage() {
                     processes = normalizeManualTrackingSequence(processes);
                 }
                 
-                setInterviewProcesses(processes);
-
                 const initialRemarks = {};
                 if (data.application.processRemarks) {
                     const remarksData = data.application.processRemarks;
@@ -934,7 +940,11 @@ function EmpCandidateReviewPage() {
                         });
                     }
                 }
+                isInitialLoadRef.current = true;
+                processRemarksRef.current = initialRemarks;
+                interviewProcessesRef.current = processes;
                 setProcessRemarks(initialRemarks);
+                setInterviewProcesses(processes);
             }
         } catch (error) {
             console.error('Error fetching details:', error);
@@ -1065,7 +1075,7 @@ function EmpCandidateReviewPage() {
     const saveInterviewProcesses = async (processesOverride = null, showToast = false) => {
         try {
             const token = localStorage.getItem('employerToken');
-            const sourceProcesses = Array.isArray(processesOverride) ? processesOverride : interviewProcesses;
+            const sourceProcesses = Array.isArray(processesOverride) ? processesOverride : interviewProcessesRef.current;
             const cleanedProcesses = sourceProcesses.map(p => ({
                 id: String(p.id),
                 name: String(p.name),
@@ -1083,7 +1093,7 @@ function EmpCandidateReviewPage() {
                 },
                 body: JSON.stringify({
                     interviewProcesses: cleanedProcesses,
-                    processRemarks: processRemarks
+                    processRemarks: processRemarksRef.current
                 })
             });
 
@@ -1213,7 +1223,11 @@ function EmpCandidateReviewPage() {
     };
 
     const updateProcessRemark = (processId, remark) => {
-        setProcessRemarks(prev => ({ ...prev, [processId]: remark }));
+        setProcessRemarks(prev => {
+            const updated = { ...prev, [processId]: remark };
+            processRemarksRef.current = updated;
+            return updated;
+        });
     };
 
     const cleanProcessName = (name) => {
@@ -1554,6 +1568,7 @@ function EmpCandidateReviewPage() {
                                                                                         isCompleted: newStatus !== 'pending'
                                                                                     } : p)
                                                                                 );
+                                                                                interviewProcessesRef.current = updated;
                                                                                 saveInterviewProcesses(updated, true);
                                                                                 return updated;
                                                                             });
