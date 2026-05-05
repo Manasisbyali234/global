@@ -19,6 +19,7 @@ export default function ViewAnswers() {
   const [error, setError] = useState(null);
   const [evaluationDrafts, setEvaluationDrafts] = useState({});
   const [savingEvaluation, setSavingEvaluation] = useState(false);
+  const [marksErrors, setMarksErrors] = useState({});
 
   const resolveFileUrl = (path) => {
     if (!path || typeof path !== 'string') return '';
@@ -109,7 +110,7 @@ export default function ViewAnswers() {
     }
   };
 
-  const updateEvaluationDraft = (questionIndex, field, value) => {
+  const updateEvaluationDraft = (questionIndex, field, value, maxMarks) => {
     setEvaluationDrafts((prev) => ({
       ...prev,
       [questionIndex]: {
@@ -117,6 +118,15 @@ export default function ViewAnswers() {
         [field]: value
       }
     }));
+    if (field === 'awardedMarks') {
+      const num = parseFloat(value);
+      setMarksErrors((prev) => ({
+        ...prev,
+        [questionIndex]: value !== '' && (isNaN(num) || num < 0 || num > maxMarks)
+          ? `Marks cannot exceed the maximum of ${maxMarks}`
+          : ''
+      }));
+    }
   };
 
   const saveManualEvaluation = async () => {
@@ -838,15 +848,20 @@ export default function ViewAnswers() {
                                 max={question.marks || 1}
                                 step="0.01"
                                 value={evaluationDraft.awardedMarks}
-                                onChange={(e) => updateEvaluationDraft(answer.questionIndex, 'awardedMarks', e.target.value)}
+                                onChange={(e) => updateEvaluationDraft(answer.questionIndex, 'awardedMarks', e.target.value, question.marks || 1)}
                                 style={{
                                   width: '100%',
-                                  border: '1px solid #d1d5db',
+                                  border: `1px solid ${marksErrors[answer.questionIndex] ? '#ef4444' : '#d1d5db'}`,
                                   borderRadius: '8px',
                                   padding: '0.7rem 0.85rem',
                                   fontSize: '0.95rem'
                                 }}
                               />
+                              {marksErrors[answer.questionIndex] && (
+                                <div style={{ marginTop: '0.25rem', color: '#ef4444', fontSize: '0.75rem' }}>
+                                  {marksErrors[answer.questionIndex]}
+                                </div>
+                              )}
                               <div style={{ marginTop: '0.35rem', color: '#6b7280', fontSize: '0.75rem' }}>
                                 Max: {question.marks || 1}
                               </div>
