@@ -119,11 +119,11 @@ export default function ViewAnswers() {
       }
     }));
     if (field === 'awardedMarks') {
-      const num = parseFloat(value);
+      const num = parseInt(value, 10);
       setMarksErrors((prev) => ({
         ...prev,
         [questionIndex]: value !== '' && (isNaN(num) || num < 0 || num > maxMarks)
-          ? `Marks cannot exceed the maximum of ${maxMarks}`
+          ? `Marks should not be greater than ${maxMarks}`
           : ''
       }));
     }
@@ -846,7 +846,7 @@ export default function ViewAnswers() {
                                 type="number"
                                 min="0"
                                 max={question.marks || 1}
-                                step="0.01"
+                                step="1"
                                 value={evaluationDraft.awardedMarks}
                                 onChange={(e) => updateEvaluationDraft(answer.questionIndex, 'awardedMarks', e.target.value, question.marks || 1)}
                                 style={{
