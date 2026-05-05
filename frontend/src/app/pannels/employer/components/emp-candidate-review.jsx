@@ -1503,10 +1503,10 @@ function EmpCandidateReviewPage() {
                                                             </div>
                                                             {process.type === 'assessment' && (() => {
                                                                 const attempt = application.assessmentAttempt;
-                                                                const displayScore = process.assessmentScore ?? attempt?.score ?? null;
-                                                                const displayTotalMarks = process.assessmentTotalMarks ?? attempt?.totalMarks ?? null;
-                                                                const displayPercentage = process.assessmentPercentage ?? attempt?.percentage ?? null;
-                                                                const displayResult = assessmentDisplay.resultValue || getAssessmentOutcomeLabel({
+                                                                const displayScore = attempt?.score ?? process.assessmentScore ?? null;
+                                                                const displayTotalMarks = attempt?.totalMarks ?? process.assessmentTotalMarks ?? null;
+                                                                const displayPercentage = attempt?.percentage ?? process.assessmentPercentage ?? null;
+                                                                const displayResult = getAssessmentOutcomeLabel({
                                                                     status: attempt?.status,
                                                                     result: attempt?.result,
                                                                     manualEvaluationPendingCount: attempt?.manualEvaluationPendingCount ?? 0
