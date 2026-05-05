@@ -373,31 +373,41 @@ const parseScheduledTime = (timeValue = '') => {
   };
 };
 
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000; // UTC+5:30
+
 const buildScheduledDateTime = (dateValue, timeValue = '', boundary = 'start') => {
   if (!dateValue) {
     return null;
   }
 
-  const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) {
+  // Normalise to a plain date string (YYYY-MM-DD) so we can build an IST timestamp
+  const raw = new Date(dateValue);
+  if (Number.isNaN(raw.getTime())) {
     return null;
   }
 
+  // Extract the calendar date in IST
+  const istNow = new Date(raw.getTime() + IST_OFFSET_MS);
+  const yyyy = istNow.getUTCFullYear();
+  const mm   = String(istNow.getUTCMonth() + 1).padStart(2, '0');
+  const dd   = String(istNow.getUTCDate()).padStart(2, '0');
+
   const parsedTime = parseScheduledTime(timeValue);
+  let hh, min, ss, ms;
   if (parsedTime) {
-    date.setHours(
-      parsedTime.hours,
-      parsedTime.minutes,
-      boundary === 'end' ? 59 : 0,
-      boundary === 'end' ? 999 : 0
-    );
+    hh  = parsedTime.hours;
+    min = parsedTime.minutes;
+    ss  = boundary === 'end' ? 59 : 0;
+    ms  = boundary === 'end' ? 999 : 0;
   } else if (boundary === 'end') {
-    date.setHours(23, 59, 59, 999);
+    hh = 23; min = 59; ss = 59; ms = 999;
   } else {
-    date.setHours(0, 0, 0, 0);
+    hh = 0; min = 0; ss = 0; ms = 0;
   }
 
-  return date;
+  // Build the UTC timestamp that corresponds to this IST date+time
+  const istMs = Date.UTC(yyyy, Number(mm) - 1, Number(dd), hh, min, ss, ms) - IST_OFFSET_MS;
+  return new Date(istMs);
 };
 
 const findAssessmentRoundDetails = (job = {}, assessmentId, matchedDbRound = null) => {
