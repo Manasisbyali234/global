@@ -4148,7 +4148,7 @@ exports.saveInterviewReview = async (req, res) => {
       const existingApplication = await Application.findOne({
         _id: applicationId,
         employerId: req.user._id
-      }).select('assessmentStatus assessmentResult assessmentAttemptId').lean();
+      }).select('assessmentStatus assessmentResult assessmentAttemptId status statusHistory').lean();
       const assessmentIsSuspended =
         normalizeApplicationStatusValue(existingApplication?.assessmentStatus) === 'suspended';
       const assessmentIsFailed = [
@@ -4171,6 +4171,30 @@ exports.saveInterviewReview = async (req, res) => {
               changedBy: req.user._id,
               changedByModel: 'Employer',
               notes: autoRejectNote
+            }
+          };
+        }
+      } else if (
+        existingApplicationStatus === 'rejected' &&
+        !assessmentIsSuspended &&
+        !assessmentIsFailed
+      ) {
+        // All stages are no longer rejected — revert status to pending
+        // so the candidate sees "Pending" instead of "Rejected"
+        const wasAutoRejectedFromStage = Array.isArray(existingApplication?.statusHistory) &&
+          existingApplication.statusHistory.some((entry) =>
+            normalizeApplicationStatusValue(entry?.status) === 'rejected' &&
+            normalizeApplicationStatusValue(entry?.notes).includes('auto-updated from interview stage status')
+          );
+
+        if (wasAutoRejectedFromStage) {
+          updateData.status = 'pending';
+          updateData.$push = {
+            statusHistory: {
+              status: 'pending',
+              changedBy: req.user._id,
+              changedByModel: 'Employer',
+              notes: 'Status reverted to pending after stage status updated'
             }
           };
         }
