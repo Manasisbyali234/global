@@ -721,13 +721,7 @@ function EmpCandidateReviewPage() {
         const assessmentIsFailed = ['fail', 'failed'].includes(
             normalizeStatusValue(applicationData?.assessmentResult)
         );
-        const assessmentIsNoShow = normalizedProcesses.some((process) =>
-            isAssessmentProcess(process) &&
-            (normalizeStatusValue(process?.status) === 'no show' ||
-             normalizeStatusValue(process?.status) === 'no_show' ||
-             process?.statusValue === 'no_show')
-        ) || ['no_show', 'no show'].includes(normalizeStatusValue(applicationData?.assessmentStatus));
-        if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage || assessmentIsSuspended || assessmentIsFailed || assessmentIsNoShow) {
+        if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage || assessmentIsSuspended || assessmentIsFailed) {
             return 'rejected';
         }
 
