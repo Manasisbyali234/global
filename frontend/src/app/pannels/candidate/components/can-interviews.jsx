@@ -276,6 +276,50 @@ const getStatusBadge = (status) => {
   };
 };
 
+const isRejectedStatus = (value) => {
+  const s = String(value || "").trim().toLowerCase().replace(/[_-]+/g, " ");
+  return ["rejected", "not advanced to next stage", "not advanced to next round", "failed", "fail",
+    "no show", "no_show", "expired", "suspended", "session expired"].includes(s);
+};
+
+const isPositiveStatus = (value) => {
+  const s = String(value || "").trim().toLowerCase().replace(/[_-]+/g, " ");
+  return ["shortlisted for next round", "shortlisted", "selected"].includes(s);
+};
+
+const getApplicationDisplayStatus = (application = {}) => {
+  const baseStatus = String(application?.status || "").trim().toLowerCase() || "pending";
+  if (["accepted", "hired"].includes(baseStatus)) return baseStatus;
+
+  const processStatuses = [
+    ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []).map((p) => p?.status),
+    ...(Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages : []).map((s) => s?.status)
+  ];
+  if (processStatuses.some(isRejectedStatus)) return "rejected";
+
+  const hasFailedRound = Array.isArray(application?.interviewRounds) &&
+    application.interviewRounds.some((r) => String(r?.status || "").toLowerCase() === "failed");
+  if (hasFailedRound) return "rejected";
+
+  const rejectedAssessmentStatuses = ["no_show", "no show", "suspended", "session_expired", "session expired"];
+  const failedStatuses = ["failed", "fail"];
+  const assessmentStatus = String(application?.assessmentStatus || "").toLowerCase();
+  const assessmentResult = String(application?.assessmentResult || "").toLowerCase();
+  if (rejectedAssessmentStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentResult)) {
+    return "rejected";
+  }
+
+  const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
+  const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
+    const s = String(attempt?.status || "").toLowerCase();
+    const r = String(attempt?.result || "").toLowerCase();
+    return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
+  });
+  if (hasRejectedAttempt) return "rejected";
+
+  return baseStatus;
+};
+
 const PAGE_SIZE = 12;
 
 function CanInterviewsPage() {
@@ -426,7 +470,7 @@ function CanInterviewsPage() {
         companyName: getCompanyName(application),
         companyLogo: getCompanyLogo(application, employerLogos),
         location: highlightedRound?.details?.location || formatJobLocation(job?.location),
-        status: highlightedRound?.details?.status || application?.status || "pending"
+        status: getApplicationDisplayStatus(application)
       });
     });
     return cards;

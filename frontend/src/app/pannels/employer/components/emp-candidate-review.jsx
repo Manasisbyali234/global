@@ -748,6 +748,12 @@ function EmpCandidateReviewPage() {
     }, [applicationId]);
 
     useEffect(() => {
+        const handleFocus = () => fetchApplicationDetails();
+        window.addEventListener('focus', handleFocus);
+        return () => window.removeEventListener('focus', handleFocus);
+    }, [applicationId]);
+
+    useEffect(() => {
         if (interviewProcesses.length === 0) return;
         
         if (isInitialLoadRef.current) {
@@ -1513,15 +1519,15 @@ function EmpCandidateReviewPage() {
                                                             </div>
                                                             {process.type === 'assessment' && (() => {
                                                                 const attempt = application.assessmentAttempt;
-                                                                const displayScore = attempt?.score ?? null;
-                                                                const displayTotalMarks = attempt?.totalMarks ?? null;
-                                                                const displayPercentage = attempt?.percentage ?? null;
+                                                                const displayScore = process.assessmentScore ?? attempt?.score ?? null;
+                                                                const displayTotalMarks = process.assessmentTotalMarks ?? attempt?.totalMarks ?? null;
+                                                                const displayPercentage = process.assessmentPercentage ?? attempt?.percentage ?? null;
                                                                 const displayResult = getAssessmentOutcomeLabel({
                                                                     status: attempt?.status,
                                                                     result: attempt?.status === 'suspended' ? 'suspended' : attempt?.result,
                                                                     manualEvaluationPendingCount: attempt?.manualEvaluationPendingCount ?? 0
                                                                 });
-                                                                const hasData = displayScore !== null || displayPercentage !== null || (displayResult && displayResult !== 'Pending');
+                                                                const hasData = (displayScore !== null && displayScore !== undefined) || (displayPercentage !== null && displayPercentage !== undefined) || (displayResult && displayResult !== 'Pending');
                                                                 return hasData ? (
                                                                 <div className="assessment-process-summary">
                                                                     {displayScore !== null && displayTotalMarks !== null && (
