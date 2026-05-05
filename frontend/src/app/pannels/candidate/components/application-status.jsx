@@ -71,9 +71,16 @@ function CanStatusPage() {
 
 		return [
 			'rejected',
+			'not advanced to next stage',
+			'not advanced to next round',
 			'failed',
 			'fail',
 			'field',
+			'no show',
+			'no_show',
+			'expired',
+			'suspended',
+			'session expired',
 			'not eligibal for next round',
 			'not eligible for next round'
 		].includes(normalized);
@@ -90,6 +97,39 @@ function CanStatusPage() {
 		].includes(normalized);
 	};
 
+	const isAssessmentAttemptDerivedStatus = (value) => {
+		const normalized = normalizeStatusValue(value);
+		if (!normalized) return false;
+
+		return [
+			'passed',
+			'failed',
+			'completed',
+			'in progress',
+			'expired',
+			'suspended',
+			'session expired',
+			'no show'
+		].includes(normalized);
+	};
+
+	const isAssessmentEmployerDecisionStatus = (value) => {
+		const normalized = normalizeStatusValue(value);
+		if (!normalized) return false;
+
+		return [
+			'shortlisted for next round',
+			'shortlisted',
+			'selected',
+			'on hold',
+			'pending decision',
+			'no show',
+			'rejected',
+			'not advanced to next stage',
+			'not advanced to next round'
+		].includes(normalized);
+	};
+
 	const getApplicationDisplayStatus = (application = {}) => {
 		const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
 		if (['accepted', 'hired'].includes(baseStatus)) {
@@ -103,35 +143,6 @@ function CanStatusPage() {
 
 		if (processStatuses.some(isRejectedInterviewProcessStatus)) {
 			return 'rejected';
-		}
-
-		const hasAssessmentRound =
-			Boolean(application?.jobId?.assessmentId) ||
-			getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
-			(Array.isArray(application?.interviewProcess?.stages)
-				? application.interviewProcess.stages.some((stage) => stage?.stageType === 'assessment')
-				: false);
-
-		if (hasAssessmentRound) {
-			const assessmentRoundInfo = getAssessmentRoundInfo(application, 'Assessment');
-			const assessmentRoundKey = getAssessmentRoundOrderKeys(application?.jobId)[0];
-			const assessmentRoundDetails = assessmentRoundKey
-				? application?.jobId?.interviewRoundDetails?.[assessmentRoundKey] || null
-				: null;
-			const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, assessmentRoundDetails);
-			const completionInfo = assessmentRoundInfo?.completionInfo || getAssessmentCompletionInfo(application);
-			const assessmentFailed = Boolean(completionInfo?.isFailed);
-			const assessmentSuspended = Boolean(completionInfo?.isSuspended);
-			const assessmentNoShow =
-				Boolean(completionInfo?.isNoShow) ||
-				(Boolean(assessmentWindowInfo?.isAfterEnd) &&
-					!completionInfo?.isCompleted &&
-					!completionInfo?.isInProgress &&
-					!completionInfo?.isSuspended);
-
-			if (assessmentFailed || assessmentSuspended || assessmentNoShow) {
-				return 'rejected';
-			}
 		}
 
 		return baseStatus;
@@ -218,6 +229,50 @@ function CanStatusPage() {
 			(key) => String(job?.interviewRoundTypes?.[key] || '').toLowerCase() === 'assessment'
 		);
 
+	const getTrackedAssessmentProcess = (application = {}, roundDetails = null) => {
+		const trackedProcesses = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+		if (trackedProcesses.length === 0) {
+			return null;
+		}
+
+		const requestedKey = String(roundDetails?.__uniqueKey || '').trim();
+		const roundIndex = typeof roundDetails?.__roundIndex === 'number' ? roundDetails.__roundIndex : null;
+		const assessmentOrderIndex = typeof roundDetails?.__assessmentOrderIndex === 'number'
+			? roundDetails.__assessmentOrderIndex
+			: null;
+		const assessmentProcesses = trackedProcesses.filter((process) => {
+			const normalizedType = normalizeStatusValue(process?.type);
+			const normalizedName = normalizeStatusValue(process?.name);
+			return normalizedType === 'assessment' || normalizedName.includes('assessment');
+		});
+
+		if (requestedKey) {
+			const matchedById = assessmentProcesses.find((process) => String(process?.id || '').trim() === requestedKey);
+			if (matchedById) {
+				return matchedById;
+			}
+		}
+
+		if (roundIndex !== null) {
+			const matchedByIndex = trackedProcesses[roundIndex];
+			if (matchedByIndex && (normalizeStatusValue(matchedByIndex?.type) === 'assessment' || normalizeStatusValue(matchedByIndex?.name).includes('assessment'))) {
+				return matchedByIndex;
+			}
+		}
+
+		if (assessmentOrderIndex !== null && assessmentProcesses[assessmentOrderIndex]) {
+			return assessmentProcesses[assessmentOrderIndex];
+		}
+
+		return assessmentProcesses.length === 1 ? assessmentProcesses[0] : null;
+	};
+
+	const getTrackedAssessmentDecisionStatus = (application = {}, roundDetails = null) => {
+		const trackedProcess = getTrackedAssessmentProcess(application, roundDetails);
+		const trackedStatus = trackedProcess?.status || '';
+		return isAssessmentEmployerDecisionStatus(trackedStatus) ? trackedStatus : '';
+	};
+
 	const getAssessmentCompletionInfo = (source = {}) => {
 		const status = String(source?.assessmentStatus ?? source?.assessmentAttemptStatus ?? source?.status ?? '').toLowerCase();
 		const result = String(source?.assessmentResult ?? source?.result ?? '').toLowerCase();
@@ -277,6 +332,8 @@ function CanStatusPage() {
 			knownAssessmentIds.length <= 1 &&
 			(!assessmentId || assessmentId === normalizeAssessmentId(application?.jobId?.assessmentId));
 
+		const trackedAssessmentDecisionStatus = getTrackedAssessmentDecisionStatus(application, roundDetails);
+
 		const applicationFallbackStatus = shouldUseApplicationFallback
 			? String(application?.assessmentStatus || '').toLowerCase()
 			: '';
@@ -288,6 +345,9 @@ function CanStatusPage() {
 
 		const completionInfo = getAssessmentCompletionInfo({
 			status:
+				(trackedAssessmentDecisionStatus && !isAssessmentAttemptDerivedStatus(trackedAssessmentDecisionStatus)
+					? trackedAssessmentDecisionStatus
+					: '') ||
 				attempt?.status ||
 				relatedStage?.assessmentAttemptStatus ||
 				(shouldPreferApplicationStatus ? applicationFallbackStatus : relatedStage?.status) ||
@@ -299,6 +359,7 @@ function CanStatusPage() {
 			assessmentId,
 			attempt,
 			relatedStage,
+			trackedDecisionStatus: trackedAssessmentDecisionStatus,
 			completionInfo,
 			score: attempt?.score ?? relatedStage?.assessmentScore ?? (shouldUseApplicationFallback ? application?.assessmentScore : null),
 			percentage: attempt?.percentage ?? relatedStage?.assessmentPercentage ?? (shouldUseApplicationFallback ? application?.assessmentPercentage : null),
@@ -443,6 +504,20 @@ function CanStatusPage() {
 			const previousRoundDetails = resolveRoundDetails(application, previousRound, roundIndex - 1, resolvedRounds);
 			const previousAssessmentInfo = getAssessmentRoundInfo(application, previousRoundName, previousRoundDetails);
 			const completionInfo = previousAssessmentInfo?.completionInfo || {};
+			const trackedDecisionStatus = normalizeStatusValue(previousAssessmentInfo?.trackedDecisionStatus);
+			if (trackedDecisionStatus) {
+				const previousAssessmentFailed = isRejectedInterviewProcessStatus(trackedDecisionStatus);
+				return {
+					canStart: isPositiveInterviewProcessStatus(trackedDecisionStatus) && !previousAssessmentFailed,
+					previousAssessmentFailed
+				};
+			}
+			if (getTrackedAssessmentProcess(application, previousRoundDetails)) {
+				return {
+					canStart: false,
+					previousAssessmentFailed: false
+				};
+			}
 			const assessmentStatus = normalizeStatusValue(completionInfo.status);
 			const previousAssessmentFailed = Boolean(completionInfo.isFailed);
 			const previousAssessmentPassed = Boolean(completionInfo.isPassed);
@@ -1446,7 +1521,7 @@ function CanStatusPage() {
 		};
 
 		const mapProcessStatusToBadge = (rawStatus, options = {}) => {
-			const status = String(rawStatus || '').toLowerCase();
+			const status = normalizeStatusValue(rawStatus).replace(/\s+/g, '_');
 			const { isFinalStage = false } = options;
 			const mappings = {
 				shortlisted: { text: 'Shortlisted', class: 'bg-info bg-opacity-10 text-info border border-info' },
@@ -1461,6 +1536,8 @@ function CanStatusPage() {
 					text: isFinalStage ? 'Rejected' : 'Not Advanced to Next Stage',
 					class: 'bg-danger bg-opacity-10 text-danger border border-danger'
 				},
+				not_advanced_to_next_stage: { text: 'Not Advanced to Next Stage', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
+				not_advanced_to_next_round: { text: 'Not Advanced to Next Stage', class: 'bg-danger bg-opacity-10 text-danger border border-danger' },
 				on_hold: { text: 'On Hold', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' },
 				scheduled: { text: 'Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				in_progress: { text: 'In Progress', class: 'bg-warning bg-opacity-10 text-warning border border-warning' },
@@ -1488,6 +1565,13 @@ function CanStatusPage() {
 		// Check assessment status for Assessment rounds
 		if (roundName === 'Assessment') {
 			const assessmentRoundInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
+			const trackedDecisionStatus = assessmentRoundInfo?.trackedDecisionStatus || '';
+			if (trackedDecisionStatus) {
+				const mappedDecision = mapProcessStatusToBadge(trackedDecisionStatus, {
+					isFinalStage: false
+				});
+				return { ...mappedDecision, feedback: '' };
+			}
 			const { status, isPassed, isFailed, isCompleted, isInProgress, isExpired, isSuspended, isNoShow } = assessmentRoundInfo.completionInfo;
 			
 			// Check if assessment window has expired

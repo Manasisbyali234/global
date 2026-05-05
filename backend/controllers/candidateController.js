@@ -40,6 +40,34 @@ const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
   return attempt?.status || 'pending';
 };
 
+const isAssessmentAttemptDerivedStageStatus = (value = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(value);
+  if (!normalizedStatus) return false;
+
+  return [
+    'passed',
+    'failed',
+    'completed',
+    'in progress',
+    'expired',
+    'suspended',
+    'session expired',
+    'no show'
+  ].includes(normalizedStatus);
+};
+
+const shouldPreserveAssessmentStageStatus = (value = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(value);
+  if (!normalizedStatus) return false;
+
+  return ![
+    'pending',
+    'scheduled',
+    'available',
+    'not started'
+  ].includes(normalizedStatus) && !isAssessmentAttemptDerivedStageStatus(normalizedStatus);
+};
+
 const getLatestApplicationStatusHistoryEntry = (application = {}) => {
   const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
 
@@ -1852,9 +1880,15 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
                 return stage;
               }
 
+              const resolvedAttemptStatus = resolveAssessmentAttemptStageStatus(matchedAttempt);
+              const stageStatus = shouldPreserveAssessmentStageStatus(stage?.status)
+                ? stage.status
+                : resolvedAttemptStatus;
+
               return {
                 ...stage,
-                status: resolveAssessmentAttemptStageStatus(matchedAttempt),
+                status: stageStatus,
+                assessmentAttemptResolvedStatus: resolvedAttemptStatus,
                 assessmentAttemptId: matchedAttempt._id,
                 assessmentAttemptStatus: matchedAttempt.status,
                 assessmentResult: matchedAttempt.result || stage.assessmentResult || null,
