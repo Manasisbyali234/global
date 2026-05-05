@@ -602,8 +602,13 @@ function AdminOverviewPage() {
                 >
                   <option value="all">All</option>
                   <option value="pending">Pending</option>
+                  <option value="shortlisted">Shortlisted</option>
+                  <option value="interviewed">Interviewed</option>
+                  <option value="hired">Hired</option>
+                  <option value="offer_sent">Offer Sent</option>
                   <option value="accepted">Accepted</option>
                   <option value="rejected">Rejected</option>
+                  <option value="no show">No Show</option>
                 </select>
               </div>
             </div>
@@ -709,7 +714,7 @@ function AdminOverviewPage() {
                               )}
                             </td>
                             <td>{applicant.offerLetterStatus || 'Pending'}</td>
-                            <td>{applicant.status}</td>
+                            <td>{applicant.status || "pending"}</td>
                           </tr>
                         );
                       })

@@ -36,7 +36,7 @@ const InterviewProcessSchema = new mongoose.Schema({
     // Stage status and results
     status: { 
       type: String, 
-      enum: ['pending', 'scheduled', 'in_progress', 'completed', 'passed', 'failed', 'expired', 'suspended', 'cancelled'], 
+      enum: ['pending', 'scheduled', 'in_progress', 'completed', 'passed', 'failed', 'expired', 'suspended', 'cancelled', 'no show'], 
       default: 'pending' 
     },
     
