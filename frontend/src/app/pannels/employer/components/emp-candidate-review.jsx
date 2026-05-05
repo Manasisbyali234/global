@@ -718,7 +718,10 @@ function EmpCandidateReviewPage() {
         );
         const assessmentIsSuspended =
             normalizeStatusValue(applicationData?.assessmentStatus) === 'suspended';
-        if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage || assessmentIsSuspended) {
+        const assessmentIsFailed = ['fail', 'failed'].includes(
+            normalizeStatusValue(applicationData?.assessmentResult)
+        );
+        if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage || assessmentIsSuspended || assessmentIsFailed) {
             return 'rejected';
         }
 
@@ -1206,6 +1209,11 @@ function EmpCandidateReviewPage() {
             return true;
         }
 
+        const assessmentResultNormalized = normalizeStatusValue(application?.assessmentResult);
+        if (assessmentResultNormalized === 'fail' || assessmentResultNormalized === 'failed') {
+            return true;
+        }
+
         return interviewProcesses.some((process) => {
             const normalizedStageStatus = normalizeStatusValue(process?.status);
             return negativeStatuses.has(normalizedStageStatus) || isRejectedLikeStatus(normalizedStageStatus);
@@ -1505,9 +1513,9 @@ function EmpCandidateReviewPage() {
                                                             </div>
                                                             {process.type === 'assessment' && (() => {
                                                                 const attempt = application.assessmentAttempt;
-                                                                const displayScore = attempt?.score ?? process.assessmentScore ?? null;
-                                                                const displayTotalMarks = attempt?.totalMarks ?? process.assessmentTotalMarks ?? null;
-                                                                const displayPercentage = attempt?.percentage ?? process.assessmentPercentage ?? null;
+                                                                const displayScore = attempt?.score ?? null;
+                                                                const displayTotalMarks = attempt?.totalMarks ?? null;
+                                                                const displayPercentage = attempt?.percentage ?? null;
                                                                 const displayResult = getAssessmentOutcomeLabel({
                                                                     status: attempt?.status,
                                                                     result: attempt?.status === 'suspended' ? 'suspended' : attempt?.result,

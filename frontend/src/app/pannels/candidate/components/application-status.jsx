@@ -145,6 +145,13 @@ function CanStatusPage() {
 			return 'rejected';
 		}
 
+		// Check interviewRounds (legacy) for failed status
+		const hasFailedRound = Array.isArray(application?.interviewRounds) &&
+			application.interviewRounds.some((round) => String(round?.status || '').toLowerCase() === 'failed');
+		if (hasFailedRound) {
+			return 'rejected';
+		}
+
 		// Check assessment-derived statuses (no_show, suspended) from attempt data
 		const assessmentStatus = String(application?.assessmentStatus || '').toLowerCase();
 		const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
@@ -2109,7 +2116,13 @@ function CanStatusPage() {
 											) : (
 												paginatedApplications.map((app, index) => {
 													const interviewRounds = getInterviewRounds(app.jobId, app);
-													const applicationDisplayStatus = getApplicationDisplayStatus(app);
+													const hasNoShowRound = interviewRounds.some((round, roundIndex) => {
+														const roundName = typeof round === 'string' ? round : round.name;
+														const roundDetails = resolveRoundDetails(app, round, roundIndex, interviewRounds);
+														const roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
+														return normalizeStatusValue(roundStatus?.text) === 'no show';
+													});
+													const applicationDisplayStatus = hasNoShowRound ? 'rejected' : getApplicationDisplayStatus(app);
 													const isShortlisted = applicationDisplayStatus === 'shortlisted';
 													const shouldHighlightRow = highlightShortlisted && isShortlisted;
 													return (

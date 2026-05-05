@@ -4148,22 +4148,29 @@ exports.saveInterviewReview = async (req, res) => {
       const existingApplication = await Application.findOne({
         _id: applicationId,
         employerId: req.user._id
-      }).select('assessmentStatus assessmentAttemptId').lean();
+      }).select('assessmentStatus assessmentResult assessmentAttemptId').lean();
       const assessmentIsSuspended =
         normalizeApplicationStatusValue(existingApplication?.assessmentStatus) === 'suspended';
+      const assessmentIsFailed = [
+        'fail',
+        'failed'
+      ].includes(normalizeApplicationStatusValue(existingApplication?.assessmentResult));
 
-      if (shouldAutoRejectFromStageStatus || assessmentIsSuspended) {
+      if (shouldAutoRejectFromStageStatus || assessmentIsSuspended || assessmentIsFailed) {
         updateData.status = 'rejected';
 
         if (existingApplicationStatus !== 'rejected') {
+          const autoRejectNote = assessmentIsSuspended
+            ? 'Auto-updated: assessment suspended'
+            : assessmentIsFailed
+              ? 'Auto-updated: assessment failed'
+              : 'Auto-updated from interview stage status';
           updateData.$push = {
             statusHistory: {
               status: 'rejected',
               changedBy: req.user._id,
               changedByModel: 'Employer',
-              notes: assessmentIsSuspended
-                ? 'Auto-updated: assessment suspended'
-                : 'Auto-updated from interview stage status'
+              notes: autoRejectNote
             }
           };
         }
