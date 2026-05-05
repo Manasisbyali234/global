@@ -1147,16 +1147,33 @@ const StartAssessment = () => {
         }
 
         stopAssessmentWebcam();
-        setError(startResponse.message || 'Failed to start assessment. No attempt ID received.');
-        setShowTermsModal(true);
-        setAssessmentState('terms_pending');
+        cleanupSecureMode();
+
+        const msg = startResponse.message || 'Failed to start assessment.';
+        const isSchedulingError =
+            msg.includes('not started yet') ||
+            msg.includes('scheduled start time') ||
+            msg.includes('window has ended') ||
+            msg.includes('cannot start this assessment');
+
+        if (isSchedulingError) {
+            showWarning(msg);
+            setShowTermsModal(true);
+            setAssessmentState('terms_pending');
+        } else {
+            setError(msg);
+            setShowTermsModal(false);
+            setAssessmentState('not_started');
+        }
         return false;
     }, [
         applicationId,
         assessment,
         assessmentId,
         jobId,
+        cleanupSecureMode,
         restoreAttemptState,
+        showWarning,
         stopAssessmentWebcam,
         tryResumeAttempt,
         tryResumeAttemptByContext

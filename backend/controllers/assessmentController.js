@@ -378,33 +378,26 @@ const buildScheduledDateTime = (dateValue, timeValue = '', boundary = 'start') =
     return null;
   }
 
-  const raw = new Date(dateValue);
-  if (Number.isNaN(raw.getTime())) {
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) {
     return null;
   }
 
-  // Extract the calendar date in UTC (avoids timezone shifting the date by a day)
-  const year = raw.getUTCFullYear();
-  const month = raw.getUTCMonth();
-  const day = raw.getUTCDate();
-
   const parsedTime = parseScheduledTime(timeValue);
   if (parsedTime) {
-    // Build as UTC using the explicit date parts + the employer-entered time
-    return new Date(Date.UTC(
-      year, month, day,
+    date.setHours(
       parsedTime.hours,
       parsedTime.minutes,
       boundary === 'end' ? 59 : 0,
       boundary === 'end' ? 999 : 0
-    ));
+    );
+  } else if (boundary === 'end') {
+    date.setHours(23, 59, 59, 999);
+  } else {
+    date.setHours(0, 0, 0, 0);
   }
 
-  if (boundary === 'end') {
-    return new Date(Date.UTC(year, month, day, 23, 59, 59, 999));
-  }
-
-  return new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+  return date;
 };
 
 const findAssessmentRoundDetails = (job = {}, assessmentId, matchedDbRound = null) => {
@@ -507,25 +500,9 @@ const loadAssessmentTimingContext = async ({ applicationId, jobId, assessmentId 
     job?.assessmentEndTime ||
     '';
 
-  // Only enforce a start boundary when an explicit startTime was configured.
-  // If only a date is set (no time), treat the window as open from the start of that day
-  // but do NOT block access — a date-only schedule means "available on this date".
-  const windowStartAt = startTime
-    ? buildScheduledDateTime(fromDate, startTime, 'start')
-    : fromDate
-      ? buildScheduledDateTime(fromDate, '00:00', 'start')
-      : null;
-
+  const windowStartAt = buildScheduledDateTime(fromDate, startTime, 'start');
   const windowEndAt = buildScheduledDateTime(toDate || fromDate, endTime, 'end');
   const now = Date.now();
-
-  // Only block with "not started yet" when an explicit startTime was set.
-  // A date-only schedule should not block candidates mid-day due to UTC offset.
-  const isBeforeStart = Boolean(
-    windowStartAt &&
-    startTime &&
-    now < windowStartAt.getTime()
-  );
 
   return {
     application,
@@ -534,7 +511,7 @@ const loadAssessmentTimingContext = async ({ applicationId, jobId, assessmentId 
     roundDetails,
     windowStartAt,
     windowEndAt,
-    isBeforeStart,
+    isBeforeStart: Boolean(windowStartAt && now < windowStartAt.getTime()),
     isWindowClosed: Boolean(windowEndAt && now >= windowEndAt.getTime())
   };
 };
