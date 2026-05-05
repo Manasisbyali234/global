@@ -144,7 +144,6 @@ function EmpCompanyProfilePage() {
         logo: { required: true },
         coverImage: { required: true },
         panCardImage: { required: true },
-        cinImage: { required: true },
         gstImage: { required: true },
         certificateOfIncorporation: { required: true },
         contactFullName: { required: true, minLength: 2 },

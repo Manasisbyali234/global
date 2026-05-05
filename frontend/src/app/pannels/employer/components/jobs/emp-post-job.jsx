@@ -4321,9 +4321,6 @@ export default function EmpPostJob({ onNext }) {
 								{errors.offerLetterDate[0]}
 							</div>
 						)}
-						<small style={{color: '#6b7280', fontSize: 12, marginTop: 4, display: 'block'}}>
-							Format: DD/MM/YYYY
-						</small>
 						<HolidayIndicator date={formData.offerLetterDate} />
 					</div>
 
