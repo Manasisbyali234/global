@@ -543,7 +543,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     const applications = await Application.find({ jobId })
       .populate('candidateId', 'name email')
       .populate('jobId', 'interviewRoundOrder interviewRoundTypes interviewRoundDetails')
-      .select('candidateId applicantName applicantEmail status appliedAt isGuestApplication interviewProcesses interviewProcessId processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency')
+      .select('candidateId applicantName applicantEmail status statusHistory appliedAt isGuestApplication interviewProcesses interviewProcessId processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency')
       .sort({ appliedAt: -1 })
       .lean();
 
@@ -791,6 +791,10 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     const data = applications.map((application) => {
       const interviewRounds = buildInterviewRounds(application);
       const applicationType = resolveApplicationType(application);
+      const offerLetterSent =
+        application.status === 'offer_sent' ||
+        (Array.isArray(application.statusHistory) &&
+          application.statusHistory.some((entry) => entry?.status === 'offer_sent'));
       return {
         applicationId: application._id,
         applicantName:
@@ -805,6 +809,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         appliedAt: application.appliedAt,
         isGuestApplication: !!application.isGuestApplication,
         applicationType,
+        offerLetterStatus: offerLetterSent ? 'Offer Letter Sent' : 'Pending',
         interviewRoundsCount: interviewRounds.length,
         interviewRounds
       };

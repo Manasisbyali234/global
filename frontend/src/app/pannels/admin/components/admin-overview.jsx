@@ -708,7 +708,7 @@ function AdminOverviewPage() {
                                 <span className="text-muted">No interview rounds</span>
                               )}
                             </td>
-                            <td>Offer letter sent</td>
+                            <td>{applicant.offerLetterStatus || 'Pending'}</td>
                             <td>{applicant.status}</td>
                           </tr>
                         );
