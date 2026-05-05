@@ -225,6 +225,92 @@ function EmpCandidateReviewPage() {
         return deadline;
     };
 
+    const getAssessmentRoundOrderKeys = (jobData = {}) =>
+        (Array.isArray(jobData?.interviewRoundOrder) ? jobData.interviewRoundOrder : []).filter(
+            (roundKey) => String(jobData?.interviewRoundTypes?.[roundKey] || '').toLowerCase() === 'assessment'
+        );
+
+    const getAssessmentScheduleSource = (jobData = {}) => {
+        const assessmentRoundKey = getAssessmentRoundOrderKeys(jobData)[0];
+        const roundDetails = assessmentRoundKey
+            ? jobData?.interviewRoundDetails?.[assessmentRoundKey] || null
+            : null;
+
+        return {
+            startDate: roundDetails?.fromDate || roundDetails?.date || jobData?.assessmentStartDate || null,
+            endDate: roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || jobData?.assessmentEndDate || null,
+            startTime: roundDetails?.startTime || jobData?.assessmentStartTime || null,
+            endTime: roundDetails?.endTime || jobData?.assessmentEndTime || null
+        };
+    };
+
+    const buildScheduledDateTime = (dateValue, timeValue = '', boundary = 'start') => {
+        if (!dateValue) {
+            return null;
+        }
+
+        const date = new Date(dateValue);
+        if (Number.isNaN(date.getTime())) {
+            return null;
+        }
+
+        if (timeValue && typeof timeValue === 'string') {
+            const [hours, minutes] = String(timeValue).split(':').map((part) => Number(part));
+            if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+                date.setHours(
+                    hours,
+                    minutes,
+                    boundary === 'end' ? 59 : 0,
+                    boundary === 'end' ? 999 : 0
+                );
+                return date;
+            }
+        }
+
+        if (boundary === 'end') {
+            date.setHours(23, 59, 59, 999);
+        } else {
+            date.setHours(0, 0, 0, 0);
+        }
+
+        return date;
+    };
+
+    const hasOpenOrUpcomingAssessmentWindow = (applicationData = {}) => {
+        const jobData = applicationData?.jobId || {};
+        const hasAssessmentRound =
+            Boolean(jobData?.assessmentId) ||
+            getAssessmentRoundOrderKeys(jobData).length > 0;
+
+        if (!hasAssessmentRound) {
+            return false;
+        }
+
+        const normalizedAssessmentStatus = normalizeStatusValue(applicationData?.assessmentStatus);
+        const normalizedAssessmentResult = normalizeStatusValue(applicationData?.assessmentResult);
+        if (
+            ['completed', 'expired', 'suspended', 'passed', 'failed'].includes(normalizedAssessmentStatus) ||
+            ['pass', 'fail', 'passed', 'failed'].includes(normalizedAssessmentResult)
+        ) {
+            return false;
+        }
+
+        const scheduleSource = getAssessmentScheduleSource(jobData);
+        const assessmentStartAt = buildScheduledDateTime(scheduleSource.startDate, scheduleSource.startTime, 'start');
+        const assessmentEndAt = buildScheduledDateTime(scheduleSource.endDate, scheduleSource.endTime, 'end');
+        const now = new Date();
+
+        if (assessmentEndAt) {
+            return now <= assessmentEndAt;
+        }
+
+        if (assessmentStartAt) {
+            return now <= assessmentStartAt;
+        }
+
+        return true;
+    };
+
     const hasTrackedInterviewActivity = (applicationData = {}, processes = []) => {
         const nonConductedStatuses = new Set([
             '',
@@ -295,6 +381,10 @@ function EmpCandidateReviewPage() {
         }
 
         if (new Date() <= deadline) {
+            return false;
+        }
+
+        if (hasOpenOrUpcomingAssessmentWindow(applicationData)) {
             return false;
         }
 
