@@ -716,7 +716,9 @@ function EmpCandidateReviewPage() {
         const hasRejectedAssessmentStage = normalizedProcesses.some((process) =>
             isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
         );
-        if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage) {
+        const assessmentIsSuspended =
+            normalizeStatusValue(applicationData?.assessmentStatus) === 'suspended';
+        if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage || assessmentIsSuspended) {
             return 'rejected';
         }
 
@@ -1508,7 +1510,7 @@ function EmpCandidateReviewPage() {
                                                                 const displayPercentage = attempt?.percentage ?? process.assessmentPercentage ?? null;
                                                                 const displayResult = getAssessmentOutcomeLabel({
                                                                     status: attempt?.status,
-                                                                    result: attempt?.result,
+                                                                    result: attempt?.status === 'suspended' ? 'suspended' : attempt?.result,
                                                                     manualEvaluationPendingCount: attempt?.manualEvaluationPendingCount ?? 0
                                                                 });
                                                                 const hasData = displayScore !== null || displayPercentage !== null || (displayResult && displayResult !== 'Pending');

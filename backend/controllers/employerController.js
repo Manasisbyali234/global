@@ -4144,7 +4144,15 @@ exports.saveInterviewReview = async (req, res) => {
         isRejectedInterviewProcessStatus(process)
       );
 
-      if (shouldAutoRejectFromStageStatus) {
+      // Also auto-reject if the assessment itself is suspended
+      const existingApplication = await Application.findOne({
+        _id: applicationId,
+        employerId: req.user._id
+      }).select('assessmentStatus assessmentAttemptId').lean();
+      const assessmentIsSuspended =
+        normalizeApplicationStatusValue(existingApplication?.assessmentStatus) === 'suspended';
+
+      if (shouldAutoRejectFromStageStatus || assessmentIsSuspended) {
         updateData.status = 'rejected';
 
         if (existingApplicationStatus !== 'rejected') {
@@ -4153,7 +4161,9 @@ exports.saveInterviewReview = async (req, res) => {
               status: 'rejected',
               changedBy: req.user._id,
               changedByModel: 'Employer',
-              notes: 'Auto-updated from interview stage status'
+              notes: assessmentIsSuspended
+                ? 'Auto-updated: assessment suspended'
+                : 'Auto-updated from interview stage status'
             }
           };
         }
