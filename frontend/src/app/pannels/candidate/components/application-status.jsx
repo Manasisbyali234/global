@@ -145,6 +145,23 @@ function CanStatusPage() {
 			return 'rejected';
 		}
 
+		// Check assessment-derived statuses (no_show, suspended) from attempt data
+		const assessmentStatus = String(application?.assessmentStatus || '').toLowerCase();
+		const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
+		if (rejectedAssessmentStatuses.includes(assessmentStatus)) {
+			return 'rejected';
+		}
+
+		// Check all assessment attempts for no_show or suspended
+		const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
+		const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
+			const s = String(attempt?.status || '').toLowerCase();
+			return rejectedAssessmentStatuses.includes(s);
+		});
+		if (hasRejectedAttempt) {
+			return 'rejected';
+		}
+
 		return baseStatus;
 	};
 
