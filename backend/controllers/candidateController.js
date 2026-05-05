@@ -90,6 +90,34 @@ const isAutoRejectedAfterExpiredSession = (application = {}) => {
     && String(latestStatusEntry?.notes || '').trim() === AUTO_REJECT_EXPIRED_SESSION_NOTE;
 };
 
+const isRejectedInterviewProcessStatusForCandidateVisibility = (value = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(value);
+  if (!normalizedStatus) return false;
+
+  return [
+    'rejected',
+    'failed',
+    'fail',
+    'field',
+    'no show',
+    'expired',
+    'suspended',
+    'session expired',
+    'not eligibal for next round',
+    'not eligible for next round'
+  ].includes(normalizedStatus);
+};
+
+const isAutoRejectedFromInterviewStageStatus = (application = {}) => {
+  if (normalizeApplicationStatusValue(application?.status) !== 'rejected') {
+    return false;
+  }
+
+  const latestStatusEntry = getLatestApplicationStatusHistoryEntry(application);
+  return normalizeApplicationStatusValue(latestStatusEntry?.status) === 'rejected'
+    && normalizeApplicationStatusValue(latestStatusEntry?.notes).includes('auto updated from interview stage status');
+};
+
 const getStatusBeforeExpiredSessionAutoReject = (application = {}) => {
   const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
 
@@ -129,7 +157,25 @@ const normalizeCandidateVisibleApplication = (application = null) => {
     : { ...application };
 
   if (!isAutoRejectedAfterExpiredSession(applicationObject)) {
-    return applicationObject;
+    if (!isAutoRejectedFromInterviewStageStatus(applicationObject)) {
+      return applicationObject;
+    }
+
+    const interviewProcesses = Array.isArray(applicationObject?.interviewProcesses)
+      ? applicationObject.interviewProcesses
+      : [];
+    const hasRejectedInterviewProcess = interviewProcesses.some((process) =>
+      isRejectedInterviewProcessStatusForCandidateVisibility(process?.status)
+    );
+
+    if (interviewProcesses.length === 0 || hasRejectedInterviewProcess) {
+      return applicationObject;
+    }
+
+    return {
+      ...applicationObject,
+      status: 'pending'
+    };
   }
 
   return {

@@ -65,6 +65,13 @@ function CanStatusPage() {
 			.replace(/[_-]+/g, ' ')
 			.replace(/\s+/g, ' ');
 
+	const isDeferredInterviewAttendanceStatus = (value) => {
+		const normalized = normalizeStatusValue(value);
+		if (!normalized) return false;
+
+		return ['no show', 'expired', 'session expired'].includes(normalized);
+	};
+
 	const isRejectedInterviewProcessStatus = (value) => {
 		const normalized = normalizeStatusValue(value);
 		if (!normalized) return false;
@@ -86,6 +93,9 @@ function CanStatusPage() {
 		].includes(normalized);
 	};
 
+	const isRejectedInterviewDisplayStatus = (value) =>
+		isRejectedInterviewProcessStatus(value) && !isDeferredInterviewAttendanceStatus(value);
+
 	const isPositiveInterviewProcessStatus = (value) => {
 		const normalized = normalizeStatusValue(value);
 		if (!normalized) return false;
@@ -96,6 +106,55 @@ function CanStatusPage() {
 			'selected'
 		].includes(normalized);
 	};
+
+	const getLatestStatusHistoryEntry = (application = {}) => {
+		const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
+		for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
+			if (statusHistory[index]?.status) {
+				return statusHistory[index];
+			}
+		}
+
+		return null;
+	};
+
+	const wasAutoRejectedFromInterviewStageStatus = (application = {}) => {
+		if (normalizeStatusValue(application?.status) !== 'rejected') {
+			return false;
+		}
+
+		const latestStatusEntry = getLatestStatusHistoryEntry(application);
+		return normalizeStatusValue(latestStatusEntry?.status) === 'rejected' &&
+			normalizeStatusValue(latestStatusEntry?.notes).includes('auto updated from interview stage status');
+	};
+
+	const isAssessmentProcess = (process = {}) =>
+		normalizeStatusValue(process?.type || process?.stageType) === 'assessment';
+
+	const getPreferredTrackedProcesses = (application = {}) => {
+		const manualProcesses = Array.isArray(application?.interviewProcesses)
+			? application.interviewProcesses.filter(Boolean)
+			: [];
+		if (manualProcesses.length > 0) {
+			return manualProcesses;
+		}
+
+		return Array.isArray(application?.interviewProcess?.stages)
+			? application.interviewProcess.stages
+				.filter(Boolean)
+				.map((stage) => ({
+					id: stage?._id,
+					name: stage?.stageName,
+					type: stage?.stageType,
+					status: stage?.status
+				}))
+			: [];
+	};
+
+	const isRejectedTrackedProcessForDisplay = (process = {}) =>
+		isAssessmentProcess(process)
+			? isRejectedInterviewProcessStatus(process?.status)
+			: isRejectedInterviewDisplayStatus(process?.status);
 
 	const isAssessmentAttemptDerivedStatus = (value) => {
 		const normalized = normalizeStatusValue(value);
@@ -136,12 +195,8 @@ function CanStatusPage() {
 			return baseStatus;
 		}
 
-		const processStatuses = [
-			...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []).map((process) => process?.status),
-			...(Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages : []).map((stage) => stage?.status)
-		];
-
-		if (processStatuses.some(isRejectedInterviewProcessStatus)) {
+		const trackedProcesses = getPreferredTrackedProcesses(application);
+		if (trackedProcesses.some(isRejectedTrackedProcessForDisplay)) {
 			return 'rejected';
 		}
 
@@ -173,6 +228,14 @@ function CanStatusPage() {
 		});
 		if (hasRejectedAttempt) {
 			return 'rejected';
+		}
+
+		if (
+			baseStatus === 'rejected' &&
+			wasAutoRejectedFromInterviewStageStatus(application) &&
+			trackedProcesses.length > 0
+		) {
+			return 'pending';
 		}
 
 		return baseStatus;
@@ -266,6 +329,7 @@ function CanStatusPage() {
 		}
 
 		const requestedKey = String(roundDetails?.__uniqueKey || '').trim();
+		const requestedAssessmentId = normalizeAssessmentId(roundDetails?.assessmentId);
 		const roundIndex = typeof roundDetails?.__roundIndex === 'number' ? roundDetails.__roundIndex : null;
 		const assessmentOrderIndex = typeof roundDetails?.__assessmentOrderIndex === 'number'
 			? roundDetails.__assessmentOrderIndex
@@ -275,6 +339,15 @@ function CanStatusPage() {
 			const normalizedName = normalizeStatusValue(process?.name);
 			return normalizedType === 'assessment' || normalizedName.includes('assessment');
 		});
+
+		if (requestedAssessmentId) {
+			const matchedByAssessmentId = assessmentProcesses.find(
+				(process) => normalizeAssessmentId(process?.assessmentId) === requestedAssessmentId
+			);
+			if (matchedByAssessmentId) {
+				return matchedByAssessmentId;
+			}
+		}
 
 		if (requestedKey) {
 			const matchedById = assessmentProcesses.find((process) => String(process?.id || '').trim() === requestedKey);
@@ -401,24 +474,60 @@ function CanStatusPage() {
 		const roundName = typeof round === 'string' ? round : round?.name;
 		const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round?.uniqueKey;
 		const roundTypeRaw = typeof round === 'object' ? round?.roundType : round?.toLowerCase();
+		const roundAssessmentId = normalizeAssessmentId(typeof round === 'object' ? round?.assessmentId : '');
 		const normalized = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
 		const job = application?.jobId || {};
 		const allDetails = job?.interviewRoundDetails || {};
+		const detailEntries = Object.entries(allDetails);
 		const baseRoundType = String(roundTypeRaw || '').split('_')[0];
 		const mappedRoundId =
 			application?.interviewRoundIds?.[roundTypeRaw] ||
 			application?.interviewRoundIds?.[baseRoundType] ||
 			null;
 
-		let roundDetails =
-			allDetails[uniqueKey] ||
-			allDetails[roundTypeRaw] ||
-			allDetails[baseRoundType] ||
-			(mappedRoundId ? allDetails[String(mappedRoundId)] : null) ||
-			null;
+		const assessmentRoundIndex = roundsList
+			.slice(0, roundIndex + 1)
+			.filter((listRound) => {
+				const type = typeof listRound === 'object' ? listRound?.roundType : listRound;
+				return String(type || '').toLowerCase().includes('assessment');
+			}).length - 1;
+
+		const orderedAssessmentKeys = roundName === 'Assessment' ? getAssessmentRoundOrderKeys(job) : [];
+		const orderedAssessmentKey = assessmentRoundIndex >= 0 ? orderedAssessmentKeys[assessmentRoundIndex] : null;
+
+		const findAssessmentDetailsById = (assessmentId) => {
+			if (!assessmentId) return null;
+			const matchedEntry = detailEntries.find(([, details]) => normalizeAssessmentId(details?.assessmentId) === assessmentId);
+			return matchedEntry ? matchedEntry[1] : null;
+		};
+
+		let roundDetails = null;
+
+		if (roundName === 'Assessment') {
+			roundDetails =
+				findAssessmentDetailsById(roundAssessmentId) ||
+				(orderedAssessmentKey ? allDetails[orderedAssessmentKey] : null) ||
+				allDetails[uniqueKey] ||
+				null;
+
+			if (!roundDetails && orderedAssessmentKeys.length <= 1) {
+				roundDetails =
+					allDetails[roundTypeRaw] ||
+					allDetails[baseRoundType] ||
+					(mappedRoundId ? allDetails[String(mappedRoundId)] : null) ||
+					null;
+			}
+		} else {
+			roundDetails =
+				allDetails[uniqueKey] ||
+				allDetails[roundTypeRaw] ||
+				allDetails[baseRoundType] ||
+				(mappedRoundId ? allDetails[String(mappedRoundId)] : null) ||
+				null;
+		}
 
 		if (!roundDetails) {
-			for (const [key, details] of Object.entries(allDetails)) {
+			for (const [key, details] of detailEntries) {
 				const keyNorm = normalized(key);
 				const typeNorm = normalized(roundTypeRaw);
 				const baseTypeNorm = normalized(baseRoundType);
@@ -437,16 +546,7 @@ function CanStatusPage() {
 			}
 		}
 
-		const assessmentRoundIndex = roundsList
-			.slice(0, roundIndex + 1)
-			.filter((listRound) => {
-				const type = typeof listRound === 'object' ? listRound?.roundType : listRound;
-				return String(type || '').toLowerCase().includes('assessment');
-			}).length - 1;
-
 		if (roundName === 'Assessment') {
-			const orderedAssessmentKeys = getAssessmentRoundOrderKeys(job);
-			const orderedAssessmentKey = assessmentRoundIndex >= 0 ? orderedAssessmentKeys[assessmentRoundIndex] : null;
 			if ((!roundDetails || !roundDetails.assessmentId) && orderedAssessmentKey && allDetails[orderedAssessmentKey]) {
 				roundDetails = allDetails[orderedAssessmentKey];
 			}
@@ -1280,6 +1380,7 @@ function CanStatusPage() {
 	};
 
 	const getInterviewRounds = (job, application) => {
+		const allDetails = job?.interviewRoundDetails || {};
 		const normalizeRoundDisplayName = (name) => {
 			if (!name || typeof name !== 'string') return name;
 			const normalized = name.trim().toLowerCase();
@@ -1368,7 +1469,8 @@ function CanStatusPage() {
 			return application.interviewProcess.stages.map(stage => ({
 				name: getProperRoundName(stage.stageType, stage.stageName),
 				uniqueKey: stage._id || stage.stageType,
-				roundType: stage.stageType
+				roundType: stage.stageType,
+				assessmentId: stage.assessmentId || null
 			}));
 		}
 		
@@ -1417,7 +1519,8 @@ function CanStatusPage() {
 				return {
 					name: normalizeRoundDisplayName(name),
 					uniqueKey: process.id || process.type,
-					roundType: process.type
+					roundType: process.type,
+					assessmentId: process.assessmentId || null
 				};
 			});
 		}
@@ -1483,7 +1586,8 @@ function CanStatusPage() {
 				rounds.push({
 					name: normalizeRoundDisplayName(name),
 					uniqueKey: uniqueKey,
-					roundType: finalRoundType
+					roundType: finalRoundType,
+					assessmentId: allDetails?.[uniqueKey]?.assessmentId || null
 				});
 			});
 			
@@ -1495,7 +1599,7 @@ function CanStatusPage() {
 			const rounds = [];
 			const roundTypes = job.interviewRoundTypes;
 
-			if (job.assessmentId) rounds.push({ name: 'Assessment', uniqueKey: 'assessment', roundType: 'assessment' });
+			if (job.assessmentId) rounds.push({ name: 'Assessment', uniqueKey: 'assessment', roundType: 'assessment', assessmentId: job.assessmentId });
 			if (roundTypes.oneOnOne) rounds.push({ name: 'One-to-One', uniqueKey: 'oneOnOne', roundType: 'oneOnOne' });
 			if (roundTypes.panel) rounds.push({ name: 'Panel', uniqueKey: 'panel', roundType: 'panel' });
 			if (roundTypes.group) rounds.push({ name: 'Group', uniqueKey: 'group', roundType: 'group' });
@@ -1508,7 +1612,7 @@ function CanStatusPage() {
 
 		// PRIORITY 5: Check if job has assessment before falling back to defaults
 		if (job?.assessmentId) {
-			return [{ name: 'Assessment', uniqueKey: 'assessment', roundType: 'assessment' }];
+			return [{ name: 'Assessment', uniqueKey: 'assessment', roundType: 'assessment', assessmentId: job.assessmentId }];
 		}
 
 		// Default rounds for testing
@@ -1552,7 +1656,10 @@ function CanStatusPage() {
 
 		const mapProcessStatusToBadge = (rawStatus, options = {}) => {
 			const status = normalizeStatusValue(rawStatus).replace(/\s+/g, '_');
-			const { isFinalStage = false } = options;
+			const { isFinalStage = false, treatDeferredAttendanceStatusAsPending = false } = options;
+			if (treatDeferredAttendanceStatusAsPending && isDeferredInterviewAttendanceStatus(rawStatus)) {
+				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' };
+			}
 			const mappings = {
 				shortlisted: { text: 'Shortlisted', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				shortlisted_for_next_round: { text: 'Shortlisted for next Round', class: 'bg-info bg-opacity-10 text-info border border-info' },
@@ -1603,6 +1710,9 @@ function CanStatusPage() {
 				return { ...mappedDecision, feedback: '' };
 			}
 			const { status, isPassed, isFailed, isCompleted, isInProgress, isExpired, isSuspended, isNoShow } = assessmentRoundInfo.completionInfo;
+			const assessmentActivationState = roundIndex > 0
+				? getRoundActivationState(application, roundIndex)
+				: { canStart: true, previousAssessmentFailed: false };
 			
 			// Check if assessment window has expired
 			const windowInfo = getAssessmentWindowInfo(application.jobId, roundDetails);
@@ -1611,6 +1721,15 @@ function CanStatusPage() {
 			}
 			if (isFailed) {
 				return { text: 'Fail', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+			}
+			if (
+				roundIndex > 0 &&
+				!assessmentActivationState.canStart &&
+				!isCompleted &&
+				!isInProgress &&
+				!isSuspended
+			) {
+				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
 			if ((isNoShow || isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
 				return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
@@ -1704,12 +1823,17 @@ function CanStatusPage() {
 			const roundType = getRoundTypeFromName(roundName);
 			const trackedProcesses = Array.isArray(application.interviewProcesses) ? application.interviewProcesses : [];
 			const trackedStages = Array.isArray(application.interviewProcess?.stages) ? application.interviewProcess.stages : [];
+			const relatedProcessIndexById = trackedProcesses.findIndex((p) =>
+				String(p?.id || '').trim() === String(roundDetails?.__uniqueKey || '').trim()
+			);
 			const relatedProcessIndexByType = trackedProcesses.findIndex((p) => p?.type === roundType);
 			const relatedProcessIndexByName = trackedProcesses.findIndex((p) =>
 				String(p?.name || '').toLowerCase().includes(String(roundName || '').toLowerCase())
 			);
 			const relatedProcessIndex =
-				relatedProcessIndexByType !== -1
+				relatedProcessIndexById !== -1
+					? relatedProcessIndexById
+					: relatedProcessIndexByType !== -1
 					? relatedProcessIndexByType
 					: relatedProcessIndexByName !== -1
 						? relatedProcessIndexByName
@@ -1735,7 +1859,8 @@ function CanStatusPage() {
 
 			if (trackedStatus && normalizedTrackedStatus !== 'pending') {
 				const mapped = mapProcessStatusToBadge(trackedStatus, {
-					isFinalStage: isFinalTrackedStage
+					isFinalStage: isFinalTrackedStage,
+					treatDeferredAttendanceStatusAsPending: true
 				});
 				return { ...mapped, feedback: '' };
 			}
@@ -1750,7 +1875,8 @@ function CanStatusPage() {
 
 			if (trackedStatus) {
 				const mapped = mapProcessStatusToBadge(trackedStatus, {
-					isFinalStage: isFinalTrackedStage
+					isFinalStage: isFinalTrackedStage,
+					treatDeferredAttendanceStatusAsPending: true
 				});
 				return { ...mapped, feedback: '' };
 			}
@@ -1809,6 +1935,14 @@ function CanStatusPage() {
 	};
 
 	const handleStartAssessment = (application, roundDetails = null) => {
+		const roundIndex = typeof roundDetails?.__roundIndex === 'number' ? roundDetails.__roundIndex : -1;
+		if (roundIndex > 0) {
+			const activationState = getRoundActivationState(application, roundIndex);
+			if (!activationState.canStart) {
+				showWarning('This assessment will be enabled after the previous round is marked Shortlisted for Next Round or Selected.');
+				return;
+			}
+		}
 		showInfo('🚀 ALL THE BEST ...', 3000);
 		console.log('=== HANDLE START ASSESSMENT CALLED ===');
 		const job = application.jobId;
@@ -2122,13 +2256,18 @@ function CanStatusPage() {
 											) : (
 												paginatedApplications.map((app, index) => {
 													const interviewRounds = getInterviewRounds(app.jobId, app);
+													const preferredTrackedProcesses = getPreferredTrackedProcesses(app);
+													const hasRejectedTrackedProcess = preferredTrackedProcesses.some(isRejectedTrackedProcessForDisplay);
 													const hasNoShowRound = interviewRounds.some((round, roundIndex) => {
 														const roundName = typeof round === 'string' ? round : round.name;
 														const roundDetails = resolveRoundDetails(app, round, roundIndex, interviewRounds);
 														const roundStatus = getRoundStatus(app, roundIndex, roundName, false, roundDetails);
 														return normalizeStatusValue(roundStatus?.text) === 'no show';
 													});
-													const applicationDisplayStatus = hasNoShowRound ? 'rejected' : getApplicationDisplayStatus(app);
+													const applicationDisplayStatus =
+														hasNoShowRound && (preferredTrackedProcesses.length === 0 || hasRejectedTrackedProcess)
+															? 'rejected'
+															: getApplicationDisplayStatus(app);
 													const isShortlisted = applicationDisplayStatus === 'shortlisted';
 													const shouldHighlightRow = highlightShortlisted && isShortlisted;
 													return (
@@ -2798,6 +2937,7 @@ function CanStatusPage() {
 																const assessmentInfo = assessmentRoundInfo?.completionInfo || getAssessmentCompletionInfo(selectedApplication);
 																const hasFinalAssessmentResult = assessmentInfo.isCompleted;
 																const assessmentWindowClosed = assessmentWindowInfo?.isAfterEnd;
+																const isAssessmentLockedByPreviousRound = roundIndex > 0 && !activationState.canStart && !assessmentInfo.isInProgress;
 
 																if (hasFinalAssessmentResult) {
 																	return (
@@ -2812,6 +2952,27 @@ function CanStatusPage() {
 																	<i className="fa fa-bar-chart me-1"></i>
 																	View Result
 																</button>
+																	);
+																}
+
+																if (isAssessmentLockedByPreviousRound) {
+																	return (
+																		<>
+																			<button
+																				type="button"
+																				className="btn btn-sm btn-secondary"
+																				disabled
+																				title="This assessment will be enabled after the previous round is marked Shortlisted for Next Round or Selected"
+																				style={{ borderRadius: '6px', cursor: 'not-allowed' }}
+																			>
+																				<i className="fa fa-lock me-1"></i>
+																				Start Assessment
+																			</button>
+																			<div className="alert alert-secondary mt-2 mb-0" style={{fontSize: '13px', padding: '8px 12px'}}>
+																				<i className="fa fa-info-circle me-1"></i>
+																				This assessment will unlock after the previous round is marked Shortlisted for Next Round or Selected.
+																			</div>
+																		</>
 																	);
 																}
 
@@ -3043,7 +3204,7 @@ function CanStatusPage() {
 													const currentRoundStatusText = (roundStatus?.text || '').toLowerCase();
 													const currentRoundCompletedStates = [
 														'interview_completed', 'completed', 'selected', 'rejected',
-														'failed', 'passed', 'expired'
+														'failed', 'passed'
 													];
 													const isCurrentRoundCompleted =
 														currentRoundCompletedStates.includes(processStatus) ||
@@ -3134,13 +3295,13 @@ function CanStatusPage() {
 																	style={{
 																		fontSize: '13px',
 																		padding: '8px 12px',
-																		backgroundColor: '#fdeaea',
-																		color: '#c82333',
-																		border: '1px solid #c82333'
+																		backgroundColor: '#f1f3f5',
+																		color: '#495057',
+																		border: '1px solid #adb5bd'
 																	}}
 																>
 																	<i className="fa fa-clock-o me-2"></i>
-																	No Show
+																	Pending
 																</span>
 															</div>
 														);
