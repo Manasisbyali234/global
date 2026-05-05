@@ -19,7 +19,6 @@ export default function AssessmentResults() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [employerCategory, setEmployerCategory] = useState('');
-  const [applicationStatuses, setApplicationStatuses] = useState({});
 
   const getResultCompanyName = (result) =>
     result?.jobId?.companyName ||
@@ -103,7 +102,6 @@ export default function AssessmentResults() {
           return dateB - dateA;
         });
         setResults(sortedResults);
-        fetchApplicationStatuses(sortedResults);
       } else {
         console.error('API returned success: false', response.data);
       }
@@ -115,39 +113,6 @@ export default function AssessmentResults() {
     }
   };
 
-  const fetchApplicationStatuses = async (resultsList) => {
-    const token = localStorage.getItem('employerToken');
-    const appIds = resultsList
-      .map(r => (typeof r.applicationId === 'object' ? r.applicationId?._id : r.applicationId))
-      .filter(Boolean);
-    if (!appIds.length) return;
-    const statusMap = {};
-    await Promise.all(appIds.map(async (appId) => {
-      try {
-        const res = await axios.get(`http://localhost:5000/api/employer/applications/${appId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.data?.application?.status) {
-          statusMap[appId] = res.data.application.status;
-        }
-      } catch {}
-    }));
-    setApplicationStatuses(statusMap);
-  };
-
-  const formatAppStatus = (status) => {
-    if (!status) return 'N/A';
-    return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  };
-
-  const getAppStatusStyle = (status) => {
-    const s = (status || '').toLowerCase();
-    if (s === 'hired' || s === 'accepted') return { background: '#dcfce7', color: '#166534' };
-    if (s === 'rejected') return { background: '#fee2e2', color: '#991b1b' };
-    if (s === 'offer_sent') return { background: '#dbeafe', color: '#1e40af' };
-    if (s === 'shortlisted') return { background: '#fef9c3', color: '#854d0e' };
-    return { background: '#f3f4f6', color: '#6b7280' };
-  };
 
   const filterResults = (list) => list.filter(result => {
     const outcome = getResultOutcome(result);
@@ -444,10 +409,6 @@ export default function AssessmentResults() {
                       <i className="fa fa-exclamation-triangle me-2" style={{color: '#ff6b35'}}></i>
                       Violations
                     </th>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
-                      <i className="fa fa-tag me-2" style={{color: '#ff6b35'}}></i>
-                      Application Status
-                    </th>
                     <th style={{ padding: '16px 12px', textAlign: 'center', fontWeight: '600', color: '#232323', fontSize: '13px', border: 'none', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                       <i className="fa fa-eye me-2" style={{color: '#ff6b35'}}></i>
                       Actions
@@ -584,23 +545,6 @@ export default function AssessmentResults() {
                         </div>
                       </td>
                       <td style={{ padding: '1rem' }}>
-                        {(() => {
-                          const appId = typeof result.applicationId === 'object' ? result.applicationId?._id : result.applicationId;
-                          const appStatus = appId ? applicationStatuses[appId] : null;
-                          return (
-                            <span style={{
-                              ...getAppStatusStyle(appStatus),
-                              padding: '0.25rem 0.75rem',
-                              borderRadius: '9999px',
-                              fontSize: '0.875rem',
-                              fontWeight: '600'
-                            }}>
-                              {formatAppStatus(appStatus)}
-                            </span>
-                          );
-                        })()}
-                      </td>
-                      <td style={{ padding: '1rem' }}>
                         {result.applicationId || (result.candidateId && result.jobId) ? (
                           <button 
                             style={{
@@ -669,7 +613,7 @@ export default function AssessmentResults() {
                   })}
                   {filterResults(results).length === 0 && (
                     <tr>
-                      <td colSpan="12" style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+                      <td colSpan="11" style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
                         No results found for the selected filter.
                       </td>
                     </tr>
