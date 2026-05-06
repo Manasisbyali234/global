@@ -383,6 +383,17 @@ function EmpCandidatesPage() {
       return "rejected";
     }
 
+    // If any stage (including assessment) has a rejected-like status, show rejected
+    const hasAnyRejectedStage = processes.some((process) => isRejectedLikeStatus(process?.status));
+    if (hasAnyRejectedStage) {
+      return "rejected";
+    }
+
+    // If application was directly rejected (not auto from assessment expiry), show rejected
+    if (baseStatus === "rejected" && !wasAutoRejectedFromStageStatus(application)) {
+      return "rejected";
+    }
+
     if (hasAssessmentRound) {
       const completionInfo = getAssessmentCompletionInfo(application);
       const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, nowTimestamp);
