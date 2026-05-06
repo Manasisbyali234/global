@@ -305,6 +305,7 @@ const StartAssessment = () => {
     const [cameraRequiredMessage, setCameraRequiredMessage] = useState(CAMERA_START_REQUIRED_MESSAGE);
     const [cameraRecoveryMode, setCameraRecoveryMode] = useState('before_start'); // before_start, during_assessment
     const [isRecoveringCamera, setIsRecoveringCamera] = useState(false);
+    const [showCameraNotice, setShowCameraNotice] = useState(false);
 
     // Refs for event listeners
     const assessmentContainerRef = useRef(null);
@@ -1421,6 +1422,13 @@ const StartAssessment = () => {
         };
     }, [assessmentState, isWebcamActive, showCameraRequiredNotice, stopAssessmentWebcam, webcamStatus]);
 
+	// Auto-dismiss camera notice when webcam becomes active
+	useEffect(() => {
+		if (webcamStatus === 'active' && showCameraNotice) {
+			setShowCameraNotice(false);
+		}
+	}, [webcamStatus, showCameraNotice]);
+
 	// Start captures when both webcam is active and assessment is loaded
 	useEffect(() => {
 		if (webcamStatus === 'active' && assessment && assessmentState === 'in_progress' && attemptId && !capturesStarted.current) {
@@ -1508,8 +1516,16 @@ const StartAssessment = () => {
 
 			setShowTermsModal(false);
 
-			await initWebcam();
-            await beginAssessmentSession();
+            // Start assessment session immediately — timer begins regardless of camera
+            const sessionStarted = await beginAssessmentSession();
+
+            if (sessionStarted) {
+                // Check camera in background; show non-blocking notice if unavailable
+                const webcamReady = await initWebcam();
+                if (!webcamReady) {
+                    setShowCameraNotice(true);
+                }
+            }
 		} catch (err) {
 			console.error("Error starting assessment:", err);
 			stopAssessmentWebcam();
@@ -1812,6 +1828,63 @@ const StartAssessment = () => {
 				onDecline={handleTermsDecline}
 				assessment={assessment}
 			/>
+			{showCameraNotice && (
+				<div style={{
+					position: 'fixed', inset: 0, zIndex: 99999,
+					background: 'rgba(0,0,0,0.55)',
+					display: 'flex', alignItems: 'center', justifyContent: 'center',
+					padding: '16px'
+				}}>
+					<div style={{
+						background: '#fff', borderRadius: '12px', maxWidth: '520px', width: '100%',
+						boxShadow: '0 8px 32px rgba(0,0,0,0.25)', overflow: 'hidden'
+					}}>
+						<div style={{ background: '#dc3545', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+							<span style={{ fontSize: '22px' }}>📷</span>
+							<h5 style={{ margin: 0, color: '#fff', fontWeight: '700', fontSize: '16px' }}>Camera Access Required</h5>
+						</div>
+						<div style={{ padding: '20px 24px' }}>
+							<p style={{ margin: '0 0 12px', color: '#333', fontWeight: '500' }}>
+								Turn on your camera to continue. Your camera is currently turned off, disconnected, or blocked by your browser or system settings.
+							</p>
+							<p style={{ margin: '0 0 6px', fontWeight: '600', color: '#2c3e50' }}>Enable camera access:</p>
+							<ul style={{ margin: '0 0 14px', paddingLeft: '20px', color: '#444', lineHeight: '1.8' }}>
+								<li>Click the site settings icon (sliders icon) in the address bar</li>
+								<li>Find <strong>Camera</strong> and set it to <strong>Allow</strong></li>
+								<li>Reload the page</li>
+							</ul>
+							<p style={{ margin: '0 0 6px', fontWeight: '600', color: '#2c3e50' }}>If disabled in Chrome settings:</p>
+							<ul style={{ margin: '0 0 14px', paddingLeft: '20px', color: '#444', lineHeight: '1.8' }}>
+								<li><strong>Windows:</strong> Settings → Privacy → Camera → Turn ON access and allow your browser</li>
+								<li><strong>Mac:</strong> System Settings → Privacy &amp; Security → Camera → Enable access for your browser</li>
+							</ul>
+							<a
+								href="chrome://settings/content/siteDetails?site=https%3A%2F%2Ftaleglobal.net"
+								target="_blank"
+								rel="noreferrer"
+								style={{ fontSize: '12px', color: '#1a73e8', wordBreak: 'break-all', display: 'block', marginBottom: '14px' }}
+							>
+								chrome://settings/content/siteDetails?site=https%3A%2F%2Ftaleglobal.net
+							</a>
+							<div style={{ background: '#fff8e1', border: '1px solid #ffc107', borderRadius: '6px', padding: '10px 14px', marginBottom: '18px', fontSize: '13px', color: '#856404' }}>
+								<strong>Note:</strong> Close any applications using the camera (Zoom, Teams, etc.), ensure your camera is connected, and refresh the page after enabling access.
+							</div>
+							<div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+								<button
+									onClick={() => setShowCameraNotice(false)}
+									style={{
+										background: '#6c757d', color: '#fff', border: 'none',
+										padding: '9px 24px', borderRadius: '6px',
+										fontWeight: '600', cursor: 'pointer', fontSize: '14px'
+									}}
+								>
+									OK, Continue Assessment
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 			<ViolationModal
 				isOpen={showViolationModal}
 				violationType={currentViolation?.type}
