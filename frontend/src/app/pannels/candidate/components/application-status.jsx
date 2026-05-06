@@ -2739,7 +2739,18 @@ function CanStatusPage() {
 									</h6>
 									{(() => {
 										const roundsList = getInterviewRounds(selectedApplication.jobId, selectedApplication);
-										const selectedAppDisplayStatus = getApplicationDisplayStatus(selectedApplication);
+										const preferredTrackedProcessesForSelected = getPreferredTrackedProcesses(selectedApplication);
+										const hasRejectedTrackedProcessForSelected = preferredTrackedProcessesForSelected.some(isRejectedTrackedProcessForDisplay);
+										const hasNoShowRoundForSelected = roundsList.some((round, roundIndex) => {
+											const roundName = typeof round === 'string' ? round : round.name;
+											const roundDetails = resolveRoundDetails(selectedApplication, round, roundIndex, roundsList);
+											const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName, false, roundDetails);
+											return normalizeStatusValue(roundStatus?.text) === 'no show';
+										});
+										const selectedAppDisplayStatus =
+											hasNoShowRoundForSelected && (preferredTrackedProcessesForSelected.length === 0 || hasRejectedTrackedProcessForSelected)
+												? 'rejected'
+												: getApplicationDisplayStatus(selectedApplication);
 										return roundsList.map((round, roundIndex) => {
 										let roundName = typeof round === 'string' ? round : round.name;
 										const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round.uniqueKey;
