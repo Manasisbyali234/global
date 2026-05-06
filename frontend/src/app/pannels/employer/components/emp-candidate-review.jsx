@@ -1513,8 +1513,8 @@ function EmpCandidateReviewPage() {
                                                                     <span className="stage-number">Stage {index + 1}</span>
                                                                     <h6>{cleanProcessName(process.name)}</h6>
                                                                 </div>
-                                                                <span className={`status-badge ${process.type === 'assessment' && !isAutoAssessmentStageStatus(process.status) ? normalizeStatusValue(process.status).replace(/\s+/g, '_') : (assessmentDisplay.statusClass || 'pending')}`}>
-                                                                    {process.type === 'assessment' && !isAutoAssessmentStageStatus(process.status)
+                                                                <span className={`status-badge ${process.type === 'assessment' && !isAutoAssessmentStageStatus(process.status) && !assessmentDisplay.isWindowExpired ? normalizeStatusValue(process.status).replace(/\s+/g, '_') : (assessmentDisplay.statusClass || 'pending')}`}>
+                                                                    {process.type === 'assessment' && !isAutoAssessmentStageStatus(process.status) && !assessmentDisplay.isWindowExpired
                                                                         ? (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))
                                                                         : assessmentDisplay.statusLabel}
                                                                 </span>
