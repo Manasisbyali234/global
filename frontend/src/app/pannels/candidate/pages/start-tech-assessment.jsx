@@ -1336,19 +1336,11 @@ const StartAssessment = () => {
 		if (assessmentState === 'in_progress') {
 			if (!webcamInitialized.current) {
 				initWebcam().then((ready) => {
-                    if (cancelled) {
-                        return;
+                    if (cancelled) return;
+                    if (!ready) {
+                        setShowCameraNotice(true);
                     }
-
-                    if (ready) {
-                        clearCameraRequiredNotice();
-                        return;
-                    }
-
-                    showCameraRequiredNotice(CAMERA_RESUME_REQUIRED_MESSAGE, 'during_assessment');
 				});
-			} else {
-                clearCameraRequiredNotice();
 			}
 
 			return () => {
@@ -1358,12 +1350,12 @@ const StartAssessment = () => {
 		}
 
         cancelled = true;
-        clearCameraRequiredNotice();
+        setShowCameraNotice(false);
 		stopAssessmentWebcam();
         cleanupSecureMode();
 
 		return undefined;
-	}, [assessmentState, cleanupSecureMode, clearCameraRequiredNotice, initWebcam, showCameraRequiredNotice, stopAssessmentWebcam]);
+	}, [assessmentState, cleanupSecureMode, initWebcam, stopAssessmentWebcam]);
 
     useEffect(() => {
         if (assessmentState !== 'in_progress' || webcamStatus !== 'active') {
@@ -1516,16 +1508,14 @@ const StartAssessment = () => {
 
 			setShowTermsModal(false);
 
-            // Start assessment session immediately — timer begins regardless of camera
-            const sessionStarted = await beginAssessmentSession();
-
-            if (sessionStarted) {
-                // Check camera in background; show non-blocking notice if unavailable
-                const webcamReady = await initWebcam();
-                if (!webcamReady) {
-                    setShowCameraNotice(true);
-                }
+            // Try camera before starting — show notice if unavailable, but still start
+            const webcamReady = await initWebcam();
+            if (!webcamReady) {
+                setShowCameraNotice(true);
             }
+
+            // Start assessment session regardless of camera status
+            await beginAssessmentSession();
 		} catch (err) {
 			console.error("Error starting assessment:", err);
 			stopAssessmentWebcam();
