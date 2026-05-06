@@ -2968,10 +2968,6 @@ function CanStatusPage() {
 																				<i className="fa fa-lock me-1"></i>
 																				Start Assessment
 																			</button>
-																			<div className="alert alert-secondary mt-2 mb-0" style={{fontSize: '13px', padding: '8px 12px'}}>
-																				<i className="fa fa-info-circle me-1"></i>
-																				This assessment will unlock after the previous round is marked Shortlisted for Next Round or Selected.
-																			</div>
 																		</>
 																	);
 																}
