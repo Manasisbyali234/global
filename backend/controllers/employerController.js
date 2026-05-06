@@ -4174,6 +4174,21 @@ exports.saveInterviewReview = async (req, res) => {
             }
           };
         }
+      } else if (
+        existingApplicationStatus === 'rejected' &&
+        !assessmentIsSuspended &&
+        !assessmentIsFailed
+      ) {
+        // Stage status changed away from a rejected-like value — restore application status to pending
+        updateData.status = 'pending';
+        updateData.$push = {
+          statusHistory: {
+            status: 'pending',
+            changedBy: req.user._id,
+            changedByModel: 'Employer',
+            notes: 'Auto-updated from interview stage status'
+          }
+        };
       }
     }
     
