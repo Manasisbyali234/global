@@ -2681,7 +2681,19 @@ function CanStatusPage() {
 										</div>
 										<div className="col-md-12 mb-2">
 											{(() => {
-												const selectedApplicationDisplayStatus = getApplicationDisplayStatus(selectedApplication);
+												const _roundsListForStatus = getInterviewRounds(selectedApplication.jobId, selectedApplication);
+												const _hasNoShowRound = _roundsListForStatus.some((round, roundIndex) => {
+													const roundName = typeof round === 'string' ? round : round.name;
+													const roundDetails = resolveRoundDetails(selectedApplication, round, roundIndex, _roundsListForStatus);
+													const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName, false, roundDetails);
+													return normalizeStatusValue(roundStatus?.text) === 'no show';
+												});
+												const _preferredTracked = getPreferredTrackedProcesses(selectedApplication);
+												const _hasRejectedTracked = _preferredTracked.some(isRejectedTrackedProcessForDisplay);
+												const selectedApplicationDisplayStatus =
+													_hasNoShowRound && (_preferredTracked.length === 0 || _hasRejectedTracked)
+														? 'rejected'
+														: getApplicationDisplayStatus(selectedApplication);
 												const hasRejectedOffer = selectedApplication.statusHistory?.some((history) => history?.status === 'offer_sent') && selectedApplicationDisplayStatus === 'rejected';
 
 												return (
