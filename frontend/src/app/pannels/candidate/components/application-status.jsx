@@ -1786,7 +1786,13 @@ function CanStatusPage() {
 			const result = statusMappings[status];
 			if (!result) {
 				console.warn(`Unknown assessment status: "${status}", defaulting to Pending`);
+				if (getApplicationDisplayStatus(application) === 'rejected') {
+					return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+				}
 				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
+			}
+			if (result.text === 'Pending' && getApplicationDisplayStatus(application) === 'rejected') {
+				return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 			return result;
 		}
