@@ -1732,6 +1732,10 @@ function CanStatusPage() {
 				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
 			if ((isNoShow || isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
+				const appDisplayStatus = getApplicationDisplayStatus(application);
+				if (appDisplayStatus === 'rejected') {
+					return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+				}
 				return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 
