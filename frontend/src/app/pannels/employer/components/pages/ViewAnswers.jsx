@@ -123,7 +123,7 @@ export default function ViewAnswers() {
       setMarksErrors((prev) => ({
         ...prev,
         [questionIndex]: value !== '' && (isNaN(num) || num < 0 || num > maxMarks)
-          ? `Marks should not be greater than ${maxMarks}`
+          ? `Maximum Marks should not be greater than ${maxMarks}`
           : ''
       }));
     }
