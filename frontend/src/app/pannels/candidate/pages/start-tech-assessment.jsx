@@ -1358,7 +1358,7 @@ const StartAssessment = () => {
 	}, [assessmentState, cleanupSecureMode, initWebcam, stopAssessmentWebcam]);
 
     useEffect(() => {
-        if (assessmentState !== 'in_progress' || webcamStatus !== 'active') {
+        if (assessmentState !== 'in_progress') {
             webcamFailureStreakRef.current = 0;
 
             if (cameraHealthMonitorRef.current) {
@@ -1377,6 +1377,7 @@ const StartAssessment = () => {
         const verifyCameraHealth = () => {
             if (isWebcamActive()) {
                 webcamFailureStreakRef.current = 0;
+                setShowCameraNotice(false);
                 return;
             }
 
@@ -1386,7 +1387,7 @@ const StartAssessment = () => {
             }
 
             stopAssessmentWebcam('failed');
-            showCameraRequiredNotice('Camera was turned off or disconnected. Turn it back on to continue the assessment.', 'during_assessment');
+            setShowCameraNotice(true);
         };
 
         verifyCameraHealth();
@@ -1412,7 +1413,7 @@ const StartAssessment = () => {
                 deviceChangeListenerRef.current = null;
             }
         };
-    }, [assessmentState, isWebcamActive, showCameraRequiredNotice, stopAssessmentWebcam, webcamStatus]);
+    }, [assessmentState, isWebcamActive, stopAssessmentWebcam]);
 
 	// Auto-dismiss camera notice when webcam becomes active
 	useEffect(() => {
