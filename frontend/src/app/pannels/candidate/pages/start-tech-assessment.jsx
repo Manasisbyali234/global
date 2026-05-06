@@ -1867,14 +1867,6 @@ const StartAssessment = () => {
 								<li><strong>Windows:</strong> Settings → Privacy → Camera → Turn ON access and allow your browser</li>
 								<li><strong>Mac:</strong> System Settings → Privacy &amp; Security → Camera → Enable access for your browser</li>
 							</ul>
-							<a
-								href="chrome://settings/content/siteDetails?site=https%3A%2F%2Ftaleglobal.net"
-								target="_blank"
-								rel="noreferrer"
-								style={{ fontSize: '12px', color: '#1a73e8', wordBreak: 'break-all', display: 'block', marginBottom: '14px' }}
-							>
-								chrome://settings/content/siteDetails?site=https%3A%2F%2Ftaleglobal.net
-							</a>
 							<div style={{ background: '#fff8e1', border: '1px solid #ffc107', borderRadius: '6px', padding: '10px 14px', marginBottom: '18px', fontSize: '13px', color: '#856404' }}>
 								<strong>Note:</strong> Close any applications using the camera (Zoom, Teams, etc.), ensure your camera is connected, and refresh the page after enabling access.
 							</div>
