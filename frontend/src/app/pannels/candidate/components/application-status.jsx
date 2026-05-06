@@ -1735,10 +1735,6 @@ function CanStatusPage() {
 				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
 			if ((isNoShow || isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
-				const appDisplayStatus = getApplicationDisplayStatus(application);
-				if (appDisplayStatus === 'rejected') {
-					return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
-				}
 				return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 
@@ -1789,13 +1785,7 @@ function CanStatusPage() {
 			const result = statusMappings[status];
 			if (!result) {
 				console.warn(`Unknown assessment status: "${status}", defaulting to Pending`);
-				if (getApplicationDisplayStatus(application) === 'rejected') {
-					return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
-				}
 				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
-			}
-			if (result.text === 'Pending' && getApplicationDisplayStatus(application) === 'rejected') {
-				return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 			return result;
 		}
@@ -2749,6 +2739,7 @@ function CanStatusPage() {
 									</h6>
 									{(() => {
 										const roundsList = getInterviewRounds(selectedApplication.jobId, selectedApplication);
+										const selectedAppDisplayStatus = getApplicationDisplayStatus(selectedApplication);
 										return roundsList.map((round, roundIndex) => {
 										let roundName = typeof round === 'string' ? round : round.name;
 										const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round.uniqueKey;
@@ -2842,7 +2833,11 @@ function CanStatusPage() {
 										const assessmentRoundInfo = roundName === 'Assessment'
 											? getAssessmentRoundInfo(selectedApplication, roundName, roundDetails)
 											: null;
-										const roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName, true, roundDetails);
+										let roundStatus = getRoundStatus(selectedApplication, roundIndex, roundName, true, roundDetails);
+										// If overall app is rejected and this round still shows Pending, show Rejected
+										if (selectedAppDisplayStatus === 'rejected' && normalizeStatusValue(roundStatus?.text) === 'pending') {
+											roundStatus = { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
+										}
 										const assessmentSchedule = roundName === 'Assessment'
 											? getAssessmentScheduleSource(selectedApplication.jobId, roundDetails)
 											: null;
