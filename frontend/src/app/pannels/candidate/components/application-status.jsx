@@ -65,10 +65,12 @@ function CanStatusPage() {
 			.replace(/[_-]+/g, ' ')
 			.replace(/\s+/g, ' ');
 
-	const isDeferredInterviewAttendanceStatus = (value) => {
+	const isDeferredInterviewAttendanceStatus = (value, isAssessment = false) => {
 		const normalized = normalizeStatusValue(value);
 		if (!normalized) return false;
-
+		// For assessment rounds, no_show/expired are auto-derived and deferred
+		// For manual interview rounds (set by employer), no_show is intentional and should be shown
+		if (!isAssessment) return false;
 		return ['no show', 'expired', 'session expired'].includes(normalized);
 	};
 
@@ -152,9 +154,7 @@ function CanStatusPage() {
 	};
 
 	const isRejectedTrackedProcessForDisplay = (process = {}) =>
-		isAssessmentProcess(process)
-			? isRejectedInterviewProcessStatus(process?.status)
-			: isRejectedInterviewDisplayStatus(process?.status);
+		isRejectedInterviewProcessStatus(process?.status);
 
 	const isAssessmentAttemptDerivedStatus = (value) => {
 		const normalized = normalizeStatusValue(value);
@@ -230,10 +230,13 @@ function CanStatusPage() {
 			return 'rejected';
 		}
 
+		// Only revert auto-rejected status to pending if NO tracked process has a rejected/no_show status
+		const hasAnyRejectedTrackedProcess = trackedProcesses.some(isRejectedTrackedProcessForDisplay);
 		if (
 			baseStatus === 'rejected' &&
 			wasAutoRejectedFromInterviewStageStatus(application) &&
-			trackedProcesses.length > 0
+			trackedProcesses.length > 0 &&
+			!hasAnyRejectedTrackedProcess
 		) {
 			return 'pending';
 		}
@@ -1656,8 +1659,8 @@ function CanStatusPage() {
 
 		const mapProcessStatusToBadge = (rawStatus, options = {}) => {
 			const status = normalizeStatusValue(rawStatus).replace(/\s+/g, '_');
-			const { isFinalStage = false, treatDeferredAttendanceStatusAsPending = false } = options;
-			if (treatDeferredAttendanceStatusAsPending && isDeferredInterviewAttendanceStatus(rawStatus)) {
+			const { isFinalStage = false, treatDeferredAttendanceStatusAsPending = false, isAssessment = false } = options;
+			if (treatDeferredAttendanceStatusAsPending && isDeferredInterviewAttendanceStatus(rawStatus, isAssessment)) {
 				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' };
 			}
 			const mappings = {
@@ -1870,7 +1873,7 @@ function CanStatusPage() {
 			if (trackedStatus && normalizedTrackedStatus !== 'pending') {
 				const mapped = mapProcessStatusToBadge(trackedStatus, {
 					isFinalStage: isFinalTrackedStage,
-					treatDeferredAttendanceStatusAsPending: true
+					treatDeferredAttendanceStatusAsPending: false
 				});
 				return { ...mapped, feedback: '' };
 			}
@@ -1886,7 +1889,7 @@ function CanStatusPage() {
 			if (trackedStatus) {
 				const mapped = mapProcessStatusToBadge(trackedStatus, {
 					isFinalStage: isFinalTrackedStage,
-					treatDeferredAttendanceStatusAsPending: true
+					treatDeferredAttendanceStatusAsPending: false
 				});
 				return { ...mapped, feedback: '' };
 			}
