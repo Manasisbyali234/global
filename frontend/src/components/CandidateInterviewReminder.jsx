@@ -125,21 +125,73 @@ function CandidateInterviewReminder() {
   useEffect(() => {
     if (!activeAlert) {
       if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
+        audioRef.current.stop();
+        audioRef.current = null;
       }
       return undefined;
     }
 
-    const audio = new Audio("/sounds/notification.mp3");
-    audio.loop = true;
-    audioRef.current = audio;
+    let ctx = null;
+    let stopped = false;
+    let timeoutId = null;
 
-    const attemptPlay = () => {
-      audio.play().catch(() => {});
+    const playSiren = () => {
+      if (stopped) return;
+      try {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch {
+        return;
+      }
+
+      const scheduleCycle = (startTime, iteration) => {
+        if (stopped) return;
+        // Ambulance: alternates between two tones (high 960Hz → low 760Hz)
+        const isHigh = iteration % 2 === 0;
+        const freq = isHigh ? 960 : 760;
+        const duration = 0.45;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(freq, startTime);
+        // Slight frequency sweep for siren feel
+        osc.frequency.linearRampToValueAtTime(isHigh ? 1020 : 700, startTime + duration);
+
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(0.35, startTime + 0.02);
+        gain.gain.setValueAtTime(0.35, startTime + duration - 0.04);
+        gain.gain.linearRampToValueAtTime(0, startTime + duration);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+
+        const msUntilNext = (startTime + duration - ctx.currentTime) * 1000;
+        timeoutId = window.setTimeout(() => scheduleCycle(ctx.currentTime, iteration + 1), Math.max(0, msUntilNext - 20));
+      };
+
+      scheduleCycle(ctx.currentTime, 0);
     };
 
-    attemptPlay();
+    const stopSiren = () => {
+      stopped = true;
+      window.clearTimeout(timeoutId);
+      if (ctx) {
+        try { ctx.close(); } catch { /* ignore */ }
+        ctx = null;
+      }
+    };
+
+    audioRef.current = { stop: stopSiren };
+
+    // Start immediately; also restart on user interaction if browser blocked autoplay
+    const attemptPlay = () => {
+      if (!stopped && !ctx) playSiren();
+    };
+
+    playSiren();
     window.addEventListener("click", attemptPlay, true);
     window.addEventListener("keydown", attemptPlay, true);
     window.addEventListener("touchstart", attemptPlay, true);
@@ -148,11 +200,8 @@ function CandidateInterviewReminder() {
       window.removeEventListener("click", attemptPlay, true);
       window.removeEventListener("keydown", attemptPlay, true);
       window.removeEventListener("touchstart", attemptPlay, true);
-      audio.pause();
-      audio.currentTime = 0;
-      if (audioRef.current === audio) {
-        audioRef.current = null;
-      }
+      stopSiren();
+      audioRef.current = null;
     };
   }, [activeAlert]);
 
