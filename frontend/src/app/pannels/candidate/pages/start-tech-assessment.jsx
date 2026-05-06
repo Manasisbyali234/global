@@ -81,6 +81,7 @@ const StartAssessment = () => {
     const [error, setError] = useState(null);
     const [attemptId, setAttemptId] = useState(getStoredAttemptId);
     const [startTime, setStartTime] = useState(null);
+    const [deadlineAt, setDeadlineAt] = useState(null);
 
     useEffect(() => {
         setSessionInfo(getSessionInfo());
@@ -200,6 +201,11 @@ const StartAssessment = () => {
         setCurrentQuestionIndex(getResumedQuestionIndex(assessmentData, attemptData));
         setTimeLeft(getRemainingTimeSeconds(assessmentData, attemptData));
         setStartTime(attemptData.startTime ? new Date(attemptData.startTime) : new Date());
+        if (attemptData.deadlineAt) {
+            setDeadlineAt(new Date(attemptData.deadlineAt));
+        } else if (attemptData.windowEndAt) {
+            setDeadlineAt(new Date(attemptData.windowEndAt));
+        }
         setAssessmentState('in_progress');
         setShowTermsModal(false);
         setIsSubmitted(false);
@@ -1437,17 +1443,29 @@ const StartAssessment = () => {
 	useEffect(() => {
 		if (timeLeft > 0 && !isSubmitted && assessmentState === 'in_progress') {
 			const timer = setInterval(() => {
-				setTimeLeft((prev) => {
-					if (prev <= 1) {
+				const remaining = deadlineAt
+					? Math.max(0, Math.ceil((deadlineAt.getTime() - Date.now()) / 1000))
+					: null;
+				if (remaining !== null) {
+					if (remaining <= 0) {
+						setTimeLeft(0);
 						handleTimeExpired();
-						return 0;
+					} else {
+						setTimeLeft(remaining);
 					}
-					return prev - 1;
-				});
+				} else {
+					setTimeLeft((prev) => {
+						if (prev <= 1) {
+							handleTimeExpired();
+							return 0;
+						}
+						return prev - 1;
+					});
+				}
 			}, 1000);
 			return () => clearInterval(timer);
 		}
-	}, [timeLeft, isSubmitted, assessmentState]);
+	}, [timeLeft, isSubmitted, assessmentState, deadlineAt]);
 
     useEffect(() => {
         if (!attemptId || assessmentState !== 'in_progress' || typeof window === 'undefined' || !window.sessionStorage) {
