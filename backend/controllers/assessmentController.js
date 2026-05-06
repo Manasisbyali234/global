@@ -278,6 +278,8 @@ const resolveAssessmentStageStatus = (attemptStatus, attemptResult) => {
   if (normalizedStatus === 'suspended') return 'suspended';
   if (normalizedStatus === 'in_progress') return 'in_progress';
   if (normalizedStatus === 'not_started') return 'pending';
+  // If manual evaluation is pending, treat as completed regardless of attempt status
+  if (normalizedResult === 'pending') return 'completed';
   if (normalizedResult === 'pass') return 'passed';
   if (normalizedResult === 'fail') return 'failed';
   if (normalizedStatus === 'expired') return 'expired';

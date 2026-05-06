@@ -213,9 +213,12 @@ function CanStatusPage() {
 		const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
 		const failedStatuses = ['failed', 'fail'];
 		const failedResults = ['failed', 'fail'];
-		if (rejectedAssessmentStatuses.includes(assessmentStatus) ||
+		// Don't treat expired as rejected if result is pending (subjective assessment awaiting manual evaluation)
+		const isExpiredPendingEvaluation = assessmentStatus === 'expired' && assessmentResult === 'pending';
+		if (!isExpiredPendingEvaluation && (
+			rejectedAssessmentStatuses.includes(assessmentStatus) ||
 			failedStatuses.includes(assessmentStatus) ||
-			failedResults.includes(assessmentResult)) {
+			failedResults.includes(assessmentResult))) {
 			return 'rejected';
 		}
 
@@ -224,6 +227,8 @@ function CanStatusPage() {
 		const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
 			const s = String(attempt?.status || '').toLowerCase();
 			const r = String(attempt?.result || '').toLowerCase();
+			// Don't treat expired as rejected if result is pending
+			if (s === 'expired' && r === 'pending') return false;
 			return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedResults.includes(r);
 		});
 		if (hasRejectedAttempt) {
@@ -1735,6 +1740,11 @@ function CanStatusPage() {
 				return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 			}
 			if ((isNoShow || isExpired || windowInfo.isAfterEnd) && !isCompleted && !isInProgress && !isSuspended) {
+				// If expired but result is pending (subjective awaiting evaluation), show Completed
+				const assessmentResult = String(assessmentRoundInfo?.attempt?.result || '').toLowerCase();
+				if (isExpired && assessmentResult === 'pending') {
+					return { text: 'Completed', class: 'bg-success bg-opacity-10 text-success border border-success', feedback: '' };
+				}
 				return { text: 'No Show', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 			}
 
