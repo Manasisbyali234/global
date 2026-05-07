@@ -276,26 +276,45 @@ const getStatusBadge = (status) => {
   };
 };
 
+const normalizeStatusVal = (value) =>
+  String(value || "").trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
+
 const isRejectedStatus = (value) => {
-  const s = String(value || "").trim().toLowerCase().replace(/[_-]+/g, " ");
+  const s = normalizeStatusVal(value);
   return ["rejected", "not advanced to next stage", "not advanced to next round", "failed", "fail",
     "no show", "no_show", "expired", "suspended", "session expired"].includes(s);
 };
 
 const isPositiveStatus = (value) => {
-  const s = String(value || "").trim().toLowerCase().replace(/[_-]+/g, " ");
+  const s = normalizeStatusVal(value);
   return ["shortlisted for next round", "shortlisted", "selected"].includes(s);
+};
+
+const isRejectedTrackedProcess = (process = {}) => isRejectedStatus(process?.status);
+
+const wasAutoRejectedFromStageStatus = (application = {}) => {
+  if (normalizeStatusVal(application?.status) !== "rejected") return false;
+  const history = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
+  for (let i = history.length - 1; i >= 0; i--) {
+    if (history[i]?.status) {
+      return normalizeStatusVal(history[i].status) === "rejected" &&
+        normalizeStatusVal(history[i].notes).includes("auto updated from interview stage status");
+    }
+  }
+  return false;
 };
 
 const getApplicationDisplayStatus = (application = {}) => {
   const baseStatus = String(application?.status || "").trim().toLowerCase() || "pending";
   if (["accepted", "hired"].includes(baseStatus)) return baseStatus;
 
-  const processStatuses = [
-    ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []).map((p) => p?.status),
-    ...(Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages : []).map((s) => s?.status)
+  const trackedProcesses = [
+    ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []),
+    ...(Array.isArray(application?.interviewProcess?.stages)
+      ? application.interviewProcess.stages.map((s) => ({ status: s?.status }))
+      : [])
   ];
-  if (processStatuses.some(isRejectedStatus)) return "rejected";
+  if (trackedProcesses.some(isRejectedTrackedProcess)) return "rejected";
 
   const hasFailedRound = Array.isArray(application?.interviewRounds) &&
     application.interviewRounds.some((r) => String(r?.status || "").toLowerCase() === "failed");
@@ -305,7 +324,12 @@ const getApplicationDisplayStatus = (application = {}) => {
   const failedStatuses = ["failed", "fail"];
   const assessmentStatus = String(application?.assessmentStatus || "").toLowerCase();
   const assessmentResult = String(application?.assessmentResult || "").toLowerCase();
-  if (rejectedAssessmentStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentResult)) {
+  const isExpiredPendingEval = assessmentStatus === "expired" && assessmentResult === "pending";
+  if (!isExpiredPendingEval && (
+    rejectedAssessmentStatuses.includes(assessmentStatus) ||
+    failedStatuses.includes(assessmentStatus) ||
+    failedStatuses.includes(assessmentResult)
+  )) {
     return "rejected";
   }
 
@@ -313,9 +337,19 @@ const getApplicationDisplayStatus = (application = {}) => {
   const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
     const s = String(attempt?.status || "").toLowerCase();
     const r = String(attempt?.result || "").toLowerCase();
+    if (s === "expired" && r === "pending") return false;
     return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
   });
   if (hasRejectedAttempt) return "rejected";
+
+  if (
+    baseStatus === "rejected" &&
+    wasAutoRejectedFromStageStatus(application) &&
+    trackedProcesses.length > 0 &&
+    !trackedProcesses.some(isRejectedTrackedProcess)
+  ) {
+    return "pending";
+  }
 
   return baseStatus;
 };

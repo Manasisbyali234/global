@@ -1403,7 +1403,7 @@ function EmpCandidateReviewPage() {
                 </button>
                 <div className="header-title">
                     <h2>Candidate Application Review</h2>
-                    <p>Evaluating <strong>{candidate.name}</strong> for <strong>{application.jobId?.title}</strong></p>
+                    <p>Evaluating <strong style={{ color: '#f97316', fontWeight: '700' }}>{candidate.name}</strong> for <strong style={{ color: '#f97316', fontWeight: '700' }}>{application.jobId?.title}</strong></p>
                 </div>
             </div>
 

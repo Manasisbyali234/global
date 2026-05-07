@@ -433,6 +433,17 @@ function EmpCandidatesPage() {
     [applications, statusClock]
   );
 
+  const emailSuggestions = useMemo(() => {
+    if (searchText.trim().length < 2) return [];
+    const q = searchText.trim().toLowerCase();
+    const emails = new Set();
+    applications.forEach((app) => {
+      const email = app.candidateId?.email;
+      if (email && email.toLowerCase().includes(q)) emails.add(email);
+    });
+    return Array.from(emails).slice(0, 8);
+  }, [applications, searchText]);
+
   // Derived filtering
   const filteredCompanies = useMemo(() => {
     if (!searchText || searchText.trim().length < 3) return [];
@@ -550,7 +561,7 @@ function EmpCandidatesPage() {
                 <label className="page-toolbar__label">
                   <i className="fa fa-search"></i> Search Applicants
                 </label>
-                <div className="emp-candidates-search-control">
+                <div className="emp-candidates-search-control" style={{ position: 'relative' }}>
                   <input
                     type="text"
                     className="form-control page-toolbar__input emp-candidates-search-input"
@@ -559,8 +570,32 @@ function EmpCandidatesPage() {
                     onChange={(e) => setSearchText(e.target.value)}
                     style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', width: '100%' }}
                     onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                    onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; setTimeout(() => {}, 150); }}
+                    autoComplete="off"
                   />
+                  {emailSuggestions.length > 0 && (
+                    <ul style={{
+                      position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 999,
+                      background: '#fff', border: '1px solid #e5e7eb', borderRadius: '6px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)', margin: 0, padding: 0,
+                      listStyle: 'none', maxHeight: '220px', overflowY: 'auto'
+                    }}>
+                      {emailSuggestions.map((email) => (
+                        <li
+                          key={email}
+                          onMouseDown={() => setSearchText(email)}
+                          style={{
+                            padding: '8px 12px', cursor: 'pointer', fontSize: '13px',
+                            borderBottom: '1px solid #f3f4f6'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#f0f7ff'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
+                        >
+                          {email}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
                 <div className="emp-candidates-toolbar__filters">
