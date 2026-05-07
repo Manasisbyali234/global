@@ -493,6 +493,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
         currentCounts.acceptedOfferCount += 1;
       } else if (isOfferNotAccepted(application)) {
         currentCounts.notAcceptedOfferCount += 1;
+        currentCounts.rejectedApplicationsCount += 1;
       } else if (application.status === 'rejected') {
         currentCounts.rejectedApplicationsCount += 1;
       }
@@ -795,6 +796,9 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         application.status === 'offer_sent' ||
         (Array.isArray(application.statusHistory) &&
           application.statusHistory.some((entry) => entry?.status === 'offer_sent'));
+      const effectiveStatus = isOfferNotAccepted(application)
+        ? 'rejected'
+        : (application.status || 'pending');
       return {
         applicationId: application._id,
         applicantName:
@@ -805,7 +809,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
           application.candidateId?.email ||
           application.applicantEmail ||
           'N/A',
-        status: application.status || 'pending',
+        status: effectiveStatus,
         appliedAt: application.appliedAt,
         isGuestApplication: !!application.isGuestApplication,
         applicationType,
