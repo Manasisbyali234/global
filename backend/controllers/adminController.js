@@ -770,21 +770,15 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       };
     };
 
-    const manualAssessmentStatuses = new Set([
-      'shortlisted_for_next_round', 'on_hold', 'pending_decision', 'no_show', 'rejected',
-      'selected', 'shortlisted', 'not_advanced_to_next_stage'
-    ]);
-
-    const resolveStageStatus = (stage, savedProcesses) => {
+const resolveStageStatus = (stage, savedProcesses) => {
       const stageStatus = String(stage.status || '').trim().toLowerCase();
-      if (stage.stageType !== 'assessment') return stageStatus || 'pending';
-      // For assessment stages, prefer manually saved status from interviewProcesses
+      // Always prefer manually saved status from interviewProcesses for all stage types
       const stageId = String(stage._id || '');
       const saved = Array.isArray(savedProcesses)
         ? savedProcesses.find((p) => p && (String(p.id || '') === stageId || normalizeKey(p.name || '') === normalizeKey(stage.stageName || '')))
         : null;
       const savedStatus = String(saved?.status || '').trim().toLowerCase();
-      if (savedStatus && manualAssessmentStatuses.has(savedStatus)) return savedStatus;
+      if (savedStatus && savedStatus !== 'pending') return savedStatus;
       return stageStatus || 'pending';
     };
 
