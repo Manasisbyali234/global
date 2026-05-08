@@ -896,6 +896,9 @@ const resolveStageStatus = (stage, savedProcesses) => {
             name: displayName,
             type: roundType,
             status: 'pending',
+            assessmentResult: roundType === 'assessment'
+              ? resolveStageAssessmentResult(null, application.assessmentStatus, application.assessmentResult, attempt, 'pending')
+              : null,
             remark,
             ...scheduleDetails
           };

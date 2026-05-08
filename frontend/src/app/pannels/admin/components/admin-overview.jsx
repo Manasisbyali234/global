@@ -741,21 +741,33 @@ function AdminOverviewPage() {
                             <td>
                               {(() => {
                                 const assessmentRound = Array.isArray(applicant.interviewRounds)
-                                  ? applicant.interviewRounds.find(r => r.type === 'assessment' && r.assessmentResult)
+                                  ? applicant.interviewRounds.find(r => r.type === 'assessment')
                                   : null;
                                 const result = assessmentRound?.assessmentResult || null;
-                                if (!result) return <span className="text-muted">—</span>;
-                                const r = result.toLowerCase();
-                                const style = r === 'passed'
-                                  ? { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' }
-                                  : ['failed', 'suspended'].includes(r)
-                                  ? { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' }
-                                  : r === 'no show'
-                                  ? { background: '#fff3cd', color: '#856404', border: '1px solid #ffc107' }
-                                  : { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' };
+                                const resolveResult = (r) => {
+                                  if (!r) return 'Pending';
+                                  const n = r.trim().toLowerCase();
+                                  if (n === 'passed' || n === 'pass') return 'Passed';
+                                  if (n === 'failed' || n === 'fail') return 'Failed';
+                                  if (n === 'suspended') return 'Suspended';
+                                  if (n === 'no show' || n === 'no_show') return 'No Show';
+                                  if (n === 'in progress' || n === 'in_progress') return 'In Progress';
+                                  if (n === 'completed') return 'Completed';
+                                  return 'Pending';
+                                };
+                                const label = resolveResult(result);
+                                const styleMap = {
+                                  'Passed': { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' },
+                                  'Failed': { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' },
+                                  'Suspended': { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' },
+                                  'No Show': { background: '#fff3cd', color: '#856404', border: '1px solid #ffc107' },
+                                  'In Progress': { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' },
+                                  'Completed': { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' },
+                                  'Pending': { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' },
+                                };
                                 return (
-                                  <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 600, ...style }}>
-                                    {result}
+                                  <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 600, ...(styleMap[label] || styleMap['Pending']) }}>
+                                    {label}
                                   </span>
                                 );
                               })()}
