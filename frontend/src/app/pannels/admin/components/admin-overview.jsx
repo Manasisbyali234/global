@@ -695,6 +695,28 @@ function AdminOverviewPage() {
                                           {String(round.status || 'pending').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                                         </span>
                                       </div>
+                                      {round.type === 'assessment' && round.assessmentResult && (
+                                        <div className="admin-overview-round-detail" style={{ marginTop: '3px' }}>
+                                          <strong>Result:</strong>{" "}
+                                          <span style={{
+                                            display: 'inline-block',
+                                            padding: '2px 8px',
+                                            borderRadius: '999px',
+                                            fontSize: '11px',
+                                            fontWeight: 600,
+                                            marginLeft: '4px',
+                                            ...(() => {
+                                              const r = String(round.assessmentResult || '').toLowerCase();
+                                              if (r === 'passed') return { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' };
+                                              if (['failed', 'suspended', 'no show'].includes(r)) return { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' };
+                                              if (['in progress', 'completed'].includes(r)) return { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' };
+                                              return { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' };
+                                            })()
+                                          }}>
+                                            {round.assessmentResult}
+                                          </span>
+                                        </div>
+                                      )}
                                       <div className="admin-overview-round-schedule">
                                         {(() => {
                                           const dateLabel = formatRoundDate(round);
