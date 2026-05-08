@@ -465,9 +465,41 @@ exports.getEmployerOverviewJobs = async (req, res) => {
     const jobIds = jobs.map(job => job._id);
     const applications = jobIds.length
       ? await Application.find({ jobId: { $in: jobIds } })
-          .select('jobId status statusHistory paymentStatus paymentId orderId paymentAmount paymentCurrency')
+          .select('jobId status statusHistory paymentStatus paymentId orderId paymentAmount paymentCurrency interviewProcesses assessmentStatus assessmentResult assessmentAttemptsByAssessmentId interviewRounds')
           .lean()
       : [];
+
+    const rejectedStatuses = new Set([
+      'rejected', 'not_advanced_to_next_stage', 'not_advanced_to_next_round',
+      'failed', 'fail', 'no_show', 'no show', 'expired', 'suspended',
+      'session_expired', 'session expired'
+    ]);
+    const normalizeStatus = (v) => String(v || '').trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
+
+    const isEffectivelyRejected = (application) => {
+      const base = String(application?.status || '').trim().toLowerCase();
+      if (base === 'accepted' || base === 'hired') return false;
+
+      const trackedProcesses = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses.filter(Boolean) : [];
+      if (trackedProcesses.some((p) => rejectedStatuses.has(normalizeStatus(p?.status)))) return true;
+
+      if (Array.isArray(application?.interviewRounds) && application.interviewRounds.some((r) => String(r?.status || '').toLowerCase() === 'failed')) return true;
+
+      const aStatus = String(application?.assessmentStatus || '').toLowerCase();
+      const aResult = String(application?.assessmentResult || '').toLowerCase();
+      const rejectedAssessment = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired', 'failed', 'fail'];
+      if (!(aStatus === 'expired' && aResult === 'pending') && (rejectedAssessment.includes(aStatus) || rejectedAssessment.includes(aResult))) return true;
+
+      const attempts = application?.assessmentAttemptsByAssessmentId || {};
+      if (Object.values(attempts).some((a) => {
+        const s = String(a?.status || '').toLowerCase();
+        const r = String(a?.result || '').toLowerCase();
+        if (s === 'expired' && r === 'pending') return false;
+        return rejectedAssessment.includes(s) || rejectedAssessment.includes(r);
+      })) return true;
+
+      return base === 'rejected';
+    };
 
     const applicationsByJobMap = applications.reduce((acc, application) => {
       const jobKey = String(application.jobId);
@@ -493,7 +525,7 @@ exports.getEmployerOverviewJobs = async (req, res) => {
         currentCounts.acceptedOfferCount += 1;
       } else if (isOfferNotAccepted(application)) {
         currentCounts.notAcceptedOfferCount += 1;
-      } else if (application.status === 'rejected') {
+      } else if (isEffectivelyRejected(application)) {
         currentCounts.rejectedApplicationsCount += 1;
       }
 
