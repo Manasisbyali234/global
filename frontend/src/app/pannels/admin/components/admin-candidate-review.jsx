@@ -13,6 +13,9 @@ function AdminCandidateReviewPage() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('personal');
     const [documentModal, setDocumentModal] = useState({ isOpen: false, url: '', title: '' });
+    const [companySearch, setCompanySearch] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
 
     useEffect(() => {
         fetchCandidateDetails();
@@ -755,6 +758,64 @@ function AdminCandidateReviewPage() {
                             <i className="fas fa-building"></i>
                             <h4>Job Applications & Company Details</h4>
                         </div>
+
+                        {candidate.applications && candidate.applications.length > 0 && (
+                            <div className="company-search-wrapper">
+                                <div className="company-search-box">
+                                    <i className="fas fa-search company-search-icon"></i>
+                                    <input
+                                        type="text"
+                                        className="company-search-input"
+                                        placeholder="Search by company name or job title..."
+                                        value={companySearch}
+                                        onChange={e => {
+                                            const val = e.target.value;
+                                            setCompanySearch(val);
+                                            if (val.length >= 1) {
+                                                const lower = val.toLowerCase();
+                                                const matches = [];
+                                                const seen = new Set();
+                                                candidate.applications.forEach(app => {
+                                                    const company = app.employerId?.companyName || app.companyName || '';
+                                                    const job = app.jobTitle || '';
+                                                    if (company && company.toLowerCase().includes(lower) && !seen.has(company)) {
+                                                        seen.add(company);
+                                                        matches.push({ label: company, type: 'company' });
+                                                    }
+                                                    if (job && job.toLowerCase().includes(lower) && !seen.has(job)) {
+                                                        seen.add(job);
+                                                        matches.push({ label: job, type: 'job' });
+                                                    }
+                                                });
+                                                setSuggestions(matches);
+                                                setShowSuggestions(true);
+                                            } else {
+                                                setSuggestions([]);
+                                                setShowSuggestions(false);
+                                            }
+                                        }}
+                                        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                                        onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                                    />
+                                    {companySearch && (
+                                        <button className="company-search-clear" onClick={() => { setCompanySearch(''); setSuggestions([]); setShowSuggestions(false); }}>
+                                            <i className="fas fa-times"></i>
+                                        </button>
+                                    )}
+                                </div>
+                                {showSuggestions && suggestions.length > 0 && (
+                                    <ul className="company-suggestions-list">
+                                        {suggestions.map((s, i) => (
+                                            <li key={i} onMouseDown={() => { setCompanySearch(s.label); setShowSuggestions(false); }}>
+                                                <i className={`fas ${s.type === 'company' ? 'fa-building' : 'fa-briefcase'} suggestion-icon`}></i>
+                                                <span>{s.label}</span>
+                                                <span className="suggestion-type">{s.type === 'company' ? 'Company' : 'Job Title'}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+                        )}
                         
                         {candidate.applications && candidate.applications.length > 0 ? (
                             <div className="company-table-container">
@@ -768,7 +829,13 @@ function AdminCandidateReviewPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {candidate.applications.map((application, index) => (
+                                        {candidate.applications.filter(app => {
+                                            if (!companySearch) return true;
+                                            const lower = companySearch.toLowerCase();
+                                            const company = (app.employerId?.companyName || app.companyName || '').toLowerCase();
+                                            const job = (app.jobTitle || '').toLowerCase();
+                                            return company.includes(lower) || job.includes(lower);
+                                        }).map((application, index) => (
                                             <tr key={index}>
                                                 <td>
                                                     <div className="company-cell">

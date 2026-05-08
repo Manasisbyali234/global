@@ -544,7 +544,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     const applications = await Application.find({ jobId })
       .populate('candidateId', 'name email')
       .populate('jobId', 'interviewRoundOrder interviewRoundTypes interviewRoundDetails')
-      .select('candidateId applicantName applicantEmail status statusHistory appliedAt isGuestApplication interviewProcesses interviewProcessId processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency')
+      .select('candidateId applicantName applicantEmail status statusHistory appliedAt isGuestApplication interviewProcesses interviewProcessId processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency assessmentStatus assessmentResult assessmentAttemptsByAssessmentId interviewRounds')
       .sort({ appliedAt: -1 })
       .lean();
 
@@ -789,6 +789,70 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       return [];
     };
 
+    const computeEffectiveStatus = (application) => {
+      const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
+
+      if (['accepted', 'hired'].includes(baseStatus)) return baseStatus;
+
+      // Check interviewProcesses for rejected/no_show
+      const trackedProcesses = Array.isArray(application?.interviewProcesses)
+        ? application.interviewProcesses.filter(Boolean)
+        : [];
+      const rejectedStatuses = new Set([
+        'rejected', 'not_advanced_to_next_stage', 'not_advanced_to_next_round',
+        'failed', 'fail', 'no_show', 'no show', 'expired', 'suspended',
+        'session_expired', 'session expired', 'not eligibal for next round',
+        'not eligible for next round'
+      ]);
+      const normalizeStatus = (v) => String(v || '').trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
+      const hasRejectedProcess = trackedProcesses.some((p) => rejectedStatuses.has(normalizeStatus(p?.status)));
+      if (hasRejectedProcess) return 'rejected';
+
+      // Check legacy interviewRounds for failed
+      const hasFailedRound = Array.isArray(application?.interviewRounds) &&
+        application.interviewRounds.some((r) => String(r?.status || '').toLowerCase() === 'failed');
+      if (hasFailedRound) return 'rejected';
+
+      // Check assessment-derived statuses
+      const assessmentStatus = String(application?.assessmentStatus || '').toLowerCase();
+      const assessmentResult = String(application?.assessmentResult || '').toLowerCase();
+      const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
+      const failedStatuses = ['failed', 'fail'];
+      const isExpiredPendingEvaluation = assessmentStatus === 'expired' && assessmentResult === 'pending';
+      if (!isExpiredPendingEvaluation && (
+        rejectedAssessmentStatuses.includes(assessmentStatus) ||
+        failedStatuses.includes(assessmentStatus) ||
+        failedStatuses.includes(assessmentResult)
+      )) return 'rejected';
+
+      // Check all assessment attempts
+      const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
+      const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
+        const s = String(attempt?.status || '').toLowerCase();
+        const r = String(attempt?.result || '').toLowerCase();
+        if (s === 'expired' && r === 'pending') return false;
+        return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
+      });
+      if (hasRejectedAttempt) return 'rejected';
+
+      // Revert auto-rejected status to pending if no tracked process is actually rejected
+      if (
+        baseStatus === 'rejected' &&
+        trackedProcesses.length > 0 &&
+        !hasRejectedProcess
+      ) {
+        const latestEntry = Array.isArray(application?.statusHistory)
+          ? [...application.statusHistory].reverse().find((e) => e?.status)
+          : null;
+        const isAutoRejected = latestEntry &&
+          normalizeStatus(latestEntry.status) === 'rejected' &&
+          normalizeStatus(latestEntry.notes || '').includes('auto updated from interview stage status');
+        if (isAutoRejected) return 'pending';
+      }
+
+      return baseStatus;
+    };
+
     const data = applications.map((application) => {
       const interviewRounds = buildInterviewRounds(application);
       const applicationType = resolveApplicationType(application);
@@ -798,7 +862,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
           application.statusHistory.some((entry) => entry?.status === 'offer_sent'));
       const effectiveStatus = isOfferNotAccepted(application)
         ? 'rejected'
-        : (application.status || 'pending');
+        : computeEffectiveStatus(application);
       return {
         applicationId: application._id,
         applicantName:

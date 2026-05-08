@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
-import JobZImage from "../../../common/jobz-img";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome, isAssessmentOutcomeRejected } from "../../../../utils/assessmentOutcome";
@@ -676,22 +675,13 @@ function EmpCandidatesPage() {
                           {application.candidateId?.profilePicture ? (
                             <img
                               src={application.candidateId.profilePicture}
-                              alt={
-                                application.candidateId?.name || "Candidate"
-                              }
-                              style={{
-                                width: "50px",
-                                height: "50px",
-                                objectFit: "cover",
-                              }}
+                              alt={application.candidateId?.name || "Candidate"}
+                              style={{ width: "50px", height: "50px", objectFit: "cover" }}
                             />
                           ) : (
-                            <JobZImage
-                              src="images/candidates/pic1.jpg"
-                              alt={
-                                application.candidateId?.name || "Candidate"
-                              }
-                            />
+                            <div className="avatar-placeholder" style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <i className="fas fa-user" style={{ fontSize: "22px", color: "#aaa" }}></i>
+                            </div>
                           )}
                         </div>
 
