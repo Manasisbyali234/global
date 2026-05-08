@@ -627,7 +627,6 @@ function AdminOverviewPage() {
                       <th>Applied Date</th>
                       <th>Interviews</th>
                       <th>Round Status, Schedule & Remarks</th>
-                      <th>Result of Assessment</th>
                       <th>Offer Letter Status</th>
                       <th>Status</th>
                     </tr>
@@ -635,7 +634,7 @@ function AdminOverviewPage() {
                   <tbody>
                     {visibleJobApplicants.length === 0 ? (
                       <tr>
-                        <td colSpan="10" className="text-center">
+                        <td colSpan="9" className="text-center">
                           {applicantSearch
                             ? "No applicants match the search."
                             : "No applicants found for this job."}
@@ -728,49 +727,47 @@ function AdminOverviewPage() {
                                           );
                                         })()}
                                       </div>
-                                      <div className="admin-overview-round-detail admin-overview-round-remarks">
+                                        <div className="admin-overview-round-detail admin-overview-round-remarks">
                                         <strong>Remarks:</strong> {round.remark || "No remarks"}
                                       </div>
+                                      {round.type === 'assessment' && (() => {
+                                        const result = round.assessmentResult || null;
+                                        const resolveResult = (r) => {
+                                          if (!r) return 'Pending';
+                                          const n = r.trim().toLowerCase();
+                                          if (n === 'passed' || n === 'pass') return 'Passed';
+                                          if (n === 'failed' || n === 'fail') return 'Failed';
+                                          if (n === 'suspended') return 'Suspended';
+                                          if (n === 'no show' || n === 'no_show') return 'No Show';
+                                          if (n === 'in progress' || n === 'in_progress') return 'In Progress';
+                                          if (n === 'completed') return 'Completed';
+                                          return 'Pending';
+                                        };
+                                        const label = resolveResult(result);
+                                        const styleMap = {
+                                          'Passed': { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' },
+                                          'Failed': { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' },
+                                          'Suspended': { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' },
+                                          'No Show': { background: '#fff3cd', color: '#856404', border: '1px solid #ffc107' },
+                                          'In Progress': { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' },
+                                          'Completed': { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' },
+                                          'Pending': { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' },
+                                        };
+                                        return (
+                                          <div className="admin-overview-round-detail" style={{ marginTop: '4px' }}>
+                                            <strong>Assessment Result:</strong>{' '}
+                                            <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '999px', fontSize: '11px', fontWeight: 600, marginLeft: '4px', ...(styleMap[label] || styleMap['Pending']) }}>
+                                              {label}
+                                            </span>
+                                          </div>
+                                        );
+                                      })()}
                                     </div>
                                   ))}
                                 </div>
                               ) : (
                                 <span className="text-muted">No interview rounds</span>
                               )}
-                            </td>
-                            <td>
-                              {(() => {
-                                const assessmentRound = Array.isArray(applicant.interviewRounds)
-                                  ? applicant.interviewRounds.find(r => r.type === 'assessment')
-                                  : null;
-                                const result = assessmentRound?.assessmentResult || null;
-                                const resolveResult = (r) => {
-                                  if (!r) return 'Pending';
-                                  const n = r.trim().toLowerCase();
-                                  if (n === 'passed' || n === 'pass') return 'Passed';
-                                  if (n === 'failed' || n === 'fail') return 'Failed';
-                                  if (n === 'suspended') return 'Suspended';
-                                  if (n === 'no show' || n === 'no_show') return 'No Show';
-                                  if (n === 'in progress' || n === 'in_progress') return 'In Progress';
-                                  if (n === 'completed') return 'Completed';
-                                  return 'Pending';
-                                };
-                                const label = resolveResult(result);
-                                const styleMap = {
-                                  'Passed': { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' },
-                                  'Failed': { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' },
-                                  'Suspended': { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' },
-                                  'No Show': { background: '#fff3cd', color: '#856404', border: '1px solid #ffc107' },
-                                  'In Progress': { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' },
-                                  'Completed': { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' },
-                                  'Pending': { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' },
-                                };
-                                return (
-                                  <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 600, ...(styleMap[label] || styleMap['Pending']) }}>
-                                    {label}
-                                  </span>
-                                );
-                              })()}
                             </td>
                             <td>{applicant.offerLetterStatus || 'Pending'}</td>
                             <td>
