@@ -627,6 +627,7 @@ function AdminOverviewPage() {
                       <th>Applied Date</th>
                       <th>Interviews</th>
                       <th>Round Status, Schedule & Remarks</th>
+                      <th>Result of Assessment</th>
                       <th>Offer Letter Status</th>
                       <th>Status</th>
                     </tr>
@@ -634,7 +635,7 @@ function AdminOverviewPage() {
                   <tbody>
                     {visibleJobApplicants.length === 0 ? (
                       <tr>
-                        <td colSpan="9" className="text-center">
+                        <td colSpan="10" className="text-center">
                           {applicantSearch
                             ? "No applicants match the search."
                             : "No applicants found for this job."}
@@ -758,6 +759,28 @@ function AdminOverviewPage() {
                               ) : (
                                 <span className="text-muted">No interview rounds</span>
                               )}
+                            </td>
+                            <td>
+                              {(() => {
+                                const assessmentRound = Array.isArray(applicant.interviewRounds)
+                                  ? applicant.interviewRounds.find(r => r.type === 'assessment' && r.assessmentResult)
+                                  : null;
+                                const result = assessmentRound?.assessmentResult || null;
+                                if (!result) return <span className="text-muted">—</span>;
+                                const r = result.toLowerCase();
+                                const style = r === 'passed'
+                                  ? { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' }
+                                  : ['failed', 'suspended'].includes(r)
+                                  ? { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' }
+                                  : r === 'no show'
+                                  ? { background: '#fff3cd', color: '#856404', border: '1px solid #ffc107' }
+                                  : { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' };
+                                return (
+                                  <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 600, ...style }}>
+                                    {result}
+                                  </span>
+                                );
+                              })()}
                             </td>
                             <td>{applicant.offerLetterStatus || 'Pending'}</td>
                             <td>
