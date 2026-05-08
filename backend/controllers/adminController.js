@@ -493,7 +493,6 @@ exports.getEmployerOverviewJobs = async (req, res) => {
         currentCounts.acceptedOfferCount += 1;
       } else if (isOfferNotAccepted(application)) {
         currentCounts.notAcceptedOfferCount += 1;
-        currentCounts.rejectedApplicationsCount += 1;
       } else if (application.status === 'rejected') {
         currentCounts.rejectedApplicationsCount += 1;
       }
