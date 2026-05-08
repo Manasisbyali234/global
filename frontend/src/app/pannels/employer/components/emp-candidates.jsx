@@ -144,6 +144,7 @@ function EmpCandidatesPage() {
   const [selectedCompany, setSelectedCompany] = useState("");
   const [currentJob, setCurrentJob] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
   const [designationFilter, setDesignationFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -566,13 +567,13 @@ function EmpCandidatesPage() {
                     className="form-control page-toolbar__input emp-candidates-search-input"
                     placeholder="Search by email"
                     value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
+                    onChange={(e) => { setSearchText(e.target.value); setShowSuggestions(true); }}
                     style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', width: '100%' }}
                     onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                     onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; setTimeout(() => {}, 150); }}
                     autoComplete="off"
                   />
-                  {emailSuggestions.length > 0 && (
+                  {showSuggestions && emailSuggestions.length > 0 && (
                     <ul style={{
                       position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 999,
                       background: '#fff', border: '1px solid #e5e7eb', borderRadius: '6px',
@@ -582,7 +583,7 @@ function EmpCandidatesPage() {
                       {emailSuggestions.map((email) => (
                         <li
                           key={email}
-                          onMouseDown={() => setSearchText(email)}
+                          onMouseDown={() => { setSearchText(email); setShowSuggestions(false); }}
                           style={{
                             padding: '8px 12px', cursor: 'pointer', fontSize: '13px',
                             borderBottom: '1px solid #f3f4f6'
