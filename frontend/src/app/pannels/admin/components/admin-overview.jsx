@@ -679,15 +679,18 @@ function AdminOverviewPage() {
                                           fontSize: '11px',
                                           fontWeight: 600,
                                           marginLeft: '4px',
-                                          ...(['shortlisted', 'shortlisted for next round', 'selected'].includes(String(round.status || '').toLowerCase())
-                                            ? { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' }
-                                            : ['rejected', 'not_advanced_to_next_stage', 'not advanced to next stage', 'failed', 'fail', 'no_show', 'no show', 'suspended', 'expired'].includes(String(round.status || '').toLowerCase())
-                                            ? { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' }
-                                            : ['passed', 'completed', 'selected'].includes(String(round.status || '').toLowerCase())
-                                            ? { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' }
-                                            : ['in_progress', 'in progress', 'under_review', 'under review', 'pending_decision', 'pending decision'].includes(String(round.status || '').toLowerCase())
-                                            ? { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' }
-                                            : { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' })
+                                          ...(() => {
+                                            const s = String(round.status || '').toLowerCase();
+                                            if (['shortlisted_for_next_round', 'shortlisted for next round', 'shortlisted', 'selected'].includes(s))
+                                              return { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' };
+                                            if (['rejected', 'not_advanced_to_next_stage', 'not advanced to next stage', 'failed', 'fail', 'no_show', 'no show', 'suspended', 'expired'].includes(s))
+                                              return { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' };
+                                            if (['passed', 'completed'].includes(s))
+                                              return { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' };
+                                            if (['on_hold', 'on hold', 'pending_decision', 'pending decision', 'in_progress', 'in progress', 'under_review', 'under review'].includes(s))
+                                              return { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' };
+                                            return { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' };
+                                          })()
                                         }}>
                                           {String(round.status || 'pending').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                                         </span>

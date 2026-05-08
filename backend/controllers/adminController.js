@@ -746,14 +746,33 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       };
     };
 
+    const manualAssessmentStatuses = new Set([
+      'shortlisted_for_next_round', 'on_hold', 'pending_decision', 'no_show', 'rejected',
+      'selected', 'shortlisted', 'not_advanced_to_next_stage'
+    ]);
+
+    const resolveStageStatus = (stage, savedProcesses) => {
+      const stageStatus = String(stage.status || '').trim().toLowerCase();
+      if (stage.stageType !== 'assessment') return stageStatus || 'pending';
+      // For assessment stages, prefer manually saved status from interviewProcesses
+      const stageId = String(stage._id || '');
+      const saved = Array.isArray(savedProcesses)
+        ? savedProcesses.find((p) => p && (String(p.id || '') === stageId || normalizeKey(p.name || '') === normalizeKey(stage.stageName || '')))
+        : null;
+      const savedStatus = String(saved?.status || '').trim().toLowerCase();
+      if (savedStatus && manualAssessmentStatuses.has(savedStatus)) return savedStatus;
+      return stageStatus || 'pending';
+    };
+
     const buildInterviewRounds = (application) => {
       const interviewProcess = interviewProcessMap.get(String(application._id));
+      const savedProcesses = Array.isArray(application.interviewProcesses) ? application.interviewProcesses : [];
       if (interviewProcess?.stages?.length) {
         return interviewProcess.stages.map((stage) => ({
           id: stage._id,
           name: stage.stageName,
           type: stage.stageType,
-          status: stage.status || 'pending',
+          status: resolveStageStatus(stage, savedProcesses),
           remark: resolveRemark({ id: stage._id, name: stage.stageName, type: stage.stageType }, application.processRemarks),
           scheduledDate: stage.scheduledDate || stage.fromDate || null,
           fromDate: stage.fromDate || stage.scheduledDate || null,
