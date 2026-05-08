@@ -275,12 +275,12 @@ const hasTrackedInterviewActivity = (application = {}) => {
   }
 
   const baseStatus = normalizeApplicationStatusValue(application.status);
-  return ['interviewed', 'offer sent', 'accepted', 'hired', 'rejected'].includes(baseStatus);
+  return ['interviewed', 'offer letter sent', 'accepted', 'hired', 'rejected'].includes(baseStatus);
 };
 
 const shouldAutoRejectExpiredApplication = (application = {}) => {
   const baseStatus = normalizeApplicationStatusValue(application.status);
-  if (['accepted', 'hired', 'offer sent', 'rejected', 'interviewed'].includes(baseStatus)) {
+  if (['accepted', 'hired', 'offer letter sent', 'rejected', 'interviewed'].includes(baseStatus)) {
     return false;
   }
 

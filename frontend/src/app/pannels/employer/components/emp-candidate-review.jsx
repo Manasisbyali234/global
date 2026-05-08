@@ -369,12 +369,12 @@ function EmpCandidateReviewPage() {
         }
 
         const baseStatus = normalizeStatusValue(applicationData?.status);
-        return ['interviewed', 'offer sent', 'accepted', 'hired', 'rejected'].includes(baseStatus);
+        return ['interviewed', 'offer letter sent', 'accepted', 'hired', 'rejected'].includes(baseStatus);
     };
 
     const isApplicationSessionExpired = (applicationData = {}, processes = []) => {
         const baseStatus = normalizeStatusValue(applicationData?.status);
-        if (['accepted', 'hired', 'offer sent', 'rejected', 'interviewed'].includes(baseStatus)) {
+        if (['accepted', 'hired', 'offer letter sent', 'rejected', 'interviewed'].includes(baseStatus)) {
             return false;
         }
 
@@ -1741,7 +1741,9 @@ function EmpCandidateReviewPage() {
                                                     {applicationStatusForActions !== 'hired' && applicationStatusForActions !== 'accepted' && (
                                                         <button 
                                                             className={`${applicationStatusForActions === 'offer_sent' ? 'active' : ''}`}
-                                                            onClick={() => updateApplicationStatus('offer_sent')}
+                                                            onClick={() => applicationStatusForActions !== 'offer_sent' && updateApplicationStatus('offer_sent')}
+                                                            disabled={applicationStatusForActions === 'offer_sent'}
+                                                            style={applicationStatusForActions === 'offer_sent' ? { opacity: 0.5, cursor: 'not-allowed', pointerEvents: 'none' } : {}}
                                                         >
                                                             <i className="fas fa-envelope"></i> Offer Letter Sent
                                                         </button>
@@ -1770,7 +1772,9 @@ function EmpCandidateReviewPage() {
                                                     {applicationStatusForActions !== 'hired' && applicationStatusForActions !== 'accepted' && hasAnyStageTracked() && hasShortlistedForNextRound() && (
                                                         <button 
                                                             className={`${applicationStatusForActions === 'offer_sent' ? 'active' : ''}`}
-                                                            onClick={() => updateApplicationStatus('offer_sent')}
+                                                            onClick={() => applicationStatusForActions !== 'offer_sent' && updateApplicationStatus('offer_sent')}
+                                                            disabled={applicationStatusForActions === 'offer_sent'}
+                                                            style={applicationStatusForActions === 'offer_sent' ? { opacity: 0.5, cursor: 'not-allowed', pointerEvents: 'none' } : {}}
                                                         >
                                                             <i className="fas fa-envelope"></i> Offer Letter Sent
                                                         </button>

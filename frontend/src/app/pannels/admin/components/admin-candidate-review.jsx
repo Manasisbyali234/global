@@ -308,7 +308,7 @@ function AdminCandidateReviewPage() {
                             )}
                             {candidate.applications?.some(app => app.status === 'offer_sent') && (
                                 <div className="stat">
-                                    <span className="label" style={{ color: '#17a2b8' }}>Offer Sent</span>
+                                    <span className="label" style={{ color: '#17a2b8' }}>offer letter sent</span>
                                     <span className="value" style={{ color: '#17a2b8' }}>
                                         {candidate.applications.filter(app => app.status === 'offer_sent').length}
                                     </span>

@@ -605,7 +605,7 @@ function AdminOverviewPage() {
                   <option value="shortlisted">Shortlisted</option>
                   <option value="interviewed">Interviewed</option>
                   <option value="hired">Hired</option>
-                  <option value="offer_sent">Offer Sent</option>
+                  <option value="offer_sent">offer letter sent</option>
                   <option value="accepted">Accepted</option>
                   <option value="rejected">Rejected</option>
                   <option value="no show">No Show</option>
@@ -783,7 +783,7 @@ function AdminOverviewPage() {
                                   ['shortlisted', 'offer_sent'].includes(applicant.status) ? { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' } :
                                   { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' })
                               }}>
-                                {applicant.status === 'offer_sent' ? 'Offer Sent' :
+                                {applicant.status === 'offer_sent' ? 'offer letter sent' :
                                   applicant.status
                                     ? applicant.status.charAt(0).toUpperCase() + applicant.status.slice(1)
                                     : 'Pending'}
