@@ -620,13 +620,19 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     };
     const resolveRemark = (round, remarksMap = {}) => {
       if (!remarksMap || typeof remarksMap !== 'object') return '';
-      const candidates = [round?.id, round?._id, round?.type, round?.name].filter(Boolean);
-      for (const key of candidates) {
-        const direct = remarksMap[key];
-        if (typeof direct === 'string' && direct.trim()) return direct;
+      // Normalize remarksMap: Mongoose Map with .lean() may be a Map instance or plain object
+      const entries = remarksMap instanceof Map
+        ? Array.from(remarksMap.entries())
+        : Object.entries(remarksMap);
+      const candidates = [round?.id, round?._id, round?.type, round?.name]
+        .filter(Boolean)
+        .map((v) => String(v));
+      for (const [key, value] of entries) {
+        if (typeof value !== 'string' || !value.trim()) continue;
+        if (candidates.includes(String(key))) return value;
       }
       const normalizedCandidates = candidates.map(normalizeKey).filter(Boolean);
-      for (const [key, value] of Object.entries(remarksMap)) {
+      for (const [key, value] of entries) {
         if (typeof value !== 'string' || !value.trim()) continue;
         const normalizedKey = normalizeKey(key);
         if (normalizedCandidates.some((candidate) => candidate && normalizedKey.includes(candidate))) {
@@ -834,13 +840,13 @@ exports.getJobApplicantsForOverview = async (req, res) => {
             assessmentResult: stage.stageType === 'assessment'
               ? resolveStageAssessmentResult(stage, application.assessmentStatus, application.assessmentResult, attempt, resolvedStatus)
               : null,
-            remark: resolveRemark({ id: stage._id, name: stage.stageName, type: stage.stageType }, application.processRemarks),
+            remark: resolveRemark({ id: String(stage._id), name: stage.stageName, type: stage.stageType }, application.processRemarks),
             scheduledDate: stage.scheduledDate || stage.fromDate || null,
             fromDate: stage.fromDate || stage.scheduledDate || null,
             toDate: stage.toDate || null,
-            scheduledTime: stage.scheduledTime || '',
-            startTime: '',
-            endTime: ''
+            scheduledTime: stage.scheduledTime || (stage.startTime && stage.endTime ? `${stage.startTime} - ${stage.endTime}` : stage.startTime || ''),
+            startTime: stage.startTime || '',
+            endTime: stage.endTime || ''
           };
         });
       }
