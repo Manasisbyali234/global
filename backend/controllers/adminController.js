@@ -598,11 +598,13 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     ]);
 
     const assessmentAttemptMap = new Map();
+    const attemptPriority = { suspended: 5, completed: 4, expired: 3, in_progress: 2, not_started: 1 };
     assessmentAttempts.forEach((attempt) => {
       const key = String(attempt.applicationId);
       const existing = assessmentAttemptMap.get(key);
-      // Keep the most recent completed/meaningful attempt
-      if (!existing || attempt.status === 'completed' || attempt.status === 'suspended') {
+      const newPriority = attemptPriority[attempt.status] || 0;
+      const existingPriority = existing ? (attemptPriority[existing.status] || 0) : -1;
+      if (newPriority > existingPriority) {
         assessmentAttemptMap.set(key, attempt);
       }
     });
@@ -786,13 +788,22 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         const aStatus = String(attempt.status || '').toLowerCase();
         const aResult = String(attempt.result || '').toLowerCase();
         if (aStatus === 'suspended') return 'Suspended';
+        if (aStatus === 'expired') return 'No Show';
         if (aResult === 'pass' || aResult === 'passed') return 'Passed';
         if (aResult === 'fail' || aResult === 'failed') return 'Failed';
         if (aStatus === 'completed') return 'Completed';
         if (aStatus === 'in_progress') return 'In Progress';
-        if (aStatus === 'expired') return 'No Show';
       }
-      // Then try stage-level fields
+      // Then try application-level fields (set by assessment controller)
+      const appStatus = String(appAssessmentStatus || '').toLowerCase();
+      const appResult = String(appAssessmentResult || '').toLowerCase();
+      if (appStatus === 'suspended') return 'Suspended';
+      if (appStatus === 'no_show' || appStatus === 'no show' || appStatus === 'session_expired' || appStatus === 'session expired') return 'No Show';
+      if (appResult === 'pass' || appResult === 'passed') return 'Passed';
+      if (appResult === 'fail' || appResult === 'failed') return 'Failed';
+      if (appStatus === 'completed') return 'Completed';
+      if (appStatus === 'in_progress') return 'In Progress';
+      // Finally try stage-level fields
       const stageStatus = String(stage?.status || '').toLowerCase();
       const stageResult = String(stage?.assessmentResult || '').toLowerCase();
       if (stageStatus === 'suspended') return 'Suspended';
@@ -801,15 +812,6 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       if (stageResult === 'fail' || stageStatus === 'failed') return 'Failed';
       if (stageStatus === 'completed') return 'Completed';
       if (stageStatus === 'in_progress') return 'In Progress';
-      // Fall back to application-level fields
-      const appStatus = String(appAssessmentStatus || '').toLowerCase();
-      const appResult = String(appAssessmentResult || '').toLowerCase();
-      if (appStatus === 'suspended') return 'Suspended';
-      if (appStatus === 'no_show' || appStatus === 'no show' || appStatus === 'session_expired' || appStatus === 'session expired') return 'No Show';
-      if (appResult === 'pass' || appResult === 'passed' || appStatus === 'passed') return 'Passed';
-      if (appResult === 'fail' || appResult === 'failed' || appStatus === 'failed') return 'Failed';
-      if (appStatus === 'completed') return 'Completed';
-      if (appStatus === 'in_progress') return 'In Progress';
       return null;
     };
 
