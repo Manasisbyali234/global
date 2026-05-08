@@ -620,6 +620,7 @@ function AdminOverviewPage() {
                 <table className="table table-bordered">
                   <thead>
                     <tr>
+                      <th>#</th>
                       <th>Applicant Name</th>
                       <th>Email</th>
                       <th>Payment Method</th>
@@ -633,18 +634,19 @@ function AdminOverviewPage() {
                   <tbody>
                     {visibleJobApplicants.length === 0 ? (
                       <tr>
-                        <td colSpan="8" className="text-center">
+                        <td colSpan="9" className="text-center">
                           {applicantSearch
                             ? "No applicants match the search."
                             : "No applicants found for this job."}
                         </td>
                       </tr>
                     ) : (
-                      visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant) => {
+                      visibleJobApplicants.slice((applicantPage - 1) * PAGE_SIZE, applicantPage * PAGE_SIZE).map((applicant, index) => {
                         const badge = getApplicationTypeBadge(applicant.applicationType);
 
                         return (
                           <tr key={applicant.applicationId}>
+                            <td>{(applicantPage - 1) * PAGE_SIZE + index + 1}</td>
                             <td>{applicant.applicantName}</td>
                             <td>{applicant.applicantEmail}</td>
                             <td>
