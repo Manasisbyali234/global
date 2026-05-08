@@ -695,7 +695,7 @@ function AdminOverviewPage() {
                                           {String(round.status || 'pending').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                                         </span>
                                       </div>
-                                      {round.type === 'assessment' && round.assessmentResult && (
+                                      {round.assessmentResult && (
                                         <div className="admin-overview-round-detail" style={{ marginTop: '3px' }}>
                                           <strong>Result:</strong>{" "}
                                           <span style={{

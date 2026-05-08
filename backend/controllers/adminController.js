@@ -782,8 +782,12 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       return stageStatus || 'pending';
     };
 
-    const resolveStageAssessmentResult = (stage, appAssessmentStatus, appAssessmentResult, attempt) => {
-      // First try AssessmentAttempt (most accurate)
+    const resolveStageAssessmentResult = (stage, appAssessmentStatus, appAssessmentResult, attempt, resolvedStatus) => {
+      // Check resolved status first (handles no_show set by employer manual tracking)
+      const rs = String(resolvedStatus || '').toLowerCase();
+      if (rs === 'no_show' || rs === 'no show') return 'No Show';
+      if (rs === 'suspended') return 'Suspended';
+      // Then try AssessmentAttempt (most accurate for actual attempts)
       if (attempt) {
         const aStatus = String(attempt.status || '').toLowerCase();
         const aResult = String(attempt.result || '').toLowerCase();
@@ -794,11 +798,11 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         if (aStatus === 'completed') return 'Completed';
         if (aStatus === 'in_progress') return 'In Progress';
       }
-      // Then try application-level fields (set by assessment controller)
+      // Then try application-level fields
       const appStatus = String(appAssessmentStatus || '').toLowerCase();
       const appResult = String(appAssessmentResult || '').toLowerCase();
       if (appStatus === 'suspended') return 'Suspended';
-      if (appStatus === 'no_show' || appStatus === 'no show' || appStatus === 'session_expired' || appStatus === 'session expired') return 'No Show';
+      if (['no_show', 'no show', 'session_expired', 'session expired', 'expired'].includes(appStatus)) return 'No Show';
       if (appResult === 'pass' || appResult === 'passed') return 'Passed';
       if (appResult === 'fail' || appResult === 'failed') return 'Failed';
       if (appStatus === 'completed') return 'Completed';
@@ -807,7 +811,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       const stageStatus = String(stage?.status || '').toLowerCase();
       const stageResult = String(stage?.assessmentResult || '').toLowerCase();
       if (stageStatus === 'suspended') return 'Suspended';
-      if (stageStatus === 'no_show' || stageStatus === 'no show') return 'No Show';
+      if (['no_show', 'no show', 'expired'].includes(stageStatus)) return 'No Show';
       if (stageResult === 'pass' || stageStatus === 'passed') return 'Passed';
       if (stageResult === 'fail' || stageStatus === 'failed') return 'Failed';
       if (stageStatus === 'completed') return 'Completed';
@@ -820,22 +824,25 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       const savedProcesses = Array.isArray(application.interviewProcesses) ? application.interviewProcesses : [];
       const attempt = assessmentAttemptMap.get(String(application._id)) || null;
       if (interviewProcess?.stages?.length) {
-        return interviewProcess.stages.map((stage) => ({
-          id: stage._id,
-          name: stage.stageName,
-          type: stage.stageType,
-          status: resolveStageStatus(stage, savedProcesses),
-          assessmentResult: stage.stageType === 'assessment'
-            ? resolveStageAssessmentResult(stage, application.assessmentStatus, application.assessmentResult, attempt)
-            : null,
-          remark: resolveRemark({ id: stage._id, name: stage.stageName, type: stage.stageType }, application.processRemarks),
-          scheduledDate: stage.scheduledDate || stage.fromDate || null,
-          fromDate: stage.fromDate || stage.scheduledDate || null,
-          toDate: stage.toDate || null,
-          scheduledTime: stage.scheduledTime || '',
-          startTime: '',
-          endTime: ''
-        }));
+        return interviewProcess.stages.map((stage) => {
+          const resolvedStatus = resolveStageStatus(stage, savedProcesses);
+          return {
+            id: stage._id,
+            name: stage.stageName,
+            type: stage.stageType,
+            status: resolvedStatus,
+            assessmentResult: stage.stageType === 'assessment'
+              ? resolveStageAssessmentResult(stage, application.assessmentStatus, application.assessmentResult, attempt, resolvedStatus)
+              : null,
+            remark: resolveRemark({ id: stage._id, name: stage.stageName, type: stage.stageType }, application.processRemarks),
+            scheduledDate: stage.scheduledDate || stage.fromDate || null,
+            fromDate: stage.fromDate || stage.scheduledDate || null,
+            toDate: stage.toDate || null,
+            scheduledTime: stage.scheduledTime || '',
+            startTime: '',
+            endTime: ''
+          };
+        });
       }
       if (Array.isArray(application?.interviewProcesses) && application.interviewProcesses.length) {
         return application.interviewProcesses.map((process) => {
@@ -851,7 +858,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
             type: process.type,
             status: process.status || 'pending',
             assessmentResult: process.type === 'assessment'
-              ? resolveStageAssessmentResult(null, application.assessmentStatus, application.assessmentResult, attempt)
+              ? resolveStageAssessmentResult(null, application.assessmentStatus, application.assessmentResult, attempt, process.status)
               : null,
             remark: resolveRemark(process, application.processRemarks),
             ...roundDetails
