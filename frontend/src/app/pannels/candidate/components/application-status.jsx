@@ -2311,10 +2311,10 @@ function CanStatusPage() {
 																	</div>
 																	<div>
 																		<a href={`/emp-detail/${app.employerId?._id}`} className="text-decoration-none">
-																			<h6 className="mb-1 fw-semibold text-dark hover-primary" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px' }}>
+																			<h6 className="mb-1 fw-semibold text-dark hover-primary" style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '5px' }}>
 																				{getEmployerDisplayCompanyName(app)}
 																				{app.jobId?.companyName && app.jobId.companyName !== app.employerId?.companyName && (
-																					<span className="badge bg-info bg-opacity-10 text-info border border-info ms-1" style={{ fontSize: '10px', padding: '2px 6px', fontWeight: '500', textTransform: 'none' }}>
+																					<span className="badge bg-info bg-opacity-10 text-info border border-info ms-1" style={{ fontSize: '10px', padding: '2px 6px', fontWeight: '500', textTransform: 'none', whiteSpace: 'nowrap' }}>
 																						Hiring for: {app.jobId.companyName}
 																					</span>
 																				)}
@@ -2343,7 +2343,7 @@ function CanStatusPage() {
 																</span>
 															</td>
 															<td className="px-4 py-3">
-																<div className="interview-progress-wrapper" style={{display: 'flex', flexDirection: 'row', gap: '8px', overflowX: 'auto', alignItems: 'flex-start'}}>
+																<div className="interview-progress-wrapper" style={{display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap: '8px', overflowX: 'auto', alignItems: 'flex-start'}}>
 																	{interviewRounds.length > 0 ? (
 																		interviewRounds.map((round, roundIndex) => {
 																			// Get interview details for this round
