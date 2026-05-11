@@ -1653,12 +1653,7 @@ function EmpCandidateReviewPage() {
                                                                         <span>No Show</span>
                                                                     </div>
                                                                 )}
-                                                                {!isAssessmentNoShowApplication && assessmentDisplay.isWindowExpired && (
-                                                                    <div className="stage-locked-info">
-                                                                        <i className="fas fa-clock"></i>
-                                                                        <span>Expired</span>
-                                                                    </div>
-                                                                )}
+
                                                             </div>
 
                                                             {index === interviewProcesses.length - 1 && process.status === 'selected' && (
