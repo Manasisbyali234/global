@@ -680,7 +680,7 @@ function EmpCandidatesPage() {
                               style={{ width: "50px", height: "50px", objectFit: "cover" }}
                             />
                           ) : (
-                            <div className="avatar-placeholder" style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <div style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                               <i className="fas fa-user" style={{ fontSize: "22px", color: "#aaa" }}></i>
                             </div>
                           )}
