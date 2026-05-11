@@ -212,6 +212,29 @@
   width: 100%;
 }
 
+.emp-candidates-card .twm-media-pic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.emp-candidates-card .avatar-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emp-candidates-card .avatar-placeholder i {
+  font-size: 22px;
+  color: #aaa;
+  line-height: 1;
+}
+
 @media (max-width: 991px) {
   #content.mobile-view .emp-candidates-page .panel.panel-default.site-bg-white.p-3.employer-page-content-card {
     padding-left: 0.5rem !important;
