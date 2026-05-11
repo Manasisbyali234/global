@@ -2206,8 +2206,8 @@ function CanStatusPage() {
 						<div className="col-lg-12 col-md-12 mb-4">
 							<div className="card card-shadow border-0">
 								<div className="card-body p-0">
-									<div className="table-responsive">
-									<table className="table table-hover mb-0">
+									<div className="table-responsive candidate-status-table-wrap">
+									<table className="table table-hover mb-0 candidate-status-table">
 										<thead style={{backgroundColor: '#f8f9fa'}}>
 											<tr>
 												<th className="border-0 px-4 py-3 fw-semibold" style={{color: '#232323'}}>
@@ -2299,7 +2299,7 @@ function CanStatusPage() {
 																</span>
 															</td>
 															<td className={`px-4 py-3 ${highlightCompanyPosition ? 'highlight-company-position' : ''}`} style={{transition: 'all 0.3s ease'}}>
-																<div className="d-flex align-items-center">
+																<div className="d-flex align-items-center status-company-cell-wrapper">
 																	<div className="me-3">
 																		<div className="rounded-circle" style={{width: '45px', height: '45px', minWidth: '45px', minHeight: '45px', backgroundColor: '#fff3e0', border: '2px solid #ff6b35', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
 																			{app.jobId?.companyLogo ? (
@@ -2309,9 +2309,9 @@ function CanStatusPage() {
 																			)}
 																		</div>
 																	</div>
-																	<div>
+																	<div className="status-name-location-wrap">
 																		<a href={`/emp-detail/${app.employerId?._id}`} className="text-decoration-none">
-																			<h6 className="mb-1 fw-semibold text-dark hover-primary" style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '5px' }}>
+																			<h6 className="mb-0 fw-semibold text-dark hover-primary" style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '5px' }}>
 																				{getEmployerDisplayCompanyName(app)}
 																				{app.jobId?.companyName && app.jobId.companyName !== app.employerId?.companyName && (
 																					<span className="badge bg-info bg-opacity-10 text-info border border-info ms-1" style={{ fontSize: '10px', padding: '2px 6px', fontWeight: '500', textTransform: 'none', whiteSpace: 'nowrap' }}>
@@ -2320,8 +2320,8 @@ function CanStatusPage() {
 																				)}
 																			</h6>
 																		</a>
-																		<small className="text-muted d-block mt-1">
-																			<i className="fas fa-map-marker-alt me-1"></i>
+																		<small className="text-muted d-inline-flex align-items-center">
+																			<i className="fas fa-map-marker-alt mx-1"></i>
 																			{(() => {
 																				const locations = app.jobId?.location;
 																				if (Array.isArray(locations)) {
@@ -2465,7 +2465,7 @@ function CanStatusPage() {
 																			return (
 																				<div key={roundIndex} className="interview-round-item" style={{minWidth: '120px', padding: '4px', flexShrink: 0}}>
 																					<div className="round-name" style={{fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', color: '#232323'}}>{roundName}</div>
-																					<div style={{display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'center'}}>
+																					<div className="interview-round-status-container" style={{display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center'}}>
 																						{/* Show countdown timer if assessment hasn't started yet */}
 																						{shouldShowAssessmentCountdown && (() => {
 																							const windowInfo = assessmentWindowInfo;
@@ -2578,7 +2578,7 @@ function CanStatusPage() {
 								</div>
 							</div>
 						</div>
-						<div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "column" }}>
+						<div className="status-page-pagination-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", borderTop: "1px solid #e9ecef", paddingTop: "14px", flexWrap: "wrap", gap: "10px", flexDirection: "row" }}>
 							<div style={{ color: "#6c757d", fontSize: "13px" }}>
 								Showing {filteredApplications.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredApplications.length)} of {filteredApplications.length} record{filteredApplications.length !== 1 ? "s" : ""}
 							</div>

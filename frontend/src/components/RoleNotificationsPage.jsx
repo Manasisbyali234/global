@@ -72,7 +72,8 @@ function RoleNotificationsPage({
   accentColor = "#f97316",
   pageClassName = "",
   shellClassName = "",
-  headerIconClass = "fa fa-bell"
+  headerIconClass = "fa fa-bell",
+  compactMobilePagination = false
 }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -83,6 +84,7 @@ function RoleNotificationsPage({
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isMobilePagination, setIsMobilePagination] = useState(false);
   const PAGE_SIZE = 10;
 
   const tokenKey = `${role}Token`;
@@ -144,6 +146,28 @@ function RoleNotificationsPage({
       window.removeEventListener("refreshNotifications", handleRefresh);
     };
   }, [fetchNotifications]);
+
+  useEffect(() => {
+    if (!compactMobilePagination || typeof window.matchMedia !== "function") return undefined;
+
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const syncMobilePagination = () => setIsMobilePagination(mediaQuery.matches);
+
+    syncMobilePagination();
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", syncMobilePagination);
+    } else {
+      mediaQuery.addListener(syncMobilePagination);
+    }
+
+    return () => {
+      if (typeof mediaQuery.removeEventListener === "function") {
+        mediaQuery.removeEventListener("change", syncMobilePagination);
+      } else {
+        mediaQuery.removeListener(syncMobilePagination);
+      }
+    };
+  }, [compactMobilePagination]);
 
   const dispatchNotificationRefresh = () => {
     window.dispatchEvent(new CustomEvent("refreshNotifications"));
@@ -235,6 +259,17 @@ function RoleNotificationsPage({
 
   const getPageNumbers = () => {
     const pages = [];
+    if (compactMobilePagination && isMobilePagination) {
+      if (totalPages <= 2) {
+        for (let i = 1; i <= totalPages; i++) pages.push(i);
+      } else if (currentPage >= totalPages) {
+        pages.push(totalPages - 1, totalPages);
+      } else {
+        pages.push(currentPage, currentPage + 1);
+      }
+      return pages;
+    }
+
     if (totalPages <= 5) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {

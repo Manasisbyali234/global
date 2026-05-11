@@ -315,6 +315,20 @@
     -webkit-overflow-scrolling: touch;
 }
 
+.candidate-status-table-wrap {
+    overscroll-behavior-x: contain;
+}
+
+.candidate-status-table .status-name-location-wrap h6,
+.candidate-status-table .status-name-location-wrap small,
+.candidate-status-table .interview-round-item .round-name,
+.candidate-status-table .interview-round-status-container,
+.candidate-status-table .interview-round-status-container span,
+.candidate-status-table .status-view-interviews-action,
+.candidate-status-table .status-view-interviews-action span {
+    white-space: nowrap;
+}
+
 /* Force scrollbar to always be visible */
 .table-responsive::-webkit-scrollbar {
     width: 12px;
@@ -577,6 +591,48 @@ td .text-success:not(.badge) {
         position: relative !important;
     }
 
+    .candidate-status-table-wrap {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+    }
+
+    .candidate-status-table {
+        width: max-content !important;
+        min-width: 1180px !important;
+        table-layout: auto !important;
+    }
+
+    .candidate-status-table th,
+    .candidate-status-table td,
+    .candidate-status-table th *,
+    .candidate-status-table td * {
+        white-space: nowrap !important;
+        word-wrap: normal !important;
+        overflow-wrap: normal !important;
+        word-break: keep-all !important;
+        hyphens: none !important;
+    }
+
+    .candidate-status-table .status-company-cell-wrapper,
+    .candidate-status-table .interview-progress-wrapper,
+    .candidate-status-table .interview-round-status-container,
+    .candidate-status-table .status-view-interviews-action {
+        flex-wrap: nowrap !important;
+    }
+
+    .candidate-status-table .interview-round-item,
+    .candidate-status-table .status-view-interviews-action {
+        min-width: max-content !important;
+    }
+
+    .candidate-status-table .status-name-location-wrap h6,
+    .candidate-status-table .status-name-location-wrap small,
+    .candidate-status-table .interview-round-item .round-name,
+    .candidate-status-table .interview-round-status-container span,
+    .candidate-status-table .status-view-interviews-action span {
+        white-space: nowrap !important;
+    }
+
     .table-responsive::-webkit-scrollbar {
         -webkit-appearance: none !important;
         width: 8px !important;
@@ -663,6 +719,54 @@ td .text-success:not(.badge) {
         position: static !important;
         background-color: transparent !important;
         border-left: none !important;
+    }
+
+    html body .table tbody td:last-child .status-view-interviews-action,
+    html body .table tbody td .status-view-interviews-action {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        width: auto !important;
+        min-width: 120px !important;
+        padding: 8px 12px !important;
+        white-space: nowrap !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    html body .status-page-pagination-container {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+
+    html body .interview-round-status-container {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+    }
+
+    html body .status-company-cell-wrapper {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+    }
+
+    html body .status-page-pagination-container div,
+    html body .status-page-pagination-container span,
+    html body .interview-round-status-container span,
+    html body .interview-round-status-container div {
+        white-space: nowrap !important;
     }
 }
 

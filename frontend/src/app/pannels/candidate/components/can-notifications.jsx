@@ -10,6 +10,7 @@ function CanNotificationsPage() {
       pageClassName="candidate-notifications-page"
       shellClassName="candidate-notifications-shell"
       headerIconClass="fa fa-bell"
+      compactMobilePagination
     />
   );
 }
