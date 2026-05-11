@@ -424,8 +424,8 @@
 }
 
 .stage-header-block {
-    flex: 0 0 180px;
-    min-width: 150px;
+    flex: 0 0 auto;
+    min-width: 0;
 }
 
 .stage-header-block h5 {
@@ -594,6 +594,8 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    white-space: nowrap;
+    display: inline-block;
 }
 
 .status-pill.completed { background: #e8f5e9; color: #2e7d32; }
@@ -743,6 +745,16 @@
 
 .btn-recommend { border-left: 4px solid #28a745 !important; }
 .btn-recommend i { color: #28a745; }
+.btn-recommend:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #e9ecef;
+    border-color: #ced4da !important;
+    border-left-color: #adb5bd !important;
+    color: #6c757d;
+    transform: none;
+}
+.btn-recommend:disabled i { color: #6c757d; }
 
 .btn-reject { border-left: 4px solid #dc3545 !important; }
 .btn-reject i { color: #dc3545; }
@@ -838,13 +850,9 @@
     gap: 10px;
 }
 
-/* Ensure long status labels wrap inside the badge in this page */
-.emp-candidate-review-page .status-badge {
-    white-space: normal !important;
-    max-width: none !important;
-    height: auto !important;
-    line-height: 1.2 !important;
-    text-transform: none !important;
+/* Ensure status pill never wraps */
+.emp-candidate-review-page .status-pill {
+    white-space: nowrap !important;
 }
 
 .control-row {

@@ -1477,7 +1477,11 @@ function EmpCandidateReviewPage() {
                                          <div className="section-header">
                                               <div style={{ display: "flex", flexDirection: "column" }}>
                                                <h4><i className="fas fa-tasks"></i> Manual Stage Tracking</h4>
-                                               <h6></h6>
+                                               {!statusUpdateUnlocked && (
+                                                   <p style={{ color: '#dc3545', fontSize: '12px', margin: '4px 0 0 0', fontWeight: '500' }}>
+                                                       Please click on "Status update" to unlock the stages.
+                                                   </p>
+                                               )}
                                           </div>
                                           <button
                                             type="button"
@@ -1522,18 +1526,6 @@ function EmpCandidateReviewPage() {
                                                                                 ? (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))
                                                                                 : assessmentDisplay.statusLabel}
                                                                         </span>
-                                                                    </div>
-
-                                                                    <div className="stage-info-block">
-                                                                        <div className="info-section-item">
-                                                                            <div className="item-avatar">
-                                                                                <i className="fas fa-calendar-alt"></i>
-                                                                            </div>
-                                                                            <div className="item-details">
-                                                                                <label>Schedule</label>
-                                                                                <span>{process.scheduledDate ? formatDate(process.scheduledDate) : 'Not Scheduled'}</span>
-                                                                            </div>
-                                                                        </div>
                                                                     </div>
                                                                 </div>
 
@@ -1629,22 +1621,27 @@ function EmpCandidateReviewPage() {
                                                                         />
                                                                     </div>
                                                                     <div className="stage-actions-horizontal">
-                                                                        <button className="btn-soft-outline">
-                                                                            <i className="fas fa-comment-alt"></i> Feedback
-                                                                        </button>
-                                                                        <button className="btn-soft-outline">
-                                                                            <i className="fas fa-sticky-note"></i> Notes
-                                                                        </button>
                                                                         {process.type === 'assessment' && (
-                                                                            <button 
-                                                                                className="btn-soft-outline"
-                                                                                onClick={() => {
-                                                                                    const attempt = application.assessmentAttempt;
-                                                                                    if (attempt?._id) navigate(`/employer/view-answers/${attempt._id}`);
-                                                                                }}
-                                                                            >
-                                                                                <i className="fas fa-code"></i> Code
-                                                                            </button>
+                                                                            <>
+                                                                                <button
+                                                                                    className="btn-soft-outline"
+                                                                                    onClick={() => {
+                                                                                        const captures = process.assessmentCaptures || application.assessmentAttempt?.captures || application.assessmentAttempt?.capturedImages || [];
+                                                                                        setCapturesModal({ isOpen: true, captures });
+                                                                                    }}
+                                                                                >
+                                                                                    <i className="fas fa-camera"></i> View Capture
+                                                                                </button>
+                                                                                <button 
+                                                                                    className="btn-soft-outline"
+                                                                                    onClick={() => {
+                                                                                        const attempt = application.assessmentAttempt;
+                                                                                        if (attempt?._id) navigate(`/employer/view-answers/${attempt._id}`);
+                                                                                    }}
+                                                                                >
+                                                                                    <i className="fas fa-code"></i> Answers
+                                                                                </button>
+                                                                            </>
                                                                         )}
                                                                     </div>
                                                                 </div>
@@ -1703,7 +1700,7 @@ function EmpCandidateReviewPage() {
                                                     className="btn-decision btn-shortlist-action"
                                                     onClick={() => updateApplicationStatus('shortlisted')}
                                                 >
-                                                    <i className="fas fa-check-circle"></i> Shortlist for Next Round
+                                                    <i className="fas fa-check-circle"></i> Shortlist 
                                                 </button>
                                             )}
 
@@ -1714,29 +1711,11 @@ function EmpCandidateReviewPage() {
                                                     onClick={() => updateApplicationStatus('offer_sent')}
                                                     disabled={applicationStatusForActions === 'offer_sent'}
                                                 >
-                                                    <i className="fas fa-award"></i> Recommend Offer
+                                                    <i className="fas fa-award"></i>  Offer Letter Sent
                                                 </button>
                                             )}
 
-                                            {/* Hold Action */}
-                                            {applicationStatusForActions !== 'on_hold' && applicationStatusForActions !== 'rejected' && (
-                                                <button 
-                                                    className="btn-decision btn-hold-action"
-                                                    onClick={() => updateApplicationStatus('on_hold')}
-                                                >
-                                                    <i className="fas fa-pause-circle"></i> Hold Application
-                                                </button>
-                                            )}
 
-                                            {/* Reject Action */}
-                                            {applicationStatusForActions !== 'rejected' && (
-                                                <button 
-                                                    className="btn-decision btn-reject"
-                                                    onClick={() => setShowRejectConfirm(true)}
-                                                >
-                                                    <i className="fas fa-times-circle"></i> Reject Application
-                                                </button>
-                                            )}
                                         </div>
 
                                         {isAssessmentNoShowApplication && (

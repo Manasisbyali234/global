@@ -2556,12 +2556,12 @@ function CanStatusPage() {
 																		</button>
 																	</div>
 																) : applicationDisplayStatus === 'accepted' ? (
-																	<span className="btn btn-sm btn-outline-success disabled" title="Accepted">
-																		Accepted
+																	<span className="btn btn-sm btn-outline-success disabled" title="Accepted Offer">
+																		Accepted Offer
 																	</span>
 																) : applicationDisplayStatus === 'rejected' && app.statusHistory?.some(h => h.status === 'offer_sent') ? (
-																	<span className="btn btn-sm btn-outline-danger disabled" title="Offer Rejected">
-																		Rejected
+																	<span className="btn btn-sm btn-outline-danger disabled" title="Rejected Offer">
+																		Rejected Offer
 																	</span>
 																) : (
 																	<span className="text-muted small">-</span>
