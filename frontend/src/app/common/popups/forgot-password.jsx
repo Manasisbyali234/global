@@ -49,30 +49,41 @@ function ForgotPassword() {
       const endpoints = [
         `${apiUrl}/api/candidate/password/send-otp`,
         `${apiUrl}/api/employer/password/send-otp`,
-        `${apiUrl}/api/admin/password/send-otp`,
+        `${apiUrl}/api/admin/send-otp`,
         `${apiUrl}/api/placement/password/send-otp`
       ];
       
       let success = false;
+      let lastErrorMessage = 'Email not registered';
+
       for (const endpoint of endpoints) {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-          setMessage('OTP sent to your email successfully!');
-          setOtpSent(true);
-          startResendCooldown();
-          success = true;
-          break;
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const result = await response.json();
+          
+          if (response.ok && result.success) {
+            setMessage('OTP sent to your email successfully!');
+            setOtpSent(true);
+            startResendCooldown();
+            success = true;
+            break;
+          } else if (response.status !== 404) {
+            lastErrorMessage = result.message || 'Server error occurred.';
+            if (response.status === 500 || response.status === 401) {
+              break;
+            }
+          }
+        } catch (e) {
+          console.error(`Error checking endpoint ${endpoint}:`, e);
         }
       }
       
       if (!success) {
-        setMessage('Email not registered');
+        setMessage(lastErrorMessage);
       }
     } catch (error) {
       setMessage('Unable to send OTP. Please try again.');
@@ -90,29 +101,40 @@ function ForgotPassword() {
       const endpoints = [
         `${apiUrl}/api/candidate/password/send-otp`,
         `${apiUrl}/api/employer/password/send-otp`,
-        `${apiUrl}/api/admin/password/send-otp`,
+        `${apiUrl}/api/admin/send-otp`,
         `${apiUrl}/api/placement/password/send-otp`
       ];
       
       let success = false;
+      let lastErrorMessage = 'Failed to resend OTP. Please try again.';
+
       for (const endpoint of endpoints) {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-          setMessage('OTP resent to your email successfully!');
-          startResendCooldown();
-          success = true;
-          break;
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const result = await response.json();
+          
+          if (response.ok && result.success) {
+            setMessage('OTP resent to your email successfully!');
+            startResendCooldown();
+            success = true;
+            break;
+          } else if (response.status !== 404) {
+            lastErrorMessage = result.message || 'Server error occurred.';
+            if (response.status === 500 || response.status === 401) {
+              break;
+            }
+          }
+        } catch (e) {
+          console.error(`Error resending to ${endpoint}:`, e);
         }
       }
       
       if (!success) {
-        setMessage('Failed to resend OTP. Please try again.');
+        setMessage(lastErrorMessage);
       }
     } catch (error) {
       setMessage('Unable to resend OTP. Please try again.');
@@ -137,7 +159,7 @@ function ForgotPassword() {
       const endpoints = [
         `${apiUrl}/api/candidate/password/verify-otp`,
         `${apiUrl}/api/employer/password/verify-otp`,
-        `${apiUrl}/api/admin/password/verify-otp`,
+        `${apiUrl}/api/admin/verify-otp-reset`,
         `${apiUrl}/api/placement/password/verify-otp`
       ];
       

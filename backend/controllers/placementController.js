@@ -1893,6 +1893,7 @@ exports.sendOTP = async (req, res) => {
 
     res.json({ success: true, message: 'OTP sent to your email' });
   } catch (error) {
+    console.error('Placement sendOTP error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
