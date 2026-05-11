@@ -42,7 +42,9 @@ const STATUS_BADGES = {
   rejected: { text: "Rejected", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
   no_show: { text: "No Show", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
   on_hold: { text: "On Hold", className: "bg-secondary bg-opacity-10 text-secondary border border-secondary" },
-  pending: { text: "Pending", className: "bg-secondary bg-opacity-10 text-secondary border border-secondary" }
+  pending: { text: "Pending", className: "bg-secondary bg-opacity-10 text-secondary border border-secondary" },
+  offer_sent: { text: "Offer Letter Sent", className: "bg-success bg-opacity-10 text-success border border-success" },
+  "offer sent": { text: "Offer Letter Sent", className: "bg-success bg-opacity-10 text-success border border-success" }
 };
 
 const normalizeRoundName = (value) => {
@@ -667,7 +669,7 @@ function CanInterviewsPage() {
                        </span>
                      </div>
 
-                     <div className="industry-tag-pill interview-status-pill">
+                     <div className={`industry-tag-pill interview-status-pill interview-status-pill--${String(card.status || "pending").toLowerCase().replace(/[^a-z0-9]/g, "-")}`}>
                        {badge.text}
                      </div>
 
