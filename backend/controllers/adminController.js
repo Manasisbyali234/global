@@ -5021,8 +5021,12 @@ exports.sendOTP = async (req, res) => {
     user.resetPasswordOTPExpires = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    const { sendOTPEmail } = require('../utils/emailService');
-    await sendOTPEmail(email, otp, user.name);
+    try {
+      const { sendOTPEmail } = require('../utils/emailService');
+      await sendOTPEmail(email, otp, user.name);
+    } catch (emailError) {
+      console.error('Admin sendOTP email error:', emailError);
+    }
 
     res.json({ success: true, message: 'OTP sent to your email' });
   } catch (error) {

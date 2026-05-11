@@ -1207,8 +1207,12 @@ exports.sendOTP = async (req, res) => {
     candidate.resetPasswordOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
     await candidate.save();
 
-    const { sendOTPEmail } = require('../utils/emailService');
-    await sendOTPEmail(email, otp, candidate.name);
+    try {
+      const { sendOTPEmail } = require('../utils/emailService');
+      await sendOTPEmail(email, otp, candidate.name);
+    } catch (emailError) {
+      console.error('Candidate sendOTP email error:', emailError);
+    }
 
     res.json({ success: true, message: 'OTP sent to your email' });
   } catch (error) {

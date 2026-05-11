@@ -1889,7 +1889,11 @@ exports.sendOTP = async (req, res) => {
     await placement.save();
 
     const { sendOTPEmail } = require('../utils/emailService');
-    await sendOTPEmail(email, otp, placement.name);
+    try {
+      await sendOTPEmail(email, otp, placement.name);
+    } catch (emailError) {
+      console.error('Placement sendOTP email error:', emailError);
+    }
 
     res.json({ success: true, message: 'OTP sent to your email' });
   } catch (error) {

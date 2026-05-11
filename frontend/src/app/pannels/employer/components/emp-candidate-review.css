@@ -272,7 +272,7 @@
 /* Review Panel Specifics */
 .review-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-columns: 1fr;
     gap: 20px;
 }
 
@@ -424,12 +424,17 @@
 }
 
 .stage-header-block {
-    flex: 0 0 auto;
+    flex: 1;
     min-width: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .stage-header-block h5 {
-    margin: 0 0 10px 0;
+    margin: 0;
     font-size: 17px;
     font-weight: 800;
     color: var(--text-dark);
@@ -458,14 +463,22 @@
 .stage-row-secondary {
     display: flex;
     gap: 15px;
-    align-items: center;
+    align-items: flex-start;
     flex-wrap: wrap;
     width: 100%;
 }
 
 .control-select-wrapper {
-    flex: 0 0 160px;
-    min-width: 140px;
+    flex: 0 0 280px;
+    min-width: 260px;
+}
+
+.control-select-wrapper .form-select:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+    border-color: #ced4da;
 }
 
 .control-remarks-wrapper {

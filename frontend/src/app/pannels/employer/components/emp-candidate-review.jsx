@@ -1522,9 +1522,9 @@ function EmpCandidateReviewPage() {
                                                                     <div className="stage-header-block">
                                                                         <h5>{cleanProcessName(process.name)}</h5>
                                                                         <span className={`status-pill ${process.isCompleted ? 'completed' : 'pending'}`}>
-                                                                            {process.type === 'assessment' && !isAutoAssessmentStageStatus(process.status) && !assessmentDisplay.isWindowExpired
-                                                                                ? (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))
-                                                                                : assessmentDisplay.statusLabel}
+                                                                            {process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired)
+                                                                                ? assessmentDisplay.statusLabel
+                                                                                : (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))}
                                                                         </span>
                                                                     </div>
                                                                 </div>
@@ -1573,78 +1573,79 @@ function EmpCandidateReviewPage() {
                                                                 {/* Row 2: Controls & Actions */}
                                                                 <div className="stage-row-secondary">
                                                                     <div className="control-select-wrapper">
-                                                                        {statusUpdateUnlocked ? (
-                                                                            <select 
-                                                                                className="form-select"
-                                                                                value={process.status || 'pending'}
-                                                                                onChange={(e) => {
-                                                                                    const newStatus = e.target.value;
-                                                                                    setInterviewProcesses(prev => {
-                                                                                        const updated = normalizeManualTrackingSequence(
-                                                                                            prev.map(p => p.id === process.id ? {
-                                                                                                ...p,
-                                                                                                status: newStatus,
-                                                                                                isCompleted: newStatus !== 'pending'
-                                                                                            } : p)
-                                                                                        );
-                                                                                        interviewProcessesRef.current = updated;
-                                                                                        saveInterviewProcesses(updated, true);
-                                                                                        return updated;
-                                                                                    });
-                                                                                }}
-                                                                                disabled={isCurrentDisabled}
-                                                                            >
-                                                                                {!getStageStatusOptions(index).some((option) => option.value === (process.status || 'pending')) && (
-                                                                                    <option value={process.status || 'pending'}>
-                                                                                        {(process.status || 'pending').replace(/_/g, ' ')}
-                                                                                    </option>
-                                                                                )}
-                                                                                {getStageStatusOptions(index).map((option) => (
-                                                                                    <option key={option.value} value={option.value}>
-                                                                                        {option.label}
-                                                                                    </option>
-                                                                                ))}
-                                                                            </select>
-                                                                        ) : (
-                                                                            <div className="status-locked-placeholder">
-                                                                                Status locked
-                                                                            </div>
-                                                                        )}
+                                                                        <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'block' }}>Candidate Status</label>
+                                                                        <select 
+                                                                            className="form-select"
+                                                                            value={process.status || 'pending'}
+                                                                            onChange={(e) => {
+                                                                                if (!statusUpdateUnlocked) return;
+                                                                                const newStatus = e.target.value;
+                                                                                setInterviewProcesses(prev => {
+                                                                                    const updated = normalizeManualTrackingSequence(
+                                                                                        prev.map(p => p.id === process.id ? {
+                                                                                            ...p,
+                                                                                            status: newStatus,
+                                                                                            isCompleted: newStatus !== 'pending'
+                                                                                        } : p)
+                                                                                    );
+                                                                                    interviewProcessesRef.current = updated;
+                                                                                    saveInterviewProcesses(updated, true);
+                                                                                    return updated;
+                                                                                });
+                                                                            }}
+                                                                            disabled={!statusUpdateUnlocked || isCurrentDisabled}
+                                                                        >
+                                                                            {!getStageStatusOptions(index).some((option) => option.value === (process.status || 'pending')) && (
+                                                                                <option value={process.status || 'pending'}>
+                                                                                    {(process.status || 'pending').replace(/_/g, ' ')}
+                                                                                </option>
+                                                                            )}
+                                                                            {getStageStatusOptions(index).map((option) => (
+                                                                                <option key={option.value} value={option.value}>
+                                                                                    {option.label}
+                                                                                </option>
+                                                                            ))}
+                                                                        </select>
                                                                     </div>
                                                                     <div className="control-remarks-wrapper">
+                                                                        <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'block' }}>Stage Feedback</label>
                                                                         <textarea 
                                                                             placeholder="Add stage feedback or notes..."
                                                                             value={processRemarks[process.id] || ''}
-                                                                            onChange={(e) => updateProcessRemark(process.id, e.target.value)}
+                                                                            onChange={(e) => {
+                                                                                updateProcessRemark(process.id, e.target.value);
+                                                                                e.target.style.height = 'auto';
+                                                                                e.target.style.height = e.target.scrollHeight + 'px';
+                                                                            }}
                                                                             disabled={isCurrentDisabled}
                                                                             rows="1"
+                                                                            style={{ overflow: 'hidden', resize: 'none' }}
                                                                         />
                                                                     </div>
-                                                                    <div className="stage-actions-horizontal">
-                                                                        {process.type === 'assessment' && (
-                                                                            <>
-                                                                                <button
-                                                                                    className="btn-soft-outline"
-                                                                                    onClick={() => {
-                                                                                        const captures = process.assessmentCaptures || application.assessmentAttempt?.captures || application.assessmentAttempt?.capturedImages || [];
-                                                                                        setCapturesModal({ isOpen: true, captures });
-                                                                                    }}
-                                                                                >
-                                                                                    <i className="fas fa-camera"></i> View Capture
-                                                                                </button>
-                                                                                <button 
-                                                                                    className="btn-soft-outline"
-                                                                                    onClick={() => {
-                                                                                        const attempt = application.assessmentAttempt;
-                                                                                        if (attempt?._id) navigate(`/employer/view-answers/${attempt._id}`);
-                                                                                    }}
-                                                                                >
-                                                                                    <i className="fas fa-code"></i> Answers
-                                                                                </button>
-                                                                            </>
-                                                                        )}
-                                                                    </div>
+                                                                    {process.type !== 'assessment' && <div className="stage-actions-horizontal"></div>}
                                                                 </div>
+                                                                {process.type === 'assessment' && (
+                                                                    <div className="stage-actions-horizontal" style={{ marginTop: '8px' }}>
+                                                                        <button
+                                                                            className="btn-soft-outline"
+                                                                            onClick={() => {
+                                                                                const captures = process.assessmentCaptures || application.assessmentAttempt?.captures || application.assessmentAttempt?.capturedImages || [];
+                                                                                setCapturesModal({ isOpen: true, captures });
+                                                                            }}
+                                                                        >
+                                                                            <i className="fas fa-camera"></i> View Capture
+                                                                        </button>
+                                                                        <button 
+                                                                            className="btn-soft-outline"
+                                                                            onClick={() => {
+                                                                                const attempt = application.assessmentAttempt;
+                                                                                if (attempt?._id) navigate(`/employer/view-answers/${attempt._id}`);
+                                                                            }}
+                                                                        >
+                                                                            <i className="fas fa-code"></i> Answers
+                                                                        </button>
+                                                                    </div>
+                                                                )}
 
                                                                 {isAssessmentNoShowApplication && (
                                                                     <div className="stage-locked-info">
@@ -1659,6 +1660,37 @@ function EmpCandidateReviewPage() {
                                                                     </div>
                                                                 )}
                                                             </div>
+
+                                                            {index === interviewProcesses.length - 1 && process.status === 'selected' && (
+                                                                <div className="final-round-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                                                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                                                        <button
+                                                                            className="btn-decision btn-shortlist-action"
+                                                                            onClick={() => updateApplicationStatus('shortlisted')}
+                                                                            disabled={applicationStatusForActions === 'shortlisted'}
+                                                                        >
+                                                                            <i className="fas fa-check-circle"></i> Shortlisted
+                                                                        </button>
+                                                                        <button
+                                                                            className="btn-decision btn-recommend"
+                                                                            onClick={() => updateApplicationStatus('offer_sent')}
+                                                                            disabled={applicationStatusForActions === 'offer_sent' || applicationDisplayStatus === 'accepted' || applicationDisplayStatus === 'rejected'}
+                                                                        >
+                                                                            <i className="fas fa-award"></i> Offer Letter Sent
+                                                                        </button>
+                                                                    </div>
+                                                                    {applicationDisplayStatus === 'accepted' && (
+                                                                        <div style={{ color: '#065f46', background: '#d1fae5', border: '1px solid #6ee7b7', borderRadius: '6px', padding: '6px 16px', fontWeight: '600', fontSize: '13px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', minWidth: '260px' }}>
+                                                                            <i className="fas fa-check-circle"></i> Candidate Accepted Offer Letter
+                                                                        </div>
+                                                                    )}
+                                                                    {(applicationDisplayStatus === 'rejected' && application?.statusHistory?.some(h => h.status === 'offer_sent')) && (
+                                                                        <div style={{ color: '#991b1b', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '6px', padding: '6px 16px', fontWeight: '600', fontSize: '13px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', minWidth: '260px' }}>
+                                                                            <i className="fas fa-times-circle"></i> Candidate Rejected Offer Letter
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     );
                                                 })}
@@ -1668,72 +1700,7 @@ function EmpCandidateReviewPage() {
                                 )}
                             </div>
 
-                            <div className="review-sidebar">
-                                <div className="overall-actions-card">
-                                    <div className="sidebar-title">Overall Actions</div>
-                                    
-                                    <div className="remarks-group">
-                                        <label>Recruiter Remarks</label>
-                                        <textarea 
-                                            value={remarks}
-                                            onChange={(e) => setRemarks(e.target.value)}
-                                            placeholder="Enter overall feedback for the candidate..."
-                                            rows="4"
-                                            onInput={(e) => {
-                                                e.target.style.height = 'auto';
-                                                e.target.style.height = e.target.scrollHeight + 'px';
-                                            }}
-                                        />
-                                        <button className="btn-save-remarks" onClick={saveReview}>
-                                            <i className="fas fa-save"></i> Save Remarks
-                                        </button>
-                                    </div>
 
-                                    <div className="decision-group">
-                                        <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '15px' }}>
-                                            Candidate Decision
-                                        </label>
-                                        <div className="decision-buttons">
-                                            {/* Shortlist Action */}
-                                            {applicationStatusForActions !== 'shortlisted' && applicationStatusForActions !== 'hired' && applicationStatusForActions !== 'accepted' && (
-                                                <button 
-                                                    className="btn-decision btn-shortlist-action"
-                                                    onClick={() => updateApplicationStatus('shortlisted')}
-                                                >
-                                                    <i className="fas fa-check-circle"></i> Shortlist 
-                                                </button>
-                                            )}
-
-                                            {/* Recommend/Offer Action */}
-                                            {applicationStatusForActions !== 'hired' && applicationStatusForActions !== 'accepted' && (
-                                                <button 
-                                                    className="btn-decision btn-recommend"
-                                                    onClick={() => updateApplicationStatus('offer_sent')}
-                                                    disabled={applicationStatusForActions === 'offer_sent'}
-                                                >
-                                                    <i className="fas fa-award"></i>  Offer Letter Sent
-                                                </button>
-                                            )}
-
-
-                                        </div>
-
-                                        {isAssessmentNoShowApplication && (
-                                            <div className="alert alert-warning mt-3" style={{ fontSize: '12px', borderRadius: '10px' }}>
-                                                <i className="fas fa-exclamation-triangle me-2"></i>
-                                                Session expired: No show.
-                                            </div>
-                                        )}
-                                        
-                                        {applicationStatusForActions === 'accepted' && (
-                                            <div className="alert alert-success mt-3" style={{ fontSize: '12px', borderRadius: '10px' }}>
-                                                <i className="fas fa-check-double me-2"></i>
-                                                Offer Accepted by Candidate
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 )}

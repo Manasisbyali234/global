@@ -84,11 +84,16 @@ exports.sendOTP = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     employer.resetPasswordOTP = otp;
-    employer.resetPasswordOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    employer.resetPasswordOTPExpires = Date.now() + 10 * 60 * 1000;
     await employer.save();
 
-    const { sendOTPEmail } = require('../utils/emailService');
-    await sendOTPEmail(email, otp, employer.name);
+    try {
+      const { sendOTPEmail } = require('../utils/emailService');
+      await sendOTPEmail(email, otp, employer.name);
+    } catch (emailError) {
+      console.error('Employer sendOTP email error:', emailError);
+      // OTP is saved; email failure should not block the response
+    }
 
     res.json({ success: true, message: 'OTP sent to your email' });
   } catch (error) {

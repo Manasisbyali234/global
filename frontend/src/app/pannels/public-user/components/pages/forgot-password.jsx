@@ -57,7 +57,6 @@ function ForgotPassword() {
       ];
       
       let otpSentSuccess = false;
-      let lastErrorMessage = 'This email is not registered. Please use a registered email address.';
       
       for (const endpoint of endpoints) {
         try {
@@ -74,23 +73,16 @@ function ForgotPassword() {
             startResendCooldown();
             otpSentSuccess = true;
             break;
-          } else if (response.status !== 404) {
-            // If it's not a 404, it might be the right role but with another error (500, 401, 400)
-            lastErrorMessage = result.message || 'Server error occurred. Please try again.';
-            // If we found the right endpoint but it failed for other reasons (like 500), 
-            // we might want to stop here or keep looking. 
-            // Given the sequential check, if it's 500 it's likely the right role but crashing.
-            if (response.status === 500 || response.status === 401) {
-              break; 
-            }
           }
+          // Continue to next endpoint for 404 (not found in this role)
+          // Also continue for other errors to check remaining roles
         } catch (e) {
-          console.error(`Error checking endpoint ${endpoint}:`, e);
+          // Network error for this endpoint, try next
         }
       }
       
       if (!otpSentSuccess) {
-        setError(lastErrorMessage);
+        setError('This email is not registered. Please use a registered email address.');
       }
     } catch (error) {
       setError('Unable to send OTP. Please try again.');
@@ -114,7 +106,6 @@ function ForgotPassword() {
       ];
       
       let otpSentSuccess = false;
-      let lastErrorMessage = 'Failed to resend OTP. Please try again.';
 
       for (const endpoint of endpoints) {
         try {
@@ -130,19 +121,15 @@ function ForgotPassword() {
             startResendCooldown();
             otpSentSuccess = true;
             break;
-          } else if (response.status !== 404) {
-            lastErrorMessage = result.message || 'Server error occurred.';
-            if (response.status === 500 || response.status === 401) {
-              break;
-            }
           }
+          // Continue to next endpoint regardless of error type
         } catch (e) {
-          console.error(`Error resending to ${endpoint}:`, e);
+          // Network error for this endpoint, try next
         }
       }
       
       if (!otpSentSuccess) {
-        setError(lastErrorMessage);
+        setError('Failed to resend OTP. Please try again.');
       }
     } catch (error) {
       setError('Unable to resend OTP. Please try again.');
@@ -174,20 +161,24 @@ function ForgotPassword() {
       
       let resetSuccess = false;
       for (const endpoint of endpoints) {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, otp, newPassword })
-        });
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-          setSuccess('Password reset successful! Redirecting to login...');
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 1500);
-          resetSuccess = true;
-          break;
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp, newPassword })
+          });
+          const result = await response.json();
+          
+          if (response.ok && result.success) {
+            setSuccess('Password reset successful! Redirecting to login...');
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1500);
+            resetSuccess = true;
+            break;
+          }
+        } catch (e) {
+          // Network error for this endpoint, try next
         }
       }
       
