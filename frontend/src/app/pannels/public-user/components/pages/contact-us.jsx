@@ -217,7 +217,7 @@ function ContactUsPage() {
                                                 </div>
                                                 <div className="c-info-column">
                                                     <h3 className="twm-title">Support</h3>
-                                                    <p><a href="mailto:info@taleglobal.net" style={{color: '#1976d2 !important', textDecoration: 'underline !important', cursor: 'pointer !important', pointerEvents: 'auto !important', position: 'relative', zIndex: 999}}>info@taleglobal.net</a></p>
+                                                    <p><a href="mailto:contact@taleglobal.net" style={{color: '#1976d2 !important', textDecoration: 'underline !important', cursor: 'pointer !important', pointerEvents: 'auto !important', position: 'relative', zIndex: 999}}>contact@taleglobal.net</a></p>
                                                 </div>
                                             </div>
                                         </div>
