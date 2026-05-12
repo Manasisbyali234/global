@@ -733,7 +733,7 @@ function AdminOverviewPage() {
                                       {round.type === 'assessment' && (() => {
                                         const result = round.assessmentResult || null;
                                         const resolveResult = (r) => {
-                                          if (!r) return 'Pending';
+                                          if (!r) return 'Not Updated';
                                           const n = r.trim().toLowerCase();
                                           if (n === 'passed' || n === 'pass') return 'Passed';
                                           if (n === 'failed' || n === 'fail') return 'Failed';
@@ -741,7 +741,8 @@ function AdminOverviewPage() {
                                           if (n === 'no show' || n === 'no_show') return 'No Show';
                                           if (n === 'in progress' || n === 'in_progress') return 'In Progress';
                                           if (n === 'completed') return 'Completed';
-                                          return 'Pending';
+                                          if (n === 'not updated') return 'Not Updated';
+                                          return 'Not Updated';
                                         };
                                         const label = resolveResult(result);
                                         const styleMap = {
@@ -751,7 +752,7 @@ function AdminOverviewPage() {
                                           'No Show': { background: '#fff3cd', color: '#856404', border: '1px solid #ffc107' },
                                           'In Progress': { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' },
                                           'Completed': { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' },
-                                          'Pending': { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' },
+                                          'Not Updated': { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' },
                                         };
                                         return (
                                           <div className="admin-overview-round-detail" style={{ marginTop: '4px' }}>

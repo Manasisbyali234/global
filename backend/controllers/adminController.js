@@ -598,7 +598,9 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     ]);
 
     const assessmentAttemptMap = new Map();
-    const attemptPriority = { suspended: 5, completed: 4, expired: 3, in_progress: 2, not_started: 1 };
+    // Priority: suspended > completed > in_progress > expired > not_started
+    // completed must rank above expired so a finished attempt is not overridden by a stale expired one
+    const attemptPriority = { suspended: 5, completed: 4, in_progress: 3, expired: 2, not_started: 1 };
     assessmentAttempts.forEach((attempt) => {
       const key = String(attempt.applicationId);
       const existing = assessmentAttemptMap.get(key);
@@ -787,7 +789,7 @@ const resolveStageStatus = (stage, savedProcesses) => {
       const rs = String(resolvedStatus || '').toLowerCase();
       if (rs === 'no_show' || rs === 'no show') return 'No Show';
       if (rs === 'suspended') return 'Suspended';
-      // Then try AssessmentAttempt (most accurate for actual attempts)
+      // Then try AssessmentAttempt (most accurate — scoped to this applicationId)
       if (attempt) {
         const aStatus = String(attempt.status || '').toLowerCase();
         const aResult = String(attempt.result || '').toLowerCase();
@@ -797,8 +799,11 @@ const resolveStageStatus = (stage, savedProcesses) => {
         if (aResult === 'fail' || aResult === 'failed') return 'Failed';
         if (aStatus === 'completed') return 'Completed';
         if (aStatus === 'in_progress') return 'In Progress';
+        // Attempt exists but result is still pending — do not fall through to application-level fields
+        // to avoid showing another applicant's stale result
+        return 'Not Updated';
       }
-      // Then try application-level fields
+      // Then try application-level fields only when no attempt record exists
       const appStatus = String(appAssessmentStatus || '').toLowerCase();
       const appResult = String(appAssessmentResult || '').toLowerCase();
       if (appStatus === 'suspended') return 'Suspended';
@@ -816,7 +821,7 @@ const resolveStageStatus = (stage, savedProcesses) => {
       if (stageResult === 'fail' || stageStatus === 'failed') return 'Failed';
       if (stageStatus === 'completed') return 'Completed';
       if (stageStatus === 'in_progress') return 'In Progress';
-      return null;
+      return 'Not Updated';
     };
 
     const buildInterviewRounds = (application) => {
