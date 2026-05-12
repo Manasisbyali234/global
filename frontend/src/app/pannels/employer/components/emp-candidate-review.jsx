@@ -1530,10 +1530,7 @@ function EmpCandidateReviewPage() {
                                                                 </div>
 
                                                                 {process.type === 'assessment' && (() => {
-                                                                    const stageAssessmentId = process.assessmentId ? String(process.assessmentId) : null;
-                                                                    const attempt = (stageAssessmentId && application.assessmentAttemptsByAssessmentId?.[stageAssessmentId])
-                                                                        || (process.assessmentAttemptId && application.assessmentAttempts?.find(a => String(a._id) === String(process.assessmentAttemptId)))
-                                                                        || (application.interviewProcess?.stages?.length <= 1 ? application.assessmentAttempt : null);
+                                                                    const attempt = application.assessmentAttempt;
                                                                     const displayScore = process.assessmentScore ?? attempt?.score ?? null;
                                                                     const displayTotalMarks = process.assessmentTotalMarks ?? attempt?.totalMarks ?? null;
                                                                     const displayPercentage = process.assessmentPercentage ?? attempt?.percentage ?? null;
@@ -1632,11 +1629,7 @@ function EmpCandidateReviewPage() {
                                                                         <button
                                                                             className="btn-soft-outline"
                                                                             onClick={() => {
-                                                                                const stageAssessmentId = process.assessmentId ? String(process.assessmentId) : null;
-                                                                                const stageAttempt = (stageAssessmentId && application.assessmentAttemptsByAssessmentId?.[stageAssessmentId])
-                                                                                    || (process.assessmentAttemptId && application.assessmentAttempts?.find(a => String(a._id) === String(process.assessmentAttemptId)))
-                                                                                    || (application.interviewProcess?.stages?.length <= 1 ? application.assessmentAttempt : null);
-                                                                                const captures = process.assessmentCaptures || stageAttempt?.captures || stageAttempt?.capturedImages || [];
+                                                                                const captures = process.assessmentCaptures || application.assessmentAttempt?.captures || application.assessmentAttempt?.capturedImages || [];
                                                                                 setCapturesModal({ isOpen: true, captures });
                                                                             }}
                                                                         >
@@ -1645,11 +1638,8 @@ function EmpCandidateReviewPage() {
                                                                         <button 
                                                                             className="btn-soft-outline"
                                                                             onClick={() => {
-                                                                                const stageAssessmentId = process.assessmentId ? String(process.assessmentId) : null;
-                                                                                const stageAttempt = (stageAssessmentId && application.assessmentAttemptsByAssessmentId?.[stageAssessmentId])
-                                                                                    || (process.assessmentAttemptId && application.assessmentAttempts?.find(a => String(a._id) === String(process.assessmentAttemptId)))
-                                                                                    || (application.interviewProcess?.stages?.length <= 1 ? application.assessmentAttempt : null);
-                                                                                if (stageAttempt?._id) navigate(`/employer/view-answers/${stageAttempt._id}`);
+                                                                                const attempt = application.assessmentAttempt;
+                                                                                if (attempt?._id) navigate(`/employer/view-answers/${attempt._id}`);
                                                                             }}
                                                                         >
                                                                             <i className="fas fa-code"></i> Answers
