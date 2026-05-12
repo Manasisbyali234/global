@@ -664,9 +664,19 @@ export default function EmpPostJob({ onNext }) {
 		closeResizer,
 		handleSave: handleResizerSave,
 		openLogoResizer,
-		openBannerResizer,
+		openResizer,
 		fileToDataURL
 	} = useImageResizer();
+
+	const BANNER_RESIZE_CONFIG = {
+		aspectRatio: 1128 / 191,
+		maxWidth: 1128,
+		maxHeight: 191,
+		lockCropArea: true,
+		quality: 0.9
+	};
+
+	const openBannerResizer = (imageSrc, onSave) => openResizer(imageSrc, BANNER_RESIZE_CONFIG, onSave);
 	const [formData, setFormData] = useState({
 		jobTitle: "",
 		jobLocation: [],
@@ -990,8 +1000,8 @@ export default function EmpPostJob({ onNext }) {
 			: {
 				label: 'Company banner',
 				maxSizeMB: 5,
-				minWidth: 800,
-				minHeight: 450
+				minWidth: 1128,
+				minHeight: 191
 			};
 		const acceptedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
 
@@ -2871,7 +2881,7 @@ export default function EmpPostJob({ onNext }) {
 									<div style={{ flex: 1, minWidth: 200 }}>
 										<label style={label}>
 											<i className="fa fa-picture-o" style={{marginRight: '8px', color: '#ff6b35'}}></i>
-											Company Banner
+											Company Banner(1128x191px)
 										</label>
 										<input
 											style={{...input, padding: '10px'}}
@@ -2897,18 +2907,23 @@ export default function EmpPostJob({ onNext }) {
 														lineHeight: 0
 													}}
 												>
-													<img
-														src={getImagePreviewSrc(formData.companyBanner)}
-														alt="Company Banner"
+													<div
 														style={{
-															width: '100%',
-															maxWidth: '420px',
-															height: '160px',
-															borderRadius: 10,
-															objectFit: 'cover',
-															boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
+															width: '320px',
+															maxWidth: '100%',
+															aspectRatio: '1128 / 191'
 														}}
-													/>
+													>
+														<img
+															src={getImagePreviewSrc(formData.companyBanner)}
+															alt="Company Banner"
+															style={{
+																width: '100%',
+																height: '100%',
+																display: 'block'
+															}}
+														/>
+													</div>
 												</button>
 												<div style={{marginTop: 10}}>
 													<button
