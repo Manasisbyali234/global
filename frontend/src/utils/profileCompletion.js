@@ -1,3 +1,29 @@
+export const checkResumeReadyToApply = (profile) => {
+  if (!profile) return { ready: false, missingSections: ['Resume/Profile data not loaded'] };
+
+  const missingSections = [];
+
+  if (!profile.resumeHeadline?.trim()) missingSections.push('Resume Headline');
+  if (!profile.profileSummary?.trim()) missingSections.push('Profile Summary');
+  if (!Array.isArray(profile.skills) || profile.skills.length === 0) missingSections.push('Key Skills');
+  if (!profile.dateOfBirth) missingSections.push('Date of Birth');
+  if (!profile.gender?.trim()) missingSections.push('Gender');
+  if (!profile.fatherName?.trim()) missingSections.push("Father's/Husband's Name");
+  if (!profile.motherName?.trim()) missingSections.push("Mother's Name");
+  if (!profile.residentialAddress?.trim()) missingSections.push('Residential Address');
+  if (!profile.permanentAddress?.trim()) missingSections.push('Permanent Address');
+
+  const hasValidEducation = Array.isArray(profile.education) &&
+    profile.education.some(edu => edu.degreeName?.trim() && edu.collegeName?.trim());
+  if (!hasValidEducation) missingSections.push('Educational Qualification (at least one entry)');
+
+  const hasWorkLocation = Array.isArray(profile.jobPreferences?.preferredLocations) &&
+    profile.jobPreferences.preferredLocations.length > 0;
+  if (!hasWorkLocation) missingSections.push('Desired Work Location');
+
+  return { ready: missingSections.length === 0, missingSections };
+};
+
 export const calculateProfileCompletion = (profile) => {
   if (!profile) return 0;
 
