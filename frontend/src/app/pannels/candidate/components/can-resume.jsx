@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
+import { checkResumeReadyToApply } from "../../../../utils/profileCompletion";
 import SectionCanAccomplishments from "../sections/resume/section-can-accomplishments";
 import SectionCanAttachment from "../sections/resume/section-can-attachment";
 import SectionCanDesiredProfile from "../sections/resume/section-can-desired-profile";
@@ -28,7 +29,8 @@ function CanMyResumePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const location = useLocation();
-    const incompleteSections = location.state?.incompleteSections || [];
+    const showValidation = !!location.state?.incompleteSections;
+    const incompleteSections = profile ? checkResumeReadyToApply(profile).missingSections : [];
     
     useEffect(()=>{
         const token = localStorage.getItem('candidateToken');
@@ -95,7 +97,7 @@ function CanMyResumePage() {
 						</div>
 					</div>
 
-					{incompleteSections.length > 0 && (
+					{showValidation && incompleteSections.length > 0 && (
 						<div className="alert alert-danger mx-3 mt-3" style={{border: '2px solid #dc3545'}}>
 							<strong><i className="fa fa-exclamation-circle me-2"></i>Action Required:</strong>
 							<p className="mb-2 mt-1">Please complete all mandatory Resume and Personal Details sections before applying for jobs.</p>
