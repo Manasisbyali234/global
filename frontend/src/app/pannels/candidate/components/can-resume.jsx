@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { checkResumeReadyToApply } from "../../../../utils/profileCompletion";
 import SectionCanAccomplishments from "../sections/resume/section-can-accomplishments";
 import SectionCanAttachment from "../sections/resume/section-can-attachment";
 import SectionCanDesiredProfile from "../sections/resume/section-can-desired-profile";
@@ -29,8 +28,7 @@ function CanMyResumePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const location = useLocation();
-    const showValidation = !!location.state?.incompleteSections;
-    const incompleteSections = profile ? checkResumeReadyToApply(profile).missingSections : [];
+    const incompleteSections = location.state?.incompleteSections || [];
     
     useEffect(()=>{
         const token = localStorage.getItem('candidateToken');
@@ -78,6 +76,30 @@ function CanMyResumePage() {
         }
     }, [loading, error]);
 
+    useEffect(() => {
+        if (!loading && !error && incompleteSections.length > 0) {
+            const sectionIdMap = {
+                'Resume Headline': 'resume-headline',
+                'Profile Summary': 'profile-summary',
+                'Key Skills': 'key-skills',
+                'Desired Work Location': 'work-location',
+                'Educational Qualification (at least one entry)': 'education',
+            };
+            const personalFields = ['Date of Birth', 'Gender', "Father's/Husband's Name", "Mother's Name", 'Residential Address', 'Permanent Address'];
+            const firstId = incompleteSections.reduce((found, s) => {
+                if (found) return found;
+                if (personalFields.includes(s)) return 'personal-details';
+                return sectionIdMap[s] || null;
+            }, null);
+            if (firstId) {
+                setTimeout(() => {
+                    const el = document.getElementById(firstId);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
+        }
+    }, [loading, error, incompleteSections]);
+
     return (
 			<>
 				<div className="twm-right-section-panel site-bg-gray">
@@ -97,15 +119,10 @@ function CanMyResumePage() {
 						</div>
 					</div>
 
-					{showValidation && incompleteSections.length > 0 && (
+					{incompleteSections.length > 0 && (
 						<div className="alert alert-danger mx-3 mt-3" style={{border: '2px solid #dc3545'}}>
 							<strong><i className="fa fa-exclamation-circle me-2"></i>Action Required:</strong>
-							<p className="mb-2 mt-1">Please complete all mandatory Resume and Personal Details sections before applying for jobs.</p>
-							<ul className="mb-0 ps-3">
-								{incompleteSections.map((section, i) => (
-									<li key={i}><i className="fa fa-times-circle text-danger me-1"></i>{section}</li>
-								))}
-							</ul>
+							<span className="ms-1">Please complete all mandatory Resume and Personal Details sections before applying for jobs.</span>
 						</div>
 					)}
 
@@ -155,7 +172,7 @@ function CanMyResumePage() {
 										<SectionCanEducation profile={profile} />
 									</div>
 
-									<div id="work-location" className="panel panel-default mb-4">
+									<div id="work-location" className="panel panel-default mb-4" style={incompleteSections.includes('Desired Work Location') ? {border: '2px solid #dc3545', borderRadius: '4px'} : {}}>
 										<SectionCanWorkLocation profile={profile} onUpdate={handleProfileUpdate} />
 									</div>
 
