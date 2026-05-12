@@ -199,20 +199,29 @@ function SectionRecommendedJobs() {
                                 )}
 
                                 <div className="d-flex flex-wrap gap-1">
-                                    {job.educationMatched && (
+                                    {job.matchTag && (
                                         <span
                                             className="badge"
                                             style={{
-                                                backgroundColor: '#ede9fe',
-                                                color: '#5b21b6',
+                                                backgroundColor:
+                                                    job.matchTag === 'Matched by Skills & Education' ? '#d1fae5' :
+                                                    job.matchTag === 'Matched by Skills' ? '#dbeafe' : '#ede9fe',
+                                                color:
+                                                    job.matchTag === 'Matched by Skills & Education' ? '#065f46' :
+                                                    job.matchTag === 'Matched by Skills' ? '#1e40af' : '#5b21b6',
+                                                border:
+                                                    job.matchTag === 'Matched by Skills & Education' ? '1px solid #10b981' :
+                                                    job.matchTag === 'Matched by Skills' ? '1px solid #3b82f6' : '1px solid #7c3aed',
                                                 fontSize: '0.7rem',
-                                                fontWeight: '500',
-                                                padding: '0.25rem 0.5rem',
-                                                border: '1px solid #7c3aed'
+                                                fontWeight: '600',
+                                                padding: '0.25rem 0.5rem'
                                             }}
                                         >
-                                            <i className="fa fa-graduation-cap me-1" style={{ fontSize: '0.6rem' }}></i>
-                                            Education Match
+                                            <i className={`fa ${
+                                                job.matchTag === 'Matched by Skills & Education' ? 'fa-star' :
+                                                job.matchTag === 'Matched by Skills' ? 'fa-code' : 'fa-graduation-cap'
+                                            } me-1`} style={{ fontSize: '0.6rem' }}></i>
+                                            {job.matchTag}
                                         </span>
                                     )}
                                     {job.requiredSkills && job.requiredSkills.slice(0, 3).map((skill, skillIndex) => {
