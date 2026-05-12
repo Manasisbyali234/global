@@ -2345,16 +2345,7 @@ function CanStatusPage() {
 															<td className="px-4 py-3">
 																<div className="interview-progress-wrapper" style={{display: 'flex', flexDirection: 'column', gap: '0', alignItems: 'center'}}>
 																	{interviewRounds.length > 0 ? (() => {
-																		const positiveStatuses = ['shortlisted for next round', 'shortlisted', 'selected', 'pass', 'passed', 'completed'];
-																		let visibleUpTo = 0;
-																		for (let i = 0; i < interviewRounds.length; i++) {
-																			const rName = typeof interviewRounds[i] === 'string' ? interviewRounds[i] : interviewRounds[i].name;
-																			const rDetails = resolveRoundDetails(app, interviewRounds[i], i, interviewRounds);
-																			const rStatus = getRoundStatus(app, i, rName, false, rDetails);
-																			visibleUpTo = i;
-																			if (!positiveStatuses.includes(normalizeStatusValue(rStatus?.text || ''))) break;
-																		}
-																		return interviewRounds.slice(0, visibleUpTo + 1).map((round, roundIndex) => {
+																		return interviewRounds.map((round, roundIndex) => {
 																			// Get interview details for this round
 																			let roundName = typeof round === 'string' ? round : round.name;
 																			const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round.uniqueKey;
