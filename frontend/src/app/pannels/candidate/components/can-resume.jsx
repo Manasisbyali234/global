@@ -153,7 +153,7 @@ function CanMyResumePage() {
 										<SectionCanEducation profile={profile} />
 									</div>
 
-									<div id="work-location" className="panel panel-default mb-4" style={incompleteSections.includes('Desired Work Location') ? {border: '2px solid #dc3545', borderRadius: '4px'} : {}}>
+									<div id="work-location" className="panel panel-default mb-4">
 										<SectionCanWorkLocation profile={profile} onUpdate={handleProfileUpdate} />
 									</div>
 

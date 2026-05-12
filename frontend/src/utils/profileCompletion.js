@@ -17,10 +17,6 @@ export const checkResumeReadyToApply = (profile) => {
     profile.education.some(edu => edu.degreeName?.trim() && edu.collegeName?.trim());
   if (!hasValidEducation) missingSections.push('Educational Qualification (at least one entry)');
 
-  const hasWorkLocation = Array.isArray(profile.jobPreferences?.preferredLocations) &&
-    profile.jobPreferences.preferredLocations.length > 0;
-  if (!hasWorkLocation) missingSections.push('Desired Work Location');
-
   return { ready: missingSections.length === 0, missingSections };
 };
 
