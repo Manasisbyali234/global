@@ -2234,7 +2234,7 @@ function EmpCompanyProfilePage() {
                                         disabled={formData.panCardVerified === 'approved'}
                                         required={!formData.panCardImage && formData.panCardVerified !== 'approved'}
                                     />
-                                    <small style={{color: '#9ca3af', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
+                                    <small style={{color: '#eb8a8a', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
                                     {formData.panCardImage ? (
                                         <>
                                             <p className="text-success mt-1 mb-0">✓ PAN Card uploaded</p>
