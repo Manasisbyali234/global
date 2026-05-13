@@ -58,7 +58,7 @@ function Footer3 () {
 											</li>
 											<li>
 												<p>
-													<span>Email:</span> <a href="mailto:info@taleglobal.net" style={{color: '#f97316', textDecoration: 'underline', cursor: 'pointer'}}>info@taleglobal.net</a>
+													<span>Email:</span> <a href="mailto:contact@taleglobal.net" style={{color: '#f97316', textDecoration: 'underline', cursor: 'pointer'}}>contact@taleglobal.net</a>
 												</p>
 											</li>
 											<li style={{display: 'none'}}>

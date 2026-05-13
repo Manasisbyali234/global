@@ -134,7 +134,7 @@ function TermsConditionsPage() {
                                         <h4 className="subsection-title">Job Posting and Process</h4>
                                         <ul>
                                             <li>Each job listing must accurately specify the job title, eligibility criteria, remuneration or compensation (if applicable), interview schedule, and selection process.</li>
-                                            <li>Employers must declare the expected timeline for issuing offer letters and adhere to the same to maintain process transparency.</li>
+                                            <li>Employers must declare the expected timeline for issuing offer letter and adhere to the same to maintain process transparency.</li>
                                             <li>Job postings shall be genuine, lawful, and compliant with employment and labour regulations, including those relating to equal opportunity and non-discrimination.</li>
                                             <li>TaleGlobal reserves the right to moderate, suspend, or remove any job listing that is false, misleading, discriminatory, or otherwise violates these Terms or any applicable law.</li>
                                             <li>Employers acknowledge that TaleGlobal functions solely as an intermediary platform and bears no responsibility for the accuracy, outcome, or fulfillment of any employment contract arising from such postings.</li>
@@ -183,7 +183,7 @@ function TermsConditionsPage() {
                                         
                                         <h4 className="subsection-title">Liability</h4>
                                         <ul>
-                                            <li>TaleGlobal acts solely as an online intermediary connecting candidates with verified employers and does not guarantee interviews, employment, or offer letters.</li>
+                                            <li>TaleGlobal acts solely as an online intermediary connecting candidates with verified employers and does not guarantee interviews, employment, or offer letter.</li>
                                             <li>TaleGlobal shall not be liable for any act, omission, or representation made by employers, consultancies, or Placement Dean, nor for any loss financial, professional, or reputational arising from platform usage.</li>
                                             <li>In no event shall TaleGlobal's aggregate liability exceed the total fee paid by the candidate for the specific application that gave rise to such claim.</li>
                                             <li>Nothing in this clause shall limit liability arising from willful misconduct, fraud, or statutory violations.</li>
@@ -361,7 +361,7 @@ function TermsConditionsPage() {
                                         
                                         <h4 className="subsection-title">User Responsibility</h4>
                                         <ul>
-                                            <li><strong>Employers</strong> are solely responsible for conducting interviews, verifying candidate credentials, making selection decisions, and issuing offer letters in compliance with applicable labour and employment laws.</li>
+                                            <li><strong>Employers</strong> are solely responsible for conducting interviews, verifying candidate credentials, making selection decisions, and issuing offer letter in compliance with applicable labour and employment laws.</li>
                                             <li><strong>Candidates</strong> are responsible for ensuring the accuracy and completeness of their personal data, resumes, and other submitted information, as well as maintaining proper internet connectivity and device readiness during online interactions.</li>
                                             <li><strong>Consultancies</strong> and <strong>Placement Dean</strong> are accountable for ensuring the authenticity of data uploaded to the platform, including verification of employer authorization and student consent.</li>
                                             <li>Users agree to use the platform only for lawful purposes and shall indemnify TaleGlobal against any claim, loss, or damage resulting from misuse, negligence, or breach of these obligations.</li>

@@ -198,7 +198,7 @@ function Footer1() {
                                     </div>
                                     <div className="footer-contact-item">
                                         <i className="feather-mail" style={{ color: '#FF6A3D' }}></i>
-                                        <span>info@taleglobal.net</span>
+                                        <span>contact@taleglobal.net</span>
                                     </div>
                                 </div>
                             </div>

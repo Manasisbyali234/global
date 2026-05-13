@@ -2343,9 +2343,9 @@ function CanStatusPage() {
 																</span>
 															</td>
 															<td className="px-4 py-3">
-																<div className="interview-progress-wrapper" style={{display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap: '8px', overflowX: 'auto', alignItems: 'flex-start'}}>
-																	{interviewRounds.length > 0 ? (
-																		interviewRounds.map((round, roundIndex) => {
+																<div className="interview-progress-wrapper" style={{display: 'flex', flexDirection: 'column', gap: '0', alignItems: 'center'}}>
+																	{interviewRounds.length > 0 ? (() => {
+																		return interviewRounds.map((round, roundIndex) => {
 																			// Get interview details for this round
 																			let roundName = typeof round === 'string' ? round : round.name;
 																			const uniqueKey = typeof round === 'string' ? round.toLowerCase() : round.uniqueKey;
@@ -2463,37 +2463,33 @@ function CanStatusPage() {
 																						  endDate ? `Until: ${endDate}` : null;
 																			
 																			return (
-																				<div key={roundIndex} className="interview-round-item" style={{minWidth: '120px', padding: '4px', flexShrink: 0}}>
-																					<div className="round-name" style={{fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', color: '#232323'}}>{roundName}</div>
-																					<div className="interview-round-status-container" style={{display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center'}}>
-																						{/* Show countdown timer if assessment hasn't started yet */}
-																						{shouldShowAssessmentCountdown && (() => {
-																							const windowInfo = assessmentWindowInfo;
-																							if (windowInfo.isBeforeStart && windowInfo.startDate) {
-																								const now = new Date().getTime();
-																								const timeUntilStart = windowInfo.startDate.getTime() - now;
-																								return (
-																									<AssessmentTimer 
-																										timerInfo={{
-																											isBeforeStart: true,
-																											timeUntilStart: timeUntilStart,
-																											startDate: windowInfo.startDate
-																										}}
-																										onTimerEnd={() => fetchApplications()}
-																									/>
-																								);
-																							}
-																							return null;
-																						})()}
-																						<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px', minWidth: 'fit-content', textAlign: 'center'}}>
-																							{roundStatus?.text || 'Pending'}
-																						</span>
-																						{/* Show assessment remarks if available - removed from table, only in modal */}
+																				<div key={roundIndex} style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: roundIndex > 0 ? '8px' : '0'}}>
+																					<div className="interview-round-item" style={{padding: '4px 0', textAlign: 'center'}}>
+																						<div className="round-name" style={{fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', color: '#232323'}}>{roundName}</div>
+																						<div style={{display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center'}}>
+																							{shouldShowAssessmentCountdown && (() => {
+																								const windowInfo = assessmentWindowInfo;
+																								if (windowInfo.isBeforeStart && windowInfo.startDate) {
+																									const now = new Date().getTime();
+																									const timeUntilStart = windowInfo.startDate.getTime() - now;
+																									return (
+																										<AssessmentTimer
+																											timerInfo={{ isBeforeStart: true, timeUntilStart, startDate: windowInfo.startDate }}
+																											onTimerEnd={() => fetchApplications()}
+																										/>
+																									);
+																								}
+																								return null;
+																							})()}
+																							<span className={`badge ${roundStatus.class}`} style={{fontSize: '12px', padding: '4px 8px'}}>
+																								{roundStatus?.text || 'Pending'}
+																							</span>
+																						</div>
 																					</div>
 																				</div>
 																			);
-																		})
-																	) : (
+																		});
+																	})() : (
 																		<span className="text-muted fst-italic">No rounds specified</span>
 																	)}
 																</div>

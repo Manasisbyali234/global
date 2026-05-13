@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import SectionCanAccomplishments from "../sections/resume/section-can-accomplishments";
 import SectionCanAttachment from "../sections/resume/section-can-attachment";
 import SectionCanDesiredProfile from "../sections/resume/section-can-desired-profile";
@@ -26,6 +27,8 @@ function CanMyResumePage() {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const location = useLocation();
+    const incompleteSections = location.state?.incompleteSections || [];
     
     useEffect(()=>{
         const token = localStorage.getItem('candidateToken');
@@ -73,6 +76,30 @@ function CanMyResumePage() {
         }
     }, [loading, error]);
 
+    useEffect(() => {
+        if (!loading && !error && incompleteSections.length > 0) {
+            const sectionIdMap = {
+                'Resume Headline': 'resume-headline',
+                'Profile Summary': 'profile-summary',
+                'Key Skills': 'key-skills',
+                'Desired Work Location': 'work-location',
+                'Educational Qualification (at least one entry)': 'education',
+            };
+            const personalFields = ['Date of Birth', 'Gender', "Father's/Husband's Name", "Mother's Name", 'Residential Address', 'Permanent Address'];
+            const firstId = incompleteSections.reduce((found, s) => {
+                if (found) return found;
+                if (personalFields.includes(s)) return 'personal-details';
+                return sectionIdMap[s] || null;
+            }, null);
+            if (firstId) {
+                setTimeout(() => {
+                    const el = document.getElementById(firstId);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
+        }
+    }, [loading, error, incompleteSections]);
+
     return (
 			<>
 				<div className="twm-right-section-panel site-bg-gray">
@@ -91,6 +118,13 @@ function CanMyResumePage() {
 							</div>
 						</div>
 					</div>
+
+					{incompleteSections.length > 0 && (
+						<div className="alert alert-danger mx-3 mt-3" style={{border: '2px solid #dc3545'}}>
+							<strong><i className="fa fa-exclamation-circle me-2"></i>Action Required:</strong>
+							<span className="ms-1">Please complete all mandatory Resume and Personal Details sections before applying for jobs.</span>
+						</div>
+					)}
 
 					{/* Resume Content */}
 					<div className="resume-content-container">
@@ -118,27 +152,27 @@ function CanMyResumePage() {
 						) : (
 							<div className="row">
 								<div className="col-12">
-									<div id="resume-headline" className="panel panel-default mb-4">
+									<div id="resume-headline" className="panel panel-default mb-4" style={incompleteSections.includes('Resume Headline') ? {border: '2px solid #dc3545', borderRadius: '4px'} : {}}>
 										<SectionCanResumeHeadline profile={profile} />
 									</div>
 
-									<div id="profile-summary" className="panel panel-default mb-4">
+									<div id="profile-summary" className="panel panel-default mb-4" style={incompleteSections.includes('Profile Summary') ? {border: '2px solid #dc3545', borderRadius: '4px'} : {}}>
 										<SectionCanProfileSummary profile={profile} />
 									</div>
 
-									<div id="key-skills" className="panel panel-default mb-4">
+									<div id="key-skills" className="panel panel-default mb-4" style={incompleteSections.includes('Key Skills') ? {border: '2px solid #dc3545', borderRadius: '4px'} : {}}>
 										<SectionCanKeySkills profile={profile} />
 									</div>
 
-									<div id="personal-details" className="panel panel-default mb-4">
+									<div id="personal-details" className="panel panel-default mb-4" style={incompleteSections.some(s => ['Date of Birth','Gender',"Father's/Husband's Name","Mother's Name",'Residential Address','Permanent Address'].includes(s)) ? {border: '2px solid #dc3545', borderRadius: '4px'} : {}}>
 										<SectionCanPersonalDetail profile={profile} />
 									</div>
 
-									<div id="education" className="panel panel-default mb-4 education-panel-container">
+									<div id="education" className="panel panel-default mb-4 education-panel-container" style={incompleteSections.includes('Educational Qualification (at least one entry)') ? {border: '2px solid #dc3545', borderRadius: '4px'} : {}}>
 										<SectionCanEducation profile={profile} />
 									</div>
 
-									<div id="work-location" className="panel panel-default mb-4">
+									<div id="work-location" className="panel panel-default mb-4" style={incompleteSections.includes('Desired Work Location') ? {border: '2px solid #dc3545', borderRadius: '4px'} : {}}>
 										<SectionCanWorkLocation profile={profile} onUpdate={handleProfileUpdate} />
 									</div>
 

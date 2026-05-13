@@ -2234,6 +2234,7 @@ function EmpCompanyProfilePage() {
                                         disabled={formData.panCardVerified === 'approved'}
                                         required={!formData.panCardImage && formData.panCardVerified !== 'approved'}
                                     />
+                                    <small style={{color: '#eb8a8a', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
                                     {formData.panCardImage ? (
                                         <>
                                             <p className="text-success mt-1 mb-0">✓ PAN Card uploaded</p>
@@ -2255,6 +2256,7 @@ function EmpCompanyProfilePage() {
                                         onChange={(e) => handleDocumentUpload(e, 'cinImage')}
                                         disabled={formData.cinVerified === 'approved'}
                                     />
+                                    <small style={{color: '#9ca3af', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
                                     {formData.cinImage ? (
                                         <>
                                             <p className="text-success mt-1 mb-0">✓ CIN Document uploaded</p>
@@ -2276,6 +2278,7 @@ function EmpCompanyProfilePage() {
                                         onChange={(e) => handleDocumentUpload(e, 'gstImage')}
                                         disabled={formData.gstVerified === 'approved'}
                                     />
+                                    <small style={{color: '#9ca3af', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
                                     {formData.gstImage ? (
                                         <>
                                             <p className="text-success mt-1 mb-0">✓ GST Certificate uploaded</p>
@@ -2297,6 +2300,7 @@ function EmpCompanyProfilePage() {
                                         onChange={(e) => handleDocumentUpload(e, 'certificateOfIncorporation')}
                                         disabled={formData.incorporationVerified === 'approved'}
                                     />
+                                    <small style={{color: '#9ca3af', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
                                     {formData.certificateOfIncorporation ? (
                                         <>
                                             <p className="text-success mt-1 mb-0">✓ Certificate of Incorporation uploaded</p>
@@ -2416,6 +2420,7 @@ function EmpCompanyProfilePage() {
                                         onChange={(e) => handleDocumentUpload(e, 'companyIdCardPicture')}
                                         disabled={formData.companyIdCardVerified === 'approved'}
                                     />
+                                    <small style={{color: '#9ca3af', fontSize: '11px', display: 'block', marginTop: '4px'}}>Documents auto-save after upload.</small>
                                     {formData.companyIdCardPicture && (
                                         <div className="mt-2">
                                             <img 

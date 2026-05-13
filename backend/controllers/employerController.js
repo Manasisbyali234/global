@@ -433,7 +433,6 @@ const employerProfileRequiredFields = [
   'contactMobile',
   'employerCode',
   'panCardImage',
-  'cinImage',
   'gstImage',
   'certificateOfIncorporation',
   'companyIdCardPicture',

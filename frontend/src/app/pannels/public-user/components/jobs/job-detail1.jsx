@@ -9,6 +9,7 @@ import SectionJobsSidebar2 from "../../sections/jobs/sidebar/section-jobs-sideba
 import TermsModal from "../../../../../components/TermsModal";
 import PageLoader from "../../../../../components/PageLoader";
 import { pendingPaymentManager } from '../../../../../utils/pendingPaymentManager';
+import { checkResumeReadyToApply } from '../../../../../utils/profileCompletion';
 import { formatJobEducationDisplay } from '../../../../../utils/jobEducationOptions';
 import { getJobDisplayBanner, getJobDisplayLogo, isConsultantJobPost } from "../../../../../utils/jobBranding";
 import "./job-detail.css";
@@ -466,6 +467,25 @@ function JobDetail1Page() {
         } else if (hasApplied) {
             showInfo('You have already applied for this job!');
         } else {
+            // Validate resume completeness before allowing application
+            try {
+                const token = localStorage.getItem('candidateToken');
+                const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+                const profileRes = await fetch(`${baseUrl}/api/candidate/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const profileData = await profileRes.json();
+                const { ready, missingSections } = checkResumeReadyToApply(profileData?.profile);
+                if (!ready) {
+                    showWarning('Please complete all mandatory Resume and Personal Details sections before applying for jobs.');
+                    navigate('/candidate/my-resume', {
+                        state: { incompleteSections: missingSections }
+                    });
+                    return;
+                }
+            } catch (err) {
+                console.error('Error validating resume completeness:', err);
+            }
             let availableCredits = Number(candidateData?.credits || 0);
             if (availableCredits <= 0) {
                 try {
