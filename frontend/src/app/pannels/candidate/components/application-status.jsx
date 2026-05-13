@@ -2439,10 +2439,7 @@ function CanStatusPage() {
 																				Boolean(assessmentWindowInfo?.isBeforeStart && assessmentWindowInfo?.startDate) &&
 																				!assessmentRoundInfo?.completionInfo?.isCompleted &&
 																				!assessmentRoundInfo?.completionInfo?.isInProgress &&
-																				!assessmentRoundInfo?.completionInfo?.isSuspended &&
-																				!assessmentRoundInfo?.completionInfo?.isFailed &&
-																				!assessmentRoundInfo?.completionInfo?.isNoShow &&
-																				!['fail', 'failed', 'suspended', 'no show', 'no_show'].includes(normalizeStatusValue(roundStatus?.text));
+																				!assessmentRoundInfo?.completionInfo?.isSuspended;
 																			const formatRoundDate = (dateStr) => {
 																				if (!dateStr) return null;
 																				try {
