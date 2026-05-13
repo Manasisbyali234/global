@@ -826,7 +826,8 @@ function EmpCandidateReviewPage() {
             Boolean(applicationData?.assessmentResult) ||
             (normalizedAssessmentStatus && normalizedAssessmentStatus !== 'not required');
 
-        if (isApplicationSessionExpired(applicationData, normalizedProcesses)) {
+        // Only apply session-expired rejection logic when there is an assessment round
+        if (hasAssessmentRound && isApplicationSessionExpired(applicationData, normalizedProcesses)) {
             return 'rejected';
         }
 

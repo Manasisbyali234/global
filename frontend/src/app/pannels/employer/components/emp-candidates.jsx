@@ -397,9 +397,19 @@ function EmpCandidatesPage() {
     if (hasAssessmentRound) {
       const completionInfo = getAssessmentCompletionInfo(application);
       const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, nowTimestamp);
+      // Only treat as no-show if the assessment window has ended AND there is no assessment activity at all
+      const hasAssessmentActivity =
+        completionInfo?.isCompleted ||
+        completionInfo?.isInProgress ||
+        completionInfo?.isSuspended ||
+        completionInfo?.isPassed ||
+        completionInfo?.isFailed ||
+        completionInfo?.isNoShow ||
+        Boolean(application?.assessmentStatus && !['pending', 'available', 'not_required', 'not started', 'scheduled'].includes(normalizeStatusValue(application?.assessmentStatus)));
       const assessmentNoShow =
         Boolean(completionInfo?.isNoShow) ||
         (Boolean(assessmentWindowInfo?.isAfterEnd) &&
+          hasAssessmentActivity === false &&
           !completionInfo?.isCompleted &&
           !completionInfo?.isInProgress &&
           !completionInfo?.isSuspended);
