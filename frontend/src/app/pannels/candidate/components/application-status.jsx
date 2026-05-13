@@ -2434,12 +2434,21 @@ function CanStatusPage() {
 																			const assessmentWindowInfo = roundName === 'Assessment'
 																				? getAssessmentWindowInfo(app.jobId, roundDetails)
 																				: null;
-																			const shouldShowAssessmentCountdown =
+																								const isPreviousRoundRejected = roundIndex > 0 && (() => {
+																				const prevRound = interviewRounds[roundIndex - 1];
+																				const prevRoundName = typeof prevRound === 'string' ? prevRound : prevRound?.name;
+																				const prevRoundDetails = resolveRoundDetails(app, prevRound, roundIndex - 1, interviewRounds);
+																				const prevRoundStatus = getRoundStatus(app, roundIndex - 1, prevRoundName, false, prevRoundDetails);
+																				return isRejectedInterviewProcessStatus(prevRoundStatus?.text);
+																			})();
+														const shouldShowAssessmentCountdown =
 																				roundName === 'Assessment' &&
 																				Boolean(assessmentWindowInfo?.isBeforeStart && assessmentWindowInfo?.startDate) &&
 																				!assessmentRoundInfo?.completionInfo?.isCompleted &&
 																				!assessmentRoundInfo?.completionInfo?.isInProgress &&
-																				!assessmentRoundInfo?.completionInfo?.isSuspended;
+																				!assessmentRoundInfo?.completionInfo?.isSuspended &&
+																				!isPreviousRoundRejected &&
+																				applicationDisplayStatus !== 'rejected';
 																			const formatRoundDate = (dateStr) => {
 																				if (!dateStr) return null;
 																				try {
