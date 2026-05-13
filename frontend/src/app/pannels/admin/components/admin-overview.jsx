@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
+import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
 import SearchBar from "../../../../components/SearchBar";
 import "./admin-search-styles.css";
 import "./admin-overview.css";
@@ -273,53 +274,38 @@ function AdminOverviewPage() {
     return { label: "Pending", style: badgeStyles.neutral };
   };
 
-  const isRejectedAssessmentOutcome = (status = "", result = "") => {
-    const s = normalizeStatusValue(status);
-    const r = normalizeStatusValue(result);
-    return (
-      ["fail", "failed"].includes(r) ||
-      ["fail", "failed", "suspended", "no show", "expired", "session expired"].includes(s)
-    );
-  };
-
   const getAssessmentResultPresentation = (round = {}, allRounds = [], currentIndex = 0) => {
-    // Business rule: if any previous assessment round is Fail/No Show/Suspended, show Pending
+    // Business rule: if any previous assessment round has a rejected outcome, show Pending
     for (let i = 0; i < currentIndex; i++) {
       const prev = allRounds[i];
       if (
         normalizeStatusValue(prev?.type) === "assessment" ||
         normalizeStatusValue(prev?.name).includes("assessment")
       ) {
-        if (isRejectedAssessmentOutcome(prev?.status, prev?.assessmentResult)) {
+        const prevOutcome = getAssessmentOutcome({
+          status: String(prev?.status || "").trim().toLowerCase(),
+          result: String(prev?.assessmentResult || "").trim().toLowerCase(),
+          manualEvaluationPendingCount: prev?.manualEvaluationPendingCount || 0
+        });
+        if (prevOutcome.isFailed || prevOutcome.isSuspended || prevOutcome.isNoShow) {
           return { label: "Pending", style: badgeStyles.neutral };
         }
       }
     }
 
-    const normalizedStatus = normalizeStatusValue(round?.status);
-    const normalizedResult = normalizeStatusValue(round?.assessmentResult);
+    const outcome = getAssessmentOutcome({
+      status: String(round?.status || "").trim().toLowerCase(),
+      result: String(round?.assessmentResult || "").trim().toLowerCase(),
+      manualEvaluationPendingCount: round?.manualEvaluationPendingCount || 0
+    });
 
-    if (["pass", "passed"].includes(normalizedResult) || normalizedStatus === "passed") {
-      return { label: "Passed", style: badgeStyles.success };
-    }
-    if (["fail", "failed"].includes(normalizedResult) || normalizedStatus === "failed") {
-      return { label: "Failed", style: badgeStyles.danger };
-    }
-    if (normalizedStatus === "suspended") {
-      return { label: "Suspended", style: badgeStyles.danger };
-    }
-    if (["expired", "session expired"].includes(normalizedStatus) && normalizedResult === "pending") {
-      return { label: "Completed", style: badgeStyles.success };
-    }
-    if (["no show", "expired", "session expired"].includes(normalizedStatus)) {
-      return { label: "No Show", style: badgeStyles.danger };
-    }
-    if (normalizedStatus === "completed" || normalizedResult === "completed") {
-      return { label: "Completed", style: badgeStyles.success };
-    }
-    if (normalizedStatus === "in progress") {
-      return { label: "In Progress", style: badgeStyles.warning };
-    }
+    if (outcome.isSuspended) return { label: "Suspended", style: badgeStyles.danger };
+    if (outcome.isPendingReview) return { label: "Under Review", style: badgeStyles.warning };
+    if (outcome.isPassed) return { label: "Passed", style: badgeStyles.success };
+    if (outcome.isFailed) return { label: "Failed", style: badgeStyles.danger };
+    if (outcome.isNoShow) return { label: "No Show", style: badgeStyles.danger };
+    if (outcome.isInProgress) return { label: "In Progress", style: badgeStyles.warning };
+    if (outcome.isCompleted) return { label: "Completed", style: badgeStyles.success };
 
     return { label: "Pending", style: badgeStyles.neutral };
   };
