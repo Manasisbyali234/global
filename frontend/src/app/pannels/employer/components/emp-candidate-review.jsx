@@ -815,10 +815,7 @@ function EmpCandidateReviewPage() {
         const assessmentIsFailed = ['fail', 'failed'].includes(
             normalizeStatusValue(applicationData?.assessmentResult)
         );
-        // Only treat rejected stages as definitive rejection if NOT auto-rejected from stage status
-        // (i.e., the stage status was cleared/changed to UNDER_REVIEW or similar)
-        const isAutoRejected = wasAutoRejectedFromStageStatus(applicationData);
-        if (hasRejectedNonAssessmentStage || (!isAutoRejected && hasRejectedAssessmentStage) || assessmentIsSuspended || assessmentIsFailed) {
+        if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage || assessmentIsSuspended || assessmentIsFailed) {
             return 'rejected';
         }
 
