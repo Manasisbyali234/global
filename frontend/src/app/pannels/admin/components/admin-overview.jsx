@@ -274,6 +274,41 @@ function AdminOverviewPage() {
     return { label: "Pending", style: badgeStyles.neutral };
   };
 
+  // Maps the pre-computed assessmentResult string sent by the backend to a badge presentation.
+  // The backend's resolveStageAssessmentResult already returns the canonical label
+  // ("No Show", "Passed", "Failed", "Suspended", "Completed", "In Progress").
+  // We use getAssessmentOutcome only as a fallback when that field is absent.
+  const resolveAssessmentResultLabel = (round = {}) => {
+    const precomputed = String(round?.assessmentResult || "").trim();
+    const lower = precomputed.toLowerCase();
+    if (lower === "no show" || lower === "no_show") return { label: "No Show", style: badgeStyles.danger };
+    if (lower === "suspended") return { label: "Suspended", style: badgeStyles.danger };
+    if (lower === "failed" || lower === "fail") return { label: "Failed", style: badgeStyles.danger };
+    if (lower === "passed" || lower === "pass") return { label: "Passed", style: badgeStyles.success };
+    if (lower === "completed") return { label: "Completed", style: badgeStyles.success };
+    if (lower === "in progress" || lower === "in_progress") return { label: "In Progress", style: badgeStyles.warning };
+    if (lower === "under review" || lower === "pending_review" || lower === "pending review") return { label: "Under Review", style: badgeStyles.warning };
+    // Fallback: derive from attempt status via getAssessmentOutcome
+    const outcome = getAssessmentOutcome({
+      status: String(round?.status || "").trim().toLowerCase(),
+      result: lower,
+      manualEvaluationPendingCount: round?.manualEvaluationPendingCount || 0
+    });
+    if (outcome.isSuspended) return { label: "Suspended", style: badgeStyles.danger };
+    if (outcome.isPendingReview) return { label: "Under Review", style: badgeStyles.warning };
+    if (outcome.isPassed) return { label: "Passed", style: badgeStyles.success };
+    if (outcome.isFailed) return { label: "Failed", style: badgeStyles.danger };
+    if (outcome.isNoShow) return { label: "No Show", style: badgeStyles.danger };
+    if (outcome.isInProgress) return { label: "In Progress", style: badgeStyles.warning };
+    if (outcome.isCompleted) return { label: "Completed", style: badgeStyles.success };
+    return null; // truly absent — caller decides
+  };
+
+  const isRejectedAssessmentResult = (round = {}) => {
+    const result = resolveAssessmentResultLabel(round);
+    return result !== null && ["No Show", "Failed", "Suspended"].includes(result.label);
+  };
+
   const getAssessmentResultPresentation = (round = {}, allRounds = [], currentIndex = 0) => {
     // Business rule: if any previous assessment round has a rejected outcome, show Pending
     for (let i = 0; i < currentIndex; i++) {
@@ -282,32 +317,12 @@ function AdminOverviewPage() {
         normalizeStatusValue(prev?.type) === "assessment" ||
         normalizeStatusValue(prev?.name).includes("assessment")
       ) {
-        const prevOutcome = getAssessmentOutcome({
-          status: String(prev?.status || "").trim().toLowerCase(),
-          result: String(prev?.assessmentResult || "").trim().toLowerCase(),
-          manualEvaluationPendingCount: prev?.manualEvaluationPendingCount || 0
-        });
-        if (prevOutcome.isFailed || prevOutcome.isSuspended || prevOutcome.isNoShow) {
+        if (isRejectedAssessmentResult(prev)) {
           return { label: "Pending", style: badgeStyles.neutral };
         }
       }
     }
-
-    const outcome = getAssessmentOutcome({
-      status: String(round?.status || "").trim().toLowerCase(),
-      result: String(round?.assessmentResult || "").trim().toLowerCase(),
-      manualEvaluationPendingCount: round?.manualEvaluationPendingCount || 0
-    });
-
-    if (outcome.isSuspended) return { label: "Suspended", style: badgeStyles.danger };
-    if (outcome.isPendingReview) return { label: "Under Review", style: badgeStyles.warning };
-    if (outcome.isPassed) return { label: "Passed", style: badgeStyles.success };
-    if (outcome.isFailed) return { label: "Failed", style: badgeStyles.danger };
-    if (outcome.isNoShow) return { label: "No Show", style: badgeStyles.danger };
-    if (outcome.isInProgress) return { label: "In Progress", style: badgeStyles.warning };
-    if (outcome.isCompleted) return { label: "Completed", style: badgeStyles.success };
-
-    return { label: "Pending", style: badgeStyles.neutral };
+    return resolveAssessmentResultLabel(round) || { label: "Pending", style: badgeStyles.neutral };
   };
 
   useEffect(() => {
