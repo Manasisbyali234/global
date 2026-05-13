@@ -376,19 +376,7 @@ function EmpCandidatesPage() {
       getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
       processes.some((process) => isAssessmentProcess(process));
 
-    // Only show rejected from non-assessment stage if it was manually set (not auto-restored)
-    const hasRejectedNonAssessmentStage = processes.some(
-      (process) => !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
-    );
-    if (hasRejectedNonAssessmentStage && baseStatus === "rejected" && !wasAutoRejectedFromStageStatus(application)) {
-      return "rejected";
-    }
-
-    // If application was directly rejected by employer (not auto from stage status), show rejected
-    if (baseStatus === "rejected" && !wasAutoRejectedFromStageStatus(application)) {
-      return "rejected";
-    }
-
+    // Check assessment-specific rejection signals first
     if (hasAssessmentRound) {
       const completionInfo = getAssessmentCompletionInfo(application);
       const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, nowTimestamp);
@@ -410,14 +398,27 @@ function EmpCandidatesPage() {
       ) {
         return "rejected";
       }
-
-      if (baseStatus === "rejected" && wasAutoRejectedFromStageStatus(application)) {
-        return "pending";
-      }
     }
 
-    // If auto-rejected from stage status but stages are now pending, restore to pending
-    if (baseStatus === "rejected" && wasAutoRejectedFromStageStatus(application)) {
+    // If any non-assessment stage is explicitly rejected, show rejected
+    const hasRejectedNonAssessmentStage = processes.some(
+      (process) => !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
+    );
+    if (hasRejectedNonAssessmentStage) {
+      return "rejected";
+    }
+
+    // If all stages are pending/under-review (no rejected stage), always show pending
+    // regardless of what the DB status says (could be auto-rejected by expiry etc.)
+    const allStagesPending = processes.length > 0 && processes.every(
+      (process) => !isRejectedLikeStatus(process?.status)
+    );
+    if (allStagesPending && baseStatus === "rejected") {
+      return "pending";
+    }
+
+    // No stages tracked yet — use base status but treat auto-rejections as pending
+    if (processes.length === 0 && baseStatus === "rejected" && wasAutoRejectedFromStageStatus(application)) {
       return "pending";
     }
 

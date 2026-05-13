@@ -804,17 +804,31 @@ function EmpCandidateReviewPage() {
         }
 
         const normalizedProcesses = Array.isArray(processes) ? processes : [];
-        const hasRejectedNonAssessmentStage = normalizedProcesses.some((process) =>
-            !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
-        );
+
+        // Check assessment-specific rejection signals
         const assessmentIsSuspended =
             normalizeStatusValue(applicationData?.assessmentStatus) === 'suspended';
         const assessmentIsFailed = ['fail', 'failed'].includes(
             normalizeStatusValue(applicationData?.assessmentResult)
         );
-        // Only reject from non-assessment stage if application is actually rejected (not auto-restored)
-        if ((hasRejectedNonAssessmentStage && baseStatus === 'rejected' && !wasAutoRejectedFromStageStatus(applicationData)) || assessmentIsSuspended || assessmentIsFailed) {
+        if (assessmentIsSuspended || assessmentIsFailed) {
             return 'rejected';
+        }
+
+        // If any non-assessment stage is explicitly rejected, show rejected
+        const hasRejectedNonAssessmentStage = normalizedProcesses.some((process) =>
+            !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
+        );
+        if (hasRejectedNonAssessmentStage) {
+            return 'rejected';
+        }
+
+        // If all stages are pending/under-review (none rejected), always show pending
+        const allStagesPending = normalizedProcesses.length > 0 && normalizedProcesses.every(
+            (process) => !isRejectedLikeStatus(process?.status)
+        );
+        if (allStagesPending && baseStatus === 'rejected') {
+            return 'pending';
         }
 
         const normalizedAssessmentStatus = normalizeStatusValue(applicationData?.assessmentStatus);
