@@ -206,6 +206,43 @@
       });
     })();
   </script>
+  <script>
+    (function () {
+      if (!('serviceWorker' in navigator)) {
+        return;
+      }
+
+      const cleanupKey = 'taleglobal-sw-cleanup-v1';
+
+      const runServiceWorkerCleanup = async function () {
+        try {
+          if (window.localStorage && localStorage.getItem(cleanupKey) === 'done') {
+            return;
+          }
+        } catch (storageError) {
+          // Ignore storage access issues and continue with cleanup.
+        }
+
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map((registration) => registration.unregister()));
+
+          if ('caches' in window) {
+            const cacheKeys = await caches.keys();
+            await Promise.all(cacheKeys.map((cacheKey) => caches.delete(cacheKey)));
+          }
+
+          if (window.localStorage) {
+            localStorage.setItem(cleanupKey, 'done');
+          }
+        } catch (cleanupError) {
+          console.warn('Service worker cleanup skipped:', cleanupError);
+        }
+      };
+
+      window.addEventListener('load', runServiceWorkerCleanup);
+    })();
+  </script>
 </head>
 
 <!-- data-anm=".anm" is used by Homepage4 -->

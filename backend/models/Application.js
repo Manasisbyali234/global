@@ -60,7 +60,10 @@ const applicationSchema = new mongoose.Schema({
     type: { type: String },
     status: { type: String },
     isCompleted: { type: Boolean, default: false },
-    result: { type: String, default: null }
+    result: { type: String, default: null },
+    assessmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Assessment', default: null },
+    assessmentAttemptId: { type: mongoose.Schema.Types.ObjectId, ref: 'AssessmentAttempt', default: null },
+    assessmentAttemptStatus: { type: String, default: null }
   }],
   processRemarks: { type: Map, of: String },
   

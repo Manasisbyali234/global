@@ -438,6 +438,100 @@ function EmpCandidateReviewPage() {
         });
     };
 
+    const normalizeAssessmentReferenceId = (value) => {
+        if (!value) return '';
+        if (typeof value === 'object') {
+            return String(value?._id || value?.id || '').trim();
+        }
+        return String(value).trim();
+    };
+
+    const getAssessmentAttemptSummary = (assessmentAttempt = null) => {
+        if (!assessmentAttempt) {
+            return null;
+        }
+
+        return buildAssessmentSummary({
+            score: assessmentAttempt?.score ?? null,
+            totalMarks: assessmentAttempt?.totalMarks ?? null,
+            percentage: assessmentAttempt?.percentage ?? null,
+            result: assessmentAttempt?.result ?? null,
+            status: assessmentAttempt?.status ?? '',
+            captures: assessmentAttempt?.captures || assessmentAttempt?.capturedImages || [],
+            manualEvaluationPendingCount: assessmentAttempt?.manualEvaluationPendingCount ?? 0
+        });
+    };
+
+    const resolveAssessmentAttemptForProcess = (process = {}, applicationData = null, assessmentProcessCount = 0) => {
+        if (process?.type !== 'assessment' || !applicationData) {
+            return null;
+        }
+
+        const assessmentAttempts = Array.isArray(applicationData?.assessmentAttempts)
+            ? applicationData.assessmentAttempts
+            : [];
+        const attemptId = normalizeAssessmentReferenceId(process?.assessmentAttemptId);
+
+        if (attemptId) {
+            const matchedAttemptById = assessmentAttempts.find(
+                (attempt) => normalizeAssessmentReferenceId(attempt?._id) === attemptId
+            );
+            if (matchedAttemptById) {
+                return matchedAttemptById;
+            }
+        }
+
+        const assessmentId = normalizeAssessmentReferenceId(process?.assessmentId);
+        const attemptsByAssessmentId =
+            applicationData?.assessmentAttemptsByAssessmentId &&
+            typeof applicationData.assessmentAttemptsByAssessmentId === 'object'
+                ? applicationData.assessmentAttemptsByAssessmentId
+                : {};
+
+        if (assessmentId && attemptsByAssessmentId[assessmentId]) {
+            return attemptsByAssessmentId[assessmentId];
+        }
+
+        if (assessmentId) {
+            const matchedAttemptByAssessment = assessmentAttempts.find(
+                (attempt) => normalizeAssessmentReferenceId(attempt?.assessmentId) === assessmentId
+            );
+            if (matchedAttemptByAssessment) {
+                return matchedAttemptByAssessment;
+            }
+        }
+
+        if (assessmentProcessCount <= 1) {
+            return applicationData?.assessmentAttempt || assessmentAttempts[0] || null;
+        }
+
+        return null;
+    };
+
+    const getOrderedAssessmentRounds = (applicationData = {}) =>
+        (Array.isArray(applicationData?.jobId?.interviewRoundOrder) ? applicationData.jobId.interviewRoundOrder : [])
+            .reduce((rounds, roundKey) => {
+                const roundType = applicationData?.jobId?.interviewRoundTypes?.[roundKey] || roundKey;
+                if (roundType !== 'assessment') {
+                    return rounds;
+                }
+
+                const roundDetails = applicationData?.jobId?.interviewRoundDetails?.[roundKey] || {};
+                rounds.push({
+                    assessmentId: roundDetails?.assessmentId || applicationData?.jobId?.assessmentId || null,
+                    fromDate: roundDetails?.fromDate || roundDetails?.date || applicationData?.jobId?.assessmentStartDate || null,
+                    toDate:
+                        roundDetails?.toDate ||
+                        roundDetails?.fromDate ||
+                        roundDetails?.date ||
+                        applicationData?.jobId?.assessmentEndDate ||
+                        null,
+                    startTime: roundDetails?.startTime || applicationData?.jobId?.assessmentStartTime || '',
+                    endTime: roundDetails?.endTime || applicationData?.jobId?.assessmentEndTime || ''
+                });
+                return rounds;
+            }, []);
+
     const resolveAssessmentValue = (primaryValue, fallbackValue) => {
         const normalizedPrimary = String(primaryValue || '').trim().toLowerCase();
         const normalizedFallback = String(fallbackValue || '').trim().toLowerCase();
@@ -788,6 +882,7 @@ function EmpCandidateReviewPage() {
             if (response.ok) {
                 const data = await response.json();
                 const assessmentSummary = getAssessmentSummary(data.application);
+                const orderedAssessmentRounds = getOrderedAssessmentRounds(data.application);
                 setApplication(data.application);
                 setCandidate(data.application.candidateId);
                 
@@ -806,12 +901,29 @@ function EmpCandidateReviewPage() {
                 let processes = [];
                 if (data.application.interviewProcess?.stages && data.application.interviewProcess.stages.length > 0) {
                     const assessmentStageCount = data.application.interviewProcess.stages.filter(stage => stage?.stageType === 'assessment').length;
+                    let assessmentStageIndex = 0;
                     processes = data.application.interviewProcess.stages
                         .filter(stage => stage && stage.stageName && stage.stageType)
                         .sort((a, b) => (a.stageOrder || 0) - (b.stageOrder || 0))
                         .map(stage => {
+                            const inferredAssessmentRound = stage.stageType === 'assessment'
+                                ? (orderedAssessmentRounds[assessmentStageIndex++] || null)
+                                : null;
+                            const resolvedAssessmentId = stage.stageType === 'assessment'
+                                ? (stage.assessmentId || inferredAssessmentRound?.assessmentId || null)
+                                : null;
+                            const stageAssessmentAttempt = stage.stageType === 'assessment'
+                                ? resolveAssessmentAttemptForProcess({
+                                    type: 'assessment',
+                                    assessmentId: resolvedAssessmentId,
+                                    assessmentAttemptId: stage.assessmentAttemptId || null
+                                }, data.application, assessmentStageCount)
+                                : null;
                             const stageAssessmentSummary = stage.stageType === 'assessment'
-                                ? getStageAssessmentSummary(stage, assessmentStageCount > 1 ? null : assessmentSummary)
+                                ? getStageAssessmentSummary(
+                                    { ...stage, assessmentId: resolvedAssessmentId },
+                                    getAssessmentAttemptSummary(stageAssessmentAttempt) || (assessmentStageCount > 1 ? null : assessmentSummary)
+                                )
                                 : null;
                             const resolvedStatus = stage.stageType === 'assessment'
                                 ? resolveAssessmentProcessStatus(stage.status || stage.assessmentAttemptStatus, stageAssessmentSummary)
@@ -836,24 +948,43 @@ function EmpCandidateReviewPage() {
                                 assessmentTotalMarks: stage.stageType === 'assessment' ? stageAssessmentSummary.totalMarks : null,
                                  assessmentCaptures: stage.stageType === 'assessment' ? stageAssessmentSummary.captures : [],
                                  manualEvaluationPendingCount: stage.stageType === 'assessment' ? stageAssessmentSummary.manualEvaluationPendingCount : 0,
-                                 assessmentId: stage.stageType === 'assessment' ? (stage.assessmentId || null) : null,
-                                 fromDate: stage.stageType === 'assessment' ? (stage.fromDate || null) : null,
-                                 toDate: stage.stageType === 'assessment' ? (stage.toDate || stage.fromDate || null) : null,
-                                startTime: stage.stageType === 'assessment' ? (stage.startTime || stage.scheduledTime || '') : '',
-                                endTime: stage.stageType === 'assessment' ? (stage.endTime || '') : '',
-                                scheduledDate: stage.stageType === 'assessment' ? (stage.scheduledDate || null) : null,
-                                scheduledTime: stage.stageType === 'assessment' ? (stage.scheduledTime || '') : ''
+                                 assessmentId: stage.stageType === 'assessment' ? resolvedAssessmentId : null,
+                                 assessmentAttemptId: stage.stageType === 'assessment' ? (stageAssessmentAttempt?._id || stage.assessmentAttemptId || null) : null,
+                                 assessmentAttemptStatus: stage.stageType === 'assessment' ? (stageAssessmentAttempt?.status || stage.assessmentAttemptStatus || '') : '',
+                                 fromDate: stage.stageType === 'assessment' ? (stage.fromDate || inferredAssessmentRound?.fromDate || null) : null,
+                                 toDate: stage.stageType === 'assessment' ? (stage.toDate || stage.fromDate || inferredAssessmentRound?.toDate || inferredAssessmentRound?.fromDate || null) : null,
+                                 startTime: stage.stageType === 'assessment' ? (stage.startTime || stage.scheduledTime || '') : '',
+                                 endTime: stage.stageType === 'assessment' ? (stage.endTime || inferredAssessmentRound?.endTime || '') : '',
+                                 scheduledDate: stage.stageType === 'assessment' ? (stage.scheduledDate || null) : null,
+                                 scheduledTime: stage.stageType === 'assessment' ? (stage.scheduledTime || '') : ''
                             });
                         });
                     processes = applySavedManualStatuses(processes, savedManualProcesses);
                 } else if (data.application.interviewProcesses && data.application.interviewProcesses.length > 0) {
                     const assessmentStageCount = data.application.interviewProcesses.filter(p => p?.type === 'assessment').length;
+                    let assessmentStageIndex = 0;
                     processes = data.application.interviewProcesses.filter(p => p && p.name && p.type).map(p => {
+                        const inferredAssessmentRound = p.type === 'assessment'
+                            ? (orderedAssessmentRounds[assessmentStageIndex++] || null)
+                            : null;
+                        const resolvedAssessmentId = p.type === 'assessment'
+                            ? (p.assessmentId || inferredAssessmentRound?.assessmentId || null)
+                            : null;
+                        const stageAssessmentAttempt = p.type === 'assessment'
+                            ? resolveAssessmentAttemptForProcess({
+                                type: 'assessment',
+                                assessmentId: resolvedAssessmentId,
+                                assessmentAttemptId: p.assessmentAttemptId || null
+                            }, data.application, assessmentStageCount)
+                            : null;
                         const stageAssessmentSummary = p.type === 'assessment'
-                            ? getStageAssessmentSummary(p, assessmentStageCount > 1 ? null : assessmentSummary)
+                            ? getStageAssessmentSummary(
+                                { ...p, assessmentId: resolvedAssessmentId },
+                                getAssessmentAttemptSummary(stageAssessmentAttempt) || (assessmentStageCount > 1 ? null : assessmentSummary)
+                            )
                             : null;
                         const resolvedStatus = p.type === 'assessment'
-                            ? resolveAssessmentProcessStatus(p.status, stageAssessmentSummary)
+                            ? resolveAssessmentProcessStatus(p.status || stageAssessmentAttempt?.status, stageAssessmentSummary)
                             : (p.status || 'pending');
 
                         return normalizeTrackedProcessState({
@@ -874,13 +1005,15 @@ function EmpCandidateReviewPage() {
                                 assessmentTotalMarks: p.type === 'assessment' ? stageAssessmentSummary.totalMarks : null,
                                  assessmentCaptures: p.type === 'assessment' ? stageAssessmentSummary.captures : [],
                                  manualEvaluationPendingCount: p.type === 'assessment' ? stageAssessmentSummary.manualEvaluationPendingCount : 0,
-                                 assessmentId: p.type === 'assessment' ? (p.assessmentId || null) : null,
-                                 fromDate: p.type === 'assessment' ? (p.fromDate || null) : null,
-                                 toDate: p.type === 'assessment' ? (p.toDate || p.fromDate || null) : null,
-                                startTime: p.type === 'assessment' ? (p.startTime || p.scheduledTime || '') : '',
-                                endTime: p.type === 'assessment' ? (p.endTime || '') : '',
-                                scheduledDate: p.type === 'assessment' ? (p.scheduledDate || null) : null,
-                                scheduledTime: p.type === 'assessment' ? (p.scheduledTime || '') : ''
+                                 assessmentId: p.type === 'assessment' ? resolvedAssessmentId : null,
+                                 assessmentAttemptId: p.type === 'assessment' ? (stageAssessmentAttempt?._id || p.assessmentAttemptId || null) : null,
+                                 assessmentAttemptStatus: p.type === 'assessment' ? (stageAssessmentAttempt?.status || p.assessmentAttemptStatus || '') : '',
+                                 fromDate: p.type === 'assessment' ? (p.fromDate || inferredAssessmentRound?.fromDate || null) : null,
+                                 toDate: p.type === 'assessment' ? (p.toDate || p.fromDate || inferredAssessmentRound?.toDate || inferredAssessmentRound?.fromDate || null) : null,
+                                 startTime: p.type === 'assessment' ? (p.startTime || p.scheduledTime || inferredAssessmentRound?.startTime || '') : '',
+                                 endTime: p.type === 'assessment' ? (p.endTime || inferredAssessmentRound?.endTime || '') : '',
+                                 scheduledDate: p.type === 'assessment' ? (p.scheduledDate || null) : null,
+                                 scheduledTime: p.type === 'assessment' ? (p.scheduledTime || '') : ''
                             });
                         });
                     processes = normalizeManualTrackingSequence(processes);
@@ -910,8 +1043,20 @@ function EmpCandidateReviewPage() {
                             displayName = roundDetails.customType;
                         }
 
+                        const resolvedAssessmentId = roundType === 'assessment'
+                            ? (roundDetails?.assessmentId || data.application.jobId?.assessmentId || null)
+                            : null;
+                        const stageAssessmentAttempt = roundType === 'assessment'
+                            ? resolveAssessmentAttemptForProcess({
+                                type: 'assessment',
+                                assessmentId: resolvedAssessmentId
+                            }, data.application, assessmentRoundCount)
+                            : null;
                         const stageAssessmentSummary = roundType === 'assessment'
-                            ? getStageAssessmentSummary(roundDetails, assessmentRoundCount > 1 ? null : assessmentSummary)
+                            ? getStageAssessmentSummary(
+                                { ...roundDetails, assessmentId: resolvedAssessmentId },
+                                getAssessmentAttemptSummary(stageAssessmentAttempt) || (assessmentRoundCount > 1 ? null : assessmentSummary)
+                            )
                             : null;
 
                         return normalizeTrackedProcessState({
@@ -919,7 +1064,7 @@ function EmpCandidateReviewPage() {
                             name: displayName,
                             type: roundType,
                             status: roundType === 'assessment'
-                                ? resolveAssessmentProcessStatus('pending', stageAssessmentSummary)
+                                ? resolveAssessmentProcessStatus(stageAssessmentAttempt?.status || 'pending', stageAssessmentSummary)
                                 : 'pending',
                             isCompleted: false,
                             result: roundType === 'assessment' ? stageAssessmentSummary.resultDisplay : null,
@@ -930,10 +1075,12 @@ function EmpCandidateReviewPage() {
                             assessmentTotalMarks: roundType === 'assessment' ? stageAssessmentSummary.totalMarks : null,
                              assessmentCaptures: roundType === 'assessment' ? stageAssessmentSummary.captures : [],
                              manualEvaluationPendingCount: roundType === 'assessment' ? stageAssessmentSummary.manualEvaluationPendingCount : 0,
-                             assessmentId: roundType === 'assessment' ? (roundDetails?.assessmentId || data.application.jobId?.assessmentId || null) : null,
+                             assessmentId: roundType === 'assessment' ? resolvedAssessmentId : null,
+                             assessmentAttemptId: roundType === 'assessment' ? (stageAssessmentAttempt?._id || null) : null,
+                             assessmentAttemptStatus: roundType === 'assessment' ? (stageAssessmentAttempt?.status || '') : '',
                              fromDate: roundType === 'assessment' ? (roundDetails?.fromDate || roundDetails?.date || data.application.jobId?.assessmentStartDate || null) : null,
                              toDate: roundType === 'assessment' ? (roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || data.application.jobId?.assessmentEndDate || null) : null,
-                            startTime: roundType === 'assessment' ? (roundDetails?.startTime || data.application.jobId?.assessmentStartTime || '') : '',
+                             startTime: roundType === 'assessment' ? (roundDetails?.startTime || data.application.jobId?.assessmentStartTime || '') : '',
                             endTime: roundType === 'assessment' ? (roundDetails?.endTime || data.application.jobId?.assessmentEndTime || '') : '',
                             scheduledDate: null,
                             scheduledTime: ''
@@ -1049,7 +1196,10 @@ function EmpCandidateReviewPage() {
                 type: String(p.type),
                 status: String(p.status),
                 isCompleted: Boolean(p.isCompleted),
-                result: p.type === 'assessment' ? null : (p.result || null)
+                result: p.type === 'assessment' ? null : (p.result || null),
+                assessmentId: p.type === 'assessment' ? (p.assessmentId || null) : null,
+                assessmentAttemptId: p.type === 'assessment' ? (p.assessmentAttemptId || null) : null,
+                assessmentAttemptStatus: p.type === 'assessment' ? (p.assessmentAttemptStatus || null) : null
             }));
             
             const response = await fetch(`${API_BASE_URL}/employer/applications/${applicationId}/review`, {
@@ -1093,7 +1243,10 @@ function EmpCandidateReviewPage() {
                 type: String(p.type),
                 status: String(p.status),
                 isCompleted: Boolean(p.isCompleted),
-                result: p.type === 'assessment' ? null : (p.result || null)
+                result: p.type === 'assessment' ? null : (p.result || null),
+                assessmentId: p.type === 'assessment' ? (p.assessmentId || null) : null,
+                assessmentAttemptId: p.type === 'assessment' ? (p.assessmentAttemptId || null) : null,
+                assessmentAttemptStatus: p.type === 'assessment' ? (p.assessmentAttemptStatus || null) : null
             }));
             
             const response = await fetch(`${API_BASE_URL}/employer/applications/${applicationId}/review`, {
@@ -1495,200 +1648,210 @@ function EmpCandidateReviewPage() {
                                           </div>
                                         <div className="section-body" style={{ background: 'var(--soft-beige)', borderRadius: '0 0 16px 16px' }}>
                                             <div className="stage-timeline">
-                                                {interviewProcesses.map((process, index) => {
-                                                    const assessmentDisplay = getAssessmentDisplayState(process, application);
-                                                    const isPreviousRejected = interviewProcesses
-                                                        .slice(0, index)
-                                                        .some((previousProcess) => isRejectedLikeStatus(previousProcess.status));
-                                                    const isPreviousIncomplete = index > 0 && !interviewProcesses
-                                                        .slice(0, index)
-                                                        .every((previousProcess) => isShortlistedForNextRoundStatus(previousProcess.status));
-                                                    const isCurrentDisabled =
-                                                        isAssessmentNoShowApplication ||
-                                                        assessmentDisplay.isWindowExpired ||
-                                                        isPreviousRejected ||
-                                                        isPreviousIncomplete ||
-                                                        (applicationDisplayStatus === 'rejected' && !isRejectedLikeStatus(process.status));
+                                                {(() => {
+                                                    const assessmentProcessCount = interviewProcesses.filter((process) => process?.type === 'assessment').length;
 
-                                                    return (
-                                                        <div key={process.id} className={`timeline-item ${process.isCompleted ? 'completed' : ''}`}>
-                                                            <div className="timeline-indicator">
-                                                                <div className="indicator-circle">{index + 1}</div>
-                                                            </div>
-                                                            
-                                                            <div className={`stage-card ${isCurrentDisabled ? 'stage-disabled' : ''}`}>
-                                                                {/* Row 1: Header and Info */}
-                                                                <div className="stage-row-primary">
-                                                                    <div className="stage-header-block">
-                                                                        <h5>{cleanProcessName(process.name)}</h5>
-                                                                        <span className={`status-pill ${process.isCompleted ? 'completed' : 'pending'}`}>
-                                                                            {process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired)
-                                                                                ? assessmentDisplay.statusLabel
-                                                                                : (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))}
-                                                                        </span>
-                                                                    </div>
+                                                    return interviewProcesses.map((process, index) => {
+                                                        const processAssessmentAttempt = resolveAssessmentAttemptForProcess(process, application, assessmentProcessCount);
+                                                        const assessmentDisplay = getAssessmentDisplayState(process, application);
+                                                        const isPreviousRejected = interviewProcesses
+                                                            .slice(0, index)
+                                                            .some((previousProcess) => isRejectedLikeStatus(previousProcess.status));
+                                                        const isPreviousIncomplete = index > 0 && !interviewProcesses
+                                                            .slice(0, index)
+                                                            .every((previousProcess) => isShortlistedForNextRoundStatus(previousProcess.status));
+                                                        const isCurrentDisabled =
+                                                            isAssessmentNoShowApplication ||
+                                                            assessmentDisplay.isWindowExpired ||
+                                                            isPreviousRejected ||
+                                                            isPreviousIncomplete ||
+                                                            (applicationDisplayStatus === 'rejected' && !isRejectedLikeStatus(process.status));
+
+                                                        return (
+                                                            <div key={process.id} className={`timeline-item ${process.isCompleted ? 'completed' : ''}`}>
+                                                                <div className="timeline-indicator">
+                                                                    <div className="indicator-circle">{index + 1}</div>
                                                                 </div>
 
-                                                                {process.type === 'assessment' && (() => {
-                                                                    const attempt = application.assessmentAttempt;
-                                                                    const displayScore = process.assessmentScore ?? attempt?.score ?? null;
-                                                                    const displayTotalMarks = process.assessmentTotalMarks ?? attempt?.totalMarks ?? null;
-                                                                    const displayPercentage = process.assessmentPercentage ?? attempt?.percentage ?? null;
-                                                                    const displayResult = getAssessmentOutcomeLabel({
-                                                                        status: attempt?.status,
-                                                                        result: attempt?.status === 'suspended' ? 'suspended' : attempt?.result,
-                                                                        manualEvaluationPendingCount: attempt?.manualEvaluationPendingCount ?? 0
-                                                                    });
-                                                                    const hasData = (displayScore !== null && displayScore !== undefined) || (displayPercentage !== null && displayPercentage !== undefined) || (displayResult && displayResult !== 'Pending');
-                                                                    return hasData ? (
-                                                                    <div className="assessment-process-summary-horizontal">
-                                                                        {displayScore !== null && displayTotalMarks !== null && (
-                                                                            <div className="assessment-process-item">
-                                                                                <span className="assessment-process-label">Score</span>
-                                                                                <span className="assessment-process-value">
-                                                                                    {displayScore} / {displayTotalMarks}
-                                                                                </span>
+                                                                <div className={`stage-card ${isCurrentDisabled ? 'stage-disabled' : ''}`}>
+                                                                    <div className="stage-row-primary">
+                                                                        <div className="stage-header-block">
+                                                                            <h5>{cleanProcessName(process.name)}</h5>
+                                                                            <span className={`status-pill ${process.isCompleted ? 'completed' : 'pending'}`}>
+                                                                                {process.type === 'assessment' && (isAutoAssessmentStageStatus(process.status) || assessmentDisplay.isWindowExpired)
+                                                                                    ? assessmentDisplay.statusLabel
+                                                                                    : (getStageStatusOptions(index).find(o => o.value === process.status)?.label || formatStatusLabel(process.status))}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {process.type === 'assessment' && (() => {
+                                                                        const displayScore = process.assessmentScore ?? processAssessmentAttempt?.score ?? null;
+                                                                        const displayTotalMarks = process.assessmentTotalMarks ?? processAssessmentAttempt?.totalMarks ?? null;
+                                                                        const displayPercentage = process.assessmentPercentage ?? processAssessmentAttempt?.percentage ?? null;
+                                                                        const displayResult = process.result || getAssessmentOutcomeLabel({
+                                                                            status: processAssessmentAttempt?.status,
+                                                                            result: processAssessmentAttempt?.status === 'suspended' ? 'suspended' : processAssessmentAttempt?.result,
+                                                                            manualEvaluationPendingCount: process.manualEvaluationPendingCount ?? processAssessmentAttempt?.manualEvaluationPendingCount ?? 0
+                                                                        });
+                                                                        const hasData =
+                                                                            Boolean(process.assessmentHasData) ||
+                                                                            (displayScore !== null && displayScore !== undefined) ||
+                                                                            (displayPercentage !== null && displayPercentage !== undefined) ||
+                                                                            (displayResult && displayResult !== 'Pending');
+
+                                                                        return hasData ? (
+                                                                            <div className="assessment-process-summary-horizontal">
+                                                                                {displayScore !== null && displayTotalMarks !== null && (
+                                                                                    <div className="assessment-process-item">
+                                                                                        <span className="assessment-process-label">Score</span>
+                                                                                        <span className="assessment-process-value">
+                                                                                            {displayScore} / {displayTotalMarks}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                )}
+                                                                                {displayPercentage !== null && displayPercentage !== undefined && (
+                                                                                    <div className="assessment-process-item">
+                                                                                        <span className="assessment-process-label">Percentage</span>
+                                                                                        <span className="assessment-process-value">
+                                                                                            {Number(displayPercentage).toFixed(1)}%
+                                                                                        </span>
+                                                                                    </div>
+                                                                                )}
+                                                                                {displayResult && (
+                                                                                    <div className="assessment-process-item">
+                                                                                        <span className="assessment-process-label">Result</span>
+                                                                                        <span className={`assessment-process-value result ${assessmentDisplay.resultClass || 'pending'}`}>
+                                                                                            {displayResult}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                )}
                                                                             </div>
-                                                                        )}
-                                                                        {displayPercentage !== null && displayPercentage !== undefined && (
-                                                                            <div className="assessment-process-item">
-                                                                                <span className="assessment-process-label">Percentage</span>
-                                                                                <span className="assessment-process-value">
-                                                                                    {Number(displayPercentage).toFixed(1)}%
-                                                                                </span>
-                                                                            </div>
-                                                                        )}
-                                                                        {displayResult && (
-                                                                            <div className="assessment-process-item">
-                                                                                <span className="assessment-process-label">Result</span>
-                                                                                <span className={`assessment-process-value result ${assessmentDisplay.resultClass || 'pending'}`}>
-                                                                                    {displayResult}
-                                                                                </span>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                    ) : null;
-                                                                })()}
+                                                                        ) : null;
+                                                                    })()}
 
-                                                                {/* Row 2: Controls & Actions */}
-                                                                <div className="stage-row-secondary">
-                                                                    <div className="control-select-wrapper">
-                                                                        <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'block' }}>Candidate Status</label>
-                                                                        <select 
-                                                                            className="form-select"
-                                                                            value={process.status || 'pending'}
-                                                                            onChange={(e) => {
-                                                                                if (!statusUpdateUnlocked) return;
-                                                                                const newStatus = e.target.value;
-                                                                                setInterviewProcesses(prev => {
-                                                                                    const updated = normalizeManualTrackingSequence(
-                                                                                        prev.map(p => p.id === process.id ? {
-                                                                                            ...p,
-                                                                                            status: newStatus,
-                                                                                            isCompleted: newStatus !== 'pending'
-                                                                                        } : p)
-                                                                                    );
-                                                                                    interviewProcessesRef.current = updated;
-                                                                                    saveInterviewProcesses(updated, true);
-                                                                                    return updated;
-                                                                                });
-                                                                            }}
-                                                                            disabled={!statusUpdateUnlocked || isCurrentDisabled}
-                                                                        >
-                                                                            {!getStageStatusOptions(index).some((option) => option.value === (process.status || 'pending')) && (
-                                                                                <option value={process.status || 'pending'}>
-                                                                                    {(process.status || 'pending').replace(/_/g, ' ')}
-                                                                                </option>
-                                                                            )}
-                                                                            {getStageStatusOptions(index).map((option) => (
-                                                                                <option key={option.value} value={option.value}>
-                                                                                    {option.label}
-                                                                                </option>
-                                                                            ))}
-                                                                        </select>
+                                                                    <div className="stage-row-secondary">
+                                                                        <div className="control-select-wrapper">
+                                                                            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'block' }}>Candidate Status</label>
+                                                                            <select
+                                                                                className="form-select"
+                                                                                value={process.status || 'pending'}
+                                                                                onChange={(e) => {
+                                                                                    if (!statusUpdateUnlocked) return;
+                                                                                    const newStatus = e.target.value;
+                                                                                    setInterviewProcesses(prev => {
+                                                                                        const updated = normalizeManualTrackingSequence(
+                                                                                            prev.map(p => p.id === process.id ? {
+                                                                                                ...p,
+                                                                                                status: newStatus,
+                                                                                                isCompleted: newStatus !== 'pending'
+                                                                                            } : p)
+                                                                                        );
+                                                                                        interviewProcessesRef.current = updated;
+                                                                                        saveInterviewProcesses(updated, true);
+                                                                                        return updated;
+                                                                                    });
+                                                                                }}
+                                                                                disabled={!statusUpdateUnlocked || isCurrentDisabled}
+                                                                            >
+                                                                                {!getStageStatusOptions(index).some((option) => option.value === (process.status || 'pending')) && (
+                                                                                    <option value={process.status || 'pending'}>
+                                                                                        {(process.status || 'pending').replace(/_/g, ' ')}
+                                                                                    </option>
+                                                                                )}
+                                                                                {getStageStatusOptions(index).map((option) => (
+                                                                                    <option key={option.value} value={option.value}>
+                                                                                        {option.label}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </select>
+                                                                        </div>
+                                                                        <div className="control-remarks-wrapper">
+                                                                            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'block' }}>Stage Feedback</label>
+                                                                            <textarea
+                                                                                placeholder="Add stage feedback or notes..."
+                                                                                value={processRemarks[process.id] || ''}
+                                                                                onChange={(e) => {
+                                                                                    updateProcessRemark(process.id, e.target.value);
+                                                                                    e.target.style.height = 'auto';
+                                                                                    e.target.style.height = e.target.scrollHeight + 'px';
+                                                                                }}
+                                                                                disabled={isCurrentDisabled}
+                                                                                rows="1"
+                                                                                style={{ overflow: 'hidden', resize: 'none' }}
+                                                                            />
+                                                                        </div>
+                                                                        {process.type !== 'assessment' && <div className="stage-actions-horizontal"></div>}
                                                                     </div>
-                                                                    <div className="control-remarks-wrapper">
-                                                                        <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'block' }}>Stage Feedback</label>
-                                                                        <textarea 
-                                                                            placeholder="Add stage feedback or notes..."
-                                                                            value={processRemarks[process.id] || ''}
-                                                                            onChange={(e) => {
-                                                                                updateProcessRemark(process.id, e.target.value);
-                                                                                e.target.style.height = 'auto';
-                                                                                e.target.style.height = e.target.scrollHeight + 'px';
-                                                                            }}
-                                                                            disabled={isCurrentDisabled}
-                                                                            rows="1"
-                                                                            style={{ overflow: 'hidden', resize: 'none' }}
-                                                                        />
-                                                                    </div>
-                                                                    {process.type !== 'assessment' && <div className="stage-actions-horizontal"></div>}
-                                                                </div>
-                                                                {process.type === 'assessment' && (
-                                                                    <div className="stage-actions-horizontal" style={{ marginTop: '8px' }}>
-                                                                        <button
-                                                                            className="btn-soft-outline"
-                                                                            onClick={() => {
-                                                                                const captures = process.assessmentCaptures || application.assessmentAttempt?.captures || application.assessmentAttempt?.capturedImages || [];
-                                                                                setCapturesModal({ isOpen: true, captures });
-                                                                            }}
-                                                                        >
-                                                                            <i className="fas fa-camera"></i> View Capture
-                                                                        </button>
-                                                                        <button 
-                                                                            className="btn-soft-outline"
-                                                                            onClick={() => {
-                                                                                const attempt = application.assessmentAttempt;
-                                                                                if (attempt?._id) navigate(`/employer/view-answers/${attempt._id}`);
-                                                                            }}
-                                                                        >
-                                                                            <i className="fas fa-code"></i> Answers
-                                                                        </button>
-                                                                    </div>
-                                                                )}
 
-                                                                {isAssessmentNoShowApplication && (
-                                                                    <div className="stage-locked-info">
-                                                                        <i className="fas fa-clock"></i>
-                                                                        <span>No Show</span>
-                                                                    </div>
-                                                                )}
-
-                                                            </div>
-
-                                                            {index === interviewProcesses.length - 1 && process.status === 'selected' && (
-                                                                <div className="final-round-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
-                                                                    <div style={{ display: 'flex', gap: '10px' }}>
-                                                                        <button
-                                                                            className="btn-decision btn-shortlist-action"
-                                                                            onClick={() => updateApplicationStatus('shortlisted')}
-                                                                            disabled={applicationStatusForActions === 'shortlisted'}
-                                                                        >
-                                                                            <i className="fas fa-check-circle"></i> Shortlisted
-                                                                        </button>
-                                                                        <button
-                                                                            className="btn-decision btn-recommend"
-                                                                            onClick={() => updateApplicationStatus('offer_sent')}
-                                                                            disabled={applicationStatusForActions === 'offer_sent' || applicationDisplayStatus === 'accepted' || applicationDisplayStatus === 'rejected'}
-                                                                        >
-                                                                            <i className="fas fa-award"></i> Offer Letter Sent
-                                                                        </button>
-                                                                    </div>
-                                                                    {applicationDisplayStatus === 'accepted' && (
-                                                                        <div style={{ color: '#065f46', background: '#d1fae5', border: '1px solid #6ee7b7', borderRadius: '6px', padding: '6px 16px', fontWeight: '600', fontSize: '13px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', minWidth: '260px' }}>
-                                                                            <i className="fas fa-check-circle"></i> Candidate Accepted Offer Letter
+                                                                    {process.type === 'assessment' && (
+                                                                        <div className="stage-actions-horizontal" style={{ marginTop: '8px' }}>
+                                                                            <button
+                                                                                className="btn-soft-outline"
+                                                                                onClick={() => {
+                                                                                    const captures =
+                                                                                        process.assessmentCaptures?.length
+                                                                                            ? process.assessmentCaptures
+                                                                                            : (processAssessmentAttempt?.captures || processAssessmentAttempt?.capturedImages || []);
+                                                                                    setCapturesModal({ isOpen: true, captures });
+                                                                                }}
+                                                                            >
+                                                                                <i className="fas fa-camera"></i> View Capture
+                                                                            </button>
+                                                                            <button
+                                                                                className="btn-soft-outline"
+                                                                                onClick={() => {
+                                                                                    const attemptId = process.assessmentAttemptId || processAssessmentAttempt?._id || null;
+                                                                                    if (attemptId) navigate(`/employer/view-answers/${attemptId}`);
+                                                                                }}
+                                                                            >
+                                                                                <i className="fas fa-code"></i> Answers
+                                                                            </button>
                                                                         </div>
                                                                     )}
-                                                                    {(applicationDisplayStatus === 'rejected' && application?.statusHistory?.some(h => h.status === 'offer_sent')) && (
-                                                                        <div style={{ color: '#991b1b', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '6px', padding: '6px 16px', fontWeight: '600', fontSize: '13px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', minWidth: '260px' }}>
-                                                                            <i className="fas fa-times-circle"></i> Candidate Rejected Offer Letter
+
+                                                                    {isAssessmentNoShowApplication && (
+                                                                        <div className="stage-locked-info">
+                                                                            <i className="fas fa-clock"></i>
+                                                                            <span>No Show</span>
                                                                         </div>
                                                                     )}
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
+
+                                                                {index === interviewProcesses.length - 1 && process.status === 'selected' && (
+                                                                    <div className="final-round-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                                                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                                                            <button
+                                                                                className="btn-decision btn-shortlist-action"
+                                                                                onClick={() => updateApplicationStatus('shortlisted')}
+                                                                                disabled={applicationStatusForActions === 'shortlisted'}
+                                                                            >
+                                                                                <i className="fas fa-check-circle"></i> Shortlisted
+                                                                            </button>
+                                                                            <button
+                                                                                className="btn-decision btn-recommend"
+                                                                                onClick={() => updateApplicationStatus('offer_sent')}
+                                                                                disabled={applicationStatusForActions === 'offer_sent' || applicationDisplayStatus === 'accepted' || applicationDisplayStatus === 'rejected'}
+                                                                            >
+                                                                                <i className="fas fa-award"></i> Offer Letter Sent
+                                                                            </button>
+                                                                        </div>
+                                                                        {applicationDisplayStatus === 'accepted' && (
+                                                                            <div style={{ color: '#065f46', background: '#d1fae5', border: '1px solid #6ee7b7', borderRadius: '6px', padding: '6px 16px', fontWeight: '600', fontSize: '13px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', minWidth: '260px' }}>
+                                                                                <i className="fas fa-check-circle"></i> Candidate Accepted Offer Letter
+                                                                            </div>
+                                                                        )}
+                                                                        {(applicationDisplayStatus === 'rejected' && application?.statusHistory?.some(h => h.status === 'offer_sent')) && (
+                                                                            <div style={{ color: '#991b1b', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '6px', padding: '6px 16px', fontWeight: '600', fontSize: '13px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', minWidth: '260px' }}>
+                                                                                <i className="fas fa-times-circle"></i> Candidate Rejected Offer Letter
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    });
+                                                })()}
                                             </div>
                                         </div>
                                     </div>

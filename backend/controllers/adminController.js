@@ -149,9 +149,13 @@ const syncPlacementCandidateCreditsForCandidate = async (candidate = null, credi
   );
 };
 
-const findPlacementFileEmailConflicts = async (rows = []) => {
+const normalizeEmailValue = (value = '') => String(value || '').trim().toLowerCase();
+
+const findPlacementFileEmailConflicts = async (rows = [], { allowedExistingEmails = [] } = {}) => {
   const duplicateEmails = collectDuplicateValues(rows, getRowEmail);
-  const existingEmails = await findExistingEmails(rows.map(getRowEmail));
+  const allowedEmailSet = new Set(allowedExistingEmails.map(normalizeEmailValue).filter(Boolean));
+  const existingEmails = (await findExistingEmails(rows.map(getRowEmail)))
+    .filter((email) => !allowedEmailSet.has(normalizeEmailValue(email)));
 
   return {
     duplicateEmails,
@@ -175,6 +179,98 @@ const rejectPlacementFileForConflicts = async ({ placementId, fileId, rejectionR
     }
   )
 );
+
+const getPlacementFileOwnedEmails = async ({ placementId, fileId }) => {
+  const [candidateRecords, placementCandidateRecords] = await Promise.all([
+    Candidate.find({ placementId, fileId }).select('email').lean(),
+    PlacementCandidate.find({ placementId, fileId }).select('studentEmail').lean()
+  ]);
+
+  return [...new Set([
+    ...candidateRecords.map((record) => normalizeEmailValue(record?.email)),
+    ...placementCandidateRecords.map((record) => normalizeEmailValue(record?.studentEmail))
+  ].filter(Boolean))];
+};
+
+const isPlacementCandidateOwnedByFile = (existingUser, placementId, fileId) => (
+  existingUser?.role === 'candidate' &&
+  existingUser?.user?.registrationMethod === 'placement' &&
+  String(existingUser?.user?.placementId || '') === String(placementId) &&
+  String(existingUser?.user?.fileId || '') === String(fileId)
+);
+
+const queuePlacementWelcomeEmails = ({
+  jobs = [],
+  placementId,
+  displayName,
+  createdBy
+} = {}) => {
+  if (!Array.isArray(jobs) || jobs.length === 0) {
+    return;
+  }
+
+  setImmediate(async () => {
+    const { sendPlacementCandidateWelcomeEmail } = require('../utils/emailService');
+    const concurrency = Math.min(5, jobs.length);
+    let nextIndex = 0;
+    let failedCount = 0;
+
+    const worker = async () => {
+      while (nextIndex < jobs.length) {
+        const job = jobs[nextIndex++];
+        const attemptAt = new Date();
+
+        try {
+          await sendPlacementCandidateWelcomeEmail(
+            job.email,
+            job.name,
+            job.password,
+            job.placementOfficerName,
+            job.collegeName,
+            job.credits
+          );
+
+          await PlacementCandidate.findByIdAndUpdate(job.placementCandidateId, {
+            $set: {
+              welcomeEmailSent: true,
+              welcomeEmailSentAt: attemptAt,
+              lastEmailAttempt: attemptAt
+            }
+          });
+        } catch (emailError) {
+          failedCount++;
+          console.error(`Failed to send welcome email to ${job.email}:`, emailError);
+
+          try {
+            await PlacementCandidate.findByIdAndUpdate(job.placementCandidateId, {
+              $set: { lastEmailAttempt: attemptAt },
+              $inc: { emailRetryCount: 1 }
+            });
+          } catch (updateError) {
+            console.error(`Failed to record email retry state for ${job.email}:`, updateError);
+          }
+        }
+      }
+    };
+
+    await Promise.all(Array.from({ length: concurrency }, () => worker()));
+
+    if (failedCount > 0) {
+      try {
+        await createNotification({
+          title: 'Placement Welcome Emails Need Retry',
+          message: `Background welcome email processing for "${displayName}" finished with ${failedCount} failure(s). Use Retry Failed Emails to resend them.`,
+          type: 'file_processed',
+          role: 'admin',
+          relatedId: placementId,
+          createdBy
+        });
+      } catch (notificationError) {
+        console.error('Failed to create welcome email retry notification:', notificationError);
+      }
+    }
+  });
+};
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -3405,6 +3501,326 @@ exports.approveIndividualFile = async (req, res) => {
         }
       });
       
+    } catch (processError) {
+      console.error('File processing error:', processError);
+      res.status(400).json({ success: false, message: 'Failed to process file data' });
+    }
+  } catch (error) {
+    console.error('Error approving file:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Override the legacy synchronous file approver with a hosted-safe implementation.
+exports.approveIndividualFile = async (req, res) => {
+  try {
+    const { id: placementId, fileId } = req.params;
+
+    const placement = await Placement.findById(placementId);
+    if (!placement) {
+      return res.status(404).json({ success: false, message: 'Placement not found' });
+    }
+
+    const fileIndex = placement.fileHistory.findIndex((historyFile) => historyFile._id.toString() === fileId);
+    if (fileIndex === -1) {
+      return res.status(404).json({ success: false, message: 'File not found' });
+    }
+
+    const file = placement.fileHistory[fileIndex];
+    if (!file.fileData) {
+      return res.status(400).json({ success: false, message: 'File data not available' });
+    }
+
+    try {
+      const workbook = getWorkbookFromStoredFile(file.fileData, file.fileType);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      const allowedExistingEmails = await getPlacementFileOwnedEmails({ placementId, fileId });
+
+      const emailConflicts = await findPlacementFileEmailConflicts(jsonData, { allowedExistingEmails });
+      if (emailConflicts.hasConflicts) {
+        await rejectPlacementFileForConflicts({
+          placementId,
+          fileId,
+          rejectionReason: emailConflicts.message,
+          rejectedBy: req.user.id
+        });
+
+        return res.status(400).json({
+          success: false,
+          message: emailConflicts.message,
+          duplicateEmails: emailConflicts.duplicateEmails,
+          existingEmails: emailConflicts.existingEmails,
+          requiresResubmission: true,
+          fileStatus: 'rejected'
+        });
+      }
+
+      let createdCount = 0;
+      let resumedCount = 0;
+      let skippedCount = 0;
+      const errors = [];
+      const createdCandidates = [];
+      const skippedCandidates = [];
+      const emailsProcessedInFile = new Set();
+      const welcomeEmailJobs = [];
+
+      for (let index = 0; index < jsonData.length; index++) {
+        try {
+          const row = jsonData[index];
+          let email = row.Email || row.email || row.EMAIL;
+          let password = row.Password || row.password || row.PASSWORD;
+          let name = row.Name || row.name || row.NAME || row['Full Name'] || row['full name'] || row['FULL NAME'] || row['Student Name'] || row['student name'] || row['STUDENT NAME'] || row['Candidate Name'] || row['candidate name'] || row['CANDIDATE NAME'];
+          const phone = row.Phone || row.phone || row.PHONE || row.Mobile || row.mobile || row.MOBILE;
+          const course = row.Course || row.course || row.COURSE || row.Branch || row.branch || row.BRANCH;
+          const collegeName = row['College Name'] || row['college name'] || row['COLLEGE NAME'] || row.College || row.college || row.COLLEGE || placement.collegeName;
+
+          if (!email || email.trim() === '') {
+            email = `student${index + 1}@${placement.collegeName.toLowerCase().replace(/\s+/g, '')}.edu`;
+          }
+          if (!password || password.trim() === '') {
+            password = `pwd${Math.random().toString(36).substr(2, 8)}`;
+          }
+          if (!name || name.trim() === '') {
+            name = `Student ${index + 1}`;
+          }
+
+          if (!email || !password || !name) {
+            errors.push(`Row ${index + 1}: Missing required fields (email, password, or name)`);
+            continue;
+          }
+
+          const normalizedEmail = normalizeEmailValue(email);
+          if (emailsProcessedInFile.has(normalizedEmail)) {
+            skippedCount++;
+            skippedCandidates.push({
+              name: name.trim(),
+              email: normalizedEmail,
+              reason: 'Duplicate email in uploaded file'
+            });
+            continue;
+          }
+          emailsProcessedInFile.add(normalizedEmail);
+
+          const existingUser = await checkEmailExists(normalizedEmail);
+          let candidate = null;
+          let reusedCandidate = false;
+
+          if (existingUser) {
+            if (!isPlacementCandidateOwnedByFile(existingUser, placement._id, file._id)) {
+              skippedCount++;
+              skippedCandidates.push({
+                name: name.trim(),
+                email: normalizedEmail,
+                reason: `Email already registered as ${existingUser.role}`
+              });
+              continue;
+            }
+
+            candidate = existingUser.user;
+            reusedCandidate = true;
+          }
+
+          const rowCredits = parseInt(row['Credits Assigned'] || row['credits assigned'] || row['CREDITS ASSIGNED'] || row.Credits || row.credits || row.CREDITS || row.Credit || row.credit || 0, 10);
+          const finalCredits = rowCredits || file.credits || placement.credits || 0;
+          const effectivePassword = reusedCandidate
+            ? String(candidate?.password || password).trim()
+            : password.trim();
+
+          if (!candidate) {
+            candidate = await Candidate.create({
+              name: name.trim(),
+              email: normalizedEmail,
+              password: effectivePassword,
+              phone: phone ? phone.toString().trim() : '',
+              course: course ? course.trim() : '',
+              credits: finalCredits,
+              registrationMethod: 'placement',
+              placementId: placement._id,
+              fileId: file._id,
+              isVerified: true,
+              status: 'active'
+            });
+
+            await CandidateProfile.create({
+              candidateId: candidate._id,
+              collegeName: collegeName || placement.collegeName,
+              education: [{
+                degreeName: course ? course.trim() : '',
+                collegeName: collegeName || placement.collegeName,
+                scoreType: 'percentage',
+                scoreValue: '0'
+              }]
+            });
+
+            createdCount++;
+          } else {
+            resumedCount++;
+
+            const existingProfile = await CandidateProfile.findOne({ candidateId: candidate._id }).select('_id').lean();
+            if (!existingProfile) {
+              await CandidateProfile.create({
+                candidateId: candidate._id,
+                collegeName: collegeName || placement.collegeName,
+                education: [{
+                  degreeName: course ? course.trim() : '',
+                  collegeName: collegeName || placement.collegeName,
+                  scoreType: 'percentage',
+                  scoreValue: '0'
+                }]
+              });
+            }
+          }
+
+          let placementCandidate = await PlacementCandidate.findOne({
+            candidateId: candidate._id,
+            placementId: placement._id
+          });
+
+          if (placementCandidate) {
+            const isSameFileRecord = String(placementCandidate.fileId || '') === String(file._id);
+
+            placementCandidate.status = 'approved';
+            placementCandidate.approvedAt = new Date();
+            placementCandidate.approvedBy = req.user.id;
+            placementCandidate.studentName = name.trim();
+            placementCandidate.studentEmail = normalizedEmail;
+            placementCandidate.studentPhone = phone ? phone.toString().trim() : placementCandidate.studentPhone;
+            placementCandidate.course = course ? course.trim() : placementCandidate.course;
+            placementCandidate.collegeName = collegeName || placement.collegeName;
+            placementCandidate.fileId = file._id;
+            placementCandidate.fileName = file.customName || file.fileName;
+            placementCandidate.originalRowData = row;
+            placementCandidate.creditsAssigned = isSameFileRecord
+              ? finalCredits
+              : Math.max(placementCandidate.creditsAssigned || 0, finalCredits);
+            await placementCandidate.save();
+          } else {
+            placementCandidate = await PlacementCandidate.create({
+              candidateId: candidate._id,
+              studentName: name.trim(),
+              studentEmail: normalizedEmail,
+              studentPhone: phone ? phone.toString().trim() : '',
+              course: course ? course.trim() : '',
+              collegeName: collegeName || placement.collegeName,
+              placementId: placement._id,
+              placementOfficerName: placement.name,
+              placementOfficerEmail: placement.email,
+              placementOfficerPhone: placement.phone,
+              fileId: file._id,
+              fileName: file.customName || file.fileName,
+              status: 'approved',
+              approvedAt: new Date(),
+              approvedBy: req.user.id,
+              creditsAssigned: finalCredits,
+              originalRowData: row
+            });
+          }
+
+          if (placementCandidate.welcomeEmailSent !== true) {
+            welcomeEmailJobs.push({
+              placementCandidateId: placementCandidate._id,
+              email: normalizedEmail,
+              name: name.trim(),
+              password: effectivePassword,
+              placementOfficerName: placement.name,
+              collegeName: collegeName || placement.collegeName,
+              credits: finalCredits
+            });
+          }
+
+          createdCandidates.push({
+            name: candidate.name,
+            email: candidate.email,
+            password: effectivePassword,
+            credits: finalCredits,
+            course: course || 'Not Specified',
+            collegeName: collegeName || placement.collegeName
+          });
+        } catch (rowError) {
+          console.error('Row processing error:', rowError);
+          errors.push(`Row ${index + 1}: ${rowError.message}`);
+        }
+      }
+
+      const processedCount = await PlacementCandidate.countDocuments({
+        placementId,
+        fileId,
+        status: 'approved'
+      });
+
+      await Placement.findOneAndUpdate(
+        { _id: placementId, 'fileHistory._id': fileId },
+        {
+          $set: {
+            'fileHistory.$.status': 'processed',
+            'fileHistory.$.processedAt': new Date(),
+            'fileHistory.$.candidatesCreated': processedCount
+          }
+        }
+      );
+
+      const displayName = file.customName || file.fileName;
+
+      try {
+        await createNotification({
+          title: 'Students Approved - Welcome Emails Queued',
+          message: 'File approved! Student accounts were prepared and welcome emails are being sent in the background.',
+          type: 'file_processed',
+          role: 'admin',
+          relatedId: placementId,
+          createdBy: req.user.id
+        });
+
+        await createNotification({
+          title: 'Student File Processed',
+          message: `File "${displayName}" created.`,
+          type: 'file_processed',
+          role: 'placement',
+          placementId: new mongoose.Types.ObjectId(placementId),
+          relatedId: new mongoose.Types.ObjectId(placementId),
+          createdBy: req.user.id
+        });
+      } catch (notifError) {
+        console.error('Notification creation failed:', notifError);
+      }
+
+      let message = `File approved successfully. ${processedCount} ${processedCount === 1 ? 'student account is' : 'student accounts are'} ready, and welcome emails are being sent in the background.`;
+      if (resumedCount > 0) {
+        message += ` ${resumedCount} ${resumedCount === 1 ? 'student was' : 'students were'} recovered from an earlier partial attempt.`;
+      }
+      if (skippedCount > 0) {
+        message += ` ${skippedCount} ${skippedCount === 1 ? 'row was' : 'rows were'} skipped because the email already belongs to another account.`;
+      }
+
+      res.json({
+        success: true,
+        message,
+        stats: {
+          created: createdCount,
+          resumed: resumedCount,
+          skipped: skippedCount,
+          errors: errors.length,
+          emailsQueued: welcomeEmailJobs.length
+        },
+        createdCandidates: createdCandidates.slice(0, 10),
+        skippedCandidates: skippedCandidates.slice(0, 10),
+        errors: errors.slice(0, 10),
+        loginInstructions: {
+          url: process.env.FRONTEND_URL || 'https://taleglobal.net',
+          message: welcomeEmailJobs.length > 0
+            ? 'Student accounts are ready. Welcome emails are being sent in the background, and any failures can be retried from the admin panel.'
+            : 'Student accounts are ready. Use Resend Welcome Emails if any student still needs credentials.'
+        }
+      });
+
+      queuePlacementWelcomeEmails({
+        jobs: welcomeEmailJobs,
+        placementId,
+        displayName,
+        createdBy: req.user.id
+      });
     } catch (processError) {
       console.error('File processing error:', processError);
       res.status(400).json({ success: false, message: 'Failed to process file data' });

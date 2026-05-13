@@ -4115,6 +4115,9 @@ exports.saveInterviewReview = async (req, res) => {
       const isProgressionInterviewProcessStatus = (value = '') =>
         normalizeInterviewProcessStatus(value) === 'shortlisted for next round';
 
+      const normalizeProcessObjectId = (value) =>
+        value && mongoose.Types.ObjectId.isValid(value) ? value : null;
+
       updateData.interviewProcesses = interviewProcesses.reduce((sanitizedProcesses, process, index) => {
         const hasRejectedBefore = sanitizedProcesses.some((previousProcess) =>
           isRejectedInterviewProcessStatus(previousProcess)
@@ -4134,7 +4137,12 @@ exports.saveInterviewReview = async (req, res) => {
           type: String(process.type || ''),
           status: nextStatus,
           isCompleted: nextStatus !== 'pending',
-          result: process.result ? String(process.result) : null
+          result: process.result ? String(process.result) : null,
+          assessmentId: isAssessmentInterviewProcess(process) ? normalizeProcessObjectId(process.assessmentId) : null,
+          assessmentAttemptId: isAssessmentInterviewProcess(process) ? normalizeProcessObjectId(process.assessmentAttemptId) : null,
+          assessmentAttemptStatus: isAssessmentInterviewProcess(process) && process.assessmentAttemptStatus
+            ? String(process.assessmentAttemptStatus)
+            : null
         });
 
         return sanitizedProcesses;

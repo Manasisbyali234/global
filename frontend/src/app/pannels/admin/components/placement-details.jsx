@@ -1,7 +1,7 @@
 ﻿import { useMemo, useState, useEffect } from 'react';
 import { formatDate } from '../../../../utils/dateFormatter';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { api } from '../../../../utils/api';
+import { api, BACKEND_URL } from '../../../../utils/api';
 import { useWebSocket } from '../../../../contexts/WebSocketContext';
 import PageLoader from '../../../../components/PageLoader';
 import './placement-details.css';
@@ -45,6 +45,8 @@ const FILE_STATUS_FILTER_OPTIONS = [
     { value: 'rejected', label: 'Rejected' },
     { value: 'resubmitted', label: 'Resubmitted' }
 ];
+
+const ADMIN_API_BASE = `${BACKEND_URL}/api/admin`;
 
 const getNormalizedFileStatus = (file) => {
     const rawStatus = String(file?.status || '').trim().toLowerCase();
@@ -164,7 +166,7 @@ function PlacementDetails() {
 
     const handleApprove = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/status`, {
+            const response = await fetch(`${ADMIN_API_BASE}/placements/${id}/status`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -199,7 +201,7 @@ function PlacementDetails() {
         
         try {
             setProcessingFiles(prev => ({...prev, [fileId]: 'approving'}));
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/files/${fileId}/approve`, {
+            const response = await fetch(`${ADMIN_API_BASE}/placements/${id}/files/${fileId}/approve`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -239,7 +241,7 @@ function PlacementDetails() {
         
         try {
             setProcessingFiles(prev => ({...prev, [rejectingFile.id]: 'rejecting'}));
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/files/${rejectingFile.id}/reject`, {
+            const response = await fetch(`${ADMIN_API_BASE}/placements/${id}/files/${rejectingFile.id}/reject`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -269,7 +271,7 @@ function PlacementDetails() {
 
     const handleReject = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/status`, {
+            const response = await fetch(`${ADMIN_API_BASE}/placements/${id}/status`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -315,7 +317,7 @@ function PlacementDetails() {
         }
         
         try {
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/files/${selectedFile._id}/credits`, {
+            const response = await fetch(`${ADMIN_API_BASE}/placements/${id}/files/${selectedFile._id}/credits`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -345,7 +347,7 @@ function PlacementDetails() {
         try {
             setProcessingFiles(prev => ({...prev, [fileId]: 'processing'}));
             
-            const url = `http://localhost:5000/api/admin/placements/${id}/files/${fileId}/process`;
+            const url = `${ADMIN_API_BASE}/placements/${id}/files/${fileId}/process`;
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -381,7 +383,7 @@ function PlacementDetails() {
         }
 
         try {
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/bulk-credits`, {
+            const response = await fetch(`${ADMIN_API_BASE}/placements/${id}/bulk-credits`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -411,7 +413,7 @@ function PlacementDetails() {
     const handleStoreExcelData = async () => {
         try {
             setProcessing(true);
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/store-excel-data`, {
+            const response = await fetch(`${ADMIN_API_BASE}/placements/${id}/store-excel-data`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -438,7 +440,7 @@ function PlacementDetails() {
             setLoadingStoredData(true);
             setShowStoredDataModal(true);
             
-            const response = await fetch(`http://localhost:5000/api/admin/placements/${id}/stored-excel-data`, {
+            const response = await fetch(`${ADMIN_API_BASE}/placements/${id}/stored-excel-data`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
