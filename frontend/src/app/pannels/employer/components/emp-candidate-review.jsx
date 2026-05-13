@@ -807,15 +807,13 @@ function EmpCandidateReviewPage() {
         const hasRejectedNonAssessmentStage = normalizedProcesses.some((process) =>
             !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
         );
-        const hasRejectedAssessmentStage = normalizedProcesses.some((process) =>
-            isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
-        );
         const assessmentIsSuspended =
             normalizeStatusValue(applicationData?.assessmentStatus) === 'suspended';
         const assessmentIsFailed = ['fail', 'failed'].includes(
             normalizeStatusValue(applicationData?.assessmentResult)
         );
-        if (hasRejectedNonAssessmentStage || hasRejectedAssessmentStage || assessmentIsSuspended || assessmentIsFailed) {
+        // Only reject from non-assessment stage if application is actually rejected (not auto-restored)
+        if ((hasRejectedNonAssessmentStage && baseStatus === 'rejected' && !wasAutoRejectedFromStageStatus(applicationData)) || assessmentIsSuspended || assessmentIsFailed) {
             return 'rejected';
         }
 

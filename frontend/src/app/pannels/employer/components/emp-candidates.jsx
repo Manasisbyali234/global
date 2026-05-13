@@ -376,20 +376,15 @@ function EmpCandidatesPage() {
       getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
       processes.some((process) => isAssessmentProcess(process));
 
+    // Only show rejected from non-assessment stage if it was manually set (not auto-restored)
     const hasRejectedNonAssessmentStage = processes.some(
       (process) => !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
     );
-    if (hasRejectedNonAssessmentStage) {
+    if (hasRejectedNonAssessmentStage && baseStatus === "rejected" && !wasAutoRejectedFromStageStatus(application)) {
       return "rejected";
     }
 
-    // If any stage (including assessment) has a rejected-like status, show rejected
-    const hasAnyRejectedStage = processes.some((process) => isRejectedLikeStatus(process?.status));
-    if (hasAnyRejectedStage) {
-      return "rejected";
-    }
-
-    // If application was directly rejected (not auto from assessment expiry), show rejected
+    // If application was directly rejected by employer (not auto from stage status), show rejected
     if (baseStatus === "rejected" && !wasAutoRejectedFromStageStatus(application)) {
       return "rejected";
     }
@@ -419,6 +414,11 @@ function EmpCandidatesPage() {
       if (baseStatus === "rejected" && wasAutoRejectedFromStageStatus(application)) {
         return "pending";
       }
+    }
+
+    // If auto-rejected from stage status but stages are now pending, restore to pending
+    if (baseStatus === "rejected" && wasAutoRejectedFromStageStatus(application)) {
+      return "pending";
     }
 
     return baseStatus;

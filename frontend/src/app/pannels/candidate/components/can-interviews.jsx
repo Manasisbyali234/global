@@ -284,7 +284,7 @@ const normalizeStatusVal = (value) =>
 const isRejectedStatus = (value) => {
   const s = normalizeStatusVal(value);
   return ["rejected", "not advanced to next stage", "not advanced to next round", "failed", "fail",
-    "no show", "no_show", "expired", "suspended", "session expired"].includes(s);
+    "no show", "no_show", "suspended", "session expired"].includes(s);
 };
 
 const isPositiveStatus = (value) => {
@@ -348,7 +348,11 @@ const getApplicationDisplayStatus = (application = {}) => {
     baseStatus === "rejected" &&
     wasAutoRejectedFromStageStatus(application) &&
     trackedProcesses.length > 0 &&
-    !trackedProcesses.some(isRejectedTrackedProcess)
+    !trackedProcesses.some(isRejectedTrackedProcess) &&
+    !rejectedAssessmentStatuses.includes(assessmentStatus) &&
+    !failedStatuses.includes(assessmentStatus) &&
+    !failedStatuses.includes(assessmentResult) &&
+    !hasRejectedAttempt
   ) {
     return "pending";
   }
