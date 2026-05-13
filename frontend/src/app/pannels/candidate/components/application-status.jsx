@@ -3422,17 +3422,6 @@ function CanStatusPage() {
 									})()}
 								</div>
 								
-								{/* Overall Employer Remarks */}
-								<div className="mb-3 p-3" style={{backgroundColor: '#fff3e0', borderRadius: '8px', border: '1px solid #ffe0b3'}}>
-									<h6 className="mb-3" style={{color: '#232323', fontWeight: '600'}}>
-										Overall Employer Remarks
-									</h6>
-									<div style={{fontSize: '14px', lineHeight: '1.6', color: '#495057', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word', maxWidth: '100%'}}>
-										{selectedApplication.employerRemarks?.trim()
-											? selectedApplication.employerRemarks
-											: 'No remarks provided.'}
-									</div>
-								</div>
 							</div>
 						</div>
 					</div>
