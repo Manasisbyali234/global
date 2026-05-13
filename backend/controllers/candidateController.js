@@ -2210,6 +2210,49 @@ exports.getCandidateCompleteProfile = async (req, res) => {
   }
 };
 
+// Map from candidate resume educationLevel codes → display labels used in job postings
+const EDUCATION_LEVEL_CODE_TO_LABEL = {
+  '10th_pass': '10th Pass', 'sslc': '10th Pass',
+  '12th_pass': '12th Pass', 'puc': '12th Pass',
+  'diploma_general': 'Diploma', 'polytechnic_diploma': 'Polytechnic',
+  'iti_trade': 'ITI', 'vocational_training': 'Certificate Course',
+  'certification_courses': 'Certificate Course', 'apprenticeship': 'Certificate Course',
+  'be': 'B.E', 'be_specializations': 'B.E',
+  'btech': 'B.Tech', 'btech_ai': 'B.Tech',
+  'bsc': 'B.Sc', 'bsc_it': 'B.Sc', 'bsc_cs': 'B.Sc', 'bsc_data_science': 'B.Sc',
+  'bsc_biology': 'B.Sc', 'bsc_biotech': 'B.Sc', 'bsc_microbiology': 'B.Sc',
+  'bsc_genetics': 'B.Sc', 'bsc_biochemistry': 'B.Sc', 'bsc_nursing': 'B.Sc',
+  'bca': 'BCA', 'bca_cloud': 'BCA', 'bca_data_analytics': 'BCA',
+  'bba': 'BBA', 'bba_finance': 'BBA', 'bba_marketing': 'BBA', 'bba_hr': 'BBA',
+  'bba_hospital': 'BBA', 'bba_retail': 'BBA', 'bba_entrepreneurship': 'BBA',
+  'bba_it': 'BBA', 'bba_llb': 'BBA',
+  'bcom': 'B.Com', 'bcom_finance': 'B.Com', 'bcom_banking': 'B.Com',
+  'ba': 'BA', 'barch': 'B.Arch', 'bpharm': 'B.Pharm', 'bed': 'B.Ed',
+  'bds': 'BDS', 'mbbs': 'MBBS', 'bams': 'BAMS', 'bhms': 'BHMS',
+  'bums': 'BHMS', 'bpt': 'BPT', 'bot': 'BPT', 'bvsc': 'B.Sc',
+  'bfa': 'BFA', 'bsw': 'BA', 'bhm': 'BBA', 'bttm': 'BBA',
+  'llb': 'LLB', 'aviation': 'Certificate Course',
+  'clinical_research': 'Certificate Course', 'paramedical': 'Certificate Course',
+  'me': 'M.E', 'mtech': 'M.Tech',
+  'mba': 'MBA', 'mba_finance': 'MBA', 'mba_marketing': 'MBA', 'mba_hr': 'MBA',
+  'mba_operations': 'MBA', 'mba_systems': 'MBA',
+  'msc': 'M.Sc', 'mca': 'MCA',
+  'mcom': 'M.Com', 'ma': 'MA', 'mph': 'MA',
+  'march': 'M.Arch', 'mpharm': 'M.Pharm', 'med': 'M.Ed',
+  'mds': 'MDS', 'ms': 'MS', 'md': 'MD', 'mpt': 'BPT',
+  'llm': 'LLM', 'mdes': 'M.Des', 'mfa': 'MFA',
+  'phd': 'PhD', 'doctoral_research': 'PhD', 'post_doctoral': 'PhD',
+  'dpharm': 'D.Pharm',
+  'postgraduate_diploma': 'Postgraduate Diploma',
+  'degree': 'B.E', 'masters': 'M.Tech'
+};
+
+function normalizeCandidateEducationLevel(raw) {
+  if (!raw) return '';
+  const label = EDUCATION_LEVEL_CODE_TO_LABEL[raw.toLowerCase().trim()];
+  return label || raw;
+}
+
 // Education equivalence groups for flexible matching
 const EDUCATION_EQUIVALENCES = [
   ['b.e', 'be', 'b.tech', 'btech', 'bachelor of engineering', 'bachelor of technology'],
@@ -2280,9 +2323,10 @@ exports.getRecommendedJobs = async (req, res) => {
 
     const hasSkills = profile && profile.skills && profile.skills.length > 0;
 
-    const candidateEduList = (profile?.education || []).map(edu =>
-      (edu.degreeName || edu.educationLevel || '').trim()
-    ).filter(Boolean);
+    const candidateEduList = (profile?.education || []).map(edu => {
+      const raw = (edu.degreeName || edu.educationLevel || '').trim();
+      return normalizeCandidateEducationLevel(raw);
+    }).filter(Boolean);
 
     const candidateSpecList = (profile?.education || []).map(edu =>
       (edu.specialization || '').trim()

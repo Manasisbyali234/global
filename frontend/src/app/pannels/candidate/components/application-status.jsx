@@ -246,6 +246,19 @@ function CanStatusPage() {
 			return 'pending';
 		}
 
+		// If baseStatus is rejected but no tracked process is rejected and no assessment round exists,
+		// treat as pending (backend may have auto-set rejected incorrectly)
+		const hasAssessmentRound =
+			Boolean(application?.jobId?.assessmentId) ||
+			trackedProcesses.some(isAssessmentProcess) ||
+			Boolean(application?.assessmentResult) ||
+			Boolean(application?.assessmentStatus && !['', 'not_required', 'not required'].includes(
+				normalizeStatusValue(application.assessmentStatus)
+			));
+		if (baseStatus === 'rejected' && !hasAnyRejectedTrackedProcess && !hasAssessmentRound) {
+			return 'pending';
+		}
+
 		return baseStatus;
 	};
 

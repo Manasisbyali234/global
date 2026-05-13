@@ -835,6 +835,11 @@ function EmpCandidateReviewPage() {
             return 'pending';
         }
 
+        // No assessment round: only reject if a stage was explicitly marked rejected
+        if (!hasAssessmentRound && baseStatus === 'rejected') {
+            return hasRejectedNonAssessmentStage ? 'rejected' : 'pending';
+        }
+
         return baseStatus;
     };
 

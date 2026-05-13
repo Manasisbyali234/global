@@ -376,17 +376,17 @@ function EmpCandidatesPage() {
       getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
       processes.some((process) => isAssessmentProcess(process));
 
-    const hasRejectedNonAssessmentStage = processes.some(
-      (process) => !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
-    );
-    if (hasRejectedNonAssessmentStage) {
-      return "rejected";
-    }
-
-    // If any stage (including assessment) has a rejected-like status, show rejected
+    // Only treat as rejected if a stage was explicitly marked rejected
     const hasAnyRejectedStage = processes.some((process) => isRejectedLikeStatus(process?.status));
     if (hasAnyRejectedStage) {
       return "rejected";
+    }
+
+    // If application was directly rejected AND has no assessment round, only reject if a stage is explicitly rejected
+    if (baseStatus === "rejected" && !hasAssessmentRound) {
+      // No assessment round — only show rejected if a stage was explicitly marked rejected (already checked above)
+      // Otherwise treat as pending
+      return "pending";
     }
 
     // If application was directly rejected (not auto from assessment expiry), show rejected
