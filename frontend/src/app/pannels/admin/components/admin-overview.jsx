@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
+import { getStatusLabel } from "../../../../utils/statusDisplay";
 import SearchBar from "../../../../components/SearchBar";
 import "./admin-search-styles.css";
 import "./admin-overview.css";
@@ -729,7 +730,7 @@ function AdminOverviewPage() {
                   <option value="offer_sent">offer letter sent</option>
                   <option value="accepted">Accepted</option>
                   <option value="rejected">Rejected</option>
-                  <option value="no show">No Show</option>
+                  <option value="no_show">No Show</option>
                 </select>
               </div>
             </div>
@@ -871,16 +872,13 @@ function AdminOverviewPage() {
                                 borderRadius: '999px',
                                 fontSize: '12px',
                                 fontWeight: 600,
-                                ...(applicant.status === 'pending' ? { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' } :
-                                  applicant.status === 'rejected' ? { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' } :
+                                  ...(applicant.status === 'pending' ? { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' } :
+                                  ['rejected', 'no_show', 'failed', 'suspended', 'session_expired'].includes(applicant.status) ? { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' } :
                                   ['accepted', 'hired'].includes(applicant.status) ? { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' } :
                                   ['shortlisted', 'offer_sent'].includes(applicant.status) ? { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' } :
                                   { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' })
                               }}>
-                                {applicant.status === 'offer_sent' ? 'offer letter sent' :
-                                  applicant.status
-                                    ? applicant.status.charAt(0).toUpperCase() + applicant.status.slice(1)
-                                    : 'Pending'}
+                                {getStatusLabel(applicant.status || 'pending')}
                               </span>
                             </td>
                           </tr>

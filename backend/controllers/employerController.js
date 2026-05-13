@@ -19,6 +19,9 @@ const { sendSMS } = require('../utils/smsProvider');
 const { validateGSTFormat, fetchGSTInfo, mapGSTToProfile } = require('../utils/gstService');
 const { normalizeTimeFormat, formatTimeToAMPM } = require('../utils/timeUtils');
 const { formatDate } = require('../utils/dateFormatter');
+const {
+  buildApplicationStatusSnapshot: buildSharedApplicationStatusSnapshot
+} = require('../utils/applicationStatus');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -319,6 +322,15 @@ const ensureExpiredApplicationRejected = async (application = null) => {
     statusHistory: Array.isArray(applicationObject.statusHistory)
       ? [...applicationObject.statusHistory, statusHistoryEntry]
       : [statusHistoryEntry]
+  };
+};
+
+const decorateEmployerApplicationStatusFields = (application = null, options = {}) => {
+  if (!application) return application;
+
+  return {
+    ...application,
+    ...buildSharedApplicationStatusSnapshot(application, options)
   };
 };
 
@@ -2907,7 +2919,10 @@ exports.updateApplicationStatus = async (req, res) => {
     }
 
     console.log('Application status updated to:', status, 'for application:', req.params.applicationId);
-    res.json({ success: true, application });
+    res.json({
+      success: true,
+      application: decorateEmployerApplicationStatusFields(application)
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -3040,7 +3055,7 @@ exports.getEmployerApplications = async (req, res) => {
         // Handle guest applications that don't have candidateId
         if (!normalizedApplication.candidateId) {
           return {
-            ...normalizedApplication,
+            ...decorateEmployerApplicationStatusFields(normalizedApplication),
             candidateId: null
           };
         }
@@ -3048,7 +3063,7 @@ exports.getEmployerApplications = async (req, res) => {
         const candidateId = normalizedApplication.candidateId?._id || normalizedApplication.candidateId;
         const candidateProfile = await CandidateProfile.findOne({ candidateId });
         return {
-          ...normalizedApplication,
+          ...decorateEmployerApplicationStatusFields(normalizedApplication),
           candidateId: {
             ...normalizedApplication.candidateId,
             profilePicture: candidateProfile?.profilePicture,
@@ -3089,7 +3104,7 @@ exports.getJobApplications = async (req, res) => {
         // Handle guest applications that don't have candidateId
         if (!normalizedApplication.candidateId) {
           return {
-            ...normalizedApplication,
+            ...decorateEmployerApplicationStatusFields(normalizedApplication),
             candidateId: null
           };
         }
@@ -3097,7 +3112,7 @@ exports.getJobApplications = async (req, res) => {
         const candidateId = normalizedApplication.candidateId?._id || normalizedApplication.candidateId;
         const candidateProfile = await CandidateProfile.findOne({ candidateId });
         return {
-          ...normalizedApplication,
+          ...decorateEmployerApplicationStatusFields(normalizedApplication),
           candidateId: {
             ...normalizedApplication.candidateId,
             profilePicture: candidateProfile?.profilePicture,
@@ -3140,7 +3155,10 @@ exports.getApplicationDetails = async (req, res) => {
         assessmentAttempt: null,
         interviewProcess: null
       });
-      return res.json({ success: true, application: responseApplication });
+      return res.json({
+        success: true,
+        application: decorateEmployerApplicationStatusFields(responseApplication)
+      });
     }
 
     // Get candidate profile data with job preferences
@@ -3282,7 +3300,14 @@ exports.getApplicationDetails = async (req, res) => {
       }
     });
 
-    res.json({ success: true, application: responseApplication });
+    res.json({
+      success: true,
+      application: decorateEmployerApplicationStatusFields(responseApplication, {
+        interviewProcess: normalizedInterviewProcess,
+        assessmentAttempt,
+        assessmentAttemptsByAssessmentId
+      })
+    });
   } catch (error) {
     console.error('Get application details error:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -4290,7 +4315,11 @@ exports.saveInterviewReview = async (req, res) => {
       }
     }
     
-    res.json({ success: true, message: 'Interview review saved successfully', application });
+    res.json({
+      success: true,
+      message: 'Interview review saved successfully',
+      application: decorateEmployerApplicationStatusFields(application)
+    });
   } catch (error) {
     console.error('Error saving interview review:', error);
     res.status(500).json({ success: false, message: error.message, details: error.toString() });

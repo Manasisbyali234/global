@@ -34,6 +34,10 @@ const {
   sanitizeRowsByEmail,
   buildStructuredPlacementRows
 } = require('../utils/placementFileUtils');
+const {
+  buildApplicationStatusSnapshot: buildSharedApplicationStatusSnapshot,
+  getCanonicalStatusKey
+} = require('../utils/applicationStatus');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -316,6 +320,15 @@ const normalizeAssessmentId = (value = '') => {
     return String(value?._id || value?.id || '').trim();
   }
   return String(value).trim();
+};
+
+const decorateAdminApplicationStatusFields = (application = null, options = {}) => {
+  if (!application) return application;
+
+  return {
+    ...application,
+    ...buildSharedApplicationStatusSnapshot(application, options)
+  };
 };
 
 const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
@@ -1292,15 +1305,31 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     };
 
     const data = applications.map((application) => {
+      const interviewProcess = interviewProcessMap.get(String(application._id)) || null;
+      const attemptBundle = assessmentAttemptMap.get(String(application._id)) || {
+        byAssessmentId: {},
+        latestAttempt: null
+      };
+      const decoratedApplication = decorateAdminApplicationStatusFields(
+        {
+          ...application,
+          assessmentAttemptsByAssessmentId: attemptBundle.byAssessmentId || {}
+        },
+        {
+          interviewProcess,
+          assessmentAttemptsByAssessmentId: attemptBundle.byAssessmentId || {},
+          assessmentAttempt: attemptBundle.latestAttempt || null
+        }
+      );
       const interviewRounds = buildInterviewRounds(application);
       const applicationType = resolveApplicationType(application);
       const offerLetterSent =
         application.status === 'offer_sent' ||
         (Array.isArray(application.statusHistory) &&
           application.statusHistory.some((entry) => entry?.status === 'offer_sent'));
-      const effectiveStatus = isOfferNotAccepted(application)
+      const effectiveStatus = isOfferNotAccepted(decoratedApplication)
         ? 'rejected'
-        : computeEffectiveStatus(application);
+        : decoratedApplication.applicationStatus;
       return {
         applicationId: application._id,
         applicantName:
@@ -1310,8 +1339,10 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         applicantEmail:
           application.candidateId?.email ||
           application.applicantEmail ||
-          'N/A',
+            'N/A',
         status: effectiveStatus,
+        applicationStatus: effectiveStatus,
+        interviewCurrentStatus: decoratedApplication.interviewCurrentStatus,
         appliedAt: application.appliedAt,
         isGuestApplication: !!application.isGuestApplication,
         applicationType,
@@ -2248,20 +2279,41 @@ exports.getSettings = async (req, res) => {
 exports.getApplications = async (req, res) => {
   try {
     const { status, page = 1, limit = 50 } = req.query;
-    const filter = status ? { status } : {};
-    
-    const applications = await Application.find(filter)
+    const pageNumber = parseInt(page, 10);
+    const pageSize = parseInt(limit, 10);
+    const requestedStatus = status ? getCanonicalStatusKey(status, '') : '';
+
+    const shouldFilterByComputedStatus = Boolean(requestedStatus);
+    const applicationsQuery = Application.find({})
       .populate('candidateId', 'name email phone')
       .populate('employerId', 'companyName email')
       .populate('jobId', 'title location')
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .lean();
+      .sort({ createdAt: -1 });
 
-    const total = await Application.countDocuments(filter);
+    if (!shouldFilterByComputedStatus) {
+      applicationsQuery.limit(pageSize).skip((pageNumber - 1) * pageSize);
+    }
 
-    res.json({ success: true, data: applications, total, page: parseInt(page), limit: parseInt(limit), totalPages: Math.ceil(total / limit) });
+    const applications = await applicationsQuery.lean();
+    const decoratedApplications = applications.map((application) =>
+      decorateAdminApplicationStatusFields(application)
+    );
+    const filteredApplications = shouldFilterByComputedStatus
+      ? decoratedApplications.filter((application) => application.applicationStatus === requestedStatus)
+      : decoratedApplications;
+    const paginatedApplications = shouldFilterByComputedStatus
+      ? filteredApplications.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
+      : filteredApplications;
+    const total = filteredApplications.length;
+
+    res.json({
+      success: true,
+      data: paginatedApplications,
+      total,
+      page: pageNumber,
+      limit: pageSize,
+      totalPages: Math.ceil(total / pageSize)
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -2378,17 +2430,24 @@ exports.getCandidateDetails = async (req, res) => {
       .sort({ createdAt: -1 });
 
     // Format applications data for the frontend
-    const formattedApplications = applications.map(app => ({
-      companyName: app.jobId?.employerId?.companyName || app.employerId?.companyName || 'N/A',
-      jobTitle: app.jobId?.title || 'N/A',
-      jobCategory: app.jobId?.category || 'N/A',
-      status: app.status || 'pending',
-      shortlistedStatus: app.status === 'shortlisted' || app.status === 'interview_scheduled' || app.status === 'selected',
-      currentRound: app.interviewRound || (app.status === 'applied' ? 'Initial' : app.status),
-      selected: app.status === 'selected',
-      appliedDate: app.createdAt,
-      createdAt: app.createdAt
-    }));
+    const formattedApplications = applications.map((app) => {
+      const decoratedApplication = decorateAdminApplicationStatusFields(app.toObject());
+      const applicationStatus = decoratedApplication.applicationStatus || decoratedApplication.status || 'pending';
+
+      return {
+        companyName: app.jobId?.employerId?.companyName || app.employerId?.companyName || 'N/A',
+        jobTitle: app.jobId?.title || 'N/A',
+        jobCategory: app.jobId?.category || 'N/A',
+        status: applicationStatus,
+        applicationStatus,
+        interviewCurrentStatus: decoratedApplication.interviewCurrentStatus || 'pending',
+        shortlistedStatus: applicationStatus === 'shortlisted',
+        currentRound: app.interviewRound || (applicationStatus === 'applied' ? 'Initial' : applicationStatus),
+        selected: applicationStatus === 'selected',
+        appliedDate: app.createdAt,
+        createdAt: app.createdAt
+      };
+    });
     
     // Ensure education data is properly formatted with the latest updates
     let formattedEducation = [];

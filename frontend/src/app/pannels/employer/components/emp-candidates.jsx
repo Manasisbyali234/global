@@ -5,6 +5,7 @@ import { loadScript } from "../../../../globals/constants";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome, isAssessmentOutcomeRejected } from "../../../../utils/assessmentOutcome";
+import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import './emp-candidates.css';
 
 function SearchableFilterDropdown({
@@ -428,7 +429,7 @@ function EmpCandidatesPage() {
     () =>
       applications.map((application) => ({
         ...application,
-        displayStatus: getApplicationDisplayStatus(application, statusClock)
+        displayStatus: getApplicationStatusKey(application)
       })),
     [applications, statusClock]
   );
@@ -716,9 +717,7 @@ function EmpCandidatesPage() {
                               application.displayStatus
                             )} text-capitalize`}
                           >
-                            {application.displayStatus === 'offer_sent' ? 'Offer Letter Sent' :
-                             application.displayStatus === 'accepted' ? 'Offer Accepted' :
-                             application.displayStatus.replace('_', ' ')}
+                            {getStatusLabel(application.displayStatus)}
                           </span>
                         </div>
                       </div>

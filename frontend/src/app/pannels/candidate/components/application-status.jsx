@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { loadScript } from "../../../../globals/constants";
 import { api } from "../../../../utils/api";
 import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
+import { getApplicationStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import { pubRoute, publicUser, canRoute, candidate } from "../../../../globals/route-names";
 import CanPostedJobs from "./can-posted-jobs";
 import PopupInterviewRoundDetails from "../../../common/popups/popup-interview-round-details";
@@ -19,16 +20,13 @@ import "../../../../table-overflow-fix.css";
 
 const APPLICATION_STATUS_FILTER_OPTIONS = [
 	{ value: 'all', label: 'All Status' },
-	{ value: 'shortlisted_for_next_round', label: 'Shortlisted for next Round' },
+	{ value: 'shortlisted', label: 'Shortlisted' },
+	{ value: 'interviewed', label: 'Interviewed' },
+	{ value: 'offer_sent', label: 'Offer Letter Sent' },
+	{ value: 'accepted', label: 'Offer Accepted' },
+	{ value: 'hired', label: 'Hired' },
 	{ value: 'rejected', label: 'Rejected' },
-	{ value: 'selected', label: 'Selected' },
 	{ value: 'pending', label: 'Pending' },
-	{ value: 'suspended', label: 'Suspended' },
-	{ value: 'pending_decision', label: 'Pending Decision' },
-	{ value: 'no_show', label: 'No Show' },
-	{ value: 'on_hold', label: 'On Hold' },
-	{ value: 'under_review', label: 'Under Review' },
-	{ value: 'not_advanced_to_next_stage', label: 'Not Adavanced To Next Stage' },
 ];
 
 function CanStatusPage() {
@@ -190,80 +188,12 @@ function CanStatusPage() {
 	};
 
 	const getApplicationDisplayStatus = (application = {}) => {
-		const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
-		if (['accepted', 'hired'].includes(baseStatus)) {
-			return baseStatus;
-		}
-
-		const trackedProcesses = getPreferredTrackedProcesses(application);
-		if (trackedProcesses.some(isRejectedTrackedProcessForDisplay)) {
-			return 'rejected';
-		}
-
-		// Check interviewRounds (legacy) for failed status
-		const hasFailedRound = Array.isArray(application?.interviewRounds) &&
-			application.interviewRounds.some((round) => String(round?.status || '').toLowerCase() === 'failed');
-		if (hasFailedRound) {
-			return 'rejected';
-		}
-
-		// Check assessment-derived statuses (no_show, suspended, failed) from attempt data
-		const assessmentStatus = String(application?.assessmentStatus || '').toLowerCase();
-		const assessmentResult = String(application?.assessmentResult || '').toLowerCase();
-		const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
-		const failedStatuses = ['failed', 'fail'];
-		const failedResults = ['failed', 'fail'];
-		// Don't treat expired as rejected if result is pending (subjective assessment awaiting manual evaluation)
-		const isExpiredPendingEvaluation = assessmentStatus === 'expired' && assessmentResult === 'pending';
-		if (!isExpiredPendingEvaluation && (
-			rejectedAssessmentStatuses.includes(assessmentStatus) ||
-			failedStatuses.includes(assessmentStatus) ||
-			failedResults.includes(assessmentResult))) {
-			return 'rejected';
-		}
-
-		// Check all assessment attempts for no_show, suspended, or failed
-		const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
-		const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
-			const s = String(attempt?.status || '').toLowerCase();
-			const r = String(attempt?.result || '').toLowerCase();
-			// Don't treat expired as rejected if result is pending
-			if (s === 'expired' && r === 'pending') return false;
-			return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedResults.includes(r);
-		});
-		if (hasRejectedAttempt) {
-			return 'rejected';
-		}
-
-		// Only revert auto-rejected status to pending if NO tracked process has a rejected/no_show status
-		const hasAnyRejectedTrackedProcess = trackedProcesses.some(isRejectedTrackedProcessForDisplay);
-		if (
-			baseStatus === 'rejected' &&
-			wasAutoRejectedFromInterviewStageStatus(application) &&
-			trackedProcesses.length > 0 &&
-			!hasAnyRejectedTrackedProcess
-		) {
-			return 'pending';
-		}
-
-		return baseStatus;
+		return getApplicationStatusKey(application);
 	};
 
-	const formatStatusLabel = (status) =>
-		String(status || 'pending')
-			.replace(/[_-]+/g, ' ')
-			.replace(/\s+/g, ' ')
-			.trim()
-			.replace(/\b\w/g, (char) => char.toUpperCase()) || 'Pending';
+	const formatStatusLabel = (status) => getStatusLabel(status);
 
-	const getApplicationFilterStatus = (application = {}) => {
-		const applicationDisplayStatus = getApplicationDisplayStatus(application);
-		if (applicationDisplayStatus === 'pending' && application?.isSelectedForProcess) {
-			return 'shortlisted';
-		}
-
-		return applicationDisplayStatus;
-	};
+	const getApplicationFilterStatus = (application = {}) => getApplicationDisplayStatus(application);
 
 	const getAssessmentScheduleSource = (job, roundDetails = null) => ({
 		startDate: roundDetails?.fromDate || roundDetails?.date || job?.assessmentStartDate || null,

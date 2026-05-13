@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Row, Col } from "react-bootstrap";
 import { loadScript } from "../../../../globals/constants";
 import { api, BACKEND_URL } from "../../../../utils/api";
+import { getInterviewCurrentStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
 import { canRoute, candidate } from "../../../../globals/route-names";
 import TermsModal from "../../../../components/TermsModal";
 import "../../../../emp-grid-optimizations.css";
@@ -34,6 +35,8 @@ const STATUS_BADGES = {
   interview_scheduled: { text: "Interview Scheduled", className: "bg-info bg-opacity-10 text-info border border-info" },
   interview_completed: { text: "Interview Completed", className: "bg-success bg-opacity-10 text-success border border-success" },
   completed: { text: "Completed", className: "bg-success bg-opacity-10 text-success border border-success" },
+  accepted: { text: "Offer Accepted", className: "bg-success bg-opacity-10 text-success border border-success" },
+  hired: { text: "Hired", className: "bg-success bg-opacity-10 text-success border border-success" },
   selected: { text: "Selected", className: "bg-success bg-opacity-10 text-success border border-success" },
   shortlisted: { text: "Shortlisted", className: "bg-info bg-opacity-10 text-info border border-info" },
   shortlisted_for_next_round: { text: "Shortlisted for next Round", className: "bg-info bg-opacity-10 text-info border border-info" },
@@ -43,6 +46,11 @@ const STATUS_BADGES = {
   no_show: { text: "No Show", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
   on_hold: { text: "On Hold", className: "bg-secondary bg-opacity-10 text-secondary border border-secondary" },
   pending: { text: "Pending", className: "bg-secondary bg-opacity-10 text-secondary border border-secondary" },
+  passed: { text: "Passed", className: "bg-success bg-opacity-10 text-success border border-success" },
+  failed: { text: "Failed", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
+  session_expired: { text: "Session Expired", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
+  suspended: { text: "Suspended", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
+  in_progress: { text: "In Progress", className: "bg-warning bg-opacity-10 text-warning border border-warning" },
   offer_sent: { text: "Offer Letter Sent", className: "bg-success bg-opacity-10 text-success border border-success" },
   "offer sent": { text: "Offer Letter Sent", className: "bg-success bg-opacity-10 text-success border border-success" }
 };
@@ -273,7 +281,7 @@ const getRoundDetails = (application, round, index) => {
 const getStatusBadge = (status) => {
   const normalized = String(status || "pending").toLowerCase();
   return STATUS_BADGES[normalized] || {
-    text: String(status || "Pending").replace(/_/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase()),
+    text: getStatusLabel(status || "pending"),
     className: "bg-secondary bg-opacity-10 text-secondary border border-secondary"
   };
 };
@@ -519,19 +527,7 @@ function CanInterviewsPage() {
         companyName: getCompanyName(application),
         companyLogo: getCompanyLogo(application, employerLogos),
         location: highlightedRound?.details?.location || formatJobLocation(job?.location),
-        status: (() => {
-          const trackedProcesses = [
-            ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []),
-            ...(Array.isArray(application?.interviewProcess?.stages)
-              ? application.interviewProcess.stages.map((s) => ({ status: s?.status }))
-              : [])
-          ];
-          const hasRejectedTracked = trackedProcesses.some(isRejectedTrackedProcess);
-          if (hasNoShowInRounds(application) && (trackedProcesses.length === 0 || hasRejectedTracked)) {
-            return "rejected";
-          }
-          return getApplicationDisplayStatus(application);
-        })()
+        status: getInterviewCurrentStatusKey(application)
       });
     });
     return cards;

@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import PageLoader from '../../../../components/PageLoader';
 import './admin-candidate-review.css';
 import { BACKEND_URL } from '../../../../utils/api';
+import { getStatusLabel } from '../../../../utils/statusDisplay';
 
 function AdminCandidateReviewPage() {
     const navigate = useNavigate();
@@ -852,14 +853,12 @@ function AdminCandidateReviewPage() {
                                                     <span className={`status-badge ${
                                                         application.status === 'hired' ? 'selected' :
                                                         application.status === 'shortlisted' ? 'shortlisted' :
-                                                        application.status === 'rejected' ? 'not-selected' :
+                                                        ['rejected', 'no_show', 'failed', 'suspended', 'session_expired'].includes(application.status) ? 'not-selected' :
                                                         application.status === 'offer_sent' ? 'shortlisted' :
                                                         application.status === 'accepted' ? 'selected' :
                                                         'pending'
                                                     }`}>
-                                                        {application.status === 'offer_sent' ? 'Offer Letter Sent' :
-                                                         application.status === 'accepted' ? 'Accepted' :
-                                                         application.status ? application.status.charAt(0).toUpperCase() + application.status.slice(1) : 'Pending'}
+                                                        {getStatusLabel(application.status || 'pending')}
                                                     </span>
                                                 </td>
                                                 <td>

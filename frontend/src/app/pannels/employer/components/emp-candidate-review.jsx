@@ -15,6 +15,7 @@ import {
     getAssessmentOutcomeLabel,
     getAssessmentProcessStatus
 } from '../../../../utils/assessmentOutcome';
+import { getApplicationStatusKey, getStatusLabel } from '../../../../utils/statusDisplay';
 import TermsModal from "../../../../components/TermsModal";
 
 function EmpCandidateReviewPage() {
@@ -134,6 +135,30 @@ function EmpCandidateReviewPage() {
         if (!normalized) return 'Pending';
         return normalized.replace(/\b\w/g, (char) => char.toUpperCase());
     };
+
+    const mergeApplicationStatusFields = (previousApplication, nextApplication = {}) => ({
+        ...previousApplication,
+        ...nextApplication,
+        status: nextApplication?.status || previousApplication?.status,
+        applicationStatus:
+            nextApplication?.applicationStatus ||
+            nextApplication?.applicationDisplayStatus ||
+            nextApplication?.displayStatus ||
+            previousApplication?.applicationStatus,
+        applicationDisplayStatus:
+            nextApplication?.applicationDisplayStatus ||
+            nextApplication?.applicationStatus ||
+            nextApplication?.displayStatus ||
+            previousApplication?.applicationDisplayStatus,
+        displayStatus:
+            nextApplication?.displayStatus ||
+            nextApplication?.applicationStatus ||
+            nextApplication?.applicationDisplayStatus ||
+            previousApplication?.displayStatus,
+        interviewCurrentStatus:
+            nextApplication?.interviewCurrentStatus ||
+            previousApplication?.interviewCurrentStatus
+    });
 
     const normalizeTrackedProcessState = (process) => {
         let status = String(process?.status || 'pending');
@@ -1220,7 +1245,7 @@ function EmpCandidateReviewPage() {
             if (response.ok) {
                 const data = await response.json();
                 if (data?.application?.status) {
-                    setApplication(prev => ({ ...prev, status: data.application.status }));
+                    setApplication(prev => mergeApplicationStatusFields(prev, data.application));
                 }
                 showSuccess('Review saved successfully!');
             } else {
@@ -1264,7 +1289,7 @@ function EmpCandidateReviewPage() {
             if (response.ok) {
                 const data = await response.json().catch(() => ({}));
                 if (data?.application?.status) {
-                    setApplication(prev => ({ ...prev, status: data.application.status }));
+                    setApplication(prev => mergeApplicationStatusFields(prev, data.application));
                 }
             }
 
@@ -1298,7 +1323,8 @@ function EmpCandidateReviewPage() {
             
             if (response.ok) {
                 showSuccess(`Status updated to ${status.replace('_', ' ')}`);
-                setApplication(prev => ({ ...prev, status }));
+                const data = await response.json().catch(() => ({}));
+                setApplication(prev => mergeApplicationStatusFields(prev, data?.application || { status }));
             } else {
                 const errorData = await response.json();
                 showError(errorData.message || 'Failed to update status');
@@ -1540,12 +1566,9 @@ function EmpCandidateReviewPage() {
         );
     }
 
-    const applicationDisplayStatus = getApplicationDisplayStatus(application, interviewProcesses);
+    const applicationDisplayStatus = getApplicationStatusKey(application);
     const isAssessmentNoShowApplication = isApplicationSessionExpired(application, interviewProcesses);
-    const applicationStatusForActions =
-        applicationDisplayStatus === 'pending' && application.status === 'rejected'
-            ? 'pending'
-            : application.status;
+    const applicationStatusForActions = applicationDisplayStatus;
 
     return (
         <div className="candidate-review-container emp-candidate-review-page">
@@ -1583,9 +1606,7 @@ function EmpCandidateReviewPage() {
                             <div className="stat">
                                 <span className="label">Application Status</span>
                                 <span className={`value status ${applicationDisplayStatus}`}>
-                                    {applicationDisplayStatus === 'offer_sent' ? 'Offer Letter Sent' :
-                                     applicationDisplayStatus === 'accepted' ? 'Offer Accepted' :
-                                     formatStatusLabel(applicationDisplayStatus)}
+                                    {getStatusLabel(applicationDisplayStatus)}
                                 </span>
                             </div>
                         </div>

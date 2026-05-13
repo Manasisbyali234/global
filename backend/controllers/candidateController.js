@@ -12,6 +12,10 @@ const { sendWelcomeEmail, sendJobApplicationConfirmationEmail, sendMailWithGreet
 const { checkEmailExists } = require('../utils/authUtils');
 const { sendSMS } = require('../utils/smsProvider');
 const { formatDate } = require('../utils/dateFormatter');
+const {
+  buildApplicationStatusSnapshot: buildSharedApplicationStatusSnapshot,
+  getEffectiveApplicationDisplayStatus: getSharedApplicationDisplayStatus
+} = require('../utils/applicationStatus');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -186,6 +190,15 @@ const normalizeCandidateVisibleApplication = (application = null) => {
   return {
     ...applicationObject,
     status: getStatusBeforeExpiredSessionAutoReject(applicationObject)
+  };
+};
+
+const decorateCandidateApplicationStatusFields = (application = null, options = {}) => {
+  if (!application) return application;
+
+  return {
+    ...application,
+    ...buildSharedApplicationStatusSnapshot(application, options)
   };
 };
 
@@ -910,7 +923,9 @@ exports.getAppliedJobs = async (req, res) => {
 
     res.json({
       success: true,
-      applications: applications.map((application) => normalizeCandidateVisibleApplication(application))
+      applications: applications.map((application) =>
+        decorateCandidateApplicationStatusFields(normalizeCandidateVisibleApplication(application))
+      )
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -933,7 +948,7 @@ exports.getApplicationStatus = async (req, res) => {
 
     res.json({
       success: true,
-      application: normalizeCandidateVisibleApplication(application)
+      application: decorateCandidateApplicationStatusFields(normalizeCandidateVisibleApplication(application))
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -1313,12 +1328,12 @@ exports.getDashboard = async (req, res) => {
     const candidateId = req.user._id;
 
     const dashboardApplications = await Application.find({ candidateId })
-      .select('status statusHistory')
+      .select('status statusHistory isSelectedForProcess interviewProcesses assessmentStatus assessmentResult interviewRounds assessmentAttemptsByAssessmentId')
       .lean();
     const normalizedDashboardApplications = dashboardApplications
       .map((application) => normalizeCandidateVisibleApplication(application));
     const normalizedDashboardStatuses = normalizedDashboardApplications
-      .map((application) => normalizeApplicationStatusValue(application?.status));
+      .map((application) => getSharedApplicationDisplayStatus(application));
 
     const applied = normalizedDashboardApplications.length;
     const inProgress = normalizedDashboardStatuses.filter((status) => ['pending', 'interviewed'].includes(status)).length;
@@ -1363,10 +1378,10 @@ exports.getDashboardStats = async (req, res) => {
     const candidateId = req.user._id;
 
     const dashboardApplications = await Application.find({ candidateId })
-      .select('status statusHistory')
+      .select('status statusHistory isSelectedForProcess interviewProcesses assessmentStatus assessmentResult interviewRounds assessmentAttemptsByAssessmentId')
       .lean();
     const normalizedDashboardStatuses = dashboardApplications
-      .map((application) => normalizeApplicationStatusValue(getCandidateVisibleApplicationStatus(application)));
+      .map((application) => getSharedApplicationDisplayStatus(normalizeCandidateVisibleApplication(application)));
 
     const applied = dashboardApplications.length;
     const inProgress = normalizedDashboardStatuses.filter((status) => ['pending', 'interviewed'].includes(status)).length;
@@ -1966,7 +1981,14 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
           console.log(`Found assessment attempt for app ${app._id}: status=${assessmentAttempt.status}`);
         }
 
-        const normalizedApplication = normalizeCandidateVisibleApplication(app);
+        const normalizedApplication = decorateCandidateApplicationStatusFields(
+          normalizeCandidateVisibleApplication(app),
+          {
+            interviewProcess: normalizedInterviewProcess,
+            assessmentAttempt,
+            assessmentAttemptsByAssessmentId
+          }
+        );
 
         return {
           ...normalizedApplication,
@@ -2059,7 +2081,9 @@ exports.getAllInterviewProcessDetails = async (req, res) => {
         applicationId: application._id,
         jobTitle: job.title,
         companyName: application.employerId?.companyName,
-        applicationStatus: getCandidateVisibleApplicationStatus(application),
+        applicationStatus: buildSharedApplicationStatusSnapshot(
+          normalizeCandidateVisibleApplication(application)
+        ).applicationStatus,
         rounds: []
       };
 
@@ -2476,7 +2500,9 @@ exports.getApplicationInterviewDetails = async (req, res) => {
       applicationId: application._id,
       jobTitle: job.title,
       companyName: application.employerId?.companyName,
-      applicationStatus: getCandidateVisibleApplicationStatus(application),
+      applicationStatus: buildSharedApplicationStatusSnapshot(
+        normalizeCandidateVisibleApplication(application)
+      ).applicationStatus,
       appliedDate: application.createdAt || application.appliedAt,
       rounds: []
     };
@@ -2748,7 +2774,9 @@ exports.getInterviewProcessDetails = async (req, res) => {
       applicationId: application._id,
       jobTitle: job.title,
       companyName: application.employerId?.companyName,
-      applicationStatus: getCandidateVisibleApplicationStatus(application),
+      applicationStatus: buildSharedApplicationStatusSnapshot(
+        normalizeCandidateVisibleApplication(application)
+      ).applicationStatus,
       processStatus: 'not_started',
       stages: [],
       totalStages: 0,
