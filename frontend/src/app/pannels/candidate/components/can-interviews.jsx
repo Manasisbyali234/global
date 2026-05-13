@@ -530,6 +530,23 @@ function CanInterviewsPage() {
           if (hasNoShowInRounds(application) && (trackedProcesses.length === 0 || hasRejectedTracked)) {
             return "rejected";
           }
+          const assessmentStatus = String(application?.assessmentStatus || "").toLowerCase();
+          const noShowStatuses = ["no_show", "no show", "suspended", "session_expired", "session expired"];
+          const failedStatuses = ["failed", "fail"];
+          const assessmentResult = String(application?.assessmentResult || "").toLowerCase();
+          const isExpiredPendingEval = assessmentStatus === "expired" && assessmentResult === "pending";
+          if (!isExpiredPendingEval && (noShowStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentResult))) {
+            return "rejected";
+          }
+          // Also check assessmentAttemptsByAssessmentId for no_show/failed
+          const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
+          const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
+            const s = String(attempt?.status || "").toLowerCase();
+            const r = String(attempt?.result || "").toLowerCase();
+            if (s === "expired" && r === "pending") return false;
+            return noShowStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
+          });
+          if (hasRejectedAttempt) return "rejected";
           return getApplicationDisplayStatus(application);
         })()
       });
