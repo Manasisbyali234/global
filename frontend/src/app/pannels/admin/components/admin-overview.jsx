@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../../../utils/api";
 import { formatDate, formatTimeToAMPM } from "../../../../utils/dateFormatter";
-import { getAssessmentOutcome } from "../../../../utils/assessmentOutcome";
+import { getAssessmentOutcome, getAssessmentOutcomeLabel } from "../../../../utils/assessmentOutcome";
 import SearchBar from "../../../../components/SearchBar";
 import "./admin-search-styles.css";
 import "./admin-overview.css";
@@ -274,34 +274,54 @@ function AdminOverviewPage() {
     return { label: "Pending", style: badgeStyles.neutral };
   };
 
-  // Maps the pre-computed assessmentResult string sent by the backend to a badge presentation.
-  // The backend's resolveStageAssessmentResult already returns the canonical label
-  // ("No Show", "Passed", "Failed", "Suspended", "Completed", "In Progress").
-  // We use getAssessmentOutcome only as a fallback when that field is absent.
+  // Derives the assessment result label for a single round using the same
+  // getAssessmentOutcomeLabel function used by /candidate/status.
+  // Priority:
+  //   1. backend pre-computed assessmentResult string (already the canonical label)
+  //   2. getAssessmentOutcomeLabel({ status: round.status }) — the backend sets
+  //      round.status to the attempt-derived value for assessment rounds
+  //      (e.g. "expired", "no_show", "suspended", "passed", "failed", "completed")
   const resolveAssessmentResultLabel = (round = {}) => {
+    // 1. Use the pre-computed label the backend already sent
     const precomputed = String(round?.assessmentResult || "").trim();
-    const lower = precomputed.toLowerCase();
-    if (lower === "no show" || lower === "no_show") return { label: "No Show", style: badgeStyles.danger };
-    if (lower === "suspended") return { label: "Suspended", style: badgeStyles.danger };
-    if (lower === "failed" || lower === "fail") return { label: "Failed", style: badgeStyles.danger };
-    if (lower === "passed" || lower === "pass") return { label: "Passed", style: badgeStyles.success };
-    if (lower === "completed") return { label: "Completed", style: badgeStyles.success };
-    if (lower === "in progress" || lower === "in_progress") return { label: "In Progress", style: badgeStyles.warning };
-    if (lower === "under review" || lower === "pending_review" || lower === "pending review") return { label: "Under Review", style: badgeStyles.warning };
-    // Fallback: derive from attempt status via getAssessmentOutcome
-    const outcome = getAssessmentOutcome({
+    if (precomputed && precomputed.toLowerCase() !== "null") {
+      const lower = precomputed.toLowerCase();
+      if (lower === "no show" || lower === "no_show") return { label: "No Show", style: badgeStyles.danger };
+      if (lower === "suspended") return { label: "Suspended", style: badgeStyles.danger };
+      if (lower === "failed" || lower === "fail") return { label: "Failed", style: badgeStyles.danger };
+      if (lower === "passed" || lower === "pass") return { label: "Passed", style: badgeStyles.success };
+      if (lower === "completed") return { label: "Completed", style: badgeStyles.success };
+      if (lower === "in progress" || lower === "in_progress") return { label: "In Progress", style: badgeStyles.warning };
+      if (lower === "under review" || lower === "pending_review" || lower === "pending review") return { label: "Under Review", style: badgeStyles.warning };
+    }
+
+    // 2. Derive from round.status using the exact same helper as /candidate/status.
+    //    The backend resolves round.status to the attempt-derived value for assessment
+    //    rounds ("expired", "no_show", "suspended", "passed", "failed", "completed", etc.)
+    const label = getAssessmentOutcomeLabel({
       status: String(round?.status || "").trim().toLowerCase(),
-      result: lower,
+      result: "",
       manualEvaluationPendingCount: round?.manualEvaluationPendingCount || 0
     });
-    if (outcome.isSuspended) return { label: "Suspended", style: badgeStyles.danger };
-    if (outcome.isPendingReview) return { label: "Under Review", style: badgeStyles.warning };
-    if (outcome.isPassed) return { label: "Passed", style: badgeStyles.success };
-    if (outcome.isFailed) return { label: "Failed", style: badgeStyles.danger };
-    if (outcome.isNoShow) return { label: "No Show", style: badgeStyles.danger };
-    if (outcome.isInProgress) return { label: "In Progress", style: badgeStyles.warning };
-    if (outcome.isCompleted) return { label: "Completed", style: badgeStyles.success };
-    return null; // truly absent — caller decides
+    // getAssessmentOutcomeLabel returns "Pending" as its default — treat that as
+    // "no information" so the caller can decide (avoids masking a real null).
+    return label !== "Pending"
+      ? labelToBadge(label)
+      : null;
+  };
+
+  const labelToBadge = (label = "") => {
+    switch (label) {
+      case "No Show":       return { label, style: badgeStyles.danger };
+      case "Suspended":     return { label, style: badgeStyles.danger };
+      case "Failed":        return { label, style: badgeStyles.danger };
+      case "Passed":        return { label, style: badgeStyles.success };
+      case "Completed":     return { label, style: badgeStyles.success };
+      case "In Progress":   return { label, style: badgeStyles.warning };
+      case "Under Review":  return { label, style: badgeStyles.warning };
+      case "Pending Review":return { label, style: badgeStyles.warning };
+      default:              return { label: "Pending", style: badgeStyles.neutral };
+    }
   };
 
   const isRejectedAssessmentResult = (round = {}) => {
@@ -310,7 +330,7 @@ function AdminOverviewPage() {
   };
 
   const getAssessmentResultPresentation = (round = {}, allRounds = [], currentIndex = 0) => {
-    // Business rule: if any previous assessment round has a rejected outcome, show Pending
+    // Sequential rule: if any prior assessment round is rejected, subsequent ones show Pending
     for (let i = 0; i < currentIndex; i++) {
       const prev = allRounds[i];
       if (
