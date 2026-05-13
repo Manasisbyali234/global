@@ -376,7 +376,24 @@ function EmpCandidatesPage() {
       getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
       processes.some((process) => isAssessmentProcess(process));
 
-    // Check assessment-specific rejection signals first
+    const hasRejectedNonAssessmentStage = processes.some(
+      (process) => !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
+    );
+    if (hasRejectedNonAssessmentStage) {
+      return "rejected";
+    }
+
+    // If any stage (including assessment) has a rejected-like status, show rejected
+    const hasAnyRejectedStage = processes.some((process) => isRejectedLikeStatus(process?.status));
+    if (hasAnyRejectedStage) {
+      return "rejected";
+    }
+
+    // If application was directly rejected (not auto from assessment expiry), show rejected
+    if (baseStatus === "rejected" && !wasAutoRejectedFromStageStatus(application)) {
+      return "rejected";
+    }
+
     if (hasAssessmentRound) {
       const completionInfo = getAssessmentCompletionInfo(application);
       const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, nowTimestamp);
@@ -398,28 +415,10 @@ function EmpCandidatesPage() {
       ) {
         return "rejected";
       }
-    }
 
-    // If any non-assessment stage is explicitly rejected, show rejected
-    const hasRejectedNonAssessmentStage = processes.some(
-      (process) => !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
-    );
-    if (hasRejectedNonAssessmentStage) {
-      return "rejected";
-    }
-
-    // If all stages are pending/under-review (no rejected stage), always show pending
-    // regardless of what the DB status says (could be auto-rejected by expiry etc.)
-    const allStagesPending = processes.length > 0 && processes.every(
-      (process) => !isRejectedLikeStatus(process?.status)
-    );
-    if (allStagesPending && baseStatus === "rejected") {
-      return "pending";
-    }
-
-    // No stages tracked yet — use base status but treat auto-rejections as pending
-    if (processes.length === 0 && baseStatus === "rejected" && wasAutoRejectedFromStageStatus(application)) {
-      return "pending";
+      if (baseStatus === "rejected" && wasAutoRejectedFromStageStatus(application)) {
+        return "pending";
+      }
     }
 
     return baseStatus;
