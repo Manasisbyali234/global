@@ -352,6 +352,11 @@ const shouldPreserveAssessmentStageStatus = (value = '') => {
   const normalizedStatus = normalizeApplicationStatusValue(value);
   if (!normalizedStatus) return false;
 
+  // Always preserve manually set employer statuses (no_show, rejected, etc.)
+  if (['no show', 'no_show', 'rejected', 'not advanced to next stage', 'not advanced to next round'].includes(normalizedStatus)) {
+    return true;
+  }
+
   return ![
     'pending',
     'scheduled',
