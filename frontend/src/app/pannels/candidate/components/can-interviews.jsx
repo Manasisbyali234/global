@@ -356,6 +356,27 @@ const getApplicationDisplayStatus = (application = {}) => {
   return baseStatus;
 };
 
+const getOverallStatusBadgeStyle = (status) => {
+  const s = normalizeStatusVal(status);
+  if (s === "rejected" || s === "assessment failed") return { bg: "#fef2f2", color: "#dc2626", border: "#fca5a5" };
+  if (s === "selected" || s === "hired" || s === "accepted") return { bg: "#f0fdf4", color: "#16a34a", border: "#86efac" };
+  if (s === "shortlisted" || s === "shortlisted for next round") return { bg: "#eff6ff", color: "#2563eb", border: "#93c5fd" };
+  if (s === "no show" || s === "no_show") return { bg: "#f3f4f6", color: "#6b7280", border: "#d1d5db" };
+  if (s === "suspended") return { bg: "#1f2937", color: "#f9fafb", border: "#374151" };
+  if (s === "interview scheduled") return { bg: "#fff7ed", color: "#c2410c", border: "#fdba74" };
+  if (s === "pending") return { bg: "#fefce8", color: "#a16207", border: "#fde047" };
+  return { bg: "#f3f4f6", color: "#374151", border: "#d1d5db" };
+};
+
+const getOverallStatusLabel = (status) => {
+  const s = normalizeStatusVal(status);
+  if (s === "no show" || s === "no_show") return "No Show";
+  if (s === "assessment failed") return "Assessment Failed";
+  if (s === "interview scheduled") return "Interview Scheduled";
+  if (s === "shortlisted for next round") return "Shortlisted";
+  return String(status || "Pending").replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).trim() || "Pending";
+};
+
 const PAGE_SIZE = 12;
 
 function CanInterviewsPage() {
@@ -641,7 +662,6 @@ function CanInterviewsPage() {
         <div className="twm-employer-list-wrap">
           <Row className="justify-content-start">
             {paginatedCards.map((card) => {
-              const badge = getStatusBadge(card.status);
               const companyInitial = (card.companyName || "C").charAt(0);
               const logoSrc = getLogoSrc(card.companyLogo);
               return (
@@ -669,9 +689,28 @@ function CanInterviewsPage() {
                        </span>
                      </div>
 
-                     <div className={`industry-tag-pill interview-status-pill interview-status-pill--${String(card.status || "pending").toLowerCase().replace(/[^a-z0-9]/g, "-")}`}>
-                       {badge.text}
-                     </div>
+                     {(() => {
+                       const style = getOverallStatusBadgeStyle(card.status);
+                       const label = getOverallStatusLabel(card.status);
+                       return (
+                         <div style={{
+                           display: "inline-block",
+                           margin: "6px auto 8px",
+                           padding: "5px 16px",
+                           borderRadius: "999px",
+                           fontSize: "12px",
+                           fontWeight: 600,
+                           letterSpacing: "0.02em",
+                           background: style.bg,
+                           color: style.color,
+                           border: `1px solid ${style.border}`,
+                           textAlign: "center",
+                           whiteSpace: "nowrap"
+                         }}>
+                           {label}
+                         </div>
+                       );
+                     })()}
 
                      {card.applicationId && (
                         <button

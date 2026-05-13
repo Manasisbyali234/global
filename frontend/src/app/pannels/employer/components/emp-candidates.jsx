@@ -384,12 +384,13 @@ function EmpCandidatesPage() {
     }
 
     // If any stage (including assessment) has a rejected-like status, show rejected
+    // BUT skip this if the application was auto-rejected from a stage status that has since been cleared
     const hasAnyRejectedStage = processes.some((process) => isRejectedLikeStatus(process?.status));
-    if (hasAnyRejectedStage) {
+    if (hasAnyRejectedStage && !wasAutoRejectedFromStageStatus(application)) {
       return "rejected";
     }
 
-    // If application was directly rejected (not auto from assessment expiry), show rejected
+    // If application was directly rejected (not auto from stage status), show rejected
     if (baseStatus === "rejected" && !wasAutoRejectedFromStageStatus(application)) {
       return "rejected";
     }
