@@ -294,6 +294,15 @@ const isPositiveStatus = (value) => {
 
 const isRejectedTrackedProcess = (process = {}) => isRejectedStatus(process?.status);
 
+const hasNoShowInRounds = (application = {}) => {
+  const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
+  const stages = Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages : [];
+  return [
+    ...processes.map((p) => p?.status),
+    ...stages.map((s) => s?.status)
+  ].some((s) => normalizeStatusVal(s) === "no show");
+};
+
 const wasAutoRejectedFromStageStatus = (application = {}) => {
   if (normalizeStatusVal(application?.status) !== "rejected") return false;
   const history = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
@@ -510,7 +519,19 @@ function CanInterviewsPage() {
         companyName: getCompanyName(application),
         companyLogo: getCompanyLogo(application, employerLogos),
         location: highlightedRound?.details?.location || formatJobLocation(job?.location),
-        status: getApplicationDisplayStatus(application)
+        status: (() => {
+          const trackedProcesses = [
+            ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []),
+            ...(Array.isArray(application?.interviewProcess?.stages)
+              ? application.interviewProcess.stages.map((s) => ({ status: s?.status }))
+              : [])
+          ];
+          const hasRejectedTracked = trackedProcesses.some(isRejectedTrackedProcess);
+          if (hasNoShowInRounds(application) && (trackedProcesses.length === 0 || hasRejectedTracked)) {
+            return "rejected";
+          }
+          return getApplicationDisplayStatus(application);
+        })()
       });
     });
     return cards;
