@@ -308,6 +308,9 @@ function AdminOverviewPage() {
     if (normalizedStatus === "suspended") {
       return { label: "Suspended", style: badgeStyles.danger };
     }
+    if (["expired", "session expired"].includes(normalizedStatus) && normalizedResult === "pending") {
+      return { label: "Completed", style: badgeStyles.success };
+    }
     if (["no show", "expired", "session expired"].includes(normalizedStatus)) {
       return { label: "No Show", style: badgeStyles.danger };
     }
