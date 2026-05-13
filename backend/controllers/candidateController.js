@@ -2342,14 +2342,15 @@ exports.getRecommendedJobs = async (req, res) => {
     const orConditions = [];
     if (hasSkills) orConditions.push({ requiredSkills: { $in: profile.skills } });
     if (hasEducation) {
-      // Include all normalized variants for the DB query (broad net)
-      const eduVariants = candidateEduList.flatMap(deg => {
+      // Build broad variants including both original labels and all equivalence group members
+      // Use case-insensitive regex to match regardless of capitalisation stored in DB
+      const eduVariants = [...new Set(candidateEduList.flatMap(deg => {
         const group = getEquivalentGroup(deg, EDUCATION_EQUIVALENCES);
         return group ? group : [normalizeEdu(deg)];
-      });
-      orConditions.push({ education: { $in: eduVariants } });
-      // Also match on educationSpecializations.qualification
-      orConditions.push({ 'educationSpecializations.qualification': { $in: eduVariants } });
+      }))];
+      const eduRegexes = eduVariants.map(v => new RegExp(`^${v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'));
+      orConditions.push({ education: { $in: eduRegexes } });
+      orConditions.push({ 'educationSpecializations.qualification': { $in: eduRegexes } });
     }
 
     const jobs = await Job.find({ status: 'active', $or: orConditions })
