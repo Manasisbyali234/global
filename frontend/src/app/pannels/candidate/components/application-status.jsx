@@ -2441,7 +2441,8 @@ function CanStatusPage() {
 																				!assessmentRoundInfo?.completionInfo?.isInProgress &&
 																				!assessmentRoundInfo?.completionInfo?.isSuspended &&
 																				!assessmentRoundInfo?.completionInfo?.isFailed &&
-																				!assessmentRoundInfo?.completionInfo?.isNoShow;
+																				!assessmentRoundInfo?.completionInfo?.isNoShow &&
+																				!['fail', 'failed', 'suspended', 'no show', 'no_show'].includes(normalizeStatusValue(roundStatus?.text));
 																			const formatRoundDate = (dateStr) => {
 																				if (!dateStr) return null;
 																				try {
