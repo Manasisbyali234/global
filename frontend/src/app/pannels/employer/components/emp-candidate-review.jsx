@@ -851,12 +851,18 @@ function EmpCandidateReviewPage() {
             Boolean(applicationData?.assessmentResult) ||
             (normalizedAssessmentStatus && normalizedAssessmentStatus !== 'not required');
 
-        if (isApplicationSessionExpired(applicationData, normalizedProcesses)) {
+        // Only apply session-expired rejection logic when there is an assessment round
+        if (hasAssessmentRound && isApplicationSessionExpired(applicationData, normalizedProcesses)) {
             return 'rejected';
         }
 
         if (hasAssessmentRound && baseStatus === 'rejected' && wasAutoRejectedFromStageStatus(applicationData)) {
             return 'pending';
+        }
+
+        // No assessment round: only reject if a stage was explicitly marked rejected
+        if (!hasAssessmentRound && baseStatus === 'rejected') {
+            return hasRejectedNonAssessmentStage ? 'rejected' : 'pending';
         }
 
         return baseStatus;

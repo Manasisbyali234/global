@@ -2234,6 +2234,49 @@ exports.getCandidateCompleteProfile = async (req, res) => {
   }
 };
 
+// Map from candidate resume educationLevel codes → display labels used in job postings
+const EDUCATION_LEVEL_CODE_TO_LABEL = {
+  '10th_pass': '10th Pass', 'sslc': '10th Pass',
+  '12th_pass': '12th Pass', 'puc': '12th Pass',
+  'diploma_general': 'Diploma', 'polytechnic_diploma': 'Polytechnic',
+  'iti_trade': 'ITI', 'vocational_training': 'Certificate Course',
+  'certification_courses': 'Certificate Course', 'apprenticeship': 'Certificate Course',
+  'be': 'B.E', 'be_specializations': 'B.E',
+  'btech': 'B.Tech', 'btech_ai': 'B.Tech',
+  'bsc': 'B.Sc', 'bsc_it': 'B.Sc', 'bsc_cs': 'B.Sc', 'bsc_data_science': 'B.Sc',
+  'bsc_biology': 'B.Sc', 'bsc_biotech': 'B.Sc', 'bsc_microbiology': 'B.Sc',
+  'bsc_genetics': 'B.Sc', 'bsc_biochemistry': 'B.Sc', 'bsc_nursing': 'B.Sc',
+  'bca': 'BCA', 'bca_cloud': 'BCA', 'bca_data_analytics': 'BCA',
+  'bba': 'BBA', 'bba_finance': 'BBA', 'bba_marketing': 'BBA', 'bba_hr': 'BBA',
+  'bba_hospital': 'BBA', 'bba_retail': 'BBA', 'bba_entrepreneurship': 'BBA',
+  'bba_it': 'BBA', 'bba_llb': 'BBA',
+  'bcom': 'B.Com', 'bcom_finance': 'B.Com', 'bcom_banking': 'B.Com',
+  'ba': 'BA', 'barch': 'B.Arch', 'bpharm': 'B.Pharm', 'bed': 'B.Ed',
+  'bds': 'BDS', 'mbbs': 'MBBS', 'bams': 'BAMS', 'bhms': 'BHMS',
+  'bums': 'BHMS', 'bpt': 'BPT', 'bot': 'BPT', 'bvsc': 'B.Sc',
+  'bfa': 'BFA', 'bsw': 'BA', 'bhm': 'BBA', 'bttm': 'BBA',
+  'llb': 'LLB', 'aviation': 'Certificate Course',
+  'clinical_research': 'Certificate Course', 'paramedical': 'Certificate Course',
+  'me': 'M.E', 'mtech': 'M.Tech',
+  'mba': 'MBA', 'mba_finance': 'MBA', 'mba_marketing': 'MBA', 'mba_hr': 'MBA',
+  'mba_operations': 'MBA', 'mba_systems': 'MBA',
+  'msc': 'M.Sc', 'mca': 'MCA',
+  'mcom': 'M.Com', 'ma': 'MA', 'mph': 'MA',
+  'march': 'M.Arch', 'mpharm': 'M.Pharm', 'med': 'M.Ed',
+  'mds': 'MDS', 'ms': 'MS', 'md': 'MD', 'mpt': 'BPT',
+  'llm': 'LLM', 'mdes': 'M.Des', 'mfa': 'MFA',
+  'phd': 'PhD', 'doctoral_research': 'PhD', 'post_doctoral': 'PhD',
+  'dpharm': 'D.Pharm',
+  'postgraduate_diploma': 'Postgraduate Diploma',
+  'degree': 'B.E', 'masters': 'M.Tech'
+};
+
+function normalizeCandidateEducationLevel(raw) {
+  if (!raw) return '';
+  const label = EDUCATION_LEVEL_CODE_TO_LABEL[raw.toLowerCase().trim()];
+  return label || raw;
+}
+
 // Education equivalence groups for flexible matching
 const EDUCATION_EQUIVALENCES = [
   ['b.e', 'be', 'b.tech', 'btech', 'bachelor of engineering', 'bachelor of technology'],
@@ -2304,9 +2347,10 @@ exports.getRecommendedJobs = async (req, res) => {
 
     const hasSkills = profile && profile.skills && profile.skills.length > 0;
 
-    const candidateEduList = (profile?.education || []).map(edu =>
-      (edu.degreeName || edu.educationLevel || '').trim()
-    ).filter(Boolean);
+    const candidateEduList = (profile?.education || []).map(edu => {
+      const raw = (edu.degreeName || edu.educationLevel || '').trim();
+      return normalizeCandidateEducationLevel(raw);
+    }).filter(Boolean);
 
     const candidateSpecList = (profile?.education || []).map(edu =>
       (edu.specialization || '').trim()
@@ -2318,27 +2362,42 @@ exports.getRecommendedJobs = async (req, res) => {
       return res.json({ success: true, jobs: [] });
     }
 
-    // Build broad query to fetch candidates; fine-grained filtering happens in JS
+    // Build DB query — always include 'Any' education jobs + skill matches + education matches
     const orConditions = [];
+
+    // Always fetch jobs that accept Any education
+    orConditions.push({ education: 'Any' });
+    orConditions.push({ education: { $size: 0 } }); // jobs with no education requirement
+
     if (hasSkills) orConditions.push({ requiredSkills: { $in: profile.skills } });
+
     if (hasEducation) {
-      // Include all normalized variants for the DB query (broad net)
-      const eduVariants = candidateEduList.flatMap(deg => {
+      // Build all label variants for the candidate's education levels
+      const eduVariants = [...new Set(candidateEduList.flatMap(deg => {
         const group = getEquivalentGroup(deg, EDUCATION_EQUIVALENCES);
-        return group ? group : [normalizeEdu(deg)];
-      });
-      orConditions.push({ education: { $in: eduVariants } });
-      // Also match on educationSpecializations.qualification
-      orConditions.push({ 'educationSpecializations.qualification': { $in: eduVariants } });
+        // Include both the normalized label and all equivalence group members
+        const variants = group ? group : [normalizeEdu(deg)];
+        // Also add the original label as-is for direct match
+        variants.push(deg);
+        return variants;
+      }))];
+      // Use case-insensitive regex for each variant
+      const eduRegexes = [...new Set(eduVariants)].map(
+        v => new RegExp(`^${v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')
+      );
+      orConditions.push({ education: { $in: eduRegexes } });
+      orConditions.push({ 'educationSpecializations.qualification': { $in: eduRegexes } });
     }
 
     const jobs = await Job.find({ status: 'active', $or: orConditions })
       .populate('employerId', 'companyName brandName')
       .sort({ createdAt: -1 })
-      .limit(30);
+      .limit(50);
 
     const jobsWithScore = jobs.map(job => {
       const jobObj = job.toObject();
+      const jobEduList = (job.education || []).map(e => e.trim()).filter(Boolean);
+      const isAnyEdu = jobEduList.length === 0 || jobEduList.some(e => e.toLowerCase() === 'any');
 
       // Skills match
       const matchingSkills = hasSkills
@@ -2349,52 +2408,50 @@ exports.getRecommendedJobs = async (req, res) => {
         ? (matchingSkills.length / job.requiredSkills.length) * 70
         : 0;
 
-      // Education match using equivalences
-      const jobEduList = (job.education || []).map(e => e.trim()).filter(Boolean);
-      const jobSpecList = (job.educationSpecializations || []).map(s =>
-        (s.specialization || '').trim()
-      ).filter(Boolean);
-      // Also collect qualifications from educationSpecializations as degree alternatives
-      const jobEduFromSpecs = (job.educationSpecializations || []).map(s =>
-        (s.qualification || '').trim()
-      ).filter(Boolean);
-      const allJobEduList = [...new Set([...jobEduList, ...jobEduFromSpecs])];
+      // Education match
+      let eduMatched = false;
+      if (isAnyEdu) {
+        // Job accepts any education — always matches if candidate has education
+        eduMatched = hasEducation;
+      } else if (hasEducation) {
+        const jobSpecList = (job.educationSpecializations || []).map(s =>
+          (s.specialization || '').trim()
+        ).filter(Boolean);
+        const jobEduFromSpecs = (job.educationSpecializations || []).map(s =>
+          (s.qualification || '').trim()
+        ).filter(Boolean);
+        const allJobEduList = [...new Set([...jobEduList, ...jobEduFromSpecs])];
+        eduMatched = educationMatches(candidateEduList, candidateSpecList, allJobEduList, jobSpecList);
+      }
 
-      const eduMatched = hasEducation && educationMatches(
-        candidateEduList, candidateSpecList, allJobEduList, jobSpecList
-      );
       const educationScore = eduMatched ? 30 : 0;
 
       // Determine match tag and priority
       let matchTag = null;
       let priority = 0;
       if (skillsMatched && eduMatched) {
-        matchTag = 'Matched by Skills & Education';
+        matchTag = 'Best Match';
         priority = 3;
       } else if (skillsMatched) {
-        matchTag = 'Matched by Skills';
+        matchTag = 'Skills Match';
         priority = 2;
       } else if (eduMatched) {
-        matchTag = 'Matched by Education';
+        matchTag = 'Qualification Match';
         priority = 1;
       }
 
-      // Only include jobs that matched at least one criterion
       if (!matchTag) return null;
-
-      const matchScore = Math.round(skillScore + educationScore);
 
       return {
         ...jobObj,
         matchingSkills,
         educationMatched: eduMatched,
         matchTag,
-        matchScore,
+        matchScore: Math.round(skillScore + educationScore),
         priority
       };
     }).filter(Boolean);
 
-    // Sort: priority desc, then matchScore desc
     jobsWithScore.sort((a, b) =>
       b.priority !== a.priority ? b.priority - a.priority : b.matchScore - a.matchScore
     );

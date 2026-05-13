@@ -204,22 +204,22 @@ function SectionRecommendedJobs() {
                                             className="badge"
                                             style={{
                                                 backgroundColor:
-                                                    job.matchTag === 'Matched by Skills & Education' ? '#d1fae5' :
-                                                    job.matchTag === 'Matched by Skills' ? '#dbeafe' : '#ede9fe',
+                                                    job.matchTag === 'Best Match' ? '#fef3c7' :
+                                                    job.matchTag === 'Skills Match' ? '#dbeafe' : '#f0fdf4',
                                                 color:
-                                                    job.matchTag === 'Matched by Skills & Education' ? '#065f46' :
-                                                    job.matchTag === 'Matched by Skills' ? '#1e40af' : '#5b21b6',
+                                                    job.matchTag === 'Best Match' ? '#92400e' :
+                                                    job.matchTag === 'Skills Match' ? '#1e40af' : '#166534',
                                                 border:
-                                                    job.matchTag === 'Matched by Skills & Education' ? '1px solid #10b981' :
-                                                    job.matchTag === 'Matched by Skills' ? '1px solid #3b82f6' : '1px solid #7c3aed',
+                                                    job.matchTag === 'Best Match' ? '1px solid #f59e0b' :
+                                                    job.matchTag === 'Skills Match' ? '1px solid #3b82f6' : '1px solid #22c55e',
                                                 fontSize: '0.7rem',
                                                 fontWeight: '600',
                                                 padding: '0.25rem 0.5rem'
                                             }}
                                         >
                                             <i className={`fa ${
-                                                job.matchTag === 'Matched by Skills & Education' ? 'fa-star' :
-                                                job.matchTag === 'Matched by Skills' ? 'fa-code' : 'fa-graduation-cap'
+                                                job.matchTag === 'Best Match' ? 'fa-star' :
+                                                job.matchTag === 'Skills Match' ? 'fa-bolt' : 'fa-graduation-cap'
                                             } me-1`} style={{ fontSize: '0.6rem' }}></i>
                                             {job.matchTag}
                                         </span>

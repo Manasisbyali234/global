@@ -527,7 +527,40 @@ function CanInterviewsPage() {
         companyName: getCompanyName(application),
         companyLogo: getCompanyLogo(application, employerLogos),
         location: highlightedRound?.details?.location || formatJobLocation(job?.location),
+<<<<<<< HEAD
         status: getInterviewCurrentStatusKey(application)
+=======
+        status: (() => {
+          const trackedProcesses = [
+            ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []),
+            ...(Array.isArray(application?.interviewProcess?.stages)
+              ? application.interviewProcess.stages.map((s) => ({ status: s?.status }))
+              : [])
+          ];
+          const hasRejectedTracked = trackedProcesses.some(isRejectedTrackedProcess);
+          if (hasNoShowInRounds(application) && (trackedProcesses.length === 0 || hasRejectedTracked)) {
+            return "rejected";
+          }
+          const assessmentStatus = String(application?.assessmentStatus || "").toLowerCase();
+          const noShowStatuses = ["no_show", "no show", "suspended", "session_expired", "session expired"];
+          const failedStatuses = ["failed", "fail"];
+          const assessmentResult = String(application?.assessmentResult || "").toLowerCase();
+          const isExpiredPendingEval = assessmentStatus === "expired" && assessmentResult === "pending";
+          if (!isExpiredPendingEval && (noShowStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentResult))) {
+            return "rejected";
+          }
+          // Also check assessmentAttemptsByAssessmentId for no_show/failed
+          const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
+          const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
+            const s = String(attempt?.status || "").toLowerCase();
+            const r = String(attempt?.result || "").toLowerCase();
+            if (s === "expired" && r === "pending") return false;
+            return noShowStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
+          });
+          if (hasRejectedAttempt) return "rejected";
+          return getApplicationDisplayStatus(application);
+        })()
+>>>>>>> d7616c58b088c42246f03db3749e0a3d6c9bb5da
       });
     });
     return cards;

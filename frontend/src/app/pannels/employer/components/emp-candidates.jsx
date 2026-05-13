@@ -377,17 +377,17 @@ function EmpCandidatesPage() {
       getAssessmentRoundOrderKeys(application?.jobId).length > 0 ||
       processes.some((process) => isAssessmentProcess(process));
 
-    const hasRejectedNonAssessmentStage = processes.some(
-      (process) => !isAssessmentProcess(process) && isRejectedLikeStatus(process?.status)
-    );
-    if (hasRejectedNonAssessmentStage) {
-      return "rejected";
-    }
-
-    // If any stage (including assessment) has a rejected-like status, show rejected
+    // Only treat as rejected if a stage was explicitly marked rejected
     const hasAnyRejectedStage = processes.some((process) => isRejectedLikeStatus(process?.status));
     if (hasAnyRejectedStage) {
       return "rejected";
+    }
+
+    // If application was directly rejected AND has no assessment round, only reject if a stage is explicitly rejected
+    if (baseStatus === "rejected" && !hasAssessmentRound) {
+      // No assessment round — only show rejected if a stage was explicitly marked rejected (already checked above)
+      // Otherwise treat as pending
+      return "pending";
     }
 
     // If application was directly rejected (not auto from assessment expiry), show rejected
@@ -398,9 +398,19 @@ function EmpCandidatesPage() {
     if (hasAssessmentRound) {
       const completionInfo = getAssessmentCompletionInfo(application);
       const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, nowTimestamp);
+      // Only treat as no-show if the assessment window has ended AND there is no assessment activity at all
+      const hasAssessmentActivity =
+        completionInfo?.isCompleted ||
+        completionInfo?.isInProgress ||
+        completionInfo?.isSuspended ||
+        completionInfo?.isPassed ||
+        completionInfo?.isFailed ||
+        completionInfo?.isNoShow ||
+        Boolean(application?.assessmentStatus && !['pending', 'available', 'not_required', 'not started', 'scheduled'].includes(normalizeStatusValue(application?.assessmentStatus)));
       const assessmentNoShow =
         Boolean(completionInfo?.isNoShow) ||
         (Boolean(assessmentWindowInfo?.isAfterEnd) &&
+          hasAssessmentActivity === false &&
           !completionInfo?.isCompleted &&
           !completionInfo?.isInProgress &&
           !completionInfo?.isSuspended);

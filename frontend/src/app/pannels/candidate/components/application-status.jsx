@@ -188,7 +188,80 @@ function CanStatusPage() {
 	};
 
 	const getApplicationDisplayStatus = (application = {}) => {
+<<<<<<< HEAD
 		return getApplicationStatusKey(application);
+=======
+		const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
+		if (['accepted', 'hired'].includes(baseStatus)) {
+			return baseStatus;
+		}
+
+		const trackedProcesses = getPreferredTrackedProcesses(application);
+		if (trackedProcesses.some(isRejectedTrackedProcessForDisplay)) {
+			return 'rejected';
+		}
+
+		// Check interviewRounds (legacy) for failed status
+		const hasFailedRound = Array.isArray(application?.interviewRounds) &&
+			application.interviewRounds.some((round) => String(round?.status || '').toLowerCase() === 'failed');
+		if (hasFailedRound) {
+			return 'rejected';
+		}
+
+		// Check assessment-derived statuses (no_show, suspended, failed) from attempt data
+		const assessmentStatus = String(application?.assessmentStatus || '').toLowerCase();
+		const assessmentResult = String(application?.assessmentResult || '').toLowerCase();
+		const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
+		const failedStatuses = ['failed', 'fail'];
+		const failedResults = ['failed', 'fail'];
+		// Don't treat expired as rejected if result is pending (subjective assessment awaiting manual evaluation)
+		const isExpiredPendingEvaluation = assessmentStatus === 'expired' && assessmentResult === 'pending';
+		if (!isExpiredPendingEvaluation && (
+			rejectedAssessmentStatuses.includes(assessmentStatus) ||
+			failedStatuses.includes(assessmentStatus) ||
+			failedResults.includes(assessmentResult))) {
+			return 'rejected';
+		}
+
+		// Check all assessment attempts for no_show, suspended, or failed
+		const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
+		const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
+			const s = String(attempt?.status || '').toLowerCase();
+			const r = String(attempt?.result || '').toLowerCase();
+			// Don't treat expired as rejected if result is pending
+			if (s === 'expired' && r === 'pending') return false;
+			return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedResults.includes(r);
+		});
+		if (hasRejectedAttempt) {
+			return 'rejected';
+		}
+
+		// Only revert auto-rejected status to pending if NO tracked process has a rejected/no_show status
+		const hasAnyRejectedTrackedProcess = trackedProcesses.some(isRejectedTrackedProcessForDisplay);
+		if (
+			baseStatus === 'rejected' &&
+			wasAutoRejectedFromInterviewStageStatus(application) &&
+			trackedProcesses.length > 0 &&
+			!hasAnyRejectedTrackedProcess
+		) {
+			return 'pending';
+		}
+
+		// If baseStatus is rejected but no tracked process is rejected and no assessment round exists,
+		// treat as pending (backend may have auto-set rejected incorrectly)
+		const hasAssessmentRound =
+			Boolean(application?.jobId?.assessmentId) ||
+			trackedProcesses.some(isAssessmentProcess) ||
+			Boolean(application?.assessmentResult) ||
+			Boolean(application?.assessmentStatus && !['', 'not_required', 'not required'].includes(
+				normalizeStatusValue(application.assessmentStatus)
+			));
+		if (baseStatus === 'rejected' && !hasAnyRejectedTrackedProcess && !hasAssessmentRound) {
+			return 'pending';
+		}
+
+		return baseStatus;
+>>>>>>> d7616c58b088c42246f03db3749e0a3d6c9bb5da
 	};
 
 	const formatStatusLabel = (status) => getStatusLabel(status);
