@@ -203,6 +203,127 @@ function AdminOverviewPage() {
     return "";
   };
 
+  const normalizeStatusValue = (value = "") =>
+    String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[_-]+/g, " ")
+      .replace(/\s+/g, " ");
+
+  const formatStatusLabel = (value = "pending") =>
+    String(value || "pending")
+      .replace(/[_-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/\b\w/g, (char) => char.toUpperCase()) || "Pending";
+
+  const badgeStyles = {
+    neutral: { background: "#f1f3f5", color: "#495057", border: "1px solid #adb5bd" },
+    info: { background: "#e7f1ff", color: "#0d6efd", border: "1px solid #0d6efd" },
+    success: { background: "#e6f4ea", color: "#1e7e34", border: "1px solid #1e7e34" },
+    warning: { background: "#fff8e1", color: "#b26a00", border: "1px solid #b26a00" },
+    danger: { background: "#fdeaea", color: "#c82333", border: "1px solid #c82333" },
+    secondary: { background: "#eceff1", color: "#546e7a", border: "1px solid #b0bec5" }
+  };
+
+  const getRoundStatusPresentation = (round = {}) => {
+    const normalizedStatus = normalizeStatusValue(round?.status);
+    const normalizedResult = normalizeStatusValue(round?.assessmentResult);
+    const isAssessment =
+      normalizeStatusValue(round?.type) === "assessment" ||
+      normalizeStatusValue(round?.name).includes("assessment");
+
+    if (["shortlisted", "shortlisted for next round"].includes(normalizedStatus)) {
+      return { label: "Shortlisted for next Round", style: badgeStyles.info };
+    }
+    if (normalizedStatus === "selected") {
+      return { label: "Selected", style: badgeStyles.success };
+    }
+    if (normalizedStatus === "under review") {
+      return { label: "Under Review", style: badgeStyles.warning };
+    }
+    if (normalizedStatus === "pending decision") {
+      return { label: "Pending Decision", style: badgeStyles.warning };
+    }
+    if (normalizedStatus === "on hold") {
+      return { label: "On Hold", style: badgeStyles.secondary };
+    }
+    if (["rejected", "not advanced to next stage", "not advanced to next round"].includes(normalizedStatus)) {
+      return { label: "Not Advanced to Next Stage", style: badgeStyles.danger };
+    }
+
+    if (isAssessment) {
+      if (["pass", "passed"].includes(normalizedResult) || normalizedStatus === "passed") {
+        return { label: "Pass", style: badgeStyles.success };
+      }
+      if (["fail", "failed"].includes(normalizedResult) || normalizedStatus === "failed") {
+        return { label: "Fail", style: badgeStyles.danger };
+      }
+      if (normalizedStatus === "suspended") {
+        return { label: "Suspended", style: badgeStyles.danger };
+      }
+      if (["expired", "session expired"].includes(normalizedStatus) && normalizedResult === "pending") {
+        return { label: "Completed", style: badgeStyles.success };
+      }
+      if (["no show", "expired", "session expired"].includes(normalizedStatus)) {
+        return { label: "No Show", style: badgeStyles.danger };
+      }
+      if (normalizedStatus === "completed") {
+        return { label: "Completed", style: badgeStyles.success };
+      }
+      if (normalizedStatus === "in progress") {
+        return { label: "In Progress", style: badgeStyles.warning };
+      }
+      if (["scheduled", "available", "not required", "not started", "pending", ""].includes(normalizedStatus)) {
+        return { label: "Pending", style: badgeStyles.neutral };
+      }
+    }
+
+    if (["scheduled", "interview scheduled"].includes(normalizedStatus)) {
+      return { label: "Scheduled", style: badgeStyles.info };
+    }
+    if (["completed", "interview completed"].includes(normalizedStatus)) {
+      return { label: "Completed", style: badgeStyles.success };
+    }
+    if (normalizedStatus === "in progress") {
+      return { label: "In Progress", style: badgeStyles.warning };
+    }
+    if (["pending", ""].includes(normalizedStatus)) {
+      return { label: "Pending", style: badgeStyles.neutral };
+    }
+
+    return { label: formatStatusLabel(round?.status || "pending"), style: badgeStyles.neutral };
+  };
+
+  const getAssessmentResultPresentation = (round = {}) => {
+    const normalizedStatus = normalizeStatusValue(round?.status);
+    const normalizedResult = normalizeStatusValue(round?.assessmentResult);
+
+    if (["pass", "passed"].includes(normalizedResult) || normalizedStatus === "passed") {
+      return { label: "Passed", style: badgeStyles.success };
+    }
+    if (["fail", "failed"].includes(normalizedResult) || normalizedStatus === "failed") {
+      return { label: "Failed", style: badgeStyles.danger };
+    }
+    if (normalizedStatus === "suspended") {
+      return { label: "Suspended", style: badgeStyles.danger };
+    }
+    if (["expired", "session expired"].includes(normalizedStatus) && normalizedResult === "pending") {
+      return { label: "Completed", style: badgeStyles.success };
+    }
+    if (["no show", "expired", "session expired"].includes(normalizedStatus)) {
+      return { label: "No Show", style: badgeStyles.danger };
+    }
+    if (normalizedStatus === "completed" || normalizedResult === "completed") {
+      return { label: "Completed", style: badgeStyles.success };
+    }
+    if (normalizedStatus === "in progress") {
+      return { label: "In Progress", style: badgeStyles.warning };
+    }
+
+    return { label: "Pending", style: badgeStyles.neutral };
+  };
+
   useEffect(() => {
     fetchOverview();
   }, []);
@@ -658,9 +779,13 @@ function AdminOverviewPage() {
                               {Array.isArray(applicant.interviewRounds) && applicant.interviewRounds.length > 0 ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                   {applicant.interviewRounds.map((round, index) => (
-                                    <div
-                                      key={`${applicant.applicationId}-${round.id || round.type || index}`}
-                                      style={{
+                                    (() => {
+                                      const roundStatus = getRoundStatusPresentation(round);
+                                      const assessmentResult = getAssessmentResultPresentation(round);
+                                      return (
+                                      <div
+                                        key={`${applicant.applicationId}-${round.id || round.type || index}`}
+                                        style={{
                                         border: "1px solid #e9ecef",
                                         borderRadius: "6px",
                                         padding: "6px 8px",
@@ -679,20 +804,9 @@ function AdminOverviewPage() {
                                           fontSize: '11px',
                                           fontWeight: 600,
                                           marginLeft: '4px',
-                                          ...(() => {
-                                            const s = String(round.status || '').toLowerCase();
-                                            if (['shortlisted_for_next_round', 'shortlisted for next round', 'shortlisted', 'selected'].includes(s))
-                                              return { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' };
-                                            if (['rejected', 'not_advanced_to_next_stage', 'not advanced to next stage', 'failed', 'fail', 'no_show', 'no show', 'suspended', 'expired'].includes(s))
-                                              return { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' };
-                                            if (['passed', 'completed'].includes(s))
-                                              return { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' };
-                                            if (['on_hold', 'on hold', 'pending_decision', 'pending decision', 'in_progress', 'in progress', 'under_review', 'under review'].includes(s))
-                                              return { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' };
-                                            return { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' };
-                                          })()
+                                          ...roundStatus.style
                                         }}>
-                                          {String(round.status || 'pending').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                                          {roundStatus.label}
                                         </span>
                                       </div>
                                       <div className="admin-overview-round-schedule">
@@ -731,38 +845,18 @@ function AdminOverviewPage() {
                                         <strong>Remarks:</strong> {round.remark || "No remarks"}
                                       </div>
                                       {round.type === 'assessment' && (() => {
-                                        const result = round.assessmentResult || null;
-                                        const resolveResult = (r) => {
-                                          if (!r) return 'Pending';
-                                          const n = r.trim().toLowerCase();
-                                          if (n === 'passed' || n === 'pass') return 'Passed';
-                                          if (n === 'failed' || n === 'fail') return 'Failed';
-                                          if (n === 'suspended') return 'Suspended';
-                                          if (n === 'no show' || n === 'no_show') return 'No Show';
-                                          if (n === 'in progress' || n === 'in_progress') return 'In Progress';
-                                          if (n === 'completed') return 'Completed';
-                                          return 'Pending';
-                                        };
-                                        const label = resolveResult(result);
-                                        const styleMap = {
-                                          'Passed': { background: '#e6f4ea', color: '#1e7e34', border: '1px solid #1e7e34' },
-                                          'Failed': { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' },
-                                          'Suspended': { background: '#fdeaea', color: '#c82333', border: '1px solid #c82333' },
-                                          'No Show': { background: '#fff3cd', color: '#856404', border: '1px solid #ffc107' },
-                                          'In Progress': { background: '#fff8e1', color: '#b26a00', border: '1px solid #b26a00' },
-                                          'Completed': { background: '#e7f1ff', color: '#0d6efd', border: '1px solid #0d6efd' },
-                                          'Pending': { background: '#f1f3f5', color: '#495057', border: '1px solid #adb5bd' },
-                                        };
                                         return (
                                           <div className="admin-overview-round-detail" style={{ marginTop: '4px' }}>
                                             <strong>Assessment Result:</strong>{' '}
-                                            <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '999px', fontSize: '11px', fontWeight: 600, marginLeft: '4px', ...(styleMap[label] || styleMap['Pending']) }}>
-                                              {label}
+                                            <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '999px', fontSize: '11px', fontWeight: 600, marginLeft: '4px', ...assessmentResult.style }}>
+                                              {assessmentResult.label}
                                             </span>
                                           </div>
                                         );
                                       })()}
                                     </div>
+                                      );
+                                    })()
                                   ))}
                                 </div>
                               ) : (

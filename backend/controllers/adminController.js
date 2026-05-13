@@ -303,6 +303,105 @@ const isOfferNotAccepted = (application = {}) =>
   Array.isArray(application?.statusHistory) &&
   application.statusHistory.some((entry) => entry?.status === 'offer_sent');
 
+const normalizeApplicationStatusValue = (value = '') =>
+  String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ');
+
+const normalizeAssessmentId = (value = '') => {
+  if (!value) return '';
+  if (typeof value === 'object') {
+    return String(value?._id || value?.id || '').trim();
+  }
+  return String(value).trim();
+};
+
+const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
+  const normalizedStatus = normalizeApplicationStatusValue(attempt?.status);
+  const normalizedResult = normalizeApplicationStatusValue(attempt?.result);
+
+  if (normalizedStatus === 'suspended') return 'suspended';
+  if (normalizedStatus === 'in progress') return 'in_progress';
+  if (normalizedStatus === 'not started') return 'pending';
+  if (normalizedResult === 'pass' || normalizedStatus === 'passed') return 'passed';
+  if (normalizedResult === 'fail' || normalizedStatus === 'failed') return 'failed';
+  if (normalizedStatus === 'expired') return 'expired';
+  if (normalizedStatus === 'completed') return 'completed';
+  return attempt?.status || 'pending';
+};
+
+const isAssessmentAttemptDerivedStageStatus = (value = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(value);
+  if (!normalizedStatus) return false;
+
+  return [
+    'passed',
+    'failed',
+    'completed',
+    'in progress',
+    'expired',
+    'suspended',
+    'session expired',
+    'no show'
+  ].includes(normalizedStatus);
+};
+
+const shouldPreserveAssessmentStageStatus = (value = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(value);
+  if (!normalizedStatus) return false;
+
+  return ![
+    'pending',
+    'scheduled',
+    'available',
+    'not started'
+  ].includes(normalizedStatus) && !isAssessmentAttemptDerivedStageStatus(normalizedStatus);
+};
+
+const getLatestApplicationStatusHistoryEntry = (application = {}) => {
+  const statusHistory = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
+
+  for (let index = statusHistory.length - 1; index >= 0; index -= 1) {
+    if (statusHistory[index]?.status) {
+      return statusHistory[index];
+    }
+  }
+
+  return null;
+};
+
+const isRejectedInterviewProcessStatusForOverview = (value = '') => {
+  const normalizedStatus = normalizeApplicationStatusValue(value);
+  if (!normalizedStatus) return false;
+
+  return [
+    'rejected',
+    'not advanced to next stage',
+    'not advanced to next round',
+    'failed',
+    'fail',
+    'field',
+    'no show',
+    'expired',
+    'suspended',
+    'session expired',
+    'not eligibal for next round',
+    'not eligible for next round'
+  ].includes(normalizedStatus);
+};
+
+const isAutoRejectedFromInterviewStageStatus = (application = {}) => {
+  if (normalizeApplicationStatusValue(application?.status) !== 'rejected') {
+    return false;
+  }
+
+  const latestStatusEntry = getLatestApplicationStatusHistoryEntry(application);
+  return normalizeApplicationStatusValue(latestStatusEntry?.status) === 'rejected'
+    && normalizeApplicationStatusValue(latestStatusEntry?.notes).includes('auto updated from interview stage status');
+};
+
 // Authentication Controller
 exports.loginAdmin = async (req, res) => {
   try {
@@ -670,7 +769,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
 
     const applications = await Application.find({ jobId })
       .populate('candidateId', 'name email')
-      .populate('jobId', 'interviewRoundOrder interviewRoundTypes interviewRoundDetails')
+      .populate('jobId', 'interviewRoundOrder interviewRoundTypes interviewRoundDetails assessmentId')
       .select('candidateId applicantName applicantEmail status statusHistory appliedAt isGuestApplication interviewProcesses interviewProcessId processRemarks jobId paymentStatus paymentId orderId paymentAmount paymentCurrency assessmentStatus assessmentResult assessmentAttemptsByAssessmentId interviewRounds')
       .sort({ appliedAt: -1 })
       .lean();
@@ -680,7 +779,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
     const [interviewProcesses, interviewRounds, assessmentAttempts] = await Promise.all([
       applicationIds.length
         ? InterviewProcess.find({ applicationId: { $in: applicationIds } })
-            .select('applicationId stages.stageName stages.stageType stages.stageOrder stages.status stages.assessmentResult stages.assessmentScore stages.assessmentPercentage stages.scheduledDate stages.fromDate stages.toDate stages.scheduledTime stages.startTime stages.endTime stages._id')
+            .select('applicationId stages.stageName stages.stageType stages.stageOrder stages.status stages.assessmentId stages.assessmentResult stages.assessmentScore stages.assessmentPercentage stages.scheduledDate stages.fromDate stages.toDate stages.scheduledTime stages.startTime stages.endTime stages._id')
             .lean()
         : [],
       InterviewRound.find({ jobId })
@@ -688,21 +787,30 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         .lean(),
       applicationIds.length
         ? AssessmentAttempt.find({ applicationId: { $in: applicationIds } })
-            .select('applicationId status result score totalMarks percentage')
+            .sort({ createdAt: -1 })
+            .select('_id applicationId assessmentId status result score totalMarks percentage startTime endTime suspendedAt')
             .lean()
         : []
     ]);
 
     const assessmentAttemptMap = new Map();
-    const attemptPriority = { suspended: 5, completed: 4, expired: 3, in_progress: 2, not_started: 1 };
     assessmentAttempts.forEach((attempt) => {
-      const key = String(attempt.applicationId);
-      const existing = assessmentAttemptMap.get(key);
-      const newPriority = attemptPriority[attempt.status] || 0;
-      const existingPriority = existing ? (attemptPriority[existing.status] || 0) : -1;
-      if (newPriority > existingPriority) {
-        assessmentAttemptMap.set(key, attempt);
+      const applicationKey = String(attempt.applicationId);
+      const assessmentKey = normalizeAssessmentId(attempt.assessmentId);
+      const existing = assessmentAttemptMap.get(applicationKey) || {
+        byAssessmentId: {},
+        latestAttempt: null
+      };
+
+      if (!existing.latestAttempt) {
+        existing.latestAttempt = attempt;
       }
+
+      if (assessmentKey && !existing.byAssessmentId[assessmentKey]) {
+        existing.byAssessmentId[assessmentKey] = attempt;
+      }
+
+      assessmentAttemptMap.set(applicationKey, existing);
     });
 
     const interviewProcessMap = new Map(
@@ -866,7 +974,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       };
     };
 
-const resolveStageStatus = (stage, savedProcesses) => {
+    const resolveStageStatus = (stage, savedProcesses) => {
       const stageStatus = String(stage.status || '').trim().toLowerCase();
       // Always prefer manually saved status from interviewProcesses for all stage types
       const stageId = String(stage._id || '');
@@ -888,6 +996,7 @@ const resolveStageStatus = (stage, savedProcesses) => {
         const aStatus = String(attempt.status || '').toLowerCase();
         const aResult = String(attempt.result || '').toLowerCase();
         if (aStatus === 'suspended') return 'Suspended';
+        if (aStatus === 'expired' && aResult === 'pending') return 'Completed';
         if (aStatus === 'expired') return 'No Show';
         if (aResult === 'pass' || aResult === 'passed') return 'Passed';
         if (aResult === 'fail' || aResult === 'failed') return 'Failed';
@@ -898,6 +1007,7 @@ const resolveStageStatus = (stage, savedProcesses) => {
       const appStatus = String(appAssessmentStatus || '').toLowerCase();
       const appResult = String(appAssessmentResult || '').toLowerCase();
       if (appStatus === 'suspended') return 'Suspended';
+      if (appStatus === 'expired' && appResult === 'pending') return 'Completed';
       if (['no_show', 'no show', 'session_expired', 'session expired', 'expired'].includes(appStatus)) return 'No Show';
       if (appResult === 'pass' || appResult === 'passed') return 'Passed';
       if (appResult === 'fail' || appResult === 'failed') return 'Failed';
@@ -907,6 +1017,7 @@ const resolveStageStatus = (stage, savedProcesses) => {
       const stageStatus = String(stage?.status || '').toLowerCase();
       const stageResult = String(stage?.assessmentResult || '').toLowerCase();
       if (stageStatus === 'suspended') return 'Suspended';
+      if (stageStatus === 'expired' && stageResult === 'pending') return 'Completed';
       if (['no_show', 'no show', 'expired'].includes(stageStatus)) return 'No Show';
       if (stageResult === 'pass' || stageStatus === 'passed') return 'Passed';
       if (stageResult === 'fail' || stageStatus === 'failed') return 'Failed';
@@ -918,17 +1029,71 @@ const resolveStageStatus = (stage, savedProcesses) => {
     const buildInterviewRounds = (application) => {
       const interviewProcess = interviewProcessMap.get(String(application._id));
       const savedProcesses = Array.isArray(application.interviewProcesses) ? application.interviewProcesses : [];
-      const attempt = assessmentAttemptMap.get(String(application._id)) || null;
+      const attemptBundle = assessmentAttemptMap.get(String(application._id)) || {
+        byAssessmentId: {},
+        latestAttempt: null
+      };
+      const attemptsByAssessmentId = attemptBundle.byAssessmentId || {};
+      const latestAttempt = attemptBundle.latestAttempt || null;
+      const orderedAssessmentRoundKeys = Array.isArray(application?.jobId?.interviewRoundOrder)
+        ? application.jobId.interviewRoundOrder.filter((roundKey) => {
+            const roundType = application.jobId?.interviewRoundTypes?.[roundKey] || roundKey;
+            return roundType === 'assessment';
+          })
+        : [];
+      const orderedAssessmentIds = orderedAssessmentRoundKeys.reduce((acc, roundKey) => {
+        const roundDetails = application?.jobId?.interviewRoundDetails?.[roundKey];
+        const roundAssessmentId = normalizeAssessmentId(roundDetails?.assessmentId);
+        if (roundAssessmentId) {
+          acc.push(roundAssessmentId);
+        }
+        return acc;
+      }, []);
+      const singleConfiguredAssessmentId =
+        orderedAssessmentRoundKeys.length <= 1 && application?.jobId?.assessmentId
+          ? normalizeAssessmentId(application.jobId.assessmentId)
+          : '';
+
       if (interviewProcess?.stages?.length) {
+        const assessmentStages = interviewProcess.stages.filter((stage) => stage?.stageType === 'assessment');
+        const knownAssessmentIds = Object.keys(attemptsByAssessmentId);
+        const singleAssessmentAttempt =
+          assessmentStages.length <= 1 && knownAssessmentIds.length <= 1
+            ? attemptsByAssessmentId[knownAssessmentIds[0]] || latestAttempt || null
+            : null;
+        let assessmentStageIndex = 0;
+
         return interviewProcess.stages.map((stage) => {
-          const resolvedStatus = resolveStageStatus(stage, savedProcesses);
+          let matchedAttempt = null;
+          let resolvedAssessmentId = null;
+
+          if (stage?.stageType === 'assessment') {
+            resolvedAssessmentId =
+              normalizeAssessmentId(stage?.assessmentId) ||
+              orderedAssessmentIds[assessmentStageIndex] ||
+              singleConfiguredAssessmentId ||
+              '';
+            matchedAttempt =
+              (resolvedAssessmentId && attemptsByAssessmentId[resolvedAssessmentId]) ||
+              singleAssessmentAttempt ||
+              null;
+            assessmentStageIndex += 1;
+          }
+
+          const stageStatus = resolveStageStatus(stage, savedProcesses);
+          const resolvedStatus = stage?.stageType === 'assessment' && matchedAttempt
+            ? (shouldPreserveAssessmentStageStatus(stage?.status)
+                ? stageStatus
+                : resolveAssessmentAttemptStageStatus(matchedAttempt))
+            : stageStatus;
+
           return {
             id: stage._id,
             name: stage.stageName,
             type: stage.stageType,
             status: resolvedStatus,
             assessmentResult: stage.stageType === 'assessment'
-              ? resolveStageAssessmentResult(stage, application.assessmentStatus, application.assessmentResult, attempt, resolvedStatus)
+              ? resolveStageAssessmentResult(stage, application.assessmentStatus, application.assessmentResult, matchedAttempt, resolvedStatus)
               : null,
             remark: resolveRemark({ id: String(stage._id), name: stage.stageName, type: stage.stageType }, application.processRemarks),
             scheduledDate: stage.scheduledDate || stage.fromDate || null,
@@ -936,11 +1101,20 @@ const resolveStageStatus = (stage, savedProcesses) => {
             toDate: stage.toDate || null,
             scheduledTime: stage.scheduledTime || (stage.startTime && stage.endTime ? `${stage.startTime} - ${stage.endTime}` : stage.startTime || ''),
             startTime: stage.startTime || '',
-            endTime: stage.endTime || ''
+            endTime: stage.endTime || '',
+            assessmentId: resolvedAssessmentId || stage?.assessmentId || null
           };
         });
       }
       if (Array.isArray(application?.interviewProcesses) && application.interviewProcesses.length) {
+        const assessmentProcesses = application.interviewProcesses.filter((process) => process?.type === 'assessment');
+        const knownAssessmentIds = Object.keys(attemptsByAssessmentId);
+        const singleAssessmentAttempt =
+          assessmentProcesses.length <= 1 && knownAssessmentIds.length <= 1
+            ? attemptsByAssessmentId[knownAssessmentIds[0]] || latestAttempt || null
+            : null;
+        let assessmentProcessIndex = 0;
+
         return application.interviewProcesses.map((process) => {
           const roundDetails = getRoundDetails(application?.jobId, [
             process.id,
@@ -948,15 +1122,39 @@ const resolveStageStatus = (stage, savedProcesses) => {
             process.type,
             process.name
           ]);
+          let matchedAttempt = null;
+          let resolvedAssessmentId = null;
+
+          if (process?.type === 'assessment') {
+            resolvedAssessmentId =
+              normalizeAssessmentId(process?.assessmentId) ||
+              normalizeAssessmentId(roundDetails?.assessmentId) ||
+              orderedAssessmentIds[assessmentProcessIndex] ||
+              singleConfiguredAssessmentId ||
+              '';
+            matchedAttempt =
+              (resolvedAssessmentId && attemptsByAssessmentId[resolvedAssessmentId]) ||
+              singleAssessmentAttempt ||
+              null;
+            assessmentProcessIndex += 1;
+          }
+
+          const resolvedStatus = process?.type === 'assessment' && matchedAttempt
+            ? (shouldPreserveAssessmentStageStatus(process?.status)
+                ? (process.status || 'pending')
+                : resolveAssessmentAttemptStageStatus(matchedAttempt))
+            : (process.status || 'pending');
+
           return {
             id: process.id || process._id,
             name: process.name,
             type: process.type,
-            status: process.status || 'pending',
+            status: resolvedStatus,
             assessmentResult: process.type === 'assessment'
-              ? resolveStageAssessmentResult(null, application.assessmentStatus, application.assessmentResult, attempt, process.status)
+              ? resolveStageAssessmentResult(null, application.assessmentStatus, application.assessmentResult, matchedAttempt, resolvedStatus)
               : null,
             remark: resolveRemark(process, application.processRemarks),
+            assessmentId: resolvedAssessmentId || process?.assessmentId || null,
             ...roundDetails
           };
         });
@@ -978,6 +1176,23 @@ const resolveStageStatus = (stage, savedProcesses) => {
         return job.interviewRoundOrder.map((roundKey) => {
           const roundType = job.interviewRoundTypes?.[roundKey] || roundKey;
           const roundDetails = job.interviewRoundDetails?.[roundKey];
+          const resolvedAssessmentId =
+            roundType === 'assessment'
+              ? (
+                  normalizeAssessmentId(roundDetails?.assessmentId) ||
+                  orderedAssessmentIds[0] ||
+                  singleConfiguredAssessmentId ||
+                  ''
+                )
+              : '';
+          const matchedAttempt =
+            roundType === 'assessment'
+              ? ((resolvedAssessmentId && attemptsByAssessmentId[resolvedAssessmentId]) || latestAttempt || null)
+              : null;
+          const resolvedStatus =
+            roundType === 'assessment' && matchedAttempt
+              ? resolveAssessmentAttemptStageStatus(matchedAttempt)
+              : 'pending';
           let displayName = roundNames[roundType] || roundType;
           if (roundType === 'others' && roundDetails?.customType) {
             displayName = roundDetails.customType;
@@ -991,11 +1206,12 @@ const resolveStageStatus = (stage, savedProcesses) => {
             id: roundKey,
             name: displayName,
             type: roundType,
-            status: 'pending',
+            status: resolvedStatus,
             assessmentResult: roundType === 'assessment'
-              ? resolveStageAssessmentResult(null, application.assessmentStatus, application.assessmentResult, attempt, 'pending')
+              ? resolveStageAssessmentResult(null, application.assessmentStatus, application.assessmentResult, matchedAttempt, resolvedStatus)
               : null,
             remark,
+            assessmentId: resolvedAssessmentId || null,
             ...scheduleDetails
           };
         });
@@ -1003,23 +1219,36 @@ const resolveStageStatus = (stage, savedProcesses) => {
       return [];
     };
 
-    const computeEffectiveStatus = (application) => {
-      const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
-
-      if (['accepted', 'hired'].includes(baseStatus)) return baseStatus;
-
-      // Check interviewProcesses for rejected/no_show
-      const trackedProcesses = Array.isArray(application?.interviewProcesses)
+    const getPreferredTrackedProcesses = (application, interviewProcess) => {
+      const manualProcesses = Array.isArray(application?.interviewProcesses)
         ? application.interviewProcesses.filter(Boolean)
         : [];
-      const rejectedStatuses = new Set([
-        'rejected', 'not_advanced_to_next_stage', 'not_advanced_to_next_round',
-        'failed', 'fail', 'no_show', 'no show', 'expired', 'suspended',
-        'session_expired', 'session expired', 'not eligibal for next round',
-        'not eligible for next round'
-      ]);
-      const normalizeStatus = (v) => String(v || '').trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
-      const hasRejectedProcess = trackedProcesses.some((p) => rejectedStatuses.has(normalizeStatus(p?.status)));
+      if (manualProcesses.length > 0) {
+        return manualProcesses;
+      }
+
+      return Array.isArray(interviewProcess?.stages)
+        ? interviewProcess.stages
+            .filter(Boolean)
+            .map((stage) => ({
+              id: stage?._id,
+              name: stage?.stageName,
+              type: stage?.stageType,
+              status: stage?.status
+            }))
+        : [];
+    };
+
+    const computeEffectiveStatus = (application) => {
+      const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
+      const interviewProcess = interviewProcessMap.get(String(application._id)) || null;
+      const trackedProcesses = getPreferredTrackedProcesses(application, interviewProcess);
+
+      if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) return baseStatus;
+
+      const hasRejectedProcess = trackedProcesses.some((process) =>
+        isRejectedInterviewProcessStatusForOverview(process?.status)
+      );
       if (hasRejectedProcess) return 'rejected';
 
       // Check legacy interviewRounds for failed
@@ -1052,16 +1281,11 @@ const resolveStageStatus = (stage, savedProcesses) => {
       // Revert auto-rejected status to pending if no tracked process is actually rejected
       if (
         baseStatus === 'rejected' &&
+        isAutoRejectedFromInterviewStageStatus(application) &&
         trackedProcesses.length > 0 &&
         !hasRejectedProcess
       ) {
-        const latestEntry = Array.isArray(application?.statusHistory)
-          ? [...application.statusHistory].reverse().find((e) => e?.status)
-          : null;
-        const isAutoRejected = latestEntry &&
-          normalizeStatus(latestEntry.status) === 'rejected' &&
-          normalizeStatus(latestEntry.notes || '').includes('auto updated from interview stage status');
-        if (isAutoRejected) return 'pending';
+        return 'pending';
       }
 
       return baseStatus;
