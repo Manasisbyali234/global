@@ -226,12 +226,27 @@ function AdminOverviewPage() {
     secondary: { background: "#eceff1", color: "#546e7a", border: "1px solid #b0bec5" }
   };
 
+  // Manual tracking status values set by the employer in Candidate Review → Manual Tracking
+  const manualTrackingStatuses = new Set([
+    "shortlisted",
+    "shortlisted for next round",
+    "selected",
+    "under review",
+    "pending decision",
+    "on hold",
+    "no show",
+    "rejected",
+    "not advanced to next stage",
+    "not advanced to next round"
+  ]);
+
   const getRoundStatusPresentation = (round = {}) => {
     const normalizedStatus = normalizeStatusValue(round?.status);
-    const normalizedResult = normalizeStatusValue(round?.assessmentResult);
-    const isAssessment =
-      normalizeStatusValue(round?.type) === "assessment" ||
-      normalizeStatusValue(round?.name).includes("assessment");
+
+    // Only reflect status if it was manually set by the employer
+    if (!manualTrackingStatuses.has(normalizedStatus)) {
+      return { label: "Pending", style: badgeStyles.neutral };
+    }
 
     if (["shortlisted", "shortlisted for next round"].includes(normalizedStatus)) {
       return { label: "Shortlisted for next Round", style: badgeStyles.info };
@@ -248,54 +263,39 @@ function AdminOverviewPage() {
     if (normalizedStatus === "on hold") {
       return { label: "On Hold", style: badgeStyles.secondary };
     }
+    if (normalizedStatus === "no show") {
+      return { label: "No Show", style: badgeStyles.danger };
+    }
     if (["rejected", "not advanced to next stage", "not advanced to next round"].includes(normalizedStatus)) {
       return { label: "Not Advanced to Next Stage", style: badgeStyles.danger };
     }
 
-    if (isAssessment) {
-      if (["pass", "passed"].includes(normalizedResult) || normalizedStatus === "passed") {
-        return { label: "Pass", style: badgeStyles.success };
-      }
-      if (["fail", "failed"].includes(normalizedResult) || normalizedStatus === "failed") {
-        return { label: "Fail", style: badgeStyles.danger };
-      }
-      if (normalizedStatus === "suspended") {
-        return { label: "Suspended", style: badgeStyles.danger };
-      }
-      if (["expired", "session expired"].includes(normalizedStatus) && normalizedResult === "pending") {
-        return { label: "Completed", style: badgeStyles.success };
-      }
-      if (["no show", "expired", "session expired"].includes(normalizedStatus)) {
-        return { label: "No Show", style: badgeStyles.danger };
-      }
-      if (normalizedStatus === "completed") {
-        return { label: "Completed", style: badgeStyles.success };
-      }
-      if (normalizedStatus === "in progress") {
-        return { label: "In Progress", style: badgeStyles.warning };
-      }
-      if (["scheduled", "available", "not required", "not started", "pending", ""].includes(normalizedStatus)) {
-        return { label: "Pending", style: badgeStyles.neutral };
-      }
-    }
-
-    if (["scheduled", "interview scheduled"].includes(normalizedStatus)) {
-      return { label: "Scheduled", style: badgeStyles.info };
-    }
-    if (["completed", "interview completed"].includes(normalizedStatus)) {
-      return { label: "Completed", style: badgeStyles.success };
-    }
-    if (normalizedStatus === "in progress") {
-      return { label: "In Progress", style: badgeStyles.warning };
-    }
-    if (["pending", ""].includes(normalizedStatus)) {
-      return { label: "Pending", style: badgeStyles.neutral };
-    }
-
-    return { label: formatStatusLabel(round?.status || "pending"), style: badgeStyles.neutral };
+    return { label: "Pending", style: badgeStyles.neutral };
   };
 
-  const getAssessmentResultPresentation = (round = {}) => {
+  const isRejectedAssessmentOutcome = (status = "", result = "") => {
+    const s = normalizeStatusValue(status);
+    const r = normalizeStatusValue(result);
+    return (
+      ["fail", "failed"].includes(r) ||
+      ["fail", "failed", "suspended", "no show", "expired", "session expired"].includes(s)
+    );
+  };
+
+  const getAssessmentResultPresentation = (round = {}, allRounds = [], currentIndex = 0) => {
+    // Business rule: if any previous assessment round is Fail/No Show/Suspended, show Pending
+    for (let i = 0; i < currentIndex; i++) {
+      const prev = allRounds[i];
+      if (
+        normalizeStatusValue(prev?.type) === "assessment" ||
+        normalizeStatusValue(prev?.name).includes("assessment")
+      ) {
+        if (isRejectedAssessmentOutcome(prev?.status, prev?.assessmentResult)) {
+          return { label: "Pending", style: badgeStyles.neutral };
+        }
+      }
+    }
+
     const normalizedStatus = normalizeStatusValue(round?.status);
     const normalizedResult = normalizeStatusValue(round?.assessmentResult);
 
@@ -781,7 +781,7 @@ function AdminOverviewPage() {
                                   {applicant.interviewRounds.map((round, index) => (
                                     (() => {
                                       const roundStatus = getRoundStatusPresentation(round);
-                                      const assessmentResult = getAssessmentResultPresentation(round);
+                                      const assessmentResult = getAssessmentResultPresentation(round, applicant.interviewRounds, index);
                                       return (
                                       <div
                                         key={`${applicant.applicationId}-${round.id || round.type || index}`}
