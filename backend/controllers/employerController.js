@@ -2772,7 +2772,7 @@ exports.updateApplicationStatus = async (req, res) => {
             status,
             changedBy: req.user._id,
             changedByModel: 'Employer',
-            notes
+            notes: notes || 'Direct status update by employer'
           }
         }
       },
@@ -4211,16 +4211,33 @@ exports.saveInterviewReview = async (req, res) => {
         !assessmentIsSuspended &&
         !assessmentIsFailed
       ) {
-        // Stage status changed away from a rejected-like value — restore application status to pending
-        updateData.status = 'pending';
-        updateData.$push = {
-          statusHistory: {
-            status: 'pending',
-            changedBy: req.user._id,
-            changedByModel: 'Employer',
-            notes: 'Auto-updated from interview stage status'
-          }
-        };
+        // Only restore to pending if the rejection was auto-generated from stage status,
+        // NOT if the employer directly rejected via updateApplicationStatus
+        const existingApplicationForHistory = await Application.findOne({
+          _id: applicationId,
+          employerId: req.user._id
+        }).select('statusHistory').lean();
+        const wasAutoRejectedFromStage = Array.isArray(existingApplicationForHistory?.statusHistory) &&
+          existingApplicationForHistory.statusHistory.some((entry) =>
+            normalizeApplicationStatusValue(entry?.status) === 'rejected' &&
+            normalizeApplicationStatusValue(entry?.notes).includes('auto updated from interview stage status')
+          );
+        const wasDirectlyRejected = Array.isArray(existingApplicationForHistory?.statusHistory) &&
+          existingApplicationForHistory.statusHistory.some((entry) =>
+            normalizeApplicationStatusValue(entry?.status) === 'rejected' &&
+            !normalizeApplicationStatusValue(entry?.notes).includes('auto')
+          );
+        if (wasAutoRejectedFromStage && !wasDirectlyRejected) {
+          updateData.status = 'pending';
+          updateData.$push = {
+            statusHistory: {
+              status: 'pending',
+              changedBy: req.user._id,
+              changedByModel: 'Employer',
+              notes: 'Auto-updated from interview stage status'
+            }
+          };
+        }
       }
     }
     

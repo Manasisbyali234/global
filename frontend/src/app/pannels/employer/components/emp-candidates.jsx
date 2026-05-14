@@ -383,11 +383,10 @@ function EmpCandidatesPage() {
       return "rejected";
     }
 
-    // If application was directly rejected AND has no assessment round, only reject if a stage is explicitly rejected
+    // If application was directly rejected AND has no assessment round
     if (baseStatus === "rejected" && !hasAssessmentRound) {
-      // No assessment round — only show rejected if a stage was explicitly marked rejected (already checked above)
-      // Otherwise treat as pending
-      return "pending";
+      // If it was auto-rejected from a stage status, treat as pending; otherwise it's a direct employer rejection
+      return wasAutoRejectedFromStageStatus(application) ? "pending" : "rejected";
     }
 
     // If application was directly rejected (not auto from assessment expiry), show rejected
