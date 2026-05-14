@@ -168,12 +168,29 @@ const normalizeCandidateVisibleApplication = (application = null) => {
       isRejectedInterviewProcessStatusForCandidateVisibility(process?.status)
     );
 
-    // Also check assessment status - no_show/failed/suspended should keep rejected status
+    // Also check assessment status - no_show/failed/suspended/expired(no score) should keep rejected status
     const assessmentStatus = String(applicationObject?.assessmentStatus || '').toLowerCase();
     const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired', 'failed', 'fail'];
-    const hasRejectedAssessmentStatus = rejectedAssessmentStatuses.includes(assessmentStatus);
+    const hasAssessmentScore =
+      (applicationObject?.assessmentScore !== null && applicationObject?.assessmentScore !== undefined) ||
+      (applicationObject?.assessmentPercentage !== null && applicationObject?.assessmentPercentage !== undefined);
+    const isExpiredNoShow = assessmentStatus === 'expired' && !hasAssessmentScore;
+    const hasRejectedAssessmentStatus = isExpiredNoShow || rejectedAssessmentStatuses.includes(assessmentStatus);
 
     if (interviewProcesses.length === 0 || hasRejectedInterviewProcess || hasRejectedAssessmentStatus) {
+      return applicationObject;
+    }
+
+    // Also check assessmentAttemptsByAssessmentId for expired no-show
+    const attemptsByAssessmentId = applicationObject?.assessmentAttemptsByAssessmentId || {};
+    const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
+      const s = String(attempt?.status || '').toLowerCase();
+      const hasAttemptScore =
+        (attempt?.score !== null && attempt?.score !== undefined) ||
+        (attempt?.percentage !== null && attempt?.percentage !== undefined);
+      return (s === 'expired' && !hasAttemptScore) || rejectedAssessmentStatuses.includes(s);
+    });
+    if (hasRejectedAttempt) {
       return applicationObject;
     }
 
