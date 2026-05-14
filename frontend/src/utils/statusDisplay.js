@@ -129,3 +129,22 @@ export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pendi
       fallback,
     fallback
   );
+
+export const getAdminApplicantTableStatusKey = (application = {}, fallback = 'pending') => {
+  const interviewStatusKey = getInterviewCurrentStatusKey(application, '');
+  if (['no_show', 'session_expired', 'expired'].includes(interviewStatusKey)) {
+    return 'no_show';
+  }
+  if (['failed', 'suspended'].includes(interviewStatusKey)) {
+    return interviewStatusKey;
+  }
+
+  return getCanonicalStatusKey(
+    application?.status ||
+      application?.applicationStatus ||
+      application?.applicationDisplayStatus ||
+      application?.displayStatus ||
+      fallback,
+    fallback
+  );
+};

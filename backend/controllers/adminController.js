@@ -331,6 +331,18 @@ const decorateAdminApplicationStatusFields = (application = null, options = {}) 
   };
 };
 
+const getAdminOverviewApplicantTableStatus = (applicationStatus = 'pending', interviewCurrentStatus = '') => {
+  const normalizedInterviewStatus = getCanonicalStatusKey(interviewCurrentStatus, '');
+  if (['no_show', 'session_expired', 'expired'].includes(normalizedInterviewStatus)) {
+    return 'no_show';
+  }
+  if (['failed', 'suspended'].includes(normalizedInterviewStatus)) {
+    return normalizedInterviewStatus;
+  }
+
+  return getCanonicalStatusKey(applicationStatus || 'pending');
+};
+
 const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
   const normalizedStatus = normalizeApplicationStatusValue(attempt?.status);
   const normalizedResult = normalizeApplicationStatusValue(attempt?.result);
@@ -1330,6 +1342,10 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       const effectiveStatus = isOfferNotAccepted(decoratedApplication)
         ? 'rejected'
         : decoratedApplication.applicationStatus;
+      const tableStatus = getAdminOverviewApplicantTableStatus(
+        effectiveStatus,
+        decoratedApplication.interviewCurrentStatus
+      );
       return {
         applicationId: application._id,
         applicantName:
@@ -1340,7 +1356,7 @@ exports.getJobApplicantsForOverview = async (req, res) => {
           application.candidateId?.email ||
           application.applicantEmail ||
             'N/A',
-        status: effectiveStatus,
+        status: tableStatus,
         applicationStatus: effectiveStatus,
         interviewCurrentStatus: decoratedApplication.interviewCurrentStatus,
         appliedAt: application.appliedAt,
