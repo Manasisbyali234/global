@@ -335,8 +335,11 @@ const getApplicationDisplayStatus = (application = {}) => {
   const failedStatuses = ["failed", "fail"];
   const assessmentStatus = String(application?.assessmentStatus || "").toLowerCase();
   const assessmentResult = String(application?.assessmentResult || "").toLowerCase();
-  const isExpiredPendingEval = assessmentStatus === "expired" && assessmentResult === "pending";
-  if (!isExpiredPendingEval && (
+  const hasAssessmentScore =
+    (application?.assessmentScore !== null && application?.assessmentScore !== undefined) ||
+    (application?.assessmentPercentage !== null && application?.assessmentPercentage !== undefined);
+  const isExpiredNoShow = assessmentStatus === "expired" && !hasAssessmentScore;
+  if (isExpiredNoShow || (
     rejectedAssessmentStatuses.includes(assessmentStatus) ||
     failedStatuses.includes(assessmentStatus) ||
     failedStatuses.includes(assessmentResult)
@@ -348,8 +351,10 @@ const getApplicationDisplayStatus = (application = {}) => {
   const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
     const s = String(attempt?.status || "").toLowerCase();
     const r = String(attempt?.result || "").toLowerCase();
-    if (s === "expired" && r === "pending") return false;
-    return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
+    const hasAttemptScore =
+      (attempt?.score !== null && attempt?.score !== undefined) ||
+      (attempt?.percentage !== null && attempt?.percentage !== undefined);
+    return (s === "expired" && !hasAttemptScore) || rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
   });
   if (hasRejectedAttempt) return "rejected";
 
@@ -534,8 +539,12 @@ function CanInterviewsPage() {
           const noShowStatuses = ["no_show", "no show", "suspended", "session_expired", "session expired"];
           const failedStatuses = ["failed", "fail"];
           const assessmentResult = String(application?.assessmentResult || "").toLowerCase();
-          const isExpiredPendingEval = assessmentStatus === "expired" && assessmentResult === "pending";
-          if (!isExpiredPendingEval && (noShowStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentResult))) {
+          const hasAssessmentScore =
+            (application?.assessmentScore !== null && application?.assessmentScore !== undefined) ||
+            (application?.assessmentPercentage !== null && application?.assessmentPercentage !== undefined);
+          // Treat expired as no-show (rejected) when candidate never started (no score)
+          const isExpiredNoShow = assessmentStatus === "expired" && !hasAssessmentScore;
+          if (isExpiredNoShow || noShowStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentResult)) {
             return "rejected";
           }
           // Also check assessmentAttemptsByAssessmentId for no_show/failed
@@ -543,8 +552,10 @@ function CanInterviewsPage() {
           const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
             const s = String(attempt?.status || "").toLowerCase();
             const r = String(attempt?.result || "").toLowerCase();
-            if (s === "expired" && r === "pending") return false;
-            return noShowStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
+            const hasAttemptScore =
+              (attempt?.score !== null && attempt?.score !== undefined) ||
+              (attempt?.percentage !== null && attempt?.percentage !== undefined);
+            return (s === "expired" && !hasAttemptScore) || noShowStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
           });
           if (hasRejectedAttempt) return "rejected";
           return getApplicationDisplayStatus(application);
