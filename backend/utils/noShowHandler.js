@@ -15,7 +15,12 @@ const Application = require('../models/Application');
  * @param {string|ObjectId} applicationId
  * @returns {Promise<boolean>} true if the document was actually updated
  */
-const applyNoShowRejection = async (applicationId) => {
+const applyNoShowRejection = async (applicationId, options = {}) => {
+  const {
+    expireInterviewInvite = true,
+    notes = 'Candidate no-show / session expired'
+  } = options;
+
   const result = await Application.findOneAndUpdate(
     {
       _id: applicationId,
@@ -28,12 +33,12 @@ const applyNoShowRejection = async (applicationId) => {
       $set: {
         status: 'rejected',
         assessmentStatus: 'no_show',
-        'interviewInvite.status': 'expired'
+        ...(expireInterviewInvite ? { 'interviewInvite.status': 'expired' } : {})
       },
       $push: {
         statusHistory: {
           status: 'rejected',
-          notes: 'Candidate no-show / session expired',
+          notes,
           changedAt: new Date()
         }
       }

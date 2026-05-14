@@ -48,6 +48,12 @@ const PENDING_LIKE_INTERVIEW_STATUSES = new Set([
   'pending'
 ]);
 
+const getAssessmentRoundOrderKeys = (jobData = {}) => (
+  (Array.isArray(jobData?.interviewRoundOrder) ? jobData.interviewRoundOrder : []).filter(
+    (roundKey) => String(jobData?.interviewRoundTypes?.[roundKey] || '').toLowerCase() === 'assessment'
+  )
+);
+
 const normalizeAssessmentId = (value = '') => {
   if (!value) return '';
   if (typeof value === 'object') {
@@ -55,6 +61,65 @@ const normalizeAssessmentId = (value = '') => {
   }
 
   return String(value).trim();
+};
+
+const getAssessmentScheduleSource = (jobData = {}, assessmentId = '') => {
+  const requestedAssessmentId = normalizeAssessmentId(assessmentId);
+  const assessmentRoundKeys = getAssessmentRoundOrderKeys(jobData);
+  let roundDetails = null;
+
+  if (requestedAssessmentId) {
+    const matchedRoundKey = assessmentRoundKeys.find((roundKey) => (
+      normalizeAssessmentId(jobData?.interviewRoundDetails?.[roundKey]?.assessmentId) === requestedAssessmentId
+    ));
+
+    if (matchedRoundKey) {
+      roundDetails = jobData?.interviewRoundDetails?.[matchedRoundKey] || null;
+    }
+  }
+
+  if (!roundDetails && assessmentRoundKeys.length > 0) {
+    roundDetails = jobData?.interviewRoundDetails?.[assessmentRoundKeys[0]] || null;
+  }
+
+  return {
+    startDate: roundDetails?.fromDate || roundDetails?.date || jobData?.assessmentStartDate || null,
+    endDate: roundDetails?.toDate || roundDetails?.fromDate || roundDetails?.date || jobData?.assessmentEndDate || null,
+    startTime: roundDetails?.startTime || jobData?.assessmentStartTime || null,
+    endTime: roundDetails?.endTime || jobData?.assessmentEndTime || null
+  };
+};
+
+const buildScheduledDateTime = (dateValue, timeValue = '', boundary = 'start') => {
+  if (!dateValue) {
+    return null;
+  }
+
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  if (timeValue && typeof timeValue === 'string') {
+    const [hours, minutes] = String(timeValue).split(':').map((part) => Number(part));
+    if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+      date.setHours(
+        hours,
+        minutes,
+        boundary === 'end' ? 59 : 0,
+        boundary === 'end' ? 999 : 0
+      );
+      return date;
+    }
+  }
+
+  if (boundary === 'end') {
+    date.setHours(23, 59, 59, 999);
+  } else {
+    date.setHours(0, 0, 0, 0);
+  }
+
+  return date;
 };
 
 const getCanonicalStatusKey = (value = '', fallback = 'pending') => {
@@ -328,6 +393,17 @@ const getAssessmentAttemptLookup = (application = {}, options = {}) => {
   return {};
 };
 
+const getAssessmentAttemptForWindow = (application = {}, options = {}, assessmentId = '') => {
+  const attemptsByAssessmentId = getAssessmentAttemptLookup(application, options);
+  const requestedAssessmentId = normalizeAssessmentId(assessmentId);
+
+  if (requestedAssessmentId && attemptsByAssessmentId[requestedAssessmentId]) {
+    return attemptsByAssessmentId[requestedAssessmentId];
+  }
+
+  return getLatestAssessmentAttempt(application, options);
+};
+
 const getLatestAssessmentAttempt = (application = {}, options = {}) => {
   if (options?.assessmentAttempt) {
     return options.assessmentAttempt;
@@ -364,6 +440,52 @@ const resolveAssessmentOutcomeStatus = (status = '', result = '', fallback = 'pe
   return getCanonicalStatusKey(status, fallback);
 };
 
+const hasExpiredAssessmentWindowWithoutActivity = (application = {}, options = {}, assessmentId = '') => {
+  const jobData = application?.jobId;
+  if (!jobData || typeof jobData !== 'object') {
+    return false;
+  }
+
+  const hasAssessmentRound = Boolean(jobData?.assessmentId) || getAssessmentRoundOrderKeys(jobData).length > 0;
+  if (!hasAssessmentRound) {
+    return false;
+  }
+
+  const matchedAttempt = getAssessmentAttemptForWindow(application, options, assessmentId);
+  const resolvedOutcome = matchedAttempt
+    ? resolveAssessmentOutcomeStatus(
+        resolveAssessmentAttemptStageStatus(matchedAttempt),
+        matchedAttempt?.result,
+        'pending'
+      )
+    : resolveAssessmentOutcomeStatus(application?.assessmentStatus, application?.assessmentResult, 'pending');
+
+  if (resolvedOutcome !== 'pending') {
+    return false;
+  }
+
+  if (application?.assessmentScore !== null && application?.assessmentScore !== undefined) {
+    return false;
+  }
+
+  if (application?.assessmentPercentage !== null && application?.assessmentPercentage !== undefined) {
+    return false;
+  }
+
+  const scheduleSource = getAssessmentScheduleSource(jobData, assessmentId);
+  const assessmentEndAt = buildScheduledDateTime(scheduleSource.endDate, scheduleSource.endTime, 'end');
+  if (assessmentEndAt) {
+    return Date.now() > assessmentEndAt.getTime();
+  }
+
+  const assessmentStartAt = buildScheduledDateTime(scheduleSource.startDate, scheduleSource.startTime, 'start');
+  if (assessmentStartAt) {
+    return Date.now() > assessmentStartAt.getTime();
+  }
+
+  return false;
+};
+
 const resolveTrackedProcessStatus = (process = {}, application = {}, options = {}) => {
   const processType = normalizeApplicationStatusValue(process?.type || process?.stageType);
   const rawStatus = String(process?.status || '').trim();
@@ -391,11 +513,20 @@ const resolveTrackedProcessStatus = (process = {}, application = {}, options = {
     );
   }
 
-  return resolveAssessmentOutcomeStatus(
+  const applicationOutcomeStatus = resolveAssessmentOutcomeStatus(
     application?.assessmentStatus,
     application?.assessmentResult,
     getCanonicalStatusKey(rawStatus || 'pending')
   );
+
+  if (
+    getCanonicalStatusKey(applicationOutcomeStatus, 'pending') === 'pending' &&
+    hasExpiredAssessmentWindowWithoutActivity(application, options, processAssessmentId)
+  ) {
+    return 'no_show';
+  }
+
+  return applicationOutcomeStatus;
 };
 
 const getResolvedTrackedProcesses = (application = {}, options = {}) => {
@@ -482,6 +613,10 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return 'rejected';
   }
 
+  if (hasExpiredAssessmentWindowWithoutActivity(application, options)) {
+    return 'rejected';
+  }
+
   if (
     baseStatus === 'rejected' &&
     isAutoRejectedFromInterviewStageStatus(application) &&
@@ -519,6 +654,10 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
     return rejectedInviteDisplayStatus;
   }
 
+  if (hasExpiredAssessmentWindowWithoutActivity(application, options)) {
+    return 'no_show';
+  }
+
   const latestTrackedStatus = getLatestMeaningfulTrackedStatus(application, options);
   if (latestTrackedStatus) {
     return latestTrackedStatus === 'interviewed' ? 'interview_completed' : latestTrackedStatus;
@@ -552,6 +691,9 @@ const buildApplicationStatusSnapshot = (application = {}, options = {}) => {
 
 module.exports = {
   normalizeApplicationStatusValue,
+  getAssessmentRoundOrderKeys,
+  getAssessmentScheduleSource,
+  buildScheduledDateTime,
   normalizeAssessmentId,
   getCanonicalStatusKey,
   resolveAssessmentAttemptStageStatus,
@@ -566,5 +708,6 @@ module.exports = {
   getResolvedTrackedProcesses,
   getInterviewCurrentStatus,
   getEffectiveApplicationDisplayStatus,
-  buildApplicationStatusSnapshot
+  buildApplicationStatusSnapshot,
+  hasExpiredAssessmentWindowWithoutActivity
 };

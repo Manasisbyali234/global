@@ -9,6 +9,7 @@ const http = require('http');
 const { connectDB } = require('./config/database');
 const errorHandler = require('./middlewares/errorHandler');
 const { initializeWebSocket } = require('./utils/websocket');
+const { hasExpiredAssessmentWindowWithoutActivity } = require('./utils/applicationStatus');
 const Application = require('./models/Application');
 const Job = require('./models/Job');
 const { sendAssessmentNotificationEmail } = require('./utils/emailService');
@@ -172,14 +173,32 @@ const startNoShowScheduler = () => {
       // Find applications that have a sent interview invite and are still pending/shortlisted
       const candidates = await Application.find({
         status: { $in: ['pending', 'shortlisted'] },
-        'interviewInvite.sentAt': { $exists: true }
-      }).select('_id status interviewInvite').lean();
+        $or: [
+          { 'interviewInvite.sentAt': { $exists: true } },
+          { assessmentStatus: { $in: ['not_required', 'pending', 'available'] } }
+        ]
+      })
+        .populate('jobId', 'assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime interviewRoundOrder interviewRoundTypes interviewRoundDetails')
+        .select('_id status interviewInvite assessmentStatus assessmentResult assessmentScore assessmentPercentage jobId')
+        .lean();
 
       for (const app of candidates) {
         if (isNoShowCandidate(app)) {
           const updated = await applyNoShowRejection(app._id);
           if (updated) {
             console.log(`[NoShow Scheduler] Marked application ${app._id} as rejected/no_show`);
+          }
+          continue;
+        }
+
+        if (hasExpiredAssessmentWindowWithoutActivity(app)) {
+          const updated = await applyNoShowRejection(app._id, {
+            expireInterviewInvite: false,
+            notes: 'Candidate no-show / assessment window expired'
+          });
+
+          if (updated) {
+            console.log(`[NoShow Scheduler] Marked assessment application ${app._id} as rejected/no_show`);
           }
         }
       }
