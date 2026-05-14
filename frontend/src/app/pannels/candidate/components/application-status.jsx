@@ -255,6 +255,37 @@ function CanStatusPage() {
 			return 'rejected';
 		}
 
+		const rounds = getInterviewRounds(application?.jobId, application);
+		const hasDerivedRejectedAssessmentRound = rounds.some((round, roundIndex) => {
+			const roundName = typeof round === 'string' ? round : round?.name;
+			const roundType = normalizeStatusValue(
+				typeof round === 'object'
+					? (round?.roundType || round?.type || roundName)
+					: roundName
+			);
+			const isAssessmentRound = roundName === 'Assessment' || roundType.includes('assessment');
+			if (!isAssessmentRound) {
+				return false;
+			}
+
+			const roundDetails = resolveRoundDetails(application, round, roundIndex, rounds);
+			const assessmentRoundInfo = getAssessmentRoundInfo(application, roundName, roundDetails);
+			const completionInfo = assessmentRoundInfo?.completionInfo || {};
+			const windowInfo = getAssessmentWindowInfo(application?.jobId, roundDetails);
+			const attemptResult = String(assessmentRoundInfo?.attempt?.result || '').toLowerCase();
+			const derivedNoShowFromWindow =
+				(completionInfo.isNoShow || completionInfo.isExpired || windowInfo.isAfterEnd) &&
+				!completionInfo.isCompleted &&
+				!completionInfo.isInProgress &&
+				!completionInfo.isSuspended &&
+				attemptResult !== 'pending';
+
+			return completionInfo.isFailed || completionInfo.isSuspended || derivedNoShowFromWindow;
+		});
+		if (hasDerivedRejectedAssessmentRound) {
+			return 'rejected';
+		}
+
 		// Only revert auto-rejected status to pending if NO tracked process has a rejected/no_show status
 		const hasAnyRejectedTrackedProcess = trackedProcesses.some(isRejectedTrackedProcessForDisplay);
 		if (
