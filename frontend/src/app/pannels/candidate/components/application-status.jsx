@@ -238,7 +238,7 @@ function CanStatusPage() {
 			return 'rejected';
 		}
 
-		// Check all assessment attempts for no_show, suspended, or failed
+		// Check all assessment attempts for no_show, suspended, session_expired, or failed
 		const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
 		const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
 			const s = String(attempt?.status || '').toLowerCase();
@@ -246,11 +246,19 @@ function CanStatusPage() {
 			const hasAttemptScore =
 				(attempt?.score !== null && attempt?.score !== undefined) ||
 				(attempt?.percentage !== null && attempt?.percentage !== undefined);
-			// Treat expired as no-show (rejected) when there is no score (candidate never started)
-			const isExpiredNoShow = s === 'expired' && !hasAttemptScore;
-			return isExpiredNoShow || rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedResults.includes(r);
+			const isAttemptExpiredNoShow = s === 'expired' && !hasAttemptScore;
+			return isAttemptExpiredNoShow || rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedResults.includes(r);
 		});
 		if (hasRejectedAttempt) {
+			return 'rejected';
+		}
+
+		// Also check interviewProcess stages for session_expired (assessment attempt status stored on stage)
+		const allStageStatuses = [
+			...(Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages.map(s => normalizeStatusValue(s?.status)) : []),
+			...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses.map(p => normalizeStatusValue(p?.status)) : [])
+		];
+		if (allStageStatuses.some(s => rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s))) {
 			return 'rejected';
 		}
 
