@@ -168,10 +168,11 @@ const normalizeCandidateVisibleApplication = (application = null) => {
       isRejectedInterviewProcessStatusForCandidateVisibility(process?.status)
     );
 
-    // Also check assessment status - no_show/failed/suspended should keep rejected status
+    // Also check assessment status/result - no_show/failed/suspended should keep rejected status
     const assessmentStatus = String(applicationObject?.assessmentStatus || '').toLowerCase();
+    const assessmentResult = String(applicationObject?.assessmentResult || '').toLowerCase();
     const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired', 'failed', 'fail'];
-    const hasRejectedAssessmentStatus = rejectedAssessmentStatuses.includes(assessmentStatus);
+    const hasRejectedAssessmentStatus = rejectedAssessmentStatuses.includes(assessmentStatus) || rejectedAssessmentStatuses.includes(assessmentResult);
 
     if (interviewProcesses.length === 0 || hasRejectedInterviewProcess || hasRejectedAssessmentStatus) {
       return applicationObject;

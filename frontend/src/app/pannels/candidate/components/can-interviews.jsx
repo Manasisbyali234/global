@@ -319,6 +319,12 @@ const getApplicationDisplayStatus = (application = {}) => {
   const baseStatus = String(application?.status || "").trim().toLowerCase() || "pending";
   if (["accepted", "hired"].includes(baseStatus)) return baseStatus;
 
+  const noShowStatuses = ["no_show", "no show", "suspended", "session_expired", "session expired"];
+  const failedStatuses = ["failed", "fail"];
+
+  // Check any round/stage/process with no_show or rejected status
+  if (hasNoShowInRounds(application)) return "rejected";
+
   const trackedProcesses = [
     ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []),
     ...(Array.isArray(application?.interviewProcess?.stages)
@@ -331,25 +337,37 @@ const getApplicationDisplayStatus = (application = {}) => {
     application.interviewRounds.some((r) => String(r?.status || "").toLowerCase() === "failed");
   if (hasFailedRound) return "rejected";
 
-  const rejectedAssessmentStatuses = ["no_show", "no show", "suspended", "session_expired", "session expired"];
-  const failedStatuses = ["failed", "fail"];
+  // Check assessment status and result
   const assessmentStatus = String(application?.assessmentStatus || "").toLowerCase();
   const assessmentResult = String(application?.assessmentResult || "").toLowerCase();
   const isExpiredPendingEval = assessmentStatus === "expired" && assessmentResult === "pending";
   if (!isExpiredPendingEval && (
-    rejectedAssessmentStatuses.includes(assessmentStatus) ||
+    noShowStatuses.includes(assessmentStatus) ||
     failedStatuses.includes(assessmentStatus) ||
+    noShowStatuses.includes(assessmentResult) ||
     failedStatuses.includes(assessmentResult)
   )) {
     return "rejected";
   }
 
+  // Check latest assessment attempt directly
+  const assessmentAttempt = application?.assessmentAttempt;
+  if (assessmentAttempt) {
+    const s = String(assessmentAttempt?.status || "").toLowerCase();
+    const r = String(assessmentAttempt?.result || "").toLowerCase();
+    if (!(s === "expired" && r === "pending") && (
+      noShowStatuses.includes(s) || failedStatuses.includes(s) ||
+      noShowStatuses.includes(r) || failedStatuses.includes(r)
+    )) return "rejected";
+  }
+
+  // Check all attempts by assessment id
   const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
   const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
     const s = String(attempt?.status || "").toLowerCase();
     const r = String(attempt?.result || "").toLowerCase();
     if (s === "expired" && r === "pending") return false;
-    return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
+    return noShowStatuses.includes(s) || failedStatuses.includes(s) || noShowStatuses.includes(r) || failedStatuses.includes(r);
   });
   if (hasRejectedAttempt) return "rejected";
 
@@ -358,8 +376,9 @@ const getApplicationDisplayStatus = (application = {}) => {
     wasAutoRejectedFromStageStatus(application) &&
     trackedProcesses.length > 0 &&
     !trackedProcesses.some(isRejectedTrackedProcess) &&
-    !rejectedAssessmentStatuses.includes(assessmentStatus) &&
+    !noShowStatuses.includes(assessmentStatus) &&
     !failedStatuses.includes(assessmentStatus) &&
+    !noShowStatuses.includes(assessmentResult) &&
     !failedStatuses.includes(assessmentResult) &&
     !hasRejectedAttempt
   ) {
@@ -519,36 +538,7 @@ function CanInterviewsPage() {
         companyName: getCompanyName(application),
         companyLogo: getCompanyLogo(application, employerLogos),
         location: highlightedRound?.details?.location || formatJobLocation(job?.location),
-        status: (() => {
-          const trackedProcesses = [
-            ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []),
-            ...(Array.isArray(application?.interviewProcess?.stages)
-              ? application.interviewProcess.stages.map((s) => ({ status: s?.status }))
-              : [])
-          ];
-          const hasRejectedTracked = trackedProcesses.some(isRejectedTrackedProcess);
-          if (hasNoShowInRounds(application) && (trackedProcesses.length === 0 || hasRejectedTracked)) {
-            return "rejected";
-          }
-          const assessmentStatus = String(application?.assessmentStatus || "").toLowerCase();
-          const noShowStatuses = ["no_show", "no show", "suspended", "session_expired", "session expired"];
-          const failedStatuses = ["failed", "fail"];
-          const assessmentResult = String(application?.assessmentResult || "").toLowerCase();
-          const isExpiredPendingEval = assessmentStatus === "expired" && assessmentResult === "pending";
-          if (!isExpiredPendingEval && (noShowStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentResult))) {
-            return "rejected";
-          }
-          // Also check assessmentAttemptsByAssessmentId for no_show/failed
-          const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
-          const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
-            const s = String(attempt?.status || "").toLowerCase();
-            const r = String(attempt?.result || "").toLowerCase();
-            if (s === "expired" && r === "pending") return false;
-            return noShowStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
-          });
-          if (hasRejectedAttempt) return "rejected";
-          return getApplicationDisplayStatus(application);
-        })()
+        status: getApplicationDisplayStatus(application)
       });
     });
     return cards;
