@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+﻿const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Candidate = require('../models/Candidate');
 const CandidateProfile = require('../models/CandidateProfile');
@@ -12,6 +12,9 @@ const { sendWelcomeEmail, sendJobApplicationConfirmationEmail, sendMailWithGreet
 const { checkEmailExists } = require('../utils/authUtils');
 const { sendSMS } = require('../utils/smsProvider');
 const { formatDate } = require('../utils/dateFormatter');
+const {
+  buildApplicationStatusSnapshot: buildSharedApplicationStatusSnapshot
+} = require('../utils/applicationStatus');
 const { applyNoShowRejection, isNoShowCandidate } = require('../utils/noShowHandler');
 
 const generateToken = (id, role) => {
@@ -187,6 +190,15 @@ const normalizeCandidateVisibleApplication = (application = null) => {
   return {
     ...applicationObject,
     status: getStatusBeforeExpiredSessionAutoReject(applicationObject)
+  };
+};
+
+const decorateCandidateApplicationStatusFields = (application = null, options = {}) => {
+  if (!application) return application;
+
+  return {
+    ...application,
+    ...buildSharedApplicationStatusSnapshot(application, options)
   };
 };
 
@@ -872,7 +884,7 @@ exports.applyForJob = async (req, res) => {
     
     return res.status(400).json({ 
       success: false, 
-      message: 'Direct application is no longer supported. Please apply through the job detail page with payment of ₹129.' 
+      message: 'Direct application is no longer supported. Please apply through the job detail page with payment of ?129.' 
     });
   } catch (error) {
     console.error('Error in applyForJob:', error);
@@ -931,13 +943,9 @@ exports.getAppliedJobs = async (req, res) => {
 
     res.json({
       success: true,
-<<<<<<< HEAD
       applications: finalApplications.map((application) =>
         decorateCandidateApplicationStatusFields(normalizeCandidateVisibleApplication(application))
       )
-=======
-      applications: finalApplications.map((application) => normalizeCandidateVisibleApplication(application))
->>>>>>> 4a992e6b22a3310b06789a93ca0bdb111bcf6cfd
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -973,7 +981,7 @@ exports.getApplicationStatus = async (req, res) => {
 
     res.json({
       success: true,
-      application: normalizeCandidateVisibleApplication(application)
+      application: decorateCandidateApplicationStatusFields(normalizeCandidateVisibleApplication(application))
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -2262,7 +2270,7 @@ exports.getCandidateCompleteProfile = async (req, res) => {
   }
 };
 
-// Map from candidate resume educationLevel codes → display labels used in job postings
+// Map from candidate resume educationLevel codes ? display labels used in job postings
 const EDUCATION_LEVEL_CODE_TO_LABEL = {
   '10th_pass': '10th Pass', 'sslc': '10th Pass',
   '12th_pass': '12th Pass', 'puc': '12th Pass',
