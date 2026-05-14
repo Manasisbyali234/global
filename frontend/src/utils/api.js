@@ -648,6 +648,12 @@ export const api = {
     }).then((res) => res.json());
   },
 
+  getAdminCandidateDetails: (candidateId) => {
+    return fetch(`${API_BASE_URL}/admin/candidates/${candidateId}`, {
+      headers: getAuthHeaders('admin'),
+    }).then(handleApiResponse);
+  },
+
   getShortlistedApplications: () => {
     return fetch(`${API_BASE_URL}/admin/applications?status=shortlisted`, {
       headers: getAuthHeaders('admin'),
