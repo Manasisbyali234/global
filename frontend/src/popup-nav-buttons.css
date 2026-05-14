@@ -25,6 +25,126 @@
     width: 100% !important; /* Full width */
 }
 
+.otp-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.58);
+    backdrop-filter: blur(5px);
+}
+
+.otp-modal {
+    width: min(92vw, 340px);
+    padding: 26px;
+    border-radius: 16px;
+    background: #ffffff;
+    text-align: center;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.24);
+}
+
+.otp-modal h3 {
+    margin: 0 0 8px;
+    color: #0f172a;
+    font-size: 20px;
+}
+
+.otp-modal p {
+    margin-bottom: 18px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.otp-input-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+
+.otp-digit-input {
+    width: 180px;
+    height: 46px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-align: center;
+}
+
+.otp-digit-input:focus {
+    border-color: #ff7a00;
+    background: #ffffff;
+    outline: none;
+}
+
+.otp-timer {
+    margin-bottom: 14px;
+}
+
+.timer-text,
+.expired-text {
+    margin: 0;
+    font-size: 13px;
+}
+
+.timer-countdown {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.expired-text {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+.otp-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.verify-btn,
+.resend-btn {
+    width: 100%;
+    min-height: 42px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.verify-btn {
+    border: 0;
+    background: #ff7a00;
+    color: #ffffff;
+}
+
+.resend-btn {
+    border: 1px solid #ff7a00;
+    background: transparent;
+    color: #ff7a00;
+}
+
+.verify-btn:disabled,
+.resend-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.cancel-btn {
+    border: 0;
+    background: transparent;
+    color: #64748b;
+    font-size: 14px;
+    cursor: pointer;
+}
+
 .modal.twm-sign-up .nav-tabs .nav-link i,
 .twm-sign-up .nav-tabs .nav-link i {
     color: #FF7A00 !important;

@@ -619,7 +619,8 @@ exports.registerEmployer = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message
+      message,
+      requiresOtpVerification: !skipOtpVerification
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

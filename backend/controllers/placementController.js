@@ -247,7 +247,8 @@ exports.registerPlacement = async (req, res) => {
 
       return res.status(201).json({
         success: true,
-        message
+        message,
+        requiresOtpVerification: !skipOtpVerification
       });
     }
 
@@ -310,6 +311,7 @@ exports.registerPlacement = async (req, res) => {
     res.status(201).json({
       success: true,
       message,
+      requiresOtpVerification: !skipOtpVerification,
       placement: {
         id: placement._id,
         name: placement.name,

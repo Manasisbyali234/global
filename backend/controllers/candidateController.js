@@ -314,7 +314,8 @@ exports.registerCandidate = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message
+      message,
+      requiresOtpVerification: !skipOtpVerification
     });
   } catch (error) {
     console.error('Registration error:', error);

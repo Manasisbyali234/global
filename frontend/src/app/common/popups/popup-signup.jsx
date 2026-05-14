@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { pubRoute, publicUser } from '../../../globals/route-names';
+import React, { useState, useEffect, useRef } from 'react';
 import { validatePhoneNumber, handlePhoneInputChange, validatePhoneOnBlur } from '../../../utils/phoneValidation';
 import { showSuccess, showError } from '../../../utils/popupNotification';
 import TermsModal from '../../../components/TermsModal';
@@ -36,6 +35,14 @@ function SignUpPopup() {
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [currentRole, setCurrentRole] = useState('candidate');
     const [termsAccepted, setTermsAccepted] = useState({ candidate: false, employer: false, placement: false });
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [activeOtpRole, setActiveOtpRole] = useState('candidate');
+    const [otp, setOtp] = useState('');
+    const [otpExpired, setOtpExpired] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(300);
+    const [verifyingOtp, setVerifyingOtp] = useState(false);
+    const [resendingOtp, setResendingOtp] = useState(false);
+    const otpTimerRef = useRef(null);
 
     const splitCandidateName = (fullName) => {
         const parts = (fullName || '').trim().split(/\s+/).filter(Boolean);
@@ -93,6 +100,161 @@ function SignUpPopup() {
             };
         }
     }, []);
+
+    useEffect(() => {
+        return () => {
+            if (otpTimerRef.current) {
+                clearInterval(otpTimerRef.current);
+            }
+        };
+    }, []);
+
+    const hideSignupModal = () => {
+        const modal = document.getElementById('sign_up_popup');
+        if (modal && window.bootstrap) {
+            const modalInstance = window.bootstrap.Modal.getInstance(modal) || new window.bootstrap.Modal(modal);
+            modalInstance.hide();
+        }
+    };
+
+    const startOtpTimer = () => {
+        setTimeLeft(300);
+        setOtpExpired(false);
+
+        if (otpTimerRef.current) {
+            clearInterval(otpTimerRef.current);
+        }
+
+        otpTimerRef.current = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    setOtpExpired(true);
+                    clearInterval(otpTimerRef.current);
+                    return 0;
+                }
+
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    const beginOtpFlow = (role, message) => {
+        setActiveOtpRole(role);
+        setOtp('');
+        setShowOtpModal(true);
+        startOtpTimer();
+        hideSignupModal();
+        showSuccess(message || 'OTP sent successfully. Please verify your mobile number.');
+    };
+
+    const getOtpPayload = (role = activeOtpRole) => {
+        if (role === 'employer') {
+            return {
+                email: employerData.email,
+                phone: employerData.countryCode + employerData.mobile
+            };
+        }
+
+        if (role === 'placement') {
+            return {
+                email: placementData.email,
+                phone: placementData.countryCode + placementData.phone
+            };
+        }
+
+        return {
+            email: candidateData.email,
+            phone: candidateData.countryCode + candidateData.mobile
+        };
+    };
+
+    const resetRoleForm = (role = activeOtpRole) => {
+        if (role === 'employer') {
+            setEmployerData({ name: '', email: '', mobile: '', employerCategory: '', countryCode: '+91' });
+        } else if (role === 'placement') {
+            setPlacementData({ name: '', email: '', phone: '', collegeName: '', countryCode: '+91' });
+        } else {
+            setCandidateData({ username: '', email: '', mobile: '', countryCode: '+91' });
+        }
+
+        setFieldErrors({});
+        setError('');
+        setSuccess('');
+    };
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const handleOtpVerify = async (e) => {
+        e.preventDefault();
+
+        if (otp.length !== 6) {
+            showError('Please enter a valid 6-digit OTP');
+            return;
+        }
+
+        if (otpExpired) {
+            showError('OTP has expired. Please request a new one.');
+            return;
+        }
+
+        setVerifyingOtp(true);
+        try {
+            const apiUrl = process.env.REACT_APP_API_URL || '';
+            const { email } = getOtpPayload();
+            const response = await fetch(`${apiUrl}/api/${activeOtpRole}/verify-mobile`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                if (otpTimerRef.current) {
+                    clearInterval(otpTimerRef.current);
+                }
+
+                setShowOtpModal(false);
+                resetRoleForm(activeOtpRole);
+                showSuccess(data.message || 'Mobile number verified successfully! Please check your email to create your password.');
+            } else {
+                showError(data.message || 'Verification failed');
+            }
+        } catch (error) {
+            showError('Network error. Please try again.');
+        } finally {
+            setVerifyingOtp(false);
+        }
+    };
+
+    const handleResendOtp = async () => {
+        setResendingOtp(true);
+        try {
+            const apiUrl = process.env.REACT_APP_API_URL || '';
+            const { email, phone } = getOtpPayload();
+            const response = await fetch(`${apiUrl}/api/${activeOtpRole}/resend-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, phone })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setOtp('');
+                startOtpTimer();
+                showSuccess('New OTP sent successfully!');
+            } else {
+                showError(data.message || 'Failed to resend OTP');
+            }
+        } catch (error) {
+            showError('Network error. Please try again.');
+        } finally {
+            setResendingOtp(false);
+        }
+    };
 
     // Validation functions
     const validateField = (field, value, formType) => {
@@ -317,18 +479,7 @@ function SignUpPopup() {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                setCandidateData({ username: '', email: '', mobile: '', countryCode: '+91' });
-                setFieldErrors({});
-                setError('');
-                setSuccess('');
-                const modal = document.getElementById('sign_up_popup');
-                if (modal) {
-                    const modalInstance = window.bootstrap.Modal.getInstance(modal) || new window.bootstrap.Modal(modal);
-                    modalInstance.hide();
-                }
-                setTimeout(() => {
-                    showSuccess('You have successfully signed up! Please check your registered email inbox to create your password.');
-                }, 500);
+                beginOtpFlow('candidate', data.message);
             } else {
                 if (data.message && data.message.toLowerCase().includes('already registered')) {
                     showError('This email address is already registered. Please try logging in instead.');
@@ -390,18 +541,7 @@ function SignUpPopup() {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                setEmployerData({ name: '', email: '', mobile: '', employerCategory: '', countryCode: '+91' });
-                setFieldErrors({});
-                setError('');
-                setSuccess('');
-                const modal = document.getElementById('sign_up_popup');
-                if (modal) {
-                    const modalInstance = window.bootstrap.Modal.getInstance(modal) || new window.bootstrap.Modal(modal);
-                    modalInstance.hide();
-                }
-                setTimeout(() => {
-                    showSuccess('You have successfully signed up! Please check your registered email inbox to create your password.');
-                }, 500);
+                beginOtpFlow('employer', data.message);
             } else {
                 if (data.message && data.message.toLowerCase().includes('already registered')) {
                     showError('This email address is already registered. Please try logging in instead.');
@@ -461,18 +601,7 @@ function SignUpPopup() {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                setPlacementData({ name: '', email: '', phone: '', collegeName: '', countryCode: '+91' });
-                setFieldErrors({});
-                setError('');
-                setSuccess('');
-                const modal = document.getElementById('sign_up_popup');
-                if (modal) {
-                    const modalInstance = window.bootstrap.Modal.getInstance(modal) || new window.bootstrap.Modal(modal);
-                    modalInstance.hide();
-                }
-                setTimeout(() => {
-                    showSuccess('You have successfully signed up! Please check your registered email inbox to create your password.');
-                }, 500);
+                beginOtpFlow('placement', data.message);
             } else {
                 if (data.message && data.message.toLowerCase().includes('already registered')) {
                     showError('This email address is already registered. Please try logging in instead.');
@@ -901,6 +1030,44 @@ function SignUpPopup() {
 					onAccept={handleTermsAccept}
 					role={currentRole}
 				/>
+				{showOtpModal && (
+					<div className="otp-modal-overlay">
+						<div className="otp-modal">
+							<h3>Verify Mobile Number</h3>
+							<p>Enter the 6-digit OTP sent to {getOtpPayload().phone}</p>
+							<form onSubmit={handleOtpVerify}>
+								<div className="otp-input-container">
+									<input
+										type="text"
+										className="otp-digit-input"
+										maxLength="6"
+										value={otp}
+										onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+										placeholder="Enter OTP"
+									/>
+								</div>
+								<div className="otp-timer">
+									{otpExpired ? (
+										<p className="expired-text">OTP expired. Please request a new one.</p>
+									) : (
+										<p className="timer-text">OTP expires in <span className="timer-countdown">{formatTime(timeLeft)}</span></p>
+									)}
+								</div>
+								<div className="otp-actions">
+									<button type="submit" className="verify-btn" disabled={verifyingOtp || otpExpired}>
+										{verifyingOtp ? 'Verifying...' : 'Verify OTP'}
+									</button>
+									<button type="button" className="resend-btn" onClick={handleResendOtp} disabled={resendingOtp}>
+										{resendingOtp ? 'Resending...' : 'Resend OTP'}
+									</button>
+									<button type="button" className="cancel-btn" onClick={() => setShowOtpModal(false)}>
+										Cancel
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				)}
 			</>
 		);
 }

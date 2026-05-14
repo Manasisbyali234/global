@@ -119,8 +119,7 @@ function SignupCandidate() {
                     lastName: candidateData.lastName,
                     email: candidateData.email,
                     phone: candidateData.countryCode + candidateData.mobile,
-                    sendWelcomeEmail: true,
-                    skipOtpVerification: true
+                    sendWelcomeEmail: true
                 })
             });
             
@@ -136,9 +135,10 @@ function SignupCandidate() {
                     phoneCountryCode: candidateData.countryCode
                 }));
                 
-                showSuccess('Sign up successful. Please check your email to set your password and sign in to complete your profile..');
-                setCandidateData({ firstName: '', middleName: '', lastName: '', email: '', mobile: '', countryCode: '+91' });
-                navigate(publicUser.pages.LOGIN_CANDIDATE);
+                showSuccess(data.message || 'OTP sent successfully. Please verify your mobile number.');
+                setOtp('');
+                setShowOtpModal(true);
+                startOtpTimer();
             } else if (response.status === 409) {
                 showError(data.message || 'This email is already registered. Please log in instead.');
                 setTimeout(() => navigate(publicUser.pages.LOGIN_CANDIDATE), 2000);
@@ -360,6 +360,44 @@ function SignupCandidate() {
             </div>
             </div>
             <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} onAccept={handleTermsAccept} role="candidate" />
+            {showOtpModal && (
+                <div className="otp-modal-overlay">
+                    <div className="otp-modal">
+                        <h3>Verify Mobile Number</h3>
+                        <p>Enter the 6-digit OTP sent to {candidateData.countryCode}{candidateData.mobile}</p>
+                        <form onSubmit={handleOtpVerify}>
+                            <div className="otp-input-container">
+                                <input
+                                    type="text"
+                                    className="otp-digit-input"
+                                    maxLength="6"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                                    placeholder="Enter OTP"
+                                />
+                            </div>
+                            <div className="otp-timer">
+                                {otpExpired ? (
+                                    <p className="expired-text">OTP expired. Please request a new one.</p>
+                                ) : (
+                                    <p className="timer-text">OTP expires in <span className="timer-countdown">{formatTime(timeLeft)}</span></p>
+                                )}
+                            </div>
+                            <div className="otp-actions">
+                                <button type="submit" className="verify-btn" disabled={verifying || otpExpired}>
+                                    {verifying ? 'Verifying...' : 'Verify OTP'}
+                                </button>
+                                <button type="button" className="resend-btn" onClick={handleResendOtp} disabled={resending}>
+                                    {resending ? 'Resending...' : 'Resend OTP'}
+                                </button>
+                                <button type="button" className="cancel-btn" onClick={() => setShowOtpModal(false)}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
