@@ -56,7 +56,7 @@ const STATUS_BADGES = {
   pending: { text: "Pending", className: "bg-secondary bg-opacity-10 text-secondary border border-secondary" },
   passed: { text: "Passed", className: "bg-success bg-opacity-10 text-success border border-success" },
   failed: { text: "Failed", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
-  session_expired: { text: "Session Expired", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
+  session_expired: { text: "No Show", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
   suspended: { text: "Suspended", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
   in_progress: { text: "In Progress", className: "bg-warning bg-opacity-10 text-warning border border-warning" },
   offer_sent: { text: "Offer Letter Sent", className: "bg-success bg-opacity-10 text-success border border-success" },

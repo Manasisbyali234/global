@@ -62,8 +62,9 @@ const isNoShowCandidate = (application) => {
   const invite = application?.interviewInvite;
   if (!invite?.sentAt) return false;
 
-  // Already marked expired — nothing to do
-  if (invite.status === 'expired') return false;
+  // Keep repairing stale records where only the invite was expired.
+  const inviteStatus = String(invite.status || '').toLowerCase();
+  if (inviteStatus === 'expired') return true;
 
   const interviewDateStr = invite.confirmedDate || invite.proposedDate;
   const interviewTimeStr = invite.confirmedTime || invite.proposedTime;

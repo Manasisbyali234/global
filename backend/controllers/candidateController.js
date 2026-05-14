@@ -945,13 +945,9 @@ exports.getAppliedJobs = async (req, res) => {
 
     res.json({
       success: true,
-<<<<<<< HEAD
-      applications: applications.map((application) =>
+      applications: finalApplications.map((application) =>
         decorateCandidateApplicationStatusFields(normalizeCandidateVisibleApplication(application))
       )
-=======
-      applications: finalApplications.map((application) => normalizeCandidateVisibleApplication(application))
->>>>>>> 45e7388289d58d1e8d2014855ae752486b28e166
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -981,7 +977,7 @@ exports.getApplicationStatus = async (req, res) => {
         .populate('employerId', 'companyName brandName');
       return res.json({
         success: true,
-        application: normalizeCandidateVisibleApplication(updated)
+        application: decorateCandidateApplicationStatusFields(normalizeCandidateVisibleApplication(updated))
       });
     }
 
@@ -1805,15 +1801,27 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
 
     console.log(`Fetching applications for candidate: ${req.user._id}`);
 
-    const applications = await Application.find({ candidateId: req.user._id })
-      .populate({
-        path: 'jobId',
-        select: 'title location jobType status interviewRoundsCount interviewRoundTypes interviewRoundDetails interviewRoundOrder assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime assessmentInstructions assessmentPassingPercentage companyLogo companyName',
-        options: { lean: true }
-      })
-      .populate('employerId', 'companyName brandName name')
-      .sort({ createdAt: -1 })
-      .lean();
+    const loadCandidateInterviewApplications = () => (
+      Application.find({ candidateId: req.user._id })
+        .populate({
+          path: 'jobId',
+          select: 'title location jobType status interviewRoundsCount interviewRoundTypes interviewRoundDetails interviewRoundOrder assessmentId assessmentStartDate assessmentEndDate assessmentStartTime assessmentEndTime assessmentInstructions assessmentPassingPercentage companyLogo companyName',
+          options: { lean: true }
+        })
+        .populate('employerId', 'companyName brandName name')
+        .sort({ createdAt: -1 })
+        .lean()
+    );
+
+    let applications = await loadCandidateInterviewApplications();
+
+    const staleNoShowApplications = applications.filter((application) => isNoShowCandidate(application));
+    if (staleNoShowApplications.length > 0) {
+      await Promise.all(
+        staleNoShowApplications.map((application) => applyNoShowRejection(application._id))
+      );
+      applications = await loadCandidateInterviewApplications();
+    }
 
     console.log(`Found ${applications.length} applications`);
 

@@ -172,8 +172,7 @@ const startNoShowScheduler = () => {
       // Find applications that have a sent interview invite and are still pending/shortlisted
       const candidates = await Application.find({
         status: { $in: ['pending', 'shortlisted'] },
-        'interviewInvite.sentAt': { $exists: true },
-        'interviewInvite.status': { $ne: 'expired' }
+        'interviewInvite.sentAt': { $exists: true }
       }).select('_id status interviewInvite').lean();
 
       for (const app of candidates) {

@@ -33,7 +33,7 @@ const STATUS_KEY_ALIASES = new Map([
   ['rejected', 'rejected'],
   ['scheduled', 'scheduled'],
   ['selected', 'selected'],
-  ['session expired', 'session_expired'],
+  ['session expired', 'no_show'],
   ['shortlisted', 'shortlisted'],
   ['shortlisted for next round', 'shortlisted_for_next_round'],
   ['suspended', 'suspended'],
@@ -118,6 +118,26 @@ const getLatestApplicationStatusHistoryEntry = (application = {}) => {
   }
 
   return null;
+};
+
+const getInterviewInviteStatusKey = (application = {}) =>
+  getCanonicalStatusKey(application?.interviewInvite?.status || '', '');
+
+const getRejectedInterviewInviteDisplayStatus = (application = {}, baseStatus = '') => {
+  const inviteStatusKey = getInterviewInviteStatusKey(application);
+  if (!['pending', 'shortlisted', 'under_review'].includes(baseStatus)) {
+    return '';
+  }
+
+  if (['expired', 'no_show'].includes(inviteStatusKey)) {
+    return 'no_show';
+  }
+
+  if (inviteStatusKey === 'rejected') {
+    return 'rejected';
+  }
+
+  return '';
 };
 
 const isRejectedInterviewProcessStatus = (value = '') => {
@@ -334,7 +354,7 @@ const resolveAssessmentOutcomeStatus = (status = '', result = '', fallback = 'pe
     return normalizedResult === 'pending' ? 'completed' : 'no_show';
   }
   if (normalizedStatus === 'session expired') {
-    return normalizedResult === 'pending' ? 'completed' : 'session_expired';
+    return normalizedResult === 'pending' ? 'completed' : 'no_show';
   }
   if (normalizedStatus === 'no show') return 'no_show';
   if (!normalizedStatus || ['available', 'not required', 'not started', 'pending', 'scheduled'].includes(normalizedStatus)) {
@@ -418,6 +438,10 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return baseStatus;
   }
 
+  if (getRejectedInterviewInviteDisplayStatus(application, baseStatus)) {
+    return 'rejected';
+  }
+
   const trackedProcesses = getResolvedTrackedProcesses(application, options);
   const hasRejectedProcess = trackedProcesses.some((process) =>
     isRejectedInterviewProcessStatus(process?.status)
@@ -488,6 +512,11 @@ const getInterviewCurrentStatus = (application = {}, options = {}) => {
   const baseStatus = getCanonicalStatusKey(application?.status || '', 'pending');
   if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
     return baseStatus;
+  }
+
+  const rejectedInviteDisplayStatus = getRejectedInterviewInviteDisplayStatus(application, baseStatus);
+  if (rejectedInviteDisplayStatus) {
+    return rejectedInviteDisplayStatus;
   }
 
   const latestTrackedStatus = getLatestMeaningfulTrackedStatus(application, options);
