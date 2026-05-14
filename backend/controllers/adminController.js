@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+Ôªøconst jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
 const Admin = require('../models/Admin');
@@ -1198,6 +1198,12 @@ exports.getJobApplicantsForOverview = async (req, res) => {
           others: 'Others - Specify.',
           assessment: 'Assessment'
         };
+        const knownAssessmentIds = Object.keys(attemptsByAssessmentId);
+        const singleAssessmentAttempt =
+          orderedAssessmentRoundKeys.length <= 1 && knownAssessmentIds.length <= 1
+            ? attemptsByAssessmentId[knownAssessmentIds[0]] || latestAttempt || null
+            : null;
+        let assessmentRoundIndex = 0;
         return job.interviewRoundOrder.map((roundKey) => {
           const roundType = job.interviewRoundTypes?.[roundKey] || roundKey;
           const roundDetails = job.interviewRoundDetails?.[roundKey];
@@ -1205,15 +1211,18 @@ exports.getJobApplicantsForOverview = async (req, res) => {
             roundType === 'assessment'
               ? (
                   normalizeAssessmentId(roundDetails?.assessmentId) ||
-                  orderedAssessmentIds[0] ||
+                  orderedAssessmentIds[assessmentRoundIndex] ||
                   singleConfiguredAssessmentId ||
                   ''
                 )
               : '';
           const matchedAttempt =
             roundType === 'assessment'
-              ? ((resolvedAssessmentId && attemptsByAssessmentId[resolvedAssessmentId]) || latestAttempt || null)
+              ? ((resolvedAssessmentId && attemptsByAssessmentId[resolvedAssessmentId]) || singleAssessmentAttempt || null)
               : null;
+          if (roundType === 'assessment') {
+            assessmentRoundIndex += 1;
+          }
           const resolvedStatus =
             roundType === 'assessment' && matchedAttempt
               ? resolveAssessmentAttemptStageStatus(matchedAttempt)
@@ -3401,7 +3410,7 @@ exports.approveAuthorizationLetter = async (req, res) => {
 
       const notificationData = {
         title: 'Authorization Letter Approved',
-        message: `Your authorization letter ì${approvedLetter.fileName}î has been successfully approved. Please continue with the next steps.`,
+        message: `Your authorization letter ‚Äú${approvedLetter.fileName}‚Äù has been successfully approved. Please continue with the next steps.`,
         type: 'document_approved',
         role: 'employer',
         relatedId: new mongoose.Types.ObjectId(employerId),
