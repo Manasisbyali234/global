@@ -218,7 +218,6 @@ function CanStatusPage() {
 		if (!isExpiredPendingEvaluation && (
 			rejectedAssessmentStatuses.includes(assessmentStatus) ||
 			failedStatuses.includes(assessmentStatus) ||
-			rejectedAssessmentStatuses.includes(assessmentResult) ||
 			failedResults.includes(assessmentResult))) {
 			return 'rejected';
 		}
@@ -230,7 +229,7 @@ function CanStatusPage() {
 			const r = String(attempt?.result || '').toLowerCase();
 			// Don't treat expired as rejected if result is pending
 			if (s === 'expired' && r === 'pending') return false;
-			return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || rejectedAssessmentStatuses.includes(r) || failedResults.includes(r);
+			return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedResults.includes(r);
 		});
 		if (hasRejectedAttempt) {
 			return 'rejected';
