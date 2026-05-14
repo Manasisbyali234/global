@@ -797,10 +797,22 @@ function EmpCandidateReviewPage() {
         return rawStageStatus ? rawStageStatus.replace(/\s+/g, '_') : 'pending';
     };
 
+    const hadOfferSentInHistory = (applicationData = {}) =>
+        Array.isArray(applicationData?.statusHistory) &&
+        applicationData.statusHistory.some((entry) =>
+            normalizeStatusValue(entry?.status) === 'offer sent' ||
+            normalizeStatusValue(entry?.status) === 'offer_sent'
+        );
+
     const getApplicationDisplayStatus = (applicationData, processes = []) => {
         const baseStatus = String(applicationData?.status || '').trim().toLowerCase() || 'pending';
         if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
             return baseStatus;
+        }
+
+        // If candidate rejected an offer, always show as rejected
+        if (baseStatus === 'rejected' && hadOfferSentInHistory(applicationData)) {
+            return 'rejected';
         }
 
         const normalizedProcesses = Array.isArray(processes) ? processes : [];

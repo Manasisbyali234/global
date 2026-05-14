@@ -189,10 +189,22 @@ function CanStatusPage() {
 		].includes(normalized);
 	};
 
+	const hadOfferSentInHistory = (application = {}) =>
+		Array.isArray(application?.statusHistory) &&
+		application.statusHistory.some((entry) => {
+			const s = normalizeStatusValue(entry?.status);
+			return s === 'offer sent' || s === 'offer_sent';
+		});
+
 	const getApplicationDisplayStatus = (application = {}) => {
 		const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
 		if (['accepted', 'hired'].includes(baseStatus)) {
 			return baseStatus;
+		}
+
+		// If candidate rejected an offer, always show as rejected
+		if (baseStatus === 'rejected' && hadOfferSentInHistory(application)) {
+			return 'rejected';
 		}
 
 		const trackedProcesses = getPreferredTrackedProcesses(application);

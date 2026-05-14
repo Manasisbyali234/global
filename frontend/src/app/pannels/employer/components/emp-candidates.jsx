@@ -364,10 +364,22 @@ function EmpCandidatesPage() {
     };
   };
 
+  const hadOfferSentInHistory = (application = {}) =>
+    Array.isArray(application?.statusHistory) &&
+    application.statusHistory.some((entry) => {
+      const s = normalizeStatusValue(entry?.status);
+      return s === 'offer sent' || s === 'offer_sent';
+    });
+
   const getApplicationDisplayStatus = (application = {}, nowTimestamp = Date.now()) => {
     const baseStatus = String(application?.status || "").trim().toLowerCase() || "pending";
     if (["accepted", "hired", "offer_sent"].includes(baseStatus)) {
       return baseStatus;
+    }
+
+    // If candidate rejected an offer, always show as rejected
+    if (baseStatus === "rejected" && hadOfferSentInHistory(application)) {
+      return "rejected";
     }
 
     const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
