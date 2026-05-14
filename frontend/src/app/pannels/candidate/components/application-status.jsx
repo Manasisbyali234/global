@@ -187,6 +187,13 @@ function CanStatusPage() {
 		].includes(normalized);
 	};
 
+	const hadOfferSentInHistory = (application = {}) =>
+		Array.isArray(application?.statusHistory) &&
+		application.statusHistory.some((entry) => {
+			const s = normalizeStatusValue(entry?.status);
+			return s === 'offer sent' || s === 'offer_sent';
+		});
+
 	const getApplicationDisplayStatus = (application = {}) => {
 
 		return getApplicationStatusKey(application);
@@ -194,6 +201,11 @@ function CanStatusPage() {
 		const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
 		if (['accepted', 'hired'].includes(baseStatus)) {
 			return baseStatus;
+		}
+
+		// If candidate rejected an offer, always show as rejected
+		if (baseStatus === 'rejected' && hadOfferSentInHistory(application)) {
+			return 'rejected';
 		}
 
 		const trackedProcesses = getPreferredTrackedProcesses(application);
@@ -214,12 +226,16 @@ function CanStatusPage() {
 		const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
 		const failedStatuses = ['failed', 'fail'];
 		const failedResults = ['failed', 'fail'];
-		// Don't treat expired as rejected if result is pending (subjective assessment awaiting manual evaluation)
-		const isExpiredPendingEvaluation = assessmentStatus === 'expired' && assessmentResult === 'pending';
-		if (!isExpiredPendingEvaluation && (
+		// Treat expired as no-show (rejected) when there is no score/activity (candidate never started)
+		const hasAssessmentScore =
+			(application?.assessmentScore !== null && application?.assessmentScore !== undefined) ||
+			(application?.assessmentPercentage !== null && application?.assessmentPercentage !== undefined);
+		const isExpiredNoShow = assessmentStatus === 'expired' && !hasAssessmentScore;
+		if (
+			isExpiredNoShow ||
 			rejectedAssessmentStatuses.includes(assessmentStatus) ||
 			failedStatuses.includes(assessmentStatus) ||
-			failedResults.includes(assessmentResult))) {
+			failedResults.includes(assessmentResult)) {
 			return 'rejected';
 		}
 
@@ -228,9 +244,12 @@ function CanStatusPage() {
 		const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
 			const s = String(attempt?.status || '').toLowerCase();
 			const r = String(attempt?.result || '').toLowerCase();
-			// Don't treat expired as rejected if result is pending
-			if (s === 'expired' && r === 'pending') return false;
-			return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedResults.includes(r);
+			const hasAttemptScore =
+				(attempt?.score !== null && attempt?.score !== undefined) ||
+				(attempt?.percentage !== null && attempt?.percentage !== undefined);
+			// Treat expired as no-show (rejected) when there is no score (candidate never started)
+			const isExpiredNoShow = s === 'expired' && !hasAttemptScore;
+			return isExpiredNoShow || rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedResults.includes(r);
 		});
 		if (hasRejectedAttempt) {
 			return 'rejected';

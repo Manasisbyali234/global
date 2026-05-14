@@ -30,7 +30,7 @@ const applicationSchema = new mongoose.Schema({
   // Assessment fields
   assessmentStatus: { 
     type: String, 
-    enum: ['not_required', 'pending', 'available', 'in_progress', 'completed', 'expired', 'suspended'], 
+    enum: ['not_required', 'pending', 'available', 'in_progress', 'completed', 'expired', 'suspended', 'no_show'], 
     default: 'not_required' 
   },
   assessmentReminderSent: { type: Boolean, default: false },
@@ -74,7 +74,7 @@ const applicationSchema = new mongoose.Schema({
     proposedTime: { type: String },
     meetingLink: { type: String },
     instructions: { type: String },
-    status: { type: String, enum: ['pending', 'confirmed', 'rejected'], default: 'pending' },
+    status: { type: String, enum: ['pending', 'confirmed', 'rejected', 'expired'], default: 'pending' },
     confirmedDate: { type: String },
     confirmedTime: { type: String },
     confirmedAt: { type: Date }

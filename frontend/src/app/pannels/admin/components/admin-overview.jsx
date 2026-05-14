@@ -307,8 +307,11 @@ function AdminOverviewPage() {
     if (["fail", "failed"].includes(normalizedResult) || normalizedStatus === "failed") {
       return { label: "Failed", style: badgeStyles.danger };
     }
-    if (normalizedStatus === "suspended") {
+    if (normalizedResult === "suspended" || normalizedStatus === "suspended") {
       return { label: "Suspended", style: badgeStyles.danger };
+    }
+    if (["no show", "session expired", "expired"].includes(normalizedResult)) {
+      return { label: "No Show", style: badgeStyles.danger };
     }
     if (["expired", "session expired"].includes(normalizedStatus) && normalizedResult === "pending") {
       return { label: "Completed", style: badgeStyles.success };

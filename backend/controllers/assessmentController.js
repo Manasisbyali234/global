@@ -22,6 +22,10 @@ const IMMEDIATE_SUSPEND_VIOLATIONS = new Set([
   'screen_capture'
 ]);
 
+const AUTO_REJECT_ASSESSMENT_SESSION_EXPIRED_NOTE = 'Auto-updated: assessment session expired';
+const AUTO_REJECT_ASSESSMENT_SUSPENDED_NOTE = 'Auto-updated: assessment suspended';
+const AUTO_REJECT_ASSESSMENT_FAILED_NOTE = 'Auto-updated: assessment failed';
+
 const OBJECTIVE_QUESTION_TYPES = new Set([
   'mcq',
   'visual-mcq',
@@ -286,6 +290,40 @@ const resolveAssessmentStageStatus = (attemptStatus, attemptResult) => {
   return 'completed';
 };
 
+const normalizeApplicationStatusValue = (value = '') =>
+  String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ');
+
+const ensureApplicationRejectedFromAssessment = async (applicationId, note) => {
+  if (!applicationId || !note) {
+    return;
+  }
+
+  const application = await Application.findById(applicationId).select('status');
+  if (!application) {
+    return;
+  }
+
+  const currentStatus = normalizeApplicationStatusValue(application.status);
+  if (['accepted', 'hired', 'offer sent', 'rejected'].includes(currentStatus)) {
+    return;
+  }
+
+  await Application.findByIdAndUpdate(applicationId, {
+    status: 'rejected',
+    $push: {
+      statusHistory: {
+        status: 'rejected',
+        changedAt: new Date(),
+        notes: note
+      }
+    }
+  });
+};
+
 const persistAssessmentOutcome = async ({ attempt, assessment }) => {
   const evaluation = buildAttemptEvaluationSummary(assessment, attempt);
 
@@ -323,6 +361,23 @@ const persistAssessmentOutcome = async ({ attempt, assessment }) => {
     assessmentPercentage: evaluation.percentage,
     assessmentCompletedAt: attempt.endTime || attempt.suspendedAt || new Date()
   });
+
+  if (attempt.status === 'expired') {
+    await ensureApplicationRejectedFromAssessment(
+      attempt.applicationId,
+      AUTO_REJECT_ASSESSMENT_SESSION_EXPIRED_NOTE
+    );
+  } else if (attempt.status === 'suspended') {
+    await ensureApplicationRejectedFromAssessment(
+      attempt.applicationId,
+      AUTO_REJECT_ASSESSMENT_SUSPENDED_NOTE
+    );
+  } else if (evaluation.result === 'fail') {
+    await ensureApplicationRejectedFromAssessment(
+      attempt.applicationId,
+      AUTO_REJECT_ASSESSMENT_FAILED_NOTE
+    );
+  }
 
   return evaluation;
 };
@@ -580,6 +635,11 @@ const expireAttemptAndPersist = async (attempt, endedAt = new Date()) => {
     status: 'expired',
     assessmentCompletedAt: attempt.endTime
   });
+
+  await ensureApplicationRejectedFromAssessment(
+    attempt.applicationId,
+    AUTO_REJECT_ASSESSMENT_SESSION_EXPIRED_NOTE
+  );
 };
 
 // Employer: Create Assessment
@@ -1745,6 +1805,11 @@ exports.recordViolation = async (req, res) => {
           status: 'suspended',
           assessmentCompletedAt: attempt.suspendedAt
         });
+
+        await ensureApplicationRejectedFromAssessment(
+          attempt.applicationId,
+          AUTO_REJECT_ASSESSMENT_SUSPENDED_NOTE
+        );
       }
     }
     

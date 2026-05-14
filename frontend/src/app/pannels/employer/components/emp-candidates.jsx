@@ -335,7 +335,7 @@ function EmpCandidatesPage() {
     };
   };
 
-  const getAssessmentCompletionInfo = (application = {}) => {
+  const getAssessmentCompletionInfo = (application = {}, nowTimestamp = Date.now()) => {
     const assessmentProcess = Array.isArray(application?.interviewProcesses)
       ? application.interviewProcesses.find((process) => {
           const normalizedType = normalizeStatusValue(process?.type);
@@ -354,21 +354,44 @@ function EmpCandidatesPage() {
     const result = normalizeStatusValue(application?.assessmentResult || assessmentProcess?.result);
     const outcome = getAssessmentOutcome({ status: effectiveStatus, result });
 
+    // Treat expired+pending (no attempt) as no-show when window has ended and no score exists
+    const hasAssessmentActivity =
+      outcome.isCompleted || outcome.isInProgress || outcome.isSuspended || outcome.isPassed || outcome.isFailed ||
+      (application?.assessmentScore !== null && application?.assessmentScore !== undefined) ||
+      (application?.assessmentPercentage !== null && application?.assessmentPercentage !== undefined);
+    const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, nowTimestamp);
+    const isNoShow =
+      outcome.isNoShow ||
+      (outcome.isPendingReview && assessmentWindowInfo.isAfterEnd && !hasAssessmentActivity) ||
+      (["expired", "session expired"].includes(effectiveStatus) && !hasAssessmentActivity);
+
     return {
       status: effectiveStatus,
       isPassed: outcome.isPassed,
       isFailed: outcome.isFailed,
       isCompleted: outcome.isCompleted,
-      isNoShow: outcome.isNoShow,
+      isNoShow,
       isInProgress: outcome.isInProgress,
       isSuspended: outcome.isSuspended
     };
   };
 
+  const hadOfferSentInHistory = (application = {}) =>
+    Array.isArray(application?.statusHistory) &&
+    application.statusHistory.some((entry) => {
+      const s = normalizeStatusValue(entry?.status);
+      return s === 'offer sent' || s === 'offer_sent';
+    });
+
   const getApplicationDisplayStatus = (application = {}, nowTimestamp = Date.now()) => {
     const baseStatus = String(application?.status || "").trim().toLowerCase() || "pending";
     if (["accepted", "hired", "offer_sent"].includes(baseStatus)) {
       return baseStatus;
+    }
+
+    // If candidate rejected an offer, always show as rejected
+    if (baseStatus === "rejected" && hadOfferSentInHistory(application)) {
+      return "rejected";
     }
 
     const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
@@ -395,7 +418,7 @@ function EmpCandidatesPage() {
     }
 
     if (hasAssessmentRound) {
-      const completionInfo = getAssessmentCompletionInfo(application);
+      const completionInfo = getAssessmentCompletionInfo(application, nowTimestamp);
       const assessmentWindowInfo = getAssessmentWindowInfo(application?.jobId, nowTimestamp);
       // Only treat as no-show if the assessment window has ended AND there is no assessment activity at all
       const hasAssessmentActivity =
@@ -409,10 +432,11 @@ function EmpCandidatesPage() {
       const assessmentNoShow =
         Boolean(completionInfo?.isNoShow) ||
         (Boolean(assessmentWindowInfo?.isAfterEnd) &&
-          hasAssessmentActivity === false &&
           !completionInfo?.isCompleted &&
           !completionInfo?.isInProgress &&
-          !completionInfo?.isSuspended);
+          !completionInfo?.isSuspended &&
+          !completionInfo?.isPassed &&
+          !completionInfo?.isFailed);
 
       if (
         completionInfo?.isFailed ||
