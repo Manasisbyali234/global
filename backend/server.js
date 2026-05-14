@@ -12,6 +12,7 @@ const { initializeWebSocket } = require('./utils/websocket');
 const Application = require('./models/Application');
 const Job = require('./models/Job');
 const { sendAssessmentNotificationEmail } = require('./utils/emailService');
+const { applyNoShowRejection, isNoShowCandidate } = require('./utils/noShowHandler');
 
 // Import Routes
 const publicRoutes = require('./routes/public');
@@ -158,6 +159,41 @@ const startJobDeactivationScheduler = () => {
   if (interval.unref) {
     interval.unref();
   }
+};
+
+const startNoShowScheduler = () => {
+  const intervalMs = 5 * 60 * 1000; // run every 5 minutes
+  let isRunning = false;
+
+  const runCheck = async () => {
+    if (isRunning || !dbConnected) return;
+    isRunning = true;
+    try {
+      // Find applications that have a sent interview invite and are still pending/shortlisted
+      const candidates = await Application.find({
+        status: { $in: ['pending', 'shortlisted'] },
+        'interviewInvite.sentAt': { $exists: true },
+        'interviewInvite.status': { $ne: 'expired' }
+      }).select('_id status interviewInvite').lean();
+
+      for (const app of candidates) {
+        if (isNoShowCandidate(app)) {
+          const updated = await applyNoShowRejection(app._id);
+          if (updated) {
+            console.log(`[NoShow Scheduler] Marked application ${app._id} as rejected/no_show`);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('[NoShow Scheduler] Error:', err);
+    } finally {
+      isRunning = false;
+    }
+  };
+
+  runCheck();
+  const interval = setInterval(runCheck, intervalMs);
+  if (interval.unref) interval.unref();
 };
 
 // Trust proxy for rate limiting
@@ -435,4 +471,5 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('WebSocket server initialized for real-time updates');
   startAssessmentNotificationScheduler();
   startJobDeactivationScheduler();
+  startNoShowScheduler();
 });

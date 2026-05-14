@@ -13,6 +13,8 @@ const { checkEmailExists } = require('../utils/authUtils');
 const { sendSMS } = require('../utils/smsProvider');
 const { formatDate } = require('../utils/dateFormatter');
 
+const { applyNoShowRejection, isNoShowCandidate } = require('../utils/noShowHandler');
+
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 };
@@ -901,16 +903,36 @@ exports.getAppliedJobs = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean(); // Use lean for better performance
 
-    // Removed console debug line for security;
-    if (applications.length > 0) {
-      // Removed console debug line for security;
-      // Removed console debug line for security;
-      // Removed console debug line for security;
-    }
+    // Safeguard: persist no-show rejections for any stale pending applications
+    await Promise.all(
+      applications
+        .filter((app) => isNoShowCandidate(app))
+        .map((app) => applyNoShowRejection(app._id))
+    );
+
+    // Re-fetch only the ones that were updated so the response is accurate
+    const noShowIds = new Set(
+      applications.filter((app) => isNoShowCandidate(app)).map((app) => String(app._id))
+    );
+
+    const finalApplications = noShowIds.size === 0
+      ? applications
+      : await Application.find({
+          candidateId: req.user._id,
+          paymentStatus: 'paid'
+        })
+          .populate({
+            path: 'jobId',
+            select: 'title location jobType status interviewRoundsCount interviewRoundTypes employerId',
+            options: { lean: false }
+          })
+          .populate('employerId', 'companyName brandName name')
+          .sort({ createdAt: -1 })
+          .lean();
 
     res.json({
       success: true,
-      applications: applications.map((application) => normalizeCandidateVisibleApplication(application))
+      applications: finalApplications.map((application) => normalizeCandidateVisibleApplication(application))
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -929,6 +951,19 @@ exports.getApplicationStatus = async (req, res) => {
 
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    // Safeguard: if session expired and DB still shows pending, force-update now
+    if (isNoShowCandidate(application)) {
+      await applyNoShowRejection(application._id);
+      // Re-fetch so the response reflects the updated DB state
+      const updated = await Application.findById(application._id)
+        .populate('jobId', 'title interviewRoundsCount interviewRoundTypes')
+        .populate('employerId', 'companyName brandName');
+      return res.json({
+        success: true,
+        application: normalizeCandidateVisibleApplication(updated)
+      });
     }
 
     res.json({
