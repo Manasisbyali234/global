@@ -3,6 +3,7 @@ const STATUS_KEY_ALIASES = new Map([
   ['available', 'pending'],
   ['completed', 'completed'],
   ['expired', 'expired'],
+  ['field', 'failed'],
   ['fail', 'failed'],
   ['failed', 'failed'],
   ['hired', 'hired'],
@@ -11,6 +12,8 @@ const STATUS_KEY_ALIASES = new Map([
   ['interview scheduled', 'interview_scheduled'],
   ['interviewed', 'interviewed'],
   ['no show', 'no_show'],
+  ['not eligibal for next round', 'not_advanced_to_next_round'],
+  ['not eligible for next round', 'not_advanced_to_next_round'],
   ['not advanced to next round', 'not_advanced_to_next_round'],
   ['not advanced to next stage', 'not_advanced_to_next_stage'],
   ['not required', 'pending'],
@@ -84,6 +87,9 @@ export const getStatusLabel = (value = 'pending') => {
   return STATUS_LABELS[statusKey] || statusKey.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
+const normalizeApplicationDisplayStatusKey = (statusKey = 'pending') =>
+  statusKey === 'under_review' ? 'pending' : statusKey;
+
 export const isRejectedStatusKey = (value = '') => {
   const statusKey = getCanonicalStatusKey(value, '');
   return [
@@ -108,13 +114,15 @@ export const isPositiveInterviewStatusKey = (value = '') => {
 };
 
 export const getApplicationStatusKey = (application = {}, fallback = 'pending') =>
-  getCanonicalStatusKey(
-    application?.applicationStatus ||
-      application?.applicationDisplayStatus ||
-      application?.displayStatus ||
-      application?.status ||
-      fallback,
-    fallback
+  normalizeApplicationDisplayStatusKey(
+    getCanonicalStatusKey(
+      application?.applicationStatus ||
+        application?.applicationDisplayStatus ||
+        application?.displayStatus ||
+        application?.status ||
+        fallback,
+      fallback
+    )
   );
 
 export const getInterviewCurrentStatusKey = (application = {}, fallback = 'pending') =>

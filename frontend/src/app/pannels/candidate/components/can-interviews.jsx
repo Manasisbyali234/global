@@ -3,7 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Row, Col } from "react-bootstrap";
 import { loadScript } from "../../../../globals/constants";
 import { api, BACKEND_URL } from "../../../../utils/api";
-import { getInterviewCurrentStatusKey, getStatusLabel } from "../../../../utils/statusDisplay";
+import {
+  getApplicationStatusKey,
+  getInterviewCurrentStatusKey,
+  getStatusLabel,
+  isRejectedStatusKey
+} from "../../../../utils/statusDisplay";
 import { canRoute, candidate } from "../../../../globals/route-names";
 import TermsModal from "../../../../components/TermsModal";
 import "../../../../emp-grid-optimizations.css";
@@ -35,6 +40,7 @@ const STATUS_BADGES = {
   interview_scheduled: { text: "Interview Scheduled", className: "bg-info bg-opacity-10 text-info border border-info" },
   interview_completed: { text: "Interview Completed", className: "bg-success bg-opacity-10 text-success border border-success" },
   completed: { text: "Completed", className: "bg-success bg-opacity-10 text-success border border-success" },
+  expired: { text: "Expired", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
   accepted: { text: "Offer Accepted", className: "bg-success bg-opacity-10 text-success border border-success" },
   hired: { text: "Hired", className: "bg-success bg-opacity-10 text-success border border-success" },
   selected: { text: "Selected", className: "bg-success bg-opacity-10 text-success border border-success" },
@@ -42,6 +48,8 @@ const STATUS_BADGES = {
   shortlisted_for_next_round: { text: "Shortlisted for next Round", className: "bg-info bg-opacity-10 text-info border border-info" },
   under_review: { text: "Under Review", className: "bg-warning bg-opacity-10 text-warning border border-warning" },
   pending_decision: { text: "Pending Decision", className: "bg-warning bg-opacity-10 text-warning border border-warning" },
+  not_advanced_to_next_round: { text: "Not Advanced to Next Round", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
+  not_advanced_to_next_stage: { text: "Not Advanced to Next Stage", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
   rejected: { text: "Rejected", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
   no_show: { text: "No Show", className: "bg-danger bg-opacity-10 text-danger border border-danger" },
   on_hold: { text: "On Hold", className: "bg-secondary bg-opacity-10 text-secondary border border-secondary" },
@@ -286,95 +294,26 @@ const getStatusBadge = (status) => {
   };
 };
 
-const normalizeStatusVal = (value) =>
-  String(value || "").trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
+const getInterviewCardStatus = (application = {}) => {
+  const applicationStatusKey = getApplicationStatusKey(application);
+  const interviewStatusKey = getInterviewCurrentStatusKey(application, applicationStatusKey);
+  const hasMeaningfulInterviewStatus = interviewStatusKey && interviewStatusKey !== "pending";
 
-const isRejectedStatus = (value) => {
-  const s = normalizeStatusVal(value);
-  return ["rejected", "not advanced to next stage", "not advanced to next round", "failed", "fail",
-    "no show", "no_show", "suspended", "session expired"].includes(s);
-};
-
-const isPositiveStatus = (value) => {
-  const s = normalizeStatusVal(value);
-  return ["shortlisted for next round", "shortlisted", "selected"].includes(s);
-};
-
-const isRejectedTrackedProcess = (process = {}) => isRejectedStatus(process?.status);
-
-const hasNoShowInRounds = (application = {}) => {
-  const processes = Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : [];
-  const stages = Array.isArray(application?.interviewProcess?.stages) ? application.interviewProcess.stages : [];
-  return [
-    ...processes.map((p) => p?.status),
-    ...stages.map((s) => s?.status)
-  ].some((s) => normalizeStatusVal(s) === "no show");
-};
-
-const wasAutoRejectedFromStageStatus = (application = {}) => {
-  if (normalizeStatusVal(application?.status) !== "rejected") return false;
-  const history = Array.isArray(application?.statusHistory) ? application.statusHistory : [];
-  for (let i = history.length - 1; i >= 0; i--) {
-    if (history[i]?.status) {
-      return normalizeStatusVal(history[i].status) === "rejected" &&
-        normalizeStatusVal(history[i].notes).includes("auto updated from interview stage status");
-    }
-  }
-  return false;
-};
-
-const getApplicationDisplayStatus = (application = {}) => {
-  const baseStatus = String(application?.status || "").trim().toLowerCase() || "pending";
-  if (["accepted", "hired"].includes(baseStatus)) return baseStatus;
-
-  const trackedProcesses = [
-    ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []),
-    ...(Array.isArray(application?.interviewProcess?.stages)
-      ? application.interviewProcess.stages.map((s) => ({ status: s?.status }))
-      : [])
-  ];
-  if (trackedProcesses.some(isRejectedTrackedProcess)) return "rejected";
-
-  const hasFailedRound = Array.isArray(application?.interviewRounds) &&
-    application.interviewRounds.some((r) => String(r?.status || "").toLowerCase() === "failed");
-  if (hasFailedRound) return "rejected";
-
-  const rejectedAssessmentStatuses = ["no_show", "no show", "suspended", "session_expired", "session expired"];
-  const failedStatuses = ["failed", "fail"];
-  const assessmentStatus = String(application?.assessmentStatus || "").toLowerCase();
-  const assessmentResult = String(application?.assessmentResult || "").toLowerCase();
-  const isExpiredPendingEval = assessmentStatus === "expired" && assessmentResult === "pending";
-  if (!isExpiredPendingEval && (
-    rejectedAssessmentStatuses.includes(assessmentStatus) ||
-    failedStatuses.includes(assessmentStatus) ||
-    failedStatuses.includes(assessmentResult)
-  )) {
-    return "rejected";
+  if (["accepted", "hired", "offer_sent"].includes(applicationStatusKey)) {
+    return applicationStatusKey;
   }
 
-  const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
-  const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
-    const s = String(attempt?.status || "").toLowerCase();
-    const r = String(attempt?.result || "").toLowerCase();
-    if (s === "expired" && r === "pending") return false;
-    return rejectedAssessmentStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
-  });
-  if (hasRejectedAttempt) return "rejected";
-
-  if (
-    baseStatus === "rejected" &&
-    wasAutoRejectedFromStageStatus(application) &&
-    trackedProcesses.length > 0 &&
-    !trackedProcesses.some(isRejectedTrackedProcess) &&
-    !rejectedAssessmentStatuses.includes(assessmentStatus) &&
-    !failedStatuses.includes(assessmentStatus) &&
-    !failedStatuses.includes(assessmentResult) &&
-    !hasRejectedAttempt
-  ) {
-    return "pending";
+  if (applicationStatusKey === "rejected") {
+    return hasMeaningfulInterviewStatus && isRejectedStatusKey(interviewStatusKey)
+      ? interviewStatusKey
+      : "rejected";
   }
 
-  return baseStatus;
+  if (hasMeaningfulInterviewStatus) {
+    return interviewStatusKey;
+  }
+
+  return applicationStatusKey;
 };
 
 const PAGE_SIZE = 12;
@@ -528,36 +467,7 @@ function CanInterviewsPage() {
         companyLogo: getCompanyLogo(application, employerLogos),
         location: highlightedRound?.details?.location || formatJobLocation(job?.location),
 
-        status: (() => {
-          const trackedProcesses = [
-            ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []),
-            ...(Array.isArray(application?.interviewProcess?.stages)
-              ? application.interviewProcess.stages.map((s) => ({ status: s?.status }))
-              : [])
-          ];
-          const hasRejectedTracked = trackedProcesses.some(isRejectedTrackedProcess);
-          if (hasNoShowInRounds(application) && (trackedProcesses.length === 0 || hasRejectedTracked)) {
-            return "rejected";
-          }
-          const assessmentStatus = String(application?.assessmentStatus || "").toLowerCase();
-          const noShowStatuses = ["no_show", "no show", "suspended", "session_expired", "session expired"];
-          const failedStatuses = ["failed", "fail"];
-          const assessmentResult = String(application?.assessmentResult || "").toLowerCase();
-          const isExpiredPendingEval = assessmentStatus === "expired" && assessmentResult === "pending";
-          if (!isExpiredPendingEval && (noShowStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentStatus) || failedStatuses.includes(assessmentResult))) {
-            return "rejected";
-          }
-          // Also check assessmentAttemptsByAssessmentId for no_show/failed
-          const attemptsByAssessmentId = application?.assessmentAttemptsByAssessmentId || {};
-          const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
-            const s = String(attempt?.status || "").toLowerCase();
-            const r = String(attempt?.result || "").toLowerCase();
-            if (s === "expired" && r === "pending") return false;
-            return noShowStatuses.includes(s) || failedStatuses.includes(s) || failedStatuses.includes(r);
-          });
-          if (hasRejectedAttempt) return "rejected";
-          return getApplicationDisplayStatus(application);
-        })()
+        status: getInterviewCardStatus(application)
 
       });
     });

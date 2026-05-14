@@ -413,6 +413,7 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
   }
 
   const baseStatus = getCanonicalStatusKey(application?.status || '', 'pending');
+  const fallbackBaseStatus = baseStatus === 'under_review' ? 'pending' : baseStatus;
   if (['accepted', 'hired', 'offer_sent'].includes(baseStatus)) {
     return baseStatus;
   }
@@ -470,7 +471,7 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     return 'shortlisted';
   }
 
-  return baseStatus;
+  return fallbackBaseStatus;
 };
 
 const getInterviewCurrentStatus = (application = {}, options = {}) => {

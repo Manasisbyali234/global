@@ -1654,7 +1654,7 @@ function CanStatusPage() {
 			const status = String(rawStatus || '').toLowerCase();
 			const labels = {
 				shortlisted_for_next_round: 'Shortlisted for next Round',
-				under_review: 'Under Review',
+				under_review: 'Pending',
 				on_hold: 'On Hold',
 				selected: 'Selected',
 				pending_decision: 'Pending Decision',
@@ -1674,7 +1674,7 @@ function CanStatusPage() {
 			const mappings = {
 				shortlisted: { text: 'Shortlisted', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				shortlisted_for_next_round: { text: 'Shortlisted for next Round', class: 'bg-info bg-opacity-10 text-info border border-info' },
-				under_review: { text: 'Under Review', class: 'bg-warning bg-opacity-10 text-warning border border-warning' },
+				under_review: { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary' },
 				pending_decision: { text: 'Pending Decision', class: 'bg-warning bg-opacity-10 text-warning border border-warning' },
 				interview_scheduled: { text: 'Interview Scheduled', class: 'bg-info bg-opacity-10 text-info border border-info' },
 				interview_completed: { text: 'Interview Completed', class: 'bg-success bg-opacity-10 text-success border border-success' },
@@ -1915,7 +1915,7 @@ function CanStatusPage() {
 		} else if (status === 'rejected') {
 			return { text: 'Rejected', class: 'bg-danger bg-opacity-10 text-danger border border-danger', feedback: '' };
 		} else if (status === 'pending') {
-			return { text: 'Under Review', class: 'bg-warning bg-opacity-10 text-warning border border-warning', feedback: '' };
+			return { text: 'Pending', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
 		}
 		
 		return { text: 'Submitted', class: 'bg-secondary bg-opacity-10 text-secondary border border-secondary', feedback: '' };
