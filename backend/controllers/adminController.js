@@ -1011,7 +1011,17 @@ exports.getJobApplicantsForOverview = async (req, res) => {
       return stageStatus || 'pending';
     };
 
-    const resolveStageAssessmentResult = (stage, appAssessmentStatus, appAssessmentResult, attempt, resolvedStatus) => {
+    const resolveStageAssessmentResult = (
+      stage,
+      appAssessmentStatus,
+      appAssessmentResult,
+      attempt,
+      resolvedStatus,
+      options = {}
+    ) => {
+      const {
+        allowApplicationFallback = true
+      } = options;
       // Check resolved status first (handles no_show set by employer manual tracking)
       const rs = String(resolvedStatus || '').toLowerCase();
       if (rs === 'no_show' || rs === 'no show') return 'No Show';
@@ -1028,16 +1038,18 @@ exports.getJobApplicantsForOverview = async (req, res) => {
         if (aStatus === 'completed') return 'Completed';
         if (aStatus === 'in_progress') return 'In Progress';
       }
-      // Then try application-level fields
-      const appStatus = String(appAssessmentStatus || '').toLowerCase();
-      const appResult = String(appAssessmentResult || '').toLowerCase();
-      if (appStatus === 'suspended') return 'Suspended';
-      if (appStatus === 'expired' && appResult === 'pending') return 'Completed';
-      if (['no_show', 'no show', 'session_expired', 'session expired', 'expired'].includes(appStatus)) return 'No Show';
-      if (appResult === 'pass' || appResult === 'passed') return 'Passed';
-      if (appResult === 'fail' || appResult === 'failed') return 'Failed';
-      if (appStatus === 'completed') return 'Completed';
-      if (appStatus === 'in_progress') return 'In Progress';
+      // Then try application-level fields only when there is a single assessment context.
+      if (allowApplicationFallback) {
+        const appStatus = String(appAssessmentStatus || '').toLowerCase();
+        const appResult = String(appAssessmentResult || '').toLowerCase();
+        if (appStatus === 'suspended') return 'Suspended';
+        if (appStatus === 'expired' && appResult === 'pending') return 'Completed';
+        if (['no_show', 'no show', 'session_expired', 'session expired', 'expired'].includes(appStatus)) return 'No Show';
+        if (appResult === 'pass' || appResult === 'passed') return 'Passed';
+        if (appResult === 'fail' || appResult === 'failed') return 'Failed';
+        if (appStatus === 'completed') return 'Completed';
+        if (appStatus === 'in_progress') return 'In Progress';
+      }
       // Finally try stage-level fields
       const stageStatus = String(stage?.status || '').toLowerCase();
       const stageResult = String(stage?.assessmentResult || '').toLowerCase();
@@ -1086,6 +1098,10 @@ exports.getJobApplicantsForOverview = async (req, res) => {
           assessmentStages.length <= 1 && knownAssessmentIds.length <= 1
             ? attemptsByAssessmentId[knownAssessmentIds[0]] || latestAttempt || null
             : null;
+        const allowApplicationAssessmentFallback =
+          assessmentStages.length <= 1 &&
+          orderedAssessmentRoundKeys.length <= 1 &&
+          knownAssessmentIds.length <= 1;
         let assessmentStageIndex = 0;
 
         return interviewProcess.stages.map((stage) => {
@@ -1118,7 +1134,14 @@ exports.getJobApplicantsForOverview = async (req, res) => {
             type: stage.stageType,
             status: resolvedStatus,
             assessmentResult: stage.stageType === 'assessment'
-              ? resolveStageAssessmentResult(stage, application.assessmentStatus, application.assessmentResult, matchedAttempt, resolvedStatus)
+              ? resolveStageAssessmentResult(
+                  stage,
+                  application.assessmentStatus,
+                  application.assessmentResult,
+                  matchedAttempt,
+                  resolvedStatus,
+                  { allowApplicationFallback: allowApplicationAssessmentFallback }
+                )
               : null,
             remark: resolveRemark({ id: String(stage._id), name: stage.stageName, type: stage.stageType }, application.processRemarks),
             scheduledDate: stage.scheduledDate || stage.fromDate || null,
@@ -1138,6 +1161,10 @@ exports.getJobApplicantsForOverview = async (req, res) => {
           assessmentProcesses.length <= 1 && knownAssessmentIds.length <= 1
             ? attemptsByAssessmentId[knownAssessmentIds[0]] || latestAttempt || null
             : null;
+        const allowApplicationAssessmentFallback =
+          assessmentProcesses.length <= 1 &&
+          orderedAssessmentRoundKeys.length <= 1 &&
+          knownAssessmentIds.length <= 1;
         let assessmentProcessIndex = 0;
 
         return application.interviewProcesses.map((process) => {
@@ -1176,7 +1203,14 @@ exports.getJobApplicantsForOverview = async (req, res) => {
             type: process.type,
             status: resolvedStatus,
             assessmentResult: process.type === 'assessment'
-              ? resolveStageAssessmentResult(null, application.assessmentStatus, application.assessmentResult, matchedAttempt, resolvedStatus)
+              ? resolveStageAssessmentResult(
+                  null,
+                  application.assessmentStatus,
+                  application.assessmentResult,
+                  matchedAttempt,
+                  resolvedStatus,
+                  { allowApplicationFallback: allowApplicationAssessmentFallback }
+                )
               : null,
             remark: resolveRemark(process, application.processRemarks),
             assessmentId: resolvedAssessmentId || process?.assessmentId || null,
@@ -1203,6 +1237,9 @@ exports.getJobApplicantsForOverview = async (req, res) => {
           orderedAssessmentRoundKeys.length <= 1 && knownAssessmentIds.length <= 1
             ? attemptsByAssessmentId[knownAssessmentIds[0]] || latestAttempt || null
             : null;
+        const allowApplicationAssessmentFallback =
+          orderedAssessmentRoundKeys.length <= 1 &&
+          knownAssessmentIds.length <= 1;
         let assessmentRoundIndex = 0;
         return job.interviewRoundOrder.map((roundKey) => {
           const roundType = job.interviewRoundTypes?.[roundKey] || roundKey;
@@ -1242,7 +1279,14 @@ exports.getJobApplicantsForOverview = async (req, res) => {
             type: roundType,
             status: resolvedStatus,
             assessmentResult: roundType === 'assessment'
-              ? resolveStageAssessmentResult(null, application.assessmentStatus, application.assessmentResult, matchedAttempt, resolvedStatus)
+              ? resolveStageAssessmentResult(
+                  null,
+                  application.assessmentStatus,
+                  application.assessmentResult,
+                  matchedAttempt,
+                  resolvedStatus,
+                  { allowApplicationFallback: allowApplicationAssessmentFallback }
+                )
               : null,
             remark,
             assessmentId: resolvedAssessmentId || null,
