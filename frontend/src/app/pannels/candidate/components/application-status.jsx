@@ -188,9 +188,9 @@ function CanStatusPage() {
 	};
 
 	const getApplicationDisplayStatus = (application = {}) => {
-<<<<<<< HEAD
+
 		return getApplicationStatusKey(application);
-=======
+
 		const baseStatus = String(application?.status || '').trim().toLowerCase() || 'pending';
 		if (['accepted', 'hired'].includes(baseStatus)) {
 			return baseStatus;
@@ -261,7 +261,7 @@ function CanStatusPage() {
 		}
 
 		return baseStatus;
->>>>>>> d7616c58b088c42246f03db3749e0a3d6c9bb5da
+
 	};
 
 	const formatStatusLabel = (status) => getStatusLabel(status);

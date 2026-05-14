@@ -527,9 +527,7 @@ function CanInterviewsPage() {
         companyName: getCompanyName(application),
         companyLogo: getCompanyLogo(application, employerLogos),
         location: highlightedRound?.details?.location || formatJobLocation(job?.location),
-<<<<<<< HEAD
-        status: getInterviewCurrentStatusKey(application)
-=======
+
         status: (() => {
           const trackedProcesses = [
             ...(Array.isArray(application?.interviewProcesses) ? application.interviewProcesses : []),
@@ -560,7 +558,7 @@ function CanInterviewsPage() {
           if (hasRejectedAttempt) return "rejected";
           return getApplicationDisplayStatus(application);
         })()
->>>>>>> d7616c58b088c42246f03db3749e0a3d6c9bb5da
+
       });
     });
     return cards;
