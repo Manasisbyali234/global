@@ -542,6 +542,8 @@ const getResolvedTrackedProcesses = (application = {}, options = {}) => {
 const getLatestMeaningfulTrackedStatus = (application = {}, options = {}) => {
   const trackedProcesses = getResolvedTrackedProcesses(application, options);
 
+  // Find the last round that has a meaningful (non-pending) status — this is the
+  // furthest-progressed round the candidate has reached.
   for (let index = trackedProcesses.length - 1; index >= 0; index -= 1) {
     const statusKey = getCanonicalStatusKey(trackedProcesses[index]?.status || '', '');
     if (statusKey && !PENDING_LIKE_INTERVIEW_STATUSES.has(normalizeApplicationStatusValue(statusKey))) {
@@ -549,6 +551,8 @@ const getLatestMeaningfulTrackedStatus = (application = {}, options = {}) => {
     }
   }
 
+  // If all rounds are pending-like but at least one round exists, return empty
+  // so the caller can fall back to the base application status.
   return '';
 };
 
@@ -624,6 +628,22 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
     !hasRejectedProcess
   ) {
     return application?.isSelectedForProcess ? 'shortlisted' : 'pending';
+  }
+
+  // For multiple interview rounds: derive overall status from the latest meaningful
+  // tracked process status so the application status stays in sync with round progress.
+  const latestTrackedStatus = getLatestMeaningfulTrackedStatus(application, options);
+  if (latestTrackedStatus) {
+    // Positive round statuses (shortlisted, selected, shortlisted_for_next_round) mean
+    // the candidate is progressing — surface as 'shortlisted' at the application level.
+    if (isPositiveInterviewProcessStatus(latestTrackedStatus)) {
+      return 'shortlisted';
+    }
+    // Any other meaningful status (scheduled, completed, in_progress, etc.) that is
+    // not a rejection should be reflected as the application status.
+    if (!PENDING_LIKE_INTERVIEW_STATUSES.has(normalizeApplicationStatusValue(latestTrackedStatus))) {
+      return latestTrackedStatus;
+    }
   }
 
   if (baseStatus === 'pending' && application?.isSelectedForProcess) {

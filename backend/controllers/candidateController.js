@@ -2028,8 +2028,7 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
         }
 
         const normalizedApplication = normalizeCandidateVisibleApplication(app);
-
-        return {
+        const enrichedApplication = {
           ...normalizedApplication,
           assessmentStatus: app.assessmentStatus || 'not_required',
           assessmentScore: app.assessmentScore || null,
@@ -2042,6 +2041,12 @@ exports.getCandidateApplicationsWithInterviews = async (req, res) => {
           interviewProcess: normalizedInterviewProcess,
           interviewRoundIds: interviewRoundIds
         };
+
+        return decorateCandidateApplicationStatusFields(enrichedApplication, {
+          assessmentAttempt,
+          assessmentAttemptsByAssessmentId,
+          interviewProcess: normalizedInterviewProcess
+        });
       })
     );
 
