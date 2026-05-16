@@ -283,10 +283,11 @@ const resolveAssessmentStageStatus = (attemptStatus, attemptResult) => {
   if (normalizedStatus === 'suspended') return 'suspended';
   if (normalizedStatus === 'in_progress') return 'in_progress';
   if (normalizedStatus === 'not_started') return 'pending';
-  // If manual evaluation is pending, treat as completed regardless of attempt status
-  if (normalizedResult === 'pending') return 'completed';
+  // Result takes priority over session expiry — a passing score on auto-submit is a pass
   if (normalizedResult === 'pass') return 'passed';
   if (normalizedResult === 'fail') return 'failed';
+  // If manual evaluation is pending, treat as completed regardless of attempt status
+  if (normalizedResult === 'pending') return 'completed';
   if (normalizedStatus === 'expired') return 'expired';
   return 'completed';
 };
@@ -364,10 +365,13 @@ const persistAssessmentOutcome = async ({ attempt, assessment }) => {
   });
 
   if (attempt.status === 'expired') {
-    await ensureApplicationRejectedFromAssessment(
-      attempt.applicationId,
-      AUTO_REJECT_ASSESSMENT_SESSION_EXPIRED_NOTE
-    );
+    // Only reject on expiry if the candidate actually failed; a passing score on auto-submit is NOT a rejection
+    if (evaluation.result === 'fail') {
+      await ensureApplicationRejectedFromAssessment(
+        attempt.applicationId,
+        AUTO_REJECT_ASSESSMENT_FAILED_NOTE
+      );
+    }
   } else if (attempt.status === 'suspended') {
     await ensureApplicationRejectedFromAssessment(
       attempt.applicationId,
@@ -599,20 +603,46 @@ const expireAttemptAndPersist = async (attempt, endedAt = new Date()) => {
   attempt.timeRemaining = 0;
   await attempt.save();
 
-  await Application.findByIdAndUpdate(attempt.applicationId, {
-    assessmentStatus: 'expired',
-    assessmentAttemptId: attempt._id
-  });
+  // Load the assessment to evaluate the score before deciding rejection
+  const assessment = await Assessment.findById(attempt.assessmentId).select('questions passingPercentage');
+  if (assessment) {
+    const evaluation = buildAttemptEvaluationSummary(assessment, attempt);
+    const stageStatus = evaluation.result === 'pass' ? 'passed' : 'expired';
 
-  await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
-    status: 'expired',
-    assessmentCompletedAt: attempt.endTime
-  });
+    await Application.findByIdAndUpdate(attempt.applicationId, {
+      assessmentStatus: 'expired',
+      assessmentScore: evaluation.score,
+      assessmentPercentage: evaluation.percentage,
+      assessmentResult: evaluation.result,
+      assessmentAttemptId: attempt._id
+    });
 
-  await ensureApplicationRejectedFromAssessment(
-    attempt.applicationId,
-    AUTO_REJECT_ASSESSMENT_SESSION_EXPIRED_NOTE
-  );
+    await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
+      status: stageStatus,
+      assessmentResult: evaluation.result,
+      assessmentScore: evaluation.score,
+      assessmentPercentage: evaluation.percentage,
+      assessmentCompletedAt: attempt.endTime
+    });
+
+    // Only reject if the candidate actually failed; passing score on auto-submit is NOT a rejection
+    if (evaluation.result === 'fail') {
+      await ensureApplicationRejectedFromAssessment(
+        attempt.applicationId,
+        AUTO_REJECT_ASSESSMENT_FAILED_NOTE
+      );
+    }
+  } else {
+    await Application.findByIdAndUpdate(attempt.applicationId, {
+      assessmentStatus: 'expired',
+      assessmentAttemptId: attempt._id
+    });
+
+    await updateInterviewProcessAssessmentStage(attempt.applicationId, attempt.assessmentId, {
+      status: 'expired',
+      assessmentCompletedAt: attempt.endTime
+    });
+  }
 };
 
 // Employer: Create Assessment

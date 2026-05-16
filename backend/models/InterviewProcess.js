@@ -173,8 +173,11 @@ InterviewProcessSchema.methods.updateProcessStatus = function() {
   const completedStages = this.stages.filter(stage => 
     stage.status === 'completed' || stage.status === 'passed'
   ).length;
+  // expired alone is NOT a failure — only treat as failed if the stage has no pass result
   const failedStages = this.stages.filter(stage =>
-    ['failed', 'expired', 'suspended'].includes(stage.status)
+    stage.status === 'failed' ||
+    stage.status === 'suspended' ||
+    (stage.status === 'expired' && stage.assessmentResult !== 'pass')
   ).length;
   
   this.totalStages = totalStages;

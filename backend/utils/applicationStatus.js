@@ -112,6 +112,7 @@ const resolveAssessmentAttemptStageStatus = (attempt = {}) => {
   if (normalizedStatus === 'suspended') return 'suspended';
   if (normalizedStatus === 'in progress') return 'in_progress';
   if (normalizedStatus === 'not started') return 'pending';
+  // Result takes priority over session expiry — a passing score on auto-submit is a pass
   if (normalizedResult === 'pass' || normalizedStatus === 'passed') return 'passed';
   if (normalizedResult === 'fail' || normalizedStatus === 'failed') return 'failed';
   if (normalizedStatus === 'expired') return 'expired';
@@ -397,14 +398,13 @@ const resolveAssessmentOutcomeStatus = (status = '', result = '', fallback = 'pe
 
   if (normalizedStatus === 'suspended') return 'suspended';
   if (normalizedStatus === 'in progress') return 'in_progress';
+  // Result takes priority over session expiry — a passing score on auto-submit is a pass
   if (normalizedResult === 'pass' || normalizedStatus === 'passed') return 'passed';
   if (normalizedResult === 'fail' || normalizedStatus === 'failed') return 'failed';
   if (normalizedStatus === 'completed') return 'completed';
-  if (normalizedStatus === 'expired') {
-    return normalizedResult === 'pending' ? 'completed' : 'no_show';
-  }
-  if (normalizedStatus === 'session expired') {
-    return normalizedResult === 'pending' ? 'completed' : 'no_show';
+  if (normalizedStatus === 'expired' || normalizedStatus === 'session expired') {
+    // Only treat as no_show when there is no evaluated result (candidate never submitted)
+    return normalizedResult === 'pending' || !normalizedResult ? 'no_show' : 'completed';
   }
   if (normalizedStatus === 'no show') return 'no_show';
   if (!normalizedStatus || ['available', 'not required', 'not started', 'pending', 'scheduled'].includes(normalizedStatus)) {
@@ -569,8 +569,10 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
   const assessmentResult = String(application?.assessmentResult || '').toLowerCase();
   const rejectedAssessmentStatuses = ['no_show', 'no show', 'suspended', 'session_expired', 'session expired'];
   const failedStatuses = ['failed', 'fail'];
+  // expired + pass result means auto-submitted with passing score — NOT a rejection
+  const isExpiredWithPass = assessmentStatus === 'expired' && assessmentResult === 'pass';
   const isExpiredPendingEvaluation = assessmentStatus === 'expired' && assessmentResult === 'pending';
-  if (!isExpiredPendingEvaluation && (
+  if (!isExpiredWithPass && !isExpiredPendingEvaluation && (
     rejectedAssessmentStatuses.includes(assessmentStatus) ||
     failedStatuses.includes(assessmentStatus) ||
     failedStatuses.includes(assessmentResult)
@@ -582,6 +584,8 @@ const getEffectiveApplicationDisplayStatus = (application = {}, options = {}) =>
   const hasRejectedAttempt = Object.values(attemptsByAssessmentId).some((attempt) => {
     const status = String(attempt?.status || '').toLowerCase();
     const result = String(attempt?.result || '').toLowerCase();
+    // expired + pass result means auto-submitted with passing score — NOT a rejection
+    if (status === 'expired' && result === 'pass') return false;
     if (status === 'expired' && result === 'pending') return false;
     return rejectedAssessmentStatuses.includes(status)
       || failedStatuses.includes(status)

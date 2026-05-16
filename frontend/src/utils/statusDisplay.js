@@ -93,7 +93,6 @@ const normalizeApplicationDisplayStatusKey = (statusKey = 'pending') =>
 export const isRejectedStatusKey = (value = '') => {
   const statusKey = getCanonicalStatusKey(value, '');
   return [
-    'expired',
     'failed',
     'no_show',
     'not_advanced_to_next_round',
