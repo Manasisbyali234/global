@@ -4,32 +4,68 @@ const { INDIA_TIME_ZONE } = require('./dateTime');
 
 const MAIL_GREETING_LINE = '<p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #333;">Greeting from Taleglobal</p>';
 
-const createTransport = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error('❌ EMAIL_USER or EMAIL_PASS not set in environment variables');
+const getMailFromAddress = () => {
+  const senderAddress = String(process.env.EMAIL_FROM || '').trim();
+  if (senderAddress) {
+    return senderAddress;
   }
 
-  // Use explicit host/port if available, otherwise fallback to service: 'gmail'
-  if (process.env.EMAIL_HOST && process.env.EMAIL_PORT) {
-    return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT),
-      secure: process.env.EMAIL_SECURE === 'true' || process.env.EMAIL_PORT === '465',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
+  const authUser = String(process.env.EMAIL_USER || '').trim();
+  return authUser.includes('@') ? authUser : '';
+};
+
+const getMailFromHeader = () => {
+  const senderAddress = getMailFromAddress();
+  if (!senderAddress) {
+    return String(process.env.EMAIL_USER || '').trim();
+  }
+
+  const senderName = String(process.env.EMAIL_FROM_NAME || 'TaleGlobal Team').trim() || 'TaleGlobal Team';
+  return `"${senderName}" <${senderAddress}>`;
+};
+
+const resolveMailFrom = (fromValue) => {
+  const trimmedFromValue = String(fromValue || '').trim();
+  const defaultFromHeader = getMailFromHeader();
+  const authUser = String(process.env.EMAIL_USER || '').trim().toLowerCase();
+
+  if (!trimmedFromValue) {
+    return defaultFromHeader;
+  }
+
+  if (authUser && !authUser.includes('@')) {
+    const normalizedFromValue = trimmedFromValue.toLowerCase();
+    const normalizedDefaultFrom = defaultFromHeader.toLowerCase();
+
+    if (
+      normalizedFromValue === authUser
+      || normalizedFromValue === normalizedDefaultFrom
+      || !trimmedFromValue.includes('@')
+    ) {
+      return defaultFromHeader;
+    }
+  }
+
+  return trimmedFromValue;
+};
+
+const createTransport = () => {
+  const emailHost = String(process.env.EMAIL_HOST || '').trim();
+  const emailPort = Number.parseInt(String(process.env.EMAIL_PORT || '587'), 10);
+  const emailUser = String(process.env.EMAIL_USER || '').trim();
+  const emailPass = process.env.EMAIL_PASS;
+
+  if (!emailHost || !emailUser || !emailPass) {
+    console.error('EMAIL_HOST, EMAIL_USER, or EMAIL_PASS not set in environment variables');
   }
 
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: emailHost,
+    port: Number.isNaN(emailPort) ? 587 : emailPort,
+    secure: process.env.EMAIL_SECURE === 'true' || String(emailPort) === '465',
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
+      user: emailUser,
+      pass: emailPass
     },
     tls: {
       rejectUnauthorized: false
@@ -57,6 +93,7 @@ const prependMailGreeting = (html = '') => {
 const sendMailWithGreeting = async (transporter, mailOptions = {}) => (
   transporter.sendMail({
     ...mailOptions,
+    from: resolveMailFrom(mailOptions.from),
     html: prependMailGreeting(mailOptions.html)
   })
 );
@@ -1398,6 +1435,9 @@ const sendPlacementRejectionEmail = async (email, officialEmail = null) => {
 };
 
 module.exports = { 
+  createTransport,
+  getMailFromAddress,
+  getMailFromHeader,
   sendWelcomeEmail, 
   sendResetEmail, 
   sendPasswordCreationEmail, 

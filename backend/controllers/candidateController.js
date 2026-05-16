@@ -8,7 +8,12 @@ const Message = require('../models/Message');
 const InterviewProcess = require('../models/InterviewProcess');
 const AssessmentAttempt = require('../models/AssessmentAttempt');
 const { createProfileCompletionNotification, createNotification } = require('./notificationController');
-const { sendWelcomeEmail, sendJobApplicationConfirmationEmail, sendMailWithGreeting } = require('../utils/emailService');
+const {
+  createTransport,
+  sendWelcomeEmail,
+  sendJobApplicationConfirmationEmail,
+  sendMailWithGreeting
+} = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { sendSMS } = require('../utils/smsProvider');
 const { buildUtcDateTimeFromIst } = require('../utils/dateTime');
@@ -1040,14 +1045,7 @@ exports.respondToInterviewInvite = async (req, res) => {
     
     // Send email notification to employer
     try {
-      const nodemailer = require('nodemailer');
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        }
-      });
+      const transporter = createTransport();
       
       const mailOptions = {
         from: process.env.EMAIL_USER,

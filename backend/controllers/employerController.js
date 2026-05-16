@@ -12,7 +12,7 @@ const Subscription = require('../models/Subscription');
 const Support = require('../models/Support');
 const mongoose = require('mongoose');
 const { createNotification } = require('./notificationController');
-const { sendWelcomeEmail, sendMailWithGreeting } = require('../utils/emailService');
+const { createTransport, sendWelcomeEmail, sendMailWithGreeting } = require('../utils/emailService');
 const { checkEmailExists } = require('../utils/authUtils');
 const { cacheInvalidation } = require('../utils/cacheInvalidation');
 const { sendSMS } = require('../utils/smsProvider');
@@ -2797,12 +2797,7 @@ exports.updateApplicationStatus = async (req, res) => {
           console.log('Candidate email:', application.candidateId.email);
           console.log('Job title:', jobTitle);
           try {
-            const nodemailer = require('nodemailer');
-            const transporter = nodemailer.createTransport({
-              service: 'gmail',
-              auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-              tls: { rejectUnauthorized: false }
-            });
+            const transporter = createTransport();
             const emailResult = await sendMailWithGreeting(transporter, {
               from: process.env.EMAIL_USER,
               to: application.candidateId.email,
@@ -2833,12 +2828,7 @@ exports.updateApplicationStatus = async (req, res) => {
 
         if (status === 'offer_sent' && application.candidateId?.email) {
           try {
-            const nodemailer = require('nodemailer');
-            const transporter = nodemailer.createTransport({
-              service: 'gmail',
-              auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-              tls: { rejectUnauthorized: false }
-            });
+            const transporter = createTransport();
 
             const safeCandidateName = escapeHtml(candidateName);
             const safeJobTitle = escapeHtml(jobTitle);
@@ -3841,17 +3831,7 @@ exports.sendInterviewInvite = async (req, res) => {
     }
     
     // Send email using nodemailer
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
+    const transporter = createTransport();
     
     const mailOptions = {
       from: `"TaleGlobal Team" <${process.env.EMAIL_USER}>`,
@@ -3924,14 +3904,7 @@ exports.confirmInterview = async (req, res) => {
     }
     
     // Send confirmation email
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
+    const transporter = createTransport();
     
     const formattedDate = formatDate(confirmedDate);
     
